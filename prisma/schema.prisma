@@ -14,13 +14,51 @@ datasource db {
     url      = env("DATABASE_URL")
 }
 
+model Asset {
+    id           Int            @id @default(autoincrement())
+    code         String
+    issuer       String
+    subscription Subscription[]
+}
+
+model Subscription {
+    id        Int     @id @default(autoincrement())
+    creatorId String
+    creator   Creator @relation(fields: [creatorId], references: [id])
+    assetId   Int
+    asset     Asset   @relation(fields: [assetId], references: [id], onDelete: NoAction)
+}
+
+model Creator {
+    id            String         @id
+    joinedAt      DateTime       @default(now())
+    user          User           @relation(fields: [id], references: [id], onDelete: Cascade)
+    posts         Post[]
+    subscriptions Subscription[]
+}
+
+enum MediaType {
+    MUSIC
+    VIDEO
+    IMAGE
+}
+
+model Media {
+    id   Int       @id @default(autoincrement())
+    type MediaType
+
+    url         String
+    description String?
+    createdAt   DateTime @default(now())
+}
+
 model Post {
     id        Int      @id @default(autoincrement())
     name      String
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 
-    createdBy   User   @relation(fields: [createdById], references: [id])
+    createdBy   Creator @relation(fields: [createdById], references: [id])
     createdById String
 
     @@index([name])
@@ -61,7 +99,7 @@ model User {
     image         String?
     accounts      Account[]
     sessions      Session[]
-    posts         Post[]
+    creator       Creator?
 }
 
 model VerificationToken {
