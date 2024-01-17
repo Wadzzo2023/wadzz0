@@ -17,6 +17,7 @@ export default function Home() {
       </Head>
       <main className="">
         <ConnectWalletButton />
+        <AuthShowcase />
       </main>
     </>
   );
@@ -42,6 +43,7 @@ function AuthShowcase() {
       >
         {sessionData ? "Sign out" : "Sign in"}
       </button>
+      <pre>{JSON.stringify(sessionData, null, 2)}</pre>
     </div>
   );
 }

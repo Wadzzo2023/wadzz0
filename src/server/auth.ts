@@ -1,14 +1,16 @@
-import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { type GetServerSidePropsContext } from "next";
 import {
   getServerSession,
   type DefaultSession,
   type NextAuthOptions,
 } from "next-auth";
-import DiscordProvider from "next-auth/providers/discord";
+
+import CredentialsProvider from "next-auth/providers/credentials";
 
 import { env } from "~/env";
 import { db } from "~/server/db";
+import { comparePassword } from "~/utils/hash";
+import GitHubProvider from "next-auth/providers/github";
 
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
@@ -38,29 +40,68 @@ declare module "next-auth" {
  */
 export const authOptions: NextAuthOptions = {
   callbacks: {
-    session: ({ session, user }) => ({
+    session: ({ session, token }) => ({
       ...session,
       user: {
         ...session.user,
-        id: user.id,
+        id: token.sub,
       },
     }),
   },
-  adapter: PrismaAdapter(db),
+  // adapter: PrismaAdapter(db),
+  session: {
+    strategy: "jwt",
+  },
+
   providers: [
-    DiscordProvider({
+    GitHubProvider({
       clientId: env.DISCORD_CLIENT_ID,
       clientSecret: env.DISCORD_CLIENT_SECRET,
     }),
-    /**
-     * ...add more providers here.
-     *
-     * Most other providers require a bit more work than the Discord provider. For example, the
-     * GitHub provider requires you to add the `refresh_token_expires_in` field to the Account
-     * model. Refer to the NextAuth.js docs for the provider you want to use. Example:
-     *
-     * @see https://next-auth.js.org/providers/github
-     */
+
+    CredentialsProvider({
+      type: "credentials",
+      credentials: {},
+      async authorize(credentials) {
+        const { pubkey, password } = credentials as {
+          pubkey: string;
+          password: string;
+        };
+
+        const passwordCorrect = await comparePassword("test", password);
+
+        if (passwordCorrect) {
+          console.log("password correct");
+          const user = await db.user.findFirst({ where: { id: pubkey } });
+
+          // if user is not created create user.
+          if (user) {
+            return user;
+          } else {
+            const data = await db.user.create({
+              data: { id: pubkey, name: "Unknown" },
+            });
+            // const account = await db.account.create({
+            //   data: {
+            //     userId: data.id,
+            //     type: "credentials",
+            //     provider: "credentials",
+            //     providerAccountId: data.id,
+            //   },
+            // });
+
+            return data;
+          }
+        }
+
+        // const user = { id: "1", name: "J Smith", email: "jsmith@example.com" };
+        // if (user) {
+        //   return user;
+        // }
+
+        return null;
+      },
+    }),
   ],
 };
 
