@@ -1,0 +1,3 @@
+[submodule "package/connect_wallet"]
+	path = package/connect_wallet
+	url = https://github.com/Wadzzo2023/connect_wallet.git
