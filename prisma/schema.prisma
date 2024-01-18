@@ -27,6 +27,7 @@ model Subscription {
     creator   Creator @relation(fields: [creatorId], references: [id])
     assetId   Int
     asset     Asset   @relation(fields: [assetId], references: [id], onDelete: NoAction)
+    Post      Post[]
 }
 
 model Creator {
@@ -44,24 +45,29 @@ enum MediaType {
 }
 
 model Media {
-    id   Int       @id @default(autoincrement())
-    type MediaType
-
+    id          Int       @id @default(autoincrement())
+    type        MediaType
+    postId      Int
+    post        Post      @relation(fields: [postId], references: [id], onDelete: Cascade)
     url         String
     description String?
-    createdAt   DateTime @default(now())
+    createdAt   DateTime  @default(now())
 }
 
 model Post {
-    id        Int      @id @default(autoincrement())
-    name      String
+    id      Int    @id @default(autoincrement())
+    content String
+
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 
-    createdBy   Creator @relation(fields: [createdById], references: [id])
-    createdById String
+    creator        Creator      @relation(fields: [creatorId], references: [id])
+    creatorId      String
+    Media          Media[]
+    subscriptionId Int
+    subscription   Subscription @relation(fields: [subscriptionId], references: [id], onDelete: NoAction)
 
-    @@index([name])
+    @@index([content])
 }
 
 // Necessary for Next auth

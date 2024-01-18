@@ -2,6 +2,7 @@ import { signIn, signOut, useSession } from "next-auth/react";
 import Head from "next/head";
 import Link from "next/link";
 import { ConnectWalletButton } from "package/connect_wallet";
+import LeftBar from "~/components/left-sidebar";
 
 import { api } from "~/utils/api";
 
@@ -16,7 +17,6 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className="">
-        <ConnectWalletButton />
         <AuthShowcase />
       </main>
     </>

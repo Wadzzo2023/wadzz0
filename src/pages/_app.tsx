@@ -8,6 +8,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import dynamic from "next/dynamic";
 import { Titillium_Web } from "next/font/google";
 import "~/styles/globals.css";
+import Layout from "~/components/layout";
 
 const queryClient = new QueryClient();
 
@@ -24,8 +25,10 @@ const MyApp: AppType<{ session: Session | null }> = ({
   return (
     <SessionProvider session={session}>
       <QueryClientProvider client={queryClient}>
-        <Component {...pageProps} />
-        <PopupImports className={inner.className} />
+        <Layout>
+          <Component {...pageProps} />
+          <PopupImports className={inner.className} />
+        </Layout>
       </QueryClientProvider>
     </SessionProvider>
   );
