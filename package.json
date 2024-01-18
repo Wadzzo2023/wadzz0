@@ -92,6 +92,6 @@
   },
   "packageManager": "pnpm@8.10.0",
   "prisma": {
-    "seed": "ts-node prisma/seed.ts"
+    "seed": "npx tsx prisma/seed.ts"
   }
 }
