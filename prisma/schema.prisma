@@ -61,11 +61,12 @@ model Post {
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 
-    creator        Creator      @relation(fields: [creatorId], references: [id])
-    creatorId      String
-    Media          Media[]
+    creator   Creator @relation(fields: [creatorId], references: [id])
+    creatorId String
+    Media     Media[]
+
+    subscription   Subscription @relation(fields: [subscriptionId], references: [id])
     subscriptionId Int
-    subscription   Subscription @relation(fields: [subscriptionId], references: [id], onDelete: NoAction)
 
     @@index([content])
 }

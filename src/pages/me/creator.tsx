@@ -4,12 +4,21 @@ import { useForm, SubmitHandler, FieldValues } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { api } from "~/utils/api";
+import { useSession } from "next-auth/react";
 
 export const schema = z.object({
   content: z.string().min(1, { message: "Required" }),
 });
 
 export default function CreatorProfile() {
+  const { data: session } = useSession();
+
+  if (!session) return <div>LogIn First</div>;
+
+  return <CreatorExist id={session.user.id} />;
+}
+
+function CreatPost(props: { id: string }) {
   const createPostMutation = api.post.create.useMutation();
 
   const {
@@ -22,7 +31,7 @@ export default function CreatorProfile() {
   });
 
   const onSubmit: SubmitHandler<z.infer<typeof schema>> = (data) =>
-    createPostMutation.mutate(data);
+    createPostMutation.mutate({ ...data, pubkey: props.id });
 
   return (
     <div>
@@ -36,6 +45,32 @@ export default function CreatorProfile() {
           Create Post{" "}
         </button>
       </form>
+    </div>
+  );
+}
+
+function CreatorExist(props: { id: string }) {
+  const { data, isLoading } = api.creator.getCreator.useQuery({
+    id: props.id,
+  });
+
+  if (isLoading) return <div>Checking..</div>;
+  if (data) {
+    return <CreatPost id={props.id} />;
+  } else {
+    return <CreateCreator id={props.id} />;
+  }
+}
+
+function CreateCreator(props: { id: string }) {
+  const makeCreatorMutation = api.creator.makeMeCreator.useMutation();
+
+  return (
+    <div>
+      <p>You are not a creator</p>
+      <button onClick={() => makeCreatorMutation.mutate({ id: props.id })}>
+        Be a creator
+      </button>
     </div>
   );
 }
