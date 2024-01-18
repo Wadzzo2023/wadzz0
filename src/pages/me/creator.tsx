@@ -49,6 +49,25 @@ function CreatPost(props: { id: string }) {
   );
 }
 
+function PostList(props: { id: string }) {
+  const { data, isLoading } = api.post.getPosts.useQuery({
+    pubkey: props.id,
+  });
+
+  if (isLoading) return <div>Loading...</div>;
+  if (data) {
+    return (
+      <div>
+        {data.map((post) => (
+          <div key={post.id}>
+            <p>{post.content}</p>
+          </div>
+        ))}
+      </div>
+    );
+  }
+}
+
 function CreatorExist(props: { id: string }) {
   const { data, isLoading } = api.creator.getCreator.useQuery({
     id: props.id,
@@ -56,7 +75,12 @@ function CreatorExist(props: { id: string }) {
 
   if (isLoading) return <div>Checking..</div>;
   if (data) {
-    return <CreatPost id={props.id} />;
+    return (
+      <div>
+        <CreatPost id={props.id} />;
+        <PostList id={props.id} />
+      </div>
+    );
   } else {
     return <CreateCreator id={props.id} />;
   }

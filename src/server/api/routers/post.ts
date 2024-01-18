@@ -22,4 +22,14 @@ export const postRouter = createTRPCRouter({
         },
       });
     }),
+
+  getPosts: protectedProcedure
+    .input(z.object({ pubkey: z.string() }))
+    .query(async ({ input, ctx }) => {
+      return await ctx.db.post.findMany({
+        where: {
+          creatorId: input.pubkey,
+        },
+      });
+    }),
 });
