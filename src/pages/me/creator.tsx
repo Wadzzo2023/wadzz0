@@ -1,10 +1,13 @@
 import React from "react";
-import Avater from "~/components/ui/avater";
-import { useForm, SubmitHandler, FieldValues } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+
 import * as z from "zod";
 import { api } from "~/utils/api";
 import { useSession } from "next-auth/react";
+import Tabs from "~/components/creator/tabs";
+import { CreatorMenu, useCreator } from "~/lib/state/creator-menu";
+import { PostMenu } from "~/components/creator/CreatPost";
+import MemberShip from "~/components/creator/membership";
+import About from "~/components/creator/about";
 
 export const schema = z.object({
   content: z.string().min(1, { message: "Required" }),
@@ -18,56 +21,6 @@ export default function CreatorProfile() {
   return <CreatorExist id={session.user.id} />;
 }
 
-function CreatPost(props: { id: string }) {
-  const createPostMutation = api.post.create.useMutation();
-
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<z.infer<typeof schema>>({
-    resolver: zodResolver(schema),
-    defaultValues: { content: "" },
-  });
-
-  const onSubmit: SubmitHandler<z.infer<typeof schema>> = (data) =>
-    createPostMutation.mutate({ ...data, pubkey: props.id });
-
-  return (
-    <div>
-      <p>CreatorProfile</p>
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <input type="text" {...register("content")} />
-        <button type="submit">
-          {createPostMutation.isLoading && (
-            <span className="loading loading-spinner"></span>
-          )}
-          Create Post{" "}
-        </button>
-      </form>
-    </div>
-  );
-}
-
-function PostList(props: { id: string }) {
-  const { data, isLoading } = api.post.getPosts.useQuery({
-    pubkey: props.id,
-  });
-
-  if (isLoading) return <div>Loading...</div>;
-  if (data) {
-    return (
-      <div>
-        {data.map((post) => (
-          <div key={post.id}>
-            <p>{post.content}</p>
-          </div>
-        ))}
-      </div>
-    );
-  }
-}
-
 function CreatorExist(props: { id: string }) {
   const { data, isLoading } = api.creator.getCreator.useQuery({
     id: props.id,
@@ -75,14 +28,30 @@ function CreatorExist(props: { id: string }) {
 
   if (isLoading) return <div>Checking..</div>;
   if (data) {
-    return (
-      <div>
-        <CreatPost id={props.id} />;
-        <PostList id={props.id} />
-      </div>
-    );
+    return <CreatorPageTemplate id={props.id} />;
   } else {
     return <CreateCreator id={props.id} />;
+  }
+}
+
+function CreatorPageTemplate(props: { id: string }) {
+  return (
+    <div>
+      <Tabs />
+      <ConditionallyRenderMenuPage id={props.id} />
+    </div>
+  );
+}
+
+function ConditionallyRenderMenuPage(props: { id: string }) {
+  const { selectedMenu } = useCreator();
+  switch (selectedMenu) {
+    case CreatorMenu.Posts:
+      return <PostMenu id={props.id} />;
+    case CreatorMenu.Membership:
+      return <MemberShip />;
+    case CreatorMenu.About:
+      return <About />;
   }
 }
 
