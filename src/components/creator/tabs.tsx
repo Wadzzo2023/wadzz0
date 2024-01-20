@@ -6,10 +6,11 @@ export default function Tabs() {
   const { selectedMenu, setSelectedMenu } = useCreator();
   return (
     <div role="tablist" className="tabs tabs-bordered">
-      {Object.keys(CreatorMenu).map((key) => {
+      {Object.values(CreatorMenu).map((key) => {
         return (
           <a
-            onClick={() => setSelectedMenu(key as CreatorMenu)}
+            key={key}
+            onClick={() => setSelectedMenu(key)}
             role="tab"
             className={clsx("tab", selectedMenu == key && "tab-active")}
           >

@@ -74,6 +74,9 @@ dependencies:
   '@walletconnect/sign-client':
     specifier: ^2.4.6
     version: 2.11.0
+  '@walletconnect/utils':
+    specifier: ^2.11.0
+    version: 2.11.0
   '@web3modal/core':
     specifier: 2.0.0-beta.7
     version: 2.0.0-beta.7(react@18.2.0)

@@ -4,7 +4,7 @@ import { hashPassword } from "~/utils/hash";
 
 export default function TestPage() {
   function handleClick(): void {
-    NextLogin("test3", "test");
+    NextLogin("test3", "test").catch(() => console.log("err"));
   }
 
   return (
