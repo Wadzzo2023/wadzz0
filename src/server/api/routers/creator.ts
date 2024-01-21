@@ -35,7 +35,7 @@ export const creatorRouter = createTRPCRouter({
     .input(CreatorAboutShema)
     .mutation(async ({ ctx, input }) => {
       const { name, description, id } = input;
-      ctx.db.creator.update({
+      await ctx.db.creator.update({
         data: { name, bio: description },
         where: { id },
       });

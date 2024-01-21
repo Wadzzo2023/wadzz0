@@ -68,7 +68,7 @@ export const authOptions: NextAuthOptions = {
           password: string;
         };
 
-        const passwordCorrect = await comparePassword("test", password);
+        const passwordCorrect = await comparePassword(pubkey, password);
 
         if (passwordCorrect) {
           console.log("password correct");
@@ -81,23 +81,9 @@ export const authOptions: NextAuthOptions = {
             const data = await db.user.create({
               data: { id: pubkey, name: "Unknown" },
             });
-            // const account = await db.account.create({
-            //   data: {
-            //     userId: data.id,
-            //     type: "credentials",
-            //     provider: "credentials",
-            //     providerAccountId: data.id,
-            //   },
-            // });
-
             return data;
           }
         }
-
-        // const user = { id: "1", name: "J Smith", email: "jsmith@example.com" };
-        // if (user) {
-        //   return user;
-        // }
 
         return null;
       },
