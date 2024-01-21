@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { CreatorAboutShema } from "~/components/creator/about";
 
 import {
   createTRPCRouter,
@@ -14,17 +15,29 @@ export const creatorRouter = createTRPCRouter({
         where: { id: input.id },
       });
       if (creator) {
-        return true;
+        return creator;
       }
-
-      return false;
     }),
 
   makeMeCreator: protectedProcedure
     .input(z.object({ id: z.string() }))
     .mutation(async ({ ctx, input }) => {
       const data = await ctx.db.creator.create({
-        data: { user: { connect: { id: input.id } } },
+        data: {
+          name: "test user",
+          bio: "test",
+          user: { connect: { id: input.id } },
+        },
+      });
+    }),
+
+  updateCreatorProfile: protectedProcedure
+    .input(CreatorAboutShema)
+    .mutation(async ({ ctx, input }) => {
+      const { name, description, id } = input;
+      ctx.db.creator.update({
+        data: { name, bio: description },
+        where: { id },
       });
     }),
 

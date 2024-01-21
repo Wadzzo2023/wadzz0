@@ -5,7 +5,7 @@ async function main() {
     data: { code: "BTC", issuer: "Bitcoin" },
   });
   const creator = await prisma.creator.create({
-    data: { user: { create: { id: "user1" } } },
+    data: { user: { create: { id: "user1" } }, name: "test user", bio: "test" },
   });
   const subscription = await prisma.subscription.create({
     data: { assetId: asset.id, creatorId: creator.id },

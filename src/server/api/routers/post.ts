@@ -9,7 +9,7 @@ import {
 
 export const postRouter = createTRPCRouter({
   create: protectedProcedure
-    .input(PostSchema.merge(z.object({ pubkey: z.string() })))
+    .input(PostSchema)
     .mutation(async ({ ctx, input }) => {
       // simulate a slow db call
       await new Promise((resolve) => setTimeout(resolve, 1000));
@@ -17,7 +17,7 @@ export const postRouter = createTRPCRouter({
       return ctx.db.post.create({
         data: {
           content: input.content,
-          creatorId: input.pubkey,
+          creatorId: input.id,
           subscriptionId: 1,
         },
       });

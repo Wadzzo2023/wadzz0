@@ -34,6 +34,8 @@ model Subscription {
 model Creator {
     id            String         @id
     joinedAt      DateTime       @default(now())
+    bio           String?
+    name          String
     user          User           @relation(fields: [id], references: [id], onDelete: Cascade)
     posts         Post[]
     subscriptions Subscription[]

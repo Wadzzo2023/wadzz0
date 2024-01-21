@@ -3,30 +3,32 @@ import React from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { z } from "zod";
 import Avater from "../ui/avater";
-export default function About() {
+import { error } from "console";
+export default function About({ id }: { id: string }) {
   return (
     <div className="">
       <h2 className="text-2xl font-bold">About</h2>
       <div className="my-5 bg-base-200">
-        <AboutForm />
+        <AboutForm id={id} />
       </div>
     </div>
   );
 }
 
 export const CreatorAboutShema = z.object({
+  id: z.string(),
   description: z.string().optional(),
   name: z.string().min(3, { message: "Required" }),
 });
 
-function AboutForm() {
+function AboutForm({ id }: { id: string }) {
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm<z.infer<typeof CreatorAboutShema>>({
     resolver: zodResolver(CreatorAboutShema),
-    defaultValues: {},
+    defaultValues: { id: id },
   });
 
   const onSubmit: SubmitHandler<z.infer<typeof CreatorAboutShema>> = (data) =>
@@ -59,6 +61,13 @@ function AboutForm() {
           {...register("name")}
           className="input input-bordered w-full max-w-xs"
         />
+        {errors.name && (
+          <div className="label">
+            <span className="label-text-alt text-warning">
+              {errors.name.message}
+            </span>
+          </div>
+        )}
       </label>
       <label className="form-control">
         <div className="label">
@@ -69,6 +78,13 @@ function AboutForm() {
           className="textarea textarea-bordered h-24"
           placeholder="Description ..."
         ></textarea>
+        {errors.description && (
+          <div className="label">
+            <span className="label-text-alt text-warning">
+              {errors.description.message}
+            </span>
+          </div>
+        )}
       </label>
       <button className="btn btn-primary" type="submit">
         {/* {createPostMutation.isLoading && ( */}

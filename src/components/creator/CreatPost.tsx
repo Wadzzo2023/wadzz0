@@ -3,28 +3,38 @@ import { useForm, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { api } from "~/utils/api";
+import toast from "react-hot-toast";
 
 export const PostSchema = z.object({
-  heading: z.string(),
+  id: z.string(),
+  heading: z.string().min(1, { message: "Required" }),
   content: z.string().min(20, { message: "Minimum 20 is reguired" }),
 });
 
 export function CreatPost(props: { id: string }) {
   const utils = api.useUtils();
 
-  const createPostMutation = api.post.create.useMutation();
+  const createPostMutation = api.post.create.useMutation({
+    onSuccess: () => {
+      reset();
+      toast.success("Post Created");
+    },
+  });
 
   const {
     register,
     handleSubmit,
+    reset,
+
     formState: { errors },
   } = useForm<z.infer<typeof PostSchema>>({
     resolver: zodResolver(PostSchema),
-    defaultValues: { content: "" },
+    defaultValues: { content: "", id: props.id },
   });
 
-  const onSubmit: SubmitHandler<z.infer<typeof PostSchema>> = (data) =>
-    createPostMutation.mutate({ ...data, pubkey: props.id });
+  const onSubmit: SubmitHandler<z.infer<typeof PostSchema>> = (data) => {
+    createPostMutation.mutate(data);
+  };
 
   return (
     <div>
@@ -33,6 +43,25 @@ export function CreatPost(props: { id: string }) {
         onSubmit={handleSubmit(onSubmit)}
         className="my-10 flex flex-col gap-2"
       >
+        <label className="form-control w-full max-w-xs">
+          <div className="label">
+            <span className="label-text">Heading</span>
+          </div>
+          <input
+            type="text"
+            placeholder="Heading of the post"
+            {...register("heading")}
+            className="input input-bordered w-full max-w-xs"
+          />
+          {errors.heading && (
+            <div className="label">
+              <span className="label-text-alt text-warning">
+                {errors.heading.message}
+              </span>
+            </div>
+          )}
+        </label>
+
         <label className="form-control">
           <div className="label">
             <span className="label-text">Write Details</span>
@@ -42,8 +71,20 @@ export function CreatPost(props: { id: string }) {
             className="textarea textarea-bordered h-24"
             placeholder="Description ..."
           ></textarea>
+          {errors.content && (
+            <div className="label">
+              <span className="label-text-alt text-warning">
+                {errors.content.message}
+              </span>
+            </div>
+          )}
         </label>
-        <button className="btn btn-primary" type="submit">
+
+        <button
+          className="btn btn-primary"
+          type="submit"
+          disabled={createPostMutation.isLoading}
+        >
           {createPostMutation.isLoading && (
             <span className="loading loading-spinner"></span>
           )}
