@@ -27,8 +27,8 @@ const MyApp: AppType<{ session: Session | null }> = ({
       <QueryClientProvider client={queryClient}>
         <Layout>
           <Component {...pageProps} />
-          <PopupImports className={inner.className} />
         </Layout>
+        <PopupImports className={inner.className} />
       </QueryClientProvider>
     </SessionProvider>
   );

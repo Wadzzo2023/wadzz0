@@ -1,5 +1,4 @@
 import { z } from "zod";
-import { schema } from "~/pages/me/creator";
 
 import {
   createTRPCRouter,
@@ -28,20 +27,6 @@ export const creatorRouter = createTRPCRouter({
         data: { user: { connect: { id: input.id } } },
       });
     }),
-
-  create: protectedProcedure.input(schema).mutation(async ({ ctx, input }) => {
-    // simulate a slow db call
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-
-    return ctx.db.post.create({
-      data: {
-        content: input.content,
-        creatorId: ctx.session.user.id,
-        subscriptionId: 1,
-        // creator: { connect: { id: ctx.session.user.id } },
-      },
-    });
-  }),
 
   // getLatest: protectedProcedure.query(({ ctx }) => {
   //   return ctx.db.post.findFirst({

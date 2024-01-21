@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { schema } from "~/pages/me/creator";
+import { PostSchema } from "~/components/creator/CreatPost";
 
 import {
   createTRPCRouter,
@@ -9,7 +9,7 @@ import {
 
 export const postRouter = createTRPCRouter({
   create: protectedProcedure
-    .input(schema.merge(z.object({ pubkey: z.string() })))
+    .input(PostSchema.merge(z.object({ pubkey: z.string() })))
     .mutation(async ({ ctx, input }) => {
       // simulate a slow db call
       await new Promise((resolve) => setTimeout(resolve, 1000));

@@ -9,10 +9,6 @@ import { PostMenu } from "~/components/creator/CreatPost";
 import MemberShip from "~/components/creator/membership";
 import About from "~/components/creator/about";
 
-export const schema = z.object({
-  content: z.string().min(1, { message: "Required" }),
-});
-
 export default function CreatorProfile() {
   const { data: session } = useSession();
 
@@ -36,8 +32,20 @@ function CreatorExist(props: { id: string }) {
 
 function CreatorPageTemplate(props: { id: string }) {
   return (
-    <div>
-      <Tabs />
+    <div className="flex flex-1 flex-col items-center">
+      <div className="h-40 w-full bg-base-300"></div>
+      <div className="mb-10 flex flex-col items-center justify-center gap-4">
+        <div className="-mt-16 flex h-36 w-36 items-center justify-center rounded-full bg-white">
+          <div className="h-28 w-28 rounded-full bg-red-400"></div>
+        </div>
+        <div className="flex flex-col items-center">
+          <h1 className="text-2xl font-bold">Creator Name</h1>
+          <p>Creator Description</p>
+        </div>
+      </div>
+      <div className=" mb-6 w-3/4 bg-base-300">
+        <Tabs />
+      </div>
       <ConditionallyRenderMenuPage id={props.id} />
     </div>
   );

@@ -3,7 +3,10 @@ import { useForm, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { api } from "~/utils/api";
-import { schema } from "../../pages/me/creator";
+
+export const PostSchema = z.object({
+  content: z.string().min(1, { message: "Required" }),
+});
 
 export function CreatPost(props: { id: string }) {
   const utils = api.useUtils();
@@ -14,12 +17,12 @@ export function CreatPost(props: { id: string }) {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<z.infer<typeof schema>>({
-    resolver: zodResolver(schema),
+  } = useForm<z.infer<typeof PostSchema>>({
+    resolver: zodResolver(PostSchema),
     defaultValues: { content: "" },
   });
 
-  const onSubmit: SubmitHandler<z.infer<typeof schema>> = (data) =>
+  const onSubmit: SubmitHandler<z.infer<typeof PostSchema>> = (data) =>
     createPostMutation.mutate({ ...data, pubkey: props.id });
 
   return (
