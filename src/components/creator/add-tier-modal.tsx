@@ -19,7 +19,8 @@ export default function AddTierModal() {
     defaultValues: { content: "" },
   });
 
-  const onSubmit: SubmitHandler<z.infer<typeof TierSchema>> = (data) => {};
+  const onSubmit: SubmitHandler<z.infer<typeof TierSchema>> = (data) =>
+    console.log(data);
   // createPostMutation.mutate({ ...data, pubkey: props.id });
 
   const handleModal = () => {
