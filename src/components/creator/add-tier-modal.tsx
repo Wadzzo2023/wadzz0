@@ -4,7 +4,10 @@ import { SubmitHandler, useForm } from "react-hook-form";
 import { z } from "zod";
 
 export const TierSchema = z.object({
-  content: z.string().min(1, { message: "Required" }),
+  content: z.string().min(10, { message: "Required" }),
+  featureDescription: z
+    .string()
+    .min(20, { message: "Make description longer" }),
 });
 
 export default function AddTierModal() {
@@ -26,6 +29,7 @@ export default function AddTierModal() {
   const handleModal = () => {
     modalRef.current?.showModal();
   };
+
   return (
     <>
       <button className="btn btn-primary" onClick={handleModal}>
@@ -33,14 +37,37 @@ export default function AddTierModal() {
       </button>
       <dialog className="modal" ref={modalRef}>
         <div className="modal-box">
-          <h3 className="text-lg font-bold">Hello!</h3>
+          <h3 className="text-lg font-bold">Create a subscription tier!</h3>
           <p className="py-4">
             Press ESC key or click the button below to close
           </p>
           <div>
-            <form onSubmit={handleSubmit(onSubmit)}>
-              <input type="text" {...register("content")} />
-              <button type="submit">
+            <form
+              onSubmit={handleSubmit(onSubmit)}
+              className="flex flex-col gap-2"
+            >
+              <label className="form-control w-full max-w-xs">
+                <div className="label">
+                  <span className="label-text">Tier Content</span>
+                </div>
+                <input
+                  type="text"
+                  placeholder="$1/month"
+                  {...register("content")}
+                  className="input input-bordered w-full max-w-xs"
+                />
+              </label>
+              <label className="form-control w-full max-w-xs">
+                <div className="label">
+                  <span className="label-text">Tier Features</span>
+                </div>
+                <textarea
+                  {...register("featureDescription")}
+                  className="textarea textarea-bordered h-24"
+                  placeholder="Description ..."
+                ></textarea>
+              </label>
+              <button className="btn btn-primary" type="submit">
                 {/* {createPostMutation.isLoading && ( */}
                 <span className="loading loading-spinner"></span>
                 {/* )} */}
