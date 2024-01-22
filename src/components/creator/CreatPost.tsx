@@ -41,7 +41,7 @@ export function CreatPost(props: { id: string }) {
       <p>CreatorProfile</p>
       <form
         onSubmit={handleSubmit(onSubmit)}
-        className="my-10 flex flex-col gap-2"
+        className="my-10 flex flex-col gap-2 bg-base-200 p-5"
       >
         <label className="form-control w-full max-w-xs">
           <div className="label">
@@ -110,9 +110,11 @@ export function PostList(props: { id: string }) {
           >
             <figure>
               <img
-                // src="https://daisyui.com/images/stock/photo-1606107557195-0e29a4b5b4aa.jpg"
+                className="h-36"
+                src="https://daisyui.com/images/stock/photo-1606107557195-0e29a4b5b4aa.jpg"
                 alt="Post Image"
               />
+              {/* <div className="h-36 w-full bg-blue-200"></div> */}
             </figure>
             <div className="card-body">
               <h2 className="card-title">{post.createdAt.getDate()}</h2>
@@ -130,9 +132,9 @@ export function PostList(props: { id: string }) {
 
 export function PostMenu(props: { id: string }) {
   return (
-    <>
+    <div>
       <CreatPost id={props.id} />
       <PostList id={props.id} />
-    </>
+    </div>
   );
 }

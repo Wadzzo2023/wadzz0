@@ -3,13 +3,14 @@ import React from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { z } from "zod";
 import Avater from "../ui/avater";
-import { error } from "console";
-export default function About({ id }: { id: string }) {
+import { Creator } from "@prisma/client";
+
+export default function About({ creator }: { creator: Creator }) {
   return (
     <div className="">
       <h2 className="text-2xl font-bold">About</h2>
       <div className="my-5 bg-base-200">
-        <AboutForm id={id} />
+        <AboutForm creator={creator} />
       </div>
     </div>
   );
@@ -17,18 +18,22 @@ export default function About({ id }: { id: string }) {
 
 export const CreatorAboutShema = z.object({
   id: z.string(),
-  description: z.string().optional(),
+  description: z.string().nullable(),
   name: z.string().min(3, { message: "Required" }),
 });
 
-function AboutForm({ id }: { id: string }) {
+function AboutForm({ creator }: { creator: Creator }) {
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm<z.infer<typeof CreatorAboutShema>>({
     resolver: zodResolver(CreatorAboutShema),
-    defaultValues: { id: id },
+    defaultValues: {
+      id: creator.id,
+      name: creator.name,
+      description: creator.bio,
+    },
   });
 
   const onSubmit: SubmitHandler<z.infer<typeof CreatorAboutShema>> = (data) =>

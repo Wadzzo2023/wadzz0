@@ -51,21 +51,21 @@ function CreatorPageTemplate(props: { creator: Creator }) {
         <div className=" mb-6 w-3/4 bg-base-300">
           <Tabs />
         </div>
-        <ConditionallyRenderMenuPage id={props.creator.id} />
+        <ConditionallyRenderMenuPage creator={props.creator} />
       </div>
     </div>
   );
 }
 
-function ConditionallyRenderMenuPage(props: { id: string }) {
+function ConditionallyRenderMenuPage({creator}: { creator: Creator }) {
   const { selectedMenu } = useCreator();
   switch (selectedMenu) {
     case CreatorMenu.Posts:
-      return <PostMenu id={props.id} />;
+      return <PostMenu id={creator.id} />;
     case CreatorMenu.Membership:
       return <MemberShip />;
     case CreatorMenu.About:
-      return <About id={props.id} />;
+      return <About creator={creator} />;
   }
 }
 
