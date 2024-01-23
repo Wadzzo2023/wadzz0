@@ -57,6 +57,13 @@ export default function AddTierModal({ creator }: { creator: Creator }) {
                   {...register("content")}
                   className="input input-bordered w-full max-w-xs"
                 />
+                {errors.content && (
+                  <div className="label">
+                    <span className="label-text-alt text-warning">
+                      {errors.content.message}
+                    </span>
+                  </div>
+                )}
               </label>
               <label className="form-control w-full max-w-xs">
                 <div className="label">
@@ -67,6 +74,13 @@ export default function AddTierModal({ creator }: { creator: Creator }) {
                   className="textarea textarea-bordered h-24"
                   placeholder="Description ..."
                 ></textarea>
+                {errors.featureDescription && (
+                  <div className="label">
+                    <span className="label-text-alt text-warning">
+                      {errors.featureDescription.message}
+                    </span>
+                  </div>
+                )}
               </label>
               <button
                 className="btn btn-primary"
