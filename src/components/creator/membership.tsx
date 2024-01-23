@@ -12,10 +12,9 @@ export default function MemberShip({ creator }: { creator: Creator }) {
       <p className="text-2xl font-bold">MemberShip </p>
       <AddTierModal creator={creator} />
       <div>
-        {subscriptions &&
-          subscriptions.map((el) => (
-            <MemberShipCard creator={creator} subscription={el} />
-          ))}
+        {subscriptions?.map((el) => (
+          <MemberShipCard key={el.id} creator={creator} subscription={el} />
+        ))}
       </div>
     </div>
   );
