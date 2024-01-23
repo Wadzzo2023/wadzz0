@@ -1,13 +1,22 @@
 import React from "react";
 import MemberShipCard from "./card";
-import ModalTemplate from "../ui/modal/template";
+import { Creator } from "@prisma/client";
+import { api } from "~/utils/api";
+import AddTierModal from "./add-tier-modal";
 
-export default function MemberShip() {
+export default function MemberShip({ creator }: { creator: Creator }) {
+  const { data: subscriptions, isLoading } =
+    api.member.getAllMembership.useQuery(creator.id);
   return (
-    <div>
-      <p>MemberShip </p>
-      <MemberShipCard />
-      <ModalTemplate />
+    <div className="flex flex-col items-center">
+      <p className="text-2xl font-bold">MemberShip </p>
+      <AddTierModal creator={creator} />
+      <div>
+        {subscriptions &&
+          subscriptions.map((el) => (
+            <MemberShipCard creator={creator} subscription={el} />
+          ))}
+      </div>
     </div>
   );
 }

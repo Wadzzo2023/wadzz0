@@ -1,17 +1,21 @@
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Creator } from "@prisma/client";
 import React, { useRef } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { z } from "zod";
+import { api } from "~/utils/api";
 
 export const TierSchema = z.object({
   content: z.string().min(10, { message: "Required" }),
   featureDescription: z
     .string()
     .min(20, { message: "Make description longer" }),
+  id: z.string(),
 });
 
-export default function AddTierModal() {
+export default function AddTierModal({ creator }: { creator: Creator }) {
   const modalRef = useRef<HTMLDialogElement>(null);
+  const mutation = api.member.createMembership.useMutation();
 
   const {
     register,
@@ -19,11 +23,11 @@ export default function AddTierModal() {
     formState: { errors },
   } = useForm<z.infer<typeof TierSchema>>({
     resolver: zodResolver(TierSchema),
-    defaultValues: { content: "" },
+    defaultValues: { id: creator.id },
   });
 
   const onSubmit: SubmitHandler<z.infer<typeof TierSchema>> = (data) =>
-    console.log(data);
+    mutation.mutate(data);
   // createPostMutation.mutate({ ...data, pubkey: props.id });
 
   const handleModal = () => {
@@ -38,9 +42,6 @@ export default function AddTierModal() {
       <dialog className="modal" ref={modalRef}>
         <div className="modal-box">
           <h3 className="text-lg font-bold">Create a subscription tier!</h3>
-          <p className="py-4">
-            Press ESC key or click the button below to close
-          </p>
           <div>
             <form
               onSubmit={handleSubmit(onSubmit)}
@@ -67,10 +68,14 @@ export default function AddTierModal() {
                   placeholder="Description ..."
                 ></textarea>
               </label>
-              <button className="btn btn-primary" type="submit">
-                {/* {createPostMutation.isLoading && ( */}
-                <span className="loading loading-spinner"></span>
-                {/* )} */}
+              <button
+                className="btn btn-primary"
+                type="submit"
+                disabled={mutation.isLoading}
+              >
+                {mutation.isLoading && (
+                  <span className="loading loading-spinner"></span>
+                )}
                 Create Post{" "}
               </button>
             </form>

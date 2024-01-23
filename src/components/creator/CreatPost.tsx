@@ -38,7 +38,6 @@ export function CreatPost(props: { id: string }) {
 
   return (
     <div>
-      <p>CreatorProfile</p>
       <form
         onSubmit={handleSubmit(onSubmit)}
         className="my-10 flex flex-col gap-2 bg-base-200 p-5"

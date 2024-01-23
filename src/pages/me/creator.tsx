@@ -57,13 +57,13 @@ function CreatorPageTemplate(props: { creator: Creator }) {
   );
 }
 
-function ConditionallyRenderMenuPage({creator}: { creator: Creator }) {
+function ConditionallyRenderMenuPage({ creator }: { creator: Creator }) {
   const { selectedMenu } = useCreator();
   switch (selectedMenu) {
     case CreatorMenu.Posts:
       return <PostMenu id={creator.id} />;
     case CreatorMenu.Membership:
-      return <MemberShip />;
+      return <MemberShip creator={creator} />;
     case CreatorMenu.About:
       return <About creator={creator} />;
   }

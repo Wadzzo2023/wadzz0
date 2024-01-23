@@ -8,7 +8,12 @@ async function main() {
     data: { user: { create: { id: "user1" } }, name: "test user", bio: "test" },
   });
   const subscription = await prisma.subscription.create({
-    data: { assetId: asset.id, creatorId: creator.id },
+    data: {
+      assetId: asset.id,
+      creatorId: creator.id,
+      days: 30,
+      features: "vong cong",
+    },
   });
   const post = await prisma.post.create({
     data: {

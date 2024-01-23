@@ -28,6 +28,8 @@ model Subscription {
     creator   Creator @relation(fields: [creatorId], references: [id])
     assetId   Int
     asset     Asset   @relation(fields: [assetId], references: [id], onDelete: NoAction)
+    days      Int
+    features  String
     Post      Post[]
 }
 

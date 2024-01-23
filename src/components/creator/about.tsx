@@ -4,10 +4,11 @@ import { SubmitHandler, useForm } from "react-hook-form";
 import { z } from "zod";
 import Avater from "../ui/avater";
 import { Creator } from "@prisma/client";
+import { api } from "~/utils/api";
 
 export default function About({ creator }: { creator: Creator }) {
   return (
-    <div className="">
+    <div className="flex flex-col items-center">
       <h2 className="text-2xl font-bold">About</h2>
       <div className="my-5 bg-base-200">
         <AboutForm creator={creator} />
@@ -23,6 +24,7 @@ export const CreatorAboutShema = z.object({
 });
 
 function AboutForm({ creator }: { creator: Creator }) {
+  const mutation = api.creator.updateCreatorProfile.useMutation();
   const {
     register,
     handleSubmit,
@@ -37,8 +39,7 @@ function AboutForm({ creator }: { creator: Creator }) {
   });
 
   const onSubmit: SubmitHandler<z.infer<typeof CreatorAboutShema>> = (data) =>
-    console.log(data);
-  // createPostMutation.mutate({ ...data, pubkey: props.id });
+    mutation.mutate(data);
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-2 p-5">
@@ -92,9 +93,9 @@ function AboutForm({ creator }: { creator: Creator }) {
         )}
       </label>
       <button className="btn btn-primary" type="submit">
-        {/* {createPostMutation.isLoading && ( */}
-        {/* <span className="loading loading-spinner"></span> */}
-        {/* )} */}
+        {mutation.isLoading && (
+          <span className="loading loading-spinner"></span>
+        )}
         Save
       </button>
     </form>
