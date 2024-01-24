@@ -6,7 +6,7 @@ import { z } from "zod";
 import { api } from "~/utils/api";
 
 export const TierSchema = z.object({
-  content: z.string().min(10, { message: "Required" }),
+  name: z.string().min(4, { message: "Required" }),
   featureDescription: z
     .string()
     .min(20, { message: "Make description longer" }),
@@ -15,12 +15,17 @@ export const TierSchema = z.object({
 
 export default function AddTierModal({ creator }: { creator: Creator }) {
   const modalRef = useRef<HTMLDialogElement>(null);
-  const mutation = api.member.createMembership.useMutation();
+  const mutation = api.member.createMembership.useMutation({
+    onSuccess: () => {
+      reset();
+    },
+  });
 
   const {
     register,
     handleSubmit,
     formState: { errors },
+    reset,
   } = useForm<z.infer<typeof TierSchema>>({
     resolver: zodResolver(TierSchema),
     defaultValues: { id: creator.id },
@@ -54,13 +59,13 @@ export default function AddTierModal({ creator }: { creator: Creator }) {
                 <input
                   type="text"
                   placeholder="$1/month"
-                  {...register("content")}
+                  {...register("name")}
                   className="input input-bordered w-full max-w-xs"
                 />
-                {errors.content && (
+                {errors.name && (
                   <div className="label">
                     <span className="label-text-alt text-warning">
-                      {errors.content.message}
+                      {errors.name.message}
                     </span>
                   </div>
                 )}

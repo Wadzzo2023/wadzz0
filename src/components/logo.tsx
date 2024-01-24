@@ -11,7 +11,6 @@ export default function Logo({ className }: { className?: string }) {
         alt="BandCoin logo"
         src="/images/bandcoin-logo.png"
         blurDataURL={LOGO_BLURDATA}
-        placeholder="blur"
       />
       <h1 className={twMerge(" relative text-2xl capitalize ", className)}>
         BANDCOIN

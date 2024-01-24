@@ -19,7 +19,7 @@ export const postRouter = createTRPCRouter({
           heading: input.heading,
           content: input.content,
           creatorId: input.id,
-          subscriptionId: 1,
+          subscriptionId: input.subscription ? Number(input.subscription) : 1,
         },
       });
     }),

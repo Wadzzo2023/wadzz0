@@ -1,5 +1,5 @@
 import React from "react";
-import { useForm, SubmitHandler } from "react-hook-form";
+import { useForm, SubmitHandler, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { api } from "~/utils/api";
@@ -13,6 +13,7 @@ export const PostSchema = z.object({
   id: z.string(),
   heading: z.string().min(1, { message: "Required" }),
   content: z.string().min(20, { message: "Minimum 20 is reguired" }),
+  subscription: z.string().optional(),
 });
 
 export function CreatPost(props: { id: string }) {
@@ -24,11 +25,14 @@ export function CreatPost(props: { id: string }) {
       toast.success("Post Created");
     },
   });
+  const { data, isLoading } = api.member.getAllMembership.useQuery(props.id);
+  console.log(data, "crator subs model");
 
   const {
     register,
     handleSubmit,
     reset,
+    control,
 
     formState: { errors },
   } = useForm<z.infer<typeof PostSchema>>({
@@ -36,66 +40,90 @@ export function CreatPost(props: { id: string }) {
     defaultValues: { id: props.id },
   });
 
+  console.log(errors);
+
   const onSubmit: SubmitHandler<z.infer<typeof PostSchema>> = (data) => {
     createPostMutation.mutate(data);
   };
 
-  return (
-    <div>
-      <form
-        onSubmit={handleSubmit(onSubmit)}
-        className="my-10 flex flex-col gap-2 bg-base-200 p-5"
-      >
-        <label className="form-control w-full max-w-xs">
-          <div className="label">
-            <span className="label-text">Heading</span>
-          </div>
-          <input
-            type="text"
-            placeholder="Heading of the post"
-            {...register("heading")}
-            className="input input-bordered w-full max-w-xs"
-          />
-          {errors.heading && (
-            <div className="label">
-              <span className="label-text-alt text-warning">
-                {errors.heading.message}
-              </span>
-            </div>
-          )}
-        </label>
-
-        <label className="form-control">
-          <div className="label">
-            <span className="label-text">Write Details</span>
-          </div>
-          <textarea
-            {...register("content")}
-            className="textarea textarea-bordered h-24"
-            placeholder="Description ..."
-          ></textarea>
-          {errors.content && (
-            <div className="label">
-              <span className="label-text-alt text-warning">
-                {errors.content.message}
-              </span>
-            </div>
-          )}
-        </label>
-
-        <button
-          className="btn btn-primary"
-          type="submit"
-          disabled={createPostMutation.isLoading}
+  if (isLoading) return <div>Loading... while getting subscription</div>;
+  if (data)
+    return (
+      <div>
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="my-10 flex flex-col gap-2 bg-base-200 p-5"
         >
-          {createPostMutation.isLoading && (
-            <span className="loading loading-spinner"></span>
-          )}
-          Create Post{" "}
-        </button>
-      </form>
-    </div>
-  );
+          <label className="form-control w-full max-w-xs">
+            <div className="label">
+              <span className="label-text">Heading</span>
+            </div>
+            <input
+              type="text"
+              placeholder="Heading of the post"
+              {...register("heading")}
+              className="input input-bordered w-full max-w-xs"
+            />
+            {errors.heading && (
+              <div className="label">
+                <span className="label-text-alt text-warning">
+                  {errors.heading.message}
+                </span>
+              </div>
+            )}
+          </label>
+
+          <label className="form-control">
+            <div className="label">
+              <span className="label-text">Write Details</span>
+            </div>
+            <textarea
+              {...register("content")}
+              className="textarea textarea-bordered h-24"
+              placeholder="Description ..."
+            ></textarea>
+            {errors.content && (
+              <div className="label">
+                <span className="label-text-alt text-warning">
+                  {errors.content.message}
+                </span>
+              </div>
+            )}
+          </label>
+
+          <Controller
+            name="subscription"
+            control={control}
+            render={({ field }) => (
+              <select
+                {...field}
+                className="select select-bordered w-full max-w-xs"
+              >
+                <option value="" disabled>
+                  Select an subscription model
+                </option>
+                {data.map((model) => (
+                  <option
+                    value={model.id}
+                  >{`${model.name} ${model.id}`}</option>
+                ))}
+              </select>
+            )}
+          />
+
+          <button
+            className="btn btn-primary"
+            type="submit"
+            disabled={createPostMutation.isLoading}
+          >
+            {createPostMutation.isLoading && (
+              <span className="loading loading-spinner"></span>
+            )}
+            Create Post{" "}
+          </button>
+        </form>
+      </div>
+    );
 }
 export function PostList(props: { id: string }) {
   const { data, isLoading } = api.post.getPosts.useQuery({
@@ -114,7 +142,13 @@ export function PostList(props: { id: string }) {
   }
 }
 
-export function PostCard({ post }: { post: Post }) {
+export function PostCard({
+  post,
+  show = false,
+}: {
+  post: Post;
+  show?: boolean;
+}) {
   return (
     <div
       key={post.id}
@@ -129,24 +163,31 @@ export function PostCard({ post }: { post: Post }) {
       </figure>
       <div className="card-body">
         <h2 className="card-title">{post.heading}</h2>
-        <p>{formatPostCreatedAt(post.createdAt)}</p>
-        <button className="btn ">
-          <Lock />
-          Unlock Post
-        </button>
-        <p>{post.content}</p>
-        <Link href="#" className="text-primary underline">
-          Read more
-        </Link>
-        <div className="flex gap-4 p-2 ">
-          <div className="flex items-end justify-center gap-1">
-            <Heart /> <p className="font-bold">2</p>
-          </div>
-          <div className="flex items-end justify-center gap-1">
-            <MessageCircle /> <p className="font-bold">2</p>
-          </div>
-          <Share2 size={20} />
-        </div>
+        <p>
+          {formatPostCreatedAt(post.createdAt)}. {post.subscriptionId}
+        </p>
+        {!show ? (
+          <button className="btn ">
+            <Lock />
+            Unlock Post
+          </button>
+        ) : (
+          <>
+            <p>{post.content}</p>
+            <Link href="#" className="text-primary underline">
+              Read more
+            </Link>
+            <div className="flex gap-4 p-2 ">
+              <div className="flex items-end justify-center gap-1">
+                <Heart /> <p className="font-bold">2</p>
+              </div>
+              <div className="flex items-end justify-center gap-1">
+                <MessageCircle /> <p className="font-bold">2</p>
+              </div>
+              <Share2 size={20} />
+            </div>
+          </>
+        )}
       </div>
     </div>
   );

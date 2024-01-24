@@ -24,6 +24,7 @@ model Asset {
 
 model Subscription {
     id                Int                 @id @default(autoincrement())
+    name              String              @default("Platinum")
     creatorId         String
     creator           Creator             @relation(fields: [creatorId], references: [id])
     assetId           Int

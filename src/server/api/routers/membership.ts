@@ -17,6 +17,7 @@ export const membershipRouter = createTRPCRouter({
           assetId: 1,
           creatorId: input.id,
           days: 10,
+          name: input.name,
           features: input.featureDescription,
         },
       });
