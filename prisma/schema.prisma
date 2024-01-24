@@ -23,14 +23,26 @@ model Asset {
 }
 
 model Subscription {
-    id        Int     @id @default(autoincrement())
-    creatorId String
-    creator   Creator @relation(fields: [creatorId], references: [id])
-    assetId   Int
-    asset     Asset   @relation(fields: [assetId], references: [id], onDelete: NoAction)
-    days      Int
-    features  String
-    Post      Post[]
+    id                Int                 @id @default(autoincrement())
+    creatorId         String
+    creator           Creator             @relation(fields: [creatorId], references: [id])
+    assetId           Int
+    asset             Asset               @relation(fields: [assetId], references: [id], onDelete: NoAction)
+    days              Int
+    features          String
+    Post              Post[]
+    User_Subscription User_Subscription[]
+}
+
+model User_Subscription {
+    id             Int          @id @default(autoincrement())
+    userId         String
+    user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+    subscriptionId Int
+    subscription   Subscription @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
+
+    // Unique constraint on userId and subscriptionId
+    @@unique([userId, subscriptionId])
 }
 
 model Creator {
@@ -104,14 +116,15 @@ model Session {
 }
 
 model User {
-    id            String    @id @default(cuid())
-    name          String?
-    email         String?   @unique
-    emailVerified DateTime?
-    image         String?
-    accounts      Account[]
-    sessions      Session[]
-    creator       Creator?
+    id                String              @id @default(cuid())
+    name              String?
+    email             String?             @unique
+    emailVerified     DateTime?
+    image             String?
+    accounts          Account[]
+    sessions          Session[]
+    creator           Creator?
+    User_Subscription User_Subscription[]
 }
 
 model VerificationToken {

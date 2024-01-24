@@ -35,23 +35,31 @@ function CreatorPageTemplate(props: { creator: Creator }) {
   return (
     <div className="flex-1 overflow-y-auto">
       <div className="flex h-screen flex-col items-center ">
-        <div className="h-40 w-full  bg-blue-200"></div>
-        <div className="mb-10 flex flex-col items-center justify-center gap-4">
-          <div className="-mt-16 flex h-36 w-36 items-center justify-center rounded-full bg-white">
-            {/* <div className="h-28 w-28 rounded-full bg-red-400"></div> */}
-            <Avater className="w-28" />
-          </div>
-          <div className="flex flex-col items-center">
-            <h1 className="text-2xl font-bold">{props.creator.name}</h1>
-            <p>{props.creator.bio}</p>
-          </div>
-        </div>
+        <CreatorBack creator={props.creator} />
         <div className=" mb-6 w-3/4 bg-base-300">
           <Tabs />
         </div>
         <ConditionallyRenderMenuPage creator={props.creator} />
       </div>
     </div>
+  );
+}
+
+export function CreatorBack(props: { creator: Creator }) {
+  return (
+    <>
+      <div className="h-40 w-full  bg-blue-200"></div>
+      <div className="mb-10 flex flex-col items-center justify-center gap-4">
+        <div className="-mt-16 flex h-36 w-36 items-center justify-center rounded-full bg-white">
+          {/* <div className="h-28 w-28 rounded-full bg-red-400"></div> */}
+          <Avater className="w-28" />
+        </div>
+        <div className="flex flex-col items-center">
+          <h1 className="text-2xl font-bold">{props.creator.name}</h1>
+          <p>{props.creator.bio}</p>
+        </div>
+      </div>
+    </>
   );
 }
 

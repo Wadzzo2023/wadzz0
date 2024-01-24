@@ -1,5 +1,6 @@
 import { signIn, signOut, useSession } from "next-auth/react";
 import Head from "next/head";
+import Link from "next/link";
 
 import { api } from "~/utils/api";
 
@@ -39,6 +40,24 @@ function AuthShowcase() {
         {sessionData ? "Sign out" : "Sign in"}
       </button>
       <pre>{JSON.stringify(sessionData, null, 2)}</pre>
+      <div>
+        <AllCreators />
+      </div>
+    </div>
+  );
+}
+
+function AllCreators() {
+  const { data: creators } = api.creator.getAllCreator.useQuery();
+
+  return (
+    <div className="flex flex-col items-center justify-center gap-4">
+      <p className="text-center text-2xl text-white">All creators</p>
+      <li>
+        {creators?.map((creator) => (
+          <Link href={`/creator/${creator.id}`}>{creator.name}</Link>
+        ))}
+      </li>
     </div>
   );
 }

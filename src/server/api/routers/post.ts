@@ -24,7 +24,11 @@ export const postRouter = createTRPCRouter({
     }),
 
   getPosts: protectedProcedure
-    .input(z.object({ pubkey: z.string() }))
+    .input(
+      z.object({
+        pubkey: z.string().min(56, { message: "pubkey is more than 56" }),
+      }),
+    )
     .query(async ({ input, ctx }) => {
       return await ctx.db.post.findMany({
         where: {

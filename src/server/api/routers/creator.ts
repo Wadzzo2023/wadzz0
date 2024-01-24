@@ -41,6 +41,10 @@ export const creatorRouter = createTRPCRouter({
       });
     }),
 
+  getAllCreator: protectedProcedure.query(async ({ ctx }) => {
+    return ctx.db.creator.findMany();
+  }),
+
   // getLatest: protectedProcedure.query(({ ctx }) => {
   //   return ctx.db.post.findFirst({
   //     orderBy: { createdAt: "desc" },

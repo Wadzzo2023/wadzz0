@@ -47,4 +47,22 @@ export const membershipRouter = createTRPCRouter({
       });
       return data;
     }),
+
+  subscribe: protectedProcedure
+    .input(z.object({ id: z.string(), subscriptionId: z.number() }))
+    .mutation(async ({ ctx, input }) => {
+      const subscription = await ctx.db.user_Subscription.create({
+        data: { userId: input.id, subscriptionId: input.subscriptionId },
+      });
+      return subscription;
+    }),
+
+  userSubscriptions: protectedProcedure
+    .input(z.string())
+    .query(async ({ ctx, input }) => {
+      const subscriptiosn = await ctx.db.user_Subscription.findMany({
+        where: { userId: input },
+      });
+      return subscriptiosn;
+    }),
 });

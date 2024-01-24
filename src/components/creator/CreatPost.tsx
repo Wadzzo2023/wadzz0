@@ -4,6 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { api } from "~/utils/api";
 import toast from "react-hot-toast";
+import { Post } from "@prisma/client";
 
 export const PostSchema = z.object({
   id: z.string(),
@@ -103,32 +104,30 @@ export function PostList(props: { id: string }) {
     return (
       <div className="flex flex-col gap-2">
         {data.map((post) => (
-          <div
-            key={post.id}
-            className="card card-compact w-96 bg-base-100 shadow-xl"
-          >
-            <figure>
-              <img
-                className="h-36"
-                src="https://daisyui.com/images/stock/photo-1606107557195-0e29a4b5b4aa.jpg"
-                alt="Post Image"
-              />
-              {/* <div className="h-36 w-full bg-blue-200"></div> */}
-            </figure>
-            <div className="card-body">
-              <h2 className="card-title">{post.createdAt.getDate()}</h2>
-              <p>{post.content}</p>
-              {/* <div className="card-actions justify-end">
-                <button className="btn btn-primary">Buy Now</button>
-              </div> */}
-            </div>
-          </div>
+          <PostCard post={post} />
         ))}
       </div>
     );
   }
 }
 
+export function PostCard({ post }: { post: Post }) {
+  return (
+    <div key={post.id} className="card card-compact w-96 bg-base-100 shadow-xl">
+      <figure>
+        <img
+          className="h-36"
+          src="https://daisyui.com/images/stock/photo-1606107557195-0e29a4b5b4aa.jpg"
+          alt="Post Image"
+        />
+      </figure>
+      <div className="card-body">
+        <h2 className="card-title">{post.createdAt.getDate()}</h2>
+        <p>{post.content}</p>
+      </div>
+    </div>
+  );
+}
 export function PostMenu(props: { id: string }) {
   return (
     <div>
