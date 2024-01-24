@@ -16,6 +16,7 @@ export const postRouter = createTRPCRouter({
 
       return ctx.db.post.create({
         data: {
+          heading: input.heading,
           content: input.content,
           creatorId: input.id,
           subscriptionId: 1,
@@ -36,6 +37,13 @@ export const postRouter = createTRPCRouter({
         },
       });
     }),
+
+  getAllRecentPosts: protectedProcedure.query(async ({ ctx }) => {
+    return await ctx.db.post.findMany({
+      take: 10,
+      orderBy: { createdAt: "desc" },
+    });
+  }),
 
   getSecretMessage: protectedProcedure.query(async ({ ctx }) => {
     return "secret message";

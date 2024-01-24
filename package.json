@@ -46,6 +46,7 @@
     "clsx": "^2.0.0",
     "cookies-next": "^2.1.1",
     "csv-iter-parse": "^0.0.4",
+    "date-fns": "^3.3.1",
     "firebase": "^10.3.1",
     "lodash.isequal": "^4.5.0",
     "lucide-react": "^0.274.0",

@@ -1,6 +1,7 @@
 import { signIn, signOut, useSession } from "next-auth/react";
 import Head from "next/head";
 import Link from "next/link";
+import { PostCard } from "~/components/creator/CreatPost";
 
 import { api } from "~/utils/api";
 
@@ -42,6 +43,7 @@ function AuthShowcase() {
       <pre>{JSON.stringify(sessionData, null, 2)}</pre>
       <div>
         <AllCreators />
+        <AllRecentPost />
       </div>
     </div>
   );
@@ -53,11 +55,28 @@ function AllCreators() {
   return (
     <div className="flex flex-col items-center justify-center gap-4">
       <p className="text-center text-2xl text-white">All creators</p>
-      <li>
+      <ul>
         {creators?.map((creator) => (
-          <Link href={`/creator/${creator.id}`}>{creator.name}</Link>
+          <li>
+            <Link href={`/creator/${creator.id}`}>{creator.name}</Link>
+          </li>
         ))}
-      </li>
+      </ul>
     </div>
   );
+}
+
+function AllRecentPost() {
+  const { data: posts, isLoading } = api.post.getAllRecentPosts.useQuery();
+
+  if (isLoading) return <div>Loading...</div>;
+  if (posts) {
+    return (
+      <div className="flex flex-col gap-4">
+        {posts.map((post) => (
+          <PostCard post={post} />
+        ))}
+      </div>
+    );
+  }
 }

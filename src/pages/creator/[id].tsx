@@ -27,7 +27,7 @@ function Page({ creatorId }: { creatorId: string }) {
   const { data: creator } = api.creator.getCreator.useQuery({ id: creatorId });
   if (error) return <div>{error.message}</div>;
   if (isLoading) return <div>Loading...</div>;
-  if (data && data.length > 0)
+  if (data)
     return (
       <div className="flex w-full flex-col gap-4 overflow-y-auto">
         <div className="flex w-full flex-col items-center ">
@@ -37,11 +37,13 @@ function Page({ creatorId }: { creatorId: string }) {
               <ChooseMemberShip creator={creator} />
             </>
           )}
-          <div className="flex flex-col gap-2">
-            {data.map((el) => (
-              <PostCard post={el} />
-            ))}
-          </div>
+          {data.length > 0 && (
+            <div className="flex flex-col gap-2">
+              {data.map((el) => (
+                <PostCard post={el} />
+              ))}
+            </div>
+          )}
         </div>
       </div>
     );
@@ -57,7 +59,6 @@ function ChooseMemberShip({ creator }: { creator: Creator }) {
   const { data: subscriptions } = api.member.userSubscriptions.useQuery(
     sessionData?.user.id!,
   );
-  console.log(subscriptions, "s");
 
   return (
     <div className="mb-10 flex flex-col gap-4">
@@ -83,7 +84,10 @@ function ChooseMemberShip({ creator }: { creator: Creator }) {
                 (sub) => sub.subscriptionId === el.id,
               )}
               onClick={() =>
-                subscribe.mutate({ id: creator.id, subscriptionId: el.id })
+                subscribe.mutate({
+                  id: sessionData?.user.id ?? "nill",
+                  subscriptionId: el.id,
+                })
               }
             >
               {subscribe.isLoading ? "Loading..." : "Subscribe"}
