@@ -107,7 +107,7 @@ export function PostList(props: { id: string }) {
     return (
       <div className="flex flex-col gap-2">
         {data.map((post) => (
-          <PostCard post={post} />
+          <PostCard key={post.id} post={post} />
         ))}
       </div>
     );

@@ -57,7 +57,7 @@ function AllCreators() {
       <p className="text-center text-2xl text-white">All creators</p>
       <ul>
         {creators?.map((creator) => (
-          <li>
+          <li key={creator.id}>
             <Link href={`/creator/${creator.id}`}>{creator.name}</Link>
           </li>
         ))}
@@ -74,7 +74,7 @@ function AllRecentPost() {
     return (
       <div className="flex flex-col gap-4">
         {posts.map((post) => (
-          <PostCard post={post} />
+          <PostCard key={post.id} post={post} />
         ))}
       </div>
     );

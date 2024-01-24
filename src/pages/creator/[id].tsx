@@ -4,9 +4,7 @@ import { PostCard } from "~/components/creator/CreatPost";
 import { api } from "~/utils/api";
 import { CreatorBack } from "../me/creator";
 import { Creator } from "@prisma/client";
-import MemberShip from "~/components/creator/membership";
 import MemberShipCard from "~/components/creator/card";
-import AddTierModal from "~/components/creator/add-tier-modal";
 import { useSession } from "next-auth/react";
 
 export default function CreatorPage() {
@@ -40,7 +38,7 @@ function Page({ creatorId }: { creatorId: string }) {
           {data.length > 0 && (
             <div className="flex flex-col gap-2">
               {data.map((el) => (
-                <PostCard post={el} />
+                <PostCard key={el.id} post={el} />
               ))}
             </div>
           )}
@@ -57,23 +55,18 @@ function ChooseMemberShip({ creator }: { creator: Creator }) {
   const subscribe = api.member.subscribe.useMutation();
 
   const { data: subscriptions } = api.member.userSubscriptions.useQuery(
-    sessionData?.user.id!,
+    sessionData?.user.id ?? "vong",
   );
 
   return (
     <div className="mb-10 flex flex-col gap-4">
-      <h2
-        className="text-center text-2xl font-bold
-      "
-      >
-        Choose your Membership
-      </h2>
+      <h2 className="text-center text-2xl font-bold">Choose your Membership</h2>
       {isLoading && <div>Loading...</div>}
       <div className="flex gap-2">
         {subscriptonModel?.map((el) => (
           <MemberShipCard
-            className="w-48 bg-neutral text-neutral-content"
             key={el.id}
+            className="w-48 bg-neutral text-neutral-content"
             creator={creator}
             subscription={el}
           >
