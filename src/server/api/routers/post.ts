@@ -50,4 +50,39 @@ export const postRouter = createTRPCRouter({
   getSecretMessage: protectedProcedure.query(async ({ ctx }) => {
     return "secret message";
   }),
+
+  likeApost: protectedProcedure
+    .input(z.number())
+    .mutation(async ({ input: postId, ctx }) => {
+      const userId = ctx.session.user.id;
+      return await ctx.db.like.create({
+        data: { userId, postId },
+      });
+    }),
+
+  deleteALike: protectedProcedure
+    .input(z.number())
+    .mutation(async ({ input: postId, ctx }) => {
+      await ctx.db.like.delete({
+        where: {
+          postId_userId: { postId: postId, userId: ctx.session.user.id },
+        },
+      });
+    }),
+
+  getLikes: publicProcedure
+    .input(z.number())
+    .query(async ({ input: postId, ctx }) => {
+      return await ctx.db.like.count({
+        where: { postId },
+      });
+    }),
+
+  isLiked: protectedProcedure
+    .input(z.number())
+    .query(async ({ input: postId, ctx }) => {
+      return await ctx.db.like.findFirst({
+        where: { userId: ctx.session.user.id, postId },
+      });
+    }),
 });

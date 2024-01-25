@@ -8,6 +8,7 @@ import { Post } from "@prisma/client";
 import { formatPostCreatedAt } from "~/utils/format-date";
 import { Heart, Lock, MessageCircle, Share2 } from "lucide-react";
 import Link from "next/link";
+import clsx from "clsx";
 
 export const PostSchema = z.object({
   id: z.string(),
@@ -150,6 +151,11 @@ export function PostCard({
   post: Post;
   show?: boolean;
 }) {
+  const likeMutation = api.post.likeApost.useMutation();
+  const deleteLike = api.post.deleteALike.useMutation();
+  const { data: likes, isLoading } = api.post.getLikes.useQuery(post.id);
+  const { data: liked } = api.post.isLiked.useQuery(post.id);
+
   return (
     <div
       key={post.id}
@@ -180,10 +186,18 @@ export function PostCard({
             </Link>
             <div className="flex gap-4 p-2 ">
               <div className="flex items-end justify-center gap-1">
-                <Heart /> <p className="font-bold">2</p>
+                <Heart
+                  onClick={() =>
+                    liked
+                      ? deleteLike.mutate(post.id)
+                      : likeMutation.mutate(post.id)
+                  }
+                  className={clsx(liked && "fill-primary text-primary ")}
+                />{" "}
+                <p className="font-bold">{likes}</p>
               </div>
               <div className="flex items-end justify-center gap-1">
-                <MessageCircle /> <p className="font-bold">2</p>
+                <MessageCircle /> <p className="font-bold">4</p>
               </div>
               <Share2 size={20} />
             </div>
