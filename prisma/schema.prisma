@@ -24,6 +24,7 @@ model Asset {
 
 model Subscription {
     id                Int                 @id @default(autoincrement())
+    priority          Int                 @default(autoincrement())
     name              String              @default("Platinum")
     creatorId         String
     creator           Creator             @relation(fields: [creatorId], references: [id])
@@ -33,6 +34,34 @@ model Subscription {
     features          String
     Post              Post[]
     User_Subscription User_Subscription[]
+
+    // Unique constraint on userId and subscriptionId
+    @@unique([creatorId, priority])
+}
+
+model Like {
+    id        Int      @id @default(autoincrement())
+    postId    Int
+    post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+    userId    String
+    user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+    createdAt DateTime @default(now())
+}
+
+model Comment {
+    id              Int    @id @default(autoincrement())
+    parentCommentID Int?
+    postId          Int
+    post            Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
+    userId          String
+    user            User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+    content         String
+
+    parentComment Comment? @relation("ParentComment", fields: [parentCommentID], references: [id])
+    createdAt     DateTime @default(now())
+
+    commentId Int?
+    Comment   Comment[] @relation("ParentComment")
 }
 
 model User_Subscription {
@@ -84,8 +113,10 @@ model Post {
     creatorId String
     Media     Media[]
 
-    subscription   Subscription @relation(fields: [subscriptionId], references: [id])
-    subscriptionId Int
+    subscription   Subscription? @relation(fields: [subscriptionId], references: [id])
+    subscriptionId Int?
+    Like           Like[]
+    Comment        Comment[]
 
     @@index([content])
 }
@@ -127,6 +158,8 @@ model User {
     sessions          Session[]
     creator           Creator?
     User_Subscription User_Subscription[]
+    Like              Like[]
+    Comment           Comment[]
 }
 
 model VerificationToken {

@@ -7,19 +7,11 @@ async function main() {
   const creator = await prisma.creator.create({
     data: { user: { create: { id: "user1" } }, name: "test user", bio: "test" },
   });
-  const subscription = await prisma.subscription.create({
-    data: {
-      assetId: asset.id,
-      creatorId: creator.id,
-      days: 30,
-      features: "vong cong",
-    },
-  });
   const post = await prisma.post.create({
     data: {
       content: "vongCong",
       creatorId: creator.id,
-      subscriptionId: subscription.id,
+      // subscriptionId: subscription.id,
     },
   });
 }
