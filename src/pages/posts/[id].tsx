@@ -38,7 +38,9 @@ function Page({ postId, creator }: { postId: string; creator: string }) {
           <div className="card w-96 bg-base-100 shadow-xl">
             <div className="card-body">
               <h2 className="card-title">Comments</h2>
-              {comments?.map((comment) => <CommentView comment={comment} />)}
+              {comments?.map((comment) => (
+                <CommentView key={comment.id} comment={comment} />
+              ))}
               <AddComment postId={postId} />
             </div>
           </div>
