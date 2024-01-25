@@ -181,7 +181,10 @@ export function PostCard({
         ) : (
           <>
             <p>{post.content}</p>
-            <Link href="#" className="text-primary underline">
+            <Link
+              href={`/posts/${post.id}?creator=${post.creatorId}`}
+              className="text-primary underline"
+            >
               Read more
             </Link>
             <div className="flex gap-4 p-2 ">

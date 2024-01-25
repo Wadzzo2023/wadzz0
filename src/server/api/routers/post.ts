@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { PostSchema } from "~/components/creator/CreatPost";
+import { CommentSchema } from "~/pages/posts/[id]";
 
 import {
   createTRPCRouter,
@@ -47,6 +48,14 @@ export const postRouter = createTRPCRouter({
     });
   }),
 
+  getAPost: protectedProcedure
+    .input(z.number())
+    .query(async ({ input, ctx }) => {
+      return await ctx.db.post.findUnique({
+        where: { id: input },
+      });
+    }),
+
   getSecretMessage: protectedProcedure.query(async ({ ctx }) => {
     return "secret message";
   }),
@@ -83,6 +92,26 @@ export const postRouter = createTRPCRouter({
     .query(async ({ input: postId, ctx }) => {
       return await ctx.db.like.findFirst({
         where: { userId: ctx.session.user.id, postId },
+      });
+    }),
+
+  getComments: publicProcedure
+    .input(z.number())
+    .query(async ({ input: postId, ctx }) => {
+      return await ctx.db.comment.findMany({
+        where: { postId },
+      });
+    }),
+
+  createComment: protectedProcedure
+    .input(CommentSchema)
+    .mutation(async ({ ctx, input }) => {
+      return await ctx.db.comment.create({
+        data: {
+          content: input.content,
+          postId: input.postId,
+          userId: ctx.session.user.id,
+        },
       });
     }),
 });

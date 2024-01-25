@@ -15,7 +15,12 @@ export default function MemberShipCard({
   children?: React.ReactNode;
 }) {
   return (
-    <div className={clsx("card w-96 bg-base-100 shadow-xl", className)}>
+    <div
+      className={clsx(
+        "card w-96 bg-neutral text-neutral-content shadow-xl",
+        className,
+      )}
+    >
       <div className="card-body">
         <h2 className="card-title">
           ${subscription.id}/{subscription.priority}
