@@ -106,7 +106,7 @@ export function CreatPost(props: { id: string }) {
                   <option
                     key={model.id}
                     value={model.id}
-                  >{`${model.name} ${model.id}`}</option>
+                  >{`${model.name} ${model.priority}`}</option>
                 ))}
               </select>
             )}
@@ -136,7 +136,7 @@ export function PostList(props: { id: string }) {
     return (
       <div className="flex flex-col gap-2">
         {data.map((post) => (
-          <PostCard key={post.id} post={post} />
+          <PostCard key={post.id} post={post} show />
         ))}
       </div>
     );

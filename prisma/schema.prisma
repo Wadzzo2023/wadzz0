@@ -24,7 +24,7 @@ model Asset {
 
 model Subscription {
     id                Int                 @id @default(autoincrement())
-    priority          Int                 @default(autoincrement())
+    priority          Int
     name              String              @default("Platinum")
     creatorId         String
     creator           Creator             @relation(fields: [creatorId], references: [id])
@@ -34,6 +34,8 @@ model Subscription {
     features          String
     Post              Post[]
     User_Subscription User_Subscription[]
+
+    // Script-based default expression for priority
 
     // Unique constraint on userId and subscriptionId
     @@unique([creatorId, priority])

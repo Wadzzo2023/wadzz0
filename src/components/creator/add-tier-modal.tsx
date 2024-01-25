@@ -95,7 +95,7 @@ export default function AddTierModal({ creator }: { creator: Creator }) {
                 {mutation.isLoading && (
                   <span className="loading loading-spinner"></span>
                 )}
-                Create Post{" "}
+                Create Tier
               </button>
             </form>
           </div>

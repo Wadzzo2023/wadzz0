@@ -12,20 +12,22 @@ export const membershipRouter = createTRPCRouter({
   createMembership: protectedProcedure
     .input(TierSchema)
     .mutation(async ({ ctx, input }) => {
+      const maxPriority = (await ctx.db.subscription.findFirst({
+        where: { creatorId: input.id },
+        select: { priority: true },
+        orderBy: { priority: "desc" },
+      })) ?? { priority: 0 };
+
+      maxPriority.priority += 1;
+
       await ctx.db.subscription.create({
         data: {
+          priority: maxPriority.priority,
           assetId: 1,
           creatorId: input.id,
           days: 10,
           name: input.name,
           features: input.featureDescription,
-        },
-      });
-      const data = await ctx.db.creator.create({
-        data: {
-          name: "test user",
-          bio: "test",
-          user: { connect: { id: input.id } },
         },
       });
     }),

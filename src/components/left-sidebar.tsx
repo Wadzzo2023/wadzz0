@@ -13,7 +13,7 @@ export default function LeftBar() {
       <div className="flex-1">
         <div className="flex h-full flex-col items-center justify-center gap-2">
           <Link href={"/me/creator"}>
-            <Button text="Cretor" />
+            <Button text="Creator" />
           </Link>
           <Link href={"/"}>
             <Button text="Home" />
