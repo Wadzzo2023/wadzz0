@@ -4,7 +4,7 @@ export enum CreatorMenu {
   Home = "Home",
   Posts = "Posts",
   Membership = "Membership",
-  Subscribers = "Subscribers",
+  Shop = "Shop",
   About = "About",
 }
 

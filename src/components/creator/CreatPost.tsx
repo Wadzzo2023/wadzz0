@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useForm, SubmitHandler, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -6,9 +6,18 @@ import { api } from "~/utils/api";
 import toast from "react-hot-toast";
 import { Post } from "@prisma/client";
 import { formatPostCreatedAt } from "~/utils/format-date";
-import { Heart, Lock, MessageCircle, Share2 } from "lucide-react";
+import {
+  Heart,
+  Image as ImageIcon,
+  Lock,
+  MessageCircle,
+  Share2,
+  Video,
+} from "lucide-react";
 import Link from "next/link";
 import clsx from "clsx";
+import { UploadButton } from "~/utils/uploadthing";
+import Image from "next/image";
 
 export const PostSchema = z.object({
   id: z.string(),
@@ -19,6 +28,8 @@ export const PostSchema = z.object({
 
 export function CreatPost(props: { id: string }) {
   const utils = api.useUtils();
+
+  const [medialUrl, setMediaUrl] = useState<string>();
 
   const createPostMutation = api.post.create.useMutation({
     onSuccess: () => {
@@ -112,6 +123,39 @@ export function CreatPost(props: { id: string }) {
               </select>
             )}
           />
+          <div>
+            <div className="flex h-40 flex-col items-center justify-center gap-2">
+              {medialUrl && (
+                <Image src={medialUrl} alt="d" height={100} width={100} />
+              )}
+              <UploadButton
+                endpoint="imageUploader"
+                content={{ button: "Change Photo" }}
+                onClientUploadComplete={(res) => {
+                  // Do something with the response
+                  console.log("Files: ", res);
+                  // alert("Upload Completed");
+                  const data = res[0];
+
+                  if (data && data.url) {
+                    setMediaUrl(data.url);
+                    // updateProfileMutation.mutate(data.url);
+                  }
+                  // updateProfileMutation.mutate(res);
+                }}
+                onUploadError={(error: Error) => {
+                  // Do something with the error.
+                  alert(`ERROR! ${error.message}`);
+                }}
+              />
+            </div>
+            <div className="bg-base-300">
+              <div className="flex gap-2">
+                <ImageIcon />
+                <Video />
+              </div>
+            </div>
+          </div>
 
           <button
             className="btn btn-primary"

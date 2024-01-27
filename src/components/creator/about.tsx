@@ -5,6 +5,7 @@ import { z } from "zod";
 import Avater from "../ui/avater";
 import { Creator } from "@prisma/client";
 import { api } from "~/utils/api";
+import { UploadButton } from "~/utils/uploadthing";
 
 export default function About({ creator }: { creator: Creator }) {
   return (
@@ -21,10 +22,13 @@ export const CreatorAboutShema = z.object({
   id: z.string(),
   description: z.string().nullable(),
   name: z.string().min(3, { message: "Required" }),
+  profileUrl: z.string().nullable(),
 });
 
 function AboutForm({ creator }: { creator: Creator }) {
   const mutation = api.creator.updateCreatorProfile.useMutation();
+  const updateProfileMutation =
+    api.creator.changeCreatorProfilePicture.useMutation();
   const {
     register,
     handleSubmit,
@@ -43,19 +47,29 @@ function AboutForm({ creator }: { creator: Creator }) {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-2 p-5">
-      <div className="flex gap-2">
-        <div className="self-end">
-          <Avater />
+      <div className="flex items-center justify-center gap-2">
+        <div className="">
+          <Avater url={creator.profileUrl} />
         </div>
-        <label className="form-control w-full max-w-xs">
-          <div className="label">
-            <span className="label-text">Upload Photo</span>
-          </div>
-          <input
-            type="file"
-            className="file-input file-input-bordered file-input-sm w-full max-w-xs"
-          />
-        </label>
+        <UploadButton
+          endpoint="imageUploader"
+          content={{ button: "Change Photo" }}
+          onClientUploadComplete={(res) => {
+            // Do something with the response
+            console.log("Files: ", res);
+            // alert("Upload Completed");
+            const data = res[0];
+
+            if (data && data.url) {
+              updateProfileMutation.mutate(data.url);
+            }
+            // updateProfileMutation.mutate(res);
+          }}
+          onUploadError={(error: Error) => {
+            // Do something with the error.
+            alert(`ERROR! ${error.message}`);
+          }}
+        />
       </div>
       <label className="form-control w-full max-w-xs">
         <div className="label">

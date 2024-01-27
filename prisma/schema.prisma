@@ -82,6 +82,8 @@ model User_Subscription {
 model Creator {
     id            String         @id
     joinedAt      DateTime       @default(now())
+    profileUrl    String?
+    coverUrl      String?
     bio           String?
     name          String
     user          User           @relation(fields: [id], references: [id], onDelete: Cascade)
@@ -95,27 +97,20 @@ enum MediaType {
     IMAGE
 }
 
-model Media {
-    id          Int       @id @default(autoincrement())
-    type        MediaType
-    postId      Int
-    post        Post      @relation(fields: [postId], references: [id], onDelete: Cascade)
-    url         String
-    description String?
-    createdAt   DateTime  @default(now())
-}
-
 model Post {
-    id      Int    @id @default(autoincrement())
+    id Int @id @default(autoincrement())
+
     content String
     heading String @default("Heading")
+
+    mediaType MediaType?
+    mediaUrl  String?
 
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 
     creator   Creator @relation(fields: [creatorId], references: [id])
     creatorId String
-    Media     Media[]
 
     subscription   Subscription? @relation(fields: [subscriptionId], references: [id])
     subscriptionId Int?

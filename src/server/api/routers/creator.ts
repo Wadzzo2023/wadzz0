@@ -52,6 +52,24 @@ export const creatorRouter = createTRPCRouter({
   //   });
   // }),
 
+  changeCreatorProfilePicture: protectedProcedure
+    .input(z.string())
+    .mutation(async ({ ctx, input }) => {
+      await ctx.db.creator.update({
+        data: { profileUrl: input },
+        where: { id: ctx.session.user.id },
+      });
+    }),
+
+  changeCreatorCoverPicture: protectedProcedure
+    .input(z.string())
+    .mutation(async ({ ctx, input }) => {
+      await ctx.db.creator.update({
+        data: { coverUrl: input },
+        where: { id: ctx.session.user.id },
+      });
+    }),
+
   getSecretMessage: protectedProcedure.query(() => {
     return "you can now see this secret message!";
   }),
