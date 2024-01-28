@@ -5,7 +5,6 @@ import { api } from "~/utils/api";
 import { CreatorBack } from "../me/creator";
 import { Creator } from "@prisma/client";
 import MemberShipCard from "~/components/creator/card";
-import { useSession } from "next-auth/react";
 
 export default function CreatorPage() {
   const router = useRouter();
@@ -48,15 +47,11 @@ function Page({ creatorId }: { creatorId: string }) {
 }
 
 function ChooseMemberShip({ creator }: { creator: Creator }) {
-  const { data: sessionData } = useSession();
-
   const { data: subscriptonModel, isLoading } =
-    api.member.getAllMembership.useQuery();
+    api.member.getCreatorMembership.useQuery(creator.id);
   const subscribe = api.member.subscribe.useMutation();
 
-  const { data: subscriptions } = api.member.userSubscriptions.useQuery(
-    sessionData?.user.id ?? "vong",
-  );
+  const { data: subscriptions } = api.member.userSubscriptions.useQuery();
 
   return (
     <div className="mb-10 flex flex-col gap-4">
@@ -78,7 +73,6 @@ function ChooseMemberShip({ creator }: { creator: Creator }) {
               )}
               onClick={() =>
                 subscribe.mutate({
-                  id: sessionData?.user.id ?? "nill",
                   subscriptionId: el.id,
                 })
               }

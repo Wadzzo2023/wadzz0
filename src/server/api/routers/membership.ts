@@ -42,6 +42,13 @@ export const membershipRouter = createTRPCRouter({
       });
     }),
 
+  getCreatorMembership: protectedProcedure
+    .input(z.string())
+    .query(async ({ ctx, input }) => {
+      return await ctx.db.subscription.findMany({
+        where: { creatorId: input },
+      });
+    }),
   getAllMembership: protectedProcedure.query(async ({ ctx }) => {
     return await ctx.db.subscription.findMany({
       where: { creatorId: ctx.session.user.id },
@@ -64,20 +71,18 @@ export const membershipRouter = createTRPCRouter({
   }),
 
   subscribe: protectedProcedure
-    .input(z.object({ id: z.string(), subscriptionId: z.number() }))
+    .input(z.object({  subscriptionId: z.number() }))
     .mutation(async ({ ctx, input }) => {
       const subscription = await ctx.db.user_Subscription.create({
-        data: { userId: input.id, subscriptionId: input.subscriptionId },
+        data: { userId: ctx.session.user.id, subscriptionId: input.subscriptionId },
       });
       return subscription;
     }),
 
-  userSubscriptions: protectedProcedure
-    .input(z.string())
-    .query(async ({ ctx, input }) => {
-      const subscriptiosn = await ctx.db.user_Subscription.findMany({
-        where: { userId: input },
-      });
-      return subscriptiosn;
-    }),
+  userSubscriptions: protectedProcedure.query(async ({ ctx, input }) => {
+    const subscriptiosn = await ctx.db.user_Subscription.findMany({
+      where: { userId: ctx.session.user.id },
+    });
+    return subscriptiosn;
+  }),
 });
