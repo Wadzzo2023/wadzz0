@@ -6,7 +6,7 @@ import AddTierModal from "./add-tier-modal";
 
 export default function MemberShip({ creator }: { creator: Creator }) {
   const { data: subscriptions, isLoading } =
-    api.member.getAllMembership.useQuery(creator.id);
+    api.member.getAllMembership.useQuery();
   return (
     <div className="flex flex-col items-center">
       <p className="text-2xl font-bold">MemberShip </p>

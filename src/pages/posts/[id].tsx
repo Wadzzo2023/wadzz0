@@ -34,7 +34,7 @@ function Page({ postId, creator }: { postId: string; creator: string }) {
     <div className="flex w-full flex-col items-center">
       {data && (
         <>
-          <PostCard post={data} show />
+          <PostCard like={data._count.Like} post={data} show />
           <div className="card w-96 bg-base-100 shadow-xl">
             <div className="card-body">
               <h2 className="card-title">Comments</h2>

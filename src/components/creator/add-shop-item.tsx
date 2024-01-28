@@ -115,7 +115,7 @@ export default function AddItem2Shop() {
                     // alert("Upload Completed");
                     const data = res[0];
 
-                    if (data && data.url) {
+                    if (data?.url) {
                       setMediaUrl(data.url);
                       // setValue("mediaType", MediaType.IMAGE);
                       setValue("mediaUrl", data.url);
@@ -190,7 +190,9 @@ export default function AddItem2Shop() {
                 </label>
                 <button
                   type="button"
-                  onClick={() => {}}
+                  onClick={() => {
+                    console.log("hi");
+                  }}
                   className="btn btn-primary"
                 >
                   {mutation.isLoading && (

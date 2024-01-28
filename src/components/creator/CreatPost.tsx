@@ -139,7 +139,7 @@ export function CreatPost(props: { id: string }) {
                   // alert("Upload Completed");
                   const data = res[0];
 
-                  if (data && data.url) {
+                  if (data?.url) {
                     setMediaUrl(data.url);
                     setValue("mediaType", MediaType.IMAGE);
                     setValue("mediaUrl", data.url);

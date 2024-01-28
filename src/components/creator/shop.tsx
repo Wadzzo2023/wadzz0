@@ -19,7 +19,7 @@ function AllShopItems() {
   return (
     <div>
       <p>Shop items</p>
-      <ul>{items?.map((item) => <li>{item.code}</li>)}</ul>
+      <ul>{items?.map((item) => <li key={item.id}>{item.code}</li>)}</ul>
     </div>
   );
 }

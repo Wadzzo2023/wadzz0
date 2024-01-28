@@ -76,7 +76,7 @@ export function CreatorBack(props: { creator: Creator }) {
               console.log("Files: ", res);
               // alert("Upload Completed");
               const data = res[0];
-              if (data && data.url) {
+              if (data?.url) {
                 coverChangeMutation.mutate(data.url);
               }
 

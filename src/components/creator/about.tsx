@@ -60,7 +60,7 @@ function AboutForm({ creator }: { creator: Creator }) {
             // alert("Upload Completed");
             const data = res[0];
 
-            if (data && data.url) {
+            if (data?.url) {
               updateProfileMutation.mutate(data.url);
             }
             // updateProfileMutation.mutate(res);

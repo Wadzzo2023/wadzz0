@@ -65,6 +65,7 @@ export const postRouter = createTRPCRouter({
     .query(async ({ input, ctx }) => {
       return await ctx.db.post.findUnique({
         where: { id: input },
+        include: { _count: { select: { Like: true, Comment: true } } },
       });
     }),
 

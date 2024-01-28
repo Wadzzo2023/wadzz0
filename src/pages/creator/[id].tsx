@@ -38,7 +38,7 @@ function Page({ creatorId }: { creatorId: string }) {
           {data.length > 0 && (
             <div className="flex flex-col gap-2">
               {data.map((el) => (
-                <PostCard key={el.id} post={el} />
+                <PostCard like={el._count.Like} key={el.id} post={el} />
               ))}
             </div>
           )}
@@ -51,7 +51,7 @@ function ChooseMemberShip({ creator }: { creator: Creator }) {
   const { data: sessionData } = useSession();
 
   const { data: subscriptonModel, isLoading } =
-    api.member.getAllMembership.useQuery(creator.id);
+    api.member.getAllMembership.useQuery();
   const subscribe = api.member.subscribe.useMutation();
 
   const { data: subscriptions } = api.member.userSubscriptions.useQuery(
