@@ -7,7 +7,13 @@ await import("./src/env.js");
 /** @type {import("next").NextConfig} */
 const config = {
   reactStrictMode: true,
-  images: { domains: ["utfs.io"] },
+  images: {
+    remotePatterns: [
+      {
+        hostname: "utfs.io",
+      }
+    ]
+  },
 
   /**
    * If you are using `appDir` then you must comment the below `i18n` config out.

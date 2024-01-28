@@ -42,14 +42,26 @@ export const membershipRouter = createTRPCRouter({
       });
     }),
 
-  getAllMembership: publicProcedure
-    .input(z.string())
-    .query(async ({ ctx, input }) => {
-      const data = await ctx.db.subscription.findMany({
-        where: { creatorId: input },
-      });
-      return data;
-    }),
+  getAllMembership: protectedProcedure.query(async ({ ctx }) => {
+    return await ctx.db.subscription.findMany({
+      where: { creatorId: ctx.session.user.id },
+    });
+  }),
+
+  getAllSubscription: protectedProcedure.query(async ({ ctx }) => {
+    return await ctx.db.user_Subscription.findMany({
+      where: {
+        userId: ctx.session.user.id,
+      },
+      // include: {
+      //   subscription: {
+      //     include: {
+      //       creator: true,
+      //     },
+      //   },
+      // },
+    });
+  }),
 
   subscribe: protectedProcedure
     .input(z.object({ id: z.string(), subscriptionId: z.number() }))

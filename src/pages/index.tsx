@@ -56,11 +56,12 @@ function AllCreators() {
 }
 
 function AllRecentPost() {
-  const { data: sessionData } = useSession();
-
   const { data: posts, isLoading } = api.post.getAllRecentPosts.useQuery();
-  const { data: subscription, isLoading: isLoading2 } =
-    api.member.getAllMembership.useQuery(sessionData?.user.id ?? "vong");
+  const { data: user_subscriptions, isLoading: isLoading2 } =
+    api.member.getAllMembership.useQuery();
+
+  console.log(user_subscriptions, "us");
+
   if (isLoading2) return <div>Loading to fetch membership...</div>;
 
   if (isLoading) return <div>Loading...</div>;
@@ -71,7 +72,10 @@ function AllRecentPost() {
           <PostCard
             key={post.id}
             post={post}
-            show={subscription?.some((el) => el.id == post.subscriptionId)}
+            like={post._count.Like}
+            show={user_subscriptions?.some(
+              (el) => el.id == post.subscriptionId,
+            )}
           />
         ))}
       </div>

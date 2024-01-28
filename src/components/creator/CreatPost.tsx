@@ -24,8 +24,8 @@ export const PostSchema = z.object({
   heading: z.string().min(1, { message: "Required" }),
   content: z.string().min(20, { message: "Minimum 20 is reguired" }),
   subscription: z.string().optional(),
-  mediaType: z.nativeEnum(MediaType).nullable(),
-  mediaUrl: z.string().nullable(),
+  mediaType: z.nativeEnum(MediaType).nullable().optional(),
+  mediaUrl: z.string().nullable().optional(),
 });
 
 export function CreatPost(props: { id: string }) {
@@ -39,8 +39,7 @@ export function CreatPost(props: { id: string }) {
       toast.success("Post Created");
     },
   });
-  const { data, isLoading } = api.member.getAllMembership.useQuery(props.id);
-  console.log(data, "crator subs model");
+  const { data, isLoading } = api.member.getAllMembership.useQuery();
 
   const {
     register,
@@ -186,7 +185,7 @@ export function PostList(props: { id: string }) {
     return (
       <div className="flex flex-col gap-2">
         {data.map((post) => (
-          <PostCard key={post.id} post={post} show />
+          <PostCard key={post.id} post={post} like={post._count.Like} show />
         ))}
       </div>
     );
@@ -196,13 +195,15 @@ export function PostList(props: { id: string }) {
 export function PostCard({
   post,
   show = false,
+  like,
 }: {
   post: Post;
   show?: boolean;
+  like: number;
 }) {
   const likeMutation = api.post.likeApost.useMutation();
   const deleteLike = api.post.deleteALike.useMutation();
-  const { data: likes, isLoading } = api.post.getLikes.useQuery(post.id);
+  // const { data: likes, isLoading } = api.post.getLikes.useQuery(post.id);
   const { data: liked } = api.post.isLiked.useQuery(post.id);
 
   return (
@@ -249,7 +250,7 @@ export function PostCard({
                   }
                   className={clsx(liked && "fill-primary text-primary ")}
                 />{" "}
-                <p className="font-bold">{likes}</p>
+                <p className="font-bold">{like}</p>
               </div>
               <div className="flex items-end justify-center gap-1">
                 <MessageCircle /> <p className="font-bold">4</p>

@@ -40,6 +40,10 @@ export const postRouter = createTRPCRouter({
         where: {
           creatorId: input.pubkey,
         },
+        include: {
+          _count: { select: { Like: true, Comment: true } },
+          subscription: true,
+        },
       });
     }),
 
@@ -47,6 +51,12 @@ export const postRouter = createTRPCRouter({
     return await ctx.db.post.findMany({
       take: 10,
       orderBy: { createdAt: "desc" },
+      include: {
+        subscription: true,
+        _count: {
+          select: { Like: true, Comment: true },
+        },
+      },
     });
   }),
 

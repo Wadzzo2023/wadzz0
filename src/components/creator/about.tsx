@@ -22,7 +22,7 @@ export const CreatorAboutShema = z.object({
   id: z.string(),
   description: z.string().nullable(),
   name: z.string().min(3, { message: "Required" }),
-  profileUrl: z.string().nullable(),
+  profileUrl: z.string().nullable().optional(),
 });
 
 function AboutForm({ creator }: { creator: Creator }) {
