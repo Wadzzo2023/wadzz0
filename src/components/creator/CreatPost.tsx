@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { api } from "~/utils/api";
 import toast from "react-hot-toast";
-import { Post } from "@prisma/client";
+import { MediaType, Post } from "@prisma/client";
 import { formatPostCreatedAt } from "~/utils/format-date";
 import {
   Heart,
@@ -24,6 +24,8 @@ export const PostSchema = z.object({
   heading: z.string().min(1, { message: "Required" }),
   content: z.string().min(20, { message: "Minimum 20 is reguired" }),
   subscription: z.string().optional(),
+  mediaType: z.nativeEnum(MediaType).nullable(),
+  mediaUrl: z.string().nullable(),
 });
 
 export function CreatPost(props: { id: string }) {
@@ -45,6 +47,7 @@ export function CreatPost(props: { id: string }) {
     handleSubmit,
     reset,
     control,
+    setValue,
 
     formState: { errors },
   } = useForm<z.infer<typeof PostSchema>>({
@@ -139,6 +142,8 @@ export function CreatPost(props: { id: string }) {
 
                   if (data && data.url) {
                     setMediaUrl(data.url);
+                    setValue("mediaType", MediaType.IMAGE);
+                    setValue("mediaUrl", data.url);
                     // updateProfileMutation.mutate(data.url);
                   }
                   // updateProfileMutation.mutate(res);
@@ -208,7 +213,10 @@ export function PostCard({
       <figure>
         <img
           className="h-36"
-          src="https://daisyui.com/images/stock/photo-1606107557195-0e29a4b5b4aa.jpg"
+          src={
+            post.mediaUrl ??
+            "https://daisyui.com/images/stock/photo-1606107557195-0e29a4b5b4aa.jpg"
+          }
           alt="Post Image"
         />
       </figure>

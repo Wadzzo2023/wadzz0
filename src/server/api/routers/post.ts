@@ -23,6 +23,8 @@ export const postRouter = createTRPCRouter({
           subscriptionId: input.subscription
             ? Number(input.subscription)
             : null,
+          mediaType: input.mediaType,
+          mediaUrl: input.mediaUrl,
         },
       });
     }),
