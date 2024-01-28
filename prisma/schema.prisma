@@ -22,6 +22,19 @@ model Asset {
     subscription Subscription[]
 }
 
+model ShopAsset {
+    id          Int     @id @default(autoincrement())
+    name        String
+    description String?
+    price       Float
+    mediaUrl    String?
+    thumbnail   String?
+    code        String
+    issuer      String
+    creatorId   String
+    creator     Creator @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+}
+
 model Subscription {
     id                Int                 @id @default(autoincrement())
     priority          Int
@@ -89,6 +102,7 @@ model Creator {
     user          User           @relation(fields: [id], references: [id], onDelete: Cascade)
     posts         Post[]
     subscriptions Subscription[]
+    ShopAsset     ShopAsset[]
 }
 
 enum MediaType {
