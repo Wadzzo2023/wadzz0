@@ -58,7 +58,7 @@ function AllCreators() {
 function AllRecentPost() {
   const { data: posts, isLoading } = api.post.getAllRecentPosts.useQuery();
   const { data: user_subscriptions, isLoading: isLoading2 } =
-    api.member.getAllMembership.useQuery();
+    api.member.getAllSubscription.useQuery();
 
   console.log(user_subscriptions, "us");
 
@@ -73,9 +73,15 @@ function AllRecentPost() {
             key={post.id}
             post={post}
             like={post._count.Like}
-            show={user_subscriptions?.some(
-              (el) => el.id == post.subscriptionId,
-            )}
+            show={
+              !post.subscription ||
+              user_subscriptions?.some(
+                (el) =>
+                  el.subscription.creatorId == post.creatorId &&
+                  post.subscription &&
+                  el.subscription.priority <= post.subscription.priority,
+              )
+            }
           />
         ))}
       </div>

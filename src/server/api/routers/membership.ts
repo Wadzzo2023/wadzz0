@@ -60,21 +60,24 @@ export const membershipRouter = createTRPCRouter({
       where: {
         userId: ctx.session.user.id,
       },
-      // include: {
-      //   subscription: {
-      //     include: {
-      //       creator: true,
-      //     },
-      //   },
-      // },
+      include: {
+        subscription: true,
+      },
     });
   }),
 
   subscribe: protectedProcedure
-    .input(z.object({  subscriptionId: z.number() }))
+    .input(z.object({ subscriptionId: z.number() }))
     .mutation(async ({ ctx, input }) => {
+      let currentDate = new Date();
+      // Add 10 days to the current date
+      currentDate.setDate(currentDate.getDate() + 10);
       const subscription = await ctx.db.user_Subscription.create({
-        data: { userId: ctx.session.user.id, subscriptionId: input.subscriptionId },
+        data: {
+          userId: ctx.session.user.id,
+          subscriptionId: input.subscriptionId,
+          endDate: currentDate,
+        },
       });
       return subscription;
     }),

@@ -57,6 +57,7 @@ export function CreatPost(props: { id: string }) {
   console.log(errors);
 
   const onSubmit: SubmitHandler<z.infer<typeof PostSchema>> = (data) => {
+    console.log(data, "data");
     createPostMutation.mutate(data);
   };
 
@@ -113,7 +114,7 @@ export function CreatPost(props: { id: string }) {
                 {...field}
                 className="select select-bordered w-full max-w-xs"
               >
-                <option value="" disabled>
+                <option selected disabled>
                   Select an subscription model
                 </option>
                 {data.map((model) => (

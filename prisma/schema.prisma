@@ -87,6 +87,8 @@ model User_Subscription {
     user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
     subscriptionId Int
     subscription   Subscription @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
+    createdAt      DateTime     @default(now())
+    endDate        DateTime
 
     // Unique constraint on userId and subscriptionId
     @@unique([userId, subscriptionId])
