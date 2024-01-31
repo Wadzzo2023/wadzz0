@@ -67,7 +67,7 @@ export function CreatPost(props: { id: string }) {
       <div>
         <form
           onSubmit={handleSubmit(onSubmit)}
-          className="my-10 flex flex-col gap-2 bg-base-200 p-5"
+          className="my-10 flex min-w-96 flex-col gap-2 bg-base-200 p-5"
         >
           <label className="form-control w-full max-w-xs">
             <div className="label">

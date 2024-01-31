@@ -2,8 +2,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Creator } from "@prisma/client";
 import React, { useRef } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
+import toast from "react-hot-toast";
 import { z } from "zod";
 import { api } from "~/utils/api";
+import { clientsign, useConnectWalletStateStore } from "package/connect_wallet";
 
 export const TierSchema = z.object({
   name: z.string().min(4, { message: "Required" }),
@@ -15,9 +17,36 @@ export const TierSchema = z.object({
 
 export default function AddTierModal({ creator }: { creator: Creator }) {
   const modalRef = useRef<HTMLDialogElement>(null);
+  const { isAva, pubkey, walletType, uid, email } =
+    useConnectWalletStateStore();
   const mutation = api.member.createMembership.useMutation({
     onSuccess: () => {
       reset();
+    },
+  });
+
+  const trxMutation = api.trx.clawbackAssetCreationTrx.useMutation({
+    onSuccess: async (data) => {
+      if (data) {
+        toast.success("Tier created successfully!");
+        clientsign({
+          walletType,
+          presignedxdr: data,
+          pubkey: "GD5LKBBNYRQLL2GXV7OC43KZAYVLNJT6NRI3HJTYQWXRLL7UPPMOVDVY",
+        }).then((res) => {
+          if (!res) {
+            toast.success("popup success");
+            mutation.mutate({
+              name: "vong cong bookkolla and lowering",
+              featureDescription:
+                "lorem230   ldjfdsk lskd f;sdk fj;sldkf j;sdlfk;sjldkf lksdjf ;skdjf; akj;as dfkjs dfkasj; dfkas ;dfkasdj f;sdkf askdf ;sdlkfj s;dkfj as;dfl sa;dfas d;fsjd f;s d",
+              id: creator.id,
+            });
+          }
+        });
+      } else {
+        toast.error("Error creating tier");
+      }
     },
   });
 
@@ -31,8 +60,10 @@ export default function AddTierModal({ creator }: { creator: Creator }) {
     defaultValues: { id: creator.id },
   });
 
-  const onSubmit: SubmitHandler<z.infer<typeof TierSchema>> = (data) =>
-    mutation.mutate(data);
+  const onSubmit: SubmitHandler<z.infer<typeof TierSchema>> = (data) => {
+    trxMutation.mutate({ code: "test" });
+    // mutation.mutate(data);
+  };
   // createPostMutation.mutate({ ...data, pubkey: props.id });
 
   const handleModal = () => {
