@@ -7,6 +7,7 @@ import {
 } from "stellar-sdk";
 import { STELLAR_URL, networkPassphrase } from "./constant";
 import { env } from "~/env";
+import { AccounSchema, AccountType } from "./utils";
 
 const log = console;
 
@@ -86,5 +87,9 @@ export async function createAsset({
     .build();
 
   await Tx1.sign(issuerAcc, distributorAcc);
-  return { xdr: Tx1.toXDR(), issuerAcc };
+  const issuer: AccountType = {
+    publicKey: issuerAcc.publicKey(),
+    secretKey: issuerAcc.secret(),
+  };
+  return { xdr: Tx1.toXDR(), issuer };
 }

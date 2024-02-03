@@ -1,7 +1,8 @@
-import { Creator } from "@prisma/client";
+import { Creator, ShopAsset } from "@prisma/client";
 import React from "react";
 import AddItem2Shop from "./add-shop-item";
 import { api } from "~/utils/api";
+import BuyItemModal from "../shop/buy-item-modal";
 
 export default function Shop({ creator }: { creator: Creator }) {
   return (
@@ -19,7 +20,25 @@ function AllShopItems() {
   return (
     <div>
       <p>Shop items</p>
-      <ul>{items?.map((item) => <li key={item.id}>{item.code}</li>)}</ul>
+      <ul>
+        {items?.map((item) => (
+          <li key={item.id}>
+            <ShopItem item={item} />
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+function ShopItem({ item }: { item: ShopAsset }) {
+  return (
+    <div className="card">
+      <p>{item.name}</p>
+      <p>{item.description}</p>
+      <p>{item.price}</p>
+      <p>{item.creatorId}</p>
+      <BuyItemModal item={item} />
     </div>
   );
 }

@@ -8,8 +8,6 @@ import {
 } from "~/server/api/trpc";
 
 export const shopRouter = createTRPCRouter({
- 
-
   createShopAsset: protectedProcedure
     .input(ShopItemSchema)
     .mutation(async ({ ctx, input }) => {
@@ -22,7 +20,7 @@ export const shopRouter = createTRPCRouter({
           creatorId: ctx.session.user.id,
           mediaUrl: input.mediaUrl,
           thumbnail: "test",
-          issuer: "test",
+          issuer: input.issuer.publicKey,
         },
       });
     }),

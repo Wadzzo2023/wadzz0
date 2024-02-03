@@ -8,6 +8,8 @@ import Image from "next/image";
 import toast from "react-hot-toast";
 import clsx from "clsx";
 import { clientsign, useConnectWalletStateStore } from "package/connect_wallet";
+import { Keypair } from "stellar-sdk";
+import { AccounSchema } from "~/lib/stellar/utils";
 
 export const ShopItemSchema = z.object({
   name: z.string().min(4, { message: "Required" }),
@@ -19,15 +21,19 @@ export const ShopItemSchema = z.object({
   AssetLimit: z.number().nonnegative().int(),
   price: z.number().nonnegative(),
   mediaUrl: z.string().nullable(),
+  issuer: AccounSchema,
 });
 
 export default function AddItem2Shop() {
+  const modalRef = useRef<HTMLDialogElement>(null);
+
   const [medialUrl, setMediaUrl] = React.useState<string>();
   const [xdr, setXdr] = React.useState<string>();
   const [step, setStep] = React.useState(1);
-  const modalRef = useRef<HTMLDialogElement>(null);
+
   const { isAva, pubkey, walletType, uid, email } =
     useConnectWalletStateStore();
+
   const addMutation = api.shop.createShopAsset.useMutation({
     onSuccess: () => {
       toast.success("Item created successfully!");
@@ -39,6 +45,7 @@ export default function AddItem2Shop() {
     onSuccess(data, variables, context) {
       if (data) {
         setXdr(data.xdr);
+        setValue("issuer", data.issuer);
         setStep(3);
       } else {
         toast.error("Error happened");
