@@ -5,6 +5,8 @@ import { api } from "~/utils/api";
 import { CreatorBack } from "../me/creator";
 import { Creator } from "@prisma/client";
 import MemberShipCard from "~/components/creator/card";
+import { clientsign, useConnectWalletStateStore } from "package/connect_wallet";
+import toast from "react-hot-toast";
 
 export default function CreatorPage() {
   const router = useRouter();
@@ -47,9 +49,27 @@ function Page({ creatorId }: { creatorId: string }) {
 }
 
 function ChooseMemberShip({ creator }: { creator: Creator }) {
+  const { isAva, pubkey, walletType, uid, email } =
+    useConnectWalletStateStore();
   const { data: subscriptonModel, isLoading } =
     api.member.getCreatorMembership.useQuery(creator.id);
   const subscribe = api.member.subscribe.useMutation();
+
+  const mutation = api.trx.clawbackAssetPaymentTrx.useMutation({
+    onSuccess(data, variables, context) {
+      if (data) {
+        clientsign({
+          walletType,
+          presignedxdr: data,
+          pubkey: "GD5LKBBNYRQLL2GXV7OC43KZAYVLNJT6NRI3HJTYQWXRLL7UPPMOVDVY",
+        }).then((res) => {
+          if (res) {
+            toast.success("popup success");
+          }
+        });
+      }
+    },
+  });
 
   const { data: subscriptions } = api.member.userSubscriptions.useQuery();
 
@@ -79,8 +99,6 @@ function ChooseMemberShip({ creator }: { creator: Creator }) {
             >
               {subscribe.isLoading ? "Loading..." : "Subscribe"}
             </button>
-            {/* </div> */}
-            {/* </div> */}
           </MemberShipCard>
         ))}
       </div>

@@ -6,6 +6,7 @@ import {
   Asset,
 } from "stellar-sdk";
 import { STELLAR_URL, networkPassphrase } from "./constant";
+import { env } from "~/env";
 
 const log = console;
 
@@ -26,59 +27,64 @@ export async function createAsset({
   pubkey: string;
   code: string;
 }) {
-  try {
-    const limit = "5000";
-    const server = new Server(STELLAR_URL);
+  console.log(pubkey, "pubkey");
+  const limit = "5000";
+  const server = new Server(STELLAR_URL);
 
-    // issuer
-    const issuerAcc = Keypair.random();
+  // issuer
+  const issuerAcc = Keypair.random();
+  const distributorAcc = Keypair.fromSecret(env.DISTRIBUTOR_SECRET);
 
-    const asset = new Asset(code, issuerAcc.publicKey());
+  const asset = new Asset(code, issuerAcc.publicKey());
 
-    const transactionInializer = await server.loadAccount(pubkey);
+  const transactionInializer = await server.loadAccount(pubkey);
 
-    const Tx1 = new TransactionBuilder(transactionInializer, {
-      fee: "200",
-      networkPassphrase,
-    })
-      // 0 create issuer account
-      .addOperation(
-        Operation.createAccount({
-          destination: issuerAcc.publicKey(),
-          startingBalance: "1.5",
-        }),
-      )
-      // 1
-      .addOperation(
-        Operation.changeTrust({
-          asset,
-          limit: limit,
-        }),
-      )
-      // 3
-      .addOperation(
-        Operation.payment({
-          asset,
-          amount: limit,
-          source: issuerAcc.publicKey(),
-          destination: pubkey,
-        }),
-      )
-      // 4
-      .addOperation(
-        Operation.manageData({
-          name: "ipfshash",
-          value: "test",
-          source: issuerAcc.publicKey(),
-        }),
-      )
-      // 5
-      .setTimeout(0)
-      .build();
+  const Tx1 = new TransactionBuilder(transactionInializer, {
+    fee: "200",
+    networkPassphrase,
+  })
+    // 0 create issuer account
+    .addOperation(
+      Operation.createAccount({
+        destination: issuerAcc.publicKey(),
+        startingBalance: "1.5",
+      }),
+    )
+    // 1
+    .addOperation(
+      Operation.changeTrust({
+        asset,
+        limit: limit,
+      }),
+    )
+    // 2
+    .addOperation(
+      Operation.changeTrust({
+        asset,
+        limit: limit,
+        source: distributorAcc.publicKey(),
+      }),
+    )
+    // 3
+    .addOperation(
+      Operation.payment({
+        asset,
+        amount: limit,
+        source: issuerAcc.publicKey(),
+        destination: distributorAcc.publicKey(),
+      }),
+    )
+    // 4
+    .addOperation(
+      Operation.setOptions({
+        homeDomain: "vongcong.com",
+        source: issuerAcc.publicKey(),
+      }),
+    )
+    // 5
+    .setTimeout(0)
+    .build();
 
-    await Tx1.sign(issuerAcc);
-    return Tx1.toXDR();
-  } catch (e) {
-    log.info(e);
-  }
+  await Tx1.sign(issuerAcc, distributorAcc);
+  return { xdr: Tx1.toXDR(), issuerAcc };
 }

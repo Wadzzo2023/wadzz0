@@ -8,9 +8,7 @@ import {
 } from "~/server/api/trpc";
 
 export const shopRouter = createTRPCRouter({
-  getAssetTrx: protectedProcedure.query(({ ctx }) => {
-    return "you can now see this secret message!";
-  }),
+ 
 
   createShopAsset: protectedProcedure
     .input(ShopItemSchema)

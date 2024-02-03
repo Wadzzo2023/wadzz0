@@ -6,10 +6,12 @@ import { api } from "~/utils/api";
 import { UploadButton } from "~/utils/uploadthing";
 import Image from "next/image";
 import toast from "react-hot-toast";
+import clsx from "clsx";
+import { clientsign, useConnectWalletStateStore } from "package/connect_wallet";
 
 export const ShopItemSchema = z.object({
   name: z.string().min(4, { message: "Required" }),
-  description: z.string().min(20, { message: "Make description longer" }),
+  description: z.string().min(5, { message: "Make description longer" }),
   AssetName: z
     .string()
     .min(4, { message: "Asset name should be minimum 4" })
@@ -21,20 +23,35 @@ export const ShopItemSchema = z.object({
 
 export default function AddItem2Shop() {
   const [medialUrl, setMediaUrl] = React.useState<string>();
+  const [xdr, setXdr] = React.useState<string>();
+  const [step, setStep] = React.useState(1);
   const modalRef = useRef<HTMLDialogElement>(null);
-  const mutation = api.shop.createShopAsset.useMutation({
+  const { isAva, pubkey, walletType, uid, email } =
+    useConnectWalletStateStore();
+  const addMutation = api.shop.createShopAsset.useMutation({
     onSuccess: () => {
+      toast.success("Item created successfully!");
       reset();
     },
   });
 
-  const { data: trx } = api.shop.getAssetTrx.useQuery();
+  const xdrMutation = api.trx.createAssetTrx.useMutation({
+    onSuccess(data, variables, context) {
+      if (data) {
+        setXdr(data.xdr);
+        setStep(3);
+      } else {
+        toast.error("Error happened");
+      }
+    },
+  });
 
   const {
     register,
     handleSubmit,
     formState: { errors },
     setValue,
+    trigger,
     reset,
   } = useForm<z.infer<typeof ShopItemSchema>>({
     resolver: zodResolver(ShopItemSchema),
@@ -44,8 +61,16 @@ export default function AddItem2Shop() {
   });
 
   const onSubmit: SubmitHandler<z.infer<typeof ShopItemSchema>> = (data) => {
-    toast("clicked");
-    mutation.mutate(data);
+    if (xdr && !addMutation.isSuccess) {
+      clientsign({
+        presignedxdr: xdr,
+        pubkey,
+        walletType,
+        test: true,
+      }).then((res) => {
+        res && addMutation.mutate(data);
+      });
+    }
   };
 
   const handleModal = () => {
@@ -62,165 +87,280 @@ export default function AddItem2Shop() {
       <dialog id="my_modal_1" className="modal" ref={modalRef}>
         <div className="modal-box">
           <h3 className="text-lg font-bold">Creat NFT</h3>
+          <Steps />
+
           <div>
             <form
               onSubmit={handleSubmit(onSubmit)}
               className="flex flex-col gap-2"
             >
-              <label className="form-control w-full max-w-xs">
-                <div className="label">
-                  <span className="label-text">Name</span>
-                </div>
-                <input
-                  type="text"
-                  placeholder="Enter Name"
-                  {...register("name")}
-                  className="input input-bordered w-full max-w-xs"
-                />
-                {errors.name && (
-                  <div className="label">
-                    <span className="label-text-alt text-warning">
-                      {errors.name.message}
-                    </span>
-                  </div>
-                )}
-              </label>
-              <label className="form-control w-full max-w-xs">
-                <div className="label">
-                  <span className="label-text">Description</span>
-                </div>
-                <textarea
-                  {...register("description")}
-                  className="textarea textarea-bordered h-24"
-                  placeholder="Description"
-                ></textarea>
-                {errors.description && (
-                  <div className="label">
-                    <span className="label-text-alt text-warning">
-                      {errors.description.message}
-                    </span>
-                  </div>
-                )}
-              </label>
-              <div className="flex h-40 flex-col items-center justify-center gap-2">
-                {medialUrl && (
-                  <Image src={medialUrl} alt="d" height={100} width={100} />
-                )}
-                <UploadButton
-                  endpoint="imageUploader"
-                  content={{ button: "Change Photo" }}
-                  onClientUploadComplete={(res) => {
-                    // Do something with the response
-                    console.log("Files: ", res);
-                    // alert("Upload Completed");
-                    const data = res[0];
+              {step == 1 && <ItemInfo />}
 
-                    if (data?.url) {
-                      setMediaUrl(data.url);
-                      // setValue("mediaType", MediaType.IMAGE);
-                      setValue("mediaUrl", data.url);
-                      // updateProfileMutation.mutate(data.url);
-                    }
-                    // updateProfileMutation.mutate(res);
-                  }}
-                  onUploadError={(error: Error) => {
-                    // Do something with the error.
-                    alert(`ERROR! ${error.message}`);
-                  }}
-                />
-              </div>
+              {step == 2 && <AssetInfo />}
 
-              <div className="bg-base-200">
-                <label className="form-control w-full max-w-xs">
-                  <div className="label">
-                    <span className="label-text">Asset Name</span>
-                  </div>
-                  <input
-                    {...register("AssetName")}
-                    className="input input-bordered w-full max-w-xs"
-                    placeholder="Asset Name"
-                  ></input>
-                  {errors.AssetName && (
-                    <div className="label">
-                      <span className="label-text-alt text-warning">
-                        {errors.AssetName.message}
-                      </span>
-                    </div>
-                  )}
-                </label>
-                <label className="form-control w-full max-w-xs">
-                  <div className="label">
-                    <span className="label-text">Asset Limit</span>
-                  </div>
-                  <input
-                    {...register("AssetLimit", { valueAsNumber: true })}
-                    className="input input-bordered w-full max-w-xs"
-                    type="number"
-                    step="1"
-                    min="1"
-                    placeholder="Limit"
-                  ></input>
-                  {errors.AssetLimit && (
-                    <div className="label">
-                      <span className="label-text-alt text-warning">
-                        {errors.AssetLimit.message}
-                      </span>
-                    </div>
-                  )}
-                </label>
-                <label className="form-control w-full max-w-xs">
-                  <div className="label">
-                    <span className="label-text">Price</span>
-                  </div>
-                  <input
-                    {...register("price", { valueAsNumber: true })}
-                    className="input input-bordered w-full max-w-xs"
-                    type="number"
-                    step="1"
-                    min="1"
-                    placeholder="Price"
-                  ></input>
-                  {errors.price && (
-                    <div className="label">
-                      <span className="label-text-alt text-warning">
-                        {errors.price.message}
-                      </span>
-                    </div>
-                  )}
-                </label>
+              {step == 3 && (
                 <button
-                  type="button"
-                  onClick={() => {
-                    console.log("hi");
-                  }}
                   className="btn btn-primary"
+                  disabled={
+                    addMutation.isLoading || !xdr || addMutation.isSuccess
+                  }
                 >
-                  {mutation.isLoading && (
+                  {addMutation.isLoading && (
                     <span className="loading loading-spinner"></span>
                   )}
-                  Create Asset
+                  Add Item
                 </button>
-              </div>
-
-              <button
-                className="btn btn-primary"
-                disabled={mutation.isLoading || !trx}
-              >
-                {mutation.isLoading && (
-                  <span className="loading loading-spinner"></span>
-                )}
-                Add Item
-              </button>
+              )}
             </form>
           </div>
 
           <div className="modal-action">
             <form method="dialog">
-              <button className="btn">Close</button>
+              <button className="btn" disabled={addMutation.isLoading}>
+                Close
+              </button>
             </form>
           </div>
         </div>
       </dialog>
     </>
   );
+
+  function StepNavigatorButton() {
+    return (
+      <div className="flex justify-between">
+        {step < 3 && (
+          <button
+            type="button"
+            className="btn btn-primary"
+            onClick={() => {
+              if (step < 3) {
+                setStep(step + 1);
+              }
+            }}
+          >
+            Next
+          </button>
+        )}
+      </div>
+    );
+  }
+
+  function ItemInfo() {
+    return (
+      <div>
+        <label className="form-control w-full max-w-xs">
+          <div className="label">
+            <span className="label-text">Name</span>
+          </div>
+          <input
+            type="text"
+            placeholder="Enter Name"
+            {...register("name")}
+            className="input input-bordered w-full max-w-xs"
+          />
+          {errors.name && (
+            <div className="label">
+              <span className="label-text-alt text-warning">
+                {errors.name.message}
+              </span>
+            </div>
+          )}
+        </label>
+        <label className="form-control w-full max-w-xs">
+          <div className="label">
+            <span className="label-text">Description</span>
+          </div>
+          <textarea
+            {...register("description")}
+            className="textarea textarea-bordered h-24"
+            placeholder="Description"
+          ></textarea>
+          {errors.description && (
+            <div className="label">
+              <span className="label-text-alt text-warning">
+                {errors.description.message}
+              </span>
+            </div>
+          )}
+        </label>
+        <div className="flex h-40 flex-col items-center justify-center gap-2">
+          {medialUrl && (
+            <Image src={medialUrl} alt="d" height={100} width={100} />
+          )}
+          <UploadButton
+            endpoint="imageUploader"
+            content={{ button: "Change Photo" }}
+            onClientUploadComplete={(res) => {
+              // Do something with the response
+              console.log("Files: ", res);
+              // alert("Upload Completed");
+              const data = res[0];
+
+              if (data?.url) {
+                setMediaUrl(data.url);
+                // setValue("mediaType", MediaType.IMAGE);
+                setValue("mediaUrl", data.url);
+                // updateProfileMutation.mutate(data.url);
+              }
+              // updateProfileMutation.mutate(res);
+            }}
+            onUploadError={(error: Error) => {
+              // Do something with the error.
+              alert(`ERROR! ${error.message}`);
+            }}
+          />
+          <button
+            type="button"
+            className="btn btn-primary"
+            // disabled={isNameDesError()}
+            onClick={async () => {
+              const isOk = await triggerErrorInInf();
+              if (isOk) {
+                if (step < 3) {
+                  setStep(step + 1);
+                }
+              }
+            }}
+          >
+            Next
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  async function triggerErrorInInf() {
+    return await trigger(["name", "description"]);
+  }
+
+  function isNameDesError() {
+    // toast.error("Error happened");
+    if (errors.name || errors.description) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+  function isAssetInfoError() {
+    if (errors.AssetLimit || errors.AssetName || errors.price) return true;
+    else false;
+  }
+  async function triggerErroInAssetInfo() {
+    return await trigger(["AssetName", "AssetLimit", "price"]);
+  }
+
+  function AssetInfo() {
+    return (
+      <div className="bg-base-200">
+        <label className="form-control w-full max-w-xs">
+          <div className="label">
+            <span className="label-text">Asset Name</span>
+          </div>
+          <input
+            {...register("AssetName")}
+            className="input input-bordered w-full max-w-xs"
+            placeholder="Asset Name"
+          ></input>
+          {errors.AssetName && (
+            <div className="label">
+              <span className="label-text-alt text-warning">
+                {errors.AssetName.message}
+              </span>
+            </div>
+          )}
+        </label>
+        <label className="form-control w-full max-w-xs">
+          <div className="label">
+            <span className="label-text">Asset Limit</span>
+          </div>
+          <input
+            {...register("AssetLimit", { valueAsNumber: true })}
+            className="input input-bordered w-full max-w-xs"
+            type="number"
+            step="1"
+            min="1"
+            placeholder="Limit"
+          ></input>
+          {errors.AssetLimit && (
+            <div className="label">
+              <span className="label-text-alt text-warning">
+                {errors.AssetLimit.message}
+              </span>
+            </div>
+          )}
+        </label>
+        <label className="form-control w-full max-w-xs">
+          <div className="label">
+            <span className="label-text">Price</span>
+          </div>
+          <input
+            {...register("price", { valueAsNumber: true })}
+            className="input input-bordered w-full max-w-xs"
+            type="number"
+            step="1"
+            min="1"
+            placeholder="Price"
+          ></input>
+          {errors.price && (
+            <div className="label">
+              <span className="label-text-alt text-warning">
+                {errors.price.message}
+              </span>
+            </div>
+          )}
+        </label>
+        <button
+          type="button"
+          disabled={xdrMutation.isLoading || !!xdr || xdrMutation.isSuccess}
+          onClick={async () => {
+            const isOk = await triggerErroInAssetInfo();
+            if (isOk) {
+              xdrMutation.mutate();
+            }
+          }}
+          className="btn btn-primary"
+        >
+          {xdrMutation.isLoading && (
+            <span className="loading loading-spinner"></span>
+          )}
+          Create Asset
+        </button>
+      </div>
+    );
+  }
+  function Steps() {
+    return (
+      <ul className="steps w-full">
+        <li
+          className={clsx(
+            "step",
+            step > 0 && (isNameDesError() ? "step-warning" : "step-primary"),
+          )}
+          onClick={() => setStep(1)}
+        >
+          Item Info
+        </li>
+        <li
+          className={clsx(
+            "step",
+            step > 1 && (isAssetInfoError() ? "step-warning" : "step-primary"),
+          )}
+          onClick={() => triggerErrorInInf().then((ok) => ok && setStep(2))}
+        >
+          Asset Info
+        </li>
+        <li
+          className={clsx("step", step > 2 && "step-primary")}
+          onClick={() =>
+            step == 2 &&
+            xdr &&
+            triggerErroInAssetInfo().then((ok) => ok && setStep(3))
+          }
+        >
+          Confirm
+        </li>
+      </ul>
+    );
+  }
 }
