@@ -74,7 +74,7 @@ export async function clawBackAccCreate({
     .setTimeout(0)
     .build();
 
-  await Tx1.sign(escrowAcc, distributorAcc);
+  Tx1.sign(escrowAcc, distributorAcc);
 
   const escrow: AccountType = {
     publicKey: escrowAcc.publicKey(),

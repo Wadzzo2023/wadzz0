@@ -38,20 +38,22 @@ export default function AddTierModal({ creator }: { creator: Creator }) {
           presignedxdr: data.trx,
           pubkey: "GD5LKBBNYRQLL2GXV7OC43KZAYVLNJT6NRI3HJTYQWXRLL7UPPMOVDVY",
           test: true,
-        }).then((res) => {
-          if (res) {
-            toast.success("popup success");
-            mutation.mutate({
-              name: getValues("name"),
-              featureDescription:
-                getValues("featureDescription") || "No description",
-              day: getValues("day"),
-              escrow: data.escrow,
-            });
-          } else {
-            toast.error("Error signing transaction");
-          }
-        });
+        })
+          .then((res) => {
+            if (res) {
+              toast.success("popup success");
+              mutation.mutate({
+                name: getValues("name"),
+                featureDescription:
+                  getValues("featureDescription") || "No description",
+                day: getValues("day"),
+                escrow: data.escrow,
+              });
+            } else {
+              toast.error("Error signing transaction");
+            }
+          })
+          .catch((e) => console.log(e));
       } else {
         toast.error("Error creating tier");
       }

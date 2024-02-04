@@ -86,7 +86,7 @@ export async function createAsset({
     .setTimeout(0)
     .build();
 
-  await Tx1.sign(issuerAcc, distributorAcc);
+  Tx1.sign(issuerAcc, distributorAcc);
   const issuer: AccountType = {
     publicKey: issuerAcc.publicKey(),
     secretKey: issuerAcc.secret(),

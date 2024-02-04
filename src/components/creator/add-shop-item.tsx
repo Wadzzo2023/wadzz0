@@ -74,9 +74,11 @@ export default function AddItem2Shop() {
         pubkey,
         walletType,
         test: true,
-      }).then((res) => {
-        res && addMutation.mutate(data);
-      });
+      })
+        .then((res) => {
+          res && addMutation.mutate(data);
+        })
+        .catch((e) => console.log(e));
     }
   };
 
@@ -243,14 +245,14 @@ export default function AddItem2Shop() {
 
   function isNameDesError() {
     // toast.error("Error happened");
-    if (errors.name || errors.description) {
+    if (errors.name ?? errors.description) {
       return true;
     } else {
       return false;
     }
   }
   function isAssetInfoError() {
-    if (errors.AssetLimit || errors.AssetName || errors.price) return true;
+    if (errors.AssetLimit ?? errors.AssetName ?? errors.price) return true;
     else false;
   }
   async function triggerErroInAssetInfo() {

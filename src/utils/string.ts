@@ -1,8 +1,4 @@
-export function truncateString(
-  str: string,
-  firstFew: number = 3,
-  lastFew: number = 3,
-): string {
+export function truncateString(str: string, firstFew = 3, lastFew = 3): string {
   if (str.length <= firstFew + lastFew) {
     // No need to truncate, the string is already shorter than the specified length
     return str;

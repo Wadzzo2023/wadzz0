@@ -18,8 +18,6 @@ export default function BuyItemModal({ item }: { item: ShopItemProps }) {
     isModalOpen ? setIsModalOpen(false) : setIsModalOpen(true);
   };
 
-  const resetState = () => {};
-
   return (
     <>
       <button className="btn btn-secondary" onClick={handleModal}>
@@ -68,13 +66,15 @@ function ModalContent({ item }: { item: ShopItemProps }) {
         pubkey,
         walletType,
         test: true,
-      }).then((res) => {
-        if (res) {
-          toast.success("Transaction success");
-        } else {
-          toast.error("Transaction failed");
-        }
-      });
+      })
+        .then((res) => {
+          if (res) {
+            toast.success("Transaction success");
+          } else {
+            toast.error("Transaction failed");
+          }
+        })
+        .catch((e) => console.log(e));
   }
 
   return (

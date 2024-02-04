@@ -86,15 +86,20 @@ function SubscriptionCard({
           presignedxdr: data,
           pubkey,
           test: true,
-        }).then((res) => {
-          if (res) {
-            toast.success("popup success");
-            subscribe.mutate({
-              subscriptionId: subscription.id,
-              creatorId: creator.id,
-            });
-          }
-        });
+        })
+          .then((res) => {
+            if (res) {
+              toast.success("popup success");
+              subscribe.mutate({
+                subscriptionId: subscription.id,
+                creatorId: creator.id,
+                days: subscription.days,
+              });
+            }
+          })
+          .catch((e) => {
+            console.log(e);
+          });
       }
     },
   });

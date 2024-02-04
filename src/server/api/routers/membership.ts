@@ -84,11 +84,17 @@ export const membershipRouter = createTRPCRouter({
   }),
 
   subscribe: protectedProcedure
-    .input(z.object({ subscriptionId: z.number(), creatorId: z.string() }))
+    .input(
+      z.object({
+        subscriptionId: z.number(),
+        creatorId: z.string(),
+        days: z.number(),
+      }),
+    )
     .mutation(async ({ ctx, input }) => {
-      let currentDate = new Date();
+      const currentDate = new Date();
       // Add 10 days to the current date
-      currentDate.setDate(currentDate.getDate() + 10);
+      currentDate.setDate(currentDate.getDate() + input.days);
       const subscription = await ctx.db.user_Subscription.create({
         data: {
           userId: ctx.session.user.id,
@@ -96,7 +102,7 @@ export const membershipRouter = createTRPCRouter({
           endDate: currentDate,
         },
       });
-      ctx.db.notificationObject.create({
+      void ctx.db.notificationObject.create({
         data: {
           actorId: ctx.session.user.id,
           entiryId: NotificationEntity.Subscribe,

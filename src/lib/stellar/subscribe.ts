@@ -51,7 +51,7 @@ export async function getClawbackAsPayment({
     .setTimeout(0)
     .build();
 
-  await Tx1.sign(distributorAcc);
+  Tx1.sign(distributorAcc);
 
   return Tx1.toXDR();
 }
