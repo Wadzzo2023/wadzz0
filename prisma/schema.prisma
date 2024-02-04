@@ -16,10 +16,19 @@ datasource db {
 }
 
 model Asset {
-    id           Int            @id @default(autoincrement())
-    code         String
-    issuer       String
+    id   Int    @id @default(autoincrement())
+    code String
+
+    issuer        String
+    issuerPrivate String
+
+    creatorId String
+    creator   Creator @relation(fields: [creatorId], references: [id], onDelete: NoAction)
+
+    escrow Boolean @default(false)
+
     subscription Subscription[]
+    ShopAsset    ShopAsset[]
 }
 
 model ShopAsset {
@@ -29,10 +38,12 @@ model ShopAsset {
     price       Float
     mediaUrl    String?
     thumbnail   String?
-    code        String
-    issuer      String
-    creatorId   String
-    creator     Creator @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+
+    assetId Int
+    asset   Asset @relation(fields: [assetId], references: [id], onDelete: NoAction)
+
+    creatorId String
+    creator   Creator @relation(fields: [creatorId], references: [id], onDelete: Cascade)
 }
 
 model Subscription {
@@ -47,8 +58,6 @@ model Subscription {
     features          String
     Post              Post[]
     User_Subscription User_Subscription[]
-
-    // Script-based default expression for priority
 
     // Unique constraint on userId and subscriptionId
     @@unique([creatorId, priority])
@@ -105,6 +114,7 @@ model Creator {
     posts         Post[]
     subscriptions Subscription[]
     ShopAsset     ShopAsset[]
+    Asset         Asset[]
 }
 
 enum MediaType {

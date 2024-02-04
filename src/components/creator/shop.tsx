@@ -31,7 +31,14 @@ function AllShopItems() {
   );
 }
 
-function ShopItem({ item }: { item: ShopAsset }) {
+export interface ShopItemProps extends ShopAsset {
+  asset: {
+    code: string;
+    issuer: string;
+  };
+}
+
+function ShopItem({ item }: { item: ShopItemProps }) {
   return (
     <div className="card">
       <p>{item.name}</p>

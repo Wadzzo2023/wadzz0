@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { CreatorAboutShema } from "~/components/creator/about";
 import { TierSchema } from "~/components/creator/add-tier-modal";
+import { AccounSchema } from "~/lib/stellar/utils";
 
 import {
   createTRPCRouter,
@@ -10,24 +11,34 @@ import {
 
 export const membershipRouter = createTRPCRouter({
   createMembership: protectedProcedure
-    .input(TierSchema)
+    .input(TierSchema.extend({ escrow: AccounSchema }))
     .mutation(async ({ ctx, input }) => {
       const maxPriority = (await ctx.db.subscription.findFirst({
-        where: { creatorId: input.id },
+        where: { creatorId: ctx.session.user.id },
         select: { priority: true },
         orderBy: { priority: "desc" },
       })) ?? { priority: 0 };
 
       maxPriority.priority += 1;
 
+      const asset = await ctx.db.asset.create({
+        data: {
+          code: input.name,
+          issuer: input.escrow.publicKey,
+          issuerPrivate: input.escrow.secretKey,
+          creatorId: ctx.session.user.id,
+          escrow: true,
+        },
+      });
+
       await ctx.db.subscription.create({
         data: {
-          priority: maxPriority.priority,
-          assetId: 1,
-          creatorId: input.id,
-          days: 10,
+          assetId: asset.id,
+          creatorId: ctx.session.user.id,
+          days: input.day,
           name: input.name,
           features: input.featureDescription,
+          priority: maxPriority.priority,
         },
       });
     }),

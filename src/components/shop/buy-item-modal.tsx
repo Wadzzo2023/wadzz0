@@ -5,8 +5,9 @@ import toast from "react-hot-toast";
 import { Asset } from "stellar-sdk";
 import { api } from "~/utils/api";
 import { truncateString } from "~/utils/string";
+import { ShopItemProps } from "../creator/shop";
 
-export default function BuyItemModal({ item }: { item: ShopAsset }) {
+export default function BuyItemModal({ item }: { item: ShopItemProps }) {
   const modalRef = useRef<HTMLDialogElement>(null);
   const [isModalOpen, setIsModalOpen] = React.useState(false);
 
@@ -43,7 +44,7 @@ export default function BuyItemModal({ item }: { item: ShopAsset }) {
   );
 }
 
-function ModalContent({ item }: { item: ShopAsset }) {
+function ModalContent({ item }: { item: ShopItemProps }) {
   const { isAva, pubkey, walletType, uid, email } =
     useConnectWalletStateStore();
 
@@ -54,8 +55,8 @@ function ModalContent({ item }: { item: ShopAsset }) {
     isLoading,
   } = api.trx.buyAssetTrx.useQuery(
     {
-      code: item.code,
-      issuer: item.issuer,
+      code: item.asset.code,
+      issuer: item.asset.issuer,
     },
     { refetchOnWindowFocus: false },
   );
@@ -79,9 +80,11 @@ function ModalContent({ item }: { item: ShopAsset }) {
   return (
     <div>
       <h3 className="text-lg font-bold">Hello! {truncateString(pubkey)} </h3>
-      <p>{item.code}</p>
+      <p>{item.asset.code}</p>
       {xdr && <p>{truncateString(xdr, 10, 5)}</p>}
-      <p className="py-4">Press ESC key or click the button below to close</p>
+      <p>
+        {item.asset.code}-{truncateString(item.asset.issuer)}
+      </p>
       {isError && <p>{error.message}</p>}
       {xdr && (
         <button className="btn" onClick={handleSubmit}>

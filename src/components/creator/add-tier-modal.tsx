@@ -6,13 +6,17 @@ import toast from "react-hot-toast";
 import { z } from "zod";
 import { api } from "~/utils/api";
 import { clientsign, useConnectWalletStateStore } from "package/connect_wallet";
+import { AccounSchema } from "~/lib/stellar/utils";
 
 export const TierSchema = z.object({
-  name: z.string().min(4, { message: "Required" }),
+  name: z
+    .string()
+    .min(4, { message: "Minimum 4 charecter" })
+    .max(12, { message: "Maximum 12 charecter" }),
   featureDescription: z
     .string()
     .min(20, { message: "Make description longer" }),
-  id: z.string(),
+  day: z.number().min(1, { message: "Minimum 1 day" }),
 });
 
 export default function AddTierModal({ creator }: { creator: Creator }) {
@@ -28,20 +32,24 @@ export default function AddTierModal({ creator }: { creator: Creator }) {
   const trxMutation = api.trx.clawbackAssetCreationTrx.useMutation({
     onSuccess: async (data) => {
       if (data) {
-        toast.success("Tier created successfully!");
+        toast.success("xdr created!");
         clientsign({
           walletType,
-          presignedxdr: data,
+          presignedxdr: data.trx,
           pubkey: "GD5LKBBNYRQLL2GXV7OC43KZAYVLNJT6NRI3HJTYQWXRLL7UPPMOVDVY",
+          test: true,
         }).then((res) => {
-          if (!res) {
+          if (res) {
             toast.success("popup success");
             mutation.mutate({
-              name: "vong cong bookkolla and lowering",
+              name: getValues("name"),
               featureDescription:
-                "lorem230   ldjfdsk lskd f;sdk fj;sldkf j;sdlfk;sjldkf lksdjf ;skdjf; akj;as dfkjs dfkasj; dfkas ;dfkasdj f;sdkf askdf ;sdlkfj s;dkfj as;dfl sa;dfas d;fsjd f;s d",
-              id: creator.id,
+                getValues("featureDescription") || "No description",
+              day: getValues("day"),
+              escrow: data.escrow,
             });
+          } else {
+            toast.error("Error signing transaction");
           }
         });
       } else {
@@ -54,17 +62,19 @@ export default function AddTierModal({ creator }: { creator: Creator }) {
     register,
     handleSubmit,
     formState: { errors },
+    getValues,
     reset,
   } = useForm<z.infer<typeof TierSchema>>({
     resolver: zodResolver(TierSchema),
-    defaultValues: { id: creator.id },
+    defaultValues: {},
   });
 
   const onSubmit: SubmitHandler<z.infer<typeof TierSchema>> = (data) => {
-    trxMutation.mutate({ code: "test" });
+    trxMutation.mutate({ code: getValues("name") });
     // mutation.mutate(data);
   };
-  // createPostMutation.mutate({ ...data, pubkey: props.id });
+
+  console.log(errors, "fomr error");
 
   const handleModal = () => {
     modalRef.current?.showModal();
@@ -85,12 +95,31 @@ export default function AddTierModal({ creator }: { creator: Creator }) {
             >
               <label className="form-control w-full max-w-xs">
                 <div className="label">
-                  <span className="label-text">Tier Content</span>
+                  <span className="label-text">Tier Name</span>
                 </div>
                 <input
                   type="text"
-                  placeholder="$1/month"
+                  placeholder="Name of the tier"
                   {...register("name")}
+                  className="input input-bordered w-full max-w-xs"
+                />
+                {errors.name && (
+                  <div className="label">
+                    <span className="label-text-alt text-warning">
+                      {errors.name.message}
+                    </span>
+                  </div>
+                )}
+              </label>
+              <label className="form-control w-full max-w-xs">
+                <div className="label">
+                  <span className="label-text">Subscriptin Day</span>
+                </div>
+                <input
+                  type="number"
+                  placeholder="Subscription day"
+                  min={1}
+                  {...register("day", { valueAsNumber: true })}
                   className="input input-bordered w-full max-w-xs"
                 />
                 {errors.name && (
@@ -108,7 +137,7 @@ export default function AddTierModal({ creator }: { creator: Creator }) {
                 <textarea
                   {...register("featureDescription")}
                   className="textarea textarea-bordered h-24"
-                  placeholder="Description ..."
+                  placeholder="What does this tier offer?"
                 ></textarea>
                 {errors.featureDescription && (
                   <div className="label">
