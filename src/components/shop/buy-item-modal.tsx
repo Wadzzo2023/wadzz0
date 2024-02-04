@@ -1,6 +1,7 @@
 import { ShopAsset } from "@prisma/client";
-import { useConnectWalletStateStore } from "package/connect_wallet";
+import { clientsign, useConnectWalletStateStore } from "package/connect_wallet";
 import React, { useRef } from "react";
+import toast from "react-hot-toast";
 import { Asset } from "stellar-sdk";
 import { api } from "~/utils/api";
 import { truncateString } from "~/utils/string";
@@ -53,18 +54,40 @@ function ModalContent({ item }: { item: ShopAsset }) {
     isLoading,
   } = api.trx.buyAssetTrx.useQuery(
     {
-      asset: { code: item.code, issuer: item.issuer },
+      code: item.code,
+      issuer: item.issuer,
     },
     { refetchOnWindowFocus: false },
   );
+
+  function handleSubmit() {
+    if (xdr)
+      clientsign({
+        presignedxdr: xdr,
+        pubkey,
+        walletType,
+        test: true,
+      }).then((res) => {
+        if (res) {
+          toast.success("Transaction success");
+        } else {
+          toast.error("Transaction failed");
+        }
+      });
+  }
 
   return (
     <div>
       <h3 className="text-lg font-bold">Hello! {truncateString(pubkey)} </h3>
       <p>{item.code}</p>
-      {xdr && <p>{truncateString(xdr, 10, 0)}</p>}
+      {xdr && <p>{truncateString(xdr, 10, 5)}</p>}
       <p className="py-4">Press ESC key or click the button below to close</p>
       {isError && <p>{error.message}</p>}
+      {xdr && (
+        <button className="btn" onClick={handleSubmit}>
+          Confirm
+        </button>
+      )}
     </div>
   );
 }

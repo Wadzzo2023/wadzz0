@@ -6,3 +6,10 @@ export const AccounSchema = z.object({
 });
 
 export type AccountType = z.infer<typeof AccounSchema>;
+
+export const AssetSchema = z.object({
+  code: z.string(),
+  issuer: z.string(),
+});
+
+export type MyAssetType = z.infer<typeof AssetSchema>;

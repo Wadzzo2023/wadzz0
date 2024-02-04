@@ -4,6 +4,7 @@ import { buyAssetTrx } from "~/lib/stellar/buy_asset";
 import { clawBackAccCreate } from "~/lib/stellar/clawback";
 import { createAsset } from "~/lib/stellar/create_asset";
 import { getClawbackAsPayment } from "~/lib/stellar/subscribe";
+import { AssetSchema } from "~/lib/stellar/utils";
 
 import {
   createTRPCRouter,
@@ -36,13 +37,10 @@ export const trxRouter = createTRPCRouter({
   }),
 
   buyAssetTrx: protectedProcedure
-    .input(
-      z.object({ asset: z.object({ code: z.string(), issuer: z.string() }) }),
-    )
+    .input(AssetSchema)
     .query(async ({ input, ctx }) => {
-      const { asset } = input;
       const customerPubkey = ctx.session.user.id; // is the custeomr
-      return await buyAssetTrx({ customerPubkey, asset });
+      return await buyAssetTrx({ customerPubkey, assetType: input });
     }),
 
   getSecretMessage: protectedProcedure.query(() => {

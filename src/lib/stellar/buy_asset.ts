@@ -7,17 +7,19 @@ import {
 } from "stellar-sdk";
 import { STELLAR_URL, networkPassphrase } from "./constant";
 import { env } from "~/env";
+import { MyAssetType } from "./utils";
 
 const log = console;
 
 export async function buyAssetTrx({
   customerPubkey,
-  asset,
+  assetType,
 }: {
   customerPubkey: string;
-  asset: Asset;
+  assetType: MyAssetType;
 }) {
   const server = new Server(STELLAR_URL);
+  const asset = new Asset(assetType.code, assetType.issuer);
 
   const distributorAcc = Keypair.fromSecret(env.DISTRIBUTOR_SECRET);
 
