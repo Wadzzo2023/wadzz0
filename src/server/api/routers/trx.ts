@@ -22,15 +22,14 @@ export const trxRouter = createTRPCRouter({
       });
     }),
 
-  clawbackAssetPaymentTrx: protectedProcedure.mutation(async ({ ctx }) => {
-    return await getClawbackAsPayment({
-      asset: new Asset(
-        "VNDT",
-        "GD5LKBBNYRQLL2GXV7OC43KZAYVLNJT6NRI3HJTYQWXRLL7UPPMOVDVY",
-      ),
-      userPubkey: ctx.session.user.id,
-    });
-  }),
+  clawbackAssetPaymentTrx: protectedProcedure
+    .input(AssetSchema)
+    .mutation(async ({ input, ctx }) => {
+      return await getClawbackAsPayment({
+        assetInfo: input,
+        userPubkey: ctx.session.user.id,
+      });
+    }),
 
   createAssetTrx: protectedProcedure.mutation(async ({ ctx }) => {
     return await createAsset({ pubkey: ctx.session.user.id, code: "VNDT" });

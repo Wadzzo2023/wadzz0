@@ -9,46 +9,49 @@ import {
   AuthRevocableFlag,
 } from "stellar-sdk";
 import { STELLAR_URL, networkPassphrase } from "./constant";
+import { MyAssetType } from "./utils";
+import { env } from "~/env";
 
 const log = console;
 // transection variables
 
 export async function getClawbackAsPayment({
   userPubkey,
-  asset,
+  assetInfo,
 }: {
   userPubkey: string;
-  asset: Asset;
+  assetInfo: MyAssetType;
 }) {
-  try {
-    const server = new Server(STELLAR_URL);
+  const server = new Server(STELLAR_URL);
 
-    const storageSecret = "vong cong";
-    const storageAcc = Keypair.fromSecret(storageSecret);
+  const distributorAcc = Keypair.fromSecret(env.DISTRIBUTOR_SECRET);
+  const asset = new Asset(assetInfo.code, assetInfo.issuer);
 
-    const transactionInializer = await server.loadAccount(userPubkey);
+  const transactionInializer = await server.loadAccount(userPubkey);
 
-    const Tx1 = new TransactionBuilder(transactionInializer, {
-      fee: "200",
-      networkPassphrase,
-    })
+  const Tx1 = new TransactionBuilder(transactionInializer, {
+    fee: "200",
+    networkPassphrase,
+  })
 
-      // 0
-      .addOperation(
-        Operation.payment({
-          destination: userPubkey,
-          amount: "1",
-          asset,
-          source: storageAcc.publicKey(),
-        }),
-      )
-      .setTimeout(0)
-      .build();
+    .addOperation(
+      Operation.changeTrust({
+        asset,
+      }),
+    )
+    // 0
+    .addOperation(
+      Operation.payment({
+        destination: userPubkey,
+        amount: "1",
+        asset,
+        source: distributorAcc.publicKey(),
+      }),
+    )
+    .setTimeout(0)
+    .build();
 
-    await Tx1.sign(storageAcc);
+  await Tx1.sign(distributorAcc);
 
-    return Tx1.toXDR();
-  } catch (e) {
-    log.info(e);
-  }
+  return Tx1.toXDR();
 }

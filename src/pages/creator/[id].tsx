@@ -3,10 +3,11 @@ import React from "react";
 import { PostCard } from "~/components/creator/CreatPost";
 import { api } from "~/utils/api";
 import { CreatorBack } from "../me/creator";
-import { Creator } from "@prisma/client";
+import { Creator, Subscription } from "@prisma/client";
 import MemberShipCard from "~/components/creator/card";
 import { clientsign, useConnectWalletStateStore } from "package/connect_wallet";
 import toast from "react-hot-toast";
+import { MyAssetType } from "~/lib/stellar/utils";
 
 export default function CreatorPage() {
   const router = useRouter();
@@ -49,29 +50,8 @@ function Page({ creatorId }: { creatorId: string }) {
 }
 
 function ChooseMemberShip({ creator }: { creator: Creator }) {
-  const { isAva, pubkey, walletType, uid, email } =
-    useConnectWalletStateStore();
   const { data: subscriptonModel, isLoading } =
     api.member.getCreatorMembership.useQuery(creator.id);
-  const subscribe = api.member.subscribe.useMutation();
-
-  const mutation = api.trx.clawbackAssetPaymentTrx.useMutation({
-    onSuccess(data, variables, context) {
-      if (data) {
-        clientsign({
-          walletType,
-          presignedxdr: data,
-          pubkey: "GD5LKBBNYRQLL2GXV7OC43KZAYVLNJT6NRI3HJTYQWXRLL7UPPMOVDVY",
-        }).then((res) => {
-          if (res) {
-            toast.success("popup success");
-          }
-        });
-      }
-    },
-  });
-
-  const { data: subscriptions } = api.member.userSubscriptions.useQuery();
 
   return (
     <div className="mb-10 flex flex-col gap-4">
@@ -79,29 +59,67 @@ function ChooseMemberShip({ creator }: { creator: Creator }) {
       {isLoading && <div>Loading...</div>}
       <div className="flex gap-2">
         {subscriptonModel?.map((el) => (
-          <MemberShipCard
-            key={el.id}
-            className="w-48 bg-neutral text-neutral-content"
-            creator={creator}
-            subscription={el}
-          >
-            {/* <div className="card-actions justify-end"> */}
-            <button
-              className="btn btn-primary"
-              disabled={subscriptions?.some(
-                (sub) => sub.subscriptionId === el.id,
-              )}
-              onClick={() =>
-                subscribe.mutate({
-                  subscriptionId: el.id,
-                })
-              }
-            >
-              {subscribe.isLoading ? "Loading..." : "Subscribe"}
-            </button>
-          </MemberShipCard>
+          <SubscriptionCard key={el.id} creator={creator} subscription={el} />
         ))}
       </div>
     </div>
+  );
+}
+
+function SubscriptionCard({
+  subscription,
+  creator,
+}: {
+  subscription: Subscription & { asset: MyAssetType };
+  creator: Creator;
+}) {
+  const { isAva, pubkey, walletType, uid, email } =
+    useConnectWalletStateStore();
+  const { data: subscriptions } = api.member.userSubscriptions.useQuery();
+  const subscribe = api.member.subscribe.useMutation();
+
+  const xdrMutation = api.trx.clawbackAssetPaymentTrx.useMutation({
+    onSuccess(data, variables, context) {
+      if (data) {
+        clientsign({
+          walletType,
+          presignedxdr: data,
+          pubkey,
+          test: true,
+        }).then((res) => {
+          if (res) {
+            toast.success("popup success");
+            subscribe.mutate({
+              subscriptionId: subscription.id,
+            });
+          }
+        });
+      }
+    },
+  });
+
+  return (
+    <MemberShipCard
+      key={subscription.id}
+      className="w-48 bg-neutral text-neutral-content"
+      creator={creator}
+      subscription={subscription}
+    >
+      {/* <div className="card-actions justify-end"> */}
+      <button
+        className="btn btn-primary"
+        disabled={subscriptions?.some(
+          (sub) => sub.subscriptionId === subscription.id,
+        )}
+        onClick={() =>
+          // subscribe.mutate({
+          //   subscriptionId: el.id,
+          // })
+          xdrMutation.mutate(subscription.asset)
+        }
+      >
+        {subscribe.isLoading ? "Loading..." : "Subscribe"}
+      </button>
+    </MemberShipCard>
   );
 }

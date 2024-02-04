@@ -58,6 +58,11 @@ export const membershipRouter = createTRPCRouter({
     .query(async ({ ctx, input }) => {
       return await ctx.db.subscription.findMany({
         where: { creatorId: input },
+        include: {
+          asset: {
+            select: { code: true, issuer: true },
+          },
+        },
       });
     }),
   getAllMembership: protectedProcedure.query(async ({ ctx }) => {
