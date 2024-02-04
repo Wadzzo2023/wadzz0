@@ -42,4 +42,38 @@ export const shopRouter = createTRPCRouter({
   getSecretMessage: protectedProcedure.query(() => {
     return "you can now see this secret message!";
   }),
+
+  search: publicProcedure.input(z.string()).query(async ({ input, ctx }) => {
+    return await ctx.db.shopAsset.findMany({
+      where: {
+        OR: [
+          {
+            name: {
+              contains: input,
+              mode: "insensitive",
+            },
+          },
+          {
+            description: {
+              contains: input,
+              mode: "insensitive",
+            },
+          },
+          {
+            asset: {
+              code: {
+                contains: input,
+                mode: "insensitive",
+              },
+              issuer: {
+                contains: input,
+                mode: "insensitive",
+              },
+            },
+          },
+        ],
+      },
+      include: { asset: { select: { code: true, issuer: true } } },
+    });
+  }),
 });

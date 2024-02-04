@@ -191,4 +191,26 @@ export const postRouter = createTRPCRouter({
         .catch(console.error);
       return comment;
     }),
+
+  search: publicProcedure.input(z.string()).query(async ({ input, ctx }) => {
+    return await ctx.db.post.findMany({
+      where: {
+        OR: [
+          {
+            content: {
+              contains: input,
+              // how can i make this case insensitive?
+              mode: "insensitive",
+            },
+          },
+          {
+            heading: {
+              contains: input,
+              mode: "insensitive",
+            },
+          },
+        ],
+      },
+    });
+  }),
 });

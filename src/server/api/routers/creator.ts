@@ -73,4 +73,25 @@ export const creatorRouter = createTRPCRouter({
   getSecretMessage: protectedProcedure.query(() => {
     return "you can now see this secret message!";
   }),
+
+  search: publicProcedure.input(z.string()).query(async ({ input, ctx }) => {
+    return await ctx.db.creator.findMany({
+      where: {
+        OR: [
+          {
+            name: {
+              contains: input,
+              mode: "insensitive",
+            },
+          },
+          {
+            bio: {
+              contains: input,
+              mode: "insensitive",
+            },
+          },
+        ],
+      },
+    });
+  }),
 });
