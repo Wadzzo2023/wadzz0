@@ -1,6 +1,6 @@
 import { useRouter } from "next/router";
 import React from "react";
-import { PostCard } from "~/components/creator/CreatPost";
+import { PostCard } from "~/components/creator/post";
 import { api } from "~/utils/api";
 import { CreatorBack } from "../me/creator";
 import { Creator, Subscription } from "@prisma/client";
@@ -91,6 +91,7 @@ function SubscriptionCard({
             toast.success("popup success");
             subscribe.mutate({
               subscriptionId: subscription.id,
+              creatorId: creator.id,
             });
           }
         });

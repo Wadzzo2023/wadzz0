@@ -15,6 +15,32 @@ datasource db {
     url      = env("DATABASE_URL")
 }
 
+// it is kinda notification actor and the entity that is being acted upon
+model NotificationObject {
+    id        Int      @id @default(autoincrement())
+    entiryId  Int
+    createdAt DateTime @default(now())
+
+    Notification Notification[]
+
+    actorId String
+    isUser  Boolean @default(true)
+}
+
+// it is the entity that is for who the notification is for
+model Notification {
+    id Int @id @default(autoincrement())
+
+    nofitifactionObjectId Int
+    notificationObject    NotificationObject @relation(fields: [nofitifactionObjectId], references: [id])
+
+    seen      DateTime?
+    createdAt DateTime  @default(now())
+
+    notifierId String
+    isCreator  Boolean @default(true)
+}
+
 model Asset {
     id   Int    @id @default(autoincrement())
     code String
@@ -70,6 +96,8 @@ model Like {
     userId    String
     user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
     createdAt DateTime @default(now())
+
+    status Boolean @default(true)
 
     @@unique([postId, userId])
 }

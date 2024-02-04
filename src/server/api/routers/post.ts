@@ -7,6 +7,7 @@ import {
   protectedProcedure,
   publicProcedure,
 } from "~/server/api/trpc";
+import { NotificationEntity } from "~/utils/notificationConfig";
 
 export const postRouter = createTRPCRouter({
   create: protectedProcedure
@@ -41,7 +42,14 @@ export const postRouter = createTRPCRouter({
           creatorId: input.pubkey,
         },
         include: {
-          _count: { select: { Like: true, Comment: true } },
+          _count: {
+            select: {
+              Like: {
+                where: { status: true },
+              },
+              Comment: true,
+            },
+          },
           subscription: true,
         },
       });
@@ -77,15 +85,50 @@ export const postRouter = createTRPCRouter({
     .input(z.number())
     .mutation(async ({ input: postId, ctx }) => {
       const userId = ctx.session.user.id;
-      return await ctx.db.like.create({
-        data: { userId, postId },
+
+      const oldLike = await ctx.db.like.findUnique({
+        where: { postId_userId: { postId, userId } },
       });
+
+      if (oldLike) {
+        await ctx.db.like.update({
+          data: { status: true },
+          where: {
+            postId_userId: { postId: postId, userId },
+          },
+        });
+        return oldLike;
+      } else {
+        // first time.
+        const like = await ctx.db.like.create({
+          data: { userId, postId },
+        });
+        // create notification
+        ctx.db.post
+          .findUnique({ where: { id: postId }, select: { creatorId: true } })
+          .then((creator) => {
+            if (creator) {
+              ctx.db.notificationObject.create({
+                data: {
+                  actorId: userId,
+                  entiryId: NotificationEntity.Like,
+                  Notification: {
+                    create: [{ notifierId: creator.creatorId }],
+                  },
+                },
+              });
+            }
+          });
+
+        return like;
+      }
     }),
 
-  deleteALike: protectedProcedure
+  unLike: protectedProcedure
     .input(z.number())
     .mutation(async ({ input: postId, ctx }) => {
-      await ctx.db.like.delete({
+      await ctx.db.like.update({
+        data: { status: false },
         where: {
           postId_userId: { postId: postId, userId: ctx.session.user.id },
         },
@@ -104,7 +147,7 @@ export const postRouter = createTRPCRouter({
     .input(z.number())
     .query(async ({ input: postId, ctx }) => {
       return await ctx.db.like.findFirst({
-        where: { userId: ctx.session.user.id, postId },
+        where: { userId: ctx.session.user.id, postId, status: true },
       });
     }),
 
@@ -119,12 +162,31 @@ export const postRouter = createTRPCRouter({
   createComment: protectedProcedure
     .input(CommentSchema)
     .mutation(async ({ ctx, input }) => {
-      return await ctx.db.comment.create({
+      const comment = await ctx.db.comment.create({
         data: {
           content: input.content,
           postId: input.postId,
           userId: ctx.session.user.id,
         },
       });
+      // create notification
+      ctx.db.post
+        .findUnique({
+          where: { id: input.postId },
+          select: { creatorId: true },
+        })
+        .then((creator) => {
+          creator &&
+            ctx.db.notificationObject.create({
+              data: {
+                actorId: ctx.session.user.id,
+                entiryId: NotificationEntity.Comment,
+                Notification: {
+                  create: [{ notifierId: creator.creatorId }],
+                },
+              },
+            });
+        });
+      return comment;
     }),
 });

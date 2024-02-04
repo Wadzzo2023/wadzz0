@@ -3,7 +3,7 @@ import { useSearchParams } from "next/navigation";
 import { useRouter } from "next/router";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { z } from "zod";
-import { PostCard } from "~/components/creator/CreatPost";
+import { PostCard } from "~/components/creator/post";
 import Avater from "~/components/ui/avater";
 import { api } from "~/utils/api";
 

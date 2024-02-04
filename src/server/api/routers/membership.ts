@@ -8,6 +8,7 @@ import {
   protectedProcedure,
   publicProcedure,
 } from "~/server/api/trpc";
+import { NotificationEntity } from "~/utils/notificationConfig";
 
 export const membershipRouter = createTRPCRouter({
   createMembership: protectedProcedure
@@ -83,7 +84,7 @@ export const membershipRouter = createTRPCRouter({
   }),
 
   subscribe: protectedProcedure
-    .input(z.object({ subscriptionId: z.number() }))
+    .input(z.object({ subscriptionId: z.number(), creatorId: z.string() }))
     .mutation(async ({ ctx, input }) => {
       let currentDate = new Date();
       // Add 10 days to the current date
@@ -93,6 +94,13 @@ export const membershipRouter = createTRPCRouter({
           userId: ctx.session.user.id,
           subscriptionId: input.subscriptionId,
           endDate: currentDate,
+        },
+      });
+      ctx.db.notificationObject.create({
+        data: {
+          actorId: ctx.session.user.id,
+          entiryId: NotificationEntity.Subscribe,
+          Notification: { create: [{ notifierId: input.creatorId }] },
         },
       });
       return subscription;
