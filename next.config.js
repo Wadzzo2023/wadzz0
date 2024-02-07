@@ -11,7 +11,9 @@ const config = {
     remotePatterns: [
       {
         hostname: "utfs.io",
-      }
+
+      },
+      { hostname: "daisyui.com" }
     ]
   },
 

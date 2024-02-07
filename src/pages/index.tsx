@@ -68,6 +68,7 @@ function AllRecentPost() {
       <div className="flex flex-col gap-4">
         {posts.map((post) => (
           <PostCard
+            creator={post.creator}
             key={post.id}
             post={post}
             like={post._count.Like}

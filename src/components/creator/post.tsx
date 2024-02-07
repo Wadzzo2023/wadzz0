@@ -1,15 +1,19 @@
 import { Post } from "@prisma/client";
 import clsx from "clsx";
 import { Heart, MessageCircle, Share2, Lock } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { api } from "~/utils/api";
 import { formatPostCreatedAt } from "~/utils/format-date";
+import Avater from "../ui/avater";
 
 export function PostCard({
   post,
   show = false,
   like,
+  creator,
 }: {
+  creator: { name: string; id: string };
   post: Post;
   show?: boolean;
   like: number;
@@ -24,21 +28,32 @@ export function PostCard({
       key={post.id}
       className="card card-compact w-96  bg-neutral text-neutral-content shadow-xl"
     >
-      <figure>
-        <img
-          className="h-36"
-          src={
-            post.mediaUrl ??
-            "https://daisyui.com/images/stock/photo-1606107557195-0e29a4b5b4aa.jpg"
-          }
-          alt="Post Image"
-        />
-      </figure>
+      {post.mediaUrl && (
+        <figure className="relative h-40  w-full">
+          <Image
+            className={clsx(!show && "blur-sm")}
+            src={post.mediaUrl}
+            layout="fill"
+            objectFit="cover"
+            alt="Post Image"
+          />
+        </figure>
+      )}
       <div className="card-body">
+        <div className="flex gap-2">
+          <Avater />
+          <div>
+            <Link href={`/creator/${creator.id}`} className="font-bold">
+              {creator.name}
+            </Link>
+            <p>
+              {formatPostCreatedAt(post.createdAt)}. {post.subscriptionId}
+            </p>
+          </div>
+        </div>
+
         <h2 className="card-title">{post.heading}</h2>
-        <p>
-          {formatPostCreatedAt(post.createdAt)}. {post.subscriptionId}
-        </p>
+
         {!show ? (
           <button className="btn ">
             <Lock />
