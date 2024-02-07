@@ -9,9 +9,9 @@ import { UploadButton } from "~/utils/uploadthing";
 
 export default function About({ creator }: { creator: Creator }) {
   return (
-    <div className="flex flex-col items-center">
+    <div className="flex  flex-col items-center ">
       <h2 className="text-2xl font-bold">About</h2>
-      <div className="my-5 bg-base-200">
+      <div className="my-5 w-96 bg-base-200">
         <AboutForm creator={creator} />
       </div>
     </div>
@@ -20,8 +20,11 @@ export default function About({ creator }: { creator: Creator }) {
 
 export const CreatorAboutShema = z.object({
   id: z.string(),
-  description: z.string().nullable(),
-  name: z.string().min(3, { message: "Required" }),
+  description: z.string().max(100, { message: "max 100 charecter" }).nullable(),
+  name: z
+    .string()
+    .min(3, { message: "Required" })
+    .max(20, { message: "max 20 charecter" }),
   profileUrl: z.string().nullable().optional(),
 });
 
@@ -47,7 +50,7 @@ function AboutForm({ creator }: { creator: Creator }) {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-2 p-5">
-      <div className="flex items-center justify-center gap-2">
+      <div className="flex items-center  gap-2">
         <div className="">
           <Avater url={creator.profileUrl} />
         </div>
@@ -76,7 +79,7 @@ function AboutForm({ creator }: { creator: Creator }) {
           }}
         />
       </div>
-      <label className="form-control w-full max-w-xs">
+      <label className="form-control w-full ">
         <div className="label">
           <span className="label-text">Display Name</span>
         </div>
@@ -84,7 +87,7 @@ function AboutForm({ creator }: { creator: Creator }) {
           type="text"
           placeholder="Enter Name ..."
           {...register("name")}
-          className="input input-bordered w-full max-w-xs"
+          className="input input-bordered w-full "
         />
         {errors.name && (
           <div className="label">

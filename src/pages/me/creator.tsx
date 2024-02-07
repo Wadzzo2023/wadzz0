@@ -66,9 +66,14 @@ export function CreatorBack(props: { creator: Creator }) {
 
         <CoverChange />
         {/* <Edit className="self-end" /> */}
-        <div className="flex flex-col items-center">
+        <div className="flex max-w-md flex-col items-center">
           <h1 className="text-2xl font-bold">{props.creator.name}</h1>
-          <p>{props.creator.bio}</p>
+          {/* <p></p> */}
+          <p className="text-center leading-snug">
+            {props.creator.bio}
+            {/* Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce
+            vehicula urna quis erat varius eleifend. */}
+          </p>
         </div>
       </div>
     </div>
