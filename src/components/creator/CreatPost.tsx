@@ -7,18 +7,32 @@ import toast from "react-hot-toast";
 import { MediaType, Post } from "@prisma/client";
 import { formatPostCreatedAt } from "~/utils/format-date";
 import {
+  Croissant,
+  Cross,
+  CrossIcon,
+  CrosshairIcon,
+  FolderClosed,
   Heart,
   Image as ImageIcon,
   Lock,
   MessageCircle,
+  Music,
+  Music2,
   Share2,
   Video,
+  X,
 } from "lucide-react";
 import Link from "next/link";
 import clsx from "clsx";
 import { UploadButton } from "~/utils/uploadthing";
 import Image from "next/image";
 import { PostCard } from "./post";
+
+const mediaTypes = [
+  { type: MediaType.IMAGE, icon: ImageIcon },
+  { type: MediaType.VIDEO, icon: Video },
+  { type: MediaType.MUSIC, icon: Music },
+];
 
 export const PostSchema = z.object({
   id: z.string(),
@@ -33,6 +47,7 @@ export function CreatPost(props: { id: string }) {
   const utils = api.useUtils();
 
   const [medialUrl, setMediaUrl] = useState<string>();
+  const [wantMediaType, setWantMedia] = useState<MediaType>();
 
   const createPostMutation = api.post.create.useMutation({
     onSuccess: () => {
@@ -55,11 +70,13 @@ export function CreatPost(props: { id: string }) {
     defaultValues: { id: props.id },
   });
 
-  console.log(errors);
-
   const onSubmit: SubmitHandler<z.infer<typeof PostSchema>> = (data) => {
     console.log(data, "data");
     createPostMutation.mutate(data);
+  };
+
+  const handleWantMediaType = (type: MediaType) => {
+    if (!wantMediaType) setWantMedia(type);
   };
 
   if (isLoading) return <div>Loading... while getting subscription</div>;
@@ -70,7 +87,7 @@ export function CreatPost(props: { id: string }) {
           onSubmit={handleSubmit(onSubmit)}
           className="my-10 flex min-w-96 flex-col gap-2 bg-base-200 p-5"
         >
-          <label className="form-control w-full max-w-xs">
+          <label className="form-control w-full max-w-sm">
             <div className="label">
               <span className="label-text">Heading</span>
             </div>
@@ -78,7 +95,7 @@ export function CreatPost(props: { id: string }) {
               type="text"
               placeholder="Heading of the post"
               {...register("heading")}
-              className="input input-bordered w-full max-w-xs"
+              className="input input-bordered w-full max-w-sm"
             />
             {errors.heading && (
               <div className="label">
@@ -95,7 +112,7 @@ export function CreatPost(props: { id: string }) {
             </div>
             <textarea
               {...register("content")}
-              className="textarea textarea-bordered h-24"
+              className="textarea textarea-bordered h-48"
               placeholder="Description ..."
             ></textarea>
             {errors.content && (
@@ -113,7 +130,7 @@ export function CreatPost(props: { id: string }) {
             render={({ field }) => (
               <select
                 {...field}
-                className="select select-bordered w-full max-w-xs"
+                className="select select-bordered w-full max-w-sm"
               >
                 <option selected disabled>
                   Select an subscription model
@@ -128,38 +145,55 @@ export function CreatPost(props: { id: string }) {
             )}
           />
           <div>
-            <div className="flex h-40 flex-col items-center justify-center gap-2">
-              {medialUrl && (
-                <Image src={medialUrl} alt="d" height={100} width={100} />
-              )}
-              <UploadButton
-                endpoint="imageUploader"
-                content={{ button: "Change Photo" }}
-                onClientUploadComplete={(res) => {
-                  // Do something with the response
-                  console.log("Files: ", res);
-                  // alert("Upload Completed");
-                  const data = res[0];
+            {wantMediaType && (
+              <div className="flex h-40 flex-col items-center justify-center gap-2">
+                {medialUrl && (
+                  <Image src={medialUrl} alt="d" height={100} width={100} />
+                )}
 
-                  if (data?.url) {
-                    setMediaUrl(data.url);
-                    setValue("mediaType", MediaType.IMAGE);
-                    setValue("mediaUrl", data.url);
-                    // updateProfileMutation.mutate(data.url);
-                  }
-                  // updateProfileMutation.mutate(res);
-                }}
-                onUploadError={(error: Error) => {
-                  // Do something with the error.
-                  alert(`ERROR! ${error.message}`);
-                }}
-              />
-            </div>
-            <div className="bg-base-300">
-              <div className="flex gap-2">
-                <ImageIcon />
-                <Video />
+                <UploadButton
+                  endpoint="imageUploader"
+                  content={{ button: "Add Media", allowedContent: "Max (4MB)" }}
+                  onClientUploadComplete={(res) => {
+                    // Do something with the response
+                    console.log("Files: ", res);
+                    // alert("Upload Completed");
+                    const data = res[0];
+
+                    if (data?.url) {
+                      setMediaUrl(data.url);
+                      setValue("mediaType", MediaType.IMAGE);
+                      setValue("mediaUrl", data.url);
+                      // updateProfileMutation.mutate(data.url);
+                    }
+                    // updateProfileMutation.mutate(res);
+                  }}
+                  onUploadError={(error: Error) => {
+                    // Do something with the error.
+                    alert(`ERROR! ${error.message}`);
+                  }}
+                />
               </div>
+            )}
+            <div className="my-4 flex justify-between p-2">
+              <div className="flex gap-4 ">
+                {mediaTypes.map(({ type, icon: IconComponent }) => (
+                  <IconComponent
+                    key={type}
+                    className={clsx(
+                      type == wantMediaType && "text-primary",
+                      wantMediaType != undefined &&
+                        type != wantMediaType &&
+                        "text-neutral",
+                    )}
+                    onClick={() => {
+                      handleWantMediaType(type);
+                    }}
+                  />
+                ))}
+              </div>
+
+              {wantMediaType && <X onClick={() => setWantMedia(undefined)} />}
             </div>
           </div>
 
