@@ -40,7 +40,12 @@ function Page({ creatorId }: { creatorId: string }) {
           {data.length > 0 && (
             <div className="flex flex-col gap-2">
               {data.map((el) => (
-                <PostCard like={el._count.Like} key={el.id} post={el} />
+                <PostCard
+                  creator={el.creator}
+                  like={el._count.Like}
+                  key={el.id}
+                  post={el}
+                />
               ))}
             </div>
           )}
