@@ -18,7 +18,7 @@ export default function LeftBar() {
           <Link href={"/"}>
             <Button text="Home" />
           </Link>
-          <Link href={"/me/creator"}>
+          <Link href={"/search"}>
             <Button text="Search" />
           </Link>
           <Link href={"/me/creator"}>

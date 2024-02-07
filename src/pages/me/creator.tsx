@@ -37,14 +37,12 @@ function CreatorExist(props: { user: Session["user"] }) {
 
 function CreatorPageTemplate(props: { creator: Creator }) {
   return (
-    <div className="flex-1 overflow-y-auto">
-      <div className="flex h-screen flex-col items-center ">
-        <CreatorBack creator={props.creator} />
-        <div className=" mb-6 w-3/4 bg-base-300">
-          <Tabs />
-        </div>
-        <ConditionallyRenderMenuPage creator={props.creator} />
+    <div className="flex h-screen flex-col items-center ">
+      <CreatorBack creator={props.creator} />
+      <div className=" mb-6 w-3/4 bg-base-300">
+        <Tabs />
       </div>
+      <ConditionallyRenderMenuPage creator={props.creator} />
     </div>
   );
 }
@@ -53,7 +51,7 @@ export function CreatorBack(props: { creator: Creator }) {
   const coverChangeMutation =
     api.creator.changeCreatorCoverPicture.useMutation();
   return (
-    <>
+    <div className="w-full">
       <div className="relative h-40  w-full bg-blue-200">
         <Image
           src={props.creator.coverUrl ?? ""}
@@ -94,7 +92,7 @@ export function CreatorBack(props: { creator: Creator }) {
           <p>{props.creator.bio}</p>
         </div>
       </div>
-    </>
+    </div>
   );
 }
 
