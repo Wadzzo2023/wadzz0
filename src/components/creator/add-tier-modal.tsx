@@ -89,11 +89,13 @@ export default function AddTierModal({ creator }: { creator: Creator }) {
       </button>
       <dialog className="modal" ref={modalRef}>
         <div className="modal-box">
-          <h3 className="text-lg font-bold">Create a subscription tier!</h3>
-          <div>
+          <h3 className="mb-4 text-center text-lg font-bold">
+            Create a subscription tier!
+          </h3>
+          <div className="w-full">
             <form
               onSubmit={handleSubmit(onSubmit)}
-              className="flex flex-col gap-2"
+              className="flex flex-col items-center  gap-2 rounded-md bg-base-300 py-8"
             >
               <label className="form-control w-full max-w-xs">
                 <div className="label">
@@ -150,7 +152,7 @@ export default function AddTierModal({ creator }: { creator: Creator }) {
                 )}
               </label>
               <button
-                className="btn btn-primary"
+                className="btn btn-primary mt-2 w-full max-w-xs"
                 type="submit"
                 disabled={mutation.isLoading}
               >
