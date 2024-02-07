@@ -187,7 +187,13 @@ export function PostList(props: { id: string }) {
     return (
       <div className="flex flex-col gap-2">
         {data.map((post) => (
-          <PostCard key={post.id} post={post} like={post._count.Like} show />
+          <PostCard
+            creator={post.creator}
+            key={post.id}
+            post={post}
+            like={post._count.Like}
+            show
+          />
         ))}
       </div>
     );

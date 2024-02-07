@@ -53,6 +53,11 @@ function AboutForm({ creator }: { creator: Creator }) {
         </div>
         <UploadButton
           endpoint="imageUploader"
+          appearance={{
+            allowedContent(arg) {
+              return { display: "none" };
+            },
+          }}
           content={{ button: "Change Photo" }}
           onClientUploadComplete={(res) => {
             // Do something with the response
