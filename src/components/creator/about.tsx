@@ -103,7 +103,7 @@ function AboutForm({ creator }: { creator: Creator }) {
         </div>
         <textarea
           {...register("description")}
-          className="textarea textarea-bordered h-24"
+          className="textarea textarea-bordered h-28"
           placeholder="Description ..."
         ></textarea>
         {errors.description && (

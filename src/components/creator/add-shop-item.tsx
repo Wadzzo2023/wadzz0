@@ -95,13 +95,13 @@ export default function AddItem2Shop() {
       </button>
       <dialog id="my_modal_1" className="modal" ref={modalRef}>
         <div className="modal-box">
-          <h3 className="text-lg font-bold">Creat NFT</h3>
+          <h3 className="mb-10 text-center text-lg font-bold">Creat NFT</h3>
           <Steps />
 
-          <div>
+          <div className="mt-4 ">
             <form
               onSubmit={handleSubmit(onSubmit)}
-              className="flex flex-col gap-2"
+              className="flex flex-col items-center gap-2 rounded-md bg-base-300 p-4"
             >
               {step == 1 && <ItemInfo />}
 
@@ -135,29 +135,9 @@ export default function AddItem2Shop() {
     </>
   );
 
-  function StepNavigatorButton() {
-    return (
-      <div className="flex justify-between">
-        {step < 3 && (
-          <button
-            type="button"
-            className="btn btn-primary"
-            onClick={() => {
-              if (step < 3) {
-                setStep(step + 1);
-              }
-            }}
-          >
-            Next
-          </button>
-        )}
-      </div>
-    );
-  }
-
   function ItemInfo() {
     return (
-      <div>
+      <div className="flex w-full flex-col items-center">
         <label className="form-control w-full max-w-xs">
           <div className="label">
             <span className="label-text">Name</span>
@@ -182,7 +162,7 @@ export default function AddItem2Shop() {
           </div>
           <textarea
             {...register("description")}
-            className="textarea textarea-bordered h-24"
+            className="textarea textarea-bordered h-24 "
             placeholder="Description"
           ></textarea>
           {errors.description && (
@@ -193,7 +173,7 @@ export default function AddItem2Shop() {
             </div>
           )}
         </label>
-        <div className="flex h-40 flex-col items-center justify-center gap-2">
+        <div className="flex h-40 w-full flex-col items-center justify-center gap-2">
           {medialUrl && (
             <Image src={medialUrl} alt="d" height={100} width={100} />
           )}
@@ -221,7 +201,7 @@ export default function AddItem2Shop() {
           />
           <button
             type="button"
-            className="btn btn-primary"
+            className="btn btn-primary w-full max-w-xs "
             // disabled={isNameDesError()}
             onClick={async () => {
               const isOk = await triggerErrorInInf();
@@ -261,7 +241,7 @@ export default function AddItem2Shop() {
 
   function AssetInfo() {
     return (
-      <div className="bg-base-200">
+      <div className="flex w-full flex-col items-center gap-3">
         <label className="form-control w-full max-w-xs">
           <div className="label">
             <span className="label-text">Asset Name</span>
@@ -328,7 +308,7 @@ export default function AddItem2Shop() {
               xdrMutation.mutate();
             }
           }}
-          className="btn btn-primary"
+          className="btn btn-primary mt-2 w-full max-w-xs"
         >
           {xdrMutation.isLoading && (
             <span className="loading loading-spinner"></span>
@@ -340,7 +320,7 @@ export default function AddItem2Shop() {
   }
   function Steps() {
     return (
-      <ul className="steps w-full">
+      <ul className="steps w-full border-b border-base-300">
         <li
           className={clsx(
             "step",
