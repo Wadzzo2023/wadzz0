@@ -59,6 +59,7 @@ export default function AddItem2Shop() {
     formState: { errors },
     setValue,
     trigger,
+    getValues,
     reset,
   } = useForm<z.infer<typeof ShopItemSchema>>({
     resolver: zodResolver(ShopItemSchema),
@@ -305,7 +306,10 @@ export default function AddItem2Shop() {
           onClick={async () => {
             const isOk = await triggerErroInAssetInfo();
             if (isOk) {
-              xdrMutation.mutate();
+              xdrMutation.mutate({
+                code: getValues("AssetName"),
+                limit: getValues("AssetLimit"),
+              });
             }
           }}
           className="btn btn-primary mt-2 w-full max-w-xs"

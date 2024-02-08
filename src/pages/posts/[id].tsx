@@ -13,20 +13,15 @@ import { formatPostCreatedAt } from "~/utils/format-date";
 export default function PostPage() {
   const router = useRouter();
   const postId = router.query.id;
-  const searchParams = useSearchParams();
-  const creatorId = searchParams.get("creator");
 
-  if (typeof postId == "string" && creatorId) {
-    return <Page postId={postId} creator={creatorId} />;
-
-    // URL -> `/dashboard?search=my-project`
-    // `search` -> 'my-project'
+  if (typeof postId == "string") {
+    return <Page postId={postId} />;
   }
 
   return <div>Error</div>;
 }
 
-function Page({ postId, creator }: { postId: string; creator: string }) {
+function Page({ postId }: { postId: string }) {
   const { data, isLoading } = api.post.getAPost.useQuery(Number(postId));
   const { data: comments, isLoading: commentLoading } =
     api.post.getComments.useQuery(Number(postId));
@@ -35,6 +30,7 @@ function Page({ postId, creator }: { postId: string; creator: string }) {
       {data && (
         <>
           <PostCard
+            comments={data._count.Comment}
             creator={data.creator}
             like={data._count.Like}
             post={data}

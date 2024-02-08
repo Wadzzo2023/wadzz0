@@ -41,6 +41,7 @@ function Page({ creatorId }: { creatorId: string }) {
             <div className="flex flex-col gap-2">
               {data.map((el) => (
                 <PostCard
+                  comments={el._count.Comment}
                   creator={el.creator}
                   like={el._count.Like}
                   key={el.id}

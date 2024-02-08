@@ -31,9 +31,15 @@ export const trxRouter = createTRPCRouter({
       });
     }),
 
-  createAssetTrx: protectedProcedure.mutation(async ({ ctx }) => {
-    return await createAsset({ pubkey: ctx.session.user.id, code: "VNDT" });
-  }),
+  createAssetTrx: protectedProcedure
+    .input(z.object({ code: z.string(), limit: z.number() }))
+    .mutation(async ({ ctx, input }) => {
+      return await createAsset({
+        pubkey: ctx.session.user.id,
+        code: input.code,
+        limit: input.limit,
+      });
+    }),
 
   buyAssetTrx: protectedProcedure
     .input(AssetSchema)

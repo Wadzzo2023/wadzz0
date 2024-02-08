@@ -1,14 +1,18 @@
 import clsx from "clsx";
+import Link from "next/link";
 import React, { useState } from "react";
+import Avater from "~/components/ui/avater";
 import { SearchMenu, useSearchMenu } from "~/lib/state/search-menu";
 import { api } from "~/utils/api";
+import { formatPostCreatedAt } from "~/utils/format-date";
 
 export default function Search() {
   const [inputText, setinpuText] = useState("");
   const { setSearchString } = useSearchMenu();
 
   return (
-    <div>
+    <div className="my-10 flex flex-col items-center gap-4">
+      <h2 className="text mb-5 text-2xl font-bold">Find Something Here</h2>
       <div className="flex gap-2">
         <input
           type="text"
@@ -77,11 +81,30 @@ function Creator() {
     <div>
       <h2>Creator</h2>
       {creators.isLoading && <div>Loading...</div>}
-      {creators.data?.map((creator) => <p key={creator.id}>{creator.name}</p>)}
+      {creators.data?.map((creator) => <CreatorAvater creator={creator} />)}
     </div>
   );
 }
 
+export function CreatorAvater({
+  creator,
+}: {
+  creator: { id: string; bio: string | null; name: string };
+}) {
+  return (
+    <div className="flex gap-2">
+      <div>
+        <Avater />
+      </div>
+      <div>
+        <Link href={`/creator/${creator.id}`} className="font-bold">
+          {creator.name}
+        </Link>
+        <p className="text-sm">{creator.bio?.slice(0, 30)}</p>
+      </div>
+    </div>
+  );
+}
 function AssetsList() {
   const { searchString } = useSearchMenu();
   const assets = api.shop.search.useQuery(searchString);

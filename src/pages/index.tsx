@@ -4,6 +4,7 @@ import Link from "next/link";
 import { PostCard } from "~/components/creator/post";
 
 import { api } from "~/utils/api";
+import { CreatorAvater } from "./search";
 
 export default function Home() {
   return (
@@ -45,7 +46,7 @@ function AllCreators() {
       <ul>
         {creators?.map((creator) => (
           <li key={creator.id}>
-            <Link href={`/creator/${creator.id}`}>{creator.name}</Link>
+            <CreatorAvater creator={creator} />
           </li>
         ))}
       </ul>
@@ -68,6 +69,7 @@ function AllRecentPost() {
       <div className="flex flex-col gap-4">
         {posts.map((post) => (
           <PostCard
+            comments={post._count.Comment}
             creator={post.creator}
             key={post.id}
             post={post}

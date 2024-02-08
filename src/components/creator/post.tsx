@@ -11,12 +11,14 @@ export function PostCard({
   post,
   show = false,
   like,
+  comments,
   creator,
 }: {
   creator: { name: string; id: string };
   post: Post;
   show?: boolean;
   like: number;
+  comments: number;
 }) {
   const likeMutation = api.post.likeApost.useMutation();
   const deleteLike = api.post.unLike.useMutation();
@@ -62,10 +64,7 @@ export function PostCard({
         ) : (
           <>
             <p>{post.content}</p>
-            <Link
-              href={`/posts/${post.id}?creator=${post.creatorId}`}
-              className="text-primary underline"
-            >
+            <Link href={`/posts/${post.id}`} className="text-primary underline">
               Read more
             </Link>
             <div className="flex gap-4 p-2 ">
@@ -81,7 +80,7 @@ export function PostCard({
                 <p className="font-bold">{like}</p>
               </div>
               <div className="flex items-end justify-center gap-1">
-                <MessageCircle /> <p className="font-bold">4</p>
+                <MessageCircle /> <p className="font-bold">{comments}</p>
               </div>
               <Share2 size={20} />
             </div>

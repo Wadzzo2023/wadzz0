@@ -24,12 +24,14 @@ export type trxResponse = {
 export async function createAsset({
   pubkey,
   code,
+  limit: limitValue,
 }: {
   pubkey: string;
   code: string;
+  limit: number;
 }) {
   console.log(pubkey, "pubkey");
-  const limit = "5000";
+  const limit = limitValue.toString();
   const server = new Server(STELLAR_URL);
 
   // issuer

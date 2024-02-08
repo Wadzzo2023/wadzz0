@@ -13,6 +13,7 @@ import Shop from "~/components/creator/shop";
 import { Edit } from "lucide-react";
 import { UploadButton } from "~/utils/uploadthing";
 import Image from "next/image";
+import { useRouter } from "next/router";
 
 export default function CreatorProfile() {
   const { data: session } = useSession();
@@ -82,42 +83,43 @@ export function CreatorBack(props: { creator: Creator }) {
 
 function CoverChange() {
   const { selectedMenu } = useCreator();
+  const router = useRouter();
   const coverChangeMutation =
     api.creator.changeCreatorCoverPicture.useMutation();
 
-  if (selectedMenu !== CreatorMenu.About) return null;
-  return (
-    <div>
-      <UploadButton
-        endpoint="imageUploader"
-        appearance={{
-          allowedContent(arg) {
-            return {
-              display: "none",
-            };
-          },
-        }}
-        content={{
-          button: "Change Cover",
-        }}
-        onClientUploadComplete={(res) => {
-          // Do something with the response
-          console.log("Files: ", res);
-          // alert("Upload Completed");
-          const data = res[0];
-          if (data?.url) {
-            coverChangeMutation.mutate(data.url);
-          }
+  if (selectedMenu == CreatorMenu.About && router.pathname == "/me/creator")
+    return (
+      <div>
+        <UploadButton
+          endpoint="imageUploader"
+          appearance={{
+            allowedContent(arg) {
+              return {
+                display: "none",
+              };
+            },
+          }}
+          content={{
+            button: "Change Cover",
+          }}
+          onClientUploadComplete={(res) => {
+            // Do something with the response
+            console.log("Files: ", res);
+            // alert("Upload Completed");
+            const data = res[0];
+            if (data?.url) {
+              coverChangeMutation.mutate(data.url);
+            }
 
-          // updateProfileMutation.mutate(res);
-        }}
-        onUploadError={(error: Error) => {
-          // Do something with the error.
-          alert(`ERROR! ${error.message}`);
-        }}
-      />
-    </div>
-  );
+            // updateProfileMutation.mutate(res);
+          }}
+          onUploadError={(error: Error) => {
+            // Do something with the error.
+            alert(`ERROR! ${error.message}`);
+          }}
+        />
+      </div>
+    );
 }
 
 function ConditionallyRenderMenuPage({ creator }: { creator: Creator }) {
