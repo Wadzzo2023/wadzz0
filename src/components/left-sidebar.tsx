@@ -8,31 +8,29 @@ import Logo from "./logo";
 import { HomeIcon, PenSquare, Search, Settings2 } from "lucide-react";
 
 const Navigation = {
-  Home: "/",
-  Search: "/search",
-  Creator: "/me/creator",
-  Setting: "/me/creator",
+  Home: { path: "/", icon: HomeIcon, text: "Home" },
+  Search: { path: "/search", icon: Search, text: "Search" },
+  Creator: { path: "/me/creator", icon: PenSquare, text: "Creator" },
+  Settings: { path: "/settings", icon: Settings2, text: "Settings" },
 } as const;
 
 export default function LeftBar() {
   return (
-    <div className="flex h-screen w-80 flex-col items-center justify-between gap-2 bg-base-300 py-5">
+    <div className="flex h-screen w-80 flex-col items-center justify-between gap-2 bg-base-300  py-5">
       <Logo />
-      <div className="flex-1">
-        <div className="flex h-full flex-col items-center justify-center gap-2">
-          <Link href={"/"}>
-            <Button icon={<HomeIcon className="h-5 w-5" />} text="Home" />
-          </Link>
-          <Link href={Navigation.Creator}>
-            <Button icon={<PenSquare className="h-5 w-5" />} text="Creator" />
-          </Link>
-
-          <Link href={Navigation.Search}>
-            <Button icon={<Search className="h-5 w-5" />} text="Search" />
-          </Link>
-          <Link href={"/me/creator"}>
-            <Button icon={<Settings2 className="h-5 w-5" />} text="Setting" />
-          </Link>
+      <div className="w-2/3 flex-1">
+        <div className="flex h-full w-full flex-col items-start justify-center gap-2 ">
+          {Object.entries(Navigation).map(
+            ([key, { path, icon: Icon, text }]) => (
+              <Link href={path} className="w-full">
+                <Button
+                  path={path}
+                  icon={<Icon className="h-5 w-5" />}
+                  text={text}
+                />
+              </Link>
+            ),
+          )}
         </div>
       </div>
       <div className="flex flex-col justify-center">

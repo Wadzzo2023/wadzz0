@@ -1,11 +1,29 @@
+import clsx from "clsx";
 import { HomeIcon } from "lucide-react";
+import { useRouter } from "next/router";
 import React from "react";
 
-export default function Button(props: { text: string; icon: React.ReactNode }) {
+export default function Button({
+  icon: Icon,
+  text,
+  path,
+}: {
+  text: string;
+  icon: React.ReactNode;
+  path: string;
+}) {
+  const router = useRouter();
+  console.log(router.pathname, "path");
+
   return (
-    <button className="btn">
-      {props.icon}
-      {props.text}
+    <button
+      className={clsx(
+        "btn  w-full justify-start",
+        router.pathname == path && "btn-primary",
+      )}
+    >
+      {Icon}
+      {text}
     </button>
   );
 }
