@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import Avater from "~/components/ui/avater";
 import { SearchMenu, useSearchMenu } from "~/lib/state/search-menu";
 import { api } from "~/utils/api";
-import { formatPostCreatedAt } from "~/utils/format-date";
+import { truncateString } from "~/utils/string";
 
 export default function Search() {
   const [inputText, setinpuText] = useState("");
@@ -52,7 +52,7 @@ function Tabs() {
 function ConditionallyRenderSearch() {
   const { selectedMenu } = useSearchMenu();
   return (
-    <div>
+    <div className="w-full">
       {selectedMenu === SearchMenu.Post && <Posts />}
       {selectedMenu === SearchMenu.Creator && <Creator />}
       {selectedMenu === SearchMenu.Asset && <AssetsList />}
@@ -64,12 +64,21 @@ function Posts() {
   const { searchString } = useSearchMenu();
   const posts = api.post.search.useQuery(searchString);
   return (
-    <div>
-      <h1>Posts</h1>
+    <div className="flex flex-col items-center">
       {posts.isLoading && <div>Loading...</div>}
-      {posts.data?.map((post) => {
-        return <p key={post.id}>{post.content}</p>;
-      })}
+      {/* < className="flex flex-col gap-4"> */}
+      <div className="max-w-sm rounded-box bg-base-200 p-2">
+        {posts.data?.map((post) => {
+          return (
+            <div className="p-4 hover:bg-neutral">
+              <Link href={`/posts/${post.id}`} className="">
+                <h2 className="text-lg font-bold">{post.heading}</h2>
+                <p key={post.id}>{post.content}</p>
+              </Link>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }
@@ -78,10 +87,12 @@ function Creator() {
   const { searchString } = useSearchMenu();
   const creators = api.creator.search.useQuery(searchString);
   return (
-    <div>
+    <div className="flex flex-col items-center">
       <h2>Creator</h2>
       {creators.isLoading && <div>Loading...</div>}
-      {creators.data?.map((creator) => <CreatorAvater creator={creator} />)}
+      <div className="flex max-w-sm flex-col rounded-box bg-base-200 p-4">
+        {creators.data?.map((creator) => <CreatorAvater creator={creator} />)}
+      </div>
     </div>
   );
 }
@@ -92,7 +103,7 @@ export function CreatorAvater({
   creator: { id: string; bio: string | null; name: string };
 }) {
   return (
-    <div className="flex gap-2">
+    <div className="flex items-center gap-2 p-2 hover:bg-neutral">
       <div>
         <Avater />
       </div>
@@ -109,10 +120,17 @@ function AssetsList() {
   const { searchString } = useSearchMenu();
   const assets = api.shop.search.useQuery(searchString);
   return (
-    <div>
+    <div className="flex flex-col items-center">
       <h2>Assets</h2>
       {assets.isLoading && <div>Loading...</div>}
-      {assets.data?.map((asset) => <p key={asset.id}>{asset.name}</p>)}
+      <div className="w-full max-w-xs rounded-box bg-base-200 p-4">
+        {assets.data?.map((asset) => (
+          <div key={asset.id} className="p-4 hover:bg-neutral">
+            <p>{asset.asset.code}</p>
+            <p>{truncateString(asset.asset.issuer, 15, 5)}</p>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
