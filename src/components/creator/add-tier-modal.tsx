@@ -36,7 +36,7 @@ export default function AddTierModal({ creator }: { creator: Creator }) {
         clientsign({
           walletType,
           presignedxdr: data.trx,
-          pubkey: "GD5LKBBNYRQLL2GXV7OC43KZAYVLNJT6NRI3HJTYQWXRLL7UPPMOVDVY",
+          pubkey,
           test: true,
         })
           .then((res) => {

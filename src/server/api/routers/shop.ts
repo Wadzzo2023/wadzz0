@@ -30,6 +30,9 @@ export const shopRouter = createTRPCRouter({
           assetId: asset.id,
         },
       });
+
+      // global notification
+      // await ctx.db.notification.create({
     }),
 
   getAllShopAsset: protectedProcedure.query(async ({ ctx }) => {

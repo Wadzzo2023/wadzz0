@@ -4,6 +4,8 @@ import { creatorRouter } from "./routers/creator";
 import { membershipRouter } from "./routers/membership";
 import { shopRouter } from "./routers/shop";
 import { trxRouter } from "./routers/trx";
+import { notificationRouter } from "./routers/notification";
+import { userRouter } from "./routers/user";
 
 /**
  * This is the primary router for your server.
@@ -16,6 +18,8 @@ export const appRouter = createTRPCRouter({
   member: membershipRouter,
   shop: shopRouter,
   trx: trxRouter,
+  notification: notificationRouter,
+  user: userRouter,
 });
 
 // export type definition of API

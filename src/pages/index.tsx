@@ -59,8 +59,6 @@ function AllRecentPost() {
   const { data: user_subscriptions, isLoading: isLoading2 } =
     api.member.getAllSubscription.useQuery();
 
-  console.log(user_subscriptions, "us");
-
   if (isLoading2) return <div>Loading to fetch membership...</div>;
 
   if (isLoading) return <div>Loading...</div>;

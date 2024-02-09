@@ -1,3 +1,4 @@
+import { NotificationType } from "@prisma/client";
 import { z } from "zod";
 import { CreatorAboutShema } from "~/components/creator/about";
 import { TierSchema } from "~/components/creator/add-tier-modal";
@@ -105,7 +106,9 @@ export const membershipRouter = createTRPCRouter({
       void ctx.db.notificationObject.create({
         data: {
           actorId: ctx.session.user.id,
-          entiryId: NotificationEntity.Subscribe,
+          entityType: NotificationType.SUBSCRIPTION,
+          // TODO: Add actual entity Id
+          entityId: 2,
           Notification: { create: [{ notifierId: input.creatorId }] },
         },
       });

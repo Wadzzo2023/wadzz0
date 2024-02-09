@@ -17,8 +17,10 @@ datasource db {
 
 // it is kinda notification actor and the entity that is being acted upon
 model NotificationObject {
-    id        Int      @id @default(autoincrement())
-    entiryId  Int
+    id         Int              @id @default(autoincrement())
+    entityType NotificationType
+    entityId   Int
+
     createdAt DateTime @default(now())
 
     Notification Notification[]
@@ -38,7 +40,7 @@ model Notification {
     createdAt DateTime  @default(now())
 
     notifierId String
-    isCreator  Boolean @default(true)
+    isCreator  Boolean @default(true) // is for creator
 }
 
 model Asset {
@@ -202,11 +204,13 @@ model Session {
 }
 
 model User {
-    id                String              @id @default(cuid())
-    name              String?
-    email             String?             @unique
-    emailVerified     DateTime?
-    image             String?
+    id            String    @id @default(cuid())
+    name          String?
+    email         String?   @unique
+    bio           String?
+    image         String?
+    emailVerified DateTime?
+
     accounts          Account[]
     sessions          Session[]
     creator           Creator?
@@ -221,4 +225,12 @@ model VerificationToken {
     expires    DateTime
 
     @@unique([identifier, token])
+}
+
+enum NotificationType {
+    LIKE
+    COMMENT
+    SUBSCRIPTION
+    POST
+    SHOP_ASSET
 }

@@ -1,6 +1,9 @@
 import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
-async function main() {}
+async function main() {
+  // prisma.notificationObject.deleteMany({});
+  // prisma.notification.deleteMany({});
+}
 main()
   .then(async () => {
     await prisma.$disconnect();

@@ -30,6 +30,7 @@
     "@stellar/freighter-api": "^1.4.0",
     "@t3-oss/env-nextjs": "^0.7.1",
     "@tailwindcss/line-clamp": "^0.4.4",
+    "@tailwindcss/typography": "^0.5.10",
     "@tanstack/react-query": "^4.36.1",
     "@trpc/client": "^10.43.6",
     "@trpc/next": "^10.43.6",
