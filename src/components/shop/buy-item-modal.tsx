@@ -20,8 +20,8 @@ export default function BuyItemModal({ item }: { item: ShopItemProps }) {
 
   return (
     <>
-      <button className="btn btn-secondary" onClick={handleModal}>
-        Buy
+      <button className="btn btn-primary" onClick={handleModal}>
+        Buy Now
       </button>
       <dialog id="my_modal_1" className="modal" ref={modalRef}>
         <div className="modal-box">

@@ -200,7 +200,7 @@ export function PostList(props: { id: string }) {
   if (isLoading) return <div>Loading...</div>;
   if (data) {
     return (
-      <div className="flex flex-col gap-2">
+      <div className=" flex flex-col gap-2">
         {data.map((post) => (
           <PostCard
             comments={post._count.Comment}

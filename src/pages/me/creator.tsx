@@ -14,6 +14,7 @@ import { Edit } from "lucide-react";
 import { UploadButton } from "~/utils/uploadthing";
 import Image from "next/image";
 import { useRouter } from "next/router";
+import CreatorHomeTabPage from "~/components/creator/home";
 
 export default function CreatorProfile() {
   const { data: session } = useSession();
@@ -38,7 +39,7 @@ function CreatorExist(props: { user: Session["user"] }) {
 
 function CreatorPageTemplate(props: { creator: Creator }) {
   return (
-    <div className="flex h-screen flex-col items-center ">
+    <div className="flex h-screen flex-col items-center">
       <CreatorBack creator={props.creator} />
       <div className=" mb-6 w-3/4 bg-base-300">
         <Tabs />

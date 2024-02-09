@@ -8,54 +8,96 @@ import MemberShipCard from "~/components/creator/card";
 import { clientsign, useConnectWalletStateStore } from "package/connect_wallet";
 import toast from "react-hot-toast";
 import { MyAssetType } from "~/lib/stellar/utils";
+import {
+  CreatorProfileMenu,
+  useCreatorProfileMenu,
+} from "~/lib/state/creator-profile-menu";
+import clsx from "clsx";
+import { ShopItem } from "~/components/creator/shop";
 
 export default function CreatorPage() {
   const router = useRouter();
   const creatorId = router.query.id;
 
   if (typeof creatorId == "string" && creatorId.length === 56) {
-    return <Page creatorId={creatorId} />;
+    return <CreatorPageView creatorId={creatorId} />;
   }
 
   return <div>Error</div>;
 }
 
-function Page({ creatorId }: { creatorId: string }) {
-  const { data, isLoading, error } = api.post.getPosts.useQuery({
-    pubkey: creatorId,
-  });
+function CreatorPageView({ creatorId }: { creatorId: string }) {
   const { data: creator } = api.creator.getCreator.useQuery({ id: creatorId });
-  if (error) return <div>{error.message}</div>;
-  if (isLoading) return <div>Loading...</div>;
-  if (data)
+  if (creator)
     return (
       <div className="flex w-full flex-col gap-4 overflow-y-auto">
         <div className="flex w-full flex-col items-center ">
-          {creator && (
-            <>
-              <CreatorBack creator={creator} />
-              <ChooseMemberShip creator={creator} />
-            </>
-          )}
-          {data.length > 0 && (
-            <div className="flex flex-col gap-2">
-              {data.map((el) => (
-                <PostCard
-                  comments={el._count.Comment}
-                  creator={el.creator}
-                  like={el._count.Like}
-                  key={el.id}
-                  post={el}
-                />
-              ))}
-            </div>
-          )}
+          <>
+            <CreatorBack creator={creator} />
+            <ChooseMemberShip creator={creator} />
+            <Tabs />
+            <RenderTabs creatorId={creatorId} />
+          </>
         </div>
       </div>
     );
 }
 
-function ChooseMemberShip({ creator }: { creator: Creator }) {
+function CreatorPosts({ creatorId }: { creatorId: string }) {
+  const { data, isLoading, error } = api.post.getPosts.useQuery({
+    pubkey: creatorId,
+  });
+  if (error) return <div>{error.message}</div>;
+  if (isLoading) return <div>Loading...</div>;
+
+  if (data && data.length > 0) {
+    return (
+      <div className="flex flex-col gap-2">
+        {data.map((el) => (
+          <PostCard
+            comments={el._count.Comment}
+            creator={el.creator}
+            like={el._count.Like}
+            key={el.id}
+            post={el}
+          />
+        ))}
+      </div>
+    );
+  }
+}
+
+function RenderTabs({ creatorId }: { creatorId: string }) {
+  const { selectedMenu, setSelectedMenu } = useCreatorProfileMenu();
+  switch (selectedMenu) {
+    case CreatorProfileMenu.Contents:
+      return <CreatorPosts creatorId={creatorId} />;
+    case CreatorProfileMenu.Shop:
+      return <AllShopItems creatorId={creatorId} />;
+  }
+}
+
+function Tabs() {
+  const { selectedMenu, setSelectedMenu } = useCreatorProfileMenu();
+  return (
+    <div role="tablist" className="tabs tabs-bordered my-5">
+      {Object.values(CreatorProfileMenu).map((key) => {
+        return (
+          <a
+            key={key}
+            onClick={() => setSelectedMenu(key)}
+            role="tab"
+            className={clsx("tab", selectedMenu == key && "tab-active")}
+          >
+            {key}
+          </a>
+        );
+      })}
+    </div>
+  );
+}
+
+export function ChooseMemberShip({ creator }: { creator: Creator }) {
   const { data: subscriptonModel, isLoading } =
     api.member.getCreatorMembership.useQuery(creator.id);
 
@@ -113,7 +155,7 @@ function SubscriptionCard({
   return (
     <MemberShipCard
       key={subscription.id}
-      className="w-48 bg-neutral text-neutral-content"
+      className=" bg-neutral text-neutral-content"
       creator={creator}
       subscription={subscription}
     >
@@ -133,5 +175,20 @@ function SubscriptionCard({
         {subscribe.isLoading ? "Loading..." : "Subscribe"}
       </button>
     </MemberShipCard>
+  );
+}
+
+function AllShopItems({ creatorId }: { creatorId: string }) {
+  const { data: items, isLoading } = api.shop.getCreatorShopAsset.useQuery({
+    creatorId,
+  });
+  if (isLoading) return <div>Loading...</div>;
+  return (
+    <div className="flex flex-col items-center">
+      <p className="my-5 text-center text-3xl font-bold">Shop items</p>
+      <div className="flex flex-col gap-2">
+        {items?.map((item) => <ShopItem item={item} />)}
+      </div>
+    </div>
   );
 }

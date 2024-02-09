@@ -35,6 +35,15 @@ export const shopRouter = createTRPCRouter({
       // await ctx.db.notification.create({
     }),
 
+  getCreatorShopAsset: publicProcedure
+    .input(z.object({ creatorId: z.string() }))
+    .query(async ({ ctx , input}) => {
+      return await ctx.db.shopAsset.findMany({
+        where: { creatorId: input.creatorId },
+        include: { asset: { select: { code: true, issuer: true } } },
+      });
+    }),
+
   getAllShopAsset: protectedProcedure.query(async ({ ctx }) => {
     return await ctx.db.shopAsset.findMany({
       where: { creatorId: ctx.session.user.id },

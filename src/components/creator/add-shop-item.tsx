@@ -10,6 +10,7 @@ import clsx from "clsx";
 import { clientsign, useConnectWalletStateStore } from "package/connect_wallet";
 import { Keypair } from "stellar-sdk";
 import { AccounSchema } from "~/lib/stellar/utils";
+import { Plus } from "lucide-react";
 
 export const ShopItemSchema = z.object({
   name: z.string().min(4, { message: "Required" }),
@@ -63,9 +64,6 @@ export default function AddItem2Shop() {
     reset,
   } = useForm<z.infer<typeof ShopItemSchema>>({
     resolver: zodResolver(ShopItemSchema),
-    defaultValues: {
-      mediaUrl: "test",
-    },
   });
 
   const onSubmit: SubmitHandler<z.infer<typeof ShopItemSchema>> = (data) => {
@@ -91,8 +89,9 @@ export default function AddItem2Shop() {
 
   return (
     <>
-      <button className="btn" onClick={handleModal}>
-        Creat NFT Item
+      <button className="btn btn-outline btn-primary" onClick={handleModal}>
+        <Plus />
+        Creat NFT Asset
       </button>
       <dialog id="my_modal_1" className="modal" ref={modalRef}>
         <div className="modal-box">

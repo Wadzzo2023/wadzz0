@@ -10,8 +10,10 @@ export default function MemberShip({ creator }: { creator: Creator }) {
   return (
     <div className="flex flex-col items-center">
       <p className="text-2xl font-bold">MemberShip </p>
-      <AddTierModal creator={creator} />
-      <div className="mt-4 flex flex-col gap-2">
+      <div className="fixed bottom-0 right-0 p-4">
+        <AddTierModal creator={creator} />
+      </div>
+      <div className="mt-4 grid grid-cols-3 gap-2">
         {subscriptions?.map((el) => (
           <MemberShipCard key={el.id} creator={creator} subscription={el} />
         ))}

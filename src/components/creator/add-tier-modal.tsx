@@ -7,12 +7,22 @@ import { z } from "zod";
 import { api } from "~/utils/api";
 import { clientsign, useConnectWalletStateStore } from "package/connect_wallet";
 import { AccounSchema } from "~/lib/stellar/utils";
+import { Plus } from "lucide-react";
 
 export const TierSchema = z.object({
   name: z
     .string()
     .min(4, { message: "Minimum 4 charecter" })
-    .max(12, { message: "Maximum 12 charecter" }),
+    .max(12, { message: "Maximum 12 charecter" })
+    .refine(
+      (value) => {
+        // Check if the input is a single word
+        return /^\w+$/.test(value);
+      },
+      {
+        message: "Input must be a single word",
+      },
+    ),
   featureDescription: z
     .string()
     .min(20, { message: "Make description longer" }),
@@ -21,6 +31,8 @@ export const TierSchema = z.object({
 
 export default function AddTierModal({ creator }: { creator: Creator }) {
   const modalRef = useRef<HTMLDialogElement>(null);
+  const [isModalOpen, setIsModalOpen] = React.useState(false);
+
   const { isAva, pubkey, walletType, uid, email } =
     useConnectWalletStateStore();
   const mutation = api.member.createMembership.useMutation({
@@ -53,10 +65,14 @@ export default function AddTierModal({ creator }: { creator: Creator }) {
               toast.error("Error signing transaction");
             }
           })
-          .catch((e) => console.log(e));
+          .catch((e) => console.log(e))
+          .finally(() => {
+            setIsModalOpen(false);
+          });
       } else {
         toast.error("Error creating tier");
       }
+      setIsModalOpen(false);
     },
   });
 
@@ -72,6 +88,7 @@ export default function AddTierModal({ creator }: { creator: Creator }) {
   });
 
   const onSubmit: SubmitHandler<z.infer<typeof TierSchema>> = (data) => {
+    setIsModalOpen(true);
     trxMutation.mutate({ code: getValues("name") });
     // mutation.mutate(data);
   };
@@ -84,8 +101,9 @@ export default function AddTierModal({ creator }: { creator: Creator }) {
 
   return (
     <>
-      <button className="btn btn-primary" onClick={handleModal}>
-        Add a Tier
+      <button className="btn btn-outline btn-primary" onClick={handleModal}>
+        <Plus />
+        Add Tier
       </button>
       <dialog className="modal" ref={modalRef}>
         <div className="modal-box">
@@ -126,10 +144,10 @@ export default function AddTierModal({ creator }: { creator: Creator }) {
                   {...register("day", { valueAsNumber: true })}
                   className="input input-bordered w-full max-w-xs"
                 />
-                {errors.name && (
+                {errors.featureDescription && (
                   <div className="label">
                     <span className="label-text-alt text-warning">
-                      {errors.name.message}
+                      {errors.featureDescription.message}
                     </span>
                   </div>
                 )}
@@ -156,7 +174,7 @@ export default function AddTierModal({ creator }: { creator: Creator }) {
                 type="submit"
                 disabled={mutation.isLoading}
               >
-                {mutation.isLoading && (
+                {(mutation.isLoading || isModalOpen) && (
                   <span className="loading loading-spinner"></span>
                 )}
                 Create Tier

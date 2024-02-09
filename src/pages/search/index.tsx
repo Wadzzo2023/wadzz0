@@ -1,3 +1,4 @@
+import { Creator } from "@prisma/client";
 import clsx from "clsx";
 import Link from "next/link";
 import React, { useState } from "react";
@@ -99,15 +100,11 @@ function Creator() {
   );
 }
 
-export function CreatorAvater({
-  creator,
-}: {
-  creator: { id: string; bio: string | null; name: string };
-}) {
+export function CreatorAvater({ creator }: { creator: Creator }) {
   return (
     <div className="flex items-center gap-2 p-2 hover:bg-neutral">
       <div>
-        <Avater />
+        <Avater url={creator.profileUrl} />
       </div>
       <div>
         <Link href={`/creator/${creator.id}`} className="font-bold">

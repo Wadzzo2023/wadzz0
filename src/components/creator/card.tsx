@@ -17,13 +17,16 @@ export default function MemberShipCard({
   return (
     <div
       className={clsx(
-        "card w-96 bg-neutral text-neutral-content shadow-xl",
+        "card w-48  bg-neutral text-neutral-content shadow-xl",
         className,
       )}
     >
       <div className="card-body">
         <h2 className="card-title">
-          ${subscription.id}/{subscription.priority}
+          <h2 className="badge badge-secondary text-center">
+            {subscription.priority}
+          </h2>
+          ${subscription.id}/{subscription.days} days
         </h2>
         <p>{subscription.features}</p>
         {children}

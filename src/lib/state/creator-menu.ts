@@ -1,7 +1,6 @@
 import { create } from "zustand";
 
 export enum CreatorMenu {
-  Home = "Home",
   Posts = "Posts",
   Membership = "Membership",
   Shop = "Shop",
@@ -13,6 +12,6 @@ interface CreatorState {
 }
 
 export const useCreator = create<CreatorState>((set) => ({
-  selectedMenu: CreatorMenu.Home,
+  selectedMenu: CreatorMenu.Posts,
   setSelectedMenu: (menu) => set({ selectedMenu: menu }),
 }));
