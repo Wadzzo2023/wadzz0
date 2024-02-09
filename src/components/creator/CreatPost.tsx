@@ -1,28 +1,11 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useForm, SubmitHandler, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { api } from "~/utils/api";
 import toast from "react-hot-toast";
-import { MediaType, Post } from "@prisma/client";
-import { formatPostCreatedAt } from "~/utils/format-date";
-import {
-  Croissant,
-  Cross,
-  CrossIcon,
-  CrosshairIcon,
-  FolderClosed,
-  Heart,
-  Image as ImageIcon,
-  Lock,
-  MessageCircle,
-  Music,
-  Music2,
-  Share2,
-  Video,
-  X,
-} from "lucide-react";
-import Link from "next/link";
+import { MediaType } from "@prisma/client";
+import { Image as ImageIcon, Music, Video, X } from "lucide-react";
 import clsx from "clsx";
 import { UploadButton } from "~/utils/uploadthing";
 import Image from "next/image";
@@ -35,7 +18,6 @@ const mediaTypes = [
 ];
 
 export const PostSchema = z.object({
-  id: z.string(),
   heading: z.string().min(1, { message: "Required" }),
   content: z.string().min(20, { message: "Minimum 20 is reguired" }),
   subscription: z.string().optional(),
@@ -43,7 +25,7 @@ export const PostSchema = z.object({
   mediaUrl: z.string().nullable().optional(),
 });
 
-export function CreatPost(props: { id: string }) {
+export function CreatPost() {
   const utils = api.useUtils();
 
   const [medialUrl, setMediaUrl] = useState<string>();
@@ -67,7 +49,6 @@ export function CreatPost(props: { id: string }) {
     formState: { errors },
   } = useForm<z.infer<typeof PostSchema>>({
     resolver: zodResolver(PostSchema),
-    defaultValues: { id: props.id },
   });
 
   const onSubmit: SubmitHandler<z.infer<typeof PostSchema>> = (data) => {
@@ -85,7 +66,7 @@ export function CreatPost(props: { id: string }) {
       <div>
         <form
           onSubmit={handleSubmit(onSubmit)}
-          className="my-10 flex min-w-96 flex-col gap-2 bg-base-200 p-5"
+          className="flex min-w-96 flex-col gap-2 bg-base-200 p-5"
         >
           <label className="form-control w-full max-w-sm">
             <div className="label">
@@ -222,6 +203,7 @@ export function PostList(props: { id: string }) {
       <div className="flex flex-col gap-2">
         {data.map((post) => (
           <PostCard
+            comments={post._count.Comment}
             creator={post.creator}
             key={post.id}
             post={post}
@@ -237,7 +219,7 @@ export function PostList(props: { id: string }) {
 export function PostMenu(props: { id: string }) {
   return (
     <div>
-      <CreatPost id={props.id} />
+      {/* <CreatPost /> */}
       <PostList id={props.id} />
     </div>
   );

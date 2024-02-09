@@ -5,9 +5,17 @@ import { useSession } from "next-auth/react";
 import Button from "./ui/button";
 import Link from "next/link";
 import Logo from "./logo";
-import { HomeIcon, PenSquare, Search, Settings2, Bell } from "lucide-react";
+import {
+  HomeIcon,
+  PenSquare,
+  Search,
+  Settings2,
+  Bell,
+  Store,
+} from "lucide-react";
 import { api } from "~/utils/api";
 import { Mode, useMode } from "~/lib/state/left-side-mode";
+import { useRouter } from "next/router";
 
 const UserNavigation = {
   Home: { path: "/", icon: HomeIcon, text: "Home" },
@@ -18,8 +26,14 @@ const UserNavigation = {
 
 const CreatorNavigation = {
   Page: { path: "/me/creator", icon: PenSquare, text: "Page" },
-  Notification: { path: "/notification", icon: Bell, text: "Notification" },
-  Settings: { path: "/settings", icon: Settings2, text: "Settings" },
+  Create: { path: "/posts/creator", icon: PenSquare, text: "Create" },
+  Store: { path: "/store/creator", icon: Store, text: "Store" },
+  Notification: {
+    path: "/notification/creator",
+    icon: Bell,
+    text: "Notification",
+  },
+  Settings: { path: "/settings/creator", icon: Settings2, text: "Settings" },
 } as const;
 
 export default function LeftBar() {
@@ -64,12 +78,17 @@ function NavigationButtons() {
 
 function Profile() {
   const user = api.user.getUser.useQuery();
-  const { getAnotherMenu, toggleSelectedMenu } = useMode();
+  const { selectedMenu, getAnotherMenu, toggleSelectedMenu } = useMode();
+  const router = useRouter();
   if (user.data)
     return (
       <div
         className="btn my-2 items-center  justify-start gap-2"
-        onClick={() => toggleSelectedMenu()}
+        onClick={() => {
+          router.push(selectedMenu === Mode.User ? "/me/creator" : "/");
+
+          toggleSelectedMenu();
+        }}
       >
         <Avater url={user.data.image} />
         <div className="flex flex-col items-start">

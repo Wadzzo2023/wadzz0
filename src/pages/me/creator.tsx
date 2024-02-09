@@ -59,67 +59,18 @@ export function CreatorBack(props: { creator: Creator }) {
           alt="cover"
         />
       </div>
-      <div className="mb-10 flex flex-col items-center justify-center gap-4">
+      <div className="mb-5 flex flex-col items-center justify-center">
         <div className="bg-whit z-50 -mt-16 flex h-36 w-36 items-center justify-center rounded-full">
-          {/* <div className="h-28 w-28 rounded-full bg-red-400"></div> */}
           <Avater url={props.creator.profileUrl} className="w-28" />
         </div>
 
-        <CoverChange />
-        {/* <Edit className="self-end" /> */}
-        <div className="flex max-w-md flex-col items-center">
+        <div className="flex max-w-md flex-col items-center ">
           <h1 className="text-2xl font-bold">{props.creator.name}</h1>
-          {/* <p></p> */}
-          <p className="text-center leading-snug">
-            {props.creator.bio}
-            {/* Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce
-            vehicula urna quis erat varius eleifend. */}
-          </p>
+          <p className="text-center leading-snug">{props.creator.bio}</p>
         </div>
       </div>
     </div>
   );
-}
-
-function CoverChange() {
-  const { selectedMenu } = useCreator();
-  const router = useRouter();
-  const coverChangeMutation =
-    api.creator.changeCreatorCoverPicture.useMutation();
-
-  if (selectedMenu == CreatorMenu.About && router.pathname == "/me/creator")
-    return (
-      <div>
-        <UploadButton
-          endpoint="imageUploader"
-          appearance={{
-            allowedContent(arg) {
-              return {
-                display: "none",
-              };
-            },
-          }}
-          content={{
-            button: "Change Cover",
-          }}
-          onClientUploadComplete={(res) => {
-            // Do something with the response
-            console.log("Files: ", res);
-            // alert("Upload Completed");
-            const data = res[0];
-            if (data?.url) {
-              coverChangeMutation.mutate(data.url);
-            }
-
-            // updateProfileMutation.mutate(res);
-          }}
-          onUploadError={(error: Error) => {
-            // Do something with the error.
-            alert(`ERROR! ${error.message}`);
-          }}
-        />
-      </div>
-    );
 }
 
 function ConditionallyRenderMenuPage({ creator }: { creator: Creator }) {
@@ -129,8 +80,7 @@ function ConditionallyRenderMenuPage({ creator }: { creator: Creator }) {
       return <PostMenu id={creator.id} />;
     case CreatorMenu.Membership:
       return <MemberShip creator={creator} />;
-    case CreatorMenu.About:
-      return <About creator={creator} />;
+
     case CreatorMenu.Shop:
       return <Shop creator={creator} />;
   }

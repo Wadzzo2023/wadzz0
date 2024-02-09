@@ -4,10 +4,10 @@ import AddItem2Shop from "./add-shop-item";
 import { api } from "~/utils/api";
 import BuyItemModal from "../shop/buy-item-modal";
 
-export default function Shop({ creator }: { creator: Creator }) {
+export default function Shop({ creator }: { creator?: Creator }) {
   return (
     <div>
-      <p>Shop {creator.bio}</p>
+      <p>Shop </p>
       <AddItem2Shop />
       <AllShopItems />
     </div>

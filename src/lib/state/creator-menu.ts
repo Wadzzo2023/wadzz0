@@ -5,7 +5,6 @@ export enum CreatorMenu {
   Posts = "Posts",
   Membership = "Membership",
   Shop = "Shop",
-  About = "About",
 }
 
 interface CreatorState {

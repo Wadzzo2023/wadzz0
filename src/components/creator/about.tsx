@@ -6,6 +6,7 @@ import Avater from "../ui/avater";
 import { Creator } from "@prisma/client";
 import { api } from "~/utils/api";
 import { UploadButton } from "~/utils/uploadthing";
+import { CoverChange } from "./change-cover-button";
 
 export default function About({ creator }: { creator: Creator }) {
   return (
@@ -19,7 +20,6 @@ export default function About({ creator }: { creator: Creator }) {
 }
 
 export const CreatorAboutShema = z.object({
-  id: z.string(),
   description: z.string().max(100, { message: "max 100 charecter" }).nullable(),
   name: z
     .string()
@@ -39,7 +39,6 @@ function AboutForm({ creator }: { creator: Creator }) {
   } = useForm<z.infer<typeof CreatorAboutShema>>({
     resolver: zodResolver(CreatorAboutShema),
     defaultValues: {
-      id: creator.id,
       name: creator.name,
       description: creator.bio,
     },
@@ -78,6 +77,7 @@ function AboutForm({ creator }: { creator: Creator }) {
             alert(`ERROR! ${error.message}`);
           }}
         />
+        <CoverChange />
       </div>
       <label className="form-control w-full ">
         <div className="label">

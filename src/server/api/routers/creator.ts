@@ -19,6 +19,12 @@ export const creatorRouter = createTRPCRouter({
       }
     }),
 
+  meCreator: protectedProcedure.query(async ({ ctx }) => {
+    return ctx.db.creator.findFirst({
+      where: { user: { id: ctx.session.user.id } },
+    });
+  }),
+
   makeMeCreator: protectedProcedure
     .input(z.object({ id: z.string() }))
     .mutation(async ({ ctx, input }) => {
