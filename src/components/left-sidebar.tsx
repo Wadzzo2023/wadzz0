@@ -76,25 +76,76 @@ function NavigationButtons() {
   );
 }
 
-function Profile() {
-  const user = api.user.getUser.useQuery();
-  const { selectedMenu, getAnotherMenu, toggleSelectedMenu } = useMode();
-  const router = useRouter();
-  if (user.data)
-    return (
-      <div
-        className="btn my-2 items-center  justify-start gap-2"
-        onClick={() => {
-          router.push(selectedMenu === Mode.User ? "/me/creator" : "/");
-
-          toggleSelectedMenu();
-        }}
-      >
-        <Avater url={user.data.image} />
-        <div className="flex flex-col items-start">
-          <p className="">{user.data.name}</p>
-          <p>Switch to {getAnotherMenu()}</p>
-        </div>
+function ProfileComponent({
+  avaterUrl,
+  handleModeChange,
+  name,
+  mode,
+}: {
+  avaterUrl: string | null;
+  handleModeChange: () => void;
+  name: string | null;
+  mode: Mode;
+}) {
+  return (
+    <div
+      className="btn my-2 items-center  justify-start gap-2"
+      onClick={handleModeChange}
+    >
+      <Avater url={avaterUrl} />
+      <div className="flex flex-col items-start">
+        <p className="">{name}</p>
+        <p>Switch to {mode}</p>
       </div>
+    </div>
+  );
+}
+
+function UserAvater() {
+  const router = useRouter();
+  const { setSelectedMenu } = useMode();
+  const user = api.user.getUser.useQuery();
+  const handleClick = () => {
+    setSelectedMenu(Mode.Creator);
+    router.push("/me/creator");
+  };
+  if (user.data) {
+    return (
+      <ProfileComponent
+        handleModeChange={handleClick}
+        avaterUrl={user.data.image}
+        mode={Mode.Creator}
+        name={user.data.name}
+      />
     );
+  }
+}
+function CreatorAvater() {
+  const router = useRouter();
+  const { setSelectedMenu } = useMode();
+  const creator = api.creator.meCreator.useQuery();
+
+  const handleClick = () => {
+    setSelectedMenu(Mode.User);
+    router.push("/");
+  };
+
+  return (
+    <ProfileComponent
+      handleModeChange={handleClick}
+      avaterUrl={creator?.data?.profileUrl ?? null}
+      mode={Mode.User}
+      name={creator?.data?.name ?? "Unknown"}
+    />
+  );
+}
+
+function Profile() {
+  const { selectedMenu, getAnotherMenu, toggleSelectedMenu } = useMode();
+
+  const creator = api.creator.meCreator.useQuery();
+
+  if (selectedMenu == Mode.User) {
+    return <UserAvater />;
+  } else return <CreatorAvater />;
 }
