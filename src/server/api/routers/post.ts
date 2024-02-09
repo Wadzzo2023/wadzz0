@@ -1,5 +1,7 @@
+import { NotificationType } from "@prisma/client";
 import { z } from "zod";
 import { PostSchema } from "~/components/creator/CreatPost";
+import NotificationPage from "~/pages/notification";
 import { CommentSchema } from "~/pages/posts/[id]";
 
 import {
@@ -14,13 +16,12 @@ export const postRouter = createTRPCRouter({
     .input(PostSchema)
     .mutation(async ({ ctx, input }) => {
       // simulate a slow db call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
 
       return ctx.db.post.create({
         data: {
           heading: input.heading,
           content: input.content,
-          creatorId: input.id,
+          creatorId: ctx.session.user.id,
           subscriptionId: input.subscription
             ? Number(input.subscription)
             : null,
@@ -116,7 +117,8 @@ export const postRouter = createTRPCRouter({
               void ctx.db.notificationObject.create({
                 data: {
                   actorId: userId,
-                  entiryId: NotificationEntity.Like,
+                  entityId: postId,
+                  entityType: NotificationType.POST,
                   Notification: {
                     create: [{ notifierId: creator.creatorId }],
                   },
@@ -186,7 +188,8 @@ export const postRouter = createTRPCRouter({
             void ctx.db.notificationObject.create({
               data: {
                 actorId: ctx.session.user.id,
-                entiryId: NotificationEntity.Comment,
+                entityId: input.postId,
+                entityType: NotificationType.COMMENT,
                 Notification: {
                   create: [{ notifierId: creator.creatorId }],
                 },

@@ -12,6 +12,7 @@ const config = {
   ],
   ignorePatterns: [
     "src/server/uploadthing.ts",
+    "src/components/left-sidebar.tsx"
   ],
   rules: {
     // These opinionated rules are enabled in stylistic-type-checked above.

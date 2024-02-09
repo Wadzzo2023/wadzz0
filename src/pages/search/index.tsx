@@ -70,7 +70,7 @@ function Posts() {
       <div className="max-w-sm rounded-box bg-base-200 p-2">
         {posts.data?.map((post) => {
           return (
-            <div className="p-4 hover:bg-neutral">
+            <div className="p-4 hover:bg-neutral" key={post.id}>
               <Link href={`/posts/${post.id}`} className="">
                 <h2 className="text-lg font-bold">{post.heading}</h2>
                 <p key={post.id}>{post.content}</p>
@@ -91,7 +91,9 @@ function Creator() {
       <h2>Creator</h2>
       {creators.isLoading && <div>Loading...</div>}
       <div className="flex max-w-sm flex-col rounded-box bg-base-200 p-4">
-        {creators.data?.map((creator) => <CreatorAvater creator={creator} />)}
+        {creators.data?.map((creator) => (
+          <CreatorAvater key={creator.id} creator={creator} />
+        ))}
       </div>
     </div>
   );

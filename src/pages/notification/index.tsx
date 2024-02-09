@@ -44,7 +44,7 @@ function CreatorNotifications() {
   return (
     <div>
       {notifications.data?.map((el) => (
-        <p>{el.notificationObject.entityType}</p>
+        <p key={el.id}>{el.notificationObject.entityType}</p>
       ))}
     </div>
   );

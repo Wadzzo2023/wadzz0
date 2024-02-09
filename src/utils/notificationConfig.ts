@@ -1,4 +1,4 @@
-import { NotificationObject } from "@prisma/client";
+import { NotificationObject, NotificationType } from "@prisma/client";
 
 export const NotificationEntity = {
   Post: 1,
@@ -8,14 +8,14 @@ export const NotificationEntity = {
 } as const;
 
 export function getNotificationMessage(notificationObject: NotificationObject) {
-  switch (notificationObject.entiryId) {
-    case NotificationEntity.Post:
+  switch (notificationObject.entityType) {
+    case NotificationType.POST:
       return `${notificationObject.actorId} post created`;
-    case NotificationEntity.Like:
+    case NotificationType.LIKE:
       return "liked your post";
-    case NotificationEntity.Comment:
+    case NotificationType.COMMENT:
       return "commented on post";
-    case NotificationEntity.Subscribe:
+    case NotificationType.SUBSCRIPTION:
       return "subscribed";
   }
 }

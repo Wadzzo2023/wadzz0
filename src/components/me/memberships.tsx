@@ -9,7 +9,7 @@ export default function Memberships() {
       <h2 className="text-2xl font-bold">Memberships</h2>
 
       {subscriptions.data?.map((el) => (
-        <div>
+        <div key={el.id}>
           <p>{el.id}</p>
           <p>{el.createdAt.toString()}</p>
           <p>

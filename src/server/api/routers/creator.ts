@@ -40,10 +40,10 @@ export const creatorRouter = createTRPCRouter({
   updateCreatorProfile: protectedProcedure
     .input(CreatorAboutShema)
     .mutation(async ({ ctx, input }) => {
-      const { name, description, id } = input;
+      const { name, description } = input;
       await ctx.db.creator.update({
         data: { name, bio: description },
-        where: { id },
+        where: { id: ctx.session.user.id },
       });
     }),
 
