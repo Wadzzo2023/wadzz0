@@ -10,6 +10,7 @@ import {
   PenSquare,
   Search,
   Settings2,
+  Diamond,
   Bell,
   Store,
 } from "lucide-react";
@@ -20,6 +21,7 @@ import { useRouter } from "next/router";
 const UserNavigation = {
   Home: { path: "/", icon: HomeIcon, text: "Home" },
   Search: { path: "/search", icon: Search, text: "Search" },
+  YourAsset: { path: "/assets", icon: Diamond, text: "Your Assets" },
   Notification: { path: "/notification", icon: Bell, text: "Notification" },
   Settings: { path: "/settings", icon: Settings2, text: "Settings" },
 } as const;
