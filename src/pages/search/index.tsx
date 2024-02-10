@@ -13,7 +13,7 @@ export default function Search() {
 
   return (
     <div className="my-10 flex flex-col items-center gap-4">
-      <h2 className="text mb-5 text-2xl font-bold">Find Something Here</h2>
+      <h2 className="text mb-5 text-2xl font-bold">Search</h2>
       <div className="flex gap-2">
         <input
           type="text"
@@ -89,7 +89,6 @@ function Creator() {
   const creators = api.creator.search.useQuery(searchString);
   return (
     <div className="flex flex-col items-center">
-      <h2>Creator</h2>
       {creators.isLoading && <div>Loading...</div>}
       <div className="flex max-w-sm flex-col rounded-box bg-base-200 p-4">
         {creators.data?.map((creator) => (
@@ -120,9 +119,8 @@ function AssetsList() {
   const assets = api.shop.search.useQuery(searchString);
   return (
     <div className="flex flex-col items-center">
-      <h2>Assets</h2>
       {assets.isLoading && <div>Loading...</div>}
-      <div className="w-full max-w-xs rounded-box bg-base-200 p-4">
+      <div className="w-full max-w-sm rounded-box bg-base-200 p-4">
         {assets.data?.map((asset) => (
           <div key={asset.id} className="p-4 hover:bg-neutral">
             <p>{asset.asset.code}</p>

@@ -79,7 +79,14 @@ export const membershipRouter = createTRPCRouter({
         userId: ctx.session.user.id,
       },
       include: {
-        subscription: true,
+        subscription: {
+          include: {
+            asset: {
+              select: { code: true, issuer: true },
+            },
+            creator: true,
+          },
+        },
       },
     });
   }),

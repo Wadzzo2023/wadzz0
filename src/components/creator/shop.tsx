@@ -56,10 +56,10 @@ export function ShopItem({ item }: { item: ShopItemProps }) {
           <h2 className="card-title">{item.name}</h2>
           <p>{item.description}</p>
           <div className="card-actions justify-end">
-            {item.creatorId != data.user.id && <BuyItemModal item={item} />}
             <button className="btn btn-outline btn-primary self-start">
               {item.asset.code}
             </button>
+            {item.creatorId != data.user.id && <BuyItemModal item={item} />}
           </div>
         </div>
       </div>

@@ -1,8 +1,8 @@
 import { create } from "zustand";
 
 export enum AssetMenu {
-  SubscriptionAsset = "Subscription",
   Assets = "Assets",
+  SubscriptionAsset = "Subscription",
 }
 
 interface AssetMenuState {
@@ -11,6 +11,6 @@ interface AssetMenuState {
 }
 
 export const useAssetMenu = create<AssetMenuState>((set) => ({
-  selectedMenu: AssetMenu.SubscriptionAsset,
+  selectedMenu: AssetMenu.Assets,
   setSelectedMenu: (menu) => set({ selectedMenu: menu }),
 }));

@@ -10,9 +10,11 @@ export default function Settings() {
   if (data?.user)
     return (
       <div className="p-4">
-        <h1 className="text-3xl font-bold">Settings</h1>
-        <SettingsTabs />
-        <RenderTabs />
+        <h1 className="text-center text-3xl font-bold">Settings</h1>
+        <div className="flex flex-col items-center gap-4">
+          <SettingsTabs />
+          <RenderTabs />
+        </div>
       </div>
     );
 }
@@ -24,8 +26,6 @@ function RenderTabs() {
       return <About />;
     case SettingsMenu.Membership:
       return <Memberships />;
-    case SettingsMenu.Assets:
-      return <div>Assets</div>;
   }
 }
 
