@@ -11,5 +11,9 @@ export default withUt({
       },
     },
   },
-  plugins: [require("@tailwindcss/typography"), require("daisyui")],
+  plugins: [
+    require("tailwind-scrollbar-hide"),
+    require("@tailwindcss/typography"),
+    require("daisyui"),
+  ],
 }) satisfies Config;

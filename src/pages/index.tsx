@@ -30,26 +30,11 @@ function AuthShowcase() {
   );
 
   return (
-    <div className="flex flex-col items-center">
-      <AllCreators />
-      <AllRecentPost />
-    </div>
-  );
-}
-
-function AllCreators() {
-  const { data: creators } = api.creator.getAllCreator.useQuery();
-
-  return (
-    <div className="flex flex-col items-center justify-center gap-4">
-      <p className="text-center text-2xl text-white">All creators</p>
-      <ul>
-        {creators?.map((creator) => (
-          <li key={creator.id}>
-            <CreatorAvater creator={creator} />
-          </li>
-        ))}
-      </ul>
+    <div className="p-5">
+      <h1 className="text-3xl font-bold">Home</h1>
+      <div className="mt-10 flex flex-col items-center">
+        <AllRecentPost />
+      </div>
     </div>
   );
 }
