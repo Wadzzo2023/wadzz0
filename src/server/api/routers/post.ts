@@ -30,7 +30,7 @@ export const postRouter = createTRPCRouter({
         },
       });
 
-      void ctx.db.notificationObject.create({
+      await ctx.db.notificationObject.create({
         data: {
           actorId: ctx.session.user.id,
           entityType: NotificationType.POST,
