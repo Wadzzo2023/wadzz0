@@ -1,17 +1,34 @@
 import clsx from "clsx";
+import Link from "next/link";
 import React from "react";
 import {
   NotificationMenu,
   useNotificationMenu,
 } from "~/lib/state/notification-menu";
 import { api } from "~/utils/api";
+import { formatPostCreatedAt } from "~/utils/format-date";
+import { getNotificationMessage } from "~/utils/notificationConfig";
 
 export default function NotificationPage() {
+  const notifications = api.notification.getUserNotification.useQuery();
   return (
-    <div className="m-5">
-      <h1 className="text-3xl font-bold">Notifications</h1>
-      {/* <NotificationTabs /> */}
-      {/* <RenderTabs /> */}
+    <div className="p-5">
+      <h1 className="text-center text-3xl font-bold">Notifications</h1>
+      <div className="flex flex-col items-center bg-base-200 p-4">
+        {notifications.data?.map((el) => {
+          const { message, url } = getNotificationMessage(el);
+          return (
+            <div key={el.id} className="flex flex-col hover:bg-neutral">
+              <Link
+                href={url}
+                className="p-4 hover:text-primary hover:underline"
+              >
+                {message} {formatPostCreatedAt(el.createdAt)}
+              </Link>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }

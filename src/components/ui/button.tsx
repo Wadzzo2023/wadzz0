@@ -13,7 +13,6 @@ export default function Button({
   path: string;
 }) {
   const router = useRouter();
-  console.log(router.pathname, "path");
 
   return (
     <button

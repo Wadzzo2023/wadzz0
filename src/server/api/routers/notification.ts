@@ -27,4 +27,10 @@ export const notificationRouter = createTRPCRouter({
       orderBy: { createdAt: "desc" },
     });
   }),
+
+  getUserNotification: protectedProcedure.query(async ({ ctx }) => {
+    return await ctx.db.notificationObject.findMany({
+      where: { isUser: false },
+    });
+  }),
 });

@@ -30,7 +30,6 @@ export async function createAsset({
   code: string;
   limit: number;
 }) {
-  console.log(pubkey, "pubkey");
   const limit = limitValue.toString();
   const server = new Server(STELLAR_URL);
 

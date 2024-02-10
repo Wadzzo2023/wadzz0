@@ -63,7 +63,6 @@ function AboutForm({ creator }: { creator: Creator }) {
           content={{ button: "Change Photo" }}
           onClientUploadComplete={(res) => {
             // Do something with the response
-            console.log("Files: ", res);
             // alert("Upload Completed");
             const data = res[0];
 

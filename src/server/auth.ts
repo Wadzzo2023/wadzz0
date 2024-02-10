@@ -71,7 +71,6 @@ export const authOptions: NextAuthOptions = {
         const passwordCorrect = await comparePassword(pubkey, password);
 
         if (passwordCorrect) {
-          console.log("password correct");
           const user = await db.user.findFirst({ where: { id: pubkey } });
 
           // if user is not created create user.

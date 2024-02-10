@@ -52,7 +52,6 @@ export function CreatPost() {
   });
 
   const onSubmit: SubmitHandler<z.infer<typeof PostSchema>> = (data) => {
-    console.log(data, "data");
     createPostMutation.mutate(data);
   };
 
@@ -137,7 +136,6 @@ export function CreatPost() {
                   content={{ button: "Add Media", allowedContent: "Max (4MB)" }}
                   onClientUploadComplete={(res) => {
                     // Do something with the response
-                    console.log("Files: ", res);
                     // alert("Upload Completed");
                     const data = res[0];
 

@@ -24,7 +24,6 @@ export function CoverChange() {
           }}
           onClientUploadComplete={(res) => {
             // Do something with the response
-            console.log("Files: ", res);
             // alert("Upload Completed");
             const data = res[0];
             if (data?.url) {

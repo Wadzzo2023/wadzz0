@@ -17,7 +17,7 @@ export const postRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       // simulate a slow db call
 
-      return ctx.db.post.create({
+      const post = await ctx.db.post.create({
         data: {
           heading: input.heading,
           content: input.content,
@@ -29,6 +29,17 @@ export const postRouter = createTRPCRouter({
           mediaUrl: input.mediaUrl,
         },
       });
+
+      void ctx.db.notificationObject.create({
+        data: {
+          actorId: ctx.session.user.id,
+          entityType: NotificationType.POST,
+          entityId: post.id,
+          isUser: false,
+        },
+      });
+
+      return post;
     }),
 
   getPosts: protectedProcedure

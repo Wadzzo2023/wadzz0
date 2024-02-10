@@ -85,8 +85,6 @@ export default function AddItem2Shop() {
     modalRef.current?.showModal();
   };
 
-  console.log(errors, "errors");
-
   return (
     <>
       <button className="btn btn-outline btn-primary" onClick={handleModal}>
@@ -182,7 +180,6 @@ export default function AddItem2Shop() {
             content={{ button: "Change Photo" }}
             onClientUploadComplete={(res) => {
               // Do something with the response
-              console.log("Files: ", res);
               // alert("Upload Completed");
               const data = res[0];
 

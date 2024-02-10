@@ -93,8 +93,6 @@ export default function AddTierModal({ creator }: { creator: Creator }) {
     // mutation.mutate(data);
   };
 
-  console.log(errors, "fomr error");
-
   const handleModal = () => {
     modalRef.current?.showModal();
   };
