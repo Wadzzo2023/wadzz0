@@ -9,9 +9,9 @@ import { api } from "~/utils/api";
 export default function NotificationPage() {
   return (
     <div className="m-5">
-      <h1 className="text-3xl font-bold">Notification</h1>
-      <NotificationTabs />
-      <RenderTabs />
+      <h1 className="text-3xl font-bold">Notifications</h1>
+      {/* <NotificationTabs /> */}
+      {/* <RenderTabs /> */}
     </div>
   );
 }

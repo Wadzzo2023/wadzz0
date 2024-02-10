@@ -24,6 +24,7 @@ export const notificationRouter = createTRPCRouter({
       include: {
         notificationObject: true,
       },
+      orderBy: { createdAt: "desc" },
     });
   }),
 });

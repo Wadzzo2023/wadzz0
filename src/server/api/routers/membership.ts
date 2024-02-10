@@ -110,12 +110,11 @@ export const membershipRouter = createTRPCRouter({
           endDate: currentDate,
         },
       });
-      void ctx.db.notificationObject.create({
+      await ctx.db.notificationObject.create({
         data: {
           actorId: ctx.session.user.id,
           entityType: NotificationType.SUBSCRIPTION,
-          // TODO: Add actual entity Id
-          entityId: 2,
+          entityId: input.subscriptionId,
           Notification: { create: [{ notifierId: input.creatorId }] },
         },
       });

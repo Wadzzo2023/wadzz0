@@ -110,15 +110,15 @@ export const postRouter = createTRPCRouter({
           data: { userId, postId },
         });
         // create notification
-        ctx.db.post
+        void ctx.db.post
           .findUnique({ where: { id: postId }, select: { creatorId: true } })
-          .then((creator) => {
+          .then(async (creator) => {
             if (creator) {
-              void ctx.db.notificationObject.create({
+              await ctx.db.notificationObject.create({
                 data: {
                   actorId: userId,
                   entityId: postId,
-                  entityType: NotificationType.POST,
+                  entityType: NotificationType.LIKE,
                   Notification: {
                     create: [{ notifierId: creator.creatorId }],
                   },
@@ -178,14 +178,14 @@ export const postRouter = createTRPCRouter({
         },
       });
       // create notification
-      ctx.db.post
+      void ctx.db.post
         .findUnique({
           where: { id: input.postId },
           select: { creatorId: true },
         })
-        .then((creator) => {
+        .then(async (creator) => {
           creator &&
-            void ctx.db.notificationObject.create({
+            (await ctx.db.notificationObject.create({
               data: {
                 actorId: ctx.session.user.id,
                 entityId: input.postId,
@@ -194,7 +194,7 @@ export const postRouter = createTRPCRouter({
                   create: [{ notifierId: creator.creatorId }],
                 },
               },
-            });
+            }));
         })
         .catch(console.error);
       return comment;
