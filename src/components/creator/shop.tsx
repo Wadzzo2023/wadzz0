@@ -23,7 +23,7 @@ function AllShopItems() {
     <div className="flex flex-col items-center">
       <p className="my-5 text-center text-3xl font-bold">Shop items</p>
       <div className="flex flex-col gap-2">
-        {items?.map((item) => <ShopItem item={item} />)}
+        {items?.map((item) => <ShopItem key={item.id} item={item} />)}
       </div>
     </div>
   );

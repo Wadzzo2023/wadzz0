@@ -32,6 +32,7 @@ function SubscriptionAsset() {
       {subscriptions.data?.map((sub) => {
         return (
           <AssetItemComponent
+            key={sub.id}
             code={sub.subscription.assetId.toString()}
             description={sub.subscription.features}
             name={sub.subscription.id.toString()}
