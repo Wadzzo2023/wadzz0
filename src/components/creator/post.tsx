@@ -69,14 +69,18 @@ export function PostCard({
             </Link>
             <div className="flex gap-4 p-2 ">
               <div className="flex items-end justify-center gap-1">
-                <Heart
-                  onClick={() =>
-                    liked
-                      ? deleteLike.mutate(post.id)
-                      : likeMutation.mutate(post.id)
-                  }
-                  className={clsx(liked && "fill-primary text-primary ")}
-                />{" "}
+                {deleteLike.isLoading || likeMutation.isLoading ? (
+                  <span className="loading loading-spinner"></span>
+                ) : (
+                  <Heart
+                    onClick={() =>
+                      liked
+                        ? deleteLike.mutate(post.id)
+                        : likeMutation.mutate(post.id)
+                    }
+                    className={clsx(liked && "fill-primary text-primary ")}
+                  />
+                )}
                 <p className="font-bold">{like}</p>
               </div>
               <div className="flex items-end justify-center gap-1">
