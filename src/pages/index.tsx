@@ -40,34 +40,65 @@ function AuthShowcase() {
 }
 
 function AllRecentPost() {
-  const { data: posts, isLoading } = api.post.getAllRecentPosts.useQuery();
+  const { data, isLoading, fetchNextPage, hasNextPage } =
+    api.post.getAllRecentPosts.useInfiniteQuery(
+      {
+        limit: 5,
+      },
+      {
+        getNextPageParam: (lastPage) => {
+          return lastPage.nextCursor;
+        },
+
+        refetchOnWindowFocus: false,
+      },
+    );
+
+  const handleFetchNextPage = () => {
+    fetchNextPage();
+    console.log("fetching next page");
+    console.log(data?.pages.length, "pages length");
+
+    // setPage((prev) => prev + 1);
+  };
+
   const { data: user_subscriptions, isLoading: isLoading2 } =
     api.member.getAllSubscription.useQuery();
 
-  if (isLoading2) return <div>Loading to fetch membership...</div>;
+  // if (isLoading2) return <div>Loading to fetch membership...</div>;
 
   if (isLoading) return <div>Loading...</div>;
-  if (posts) {
+  if (data) {
     return (
       <div className="flex flex-col gap-4">
-        {posts.map((post) => (
-          <PostCard
-            comments={post._count.Comment}
-            creator={post.creator}
-            key={post.id}
-            post={post}
-            like={post._count.Like}
-            show={
-              !post.subscription ||
-              user_subscriptions?.some(
-                (el) =>
-                  el.subscription.creatorId == post.creatorId &&
-                  post.subscription &&
-                  el.subscription.priority <= post.subscription.priority,
-              )
-            }
-          />
+        {data.pages.map((page) => (
+          <>
+            {page.posts.map((post) => (
+              <PostCard
+                comments={post._count.Comment}
+                creator={post.creator}
+                key={post.id}
+                post={post}
+                like={post._count.Like}
+                show={
+                  !post.subscription ||
+                  user_subscriptions?.some(
+                    (el) =>
+                      el.subscription.creatorId == post.creatorId &&
+                      post.subscription &&
+                      el.subscription.priority <= post.subscription.priority,
+                  )
+                }
+              />
+            ))}
+          </>
         ))}
+
+        {hasNextPage && (
+          <button onClick={handleFetchNextPage} className="btn">
+            See more
+          </button>
+        )}
       </div>
     );
   }

@@ -9,6 +9,7 @@ import { api } from "~/utils/api";
 
 import { Comment } from "@prisma/client";
 import { formatPostCreatedAt } from "~/utils/format-date";
+import React from "react";
 
 export default function PostPage() {
   const router = useRouter();
@@ -26,42 +27,76 @@ function Page({ postId }: { postId: string }) {
   const { data: comments, isLoading: commentLoading } =
     api.post.getComments.useQuery(Number(postId));
   return (
-    <div className="flex w-full flex-col items-center">
-      {data && (
-        <>
-          <PostCard
-            comments={data._count.Comment}
-            creator={data.creator}
-            like={data._count.Like}
-            post={data}
-            show
-          />
-          <div className="card w-96 bg-base-100 shadow-xl">
-            <div className="card-body">
-              <h2 className="card-title">Comments</h2>
-              {comments?.map((comment) => (
-                <CommentView key={comment.id} comment={comment} />
-              ))}
-              <AddComment postId={postId} />
+    <div className="p-5">
+      <div className="flex w-full flex-col items-center">
+        {data && (
+          <>
+            <PostCard
+              comments={data._count.Comment}
+              creator={data.creator}
+              like={data._count.Like}
+              post={data}
+              show
+            />
+            <div className="card w-96 bg-base-100 shadow-xl">
+              <div className="card-body">
+                <h2 className="card-title">Comments</h2>
+                <div className="flex flex-col gap-4">
+                  {comments?.map((comment) => (
+                    <CommentView key={comment.id} comment={comment} />
+                  ))}
+                </div>
+                <AddComment postId={postId} />
+              </div>
             </div>
-          </div>
-        </>
-      )}
+          </>
+        )}
+      </div>
     </div>
   );
 }
-function CommentView({ comment }: { comment: Comment }) {
+function CommentView({
+  comment,
+}: {
+  comment: Comment & {
+    user: {
+      name: string | null;
+      image: string | null;
+    };
+  };
+}) {
   return (
-    <div className="flex gap-2">
-      <div>
-        <Avater />
+    <div className="flex justify-between border-b border-neutral">
+      <div className="flex gap-2">
+        <div>
+          <Avater url={comment.user.image} />
+        </div>
+        <div className="flex-1">
+          <h2 className="font-bold">{comment.user.name}</h2>
+          {/* <p>{comment.content}</p> */}
+          {comment.content.length > 50 ? (
+            <ShowMore content={comment.content} />
+          ) : (
+            <p>{comment.content}</p>
+          )}
+
+          <p></p>
+        </div>
       </div>
-      <div className="flex-1">
-        <h2>Username</h2>
-        <p>{comment.content}</p>
-      </div>
-      <p>{formatPostCreatedAt(comment.createdAt)}</p>
+      <p className=" text-right">{formatPostCreatedAt(comment.createdAt)}</p>
     </div>
+  );
+}
+
+function ShowMore({ content }: { content: string }) {
+  const [isExpanded, setIsExpanded] = React.useState<boolean>(false);
+  return (
+    <>
+      <p>{isExpanded ? content : content.slice(0, 50)}</p>
+      {!isExpanded && (
+        <button onClick={() => setIsExpanded(!isExpanded)}>See More</button>
+      )}
+    </>
   );
 }
 export const CommentSchema = z.object({

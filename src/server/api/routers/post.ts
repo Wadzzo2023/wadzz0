@@ -68,19 +68,47 @@ export const postRouter = createTRPCRouter({
       });
     }),
 
-  getAllRecentPosts: protectedProcedure.query(async ({ ctx }) => {
-    return await ctx.db.post.findMany({
-      take: 10,
-      orderBy: { createdAt: "desc" },
-      include: {
-        subscription: true,
-        _count: {
-          select: { Like: true, Comment: true },
+  getAllRecentPosts: protectedProcedure
+    .input(
+      z.object({
+        limit: z.number(),
+        // cursor is a reference to the last item in the previous batch
+        // it's used to fetch the next batch
+        cursor: z.number().nullish(),
+        skip: z.number().optional(),
+      }),
+    )
+    .query(async ({ input, ctx }) => {
+      const { limit, skip, cursor } = input;
+
+      const items = await ctx.db.post.findMany({
+        take: limit + 1,
+        skip: skip,
+        cursor: cursor ? { id: cursor } : undefined,
+
+        orderBy: { createdAt: "desc" },
+        include: {
+          subscription: true,
+          _count: {
+            select: { Like: true, Comment: true },
+          },
+          creator: { select: { name: true, id: true } },
         },
-        creator: { select: { name: true, id: true } },
-      },
-    });
-  }),
+      });
+
+      let nextCursor: typeof cursor | undefined = undefined;
+      console.log(items.length, "items length");
+      if (items.length > limit) {
+        const nextItem = items.pop(); // return the last item from the array
+        nextCursor = nextItem?.id;
+      }
+
+      console.log(nextCursor, "nextCursor");
+      return {
+        posts: items,
+        nextCursor,
+      };
+    }),
 
   getAPost: protectedProcedure
     .input(z.number())
@@ -175,6 +203,7 @@ export const postRouter = createTRPCRouter({
     .query(async ({ input: postId, ctx }) => {
       return await ctx.db.comment.findMany({
         where: { postId },
+        include: { user: { select: { name: true, image: true } } },
       });
     }),
 
