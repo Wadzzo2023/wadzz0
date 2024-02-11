@@ -23,19 +23,25 @@ export default function PostPage() {
 }
 
 function Page({ postId }: { postId: string }) {
-  const { data, isLoading } = api.post.getAPost.useQuery(Number(postId));
+  const post = api.post.getAPost.useQuery(Number(postId));
   const { data: comments, isLoading: commentLoading } =
     api.post.getComments.useQuery(Number(postId));
-  return (
-    <div className="p-5">
-      <div className="flex w-full flex-col items-center">
-        {data && (
+
+  if (post.isLoading || commentLoading) return <div>Loading...</div>;
+
+  if (post.isError) return <div>Post not found</div>;
+  if (post.data) {
+    return (
+      <div className="p-5">
+        <h2 className="mb-5 text-center text-3xl font-bold">Content</h2>
+        <div className="flex w-full flex-col items-center">
           <>
             <PostCard
-              comments={data._count.Comment}
-              creator={data.creator}
-              like={data._count.Like}
-              post={data}
+              priority={post.data.subscription?.priority}
+              comments={post.data._count.Comment}
+              creator={post.data.creator}
+              like={post.data._count.Like}
+              post={post.data}
               show
             />
             <div className="card w-96 bg-base-100 shadow-xl">
@@ -50,10 +56,12 @@ function Page({ postId }: { postId: string }) {
               </div>
             </div>
           </>
-        )}
+        </div>
       </div>
-    </div>
-  );
+    );
+  } else {
+    return <p> You do not have proper permission</p>;
+  }
 }
 function CommentView({
   comment,

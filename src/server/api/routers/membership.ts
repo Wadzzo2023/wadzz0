@@ -67,6 +67,21 @@ export const membershipRouter = createTRPCRouter({
         },
       });
     }),
+
+  aCraatorSubscribedToken: protectedProcedure
+    .input(z.object({ creatorId: z.string() }))
+    .query(async ({ ctx, input }) => {
+      return await ctx.db.user_Subscription.findFirst({
+        where: {
+          userId: ctx.session.user.id,
+          subscription: {
+            creatorId: input.creatorId,
+          },
+        },
+        include: { subscription: true },
+        orderBy: { subscription: { priority: "asc" } },
+      });
+    }),
   getAllMembership: protectedProcedure.query(async ({ ctx }) => {
     return await ctx.db.subscription.findMany({
       where: { creatorId: ctx.session.user.id },

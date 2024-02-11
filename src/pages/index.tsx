@@ -71,6 +71,7 @@ function AllRecentPost() {
           <>
             {page.posts.map((post) => (
               <PostCard
+                priority={post.subscription?.priority}
                 comments={post._count.Comment}
                 creator={post.creator}
                 key={post.id}

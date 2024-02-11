@@ -44,24 +44,45 @@ function CreatorPageView({ creatorId }: { creatorId: string }) {
 }
 
 function CreatorPosts({ creatorId }: { creatorId: string }) {
-  const { data, isLoading, error } = api.post.getPosts.useQuery({
-    pubkey: creatorId,
+  const { data, isLoading, error } = api.post.getPosts.useInfiniteQuery(
+    {
+      pubkey: creatorId,
+      limit: 10,
+    },
+    { getNextPageParam: (lastPage) => lastPage.nextCursor },
+  );
+
+  const subscription = api.member.aCraatorSubscribedToken.useQuery({
+    creatorId,
   });
+
   if (error) return <div>{error.message}</div>;
   if (isLoading) return <div>Loading...</div>;
 
-  if (data && data.length > 0) {
+  if (data.pages.length > 0) {
     return (
       <div className="flex flex-col gap-2">
-        {data.map((el) => (
-          <PostCard
-            comments={el._count.Comment}
-            creator={el.creator}
-            like={el._count.Like}
-            key={el.id}
-            post={el}
-          />
-        ))}
+        {data.pages.map((page) =>
+          page.posts.map((el) => (
+            <PostCard
+              priority={el.subscription?.priority}
+              comments={el._count.Comment}
+              creator={el.creator}
+              like={el._count.Like}
+              key={el.id}
+              post={el}
+              show={(() => {
+                if (el.subscription == null) return true;
+                if (subscription.data?.subscription && el.subscription) {
+                  return (
+                    subscription.data.subscription?.priority >=
+                    el.subscription?.priority
+                  );
+                }
+              })()}
+            />
+          )),
+        )}
       </div>
     );
   }

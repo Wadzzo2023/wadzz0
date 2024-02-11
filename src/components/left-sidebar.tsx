@@ -40,7 +40,7 @@ const CreatorNavigation = {
 
 export default function LeftBar() {
   return (
-    <div className="flex h-screen w-80 flex-col items-center justify-between gap-2 bg-base-300  py-5">
+    <div className=" hidden h-screen w-80 flex-col items-center justify-between gap-2  bg-base-300 py-5 sm:flex">
       <Logo />
       <div className="w-2/3 flex-1">
         <NavigationButtons />

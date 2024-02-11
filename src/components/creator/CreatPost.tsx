@@ -141,7 +141,8 @@ export function CreatPost() {
 
                     if (data?.url) {
                       setMediaUrl(data.url);
-                      setValue("mediaType", MediaType.IMAGE);
+                      console.log(wantMediaType, "mediaType");
+                      setValue("mediaType", wantMediaType);
                       setValue("mediaUrl", data.url);
                       // updateProfileMutation.mutate(data.url);
                     }
@@ -156,7 +157,18 @@ export function CreatPost() {
             )}
             <div className="my-4 flex justify-between p-2">
               <div className="flex gap-4 ">
-                {mediaTypes.map(({ type, icon: IconComponent }) => (
+                <ImageIcon
+                  className={clsx(
+                    MediaType.IMAGE == wantMediaType && "text-primary",
+                    wantMediaType != undefined &&
+                      MediaType.IMAGE != wantMediaType &&
+                      "text-neutral",
+                  )}
+                  onClick={() => {
+                    handleWantMediaType(MediaType.IMAGE);
+                  }}
+                />
+                {/* {mediaTypes.map(({ type, icon: IconComponent }) => (
                   <IconComponent
                     key={type}
                     className={clsx(
@@ -169,7 +181,7 @@ export function CreatPost() {
                       handleWantMediaType(type);
                     }}
                   />
-                ))}
+                ))} */}
               </div>
 
               {wantMediaType && <X onClick={() => setWantMedia(undefined)} />}

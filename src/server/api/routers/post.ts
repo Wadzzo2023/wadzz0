@@ -132,13 +132,61 @@ export const postRouter = createTRPCRouter({
   getAPost: protectedProcedure
     .input(z.number())
     .query(async ({ input, ctx }) => {
-      return await ctx.db.post.findUnique({
+      const userId = ctx.session.user.id;
+
+      const post = await ctx.db.post.findUnique({
         where: { id: input },
         include: {
           _count: { select: { Like: true, Comment: true } },
           creator: { select: { name: true, id: true } },
+          subscription: { select: { priority: true } },
         },
       });
+
+      // if post is for all
+
+      if (post) {
+        if (post.subscription) {
+          const subscription = await ctx.db.user_Subscription.findFirst({
+            where: {
+              AND: [
+                { userId },
+                { subscription: { creatorId: post.creatorId } },
+              ],
+            },
+
+            include: { subscription: {} },
+          });
+
+          const userSubscriptionPriority = subscription?.subscription?.priority;
+          const postSubscriptionPriority = post.subscription?.priority;
+
+          if (
+            userSubscriptionPriority &&
+            postSubscriptionPriority &&
+            userSubscriptionPriority >= postSubscriptionPriority
+          ) {
+            return post;
+          }
+
+          return false;
+        }
+
+        if (!post.subscription) return post;
+      }
+    }),
+
+  deletePost: protectedProcedure
+    .input(z.number())
+    .mutation(async ({ input, ctx }) => {
+      const userId = ctx.session.user.id;
+      const post = await ctx.db.post.findUnique({
+        where: { id: input },
+        select: { creatorId: true },
+      });
+      if (post?.creatorId === userId) {
+        await ctx.db.post.delete({ where: { id: input } });
+      }
     }),
 
   getSecretMessage: protectedProcedure.query(async ({ ctx }) => {
