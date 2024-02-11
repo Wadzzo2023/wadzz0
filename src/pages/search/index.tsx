@@ -63,22 +63,36 @@ function ConditionallyRenderSearch() {
 
 function Posts() {
   const { searchString } = useSearchMenu();
-  const posts = api.post.search.useQuery(searchString);
+  const posts = api.post.search.useInfiniteQuery(
+    { searchInput: searchString, limit: 5 },
+    { getNextPageParam: (lastPage) => lastPage.nextCursor },
+  );
   return (
     <div className="flex flex-col items-center">
       {posts.isLoading && <div>Loading...</div>}
       {/* < className="flex flex-col gap-4"> */}
       <div className="max-w-sm rounded-box bg-base-200 p-2">
-        {posts.data?.map((post) => {
-          return (
-            <div className="p-4 hover:bg-neutral" key={post.id}>
-              <Link href={`/posts/${post.id}`} className="">
-                <h2 className="text-lg font-bold">{post.heading}</h2>
-                <p key={post.id}>{post.content}</p>
-              </Link>
-            </div>
-          );
+        {posts.data?.pages.map((page) => {
+          return page.posts.map((post) => {
+            return (
+              <div className="p-4 hover:bg-neutral" key={post.id}>
+                <Link href={`/posts/${post.id}`} className="">
+                  <h2 className="text-lg font-bold">{post.heading}</h2>
+                  <p key={post.id}>{post.content}</p>
+                </Link>
+              </div>
+            );
+          });
         })}
+
+        {posts.hasNextPage && (
+          <button
+            className="btn btn-outline btn-primary"
+            onClick={() => void posts.fetchNextPage()}
+          >
+            Load More
+          </button>
+        )}
       </div>
     </div>
   );
@@ -86,14 +100,30 @@ function Posts() {
 
 function Creator() {
   const { searchString } = useSearchMenu();
-  const creators = api.creator.search.useQuery(searchString);
+  const creators = api.creator.search.useInfiniteQuery(
+    { limit: 10, searchInput: searchString },
+    {
+      getNextPageParam: (lastPage) => lastPage.nextCursor,
+    },
+  );
   return (
     <div className="flex flex-col items-center">
       {creators.isLoading && <div>Loading...</div>}
       <div className="flex max-w-sm flex-col rounded-box bg-base-200 p-4">
-        {creators.data?.map((creator) => (
-          <CreatorAvater key={creator.id} creator={creator} />
-        ))}
+        {creators.data?.pages.map((page) => {
+          return page.items.map((creator) => {
+            return <CreatorAvater key={creator.id} creator={creator} />;
+          });
+        })}
+
+        {creators.hasNextPage && (
+          <button
+            className="btn btn-outline btn-primary"
+            onClick={() => void creators.fetchNextPage()}
+          >
+            Load More
+          </button>
+        )}
       </div>
     </div>
   );
@@ -116,17 +146,35 @@ export function CreatorAvater({ creator }: { creator: Creator }) {
 }
 function AssetsList() {
   const { searchString } = useSearchMenu();
-  const assets = api.shop.search.useQuery(searchString);
+  const assets = api.shop.search.useInfiniteQuery(
+    { limit: 10, searchInput: searchString },
+    { getNextPageParam: (lastPage) => lastPage.nextCursor },
+  );
   return (
     <div className="flex flex-col items-center">
       {assets.isLoading && <div>Loading...</div>}
       <div className="w-full max-w-sm rounded-box bg-base-200 p-4">
-        {assets.data?.map((asset) => (
-          <div key={asset.id} className="p-4 hover:bg-neutral">
-            <p>{asset.asset.code}</p>
-            <p>{truncateString(asset.asset.issuer, 15, 5)}</p>
-          </div>
-        ))}
+        {assets.data?.pages.map((page) => {
+          return page.items.map((asset) => {
+            return (
+              <div key={asset.id} className="p-4 hover:bg-neutral">
+                <p className="font-bold">{asset.asset.code}</p>
+                <p className="text-sm">
+                  {truncateString(asset.asset.issuer, 15, 5)}
+                </p>
+              </div>
+            );
+          });
+        })}
+
+        {assets.hasNextPage && (
+          <button
+            className="btn btn-outline btn-primary"
+            onClick={() => void assets.fetchNextPage()}
+          >
+            Load More
+          </button>
+        )}
       </div>
     </div>
   );

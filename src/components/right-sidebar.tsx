@@ -13,17 +13,26 @@ export default function RightBar() {
     );
 }
 function AllCreators() {
-  const { data: creators } = api.creator.getAllCreator.useQuery();
+  const creators = api.creator.getAllCreator.useInfiniteQuery(
+    { limit: 5 },
+    {
+      getNextPageParam: (lastPage) => lastPage.nextCursor,
+    },
+  );
 
   return (
     <div className="flex h-screen w-full flex-col items-center gap-4  bg-base-300 pt-5 ">
       <p className="text-center text-2xl text-white">All creators</p>
       <ul>
-        {creators?.map((creator) => (
-          <li key={creator.id}>
-            <CreatorAvater creator={creator} />
-          </li>
-        ))}
+        {creators.data?.pages.map((page) => {
+          return page.items.map((creator) => {
+            return (
+              <li key={creator.id}>
+                <CreatorAvater creator={creator} />
+              </li>
+            );
+          });
+        })}
       </ul>
     </div>
   );

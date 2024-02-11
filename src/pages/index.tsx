@@ -55,11 +55,7 @@ function AllRecentPost() {
     );
 
   const handleFetchNextPage = () => {
-    fetchNextPage();
-    console.log("fetching next page");
-    console.log(data?.pages.length, "pages length");
-
-    // setPage((prev) => prev + 1);
+    void fetchNextPage();
   };
 
   const { data: user_subscriptions, isLoading: isLoading2 } =
@@ -96,6 +92,7 @@ function AllRecentPost() {
 
         {hasNextPage && (
           <button onClick={handleFetchNextPage} className="btn">
+            {isLoading && <span className="loading loading-spinner"></span>}
             See more
           </button>
         )}

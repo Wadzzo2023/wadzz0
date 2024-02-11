@@ -47,9 +47,35 @@ export const creatorRouter = createTRPCRouter({
       });
     }),
 
-  getAllCreator: protectedProcedure.query(async ({ ctx }) => {
-    return ctx.db.creator.findMany();
-  }),
+  getAllCreator: protectedProcedure
+    .input(
+      z.object({
+        limit: z.number(),
+        // cursor is a reference to the last item in the previous batch
+        // it's used to fetch the next batch
+        cursor: z.string().nullish(),
+        skip: z.number().optional(),
+      }),
+    )
+    .query(async ({ input, ctx }) => {
+      const { limit, skip, cursor } = input;
+      const items = await ctx.db.creator.findMany({
+        take: limit + 1,
+        skip: skip,
+        cursor: cursor ? { id: cursor } : undefined,
+      });
+
+      let nextCursor: typeof cursor | undefined = undefined;
+      if (items.length > limit) {
+        const nextItem = items.pop(); // return the last item from the array
+        nextCursor = nextItem?.id;
+      }
+
+      return {
+        items,
+        nextCursor,
+      };
+    }),
 
   // getLatest: protectedProcedure.query(({ ctx }) => {
   //   return ctx.db.post.findFirst({
@@ -80,24 +106,51 @@ export const creatorRouter = createTRPCRouter({
     return "you can now see this secret message!";
   }),
 
-  search: publicProcedure.input(z.string()).query(async ({ input, ctx }) => {
-    return await ctx.db.creator.findMany({
-      where: {
-        OR: [
-          {
-            name: {
-              contains: input,
-              mode: "insensitive",
+  search: publicProcedure
+    .input(
+      z.object({
+        limit: z.number(),
+        // cursor is a reference to the last item in the previous batch
+        // it's used to fetch the next batch
+        cursor: z.string().nullish(),
+        skip: z.number().optional(),
+        searchInput: z.string(),
+      }),
+    )
+    .query(async ({ input, ctx }) => {
+      const { limit, skip, cursor, searchInput } = input;
+
+      const items = await ctx.db.creator.findMany({
+        take: limit + 1,
+        skip: skip,
+        cursor: cursor ? { id: cursor } : undefined,
+        where: {
+          OR: [
+            {
+              name: {
+                contains: searchInput,
+                mode: "insensitive",
+              },
             },
-          },
-          {
-            bio: {
-              contains: input,
-              mode: "insensitive",
+            {
+              bio: {
+                contains: searchInput,
+                mode: "insensitive",
+              },
             },
-          },
-        ],
-      },
-    });
-  }),
+          ],
+        },
+      });
+
+      let nextCursor: typeof cursor | undefined = undefined;
+      if (items.length > limit) {
+        const nextItem = items.pop(); // return the last item from the array
+        nextCursor = nextItem?.id;
+      }
+
+      return {
+        items,
+        nextCursor,
+      };
+    }),
 });

@@ -37,7 +37,7 @@ export const shopRouter = createTRPCRouter({
 
   getCreatorShopAsset: publicProcedure
     .input(z.object({ creatorId: z.string() }))
-    .query(async ({ ctx , input}) => {
+    .query(async ({ ctx, input }) => {
       return await ctx.db.shopAsset.findMany({
         where: { creatorId: input.creatorId },
         include: { asset: { select: { code: true, issuer: true } } },
@@ -55,37 +55,63 @@ export const shopRouter = createTRPCRouter({
     return "you can now see this secret message!";
   }),
 
-  search: publicProcedure.input(z.string()).query(async ({ input, ctx }) => {
-    return await ctx.db.shopAsset.findMany({
-      where: {
-        OR: [
-          {
-            name: {
-              contains: input,
-              mode: "insensitive",
-            },
-          },
-          {
-            description: {
-              contains: input,
-              mode: "insensitive",
-            },
-          },
-          {
-            asset: {
-              code: {
-                contains: input,
+  search: publicProcedure
+    .input(
+      z.object({
+        limit: z.number(),
+        // cursor is a reference to the last item in the previous batch
+        // it's used to fetch the next batch
+        cursor: z.number().nullish(),
+        skip: z.number().optional(),
+        searchInput: z.string(),
+      }),
+    )
+    .query(async ({ input, ctx }) => {
+      const { limit, skip, cursor, searchInput } = input;
+      const items = await ctx.db.shopAsset.findMany({
+        take: limit + 1,
+        skip: skip,
+        cursor: cursor ? { id: cursor } : undefined,
+        where: {
+          OR: [
+            {
+              name: {
+                contains: searchInput,
                 mode: "insensitive",
               },
-              issuer: {
-                contains: input,
+            },
+            {
+              description: {
+                contains: searchInput,
                 mode: "insensitive",
               },
             },
-          },
-        ],
-      },
-      include: { asset: { select: { code: true, issuer: true } } },
-    });
-  }),
+            {
+              asset: {
+                code: {
+                  contains: searchInput,
+                  mode: "insensitive",
+                },
+                issuer: {
+                  contains: searchInput,
+                  mode: "insensitive",
+                },
+              },
+            },
+          ],
+        },
+        include: { asset: { select: { code: true, issuer: true } } },
+      });
+
+      let nextCursor: typeof cursor | undefined = undefined;
+      if (items.length > limit) {
+        const nextItem = items.pop(); // return the last item from the array
+        nextCursor = nextItem?.id;
+      }
+
+      return {
+        items,
+        nextCursor,
+      };
+    }),
 });

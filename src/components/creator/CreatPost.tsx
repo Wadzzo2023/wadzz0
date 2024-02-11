@@ -191,24 +191,41 @@ export function CreatPost() {
     );
 }
 export function PostList(props: { id: string }) {
-  const { data, isLoading } = api.post.getPosts.useQuery({
-    pubkey: props.id,
-  });
+  const posts = api.post.getPosts.useInfiniteQuery(
+    {
+      pubkey: props.id,
+      limit: 10,
+    },
+    {
+      getNextPageParam: (lastPage) => lastPage.nextCursor,
+    },
+  );
 
-  if (isLoading) return <div>Loading...</div>;
-  if (data) {
+  if (posts.isLoading) return <div>Loading...</div>;
+  if (posts.data) {
     return (
       <div className=" flex flex-col gap-2">
-        {data.map((post) => (
-          <PostCard
-            comments={post._count.Comment}
-            creator={post.creator}
-            key={post.id}
-            post={post}
-            like={post._count.Like}
-            show
-          />
-        ))}
+        {posts.data?.pages.map((page) =>
+          page.posts.map((post) => (
+            <PostCard
+              comments={post._count.Comment}
+              creator={post.creator}
+              key={post.id}
+              post={post}
+              like={post._count.Like}
+              show
+            />
+          )),
+        )}
+
+        {posts.hasNextPage && (
+          <button
+            className="btn btn-outline btn-primary"
+            onClick={() => void posts.fetchNextPage()}
+          >
+            Load More
+          </button>
+        )}
       </div>
     );
   }

@@ -46,10 +46,19 @@ export const postRouter = createTRPCRouter({
     .input(
       z.object({
         pubkey: z.string().min(56, { message: "pubkey is more than 56" }),
+        limit: z.number(),
+        // cursor is a reference to the last item in the previous batch
+        // it's used to fetch the next batch
+        cursor: z.number().nullish(),
+        skip: z.number().optional(),
       }),
     )
     .query(async ({ input, ctx }) => {
-      return await ctx.db.post.findMany({
+      const { limit, skip, cursor } = input;
+      const items = await ctx.db.post.findMany({
+        take: limit + 1,
+        skip: skip,
+        cursor: cursor ? { id: cursor } : undefined,
         where: {
           creatorId: input.pubkey,
         },
@@ -65,7 +74,19 @@ export const postRouter = createTRPCRouter({
           subscription: true,
           creator: { select: { name: true, id: true } },
         },
+        orderBy: { createdAt: "desc" },
       });
+
+      let nextCursor: typeof cursor | undefined = undefined;
+      if (items.length > limit) {
+        const nextItem = items.pop(); // return the last item from the array
+        nextCursor = nextItem?.id;
+      }
+
+      return {
+        posts: items,
+        nextCursor,
+      };
     }),
 
   getAllRecentPosts: protectedProcedure
@@ -97,13 +118,11 @@ export const postRouter = createTRPCRouter({
       });
 
       let nextCursor: typeof cursor | undefined = undefined;
-      console.log(items.length, "items length");
       if (items.length > limit) {
         const nextItem = items.pop(); // return the last item from the array
         nextCursor = nextItem?.id;
       }
 
-      console.log(nextCursor, "nextCursor");
       return {
         posts: items,
         nextCursor,
@@ -240,25 +259,52 @@ export const postRouter = createTRPCRouter({
       return comment;
     }),
 
-  search: publicProcedure.input(z.string()).query(async ({ input, ctx }) => {
-    return await ctx.db.post.findMany({
-      where: {
-        OR: [
-          {
-            content: {
-              contains: input,
-              // how can i make this case insensitive?
-              mode: "insensitive",
+  search: publicProcedure
+    .input(
+      z.object({
+        limit: z.number(),
+        // cursor is a reference to the last item in the previous batch
+        // it's used to fetch the next batch
+        cursor: z.number().nullish(),
+        skip: z.number().optional(),
+        searchInput: z.string(),
+      }),
+    )
+    .query(async ({ input, ctx }) => {
+      const { limit, skip, cursor, searchInput } = input;
+      const items = await ctx.db.post.findMany({
+        take: limit + 1,
+        skip: skip,
+        cursor: cursor ? { id: cursor } : undefined,
+        where: {
+          OR: [
+            {
+              content: {
+                contains: searchInput,
+                // how can i make this case insensitive?
+                mode: "insensitive",
+              },
             },
-          },
-          {
-            heading: {
-              contains: input,
-              mode: "insensitive",
+            {
+              heading: {
+                contains: searchInput,
+                mode: "insensitive",
+              },
             },
-          },
-        ],
-      },
-    });
-  }),
+          ],
+        },
+        orderBy: { createdAt: "desc" },
+      });
+
+      let nextCursor: typeof cursor | undefined = undefined;
+      if (items.length > limit) {
+        const nextItem = items.pop(); // return the last item from the array
+        nextCursor = nextItem?.id;
+      }
+
+      return {
+        posts: items,
+        nextCursor,
+      };
+    }),
 });
