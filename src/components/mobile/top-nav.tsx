@@ -13,17 +13,25 @@ export default function TopNav() {
 
   function toggleMode() {
     if (selectedMenu == Mode.User) {
-      router.push("/me/creator");
-      setSelectedMenu(Mode.Creator);
+      router
+        .push("/me/creator")
+        .then(() => {
+          setSelectedMenu(Mode.Creator);
+        })
+        .catch(console.error);
     }
     if (selectedMenu == Mode.Creator) {
-      router.push("/");
-      setSelectedMenu(Mode.User);
+      router
+        .push("/")
+        .then(() => {
+          setSelectedMenu(Mode.User);
+        })
+        .catch(console.error);
     }
   }
 
   return (
-    <div className="navbar bg-base-300">
+    <div className="navbar bg-base-300 sm:hidden">
       <div className="flex-1">
         <Logo />
       </div>

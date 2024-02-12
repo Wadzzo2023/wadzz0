@@ -16,7 +16,7 @@ export default function BottomNav() {
   }
 
   return (
-    <div className="btm-nav">
+    <div className="btm-nav sm:hidden">
       {Object.entries(getNavigation()).map(
         ([key, { path, icon: Icon, text }]) => (
           // <Link href={path} className="w-full">
