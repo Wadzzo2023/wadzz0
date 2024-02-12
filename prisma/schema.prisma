@@ -75,16 +75,18 @@ model ShopAsset {
 }
 
 model Subscription {
-    id                Int                 @id @default(autoincrement())
-    priority          Int
-    name              String              @default("Platinum")
-    creatorId         String
-    creator           Creator             @relation(fields: [creatorId], references: [id])
-    assetId           Int
-    asset             Asset               @relation(fields: [assetId], references: [id], onDelete: NoAction)
-    days              Int
-    features          String
-    Post              Post[]
+    id        Int     @id @default(autoincrement())
+    priority  Int
+    name      String  @default("Platinum")
+    creatorId String
+    creator   Creator @relation(fields: [creatorId], references: [id])
+    assetId   Int
+    asset     Asset   @relation(fields: [assetId], references: [id], onDelete: NoAction)
+    days      Int
+    features  String
+    Post      Post[]
+
+    price             Float               @default(1000)
     User_Subscription User_Subscription[]
 
     // Unique constraint on userId and subscriptionId

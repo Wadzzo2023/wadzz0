@@ -13,7 +13,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex">
       <LeftBar />
-      <div className="h-screen flex-1 overflow-y-auto  scrollbar-hide">
+      <div className="h-screen flex-1  overflow-y-auto scrollbar-hide">
         <TopNav />
         {isAva ? (
           <>{children}</>

@@ -1,20 +1,14 @@
-import React from "react";
-import { api } from "~/utils/api";
-import { useSession } from "next-auth/react";
+import { Creator } from "@prisma/client";
 import { type Session } from "next-auth";
-import Tabs from "~/components/creator/tabs";
-import { CreatorMenu, useCreator } from "~/lib/state/creator-menu";
+import { useSession } from "next-auth/react";
+import Image from "next/image";
 import { PostMenu } from "~/components/creator/CreatPost";
 import MemberShip from "~/components/creator/membership";
-import About from "~/components/creator/about";
-import Avater from "~/components/ui/avater";
-import { Creator } from "@prisma/client";
 import Shop from "~/components/creator/shop";
-import { Edit } from "lucide-react";
-import { UploadButton } from "~/utils/uploadthing";
-import Image from "next/image";
-import { useRouter } from "next/router";
-import CreatorHomeTabPage from "~/components/creator/home";
+import Tabs from "~/components/creator/tabs";
+import Avater from "~/components/ui/avater";
+import { CreatorMenu, useCreator } from "~/lib/state/creator-menu";
+import { api } from "~/utils/api";
 
 export default function CreatorProfile() {
   const { data: session } = useSession();
@@ -44,7 +38,9 @@ function CreatorPageTemplate(props: { creator: Creator }) {
       <div className=" mb-6 w-3/4 bg-base-300">
         <Tabs />
       </div>
-      <ConditionallyRenderMenuPage creator={props.creator} />
+      <div className="pb-32">
+        <ConditionallyRenderMenuPage creator={props.creator} />
+      </div>
     </div>
   );
 }
@@ -91,9 +87,15 @@ function CreateCreator(props: { id: string }) {
   const makeCreatorMutation = api.creator.makeMeCreator.useMutation();
 
   return (
-    <div>
-      <p>You are not a creator</p>
-      <button onClick={() => makeCreatorMutation.mutate({ id: props.id })}>
+    <div className="flex h-full flex-col items-center justify-center gap-2 ">
+      <p className="text-2xl font-bold">You are not a creator</p>
+      <button
+        className="btn btn-primary"
+        onClick={() => makeCreatorMutation.mutate({ id: props.id })}
+      >
+        {makeCreatorMutation.isLoading && (
+          <span className="loading loading-spinner" />
+        )}
         Be a creator
       </button>
     </div>

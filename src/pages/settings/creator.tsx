@@ -10,7 +10,7 @@ export default function CreatorSettings() {
     return (
       <div className="flex flex-col items-center justify-center">
         <CreatorBack creator={creator.data} />
-        <div className="flex flex-1 items-center">
+        <div className="flex flex-1 items-center pb-20">
           <About creator={creator.data} />
         </div>
       </div>

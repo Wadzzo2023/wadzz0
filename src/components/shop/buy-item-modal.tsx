@@ -53,6 +53,8 @@ function ModalContent({ item }: { item: ShopItemProps }) {
     isLoading,
   } = api.trx.buyAssetTrx.useQuery(
     {
+      creatorId: item.creatorId,
+      price: item.price,
       code: item.asset.code,
       issuer: item.asset.issuer,
     },

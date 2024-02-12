@@ -34,7 +34,7 @@ function Page({ postId }: { postId: string }) {
     return (
       <div className="p-5">
         <h2 className="mb-5 text-center text-3xl font-bold">Content</h2>
-        <div className="flex w-full flex-col items-center">
+        <div className="flex w-full flex-col items-center pb-20">
           <>
             <PostCard
               priority={post.data.subscription?.priority}
@@ -144,6 +144,9 @@ function AddComment({ postId }: { postId: string }) {
               className="input input-bordered w-full max-w-xs"
             />
             <button className="btn" type="submit">
+              {commentM.isLoading && (
+                <span className="loading loading-spinner" />
+              )}
               Comment
             </button>
           </div>

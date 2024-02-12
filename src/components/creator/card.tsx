@@ -2,6 +2,7 @@ import React from "react";
 import AddTierModal from "./add-tier-modal";
 import { Creator, Subscription } from "@prisma/client";
 import clsx from "clsx";
+import EditTierModal from "./edit-tier-modal";
 
 export default function MemberShipCard({
   creator,
@@ -22,6 +23,7 @@ export default function MemberShipCard({
       )}
     >
       <div className="card-body">
+        <EditTierModal item={subscription} />
         <h2 className="card-title">
           <h2 className="badge badge-secondary text-center">
             {subscription.priority}

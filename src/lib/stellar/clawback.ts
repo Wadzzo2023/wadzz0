@@ -11,7 +11,12 @@ import {
   AuthFlag,
 } from "stellar-sdk";
 import { env } from "~/env";
-import { STELLAR_URL, networkPassphrase } from "./constant";
+import {
+  PLATFROM_ASSET,
+  PLATFROM_FEE,
+  STELLAR_URL,
+  networkPassphrase,
+} from "./constant";
 import { AccountType } from "./utils";
 
 // transection variables
@@ -24,6 +29,7 @@ export async function clawBackAccCreate({
   assetCode: string;
 }) {
   const server = new Server(STELLAR_URL);
+  const limit = "50000";
 
   const distributorAcc = Keypair.fromSecret(env.DISTRIBUTOR_SECRET);
 
@@ -31,7 +37,6 @@ export async function clawBackAccCreate({
   const asset = new Asset(assetCode, escrowAcc.publicKey());
 
   const transactionInializer = await server.loadAccount(pubkey);
-  const limit = "50000";
 
   const Tx1 = new TransactionBuilder(transactionInializer, {
     fee: "200",
@@ -58,7 +63,6 @@ export async function clawBackAccCreate({
     .addOperation(
       Operation.changeTrust({
         asset,
-        limit,
         source: distributorAcc.publicKey(),
       }),
     )
@@ -68,6 +72,14 @@ export async function clawBackAccCreate({
         asset: asset,
         amount: limit,
         source: escrowAcc.publicKey(),
+        destination: distributorAcc.publicKey(),
+      }),
+    )
+    // sending platform fee.
+    .addOperation(
+      Operation.payment({
+        amount: PLATFROM_FEE,
+        asset: PLATFROM_ASSET,
         destination: distributorAcc.publicKey(),
       }),
     )

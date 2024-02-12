@@ -9,9 +9,9 @@ export default function CreatorsPost() {
     <div className="h-screen p-5">
       <h2 className="text-center text-3xl font-bold">Contents</h2>
 
-      <div className="flex flex-col items-center justify-center">
+      <div className=" flex flex-col items-center justify-center">
         <CreateTabs />
-        <div className="mt-10 flex max-w-sm">
+        <div className="mb-20 mt-10 flex max-w-sm">
           <RenderTabs />
         </div>
       </div>

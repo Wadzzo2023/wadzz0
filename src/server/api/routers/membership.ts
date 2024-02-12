@@ -2,6 +2,7 @@ import { NotificationType } from "@prisma/client";
 import { z } from "zod";
 import { CreatorAboutShema } from "~/components/creator/about";
 import { TierSchema } from "~/components/creator/add-tier-modal";
+import { EditTierSchema } from "~/components/creator/edit-tier-modal";
 import { AccounSchema } from "~/lib/stellar/utils";
 
 import {
@@ -23,6 +24,17 @@ export const membershipRouter = createTRPCRouter({
 
       maxPriority.priority += 1;
 
+      function getDaysBasedOnPriority(priority: number) {
+        // for 1 60 day
+        // for 2 30 day
+        // for 3 7 day
+        if (priority == 1) return 60;
+        if (priority == 2) return 30;
+        if (priority == 3) return 7;
+
+        return 7;
+      }
+
       const asset = await ctx.db.asset.create({
         data: {
           code: input.name,
@@ -37,10 +49,26 @@ export const membershipRouter = createTRPCRouter({
         data: {
           assetId: asset.id,
           creatorId: ctx.session.user.id,
-          days: input.day,
+          days: getDaysBasedOnPriority(maxPriority.priority),
           name: input.name,
           features: input.featureDescription,
           priority: maxPriority.priority,
+          price: input.price,
+        },
+      });
+    }),
+
+  editTierModal: protectedProcedure
+    .input(EditTierSchema)
+    .mutation(({ ctx, input }) => {
+      ctx.db.subscription.update({
+        data: {
+          features: input.featureDescription,
+          name: input.name,
+          price: input.price,
+        },
+        where: {
+          id: input.id,
         },
       });
     }),

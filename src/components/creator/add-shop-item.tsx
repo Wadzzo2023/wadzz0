@@ -89,7 +89,7 @@ export default function AddItem2Shop() {
     <>
       <button className="btn btn-outline btn-primary" onClick={handleModal}>
         <Plus />
-        Creat NFT Asset
+        Create NFT Asset
       </button>
       <dialog id="my_modal_1" className="modal" ref={modalRef}>
         <div className="modal-box">

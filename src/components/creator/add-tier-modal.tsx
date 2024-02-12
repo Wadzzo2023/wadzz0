@@ -23,10 +23,10 @@ export const TierSchema = z.object({
         message: "Input must be a single word",
       },
     ),
+  price: z.number().min(1),
   featureDescription: z
     .string()
     .min(20, { message: "Make description longer" }),
-  day: z.number().min(1, { message: "Minimum 1 day" }),
 });
 
 export default function AddTierModal({ creator }: { creator: Creator }) {
@@ -58,8 +58,8 @@ export default function AddTierModal({ creator }: { creator: Creator }) {
                 name: getValues("name"),
                 featureDescription:
                   getValues("featureDescription") || "No description",
-                day: getValues("day"),
                 escrow: data.escrow,
+                price: getValues("price"),
               });
             } else {
               toast.error("Error signing transaction");
@@ -131,25 +131,28 @@ export default function AddTierModal({ creator }: { creator: Creator }) {
                   </div>
                 )}
               </label>
+
               <label className="form-control w-full max-w-xs">
                 <div className="label">
-                  <span className="label-text">Subscriptin Day</span>
+                  <span className="label-text">Price</span>
                 </div>
                 <input
-                  type="number"
-                  placeholder="Subscription day"
-                  min={1}
-                  {...register("day", { valueAsNumber: true })}
+                  {...register("price", { valueAsNumber: true })}
                   className="input input-bordered w-full max-w-xs"
-                />
-                {errors.featureDescription && (
+                  type="number"
+                  step="1"
+                  min="1"
+                  placeholder="Price"
+                ></input>
+                {errors.price && (
                   <div className="label">
                     <span className="label-text-alt text-warning">
-                      {errors.featureDescription.message}
+                      {errors.price.message}
                     </span>
                   </div>
                 )}
               </label>
+
               <label className="form-control w-full max-w-xs">
                 <div className="label">
                   <span className="label-text">Tier Features</span>

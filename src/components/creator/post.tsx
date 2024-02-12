@@ -56,7 +56,9 @@ export function PostCard({
       <div className="card-body">
         <div className="flex justify-between">
           <div className="flex gap-2">
-            <Avater />
+            <div>
+              <Avater />
+            </div>
             <div>
               <Link href={`/creator/${creator.id}`} className="font-bold">
                 {creator.name}
@@ -86,25 +88,30 @@ export function PostCard({
             <PostReadMore post={post} />
 
             <div className="flex gap-4 p-2 ">
-              <div className="flex items-end justify-center gap-1">
+              <div className="flex items-center justify-center gap-1">
                 {deleteLike.isLoading || likeMutation.isLoading ? (
                   <span className="loading loading-spinner"></span>
                 ) : (
-                  <Heart
-                    onClick={() =>
-                      liked
-                        ? deleteLike.mutate(post.id)
-                        : likeMutation.mutate(post.id)
-                    }
-                    className={clsx(liked && "fill-primary text-primary ")}
-                  />
+                  <div className="btn btn-circle btn-ghost btn-sm">
+                    <Heart
+                      onClick={() =>
+                        liked
+                          ? deleteLike.mutate(post.id)
+                          : likeMutation.mutate(post.id)
+                      }
+                      className={clsx(liked && "fill-primary text-primary ")}
+                    />
+                  </div>
                 )}
                 <p className="font-bold">{like}</p>
               </div>
 
-              <Link href={`/posts/${post.id}`}>
-                <div className="flex items-end justify-center gap-1">
-                  <MessageCircle /> <p className="font-bold">{comments}</p>
+              <Link className="" href={`/posts/${post.id}`}>
+                <div className="flex items-center justify-center gap-1">
+                  <div className="btn btn-circle btn-ghost btn-sm">
+                    <MessageCircle />
+                  </div>{" "}
+                  <p className="font-bold">{comments}</p>
                 </div>
               </Link>
               {/* <Share2 size={20} /> */}
@@ -149,7 +156,11 @@ function PostContextMenu({
   if (data?.user && data.user.id === creatorId)
     return (
       <div className="dropdown dropdown-end">
-        <div tabIndex={0} role="button" className=" m-1">
+        <div
+          tabIndex={0}
+          role="button"
+          className="btn btn-circle btn-ghost btn-sm m-1"
+        >
           <MoreHorizontal />
         </div>
         <ul

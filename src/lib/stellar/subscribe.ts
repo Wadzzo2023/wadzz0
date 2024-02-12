@@ -8,7 +8,12 @@ import {
   AuthClawbackEnabledFlag,
   AuthRevocableFlag,
 } from "stellar-sdk";
-import { STELLAR_URL, networkPassphrase } from "./constant";
+import {
+  PLATFROM_ASSET,
+  PLATFROM_FEE,
+  STELLAR_URL,
+  networkPassphrase,
+} from "./constant";
 import { MyAssetType } from "./utils";
 import { env } from "~/env";
 
@@ -18,9 +23,13 @@ const log = console;
 export async function getClawbackAsPayment({
   userPubkey,
   assetInfo,
+  price,
+  creatorId,
 }: {
   userPubkey: string;
   assetInfo: MyAssetType;
+  price: string;
+  creatorId: string;
 }) {
   const server = new Server(STELLAR_URL);
 
@@ -46,6 +55,22 @@ export async function getClawbackAsPayment({
         amount: "1",
         asset,
         source: distributorAcc.publicKey(),
+      }),
+    )
+    // pay the creator the price amount
+    .addOperation(
+      Operation.payment({
+        amount: price,
+        asset: PLATFROM_ASSET,
+        destination: creatorId,
+      }),
+    )
+    // sending platform fee.
+    .addOperation(
+      Operation.payment({
+        amount: PLATFROM_FEE,
+        asset: PLATFROM_ASSET,
+        destination: distributorAcc.publicKey(),
       }),
     )
     .setTimeout(0)

@@ -190,7 +190,11 @@ function SubscriptionCard({
           // subscribe.mutate({
           //   subscriptionId: el.id,
           // })
-          xdrMutation.mutate(subscription.asset)
+          xdrMutation.mutate({
+            ...subscription.asset,
+            creatorId: subscription.creatorId,
+            price: subscription.price,
+          })
         }
       >
         {subscribe.isLoading ? "Loading..." : "Subscribe"}

@@ -23,9 +23,12 @@ export const trxRouter = createTRPCRouter({
     }),
 
   clawbackAssetPaymentTrx: protectedProcedure
-    .input(AssetSchema)
+    .input(AssetSchema.extend({ creatorId: z.string(), price: z.number() }))
     .mutation(async ({ input, ctx }) => {
+      const price = input.price.toString();
       return await getClawbackAsPayment({
+        creatorId: input.creatorId,
+        price: price,
         assetInfo: input,
         userPubkey: ctx.session.user.id,
       });
@@ -42,10 +45,16 @@ export const trxRouter = createTRPCRouter({
     }),
 
   buyAssetTrx: protectedProcedure
-    .input(AssetSchema)
+    .input(AssetSchema.extend({ price: z.number(), creatorId: z.string() }))
     .query(async ({ input, ctx }) => {
+      const price = input.price.toString();
       const customerPubkey = ctx.session.user.id; // is the custeomr
-      return await buyAssetTrx({ customerPubkey, assetType: input });
+      return await buyAssetTrx({
+        customerPubkey,
+        assetType: input,
+        creatorId: input.creatorId,
+        price: price,
+      });
     }),
 
   getSecretMessage: protectedProcedure.query(() => {

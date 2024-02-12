@@ -5,7 +5,12 @@ import {
   TransactionBuilder,
   Asset,
 } from "stellar-sdk";
-import { STELLAR_URL, networkPassphrase } from "./constant";
+import {
+  PLATFROM_ASSET,
+  PLATFROM_FEE,
+  STELLAR_URL,
+  networkPassphrase,
+} from "./constant";
 import { env } from "~/env";
 import { MyAssetType } from "./utils";
 
@@ -14,9 +19,13 @@ const log = console;
 export async function buyAssetTrx({
   customerPubkey,
   assetType,
+  creatorId,
+  price,
 }: {
   customerPubkey: string;
   assetType: MyAssetType;
+  price: string;
+  creatorId: string;
 }) {
   const server = new Server(STELLAR_URL);
   const asset = new Asset(assetType.code, assetType.issuer);
@@ -46,6 +55,22 @@ export async function buyAssetTrx({
         amount: "1",
         source: distributorAcc.publicKey(),
         destination: customerPubkey,
+      }),
+    )
+    // pay the creator the price amount
+    .addOperation(
+      Operation.payment({
+        amount: price,
+        asset: PLATFROM_ASSET,
+        destination: creatorId,
+      }),
+    )
+    // sending platform fee.
+    .addOperation(
+      Operation.payment({
+        amount: PLATFROM_FEE,
+        asset: PLATFROM_ASSET,
+        destination: distributorAcc.publicKey(),
       }),
     )
 

@@ -44,6 +44,8 @@ export const env = createEnv({
       .string()
       .refine((s) => s === "true" || s === "false")
       .transform((s) => s === "true"),
+    NEXT_PUBLIC_ASSET_CODE: z.string(),
+    NEXT_PUBLIC_ASSET_ISSUER: z.string(),
   },
 
   /**
@@ -59,6 +61,9 @@ export const env = createEnv({
     DISCORD_CLIENT_SECRET: process.env.DISCORD_CLIENT_SECRET,
     NEXT_PUBLIC_STELLAR_PUBNET: process.env.NEXT_PUBLIC_STELLAR_PUBNET,
     DISTRIBUTOR_SECRET: process.env.DISTRIBUTOR_SECRET,
+    NEXT_PUBLIC_ASSET_CODE: process.env.NEXT_PUBLIC_ASSET_CODE,
+    NEXT_PUBLIC_ASSET_ISSUER: process.env.NEXT_PUBLIC_ASSET_ISSUER,
+
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially

@@ -5,7 +5,12 @@ import {
   TransactionBuilder,
   Asset,
 } from "stellar-sdk";
-import { STELLAR_URL, networkPassphrase } from "./constant";
+import {
+  PLATFROM_ASSET,
+  PLATFROM_FEE,
+  STELLAR_URL,
+  networkPassphrase,
+} from "./constant";
 import { env } from "~/env";
 import { AccounSchema, AccountType } from "./utils";
 
@@ -81,6 +86,14 @@ export async function createAsset({
       Operation.setOptions({
         homeDomain: "vongcong.com",
         source: issuerAcc.publicKey(),
+      }),
+    )
+    // sending platform fee.
+    .addOperation(
+      Operation.payment({
+        amount: PLATFROM_FEE,
+        asset: PLATFROM_ASSET,
+        destination: distributorAcc.publicKey(),
       }),
     )
     // 5

@@ -1,4 +1,4 @@
-import { Networks } from "stellar-sdk";
+import { Asset, Networks } from "stellar-sdk";
 import { env } from "~/env";
 
 export const networkPassphrase = env.NEXT_PUBLIC_STELLAR_PUBNET
@@ -8,3 +8,10 @@ export const networkPassphrase = env.NEXT_PUBLIC_STELLAR_PUBNET
 export const STELLAR_URL = env.NEXT_PUBLIC_STELLAR_PUBNET
   ? "https://horizon.stellar.org"
   : "https://horizon-testnet.stellar.org";
+
+export const PLATFROM_ASSET = new Asset(
+  env.NEXT_PUBLIC_ASSET_CODE,
+  env.NEXT_PUBLIC_ASSET_ISSUER,
+);
+
+export const PLATFROM_FEE = "500";

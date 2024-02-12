@@ -11,7 +11,7 @@ export default function Settings() {
     return (
       <div className="p-4">
         <h1 className="text-center text-3xl font-bold">Settings</h1>
-        <div className="flex flex-col items-center gap-4">
+        <div className="flex flex-col items-center gap-4 pb-20">
           <SettingsTabs />
           <RenderTabs />
         </div>

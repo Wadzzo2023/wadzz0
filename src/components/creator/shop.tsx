@@ -8,7 +8,7 @@ import { useSession } from "next-auth/react";
 export default function Shop({ creator }: { creator?: Creator }) {
   return (
     <div>
-      <div className="fixed bottom-0 right-0 p-4">
+      <div className="fixed bottom-14 right-0 p-4 sm:bottom-0">
         <AddItem2Shop />
       </div>
       <AllShopItems />

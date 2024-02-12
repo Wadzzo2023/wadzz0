@@ -12,7 +12,7 @@ export default function Search() {
   const { setSearchString } = useSearchMenu();
 
   return (
-    <div className="my-10 flex flex-col items-center gap-4">
+    <div className="my-10 mb-20 flex flex-col items-center gap-4">
       <h2 className="text mb-5 text-2xl font-bold">Search</h2>
       <div className="flex gap-2">
         <input
