@@ -18,7 +18,7 @@ import { api } from "~/utils/api";
 import { Mode, useMode } from "~/lib/state/left-side-mode";
 import { useRouter } from "next/router";
 
-const UserNavigation = {
+export const UserNavigation = {
   Home: { path: "/", icon: HomeIcon, text: "Home" },
   Search: { path: "/search", icon: Search, text: "Search" },
   YourAsset: { path: "/assets", icon: Diamond, text: "Your Assets" },
@@ -26,7 +26,7 @@ const UserNavigation = {
   Settings: { path: "/settings", icon: Settings2, text: "Settings" },
 } as const;
 
-const CreatorNavigation = {
+export const CreatorNavigation = {
   Page: { path: "/me/creator", icon: PenSquare, text: "Page" },
   Create: { path: "/posts/creator", icon: PenSquare, text: "Create" },
   Store: { path: "/store/creator", icon: Store, text: "Store" },
@@ -65,7 +65,7 @@ function NavigationButtons() {
     <div className="flex h-full w-full flex-col items-start justify-center gap-2 ">
       {Object.entries(getNavigation()).map(
         ([key, { path, icon: Icon, text }]) => (
-          <Link href={path} className="w-full">
+          <Link href={path} className="w-full" key={key}>
             <Button
               path={path}
               icon={<Icon className="h-5 w-5" />}

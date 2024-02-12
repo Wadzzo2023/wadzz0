@@ -7,7 +7,7 @@ export default function RightBar() {
   const router = useRouter();
   if (router.pathname == "/")
     return (
-      <div className="w-60">
+      <div className="hidden h-screen w-60 sm:flex">
         <AllCreators />
       </div>
     );
@@ -21,7 +21,7 @@ function AllCreators() {
   );
 
   return (
-    <div className="flex h-screen w-full flex-col items-center gap-4  bg-base-300 pt-5 ">
+    <div className="  w-full flex-col items-center  gap-4 bg-base-300  pt-5 ">
       <p className="text-center text-2xl text-white">All creators</p>
       <ul>
         {creators.data?.pages.map((page) => {
