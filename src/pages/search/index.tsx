@@ -13,7 +13,7 @@ export default function Search() {
 
   return (
     <div className="my-10 mb-20 flex flex-col items-center gap-4">
-      <h2 className="text mb-5 text-2xl font-bold">Search</h2>
+      <h2 className="text mb-5 text-2xl font-bold"></h2>
       <div className="flex gap-2">
         <input
           type="text"
@@ -107,9 +107,9 @@ function Creator() {
     },
   );
   return (
-    <div className="flex flex-col items-center">
+    <div className="flex flex-col items-center ">
       {creators.isLoading && <div>Loading...</div>}
-      <div className="flex max-w-sm flex-col rounded-box bg-base-200 p-4">
+      <div className="flex w-96 max-w-sm flex-col rounded-box bg-base-200 p-4">
         {creators.data?.pages.map((page) => {
           return page.items.map((creator) => {
             return <CreatorAvater key={creator.id} creator={creator} />;

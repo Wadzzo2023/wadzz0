@@ -11,9 +11,11 @@ import { clientsign, useConnectWalletStateStore } from "package/connect_wallet";
 import { Keypair } from "stellar-sdk";
 import { AccounSchema } from "~/lib/stellar/utils";
 import { Plus } from "lucide-react";
+import Alert from "../ui/alert";
+import { PLATFROM_ASSET, PLATFROM_FEE } from "~/lib/stellar/constant";
 
 export const ShopItemSchema = z.object({
-  name: z.string().min(4, { message: "Required" }),
+  name: z.string().min(4, { message: "Minimum 4 Required" }),
   description: z.string().min(5, { message: "Make description longer" }),
   AssetName: z
     .string()
@@ -296,6 +298,11 @@ export default function AddItem2Shop() {
             </div>
           )}
         </label>
+        <div className="max-w-xs">
+          <Alert
+            content={`To create a Item, you'll need 1.5XLM for your Asset account plus the transaction fee. Additionally, there's a platform fee of ${PLATFROM_FEE} ${PLATFROM_ASSET.code}.`}
+          />
+        </div>
         <button
           type="button"
           disabled={xdrMutation.isLoading || !!xdr || xdrMutation.isSuccess}

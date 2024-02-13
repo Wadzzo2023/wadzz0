@@ -74,9 +74,13 @@ export function PostCard({
           <PostContextMenu creatorId={post.creatorId} postId={post.id} />
         </div>
 
-        <Link href={`/posts/${post.id}`}>
+        {!show ? (
           <h2 className="card-title">{post.heading}</h2>
-        </Link>
+        ) : (
+          <Link href={`/posts/${post.id}`}>
+            <h2 className="card-title">{post.heading}</h2>
+          </Link>
+        )}
 
         {!show ? (
           <Link href={`/creator/${post.creatorId}`} className="btn ">

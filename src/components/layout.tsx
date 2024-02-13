@@ -7,15 +7,16 @@ import {
   ConnectWalletButton,
   useConnectWalletStateStore,
 } from "package/connect_wallet";
+import { useSession } from "next-auth/react";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
-  const { isAva } = useConnectWalletStateStore();
+  const { data } = useSession();
   return (
     <div className="flex">
       <LeftBar />
       <div className="h-screen flex-1  overflow-y-auto scrollbar-hide">
         <TopNav />
-        {isAva ? (
+        {data?.user.id ? (
           <>{children}</>
         ) : (
           <div className="flex h-full items-center justify-center">

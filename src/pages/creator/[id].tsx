@@ -14,6 +14,7 @@ import {
 } from "~/lib/state/creator-profile-menu";
 import clsx from "clsx";
 import { ShopItem } from "~/components/creator/shop";
+import SubscribeMembership from "~/components/creator/confirm-subscription-modal";
 
 export default function CreatorPage() {
   const router = useRouter();
@@ -31,7 +32,7 @@ function CreatorPageView({ creatorId }: { creatorId: string }) {
   if (creator)
     return (
       <div className="flex w-full flex-col gap-4 overflow-y-auto">
-        <div className="flex w-full flex-col items-center ">
+        <div className="flex w-full flex-col items-center pb-48">
           <>
             <CreatorBack creator={creator} />
             <ChooseMemberShip creator={creator} />
@@ -101,14 +102,18 @@ function RenderTabs({ creatorId }: { creatorId: string }) {
 function Tabs() {
   const { selectedMenu, setSelectedMenu } = useCreatorProfileMenu();
   return (
-    <div role="tablist" className="tabs tabs-bordered my-5">
+    <div role="tablist" className="tabs tabs-bordered my-5 ">
       {Object.values(CreatorProfileMenu).map((key) => {
         return (
           <a
             key={key}
             onClick={() => setSelectedMenu(key)}
             role="tab"
-            className={clsx("tab", selectedMenu == key && "tab-active")}
+            className={clsx(
+              "tab",
+              selectedMenu == key && "tab-active text-primary",
+              "text-xl font-bold",
+            )}
           >
             {key}
           </a>
@@ -122,11 +127,28 @@ export function ChooseMemberShip({ creator }: { creator: Creator }) {
   const { data: subscriptonModel, isLoading } =
     api.member.getCreatorMembership.useQuery(creator.id);
 
+  function getGridColNumber(element: number) {
+    if (element === 1) {
+      return "grid-cols-1";
+    }
+    if (element === 2) {
+      return "gird-cols-1 sm:grid-cols-2";
+    }
+    if (element === 3) {
+      return "gird-cols-1 sm:grid-cols-2 md:grid-cols-3";
+    }
+  }
   return (
     <div className="mb-10 flex flex-col gap-4">
-      <h2 className="text-center text-2xl font-bold">Choose your Membership</h2>
+      <h2 className="text-center text-2xl font-bold">Choose Membership</h2>
       {isLoading && <div>Loading...</div>}
-      <div className="flex gap-2">
+
+      <div
+        className={clsx(
+          "grid   justify-items-center gap-2  ",
+          getGridColNumber(subscriptonModel?.length ?? 1),
+        )}
+      >
         {subscriptonModel?.map((el) => (
           <SubscriptionCard key={el.id} creator={creator} subscription={el} />
         ))}
@@ -145,33 +167,6 @@ function SubscriptionCard({
   const { isAva, pubkey, walletType, uid, email } =
     useConnectWalletStateStore();
   const { data: subscriptions } = api.member.userSubscriptions.useQuery();
-  const subscribe = api.member.subscribe.useMutation();
-
-  const xdrMutation = api.trx.clawbackAssetPaymentTrx.useMutation({
-    onSuccess(data, variables, context) {
-      if (data) {
-        clientsign({
-          walletType,
-          presignedxdr: data,
-          pubkey,
-          test: true,
-        })
-          .then((res) => {
-            if (res) {
-              toast.success("popup success");
-              subscribe.mutate({
-                subscriptionId: subscription.id,
-                creatorId: creator.id,
-                days: subscription.days,
-              });
-            }
-          })
-          .catch((e) => {
-            console.log(e);
-          });
-      }
-    },
-  });
 
   return (
     <MemberShipCard
@@ -181,24 +176,13 @@ function SubscriptionCard({
       subscription={subscription}
     >
       {/* <div className="card-actions justify-end"> */}
-      <button
-        className="btn btn-primary"
+      <SubscribeMembership
+        creator={creator}
+        subscription={subscription}
         disabled={subscriptions?.some(
           (sub) => sub.subscriptionId === subscription.id,
         )}
-        onClick={() =>
-          // subscribe.mutate({
-          //   subscriptionId: el.id,
-          // })
-          xdrMutation.mutate({
-            ...subscription.asset,
-            creatorId: subscription.creatorId,
-            price: subscription.price,
-          })
-        }
-      >
-        {subscribe.isLoading ? "Loading..." : "Subscribe"}
-      </button>
+      />
     </MemberShipCard>
   );
 }
@@ -210,7 +194,7 @@ function AllShopItems({ creatorId }: { creatorId: string }) {
   if (isLoading) return <div>Loading...</div>;
   return (
     <div className="flex flex-col items-center">
-      <p className="my-5 text-center text-3xl font-bold">Shop items</p>
+      <p className="my-5 text-center text-lg font-bold">Shop items</p>
       <div className="flex flex-col gap-2">
         {items?.map((item) => <ShopItem key={item.id} item={item} />)}
       </div>

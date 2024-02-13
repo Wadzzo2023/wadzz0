@@ -8,6 +8,9 @@ import { api } from "~/utils/api";
 import { clientsign, useConnectWalletStateStore } from "package/connect_wallet";
 import { AccounSchema } from "~/lib/stellar/utils";
 import { Plus } from "lucide-react";
+import CollapseSible from "../ui/collapse";
+import Alert from "../ui/alert";
+import { PLATFROM_ASSET, PLATFROM_FEE } from "~/lib/stellar/constant";
 
 export const TierSchema = z.object({
   name: z
@@ -170,6 +173,12 @@ export default function AddTierModal({ creator }: { creator: Creator }) {
                   </div>
                 )}
               </label>
+              <div className="max-w-xs">
+                <Alert
+                  type={mutation.error ? "warning" : "noraml"}
+                  content={`To create a Tier, you'll need 1.5XLM for your Asset account plus the transaction fee. Additionally, there's a platform fee of ${PLATFROM_FEE} ${PLATFROM_ASSET.code}.`}
+                />
+              </div>
               <button
                 className="btn btn-primary mt-2 w-full max-w-xs"
                 type="submit"
