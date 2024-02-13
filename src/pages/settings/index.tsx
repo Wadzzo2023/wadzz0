@@ -39,7 +39,11 @@ function SettingsTabs() {
             key={key}
             onClick={() => setSelectedMenu(key)}
             role="tab"
-            className={clsx("tab", selectedMenu == key && "tab-active")}
+            className={clsx(
+              "tab",
+              selectedMenu == key && "tab-active text-primary",
+              "text-xl font-bold",
+            )}
           >
             {key}
           </a>

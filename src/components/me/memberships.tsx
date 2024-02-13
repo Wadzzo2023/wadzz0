@@ -7,8 +7,8 @@ import { truncateString } from "~/utils/string";
 export default function Memberships() {
   const subscriptions = api.member.getAllSubscription.useQuery();
   return (
-    <div>
-      <h2 className="mb-5 text-center text-2xl font-bold">Memberships</h2>
+    <div className="my-5">
+      {/* <h2 className="mb-5 text-center text-2xl font-bold">Memberships</h2> */}
 
       {subscriptions.data?.map((el) => (
         <div key={el.id} className="card w-96 bg-neutral">

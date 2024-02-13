@@ -178,8 +178,8 @@ export default function AddItem2Shop() {
             <Image src={medialUrl} alt="d" height={100} width={100} />
           )}
           <UploadButton
+            content={{ button: "Add Photo", allowedContent: "Max (4MB)" }}
             endpoint="imageUploader"
-            content={{ button: "Change Photo" }}
             onClientUploadComplete={(res) => {
               // Do something with the response
               // alert("Upload Completed");

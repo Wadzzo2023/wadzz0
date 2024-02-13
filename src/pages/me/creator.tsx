@@ -35,7 +35,7 @@ function CreatorPageTemplate(props: { creator: Creator }) {
   return (
     <div className="flex h-screen flex-col items-center">
       <CreatorBack creator={props.creator} />
-      <div className=" mb-6 w-3/4 bg-base-300">
+      <div className=" mb-6 w-3/4  p-2">
         <Tabs />
       </div>
       <div className="pb-32">

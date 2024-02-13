@@ -127,6 +127,27 @@ export function ChooseMemberShip({ creator }: { creator: Creator }) {
   const { data: subscriptonModel, isLoading } =
     api.member.getCreatorMembership.useQuery(creator.id);
 
+  return (
+    <div className="mb-10 flex flex-col gap-4">
+      <h2 className="text-center text-2xl font-bold">Choose Membership</h2>
+      {isLoading && <div>Loading...</div>}
+
+      <SubscriptionGridWrapper itemLength={subscriptonModel?.length || 1}>
+        {subscriptonModel?.map((el) => (
+          <SubscriptionCard key={el.id} creator={creator} subscription={el} />
+        ))}
+      </SubscriptionGridWrapper>
+    </div>
+  );
+}
+
+export function SubscriptionGridWrapper({
+  children,
+  itemLength,
+}: {
+  children: React.ReactNode;
+  itemLength: number;
+}) {
   function getGridColNumber(element: number) {
     if (element === 1) {
       return "grid-cols-1";
@@ -139,20 +160,13 @@ export function ChooseMemberShip({ creator }: { creator: Creator }) {
     }
   }
   return (
-    <div className="mb-10 flex flex-col gap-4">
-      <h2 className="text-center text-2xl font-bold">Choose Membership</h2>
-      {isLoading && <div>Loading...</div>}
-
-      <div
-        className={clsx(
-          "grid   justify-items-center gap-2  ",
-          getGridColNumber(subscriptonModel?.length ?? 1),
-        )}
-      >
-        {subscriptonModel?.map((el) => (
-          <SubscriptionCard key={el.id} creator={creator} subscription={el} />
-        ))}
-      </div>
+    <div
+      className={clsx(
+        "grid   justify-items-center gap-2  ",
+        getGridColNumber(itemLength),
+      )}
+    >
+      {children}
     </div>
   );
 }

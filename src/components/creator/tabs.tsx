@@ -12,7 +12,11 @@ export default function Tabs() {
             key={key}
             onClick={() => setSelectedMenu(key)}
             role="tab"
-            className={clsx("tab", selectedMenu == key && "tab-active")}
+            className={clsx(
+              "tab",
+              selectedMenu == key && "tab-active text-primary",
+              "text-xl ",
+            )}
           >
             {key}
           </a>

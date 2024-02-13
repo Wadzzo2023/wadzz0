@@ -7,7 +7,7 @@ import { useSession } from "next-auth/react";
 
 export default function Shop({ creator }: { creator?: Creator }) {
   return (
-    <div>
+    <div className="my-7">
       <div className="fixed bottom-14 right-0 p-4 sm:bottom-0">
         <AddItem2Shop />
       </div>
@@ -21,7 +21,7 @@ function AllShopItems() {
   if (isLoading) return <div>Loading...</div>;
   return (
     <div className="flex flex-col items-center">
-      <p className="my-5 text-center text-lg font-bold">Shop items</p>
+      {/* <p className=" text-center text-lg font-bold">Shop items</p> */}
       <div className="flex flex-col gap-2">
         {items?.map((item) => <ShopItem key={item.id} item={item} />)}
       </div>

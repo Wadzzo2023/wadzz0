@@ -245,7 +245,7 @@ export function PostList(props: { id: string }) {
 
 export function PostMenu(props: { id: string }) {
   return (
-    <div>
+    <div className="my-7">
       {/* <CreatPost /> */}
       <PostList id={props.id} />
     </div>

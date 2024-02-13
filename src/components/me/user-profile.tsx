@@ -12,7 +12,7 @@ export default function About() {
   if (user.data)
     return (
       <div className="flex  flex-col items-center ">
-        <h2 className="text-2xl font-bold">About</h2>
+        {/* <h2 className="text-2xl font-bold">About</h2> */}
         <div className="my-5 w-96 bg-base-200">
           <AboutForm user={user.data} />
         </div>

@@ -7,7 +7,7 @@ import { api } from "~/utils/api";
 export default function CreatorsPost() {
   return (
     <div className="h-screen p-5">
-      <h2 className="text-center text-3xl font-bold">Contents</h2>
+      <h2 className="mb-5 text-center text-3xl font-bold">Contents</h2>
 
       <div className=" flex flex-col items-center justify-center">
         <CreateTabs />
@@ -46,7 +46,11 @@ function CreateTabs() {
             key={key}
             onClick={() => setSelectedMenu(key)}
             role="tab"
-            className={clsx("tab", selectedMenu == key && "tab-active")}
+            className={clsx(
+              "tab",
+              selectedMenu == key && "tab-active text-primary",
+              "text-xl",
+            )}
           >
             {key}
           </a>
