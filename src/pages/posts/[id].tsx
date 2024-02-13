@@ -10,6 +10,8 @@ import { api } from "~/utils/api";
 import { Comment } from "@prisma/client";
 import { formatPostCreatedAt } from "~/utils/format-date";
 import React from "react";
+import ContextMenu from "~/components/ui/context-menu";
+import { useSession } from "next-auth/react";
 
 export default function PostPage() {
   const router = useRouter();
@@ -91,9 +93,39 @@ function CommentView({
           <p></p>
         </div>
       </div>
-      <p className=" text-right">{formatPostCreatedAt(comment.createdAt)}</p>
+      <div className="flex gap-2">
+        <p className=" text-right">{formatPostCreatedAt(comment.createdAt)}</p>
+
+        <CommentContextMenu
+          commentId={comment.id}
+          commentorId={comment.userId}
+        />
+      </div>
     </div>
   );
+}
+
+function CommentContextMenu({
+  commentorId,
+  commentId,
+}: {
+  commentorId: string;
+  commentId: number;
+}) {
+  const { data } = useSession();
+  const deletePost = api.post.deleteComment.useMutation();
+
+  const handleDelete = () => deletePost.mutate(commentId);
+
+  if (data?.user && data.user.id === commentorId) {
+    return (
+      <ContextMenu
+        bg="bg-base-300"
+        handleDelete={handleDelete}
+        isLoading={deletePost.isLoading}
+      />
+    );
+  }
 }
 
 function ShowMore({ content }: { content: string }) {

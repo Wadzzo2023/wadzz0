@@ -16,6 +16,7 @@ import { formatPostCreatedAt } from "~/utils/format-date";
 import Avater from "../ui/avater";
 import { useRouter } from "next/router";
 import { useSession } from "next-auth/react";
+import ContextMenu from "../ui/context-menu";
 
 export function PostCard({
   post,
@@ -148,6 +149,8 @@ function PostReadMore({ post }: { post: Post }) {
   }
 }
 
+
+
 function PostContextMenu({
   creatorId,
   postId,
@@ -157,31 +160,15 @@ function PostContextMenu({
 }) {
   const { data } = useSession();
   const deletePost = api.post.deletePost.useMutation();
-  if (data?.user && data.user.id === creatorId)
+
+  const handleDelete = () => deletePost.mutate(postId);
+
+  if (data?.user && data.user.id === creatorId) {
     return (
-      <div className="dropdown dropdown-end">
-        <div
-          tabIndex={0}
-          role="button"
-          className="btn btn-circle btn-ghost btn-sm m-1"
-        >
-          <MoreHorizontal />
-        </div>
-        <ul
-          tabIndex={0}
-          className="menu dropdown-content z-[1] w-52 rounded-box bg-base-100 p-2 shadow"
-        >
-          <li>
-            <a onClick={() => deletePost.mutate(postId)}>
-              {deletePost.isLoading ? (
-                <span className="loading loading-spinner"></span>
-              ) : (
-                <Trash2 size={18} />
-              )}
-              Delete
-            </a>
-          </li>
-        </ul>
-      </div>
+      <ContextMenu
+        handleDelete={handleDelete}
+        isLoading={deletePost.isLoading}
+      />
     );
+  }
 }

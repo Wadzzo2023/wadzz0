@@ -4,6 +4,7 @@ import AddItem2Shop from "./add-shop-item";
 import { api } from "~/utils/api";
 import BuyItemModal from "../shop/buy-item-modal";
 import { useSession } from "next-auth/react";
+import ContextMenu from "../ui/context-menu";
 
 export default function Shop({ creator }: { creator?: Creator }) {
   return (
@@ -41,19 +42,11 @@ export function ShopItem({ item }: { item: ShopItemProps }) {
   if (data)
     return (
       <div className="card w-96 bg-neutral shadow-xl">
-        {/* "https://daisyui.com/images/stock/photo-1606107557195-0e29a4b5b4aa.jpg" */}
-        {/* {item.mediaUrl && (
-        <figure className="relative h-40  w-full">
-          <Image
-            src={item.mediaUrl}
-            layout="fill"
-            objectFit="cover"
-            alt="Asset"
-          />
-        </figure>
-      )} */}
         <div className="card-body">
-          <h2 className="card-title">{item.name}</h2>
+          <div className="flex justify-between">
+            <h2 className="card-title">{item.name}</h2>
+            <ShopItemContextMenu creatorId={item.creatorId} itemId={item.id} />
+          </div>
           <p>{item.description}</p>
           <div className="card-actions justify-end">
             <button className="btn btn-outline btn-primary self-start">
@@ -68,4 +61,25 @@ export function ShopItem({ item }: { item: ShopItemProps }) {
       //   <p>{item.price}</p>
       // </div>
     );
+}
+function ShopItemContextMenu({
+  creatorId,
+  itemId,
+}: {
+  creatorId: string;
+  itemId: number;
+}) {
+  const { data } = useSession();
+  const deleteAsset = api.shop.deleteAsset.useMutation();
+
+  const handleDelete = () => deleteAsset.mutate(itemId);
+
+  if (data?.user && data.user.id === creatorId) {
+    return (
+      <ContextMenu
+        handleDelete={handleDelete}
+        isLoading={deleteAsset.isLoading}
+      />
+    );
+  }
 }

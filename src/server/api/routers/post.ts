@@ -307,6 +307,13 @@ export const postRouter = createTRPCRouter({
       return comment;
     }),
 
+  deleteComment: protectedProcedure
+    .input(z.number())
+    .mutation(async ({ input: commentId, ctx }) => {
+      const userId = ctx.session.user.id;
+      return await ctx.db.comment.delete({ where: { id: commentId, userId } });
+    }),
+
   search: publicProcedure
     .input(
       z.object({

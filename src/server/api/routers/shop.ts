@@ -35,6 +35,13 @@ export const shopRouter = createTRPCRouter({
       // await ctx.db.notification.create({
     }),
 
+  deleteAsset: protectedProcedure
+    .input(z.number())
+    .mutation(async ({ ctx, input }) => {
+      return await ctx.db.asset.delete({
+        where: { id: input, creatorId: ctx.session.user.id },
+      });
+    }),
   getCreatorShopAsset: publicProcedure
     .input(z.object({ creatorId: z.string() }))
     .query(async ({ ctx, input }) => {

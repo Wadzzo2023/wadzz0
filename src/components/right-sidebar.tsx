@@ -7,7 +7,7 @@ export default function RightBar() {
   const router = useRouter();
   if (router.pathname == "/")
     return (
-      <div className="hidden h-screen w-60 sm:flex">
+      <div className="hidden h-screen w-60 overflow-y-auto bg-base-300 scrollbar-hide lg:flex">
         <AllCreators />
       </div>
     );
@@ -21,8 +21,8 @@ function AllCreators() {
   );
 
   return (
-    <div className="  w-full flex-col items-center  gap-4 bg-base-300  pt-5 ">
-      <p className="text-center text-2xl text-white">All creators</p>
+    <div className="w-full flex-col items-center  gap-4   pl-2 pt-5">
+      <p className="text-2xl text-white">All creators</p>
       <ul>
         {creators.data?.pages.map((page) => {
           return page.items.map((creator) => {
@@ -33,7 +33,24 @@ function AllCreators() {
             );
           });
         })}
+        {creators.data?.pages.map((page) => {
+          return page.items.map((creator) => {
+            return (
+              <li key={creator.id}>
+                <CreatorAvater creator={creator} />
+              </li>
+            );
+          });
+        })}
       </ul>
+      {creators.hasNextPage && (
+        <button onClick={() => void creators.fetchNextPage()} className="btn">
+          {creators.isFetching && (
+            <span className="loading loading-spinner"></span>
+          )}
+          See more
+        </button>
+      )}
     </div>
   );
 }

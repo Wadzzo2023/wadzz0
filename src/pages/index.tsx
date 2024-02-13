@@ -40,22 +40,21 @@ function AuthShowcase() {
 }
 
 function AllRecentPost() {
-  const { data, isLoading, fetchNextPage, hasNextPage } =
-    api.post.getAllRecentPosts.useInfiniteQuery(
-      {
-        limit: 5,
+  const posts = api.post.getAllRecentPosts.useInfiniteQuery(
+    {
+      limit: 5,
+    },
+    {
+      getNextPageParam: (lastPage) => {
+        return lastPage.nextCursor;
       },
-      {
-        getNextPageParam: (lastPage) => {
-          return lastPage.nextCursor;
-        },
 
-        refetchOnWindowFocus: false,
-      },
-    );
+      refetchOnWindowFocus: false,
+    },
+  );
 
   const handleFetchNextPage = () => {
-    void fetchNextPage();
+    void posts.fetchNextPage();
   };
 
   const { data: user_subscriptions, isLoading: isLoading2 } =
@@ -63,11 +62,11 @@ function AllRecentPost() {
 
   // if (isLoading2) return <div>Loading to fetch membership...</div>;
 
-  if (isLoading) return <div>Loading...</div>;
-  if (data) {
+  if (posts.isLoading) return <div>Loading...</div>;
+  if (posts.data) {
     return (
       <div className="flex flex-col gap-4">
-        {data.pages.map((page) => (
+        {posts.data.pages.map((page) => (
           <>
             {page.posts.map((post) => (
               <PostCard
@@ -91,9 +90,11 @@ function AllRecentPost() {
           </>
         ))}
 
-        {hasNextPage && (
+        {posts.hasNextPage && (
           <button onClick={handleFetchNextPage} className="btn">
-            {isLoading && <span className="loading loading-spinner"></span>}
+            {posts.isFetching && (
+              <span className="loading loading-spinner"></span>
+            )}
             See more
           </button>
         )}
