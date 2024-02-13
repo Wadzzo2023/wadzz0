@@ -132,7 +132,7 @@ export function ChooseMemberShip({ creator }: { creator: Creator }) {
       <h2 className="text-center text-2xl font-bold">Choose Membership</h2>
       {isLoading && <div>Loading...</div>}
 
-      <SubscriptionGridWrapper itemLength={subscriptonModel?.length || 1}>
+      <SubscriptionGridWrapper itemLength={subscriptonModel?.length ?? 1}>
         {subscriptonModel?.map((el) => (
           <SubscriptionCard key={el.id} creator={creator} subscription={el} />
         ))}

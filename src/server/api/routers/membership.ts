@@ -60,8 +60,8 @@ export const membershipRouter = createTRPCRouter({
 
   editTierModal: protectedProcedure
     .input(EditTierSchema)
-    .mutation(({ ctx, input }) => {
-      ctx.db.subscription.update({
+    .mutation(async ({ ctx, input }) => {
+      await ctx.db.subscription.update({
         data: {
           features: input.featureDescription,
           name: input.name,
