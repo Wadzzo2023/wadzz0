@@ -6,7 +6,7 @@ import toast from "react-hot-toast";
 import { z } from "zod";
 import { api } from "~/utils/api";
 import { clientsign, useConnectWalletStateStore } from "package/connect_wallet";
-import { AccounSchema } from "~/lib/stellar/utils";
+import { AccounSchema, clientSelect } from "~/lib/stellar/utils";
 import { Plus } from "lucide-react";
 import CollapseSible from "../ui/collapse";
 import Alert from "../ui/alert";
@@ -52,7 +52,7 @@ export default function AddTierModal({ creator }: { creator: Creator }) {
           walletType,
           presignedxdr: data.trx,
           pubkey,
-          test: true,
+          test: clientSelect(),
         })
           .then((res) => {
             if (res) {

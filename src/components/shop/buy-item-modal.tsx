@@ -7,6 +7,7 @@ import { api } from "~/utils/api";
 import { truncateString } from "~/utils/string";
 import { ShopItemProps } from "../creator/shop";
 import { PLATFROM_ASSET, PLATFROM_FEE } from "~/lib/stellar/constant";
+import { clientSelect } from "~/lib/stellar/utils";
 
 export default function BuyItemModal({ item }: { item: ShopItemProps }) {
   const modalRef = useRef<HTMLDialogElement>(null);
@@ -64,7 +65,7 @@ function ModalContent({ item }: { item: ShopItemProps }) {
         presignedxdr: xdr.data,
         pubkey,
         walletType,
-        test: true,
+        test: clientSelect(),
       })
         .then((res) => {
           if (res) {

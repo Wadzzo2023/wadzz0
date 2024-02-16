@@ -9,7 +9,7 @@ import toast from "react-hot-toast";
 import clsx from "clsx";
 import { clientsign, useConnectWalletStateStore } from "package/connect_wallet";
 import { Keypair } from "stellar-sdk";
-import { AccounSchema } from "~/lib/stellar/utils";
+import { AccounSchema, clientSelect } from "~/lib/stellar/utils";
 import { Plus } from "lucide-react";
 import Alert from "../ui/alert";
 import { PLATFROM_ASSET, PLATFROM_FEE } from "~/lib/stellar/constant";
@@ -74,7 +74,7 @@ export default function AddItem2Shop() {
         presignedxdr: xdr,
         pubkey,
         walletType,
-        test: true,
+        test: clientSelect(),
       })
         .then((res) => {
           res && addMutation.mutate(data);

@@ -11,6 +11,7 @@ import MemberShipCard, { getColor } from "./card";
 import { get } from "http";
 import clsx from "clsx";
 import Alert from "../ui/alert";
+import { clientSelect } from "~/lib/stellar/utils";
 
 export default function SubscribeMembership({
   subscription,
@@ -83,7 +84,7 @@ function ModalContent({
           walletType,
           presignedxdr: data,
           pubkey,
-          test: true,
+          test: clientSelect(),
         })
           .then((res) => {
             if (res) {
