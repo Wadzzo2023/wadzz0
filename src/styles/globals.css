@@ -19,10 +19,6 @@
   );
 }
 .background-color {
-  background: linear-gradient(
-      0deg,
-      rgba(62, 62, 62, 0.7),
-      rgba(62, 62, 62, 0.7)
-    ),
-    linear-gradient(0deg, rgba(137, 137, 137, 0.61), rgba(137, 137, 137, 0.61));
+  background: linear-gradient(0deg, rgb(62 62 62 / 17%), rgb(62 62 62 / 19%)),
+    linear-gradient(0deg, hsla(0, 0%, 54%, 0.61), hsl(0deg 0% 54% / 62%));
 }

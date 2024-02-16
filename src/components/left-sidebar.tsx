@@ -38,7 +38,50 @@ export const CreatorNavigation = {
   Settings: { path: "/settings/creator", icon: Settings2, text: "Settings" },
 } as const;
 
+const themes = ["cupcake", "forest"];
+const xthemes = [
+  "light",
+  "dark",
+  "cupcake",
+  "bumblebee",
+  "emerald",
+  "corporate",
+  "synthwave",
+  "retro",
+  "cyberpunk",
+  "valentine",
+  "halloween",
+  "garden",
+  "forest",
+  "aqua",
+  "lofi",
+  "pastel",
+  "fantasy",
+  "wireframe",
+  "black",
+  "luxury",
+  "dracula",
+  "cmyk",
+  "autumn",
+  "business",
+  "acid",
+  "lemonade",
+  "night",
+  "coffee",
+  "winter",
+  "dim",
+  "nord",
+  "sunset",
+];
+
 export default function LeftBar() {
+  const [theme, setTheme] = React.useState(themes[0] ?? "dark");
+
+  React.useEffect(() => {
+    const htmlElement = document.querySelector("html");
+    if (!htmlElement) return;
+    htmlElement.setAttribute("data-theme", theme);
+  }, [theme]);
   return (
     <div className="hidden flex-col items-center justify-between gap-2     sm:flex sm:w-56 md:w-80">
       <div className="background-color flex w-full flex-1 flex-col items-center gap-2 rounded-lg py-2">
@@ -47,16 +90,37 @@ export default function LeftBar() {
           <NavigationButtons />
         </div>
       </div>
-      <div className="py-4j background-color flex w-full flex-col items-center rounded-lg">
-        <div className="flex w-2/3 flex-col justify-center ">
-          <div className="flex  w-full flex-col items-start">
+      <div className="background-color flex w-full flex-col items-center rounded-lg py-4">
+        <div className="flex w-2/3 flex-col justify-center">
+          <div className="flex w-full  flex-col items-start ">
             <Profile />
             <ConnectWalletButton />
+            <ThemeChange />
           </div>
         </div>
       </div>
     </div>
   );
+
+  function ThemeChange() {
+    return (
+      <div className="dropdown dropdown-top ">
+        <div tabIndex={0} role="button" className="btn m-1 ">
+          themes
+        </div>
+        <ul
+          tabIndex={0}
+          className="menu dropdown-content z-[1] w-52 rounded-box bg-base-100 p-2 shadow"
+        >
+          {themes.map((theme) => (
+            <li key={theme}>
+              <a onClick={() => setTheme(theme)}>{theme}</a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    );
+  }
 }
 
 function NavigationButtons() {
