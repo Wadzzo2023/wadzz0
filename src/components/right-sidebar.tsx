@@ -7,7 +7,7 @@ export default function RightBar() {
   const router = useRouter();
   if (router.pathname == "/")
     return (
-      <div className="hidden h-screen w-60 overflow-y-auto bg-base-300 scrollbar-hide lg:flex">
+      <div className=" background-color hidden h-full w-60 overflow-y-auto rounded-lg scrollbar-hide lg:flex">
         <AllCreators />
       </div>
     );

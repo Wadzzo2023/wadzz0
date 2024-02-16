@@ -10,3 +10,19 @@
     focus:border-blue-400 focus:outline-none focus:ring focus:ring-blue-300 active:scale-90;
   }
 }
+
+.gradient-background {
+  background: linear-gradient(
+    180deg,
+    rgba(181, 228, 118, 0.84) 12.21%,
+    rgba(131, 215, 203, 0.84) 81.69%
+  );
+}
+.background-color {
+  background: linear-gradient(
+      0deg,
+      rgba(62, 62, 62, 0.7),
+      rgba(62, 62, 62, 0.7)
+    ),
+    linear-gradient(0deg, rgba(137, 137, 137, 0.61), rgba(137, 137, 137, 0.61));
+}

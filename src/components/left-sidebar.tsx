@@ -40,14 +40,20 @@ export const CreatorNavigation = {
 
 export default function LeftBar() {
   return (
-    <div className="hidden h-screen flex-col items-center justify-between gap-2 bg-base-300 py-5 sm:flex  sm:w-56 md:w-80 ">
-      <Logo />
-      <div className="w-2/3 flex-1">
-        <NavigationButtons />
+    <div className="hidden flex-col items-center justify-between gap-2     sm:flex sm:w-56 md:w-80">
+      <div className="background-color flex w-full flex-1 flex-col items-center gap-2 rounded-lg py-2">
+        <Logo />
+        <div className="w-2/3 flex-1">
+          <NavigationButtons />
+        </div>
       </div>
-      <div className="flex flex-col justify-center">
-        <Profile />
-        <ConnectWalletButton />
+      <div className="py-4j background-color flex w-full flex-col items-center rounded-lg">
+        <div className="flex w-2/3 flex-col justify-center ">
+          <div className="flex  w-full flex-col items-start">
+            <Profile />
+            <ConnectWalletButton />
+          </div>
+        </div>
       </div>
     </div>
   );
