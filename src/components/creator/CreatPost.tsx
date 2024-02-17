@@ -19,7 +19,7 @@ const mediaTypes = [
 
 export const PostSchema = z.object({
   heading: z.string().min(1, { message: "Required" }),
-  content: z.string().min(20, { message: "Minimum 20 is reguired" }),
+  content: z.string().min(2, { message: "Minimum 2 characters required." }),
   subscription: z.string().optional(),
   mediaType: z.nativeEnum(MediaType).nullable().optional(),
   mediaUrl: z.string().nullable().optional(),

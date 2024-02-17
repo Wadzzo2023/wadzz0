@@ -37,8 +37,7 @@ export const CreatorNavigation = {
   },
   Settings: { path: "/settings/creator", icon: Settings2, text: "Settings" },
 } as const;
-
-const themes = ["cupcake", "forest"];
+const themes = ["cupcake", "forest", "light", "dark", "cupcake", "bumblebee", "emerald", "corporate", "synthwave", "retro", "cyberpunk", "valentine", "halloween", "garden", "forest", "aqua", "lofi", "pastel", "fantasy", "wireframe", "black", "luxury", "dracula", "cmyk", "autumn", "business", "acid", "lemonade", "night", "coffee", "winter", "dim", "nord", "sunset"];
 const xthemes = [
   "light",
   "dark",
@@ -104,7 +103,7 @@ export default function LeftBar() {
 
   function ThemeChange() {
     return (
-      <div className="dropdown dropdown-right dropdown-hover">
+      <div className="dropdown dropdown-top dropdown-hover">
         <div tabIndex={0} role="button" className="btn m-1 px-8">
           Background Theme
         </div>
@@ -161,7 +160,7 @@ function ProfileComponent({
 }) {
   return (
     <div
-      className="btn m-2 items-center  justify-center gap-x-4"
+      className="btn my-2 items-center  justify-center gap-x-4"
       onClick={handleModeChange}
     >
       <Avater url={avaterUrl} />
