@@ -37,8 +37,8 @@ export const CreatorNavigation = {
   },
   Settings: { path: "/settings/creator", icon: Settings2, text: "Settings" },
 } as const;
-const themes = ["cupcake", "forest", "light", "dark", "cupcake", "bumblebee", "emerald", "corporate", "synthwave", "retro", "cyberpunk", "valentine", "halloween", "garden", "forest", "aqua", "lofi", "pastel", "fantasy", "wireframe", "black", "luxury", "dracula", "cmyk", "autumn", "business", "acid", "lemonade", "night", "coffee", "winter", "dim", "nord", "sunset"];
-const xthemes = [
+const xthemes = ["cupcake", "forest", "light", "dark", "cupcake", "bumblebee", "emerald", "corporate", "synthwave", "retro", "cyberpunk", "valentine", "halloween", "garden", "forest", "aqua", "lofi", "pastel", "fantasy", "wireframe", "black", "luxury", "dracula", "cmyk", "autumn", "business", "acid", "lemonade", "night", "coffee", "winter", "dim", "nord", "sunset"];
+const themes = [
   "light",
   "dark",
   "cupcake",

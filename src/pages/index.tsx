@@ -31,7 +31,7 @@ function AuthShowcase() {
 
   return (
     <div className="p-5">
-      <h1 className="hidden text-3xl font-bold md:flex">Home</h1>
+      <h1 className="hidden text-3xl font-bold md:flex">Homepage</h1>
       <div className="mt-10 flex flex-col items-center">
         <AllRecentPost />
       </div>
