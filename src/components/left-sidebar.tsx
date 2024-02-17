@@ -83,7 +83,7 @@ export default function LeftBar() {
     htmlElement.setAttribute("data-theme", theme);
   }, [theme]);
   return (
-    <div className="hidden flex-col items-center justify-between gap-2     sm:flex sm:w-56 md:w-80">
+    <div className="hidden flex-col items-center justify-between gap-2 sm:flex sm:w-56 md:w-80">
       <div className="background-color flex w-full flex-1 flex-col items-center gap-2 rounded-lg py-2">
         <Logo />
         <div className="w-2/3 flex-1">
@@ -92,7 +92,7 @@ export default function LeftBar() {
       </div>
       <div className="background-color flex w-full flex-col items-center rounded-lg py-4">
         <div className="flex w-2/3 flex-col justify-center">
-          <div className="flex w-full  flex-col items-start ">
+          <div className="flex w-full py-10 items-center flex-col h-full justify-center gap-2 ">
             <Profile />
             <ConnectWalletButton />
             <ThemeChange />
@@ -104,9 +104,9 @@ export default function LeftBar() {
 
   function ThemeChange() {
     return (
-      <div className="dropdown dropdown-top ">
-        <div tabIndex={0} role="button" className="btn m-1 ">
-          themes
+      <div className="dropdown dropdown-right dropdown-hover">
+        <div tabIndex={0} role="button" className="btn m-1 px-8">
+          Background Theme
         </div>
         <ul
           tabIndex={0}
@@ -161,11 +161,11 @@ function ProfileComponent({
 }) {
   return (
     <div
-      className="btn my-2 items-center  justify-start gap-2"
+      className="btn m-2 items-center  justify-center gap-x-4"
       onClick={handleModeChange}
     >
       <Avater url={avaterUrl} />
-      <div className="flex flex-col items-start">
+      <div className="flex flex-col items-start gap-y-1.5">
         <p className="">{name}</p>
         <p>Switch to {mode}</p>
       </div>
