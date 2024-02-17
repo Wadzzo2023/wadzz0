@@ -16,10 +16,7 @@ export default function Button({
 
   return (
     <button
-      className={clsx(
-        "btn  w-full justify-start",
-        router.pathname == path && "btn-primary",
-      )}
+      className={clsx("btn  w-full", router.pathname == path && "btn-primary")}
     >
       {Icon}
       {text}
