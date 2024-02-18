@@ -7,11 +7,11 @@ import { formatPostCreatedAt } from "~/utils/format-date";
 
 import { Post } from "@prisma/client";
 
-import { PostContextMenu } from "../post/post-context-menu";
-import { PostReadMore } from "../post/post-read-more";
 import Avater from "../ui/avater";
+import { PostContextMenu } from "./post-context-menu";
+import { PostReadMore } from "./post-read-more";
 
-export function PostCard({
+export function SinglePostView({
   post,
   show = false,
   like,
@@ -26,6 +26,7 @@ export function PostCard({
   comments: number;
   priority?: number;
 }) {
+  // return <div></div>;
   const likeMutation = api.post.likeApost.useMutation();
   const deleteLike = api.post.unLike.useMutation();
   // const { data: likes, isLoading } = api.post.getLikes.useQuery(post.id);
