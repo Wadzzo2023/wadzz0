@@ -44,49 +44,7 @@ export const CreatorNavigation = {
   Settings: { path: "/settings/creator", icon: Settings2, text: "Settings" },
 } as const;
 
-const themes = [
-  "light",
-  "dark",
-  "cupcake",
-  "bumblebee",
-  "emerald",
-  "corporate",
-  "synthwave",
-  "retro",
-  "cyberpunk",
-  "valentine",
-  "halloween",
-  "garden",
-  "forest",
-  "aqua",
-  "lofi",
-  "pastel",
-  "fantasy",
-  "wireframe",
-  "black",
-  "luxury",
-  "dracula",
-  "cmyk",
-  "autumn",
-  "business",
-  "acid",
-  "lemonade",
-  "night",
-  "coffee",
-  "winter",
-  "dim",
-  "nord",
-  "sunset",
-];
-
 export default function LeftBar() {
-  const [theme, setTheme] = React.useState(themes[0]!);
-
-  React.useEffect(() => {
-    const htmlElement = document.querySelector("html");
-    if (!htmlElement) return;
-    htmlElement.setAttribute("data-theme", theme);
-  }, [theme]);
   return (
     <div className="hidden flex-col items-center justify-between gap-2 sm:flex sm:w-56 md:w-80">
       <div className="background-color flex w-full flex-1 flex-col items-center gap-2 rounded-lg py-2">
@@ -103,26 +61,78 @@ export default function LeftBar() {
       </div>
     </div>
   );
+}
 
-  function ThemeChange() {
-    return (
-      <div className="dropdown dropdown-top dropdown-hover   w-full ">
-        <div tabIndex={0} role="button" className="btn m-1 w-full px-8">
-          Background Theme
-        </div>
-        <ul
-          tabIndex={0}
-          className="menu dropdown-content z-[1] w-52 rounded-box bg-base-100 p-2 shadow"
-        >
-          {themes.map((theme) => (
-            <li key={theme}>
-              <a onClick={() => setTheme(theme)}>{theme}</a>
-            </li>
-          ))}
-        </ul>
-      </div>
-    );
+function ThemeChange() {
+  enum themes {
+    LIGHT = "cupcake",
+    DARK = "forest",
   }
+  const [theme, setTheme] = React.useState(themes.LIGHT);
+
+  function toggleTheme() {
+    if (theme == themes.LIGHT) setTheme(themes.DARK);
+    else setTheme(themes.LIGHT);
+  }
+
+  React.useEffect(() => {
+    const htmlElement = document.querySelector("html");
+    if (!htmlElement) return;
+    htmlElement.setAttribute("data-theme", theme);
+  }, [theme]);
+
+  return (
+    // <div className="dropdown dropdown-top dropdown-hover   w-full ">
+    //   <div tabIndex={0} role="button" className="btn m-1 w-full px-8">
+    //     Background Theme
+    //   </div>
+    //   <ul
+    //     tabIndex={0}
+    //     className="menu dropdown-content z-[1] w-52 rounded-box bg-base-100 p-2 shadow"
+    //   >
+    //     {themes.map((theme) => (
+    //       <li key={theme}>
+    //         <a onClick={() => setTheme(theme)}>{theme}</a>
+    //       </li>
+    //     ))}
+    //   </ul>
+    // </div>
+    <label className="flex cursor-pointer gap-2">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="20"
+        height="20"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <circle cx="12" cy="12" r="5" />
+        <path d="M12 1v2M12 21v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M1 12h2M21 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4" />
+      </svg>
+      <input
+        type="checkbox"
+        // value="forest"
+        onClick={toggleTheme}
+        className="theme-controller toggle"
+      />
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="20"
+        height="20"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+      </svg>
+    </label>
+  );
 }
 
 function NavigationButtons() {

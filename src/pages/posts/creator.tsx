@@ -5,18 +5,20 @@ import { CreateMenu, useCreateMenu } from "~/lib/state/create-menu";
 import { api } from "~/utils/api";
 
 export default function CreatorsPost() {
-  return (
-    <div className="h-screen p-5">
-      <h2 className="mb-5 text-center text-3xl font-bold">Contents</h2>
+  const creator = api.creator.meCreator.useQuery();
+  if (creator.data)
+    return (
+      <div className="h-screen p-5">
+        <h2 className="mb-5 text-center text-3xl font-bold">Contents</h2>
 
-      <div className=" flex flex-col items-center justify-center">
-        <CreateTabs />
-        <div className="mb-20 mt-10 flex max-w-sm">
-          <RenderTabs />
+        <div className=" flex flex-col items-center justify-center">
+          <CreateTabs />
+          <div className="mb-20 mt-10 flex w-full">
+            <RenderTabs />
+          </div>
         </div>
       </div>
-    </div>
-  );
+    );
 }
 
 function RenderTabs() {

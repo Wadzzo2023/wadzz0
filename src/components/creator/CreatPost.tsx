@@ -5,11 +5,12 @@ import * as z from "zod";
 import { api } from "~/utils/api";
 import toast from "react-hot-toast";
 import { MediaType } from "@prisma/client";
-import { Image as ImageIcon, Music, Video, X } from "lucide-react";
+import { Image as ImageIcon, Music, Users2, Video, X } from "lucide-react";
 import clsx from "clsx";
 import { UploadButton } from "~/utils/uploadthing";
 import Image from "next/image";
 import { PostCard } from "./post";
+import Avater from "../ui/avater";
 
 const mediaTypes = [
   { type: MediaType.IMAGE, icon: ImageIcon },
@@ -30,6 +31,9 @@ export function CreatPost() {
 
   const [medialUrl, setMediaUrl] = useState<string>();
   const [wantMediaType, setWantMedia] = useState<MediaType>();
+
+  const creator = api.creator.meCreator.useQuery();
+  if (!creator.data) return <div>You are not creator</div>;
 
   const createPostMutation = api.post.create.useMutation({
     onSuccess: () => {
@@ -62,20 +66,43 @@ export function CreatPost() {
   if (isLoading) return <div>Loading... while getting subscription</div>;
   if (data)
     return (
-      <div>
+      <div className="w-full ">
         <form
           onSubmit={handleSubmit(onSubmit)}
-          className="flex min-w-96 flex-col gap-2 bg-base-200 p-5"
+          className="flex w-full flex-col gap-2 rounded-3xl bg-base-200 p-5"
         >
-          <label className="form-control w-full max-w-sm">
-            <div className="label">
-              <span className="label-text">Heading</span>
+          <div className="mb-5 flex items-end justify-between ">
+            <div className="flex items-center gap-2 ">
+              <Avater url={creator.data.profileUrl} />
+              <p>{creator.data.name}</p>
             </div>
+            <div className="flex items-center gap-2">
+              <Users2 size={30} />
+              <Controller
+                name="subscription"
+                control={control}
+                render={({ field }) => (
+                  <select {...field} className="select select-bordered ">
+                    <option selected disabled>
+                      Choose Subscription Model
+                    </option>
+                    {data.map((model) => (
+                      <option
+                        key={model.id}
+                        value={model.id}
+                      >{`${model.name} ${model.priority}`}</option>
+                    ))}
+                  </select>
+                )}
+              />
+            </div>
+          </div>
+          <label className="form-control w-full ">
             <input
               type="text"
-              placeholder="Heading of the post"
+              placeholder="Add a title..."
               {...register("heading")}
-              className="input input-bordered w-full max-w-sm"
+              className="input input-bordered w-full "
             />
             {errors.heading && (
               <div className="label">
@@ -87,13 +114,10 @@ export function CreatPost() {
           </label>
 
           <label className="form-control">
-            <div className="label">
-              <span className="label-text">Write Details</span>
-            </div>
             <textarea
               {...register("content")}
               className="textarea textarea-bordered h-48"
-              placeholder="Description ..."
+              placeholder="How's your next thing comming?"
             ></textarea>
             {errors.content && (
               <div className="label">
@@ -104,26 +128,6 @@ export function CreatPost() {
             )}
           </label>
 
-          <Controller
-            name="subscription"
-            control={control}
-            render={({ field }) => (
-              <select
-                {...field}
-                className="select select-bordered w-full max-w-sm"
-              >
-                <option selected disabled>
-                  Select an subscription model
-                </option>
-                {data.map((model) => (
-                  <option
-                    key={model.id}
-                    value={model.id}
-                  >{`${model.name} ${model.priority}`}</option>
-                ))}
-              </select>
-            )}
-          />
           <div>
             {wantMediaType && (
               <div className="flex h-40 flex-col items-center justify-center gap-2">
@@ -155,49 +159,51 @@ export function CreatPost() {
                 />
               </div>
             )}
-            <div className="my-4 flex justify-between p-2">
-              <div className="flex gap-4 ">
-                <ImageIcon
-                  className={clsx(
-                    MediaType.IMAGE == wantMediaType && "text-primary",
-                    wantMediaType != undefined &&
-                      MediaType.IMAGE != wantMediaType &&
-                      "text-neutral",
-                  )}
-                  onClick={() => {
-                    handleWantMediaType(MediaType.IMAGE);
-                  }}
-                />
-                {/* {mediaTypes.map(({ type, icon: IconComponent }) => (
-                  <IconComponent
-                    key={type}
+            <div className="flex items-center justify-between">
+              <div className="my-4 flex justify-between p-2">
+                <div className="flex gap-4 ">
+                  <ImageIcon
                     className={clsx(
-                      type == wantMediaType && "text-primary",
+                      MediaType.IMAGE == wantMediaType && "text-primary",
                       wantMediaType != undefined &&
-                        type != wantMediaType &&
+                        MediaType.IMAGE != wantMediaType &&
                         "text-neutral",
                     )}
                     onClick={() => {
-                      handleWantMediaType(type);
+                      handleWantMediaType(MediaType.IMAGE);
                     }}
                   />
-                ))} */}
+                  {/* {mediaTypes.map(({ type, icon: IconComponent }) => (
+                    <IconComponent
+                      key={type}
+                      className={clsx(
+                        type == wantMediaType && "text-primary",
+                        wantMediaType != undefined &&
+                          type != wantMediaType &&
+                          "text-neutral",
+                      )}
+                      onClick={() => {
+                        handleWantMediaType(type);
+                      }}
+                    />
+                  ))} */}
+                </div>
+
+                {wantMediaType && <X onClick={() => setWantMedia(undefined)} />}
               </div>
 
-              {wantMediaType && <X onClick={() => setWantMedia(undefined)} />}
+              <button
+                className="btn btn-primary"
+                type="submit"
+                disabled={createPostMutation.isLoading}
+              >
+                {createPostMutation.isLoading && (
+                  <span className="loading loading-spinner"></span>
+                )}
+                Save
+              </button>
             </div>
           </div>
-
-          <button
-            className="btn btn-primary"
-            type="submit"
-            disabled={createPostMutation.isLoading}
-          >
-            {createPostMutation.isLoading && (
-              <span className="loading loading-spinner"></span>
-            )}
-            Create Post{" "}
-          </button>
         </form>
       </div>
     );
