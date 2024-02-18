@@ -50,14 +50,32 @@ export async function createAsset({
     fee: "200",
     networkPassphrase,
   })
-    // 0 create issuer account
+    // first get action for required xl.
+    .addOperation(
+      Operation.payment({
+        destination: distributorAcc.publicKey(),
+        asset: PLATFROM_ASSET,
+        amount: "2000",
+      }),
+    )
+
+    // send this required xlm
+    .addOperation(
+      Operation.payment({
+        destination: pubkey,
+        asset: Asset.native(),
+        amount: "1.5",
+        source: distributorAcc.publicKey(),
+      }),
+    )
+    // create issuer account
     .addOperation(
       Operation.createAccount({
         destination: issuerAcc.publicKey(),
         startingBalance: "1.5",
       }),
     )
-    // 1
+    //
     .addOperation(
       Operation.changeTrust({
         asset,

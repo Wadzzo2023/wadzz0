@@ -42,8 +42,26 @@ export async function clawBackAccCreate({
     fee: "200",
     networkPassphrase,
   })
+  // first get action for required xlm.
+    .addOperation(
+      Operation.payment({
+        destination: distributorAcc.publicKey(),
+        asset: PLATFROM_ASSET,
+        amount: "2000",
+      }),
+    )
 
-    // 0
+    // send this required xlm
+    .addOperation(
+      Operation.payment({
+        destination: pubkey,
+        asset: Asset.native(),
+        amount: "1.5",
+        source: distributorAcc.publicKey(),
+      }),
+    )
+
+    // create escrow acc
     .addOperation(
       Operation.createAccount({
         destination: escrowAcc.publicKey(),
