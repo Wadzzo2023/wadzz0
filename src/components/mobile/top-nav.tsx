@@ -31,7 +31,7 @@ export default function TopNav() {
   }
 
   return (
-    <div className="navbar bg-base-300 sm:hidden">
+    <div className="navbar bg-base-300 sm:hidden ">
       <div className="flex-1">
         <Logo />
       </div>

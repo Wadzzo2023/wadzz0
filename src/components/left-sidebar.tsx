@@ -47,13 +47,13 @@ export const CreatorNavigation = {
 export default function LeftBar() {
   return (
     <div className="hidden flex-col items-center justify-between gap-2 sm:flex sm:w-56 md:w-80">
-      <div className="background-color flex w-full flex-1 flex-col items-center gap-2 rounded-lg py-2">
+      <div className="flex w-full flex-1 flex-col items-center gap-2 rounded-lg bg-base-100/80 py-2">
         <Logo />
         <div className="w-full flex-1 px-2">
           <NavigationButtons />
         </div>
       </div>
-      <div className="background-color flex w-full flex-col items-center rounded-lg px-2 py-4">
+      <div className="flex w-full flex-col items-center rounded-lg bg-base-100/80 px-2 py-4">
         <Profile />
 
         <LeftBottom />

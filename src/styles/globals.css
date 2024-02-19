@@ -22,3 +22,12 @@
   background: linear-gradient(0deg, rgb(62 62 62 / 17%), rgb(62 62 62 / 19%)),
     linear-gradient(0deg, hsla(0, 0%, 54%, 0.61), hsl(0deg 0% 54% / 62%));
 }
+
+html,
+body {
+  background: url("/images/header.jpg") no-repeat center center fixed;
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+}

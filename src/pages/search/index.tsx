@@ -81,8 +81,10 @@ function Posts() {
             return (
               <div className="p-4 hover:bg-neutral" key={post.id}>
                 <Link href={`/posts/${post.id}`} className="">
-                  <h2 className="text-lg font-bold">{post.heading}</h2>
-                  <p key={post.id}>{post.content}</p>
+                  <h2 className="text-lg font-bold">
+                    {post.heading.slice(0, 40)}
+                  </h2>
+                  <p key={post.id}>{post.content.slice(0, 120)}</p>
                 </Link>
               </div>
             );

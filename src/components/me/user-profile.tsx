@@ -13,7 +13,7 @@ export default function About() {
     return (
       <div className="flex  flex-col items-center ">
         {/* <h2 className="text-2xl font-bold">About</h2> */}
-        <div className="my-5 w-96 bg-base-200">
+        <div className="my-5 w-96 rounded-box bg-base-200">
           <AboutForm user={user.data} />
         </div>
       </div>
@@ -48,7 +48,10 @@ function AboutForm({ user }: { user: User }) {
     mutation.mutate(data);
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-2 p-5">
+    <form
+      onSubmit={handleSubmit(onSubmit)}
+      className="flex flex-col gap-2  p-5"
+    >
       <div className="flex items-center  gap-2">
         <div className="">
           <Avater url={user.image} />

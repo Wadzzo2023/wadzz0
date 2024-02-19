@@ -10,12 +10,10 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const { data } = useSession();
 
   return (
-    // <div className="flex h-screen gap-2 bg-gradient-to-r from-teal-400 to-yellow-200 p-2">
-    // <div className="flex h-screen gap-2 bg-gradient-to-r from-green-300 via-green-400 to-teal-300 p-2">
-    <div className="gradient-background flex h-screen  gap-6 p-2">
+    <div className=" flex h-screen  gap-6 p-2">
       <LeftBar />
       <div className="flex-1">
-        <div className="background-color   h-full overflow-y-auto rounded-lg scrollbar-hide">
+        <div className="h-full overflow-y-auto rounded-lg bg-base-100/80 scrollbar-hide">
           <TopNav />
           {data?.user.id ? (
             <>{children}</>
