@@ -16,7 +16,9 @@ export default function PostPage() {
 }
 
 function Page({ postId }: { postId: string }) {
-  const post = api.post.getAPost.useQuery(Number(postId));
+  const post = api.post.getAPost.useQuery(Number(postId), {
+    refetchOnWindowFocus: false,
+  });
 
   if (post.isLoading) return <div>Loading...</div>;
 
@@ -27,7 +29,7 @@ function Page({ postId }: { postId: string }) {
         <h2 className="mb-5 text-center text-3xl font-bold">
           Post by {post.data.creator.name}
         </h2>
-        <div className="flex w-full flex-1 flex-col items-center  ">
+        <div className="flex w-full flex-1 flex-col items-center  rounded-box bg-base-100">
           <SinglePostView
             priority={post.data.subscription?.priority}
             creator={post.data.creator}

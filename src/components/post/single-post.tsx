@@ -34,7 +34,6 @@ export function SinglePostView({
   const comments = api.post.getComments.useQuery(post.id);
 
   return (
-    // <div className="h-full w-full bg-red-700">
     <div className="flex h-full w-full flex-col rounded-box lg:flex-row">
       <div className="h-full flex-1 ">
         {post.mediaUrl && (
@@ -76,6 +75,20 @@ export function SinglePostView({
                   </div>
                 </div>
                 <PostContextMenu creatorId={post.creatorId} postId={post.id} />
+              </div>
+
+              <div className="h-96 w-full bg-base-300 lg:hidden">
+                {post.mediaUrl && (
+                  <figure className="relative    h-full  w-full">
+                    <Image
+                      className={clsx(!show && "blur-sm", "")}
+                      src={post.mediaUrl}
+                      layout="fill"
+                      objectFit="contain"
+                      alt="Post Image"
+                    />
+                  </figure>
+                )}
               </div>
 
               {!show ? (
