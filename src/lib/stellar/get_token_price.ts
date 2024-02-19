@@ -26,7 +26,7 @@ export async function getPlatfromAssetPrice() {
   else return 1;
 }
 
-export async function getAssetNumberForXLM(xlm: number = 1.5) {
+export async function getAssetNumberForXLM(xlm = 1.5) {
   const price = await getPlatfromAssetPrice();
   console.log("price", price);
   return xlm / (price * 0.12);

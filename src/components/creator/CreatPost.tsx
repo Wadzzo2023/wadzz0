@@ -33,7 +33,6 @@ export function CreatPost() {
   const [wantMediaType, setWantMedia] = useState<MediaType>();
 
   const creator = api.creator.meCreator.useQuery();
-  if (!creator.data) return <div>You are not creator</div>;
 
   const createPostMutation = api.post.create.useMutation({
     onSuccess: () => {
@@ -63,6 +62,7 @@ export function CreatPost() {
     if (!wantMediaType) setWantMedia(type);
   };
 
+  if (!creator.data) return <div>You are not creator</div>;
   if (isLoading) return <div>Loading... while getting subscription</div>;
   if (data)
     return (
