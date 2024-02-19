@@ -24,9 +24,11 @@ import { AccountType } from "./utils";
 export async function clawBackAccCreate({
   pubkey,
   assetCode,
+  actionAmount,
 }: {
   pubkey: string;
   assetCode: string;
+  actionAmount: string; // this is amount that will be used to refund xlm
 }) {
   const server = new Server(STELLAR_URL);
   const limit = "50000";
@@ -42,12 +44,12 @@ export async function clawBackAccCreate({
     fee: "200",
     networkPassphrase,
   })
-  // first get action for required xlm.
+    // first get action for required xlm.
     .addOperation(
       Operation.payment({
         destination: distributorAcc.publicKey(),
         asset: PLATFROM_ASSET,
-        amount: "2000",
+        amount: actionAmount,
       }),
     )
 

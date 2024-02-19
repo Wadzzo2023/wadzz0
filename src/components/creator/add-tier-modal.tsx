@@ -43,6 +43,7 @@ export default function AddTierModal({ creator }: { creator: Creator }) {
       reset();
     },
   });
+  const assetAmount = api.trx.getAssetNumberforXlm.useQuery();
 
   const trxMutation = api.trx.clawbackAssetCreationTrx.useMutation({
     onSuccess: async (data) => {
@@ -176,7 +177,7 @@ export default function AddTierModal({ creator }: { creator: Creator }) {
               <div className="max-w-xs">
                 <Alert
                   type={mutation.error ? "warning" : "noraml"}
-                  content={`To create a Tier, you'll need 1.5XLM for your Asset account plus the transaction fee. Additionally, there's a platform fee of ${PLATFROM_FEE} ${PLATFROM_ASSET.code}.`}
+                  content={`To create a Tier, you'll need ${assetAmount.data} ACTION for your Asset account. Additionally, there's a platform fee of ${PLATFROM_FEE} ${PLATFROM_ASSET.code}. Total: ${assetAmount.data + PLATFROM_FEE}`}
                 />
               </div>
               <button

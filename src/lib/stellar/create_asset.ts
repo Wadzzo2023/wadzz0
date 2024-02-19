@@ -30,10 +30,12 @@ export async function createAsset({
   pubkey,
   code,
   limit: limitValue,
+  actionAmount,
 }: {
   pubkey: string;
   code: string;
   limit: number;
+  actionAmount: string;
 }) {
   const limit = limitValue.toString();
   const server = new Server(STELLAR_URL);
@@ -55,7 +57,7 @@ export async function createAsset({
       Operation.payment({
         destination: distributorAcc.publicKey(),
         asset: PLATFROM_ASSET,
-        amount: "2000",
+        amount: actionAmount,
       }),
     )
 

@@ -22,11 +22,10 @@ export default function MemberShipCard({
         className,
       )}
     >
-      <div
-        className={clsx("h-20  ", getCardStyle(subscription.priority))}
-      ></div>
-      <div className="card-body p-2">
+      <div className={clsx("h-20  ", getCardStyle(subscription.priority))}>
         <EditTierModal item={subscription} />
+      </div>
+      <div className="card-body p-2">
         <div className="card-title">
           <div className="flex w-full justify-between">
             <h2 className="text-2xl font-bold">

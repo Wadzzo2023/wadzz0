@@ -59,7 +59,7 @@ export default function EditTierModal({ item }: { item: Subscription }) {
     modalRef.current?.showModal();
   };
 
-  if (router.pathname == "/creator/me")
+  if (router.pathname == "/me/creator")
     return (
       <>
         <button className="btn btn-circle btn-ghost" onClick={handleModal}>

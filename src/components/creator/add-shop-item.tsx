@@ -50,6 +50,8 @@ export default function AddItem2Shop() {
         setXdr(data.xdr);
         setValue("issuer", data.issuer);
         setStep(3);
+
+        toast.success("xdr found");
       } else {
         toast.error("Error happened");
       }
@@ -69,7 +71,10 @@ export default function AddItem2Shop() {
   });
 
   const onSubmit: SubmitHandler<z.infer<typeof ShopItemSchema>> = (data) => {
+    toast.success("vong");
+    console.log("hei i'm here");
     if (xdr && !addMutation.isSuccess) {
+      toast.success("im here");
       clientsign({
         presignedxdr: xdr,
         pubkey,
@@ -80,6 +85,9 @@ export default function AddItem2Shop() {
           res && addMutation.mutate(data);
         })
         .catch((e) => console.log(e));
+    } else {
+      toast.error("error");
+      console.log("Error happened");
     }
   };
 
@@ -109,6 +117,8 @@ export default function AddItem2Shop() {
 
               {step == 3 && (
                 <button
+                  // onClick={() => onSubmit()}
+                  // type="button"
                   className="btn btn-primary"
                   disabled={
                     addMutation.isLoading || !xdr || addMutation.isSuccess
