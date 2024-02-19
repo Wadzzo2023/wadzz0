@@ -8,7 +8,7 @@ export const CommentSchema = z.object({
   content: z.string().min(5, { message: "Minimum 20 is reguired" }),
 });
 
-export function AddComment({ postId }: { postId: string }) {
+export function AddComment({ postId }: { postId: number }) {
   const commentM = api.post.createComment.useMutation({
     onSuccess: () => {
       reset();
@@ -22,7 +22,7 @@ export function AddComment({ postId }: { postId: string }) {
     formState: { errors },
   } = useForm<z.infer<typeof CommentSchema>>({
     resolver: zodResolver(CommentSchema),
-    defaultValues: { postId: Number(postId) },
+    defaultValues: { postId: postId },
   });
 
   const onSubmit: SubmitHandler<z.infer<typeof CommentSchema>> = (data) => {
@@ -30,9 +30,9 @@ export function AddComment({ postId }: { postId: string }) {
   };
 
   return (
-    <div className="flex w-full flex-col items-center">
+    <div className="flex w-full flex-col">
       <form onSubmit={handleSubmit(onSubmit)}>
-        <label className="form-control w-full max-w-xs">
+        <label className="form-control w-full ">
           <div className="flex gap-2">
             <input
               type="text"

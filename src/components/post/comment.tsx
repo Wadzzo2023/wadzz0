@@ -17,7 +17,7 @@ export default function CommentView({
   };
 }) {
   return (
-    <div className="flex justify-between border-b border-neutral">
+    <div className="flex justify-between ">
       <div className="flex gap-2">
         <div>
           <Avater url={comment.user.image} />
@@ -31,12 +31,12 @@ export default function CommentView({
             <p>{comment.content}</p>
           )}
 
+          <p className="">{formatPostCreatedAt(comment.createdAt)}</p>
+
           <p></p>
         </div>
       </div>
       <div className="flex gap-2">
-        <p className=" text-right">{formatPostCreatedAt(comment.createdAt)}</p>
-
         <CommentContextMenu
           commentId={comment.id}
           commentorId={comment.userId}
