@@ -1,3 +1,4 @@
+import { getAccSecret } from "package/connect_wallet";
 import { Asset } from "stellar-sdk";
 import { z } from "zod";
 import { buyAssetTrx } from "~/lib/stellar/buy_asset";
@@ -8,6 +9,7 @@ import {
   getBandcoinPrice,
   getPlatfromAssetPrice,
 } from "~/lib/stellar/get_token_price";
+import { signXdrTransaction } from "~/lib/stellar/signXDR";
 import { getClawbackAsPayment } from "~/lib/stellar/subscribe";
 import { AssetSchema } from "~/lib/stellar/utils";
 
@@ -17,56 +19,89 @@ import {
   publicProcedure,
 } from "~/server/api/trpc";
 
+export const SignUser = z
+  .object({ uid: z.string(), email: z.string() })
+  .optional();
+type SignUserType = z.TypeOf<typeof SignUser>;
+
 export const trxRouter = createTRPCRouter({
   clawbackAssetCreationTrx: protectedProcedure
-    .input(z.object({ code: z.string() }))
+    .input(z.object({ code: z.string(), signWith: SignUser }))
     .mutation(async ({ ctx, input }) => {
+      const { code, signWith } = input;
       const assetAmout = await getAssetNumberForXLM();
-      console.log("assetAmout", assetAmout);
 
-      return await clawBackAccCreate({
+      const data = await clawBackAccCreate({
         actionAmount: assetAmout.toString(),
         pubkey: ctx.session.user.id,
-        assetCode: input.code,
+        assetCode: code,
       });
+      const signedXDr = await WithSing({ xdr: data.trx, signWith });
+      data.trx = signedXDr;
+      return data;
     }),
 
   clawbackAssetPaymentTrx: protectedProcedure
-    .input(AssetSchema.extend({ creatorId: z.string(), price: z.number() }))
+    .input(
+      AssetSchema.extend({
+        creatorId: z.string(),
+        price: z.number(),
+        signWith: SignUser,
+      }),
+    )
     .mutation(async ({ input, ctx }) => {
       const price = input.price.toString();
-      return await getClawbackAsPayment({
+      const xdr = await getClawbackAsPayment({
         creatorId: input.creatorId,
         price: price,
         assetInfo: input,
         userPubkey: ctx.session.user.id,
       });
+
+      return await WithSing({ xdr, signWith: input.signWith });
     }),
 
   createAssetTrx: protectedProcedure
-    .input(z.object({ code: z.string(), limit: z.number() }))
+    .input(
+      z.object({ code: z.string(), limit: z.number(), signWith: SignUser }),
+    )
     .mutation(async ({ ctx, input }) => {
       const assetAmout = await getAssetNumberForXLM();
 
-      return await createAsset({
+      const data = await createAsset({
         actionAmount: assetAmout.toString(),
         pubkey: ctx.session.user.id,
         code: input.code,
         limit: input.limit,
       });
+
+      const signedXDr = await WithSing({
+        xdr: data.xdr,
+        signWith: input.signWith,
+      });
+      data.xdr = signedXDr;
+      return data;
     }),
 
   buyAssetTrx: protectedProcedure
-    .input(AssetSchema.extend({ price: z.number(), creatorId: z.string() }))
+    .input(
+      AssetSchema.extend({
+        signWith: SignUser,
+        price: z.number(),
+        creatorId: z.string(),
+      }),
+    )
     .query(async ({ input, ctx }) => {
       const price = input.price.toString();
       const customerPubkey = ctx.session.user.id; // is the custeomr
-      return await buyAssetTrx({
+      const xdr = await buyAssetTrx({
         customerPubkey,
         assetType: input,
         creatorId: input.creatorId,
         price: price,
       });
+
+      return await WithSing({ xdr, signWith: input.signWith });
     }),
 
   getSecretMessage: protectedProcedure.query(() => {
@@ -82,4 +117,25 @@ export const trxRouter = createTRPCRouter({
     .query(async ({ input }) => {
       return await getAssetNumberForXLM(input);
     }),
+
+  signXDRForFbGoogleEmail: protectedProcedure
+    .input(z.object({ xdr: z.string(), uid: z.string(), email: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const { xdr, uid, email } = input;
+      const secret = await getAccSecret(uid, email);
+      return signXdrTransaction(xdr, secret);
+    }),
 });
+
+async function WithSing({
+  xdr,
+  signWith,
+}: {
+  xdr: string;
+  signWith: SignUserType;
+}) {
+  if (signWith) {
+    const secret = await getAccSecret(signWith.uid, signWith.email);
+    return signXdrTransaction(xdr, secret);
+  } else return xdr;
+}

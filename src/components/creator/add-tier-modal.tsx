@@ -5,7 +5,11 @@ import { SubmitHandler, useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { z } from "zod";
 import { api } from "~/utils/api";
-import { clientsign, useConnectWalletStateStore } from "package/connect_wallet";
+import {
+  clientsign,
+  needSign,
+  useConnectWalletStateStore,
+} from "package/connect_wallet";
 import { AccounSchema, clientSelect } from "~/lib/stellar/utils";
 import { Plus } from "lucide-react";
 import CollapseSible from "../ui/collapse";
@@ -36,8 +40,7 @@ export default function AddTierModal({ creator }: { creator: Creator }) {
   const modalRef = useRef<HTMLDialogElement>(null);
   const [isModalOpen, setIsModalOpen] = React.useState(false);
 
-  const { isAva, pubkey, walletType, uid, email } =
-    useConnectWalletStateStore();
+  const { pubkey, walletType, needSign } = useConnectWalletStateStore();
   const mutation = api.member.createMembership.useMutation({
     onSuccess: () => {
       reset();
@@ -48,7 +51,8 @@ export default function AddTierModal({ creator }: { creator: Creator }) {
   const trxMutation = api.trx.clawbackAssetCreationTrx.useMutation({
     onSuccess: async (data) => {
       if (data) {
-        toast.success("xdr created!");
+        // sign the transaction for fbgoogle
+
         clientsign({
           walletType,
           presignedxdr: data.trx,
@@ -93,7 +97,11 @@ export default function AddTierModal({ creator }: { creator: Creator }) {
 
   const onSubmit: SubmitHandler<z.infer<typeof TierSchema>> = (data) => {
     setIsModalOpen(true);
-    trxMutation.mutate({ code: getValues("name") });
+
+    trxMutation.mutate({
+      code: getValues("name"),
+      signWith: needSign(walletType),
+    });
     // mutation.mutate(data);
   };
 

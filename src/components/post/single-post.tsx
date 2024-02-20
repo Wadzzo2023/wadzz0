@@ -61,9 +61,11 @@ export function SinglePostView({ postId }: { postId: number }) {
                         {post.data.creator.name}
                       </Link>
                       <p>
-                        <span className="badge badge-secondary mr-1">
-                          {post.data.subscription?.priority}
-                        </span>
+                        {post.data.subscription && (
+                          <span className="badge badge-secondary mr-1">
+                            {post.data.subscription.priority}
+                          </span>
+                        )}
                       </p>
                     </div>
                   </div>
@@ -73,16 +75,17 @@ export function SinglePostView({ postId }: { postId: number }) {
                   />
                 </div>
 
-                <div className="h-96 w-full bg-base-300 lg:hidden">
-                  <div>
+                <div className=" flex flex-col bg-base-300 lg:hidden">
+                  <div className=" h-96 w-full">
                     {post.data.Media.map((el) => (
-                      <figure className="relative    h-full  w-full">
+                      <figure className="relative  h-full  w-full">
                         <Image
                           src={el.url}
                           layout="fill"
                           objectFit="contain"
                           alt="Post Image"
                         />
+                        {/* <p>{el.id}</p> */}
                       </figure>
                     ))}
                   </div>

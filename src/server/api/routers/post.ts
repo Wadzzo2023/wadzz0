@@ -147,7 +147,7 @@ export const postRouter = createTRPCRouter({
           _count: { select: { Like: true, Comment: true } },
           creator: { select: { name: true, id: true } },
           subscription: { select: { priority: true } },
-          Media: true
+          Media: true,
         },
       });
 
@@ -155,6 +155,7 @@ export const postRouter = createTRPCRouter({
 
       if (post) {
         if (post.subscription) {
+          // choose creator highest priority
           const subscription = await ctx.db.user_Subscription.findFirst({
             where: {
               AND: [
@@ -162,8 +163,8 @@ export const postRouter = createTRPCRouter({
                 { subscription: { creatorId: post.creatorId } },
               ],
             },
-
             include: { subscription: {} },
+            orderBy: { subscription: { priority: "desc" } },
           });
 
           const userSubscriptionPriority = subscription?.subscription?.priority;
