@@ -147,6 +147,7 @@ export const postRouter = createTRPCRouter({
           _count: { select: { Like: true, Comment: true } },
           creator: { select: { name: true, id: true } },
           subscription: { select: { priority: true } },
+          Media: true
         },
       });
 

@@ -16,31 +16,12 @@ export default function PostPage() {
 }
 
 function Page({ postId }: { postId: string }) {
-  const post = api.post.getAPost.useQuery(Number(postId), {
-    refetchOnWindowFocus: false,
-  });
-
-  if (post.isLoading) return <div>Loading...</div>;
-
-  if (post.isError) return <div>Post not found</div>;
-  if (post.data) {
-    return (
-      <div className="flex h-full  flex-1 flex-col p-5">
-        <h2 className="mb-5 text-center text-3xl font-bold">
-          Post by {post.data.creator.name}
-        </h2>
-        <div className="flex w-full flex-1 flex-col items-center  rounded-box bg-base-100">
-          <SinglePostView
-            priority={post.data.subscription?.priority}
-            creator={post.data.creator}
-            like={post.data._count.Like}
-            post={post.data}
-            show
-          />
-        </div>
+  return (
+    <div className="flex h-full  flex-1 flex-col p-5">
+      <h2 className="mb-5 text-center text-3xl font-bold">Post by Creator</h2>
+      <div className="flex w-full flex-1 flex-col items-center  rounded-box bg-base-100">
+        <SinglePostView postId={Number(postId)} />
       </div>
-    );
-  } else {
-    return <p> You do not have proper permission</p>;
-  }
+    </div>
+  );
 }
