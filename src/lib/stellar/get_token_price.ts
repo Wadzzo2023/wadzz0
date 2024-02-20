@@ -23,11 +23,10 @@ export async function getBandcoinPrice(): Promise<number> {
 
 export async function getPlatfromAssetPrice() {
   if (env.NEXT_PUBLIC_STELLAR_PUBNET) return await getBandcoinPrice();
-  else return 1;
+  else return 0.5;
 }
 
 export async function getAssetNumberForXLM(xlm = 1.5) {
   const price = await getPlatfromAssetPrice();
-  console.log("price", price);
-  return Math.floor((xlm * 0.12) / price);
+  return Math.ceil((xlm * 0.12) / price);
 }

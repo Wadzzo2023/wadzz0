@@ -111,7 +111,7 @@ export default function AddTierModal({ creator }: { creator: Creator }) {
 
   return (
     <>
-      <button className="btn btn-outline btn-primary" onClick={handleModal}>
+      <button className="btn  btn-secondary" onClick={handleModal}>
         <Plus />
         Add Tier
       </button>
@@ -185,7 +185,7 @@ export default function AddTierModal({ creator }: { creator: Creator }) {
               <div className="max-w-xs">
                 <Alert
                   type={mutation.error ? "warning" : "noraml"}
-                  content={`To create a Tier, you'll need ${assetAmount.data} ${PLATFROM_ASSET.code} for your Asset account. Additionally, there's a platform fee of ${PLATFROM_FEE} ${PLATFROM_ASSET.code}. Total: ${assetAmount.data + PLATFROM_FEE}`}
+                  content={`To create a Tier, you'll need ${assetAmount.data} ${PLATFROM_ASSET.code} for your Asset account. Additionally, there's a platform fee of ${PLATFROM_FEE} ${PLATFROM_ASSET.code}. Total: ${assetAmount.data ?? 1 + Number(PLATFROM_FEE)}`}
                 />
               </div>
               <button

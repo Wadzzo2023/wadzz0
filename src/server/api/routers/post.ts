@@ -342,13 +342,13 @@ export const postRouter = createTRPCRouter({
         cursor: cursor ? { id: cursor } : undefined,
         where: {
           OR: [
-            {
-              content: {
-                contains: searchInput,
-                // how can i make this case insensitive?
-                mode: "insensitive",
-              },
-            },
+            // {
+            //   content: {
+            //     contains: searchInput,
+            //     // how can i make this case insensitive?
+            //     mode: "insensitive",
+            //   },
+            // },
             {
               heading: {
                 contains: searchInput,

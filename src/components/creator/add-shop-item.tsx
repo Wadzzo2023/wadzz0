@@ -23,7 +23,7 @@ export const ShopItemSchema = z.object({
     .max(12, { message: "Asset name should be maximum 12" }),
   AssetLimit: z.number().nonnegative().int(),
   price: z.number().nonnegative(),
-  mediaUrl: z.string().nullable(),
+  mediaUrl: z.string().optional(),
   issuer: AccounSchema,
 });
 
@@ -36,6 +36,8 @@ export default function AddItem2Shop() {
 
   const { isAva, pubkey, walletType, uid, email } =
     useConnectWalletStateStore();
+
+  const assetAmount = api.trx.getAssetNumberforXlm.useQuery();
 
   const addMutation = api.shop.createShopAsset.useMutation({
     onSuccess: () => {
@@ -50,8 +52,6 @@ export default function AddItem2Shop() {
         setXdr(data.xdr);
         setValue("issuer", data.issuer);
         setStep(3);
-
-        toast.success("xdr found");
       } else {
         toast.error("Error happened");
       }
@@ -71,10 +71,7 @@ export default function AddItem2Shop() {
   });
 
   const onSubmit: SubmitHandler<z.infer<typeof ShopItemSchema>> = (data) => {
-    toast.success("vong");
-    console.log("hei i'm here");
     if (xdr && !addMutation.isSuccess) {
-      toast.success("im here");
       clientsign({
         presignedxdr: xdr,
         pubkey,
@@ -86,10 +83,11 @@ export default function AddItem2Shop() {
         })
         .catch((e) => console.log(e));
     } else {
-      toast.error("error");
       console.log("Error happened");
     }
   };
+
+  // console.log(errors, "errors");
 
   const handleModal = () => {
     modalRef.current?.showModal();
@@ -97,7 +95,7 @@ export default function AddItem2Shop() {
 
   return (
     <>
-      <button className="btn btn-outline btn-primary" onClick={handleModal}>
+      <button className="btn  btn-secondary" onClick={handleModal}>
         <Plus />
         Create NFT Asset
       </button>
@@ -310,7 +308,7 @@ export default function AddItem2Shop() {
         </label>
         <div className="max-w-xs">
           <Alert
-            content={`To create a Item, you'll need 1.5XLM for your Asset account plus the transaction fee. Additionally, there's a platform fee of ${PLATFROM_FEE} ${PLATFROM_ASSET.code}.`}
+            content={`To create a Item, you'll need ${assetAmount.data} ${PLATFROM_ASSET.code} for your Asset account. Additionally, there's a platform fee of ${PLATFROM_FEE} ${PLATFROM_ASSET.code}.`}
           />
         </div>
         <button

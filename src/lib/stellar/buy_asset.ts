@@ -9,6 +9,7 @@ import {
   PLATFROM_ASSET,
   PLATFROM_FEE,
   STELLAR_URL,
+  LOWEST_ASSET_AMOUNT,
   networkPassphrase,
 } from "./constant";
 import { env } from "~/env";
@@ -52,7 +53,7 @@ export async function buyAssetTrx({
     .addOperation(
       Operation.payment({
         asset,
-        amount: "1",
+        amount: LOWEST_ASSET_AMOUNT,
         source: distributorAcc.publicKey(),
         destination: customerPubkey,
       }),

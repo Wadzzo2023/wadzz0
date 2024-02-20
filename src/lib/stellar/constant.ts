@@ -15,3 +15,4 @@ export const PLATFROM_ASSET = new Asset(
 );
 
 export const PLATFROM_FEE = "500";
+export const LOWEST_ASSET_AMOUNT = "0.000001";

@@ -9,6 +9,7 @@ import {
   AuthRevocableFlag,
 } from "stellar-sdk";
 import {
+  LOWEST_ASSET_AMOUNT,
   PLATFROM_ASSET,
   PLATFROM_FEE,
   STELLAR_URL,
@@ -52,7 +53,7 @@ export async function getClawbackAsPayment({
     .addOperation(
       Operation.payment({
         destination: userPubkey,
-        amount: "1",
+        amount: LOWEST_ASSET_AMOUNT,
         asset,
         source: distributorAcc.publicKey(),
       }),
