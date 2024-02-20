@@ -12,7 +12,7 @@ export default function About({ creator }: { creator: Creator }) {
   return (
     <div className="flex  flex-col items-center ">
       <h2 className="text-2xl font-bold">About</h2>
-      <div className="my-5 w-96 bg-base-200">
+      <div className="my-5 w-96 rounded-box bg-base-200">
         <AboutForm creator={creator} />
       </div>
     </div>
