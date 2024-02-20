@@ -5,12 +5,19 @@ import BottomNav from "./mobile/bottom-nav";
 import TopNav from "./mobile/top-nav";
 import { ConnectWalletButton } from "package/connect_wallet";
 import { useSession } from "next-auth/react";
+import clsx from "clsx";
 
-export default function Layout({ children }: { children: React.ReactNode }) {
+export default function Layout({
+  children,
+  className,
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) {
   const { data } = useSession();
 
   return (
-    <div className=" flex h-screen  gap-6 p-2">
+    <div className={clsx(" flex h-screen  gap-6 p-2", className)}>
       <LeftBar />
       <div className="flex-1">
         <div className="h-full overflow-y-auto rounded-lg bg-base-100/80 scrollbar-hide">

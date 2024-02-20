@@ -111,7 +111,7 @@ export default function AddTierModal({ creator }: { creator: Creator }) {
 
   return (
     <>
-      <button className="btn  btn-secondary" onClick={handleModal}>
+      <button className="btn  btn-primary" onClick={handleModal}>
         <Plus />
         Add Tier
       </button>

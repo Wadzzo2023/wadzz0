@@ -95,7 +95,7 @@ export default function AddItem2Shop() {
 
   return (
     <>
-      <button className="btn  btn-secondary" onClick={handleModal}>
+      <button className="btn  btn-primary" onClick={handleModal}>
         <Plus />
         Create NFT Asset
       </button>

@@ -88,7 +88,11 @@ function CreateTabs() {
             key={key}
             onClick={() => setSelectedMenu(key)}
             role="tab"
-            className={clsx("tab", selectedMenu == key && "tab-active")}
+            className={clsx(
+              "tab",
+              selectedMenu == key && "tab-active",
+              "text-xl font-bold",
+            )}
           >
             {key}
           </a>
