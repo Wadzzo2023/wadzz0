@@ -75,11 +75,11 @@ function Posts() {
     <div className="flex flex-col items-center">
       {posts.isLoading && <div>Loading...</div>}
       {/* < className="flex flex-col gap-4"> */}
-      <div className="max-w-sm rounded-box bg-base-200 p-2">
+      <div className="max-w-sm rounded-box bg-base-300 p-2">
         {posts.data?.pages.map((page) => {
           return page.posts.map((post) => {
             return (
-              <div className="p-4 hover:bg-neutral" key={post.id}>
+              <div className="p-4 hover:bg-base-100" key={post.id}>
                 <Link href={`/posts/${post.id}`} className="">
                   <h2 className="text-lg font-bold">
                     {post.heading.slice(0, 40)}
@@ -115,7 +115,7 @@ function Creator() {
   return (
     <div className="flex flex-col items-center ">
       {creators.isLoading && <div>Loading...</div>}
-      <div className="flex w-96 max-w-sm flex-col rounded-box bg-base-200 p-4">
+      <div className="flex w-96 max-w-sm flex-col rounded-box bg-base-300 p-4">
         {creators.data?.pages.map((page) => {
           return page.items.map((creator) => {
             return <CreatorAvater key={creator.id} creator={creator} />;
@@ -137,7 +137,7 @@ function Creator() {
 
 export function CreatorAvater({ creator }: { creator: Creator }) {
   return (
-    <div className="flex items-center gap-2 p-2 hover:bg-neutral">
+    <div className="flex items-center gap-2 p-2 hover:bg-base-100">
       <div>
         <Avater url={creator.profileUrl} />
       </div>
@@ -159,11 +159,11 @@ function AssetsList() {
   return (
     <div className="flex flex-col items-center">
       {assets.isLoading && <div>Loading...</div>}
-      <div className="w-full max-w-sm rounded-box bg-base-200 p-4">
+      <div className="w-full max-w-sm rounded-box bg-base-300 p-4">
         {assets.data?.pages.map((page) => {
           return page.items.map((asset) => {
             return (
-              <div key={asset.id} className="p-4 hover:bg-neutral">
+              <div key={asset.id} className="p-4 hover:bg-base-100">
                 <p className="font-bold">{asset.asset.code}</p>
                 <p className="text-sm">
                   {truncateString(asset.asset.issuer, 15, 5)}

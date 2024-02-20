@@ -121,6 +121,7 @@ export const postRouter = createTRPCRouter({
             select: { Like: true, Comment: true },
           },
           creator: { select: { name: true, id: true } },
+          Media: true,
         },
       });
 

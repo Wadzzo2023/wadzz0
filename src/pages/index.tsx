@@ -11,7 +11,10 @@ export default function Home() {
     <>
       <Head>
         <title>BandFan</title>
-        <meta name="description" content="A subscription-based platform that connects bands & creators with their fans on Stellar Blockchain." />
+        <meta
+          name="description"
+          content="A subscription-based platform that connects bands & creators with their fans on Stellar Blockchain."
+        />
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className="">
@@ -85,6 +88,7 @@ function AllRecentPost() {
                       el.subscription.priority <= post.subscription.priority,
                   )
                 }
+                media={post.Media.length > 0 ? post.Media[0] : undefined}
               />
             ))}
           </>

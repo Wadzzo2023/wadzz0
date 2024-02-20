@@ -5,7 +5,7 @@ import Link from "next/link";
 import { api } from "~/utils/api";
 import { formatPostCreatedAt } from "~/utils/format-date";
 
-import { Post } from "@prisma/client";
+import { Media, Post } from "@prisma/client";
 
 import { PostContextMenu } from "../post/post-context-menu";
 import { PostReadMore } from "../post/post-read-more";
@@ -18,6 +18,7 @@ export function PostCard({
   comments,
   creator,
   priority,
+  media,
 }: {
   creator: { name: string; id: string };
   post: Post;
@@ -25,6 +26,7 @@ export function PostCard({
   like: number;
   comments: number;
   priority?: number;
+  media?: Media;
 }) {
   const likeMutation = api.post.likeApost.useMutation();
   const deleteLike = api.post.unLike.useMutation();
@@ -34,13 +36,13 @@ export function PostCard({
   return (
     <div
       key={post.id}
-      className="card card-compact w-96  bg-neutral text-neutral-content shadow-xl"
+      className="card card-compact w-96  bg-base-300  shadow-xl"
     >
-      {post.mediaUrl && (
+      {media && (
         <figure className="relative h-40  w-full">
           <Image
             className={clsx(!show && "blur-sm")}
-            src={post.mediaUrl}
+            src={media.url}
             layout="fill"
             objectFit="cover"
             alt="Post Image"

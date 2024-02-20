@@ -57,6 +57,8 @@ model Asset {
 
     subscription Subscription[]
     ShopAsset    ShopAsset[]
+
+    @@index([code, issuer])
 }
 
 model ShopAsset {
@@ -72,6 +74,8 @@ model ShopAsset {
 
     creatorId String
     creator   Creator @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+
+    @@index([name, description])
 }
 
 model Subscription {
@@ -156,6 +160,8 @@ model Creator {
     subscriptions Subscription[]
     ShopAsset     ShopAsset[]
     Asset         Asset[]
+
+    @@index([bio, name])
 }
 
 enum MediaType {

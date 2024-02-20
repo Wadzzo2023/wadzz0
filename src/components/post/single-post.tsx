@@ -77,8 +77,8 @@ export function SinglePostView({ postId }: { postId: number }) {
 
                 <div className=" flex flex-col bg-base-300 lg:hidden">
                   <div className=" h-96 w-full">
-                    {post.data.Media.map((el) => (
-                      <figure className="relative  h-full  w-full">
+                    {post.data.Media.map((el, id) => (
+                      <figure key={id} className="relative  h-full  w-full">
                         <Image
                           src={el.url}
                           layout="fill"

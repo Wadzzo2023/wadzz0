@@ -142,8 +142,14 @@ export function CreatPost() {
           <div>
             <div className="flex h-40 flex-col items-center gap-2">
               <div className="flex gap-2">
-                {media.map((el) => (
-                  <Image src={el.url} alt="d" height={100} width={100} />
+                {media.map((el, id) => (
+                  <Image
+                    key={id}
+                    src={el.url}
+                    alt="d"
+                    height={100}
+                    width={100}
+                  />
                 ))}
               </div>
               {wantMediaType && (
