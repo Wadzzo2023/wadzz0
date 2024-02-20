@@ -17,6 +17,8 @@ export const postRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       // simulate a slow db call
 
+      console.log("media", input.medias);
+
       const post = await ctx.db.post.create({
         data: {
           heading: input.heading,
@@ -25,8 +27,13 @@ export const postRouter = createTRPCRouter({
           subscriptionId: input.subscription
             ? Number(input.subscription)
             : null,
-          mediaType: input.mediaType,
-          mediaUrl: input.mediaUrl,
+          Media: input.medias
+            ? {
+                createMany: {
+                  data: input.medias,
+                },
+              }
+            : undefined,
         },
       });
 

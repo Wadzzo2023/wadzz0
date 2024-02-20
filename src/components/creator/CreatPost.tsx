@@ -18,30 +18,21 @@ const mediaTypes = [
   { type: MediaType.MUSIC, icon: Music },
 ];
 
+export const MediaInfo = z.object({
+  url: z.string(),
+  type: z.nativeEnum(MediaType),
+});
+
+type MediaInfoType = z.TypeOf<typeof MediaInfo>;
+
 export const PostSchema = z.object({
   heading: z.string().min(1, { message: "Required" }),
   content: z.string().min(2, { message: "Minimum 2 characters required." }),
   subscription: z.string().optional(),
-  mediaType: z.nativeEnum(MediaType).nullable().optional(),
-  mediaUrl: z.string().nullable().optional(),
+  medias: z.array(MediaInfo).optional(),
 });
 
 export function CreatPost() {
-  const utils = api.useUtils();
-
-  const [medialUrl, setMediaUrl] = useState<string>();
-  const [wantMediaType, setWantMedia] = useState<MediaType>();
-
-  const creator = api.creator.meCreator.useQuery();
-
-  const createPostMutation = api.post.create.useMutation({
-    onSuccess: () => {
-      reset();
-      toast.success("Post Created");
-    },
-  });
-  const { data, isLoading } = api.member.getAllMembership.useQuery();
-
   const {
     register,
     handleSubmit,
@@ -54,8 +45,28 @@ export function CreatPost() {
     resolver: zodResolver(PostSchema),
   });
 
+  console.log(errors, "errors");
+  const [media, setMedia] = useState<MediaInfoType[]>([]);
+  const [wantMediaType, setWantMedia] = useState<MediaType>();
+
+  const creator = api.creator.meCreator.useQuery();
+
+  const createPostMutation = api.post.create.useMutation({
+    onSuccess: () => {
+      reset();
+      toast.success("Post Created");
+    },
+  });
+  const { data, isLoading } = api.member.getAllMembership.useQuery();
+
   const onSubmit: SubmitHandler<z.infer<typeof PostSchema>> = (data) => {
+    data.medias = media;
     createPostMutation.mutate(data);
+  };
+
+  // Function to add media
+  const addMediaItem = (url: string, type: MediaType) => {
+    setMedia((prevMedia) => [...prevMedia, { url, type }]);
   };
 
   const handleWantMediaType = (type: MediaType) => {
@@ -129,12 +140,13 @@ export function CreatPost() {
           </label>
 
           <div>
-            {wantMediaType && (
-              <div className="flex h-40 flex-col items-center justify-center gap-2">
-                {medialUrl && (
-                  <Image src={medialUrl} alt="d" height={100} width={100} />
-                )}
-
+            <div className="flex h-40 flex-col items-center gap-2">
+              <div className="flex gap-2">
+                {media.map((el) => (
+                  <Image src={el.url} alt="d" height={100} width={100} />
+                ))}
+              </div>
+              {wantMediaType && (
                 <UploadButton
                   endpoint="imageUploader"
                   content={{ button: "Add Media", allowedContent: "Max (4MB)" }}
@@ -144,10 +156,12 @@ export function CreatPost() {
                     const data = res[0];
 
                     if (data?.url) {
-                      setMediaUrl(data.url);
-                      console.log(wantMediaType, "mediaType");
-                      setValue("mediaType", wantMediaType);
-                      setValue("mediaUrl", data.url);
+                      addMediaItem(data.url, wantMediaType);
+                      setWantMedia(undefined);
+                      // setMediaUrl(data.url);
+                      // console.log(wantMediaType, "mediaType");
+                      // setValue("mediaType", wantMediaType);
+                      // setValue("mediaUrl", data.url);
                       // updateProfileMutation.mutate(data.url);
                     }
                     // updateProfileMutation.mutate(res);
@@ -157,8 +171,9 @@ export function CreatPost() {
                     alert(`ERROR! ${error.message}`);
                   }}
                 />
-              </div>
-            )}
+              )}
+            </div>
+
             <div className="flex items-center justify-between">
               <div className="my-4 flex justify-between p-2">
                 <div className="flex gap-4 ">
@@ -191,19 +206,18 @@ export function CreatPost() {
 
                 {wantMediaType && <X onClick={() => setWantMedia(undefined)} />}
               </div>
-
-              <button
-                className="btn btn-primary"
-                type="submit"
-                disabled={createPostMutation.isLoading}
-              >
-                {createPostMutation.isLoading && (
-                  <span className="loading loading-spinner"></span>
-                )}
-                Save
-              </button>
             </div>
           </div>
+          <button
+            className="btn btn-primary"
+            type="submit"
+            disabled={createPostMutation.isLoading}
+          >
+            {createPostMutation.isLoading && (
+              <span className="loading loading-spinner"></span>
+            )}
+            Save
+          </button>
         </form>
       </div>
     );

@@ -135,6 +135,15 @@ model User_Subscription {
     @@unique([userId, subscriptionId])
 }
 
+model Media {
+    id   Int       @id @default(autoincrement())
+    url  String
+    type MediaType
+
+    postId Int
+    post   Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+}
+
 model Creator {
     id            String         @id
     joinedAt      DateTime       @default(now())
@@ -161,9 +170,6 @@ model Post {
     content String
     heading String @default("Heading")
 
-    mediaType MediaType?
-    mediaUrl  String?
-
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 
@@ -174,8 +180,9 @@ model Post {
     subscriptionId Int?
     Like           Like[]
     Comment        Comment[]
+    Media          Media[]
 
-    @@index([content])
+    @@index([heading])
 }
 
 // Necessary for Next auth
