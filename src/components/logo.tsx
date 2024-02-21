@@ -4,7 +4,10 @@ import { twMerge } from "tailwind-merge";
 import { LOGO_BLURDATA } from "~/lib/defaults";
 export default function Logo({ className }: { className?: string }) {
   return (
-    <Link href="/" className="flex items-center cursor-alias justify-center gap-2 pt-4 ">
+    <Link
+      href="/"
+      className="flex cursor-alias items-center justify-center gap-2 pt-4 "
+    >
       <Image
         height={28}
         width={28}
@@ -12,7 +15,12 @@ export default function Logo({ className }: { className?: string }) {
         src="/images/bandcoin-logo.png"
         blurDataURL={LOGO_BLURDATA}
       />
-      <h1 className={twMerge(" relative text-2xl capitalize ", className)}>
+      <h1
+        className={twMerge(
+          " relative text-3xl font-bold capitalize  text-white",
+          className,
+        )}
+      >
         BANDCOIN
         <p className="absolute right-0 top-0 -mr-4 -mt-1 text-xs">TM</p>
       </h1>

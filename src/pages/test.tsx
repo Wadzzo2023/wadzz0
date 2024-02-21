@@ -1,5 +1,7 @@
 import React from "react";
 import toast from "react-hot-toast";
+import Slider from "~/components/ui/carosel";
+import Carousel from "~/components/ui/carosel";
 import { api } from "~/utils/api";
 
 export default function TestPage() {

@@ -9,6 +9,7 @@ import dynamic from "next/dynamic";
 import { Titillium_Web, Arvo } from "next/font/google";
 import "~/styles/globals.css";
 import Layout from "~/components/layout";
+import Header from "~/components/header";
 
 const queryClient = new QueryClient();
 
@@ -17,7 +18,7 @@ const PopupImports = dynamic(
 );
 
 const inner = Titillium_Web({ subsets: ["latin"], weight: "400" });
-const avro = Arvo({ subsets: ["latin"], weight: ["400", "700"] });
+// const avro = Arvo({ subsets: ["latin"], weight: ["400", "700"] });
 
 const MyApp: AppType<{ session: Session | null }> = ({
   Component,
@@ -26,7 +27,7 @@ const MyApp: AppType<{ session: Session | null }> = ({
   return (
     <SessionProvider session={session}>
       <QueryClientProvider client={queryClient}>
-        <Layout className={avro.className}>
+        <Layout className={inner.className}>
           <Component {...pageProps} />
         </Layout>
         <PopupImports className={inner.className} />

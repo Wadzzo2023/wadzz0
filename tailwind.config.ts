@@ -3,7 +3,12 @@ import { fontFamily } from "tailwindcss/defaultTheme";
 import { withUt } from "uploadthing/tw";
 
 export default withUt({
-  content: ["./src/**/*.tsx", "./package/**/*.{jsx,tsx}"],
+  content: [
+    "./src/**/*.tsx",
+    "./package/**/*.{jsx,tsx}",
+    "node_modules/daisyui/dist/**/*.js",
+    "node_modules/react-daisyui/dist/**/*.js",
+  ],
   theme: {
     extend: {
       fontFamily: {

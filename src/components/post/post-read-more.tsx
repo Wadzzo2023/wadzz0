@@ -15,10 +15,6 @@ export function PostReadMore({ post }: { post: Post }) {
       </div>
     );
   } else {
-    return (
-      <Link href={`/posts/${post.id}`}>
-        <p>{post.content}</p>
-      </Link>
-    );
+    return <p>{post.content}</p>;
   }
 }

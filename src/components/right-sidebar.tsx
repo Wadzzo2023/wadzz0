@@ -21,8 +21,8 @@ function AllCreators() {
   );
 
   return (
-    <div className="w-full flex-col items-center  gap-4   pl-2 pt-5">
-      <p className="text-2xl text-white">All creators</p>
+    <div className=" w-full flex-col  items-center   gap-4 pl-2 pt-5">
+      <p className="text-2xl ">All creators</p>
       <ul>
         {creators.data?.pages.map((page) => {
           return page.items.map((creator) => {
