@@ -13,7 +13,7 @@ export default function CreatorNotofication() {
 
   return (
     <div className="flex flex-col items-center gap-4 p-5 ">
-      <h2 className="text-3xl font-bold">Notifications</h2>
+      <h2 className="text-2xl font-bold">Notifications</h2>
       <div className="bg-base-200 p-4">
         {notifications.data?.pages.map((page) => {
           return page.items.map((el) => {
@@ -24,7 +24,7 @@ export default function CreatorNotofication() {
               <div key={el.id} className="flex flex-col hover:bg-neutral">
                 <Link
                   href={url}
-                  className="p-4 hover:text-primary hover:underline"
+                  className="p-4 hover:bg-base-100 hover:underline"
                 >
                   {message} {formatPostCreatedAt(el.createdAt)}
                 </Link>

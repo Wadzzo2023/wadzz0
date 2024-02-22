@@ -72,8 +72,9 @@ model ShopAsset {
     assetId Int
     asset   Asset @relation(fields: [assetId], references: [id], onDelete: NoAction)
 
-    creatorId String
-    creator   Creator @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+    creatorId     String
+    creator       Creator         @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+    UserShopAsset UserShopAsset[]
 
     @@index([name, description])
 }
@@ -124,6 +125,17 @@ model Comment {
 
     commentId Int?
     Comment   Comment[] @relation("ParentComment")
+}
+
+model UserShopAsset {
+    id     Int    @id @default(autoincrement())
+    userId String
+    user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    shopAssetId Int
+    shopAsset   ShopAsset @relation(fields: [shopAssetId], references: [id], onDelete: NoAction)
+
+    createdAt DateTime @default(now())
 }
 
 model User_Subscription {
@@ -232,6 +244,7 @@ model User {
     User_Subscription User_Subscription[]
     Like              Like[]
     Comment           Comment[]
+    UserShopAsset     UserShopAsset[]
 }
 
 model VerificationToken {

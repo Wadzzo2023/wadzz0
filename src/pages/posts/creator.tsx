@@ -9,7 +9,7 @@ export default function CreatorsPost() {
   if (creator.data)
     return (
       <div className="h-screen p-5">
-        <h2 className="mb-5 text-center text-3xl font-bold">Contents</h2>
+        <h2 className="mb-5 text-center text-2xl font-bold">Contents</h2>
 
         <div className=" flex flex-col items-center justify-center">
           <CreateTabs />
@@ -41,7 +41,7 @@ function Posts() {
 function CreateTabs() {
   const { setSelectedMenu, selectedMenu } = useCreateMenu();
   return (
-    <div role="tablist" className="tabs tabs-bordered">
+    <div role="tablist" className="tabs-boxed tabs">
       {Object.values(CreateMenu).map((key) => {
         return (
           <a

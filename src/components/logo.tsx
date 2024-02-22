@@ -6,7 +6,7 @@ export default function Logo({ className }: { className?: string }) {
   return (
     <Link
       href="/"
-      className="flex cursor-alias items-center justify-center gap-2 pt-4 "
+      className="flex cursor-alias items-center justify-center gap-2  "
     >
       <Image
         height={28}
@@ -17,7 +17,7 @@ export default function Logo({ className }: { className?: string }) {
       />
       <h1
         className={twMerge(
-          " relative text-3xl font-bold capitalize  text-white",
+          " relative text-2xl font-bold capitalize  text-white",
           className,
         )}
       >

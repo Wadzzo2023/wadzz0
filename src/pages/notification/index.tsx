@@ -19,14 +19,14 @@ export default function NotificationPage() {
 
   return (
     <div className="p-5">
-      <h1 className="text-center text-3xl font-bold">Notifications</h1>
+      <h1 className="text-center text-2xl font-bold">Notifications</h1>
       <div className="flex flex-col items-center p-4">
         <div className="max-w-sm bg-base-300 p-2">
           {notifications.data?.pages?.map((page) => {
             return page.items.map((el) => {
               const { message, url } = getNotificationMessage(el);
               return (
-                <div key={el.id} className="flex flex-col hover:bg-neutral">
+                <div key={el.id} className="flex flex-col hover:bg-base-100">
                   <Link
                     href={url}
                     className="p-4 hover:text-primary hover:underline"
@@ -36,18 +36,6 @@ export default function NotificationPage() {
                 </div>
               );
             });
-
-            // const { message, url } = getNotificationMessage(el);
-            // return (
-            //   <div key={el.id} className="flex flex-col hover:bg-neutral">
-            //     <Link
-            //       href={url}
-            //       className="p-4 hover:text-primary hover:underline"
-            //     >
-            //       {message} {formatPostCreatedAt(el.createdAt)}
-            //     </Link>
-            //   </div>
-            // );
           })}
           {notifications.hasNextPage && (
             <button
@@ -100,7 +88,7 @@ export default function NotificationPage() {
 // function NotificationTabs() {
 //   const { selectedMenu, setSelectedMenu } = useNotificationMenu();
 //   return (
-//     <div role="tablist" className="tabs tabs-bordered mt-10">
+//     <div role="tablist" className="tabs tabs-boxed mt-10">
 //       {Object.values(NotificationMenu).map((key) => {
 //         return (
 //           <a

@@ -121,4 +121,54 @@ export const shopRouter = createTRPCRouter({
         nextCursor,
       };
     }),
+
+  buyAsset: protectedProcedure
+    .input(z.object({ shopAssetId: z.number() }))
+    .mutation(async ({ input, ctx }) => {
+      const { shopAssetId } = input;
+      return await ctx.db.userShopAsset.create({
+        data: {
+          userId: ctx.session.user.id,
+          shopAssetId: shopAssetId,
+        },
+      });
+    }),
+
+  getAllPopularAsset: publicProcedure
+    .input(
+      z.object({
+        limit: z.number(),
+        // cursor is a reference to the last item in the previous batch
+        // it's used to fetch the next batch
+        cursor: z.number().nullish(),
+        skip: z.number().optional(),
+      }),
+    )
+    .query(async ({ input, ctx }) => {
+      const { limit, skip, cursor } = input;
+      const items = await ctx.db.shopAsset.findMany({
+        take: limit + 1,
+        skip: skip,
+        cursor: cursor ? { id: cursor } : undefined,
+        orderBy: { UserShopAsset: { _count: "desc" } },
+      });
+
+      let nextCursor: typeof cursor | undefined = undefined;
+      if (items.length > limit) {
+        const nextItem = items.pop(); // return the last item from the array
+        nextCursor = nextItem?.id;
+      }
+
+      return {
+        items,
+        nextCursor,
+      };
+    }),
+
+  getUserShopAsset: protectedProcedure.query(async ({ ctx }) => {
+    return await ctx.db.userShopAsset.findMany({
+      where: { userId: ctx.session.user.id },
+      include: { shopAsset: { include: { asset: true } } },
+    });
+  }),
 });

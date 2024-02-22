@@ -21,11 +21,10 @@ export default function Layout({
     <div className={clsx(" flex h-screen flex-col", className)}>
       <Header />
       <div className="flex-1 overflow-auto">
-        <div className="flex h-full  gap-6">
+        <div className="flex h-full">
           <LeftBar />
-          <div className="flex-1">
-            <div className="h-full overflow-y-auto rounded-lg bg-base-100/80 scrollbar-hide">
-              <TopNav />
+          <div className="flex-1 border-x-2 border-neutral">
+            <div className="h-full overflow-y-auto bg-base-100/80 scrollbar-hide">
               {data?.user.id ? (
                 <>{children}</>
               ) : (

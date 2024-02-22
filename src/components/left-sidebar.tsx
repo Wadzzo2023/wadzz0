@@ -5,7 +5,7 @@ import {
 import React from "react";
 import Avater from "./ui/avater";
 import { useSession } from "next-auth/react";
-import { Facebook, Instagram } from "lucide-react";
+import { Facebook, Instagram, Sparkle, SwitchCamera } from "lucide-react";
 
 import Button from "./ui/button";
 import Link from "next/link";
@@ -25,11 +25,11 @@ import { useRouter } from "next/router";
 import Image from "next/image";
 
 export const UserNavigation = {
-  Home: { path: "/", icon: HomeIcon, text: "Home" },
-  Search: { path: "/search", icon: Search, text: "Search" },
-  YourAsset: { path: "/assets", icon: Diamond, text: "Assets" },
-  Notification: { path: "/notification", icon: Bell, text: "Notification" },
-  Settings: { path: "/settings", icon: Settings2, text: "Settings" },
+  Home: { path: "/", icon: HomeIcon, text: "HOMEPAGE" },
+  // Search: { path: "/search", icon: Search, text: "Search" },
+  YourAsset: { path: "/assets", icon: Diamond, text: "MEMORIES" },
+  Notification: { path: "/notification", icon: Bell, text: "NOTIFICATION" },
+  Settings: { path: "/settings", icon: Settings2, text: "SETTINGS" },
 } as const;
 
 export const CreatorNavigation = {
@@ -46,17 +46,15 @@ export const CreatorNavigation = {
 
 export default function LeftBar() {
   return (
-    <div className="hidden flex-col items-center justify-between rounded-lg bg-base-100/80 sm:flex sm:w-56 md:w-80">
+    <div className="hidden flex-col items-center justify-between   bg-base-100/80 sm:flex sm:w-56 md:w-80">
       <div className="flex w-full flex-1 flex-col items-center gap-2  py-2">
         <div className="w-full flex-1 px-2">
           <NavigationButtons />
         </div>
       </div>
       <div className="flex w-full flex-col items-center px-2 py-4">
-        <Profile />
-
         <LeftBottom />
-        <ThemeChange />
+        {/* <ThemeChange /> */}
       </div>
     </div>
   );
@@ -155,6 +153,7 @@ function NavigationButtons() {
           </Link>
         ),
       )}
+      <Profile />
     </div>
   );
 }
@@ -172,14 +171,12 @@ function ProfileComponent({
 }) {
   return (
     <div
-      className=" btn my-1  w-full  items-center  gap-x-4 "
+      className="btn  w-full  items-center  gap-x-4 "
       onClick={handleModeChange}
     >
-      <Avater url={avaterUrl} />
-      <div className="flex flex-col items-start gap-y-1.5">
-        <p className="">{name}</p>
-        <p>Switch to {mode}</p>
-      </div>
+      <SwitchCamera />
+      <p className="">Switch to {mode}</p>
+      <Sparkle />
     </div>
   );
 }
@@ -266,7 +263,7 @@ function LeftBottom() {
           <span>Instagram</span>
         </Link>
       </div>
-      <div className="flex w-full flex-col text-center text-xs text-base-content/60">
+      <div className="flex w-full flex-col text-center text-xs text-base-content">
         <p>© 2023 bandcoin.io</p>
         <div className="flex w-full justify-center gap-2 ">
           <Link className="link-hover link" href="/about">

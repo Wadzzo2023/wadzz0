@@ -102,7 +102,7 @@ function RenderTabs({ creatorId }: { creatorId: string }) {
 function Tabs() {
   const { selectedMenu, setSelectedMenu } = useCreatorProfileMenu();
   return (
-    <div role="tablist" className="tabs tabs-bordered my-5 ">
+    <div role="tablist" className="tabs-boxed tabs my-5 ">
       {Object.values(CreatorProfileMenu).map((key) => {
         return (
           <a
@@ -112,7 +112,7 @@ function Tabs() {
             className={clsx(
               "tab",
               selectedMenu == key && "tab-active text-primary",
-              "text-xl font-bold",
+              "font-bold",
             )}
           >
             {key}

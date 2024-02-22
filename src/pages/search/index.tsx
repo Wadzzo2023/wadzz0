@@ -33,7 +33,7 @@ export default function Search() {
 function Tabs() {
   const { selectedMenu, setSelectedMenu } = useSearchMenu();
   return (
-    <div role="tablist" className="tabs tabs-bordered">
+    <div role="tablist" className="tabs-boxed tabs">
       {Object.values(SearchMenu).map((key) => {
         return (
           <a
@@ -43,7 +43,7 @@ function Tabs() {
             className={clsx(
               "tab",
               selectedMenu == key && "tab-active text-primary",
-              "text-xl font-bold",
+              "font-bold",
             )}
           >
             {key}

@@ -32,7 +32,7 @@ function Page({ postId }: { postId: string }) {
 
   return (
     <div className="flex h-full  flex-1 flex-col p-5">
-      <h2 className="mb-5 text-center text-3xl font-bold">Post by Creator</h2>
+      <h2 className="mb-5 text-center text-2xl font-bold">Post by Creator</h2>
       <div className=" w-full  flex-1  rounded-box bg-base-100">
         <SinglePostView postId={Number(postId)} />
       </div>

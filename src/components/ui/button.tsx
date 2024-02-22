@@ -19,7 +19,7 @@ export default function Button({
       className={clsx("btn  w-full", router.pathname == path && "btn-primary")}
     >
       {/* {Icon} */}
-      <p className="text-lg">{text}</p>
+      <p className="">{text}</p>
     </button>
   );
 }

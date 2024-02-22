@@ -16,12 +16,7 @@ export default function MemberShipCard({
   children?: React.ReactNode;
 }) {
   return (
-    <div
-      className={clsx(
-        "card w-48 bg-neutral  pb-10 text-neutral-content shadow-xl",
-        className,
-      )}
-    >
+    <div className={clsx("card w-48 bg-base-100  pb-10 shadow-xl", className)}>
       <div className={clsx("h-20  ", getCardStyle(subscription.priority))}>
         <EditTierModal item={subscription} />
       </div>

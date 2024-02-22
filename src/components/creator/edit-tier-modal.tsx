@@ -62,8 +62,8 @@ export default function EditTierModal({ item }: { item: Subscription }) {
   if (router.pathname == "/me/creator")
     return (
       <>
-        <button className="btn btn-circle btn-ghost" onClick={handleModal}>
-          <Pencil />
+        <button className="btn btn-circle btn-primary" onClick={handleModal}>
+          <Pencil className="" />
         </button>
         <dialog id="my_modal_1" className="modal" ref={modalRef}>
           <div className="modal-box">

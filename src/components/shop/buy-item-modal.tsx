@@ -49,6 +49,8 @@ function ModalContent({ item }: { item: ShopItemProps }) {
     useConnectWalletStateStore();
   const [trxMsg, setTrxMsg] = useState<string>();
 
+  const buyAsset = api.shop.buyAsset.useMutation();
+
   const xdr = api.trx.buyAssetTrx.useQuery(
     {
       creatorId: item.creatorId,
@@ -69,6 +71,9 @@ function ModalContent({ item }: { item: ShopItemProps }) {
       })
         .then((res) => {
           if (res) {
+            buyAsset.mutate({
+              shopAssetId: item.id,
+            });
             setTrxMsg(undefined);
             toast.success("Transaction success");
           } else {

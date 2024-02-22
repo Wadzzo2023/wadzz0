@@ -18,8 +18,14 @@ export default function Shop({ creator }: { creator?: Creator }) {
 }
 
 function AllShopItems() {
-  const { data: items, isLoading } = api.shop.getAllShopAsset.useQuery();
+  const {
+    data: items,
+    isLoading,
+    isError,
+  } = api.shop.getAllShopAsset.useQuery();
   if (isLoading) return <div>Loading...</div>;
+  if (isError) return <div>Error </div>;
+  if (items?.length == 0) return <div>There is no item</div>;
   return (
     <div className="flex flex-col items-center">
       {/* <p className=" text-center text-lg font-bold">Shop items</p> */}

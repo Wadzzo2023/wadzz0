@@ -10,7 +10,7 @@ export default function Settings() {
   if (data?.user)
     return (
       <div className="p-4">
-        <h1 className="text-center text-3xl font-bold">Settings</h1>
+        <h1 className="text-center text-2xl font-bold">Settings</h1>
         <div className="flex flex-col items-center gap-4 pb-20">
           <SettingsTabs />
           <RenderTabs />
@@ -32,7 +32,7 @@ function RenderTabs() {
 function SettingsTabs() {
   const { selectedMenu, setSelectedMenu } = useSettingsMenu();
   return (
-    <div role="tablist" className="tabs tabs-bordered mt-10">
+    <div role="tablist" className="tabs-boxed tabs mt-10">
       {Object.values(SettingsMenu).map((key) => {
         return (
           <a
@@ -42,7 +42,7 @@ function SettingsTabs() {
             className={clsx(
               "tab",
               selectedMenu == key && "tab-active text-primary",
-              "text-xl font-bold",
+              "font-bold",
             )}
           >
             {key}

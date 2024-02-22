@@ -6,7 +6,7 @@ import { api } from "~/utils/api";
 export default function MyAssetsPage() {
   return (
     <div className="p-5">
-      <h1 className="mb-2 text-center text-3xl font-bold">My Assets Page</h1>
+      <h1 className="mb-2 text-2xl font-bold">MEMORIES</h1>
       <div className="flex flex-col items-center gap-4">
         <CreateTabs />
         <RenderTabs />
@@ -81,7 +81,7 @@ function AssetItemComponent({
 function CreateTabs() {
   const { setSelectedMenu, selectedMenu } = useAssetMenu();
   return (
-    <div role="tablist" className="tabs tabs-bordered">
+    <div role="tablist" className="tabs-boxed tabs">
       {Object.values(AssetMenu).map((key) => {
         return (
           <a
@@ -90,8 +90,8 @@ function CreateTabs() {
             role="tab"
             className={clsx(
               "tab",
-              selectedMenu == key && "tab-active",
-              "text-xl font-bold",
+              selectedMenu == key && "tab-active text-primary",
+              "font-bold",
             )}
           >
             {key}
