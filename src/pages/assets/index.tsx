@@ -6,7 +6,7 @@ import { api } from "~/utils/api";
 export default function MyAssetsPage() {
   return (
     <div className="p-5">
-      <h1 className="mb-2 text-2xl font-bold">MEMORIES</h1>
+      <h1 className="mb-2 text-2xl font-bold">FAN ITEMS</h1>
       <div className="flex flex-col items-center gap-4">
         <CreateTabs />
         <RenderTabs />

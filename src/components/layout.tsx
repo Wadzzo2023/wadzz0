@@ -20,7 +20,8 @@ export default function Layout({
   return (
     <div className={clsx(" flex h-screen flex-col", className)}>
       <Header />
-      <div className="flex-1 overflow-auto">
+
+      <div className="flex-1 overflow-auto bg-base-100/50">
         <div className="flex h-full border-t-2">
           <LeftBar />
           <div className="flex-1 border-x-2 ">
@@ -37,8 +38,8 @@ export default function Layout({
           </div>
 
           <RightBar />
+          </div>
         </div>
       </div>
-    </div>
   );
 }

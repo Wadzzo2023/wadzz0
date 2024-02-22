@@ -27,15 +27,15 @@ import Image from "next/image";
 export const UserNavigation = {
   Home: { path: "/", icon: HomeIcon, text: "HOMEPAGE" },
   // Search: { path: "/search", icon: Search, text: "Search" },
-  YourAsset: { path: "/assets", icon: Diamond, text: "MEMORIES" },
+  YourAsset: { path: "/assets", icon: Diamond, text: "FAN ITEMS" },
   Notification: { path: "/notification", icon: Bell, text: "NOTIFICATION" },
   Settings: { path: "/settings", icon: Settings2, text: "SETTINGS" },
 } as const;
 
 export const CreatorNavigation = {
-  Page: { path: "/me/creator", icon: PenSquare, text: "Page" },
-  Create: { path: "/posts/creator", icon: PenSquare, text: "Create" },
-  Store: { path: "/store/creator", icon: Store, text: "Store" },
+  Page: { path: "/me/creator", icon: PenSquare, text: "PAGE" },
+  Create: { path: "/posts/creator", icon: PenSquare, text: "CREATE" },
+  Store: { path: "/store/creator", icon: Store, text: "STORE" },
   Notification: {
     path: "/notification/creator",
     icon: Bell,
@@ -46,9 +46,9 @@ export const CreatorNavigation = {
 
 export default function LeftBar() {
   return (
-    <div className="hidden flex-col items-center justify-between bg-base-100/80  px-5 sm:flex sm:w-56 md:w-80">
-      <div className="flex w-full flex-1 flex-col items-center gap-2  py-2">
-        <div className="mt-5 w-full flex-1">
+    <div className="hidden pb-4 px-4 pt-10 flex-col items-center justify-between bg-base-100/80 sm:flex sm:w-56 md:w-80">
+        <div className="flex w-full flex-1 flex-col items-center gap-2  py-2">
+        <div className="mt-7 w-full flex-1">
           <NavigationButtons />
         </div>
       </div>
@@ -56,6 +56,7 @@ export default function LeftBar() {
         <LeftBottom />
       </div>
     </div>
+  
   );
 }
 
@@ -98,7 +99,7 @@ function ProfileComponent({
 }) {
   return (
     <div
-      className="btn  w-full  items-center  gap-x-4 "
+      className="btn btn-active btn-ghost w-full  items-center  gap-x-4 "
       onClick={handleModeChange}
     >
       <SwitchCamera />
@@ -163,6 +164,9 @@ function Profile() {
 function LeftBottom() {
   return (
     <div className="flex w-full flex-col justify-center gap-1">
+      <Link href="https://bandcoin.io" className="btn">WALLET</Link>
+      <Link href="https://music.bandcoin.io" className="btn">MUSIC</Link>
+      <Link href="https://music.bandcoin.io/marketplace" className="btn">MARKETPLACE</Link>
       <ConnectWalletButton />
       <div className="flex justify-between space-x-2">
         <Link
