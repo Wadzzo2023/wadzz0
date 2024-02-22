@@ -12,13 +12,12 @@ export default function RightBar() {
   if (router.pathname == "/")
     return (
       <div className="hidden h-full w-80  flex-col bg-base-100/80  lg:flex">
-        <div className="flex px-4 my-2 w-full flex-row justify-center gap-1">
+        <div className="flex px-4 my-2 w-full flex-row justify-center gap-1 ">
           <Link href={"/search"} className="w-full" key={"Search"}>
-            <Button
-              path={"/search"}
-              icon={<Search />}
-              text={"Search"}
-            />
+          <button className="btn w-full shadow-md shadow-gray-300">
+            <Search/>
+            SEARCH
+          </button>
           </Link>
           </div>
         <div className="m-2 flex flex-1 flex-col gap-2 overflow-auto  rounded-lg  bg-base-200 p-2">
