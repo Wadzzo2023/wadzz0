@@ -17,32 +17,6 @@ export default withUt({
     },
   },
   daisyui: {
-    /*
-    themes: [
-      "light",
-
-      "synthwave",
-      "halloween",
-      "aqua",
-      "dracula",
-      // "forest",
-      // {
-      //   forest: {
-      //     ...require("daisyui/src/theming/themes")["forest"],
-      //     "base-300": "#747264",
-      //   },
-      // },
-      // {
-      // dark: {
-      //   ...require("daisyui/src/theming/themes")["dark"],
-      //   // primary: "blue",
-      //   // "base-100": "#BFEA7C",
-      //   // secondary: "teal",
-      //   // "base-300": "#D7E4C0",
-      // },
-      // },
-    ],
-    */
     themes: [
       "light",
       "dark",

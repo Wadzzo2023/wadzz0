@@ -46,13 +46,13 @@ export const CreatorNavigation = {
 
 export default function LeftBar() {
   return (
-    <div className="hidden flex-col items-center justify-between gap-2 sm:flex sm:w-56 md:w-80">
-      <div className="flex w-full flex-1 flex-col items-center gap-2 rounded-lg bg-base-100/80 py-2">
+    <div className="hidden flex-col items-center justify-between rounded-lg bg-base-100/80 sm:flex sm:w-56 md:w-80">
+      <div className="flex w-full flex-1 flex-col items-center gap-2  py-2">
         <div className="w-full flex-1 px-2">
           <NavigationButtons />
         </div>
       </div>
-      <div className="flex w-full flex-col items-center rounded-lg bg-base-100/80 px-2 py-4">
+      <div className="flex w-full flex-col items-center px-2 py-4">
         <Profile />
 
         <LeftBottom />
@@ -64,7 +64,7 @@ export default function LeftBar() {
 
 function ThemeChange() {
   enum themes {
-    LIGHT = "cupcake",
+    LIGHT = "light",
     DARK = "forest",
   }
   const [theme, setTheme] = React.useState(themes.LIGHT);
