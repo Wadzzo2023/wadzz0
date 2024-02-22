@@ -46,89 +46,16 @@ export const CreatorNavigation = {
 
 export default function LeftBar() {
   return (
-    <div className="hidden flex-col items-center justify-between   bg-base-100/80 sm:flex sm:w-56 md:w-80">
+    <div className="hidden flex-col items-center justify-between bg-base-100/80  px-5 sm:flex sm:w-56 md:w-80">
       <div className="flex w-full flex-1 flex-col items-center gap-2  py-2">
-        <div className="w-full flex-1 px-2">
+        <div className="mt-5 w-full flex-1">
           <NavigationButtons />
         </div>
       </div>
-      <div className="flex w-full flex-col items-center px-2 py-4">
+      <div className="flex w-full flex-col items-center py-4">
         <LeftBottom />
-        {/* <ThemeChange /> */}
       </div>
     </div>
-  );
-}
-
-function ThemeChange() {
-  enum themes {
-    LIGHT = "light",
-    DARK = "forest",
-  }
-  const [theme, setTheme] = React.useState(themes.LIGHT);
-
-  function toggleTheme() {
-    if (theme == themes.LIGHT) setTheme(themes.DARK);
-    else setTheme(themes.LIGHT);
-  }
-
-  React.useEffect(() => {
-    const htmlElement = document.querySelector("html");
-    if (!htmlElement) return;
-    htmlElement.setAttribute("data-theme", theme);
-  }, [theme]);
-
-  return (
-    // <div className="dropdown dropdown-top dropdown-hover   w-full ">
-    //   <div tabIndex={0} role="button" className="btn m-1 w-full px-8">
-    //     Background Theme
-    //   </div>
-    //   <ul
-    //     tabIndex={0}
-    //     className="menu dropdown-content z-[1] w-52 rounded-box bg-base-100 p-2 shadow"
-    //   >
-    //     {themes.map((theme) => (
-    //       <li key={theme}>
-    //         <a onClick={() => setTheme(theme)}>{theme}</a>
-    //       </li>
-    //     ))}
-    //   </ul>
-    // </div>
-    <label className="flex cursor-pointer gap-2">
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        width="20"
-        height="20"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      >
-        <circle cx="12" cy="12" r="5" />
-        <path d="M12 1v2M12 21v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M1 12h2M21 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4" />
-      </svg>
-      <input
-        type="checkbox"
-        // value="forest"
-        onClick={toggleTheme}
-        className="theme-controller toggle"
-      />
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        width="20"
-        height="20"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      >
-        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-      </svg>
-    </label>
   );
 }
 
@@ -141,7 +68,7 @@ function NavigationButtons() {
   }
 
   return (
-    <div className="flex h-full w-full flex-col items-start justify-center gap-2 ">
+    <div className="flex h-full w-full flex-col items-start gap-2 ">
       {Object.entries(getNavigation()).map(
         ([key, { path, icon: Icon, text }]) => (
           <Link href={path} className="w-full" key={key}>

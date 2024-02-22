@@ -137,7 +137,7 @@ function Creator() {
 
 export function CreatorAvater({ creator }: { creator: Creator }) {
   return (
-    <div className="flex items-center gap-2 p-2 hover:bg-base-100">
+    <div className="flex items-center gap-2  p-2 px-4 hover:rounded-lg hover:bg-base-100">
       <div>
         <Avater url={creator.profileUrl} />
       </div>

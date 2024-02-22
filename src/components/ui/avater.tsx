@@ -8,7 +8,7 @@ export default function Avater(props: {
   return (
     <div className="avatar">
       <div className=" rounded-full ring ring-primary ring-offset-2 ring-offset-base-100">
-        <div className={clsx("w-10 rounded-full", props.className)}>
+        <div className={clsx("w-8 rounded-full", props.className)}>
           <img
             src={
               props.url ??

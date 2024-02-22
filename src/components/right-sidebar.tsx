@@ -7,9 +7,11 @@ export default function RightBar() {
   const router = useRouter();
   if (router.pathname == "/")
     return (
-      <div className="hidden h-full w-60   flex-col bg-base-100/80  lg:flex">
-        <AllCreators />
-        <PopularItems />
+      <div className="hidden h-full w-80  flex-col bg-base-100/80  lg:flex">
+        <div className="m-2 flex flex-1 flex-col gap-2 overflow-auto  rounded-lg  bg-base-200 p-2">
+          <AllCreators />
+          <PopularItems />
+        </div>
       </div>
     );
 }
@@ -22,9 +24,9 @@ function AllCreators() {
   );
 
   return (
-    <div className="flex w-full flex-1 flex-col  items-start gap-4 overflow-y-auto  pl-2   pt-5 scrollbar-hide">
+    <div className="flex w-full  flex-1 flex-col   items-start gap-4 overflow-y-auto rounded-lg border-4 border-base-100 p-2 pt-5">
       <p className=" text-lg font-bold">All creators</p>
-      <div className="w-full flex-1   overflow-auto scrollbar-hide">
+      <div className="w-full flex-1 overflow-auto rounded-lg bg-base-300 p-2 scrollbar-hide">
         <ul className="">
           {creators.data?.pages.map((page) => {
             return page.items.map((creator) => {
@@ -58,13 +60,13 @@ function PopularItems() {
     },
   );
   return (
-    <div className=" flex w-full  flex-1 flex-col   items-start gap-4 overflow-y-auto pl-2 pt-5">
+    <div className="flex w-full  flex-1 flex-col   items-start gap-4 overflow-y-auto rounded-lg border-4 border-base-100 p-2 pt-5">
       <p className="text-lg font-bold ">Popular Asset</p>
-      <ul className="w-full flex-1 overflow-auto scrollbar-hide">
+      <ul className="w-full flex-1 overflow-auto rounded-lg bg-base-300 p-2 scrollbar-hide">
         {assets.data?.pages.map((page) => {
           return page.items.map((asset) => {
             return (
-              <li key={asset.id}>
+              <li key={asset.id} className="">
                 <AssetItem name={asset.name} price={asset.price} />
                 {/* <CreatorAvater creator={creator} /> */}
               </li>
@@ -86,7 +88,7 @@ function PopularItems() {
 
 function AssetItem({ name, price }: { name: string; price: number }) {
   return (
-    <div className="flex  items-center gap-2 p-2 hover:bg-base-100">
+    <div className="flex  items-center gap-2 p-2 hover:rounded-lg hover:bg-base-100">
       <div className="avatar">
         <div className="mask mask-hexagon w-10">
           <img src="https://daisyui.com/images/stock/photo-1534528741775-53994a69daeb.jpg" />
