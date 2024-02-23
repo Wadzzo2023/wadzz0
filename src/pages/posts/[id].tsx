@@ -17,23 +17,10 @@ export default function PostPage() {
 }
 
 function Page({ postId }: { postId: string }) {
-  const images = [
-    "https://picsum.photos/id/1003/800/600",
-    "https://picsum.photos/id/1004/800/600",
-    "https://picsum.photos/id/1005/800/600",
-    "https://picsum.photos/id/1006/800/600",
-    "https://picsum.photos/id/1008/800/600",
-    "https://picsum.photos/id/1009/800/600",
-    "https://picsum.photos/id/1010/800/600",
-    "https://picsum.photos/id/1011/800/600",
-    "https://picsum.photos/id/1012/800/600",
-    "https://picsum.photos/id/1013/800/600",
-  ];
-
   return (
-    <div className="flex h-full  flex-1 flex-col p-5">
+    <div className="flex h-full  flex-1 flex-col items-center  p-5">
       <h2 className="mb-5 text-center text-2xl font-bold">Post by Creator</h2>
-      <div className=" w-full  flex-1  rounded-box bg-base-100">
+      <div className=" w-full  flex-1  overflow-auto rounded-box ">
         <SinglePostView postId={Number(postId)} />
       </div>
     </div>

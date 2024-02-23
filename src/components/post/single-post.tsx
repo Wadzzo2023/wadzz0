@@ -28,21 +28,21 @@ export function SinglePostView({ postId }: { postId: number }) {
   if (post.isError) return <div>Post not found</div>;
   if (post.data)
     return (
-      <div className="h-full">
-        <div className="flex h-full w-full flex-col rounded-box lg:flex-row">
+      <div className="h-full overflow-auto">
+        <div className="flex h-full w-full flex-col overflow-auto  lg:flex-row">
           {post.data.Media.length > 0 && (
             <div className="hidden h-full  flex-1 lg:flex">
               <Slider images={post.data.Media.map((el) => el.url)} />
             </div>
           )}
 
-          <div className="flex h-full w-full flex-1 ">
-            <div className="h-full w-full overflow-y-hidden">
+          <div className="flex h-full w-full flex-1 overflow-auto rounded-box bg-base-100">
+            <div className="h-full w-full  overflow-auto">
               <div
                 key={post.data.id}
-                className="h-full  rounded-none    shadow-xl scrollbar-hide"
+                className="h-full  overflow-auto  rounded-none   shadow-xl scrollbar-hide"
               >
-                <div className="flex h-full flex-col p-6">
+                <div className="flex h-full flex-col overflow-auto px-6 pt-6">
                   <div>
                     <div className="flex justify-between">
                       <div className="flex gap-2">
@@ -73,26 +73,10 @@ export function SinglePostView({ postId }: { postId: number }) {
                     <h2 className="card-title">{post.data.heading}</h2>
                   </div>
 
-                  <div className="flex-1">
-                    <div className="h-96 overflow-y-auto">
+                  <div className="flex-1 overflow-auto rounded-lg bg-base-200 px-2 py-4 scrollbar-hide">
+                    <div className="">
                       <div className="flex flex-col">
-                        <div className=" flex flex-col bg-base-300 lg:hidden">
-                          {/* <div className=" h-96 w-full">
-                            {post.data.Media.map((el, id) => (
-                              <figure
-                                key={id}
-                                className="relative  h-full  w-full"
-                              >
-                                <Image
-                                  src={el.url}
-                                  layout="fill"
-                                  objectFit="contain"
-                                  alt="Post Image"
-                                />
-                                
-                              </figure>
-                            ))}
-                          </div> */}
+                        <div className=" flex flex-col rounded-lg  lg:hidden">
                           <Slider
                             images={post.data.Media.map((el) => el.url)}
                           />
@@ -101,20 +85,25 @@ export function SinglePostView({ postId }: { postId: number }) {
                         {post.data.content}
                         {formatPostCreatedAt(post.data.createdAt)}
 
-                        <div className="mt-10 flex flex-col gap-4">
-                          <div className="flex flex-col gap-4">
-                            {comments.data?.map((comment) => (
-                              <CommentView key={comment.id} comment={comment} />
-                            ))}
+                        {comments.data && comments.data.length > 0 && (
+                          <div className="mt-10 flex flex-col gap-4 border-t-2 border-t-base-100">
+                            <div className="flex flex-col gap-4 rounded-lg bg-base-200 py-4 pl-4">
+                              {comments.data?.map((comment) => (
+                                <CommentView
+                                  key={comment.id}
+                                  comment={comment}
+                                />
+                              ))}
+                            </div>
                           </div>
-                        </div>
+                        )}
                       </div>
                     </div>
                   </div>
 
                   {/* Bottom section */}
-                  <div className=" self-baseline">
-                    <div className="mt-15">
+                  <div className="w-full self-baseline ">
+                    <div className="mt-15 w-full max-w-lg  pt-2">
                       <AddComment postId={post.data.id} />
                     </div>
 
