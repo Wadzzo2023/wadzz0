@@ -86,6 +86,8 @@ function CreatorPosts({ creatorId }: { creatorId: string }) {
         )}
       </div>
     );
+  } else {
+    return <p>No post</p>;
   }
 }
 
@@ -127,18 +129,20 @@ export function ChooseMemberShip({ creator }: { creator: Creator }) {
   const { data: subscriptonModel, isLoading } =
     api.member.getCreatorMembership.useQuery(creator.id);
 
-  return (
-    <div className="mb-10 flex flex-col gap-4">
-      <h2 className="text-center text-2xl font-bold">Choose Membership</h2>
-      {isLoading && <div>Loading...</div>}
+  if (subscriptonModel && subscriptonModel.length > 0) {
+    return (
+      <div className="mb-10 flex flex-col gap-4">
+        <h2 className="text-center text-2xl font-bold">Choose Membership</h2>
+        {isLoading && <div>Loading...</div>}
 
-      <SubscriptionGridWrapper itemLength={subscriptonModel?.length ?? 1}>
-        {subscriptonModel?.map((el) => (
-          <SubscriptionCard key={el.id} creator={creator} subscription={el} />
-        ))}
-      </SubscriptionGridWrapper>
-    </div>
-  );
+        <SubscriptionGridWrapper itemLength={subscriptonModel.length}>
+          {subscriptonModel?.map((el) => (
+            <SubscriptionCard key={el.id} creator={creator} subscription={el} />
+          ))}
+        </SubscriptionGridWrapper>
+      </div>
+    );
+  }
 }
 
 export function SubscriptionGridWrapper({
@@ -206,12 +210,19 @@ function AllShopItems({ creatorId }: { creatorId: string }) {
     creatorId,
   });
   if (isLoading) return <div>Loading...</div>;
-  return (
-    <div className="flex flex-col items-center">
-      <p className="my-5 text-center text-lg font-bold">Shop items</p>
-      <div className="flex flex-col gap-2">
-        {items?.map((item) => <ShopItem key={item.id} item={item} />)}
+
+  if (items && items.length > 0) {
+    return (
+      <div className="flex flex-col items-center">
+        <p className="my-5 text-center text-lg font-bold">Shop items</p>
+        <div className="flex flex-col gap-2">
+          {items.map((item) => (
+            <ShopItem key={item.id} item={item} />
+          ))}
+        </div>
       </div>
-    </div>
-  );
+    );
+  } else {
+    return <p>There is no nft item</p>;
+  }
 }

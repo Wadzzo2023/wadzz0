@@ -11,6 +11,7 @@ import { env } from "~/env";
 import { db } from "~/server/db";
 import { comparePassword } from "~/utils/hash";
 import GitHubProvider from "next-auth/providers/github";
+import { truncateString } from "~/utils/string";
 
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
@@ -78,7 +79,7 @@ export const authOptions: NextAuthOptions = {
             return user;
           } else {
             const data = await db.user.create({
-              data: { id: pubkey, name: "Unknown" },
+              data: { id: pubkey, name: truncateString(pubkey) },
             });
             return data;
           }

@@ -12,14 +12,14 @@ export default function RightBar() {
   if (router.pathname == "/")
     return (
       <div className="hidden h-full w-80  flex-col bg-base-100/80  lg:flex">
-        <div className="flex px-4 my-2 w-full flex-row justify-center gap-1 ">
+        <div className="my-2 flex w-full flex-row justify-center gap-1 px-4 ">
           <Link href={"/search"} className="w-full" key={"Search"}>
-          <button className="btn w-full shadow-md shadow-gray-300">
-            <Search/>
-            SEARCH
-          </button>
+            <button className="btn w-full shadow-md shadow-gray-300">
+              <Search />
+              SEARCH
+            </button>
           </Link>
-          </div>
+        </div>
         <div className="m-2 flex flex-1 flex-col gap-2 overflow-auto  rounded-lg  bg-base-200 p-2">
           <AllCreators />
           <PopularItems />
@@ -100,7 +100,10 @@ function PopularItems() {
 
 function AssetItem({ name, price }: { name: string; price: number }) {
   return (
-    <div className="flex  items-center gap-2 p-2 hover:rounded-lg hover:bg-base-100">
+    <div
+      className="flex  items-center gap-2 p-2 hover:rounded-lg hover:bg-base-100"
+      onClick={() => {}}
+    >
       <div className="avatar">
         <div className="mask mask-hexagon w-10">
           <img src="https://daisyui.com/images/stock/photo-1534528741775-53994a69daeb.jpg" />

@@ -6,6 +6,7 @@ import {
   protectedProcedure,
   publicProcedure,
 } from "~/server/api/trpc";
+import { truncateString } from "~/utils/string";
 
 export const creatorRouter = createTRPCRouter({
   getCreator: publicProcedure
@@ -30,8 +31,8 @@ export const creatorRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       const data = await ctx.db.creator.create({
         data: {
-          name: "test user",
-          bio: "test",
+          name: truncateString(id),
+          bio: input.id,
           user: { connect: { id: input.id } },
         },
       });
