@@ -162,6 +162,8 @@ export const postRouter = createTRPCRouter({
               AND: [
                 { userId },
                 { subscription: { creatorId: post.creatorId } },
+                // here i have to check not expired highest subscriptin.
+                { endDate: {} },
               ],
             },
             include: { subscription: {} },

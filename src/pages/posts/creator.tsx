@@ -13,7 +13,7 @@ export default function CreatorsPost() {
 
         <div className=" flex flex-col items-center justify-center">
           <CreateTabs />
-          <div className="mb-20 mt-10 flex w-full">
+          <div className="mb-20 mt-10 flex w-full items-center">
             <RenderTabs />
           </div>
         </div>
