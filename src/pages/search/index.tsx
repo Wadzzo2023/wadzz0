@@ -93,7 +93,7 @@ function Posts() {
 
         {posts.hasNextPage && (
           <button
-            className="btn btn-outline btn-primary"
+            className="btn btn-outline"
             onClick={() => void posts.fetchNextPage()}
           >
             Load More
@@ -124,7 +124,7 @@ function Creator() {
 
         {creators.hasNextPage && (
           <button
-            className="btn btn-outline btn-primary"
+            className="btn btn-outline"
             onClick={() => void creators.fetchNextPage()}
           >
             Load More
@@ -175,7 +175,7 @@ function AssetsList() {
 
         {assets.hasNextPage && (
           <button
-            className="btn btn-outline btn-primary"
+            className="btn btn-outline"
             onClick={() => void assets.fetchNextPage()}
           >
             Load More

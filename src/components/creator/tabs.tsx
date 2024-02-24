@@ -5,7 +5,7 @@ import { CreatorMenu, useCreator } from "~/lib/state/creator-menu";
 export default function Tabs() {
   const { selectedMenu, setSelectedMenu } = useCreator();
   return (
-    <div role="tablist" className="tabs-boxed tabs">
+    <div role="tablist" className="tabs-lifted tabs">
       {Object.values(CreatorMenu).map((key) => {
         return (
           <a
