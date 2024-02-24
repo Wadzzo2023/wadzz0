@@ -48,7 +48,7 @@ export function MobileHeaderAvater() {
           className="avatar btn btn-circle btn-ghost"
         >
           <div className="w-10 rounded-full">
-            <Avater />
+            <Avater className="w-8" />
           </div>
         </div>
         <ul

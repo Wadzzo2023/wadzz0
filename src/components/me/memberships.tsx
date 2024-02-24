@@ -15,7 +15,10 @@ export default function Memberships() {
           <div className="card-body">
             <div className="flex items-center gap-2">
               <div>
-                <Avater url={el.subscription.creator.profileUrl} />
+                <Avater
+                  url={el.subscription.creator.profileUrl}
+                  className="w-8"
+                />
               </div>
               <div>
                 <h2 className="card-title">{el.subscription.creator.name}</h2>

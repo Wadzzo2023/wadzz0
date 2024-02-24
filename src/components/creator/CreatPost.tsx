@@ -84,7 +84,7 @@ export function CreatPost() {
         >
           <div className="mb-5 flex items-end justify-between ">
             <div className="flex items-center gap-2 ">
-              <Avater url={creator.data.profileUrl} />
+              <Avater className="w-8" url={creator.data.profileUrl} />
               <p>{creator.data.name}</p>
             </div>
             <div className="flex items-center gap-2">

@@ -7,6 +7,7 @@ import { ConnectWalletButton } from "package/connect_wallet";
 import { useSession } from "next-auth/react";
 import clsx from "clsx";
 import Header from "./header";
+import { cn } from "src/lib/utils";
 
 export default function Layout({
   children,
@@ -23,7 +24,7 @@ export default function Layout({
 
       <div className="flex-1 overflow-auto bg-base-100/50">
         <div className="flex h-full border-t-2">
-          <LeftBar />
+          <LeftBar className="hidden md:flex" />
           <div className="flex-1 border-x-2 ">
             <div className="h-full overflow-y-auto bg-base-100/80 scrollbar-hide">
               {data?.user.id ? (

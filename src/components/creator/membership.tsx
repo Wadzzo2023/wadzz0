@@ -13,7 +13,7 @@ export default function MemberShip({ creator }: { creator: Creator }) {
     <div className="my-7 flex flex-col items-center">
       {/* <p className="text-2xl font-bold">MemberShip </p> */}
       {subscriptions && subscriptions?.length < 3 && (
-        <div className="fixed bottom-14 right-0 p-4 sm:bottom-0">
+        <div className="fixed bottom-10 right-0 p-4 ">
           <AddTierModal creator={creator} />
         </div>
       )}

@@ -20,7 +20,7 @@ export default function CommentView({
     <div className="flex justify-between ">
       <div className="flex gap-2">
         <div>
-          <Avater url={comment.user.image} />
+          <Avater className="w-8" url={comment.user.image} />
         </div>
         <div className="flex-1">
           <h2 className="font-bold">{comment.user.name}</h2>

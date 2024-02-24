@@ -11,7 +11,7 @@ function Hamburger() {
         <Menu />
       </SheetTrigger>
       <SheetContent side={"left"} className="w-80 !px-0">
-        <LeftBar />
+        <LeftBar className="bg-base-100" />
       </SheetContent>
     </Sheet>
   );

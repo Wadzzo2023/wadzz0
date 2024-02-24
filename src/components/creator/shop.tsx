@@ -9,7 +9,7 @@ import ContextMenu from "../ui/context-menu";
 export default function Shop({ creator }: { creator?: Creator }) {
   return (
     <div className="my-7">
-      <div className="fixed bottom-14 right-0 p-4 sm:bottom-0">
+      <div className="fixed bottom-0 right-0 z-50 p-4">
         <AddItem2Shop />
       </div>
       <AllShopItems />

@@ -54,7 +54,7 @@ function AboutForm({ user }: { user: User }) {
     >
       <div className="flex items-center  gap-2">
         <div className="">
-          <Avater url={user.image} />
+          <Avater url={user.image} className="w-8" />
         </div>
         <UploadButton
           endpoint="imageUploader"

@@ -51,7 +51,7 @@ function AboutForm({ creator }: { creator: Creator }) {
     <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-2 p-5">
       <div className="flex items-center  gap-2">
         <div className="">
-          <Avater url={creator.profileUrl} />
+          <Avater className="w-8" url={creator.profileUrl} />
         </div>
         <UploadButton
           endpoint="imageUploader"

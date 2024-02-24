@@ -47,7 +47,7 @@ export function SinglePostView({ postId }: { postId: number }) {
                     <div className="flex justify-between">
                       <div className="flex gap-2">
                         <div>
-                          <Avater />
+                          <Avater className="w-8" />
                         </div>
                         <div>
                           <Link
