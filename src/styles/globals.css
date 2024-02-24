@@ -3,11 +3,25 @@
 @tailwind utilities;
 
 @layer components {
+  .tsd {
+    @apply transition-all duration-500 ease-in-out;
+  }
+
+  .aac-sbt {
+    @apply font-bold transition-all duration-75 ease-in-out hover:scale-105
+     hover:font-semibold hover:tracking-wider hover:text-blue-500 focus:ring-8 focus:ring-blue-300 
+     active:scale-90 active:ring-blue-500;
+  }
+
   .acc-bt {
-    @apply overflow-hidden rounded-xl
+    @apply tsd overflow-hidden rounded-xl
     bg-slate-800/60 px-4 py-3 text-xl
     font-bold tracking-wider text-slate-900/80 backdrop-blur hover:scale-105 hover:border-blue-400 hover:bg-slate-900/80 hover:text-slate-300/70
     focus:border-blue-400 focus:outline-none focus:ring focus:ring-blue-300 active:scale-90;
+  }
+
+  .main-asset-area {
+    @apply scrollbar-style xs:grid-cols-2 grid max-h-full gap-3 overflow-y-auto px-1 md:grid-cols-3 xl:grid-cols-5 2xl:grid-cols-8;
   }
 }
 

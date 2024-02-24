@@ -46,7 +46,7 @@ export const CreatorNavigation = {
 
 export default function LeftBar() {
   return (
-    <div className="hidden flex-col items-center justify-between overflow-auto bg-base-100/80 px-4 pb-4 pt-10 scrollbar-hide sm:flex sm:w-56 md:w-80">
+    <div className="hidden flex-col items-center justify-between overflow-auto bg-base-100/80 px-4 pb-4 pt-10 scrollbar-hide md:flex md:w-80">
       <div className="flex w-full flex-1 flex-col items-center gap-2  py-2">
         <div className="mt-7 w-full flex-1">
           <NavigationButtons />

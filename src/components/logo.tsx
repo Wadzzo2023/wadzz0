@@ -19,7 +19,7 @@ export default function Logo({ className }: { className?: string }) {
         </div>
         <h1
           className={twMerge(
-            " relative text-4xl font-bold capitalize  text-white",
+            "relative text-4xl font-bold capitalize  text-white",
             className,
           )}
         >

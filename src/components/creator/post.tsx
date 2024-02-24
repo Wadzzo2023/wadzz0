@@ -53,7 +53,7 @@ export function PostCard({
         <div className="flex justify-between">
           <div className="flex gap-2">
             <div>
-              <Avater />
+              <Avater className="w-8" />
             </div>
             <div>
               <Link href={`/creator/${creator.id}`} className="font-bold">

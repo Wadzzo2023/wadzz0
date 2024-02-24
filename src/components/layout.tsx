@@ -33,13 +33,13 @@ export default function Layout({
                   <ConnectWalletButton />
                 </div>
               )}
-              <BottomNav />
+              {/* <BottomNav /> */}
             </div>
           </div>
 
           <RightBar />
-          </div>
         </div>
       </div>
+    </div>
   );
 }
