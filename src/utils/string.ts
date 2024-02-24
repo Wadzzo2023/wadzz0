@@ -7,3 +7,12 @@ export function truncateString(str: string, firstFew = 3, lastFew = 3): string {
   const truncatedString = str.slice(0, firstFew) + "..." + str.slice(-lastFew);
   return truncatedString;
 }
+
+export function isValidUrl(url: string): boolean {
+  try {
+    new URL(url);
+    return true;
+  } catch (error) {
+    return false;
+  }
+}

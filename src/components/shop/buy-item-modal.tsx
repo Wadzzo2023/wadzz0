@@ -8,8 +8,15 @@ import { truncateString } from "~/utils/string";
 import { ShopItemProps } from "../creator/shop";
 import { PLATFROM_ASSET, PLATFROM_FEE } from "~/lib/stellar/constant";
 import { clientSelect } from "~/lib/stellar/utils";
+import { cn } from "~/lib/utils";
 
-export default function BuyItemModal({ item }: { item: ShopItemProps }) {
+export default function BuyItemModal({
+  item,
+  btnClassName,
+}: {
+  item: ShopItemProps;
+  btnClassName?: string;
+}) {
   const modalRef = useRef<HTMLDialogElement>(null);
   const [isModalOpen, setIsModalOpen] = React.useState(false);
 
@@ -22,7 +29,10 @@ export default function BuyItemModal({ item }: { item: ShopItemProps }) {
 
   return (
     <>
-      <button className="btn btn-primary" onClick={handleModal}>
+      <button
+        className={cn("btn btn-primary", btnClassName)}
+        onClick={handleModal}
+      >
         Buy Now
       </button>
       <dialog id="my_modal_1" className="modal" ref={modalRef}>

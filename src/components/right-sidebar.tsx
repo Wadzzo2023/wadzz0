@@ -6,6 +6,10 @@ import { api } from "~/utils/api";
 import Button from "./ui/button";
 import Link from "next/link";
 import { Search } from "lucide-react";
+import BuyItemModal from "./shop/buy-item-modal";
+import { ShopAsset } from "@prisma/client";
+import Image from "next/image";
+import { isValidUrl } from "~/utils/string";
 
 export default function RightBar() {
   const router = useRouter();
@@ -79,7 +83,8 @@ function PopularItems() {
           return page.items.map((asset) => {
             return (
               <li key={asset.id} className="">
-                <AssetItem name={asset.name} price={asset.price} />
+                <AssetItem shopItem={asset} />
+
                 {/* <CreatorAvater creator={creator} /> */}
               </li>
             );
@@ -98,21 +103,40 @@ function PopularItems() {
   );
 }
 
-function AssetItem({ name, price }: { name: string; price: number }) {
+export function AssetItem({
+  shopItem,
+}: {
+  shopItem: ShopAsset & { asset: { code: string; issuer: string } };
+}) {
   return (
     <div
-      className="flex  items-center gap-2 p-2 hover:rounded-lg hover:bg-base-100"
+      className="flex  items-center justify-between  p-2 hover:rounded-lg hover:bg-base-100"
       onClick={() => {}}
     >
-      <div className="avatar">
-        <div className="mask mask-hexagon w-10">
-          <img src="https://daisyui.com/images/stock/photo-1534528741775-53994a69daeb.jpg" />
+      <div className="flex gap-4">
+        <div className="avatar">
+          <div className="mask mask-hexagon w-10">
+            <Image alt="Nft image" fill src={validUrl(shopItem.thumbnail)} />
+          </div>
+        </div>
+        <div>
+          <p className="font-bold">{shopItem.name}</p>
+          <p>Price: {shopItem.price}</p>
         </div>
       </div>
-      <div>
-        <p className="font-bold">{name}</p>
-        <p>Price: {price}</p>
+      <div className="items-end self-end">
+        <BuyItemModal btnClassName="btn-sm btn-secondary" item={shopItem} />
       </div>
     </div>
   );
+}
+
+function validUrl(input: string | null) {
+  if (input) {
+    if (isValidUrl(input)) {
+      return input;
+    }
+  }
+
+  return "/images/nft.png";
 }

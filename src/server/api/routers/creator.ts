@@ -31,7 +31,7 @@ export const creatorRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       const data = await ctx.db.creator.create({
         data: {
-          name: truncateString(id),
+          name: truncateString(input.id),
           bio: input.id,
           user: { connect: { id: input.id } },
         },

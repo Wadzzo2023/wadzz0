@@ -24,6 +24,7 @@ export const ShopItemSchema = z.object({
   AssetLimit: z.number().nonnegative().int(),
   price: z.number().nonnegative(),
   mediaUrl: z.string().optional(),
+  thumbnail: z.string().optional(),
   issuer: AccounSchema.optional(),
 });
 
@@ -31,6 +32,7 @@ export default function AddItem2Shop() {
   const modalRef = useRef<HTMLDialogElement>(null);
 
   const [medialUrl, setMediaUrl] = React.useState<string>();
+  const [thumbnail, setThumbnail] = React.useState<string>();
   const [step, setStep] = React.useState(1);
 
   const { isAva, pubkey, walletType, uid, email } =
@@ -179,7 +181,6 @@ export default function AddItem2Shop() {
             </div>
           )}
         </label>
-        
       </div>
     );
   }
@@ -286,9 +287,8 @@ export default function AddItem2Shop() {
               const data = res[0];
 
               if (data?.url) {
-                setMediaUrl(data.url);
-                // setValue("mediaType", MediaType.IMAGE);
-                setValue("mediaUrl", data.url);
+                setThumbnail(data.url);
+                setValue("thumbnail", data.url);
               }
               // updateProfileMutation.mutate(res);
             }}
@@ -299,8 +299,8 @@ export default function AddItem2Shop() {
           />
         </div>
         <div className="flex h-40 w-full flex-col items-center justify-center gap-2">
-          {medialUrl && (
-            <Image src={medialUrl} alt="d" height={100} width={100} />
+          {thumbnail && (
+            <Image src={thumbnail} alt="d" height={100} width={100} />
           )}
         </div>
       </>

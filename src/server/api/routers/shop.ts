@@ -27,7 +27,7 @@ export const shopRouter = createTRPCRouter({
             description: input.description,
             creatorId: ctx.session.user.id,
             mediaUrl: input.mediaUrl,
-            thumbnail: "test",
+            thumbnail: input.thumbnail,
             assetId: asset.id,
           },
         });
@@ -150,6 +150,7 @@ export const shopRouter = createTRPCRouter({
         skip: skip,
         cursor: cursor ? { id: cursor } : undefined,
         orderBy: { UserShopAsset: { _count: "desc" } },
+        include: { asset: { select: { code: true, issuer: true } } },
       });
 
       let nextCursor: typeof cursor | undefined = undefined;

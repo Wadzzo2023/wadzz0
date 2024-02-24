@@ -2,6 +2,7 @@ import { Creator } from "@prisma/client";
 import clsx from "clsx";
 import Link from "next/link";
 import React, { useState } from "react";
+import { AssetItem } from "~/components/right-sidebar";
 import Avater from "~/components/ui/avater";
 import { SearchMenu, useSearchMenu } from "~/lib/state/search-menu";
 import { api } from "~/utils/api";
@@ -164,10 +165,11 @@ function AssetsList() {
           return page.items.map((asset) => {
             return (
               <div key={asset.id} className="p-4 hover:bg-base-100">
-                <p className="font-bold">{asset.asset.code}</p>
+                <AssetItem shopItem={asset} />
+                {/* <p className="font-bold">{asset.asset.code}</p>
                 <p className="text-sm">
                   {truncateString(asset.asset.issuer, 15, 5)}
-                </p>
+                </p> */}
               </div>
             );
           });
