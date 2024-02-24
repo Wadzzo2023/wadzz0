@@ -13,7 +13,8 @@ const config = {
   ignorePatterns: [
     "src/server/uploadthing.ts",
     "src/components/left-sidebar.tsx",
-    "src/components/mobile/bottom-nav.tsx"
+    "src/components/mobile/bottom-nav.tsx",
+    "src/components/ui/sheet.tsx"
   ],
   rules: {
     // These opinionated rules are enabled in stylistic-type-checked above.

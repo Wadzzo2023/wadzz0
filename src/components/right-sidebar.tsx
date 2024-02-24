@@ -109,10 +109,7 @@ export function AssetItem({
   shopItem: ShopAsset & { asset: { code: string; issuer: string } };
 }) {
   return (
-    <div
-      className="flex  items-center justify-between  p-2 hover:rounded-lg hover:bg-base-100"
-      onClick={() => {}}
-    >
+    <div className="flex  items-center justify-between  p-2 hover:rounded-lg hover:bg-base-100">
       <div className="flex gap-4">
         <div className="avatar">
           <div className="mask mask-hexagon w-10">
