@@ -53,7 +53,7 @@ function AssetItemComponent({
   code: string;
 }) {
   return (
-    <div className="card w-96 bg-neutral shadow-xl">
+    <div className="card w-96 bg-base-100 shadow-xl">
       {/* "https://daisyui.com/images/stock/photo-1606107557195-0e29a4b5b4aa.jpg" */}
       {/* {item.mediaUrl && (
         <figure className="relative h-40  w-full">

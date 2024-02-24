@@ -11,28 +11,27 @@ export const shopRouter = createTRPCRouter({
   createShopAsset: protectedProcedure
     .input(ShopItemSchema)
     .mutation(async ({ ctx, input }) => {
-      const asset = await ctx.db.asset.create({
-        data: {
-          code: input.AssetName,
-          issuer: input.issuer.publicKey,
-          issuerPrivate: input.issuer.secretKey,
-          creatorId: ctx.session.user.id,
-        },
-      });
-      await ctx.db.shopAsset.create({
-        data: {
-          name: input.name,
-          price: input.price,
-          description: input.description,
-          creatorId: ctx.session.user.id,
-          mediaUrl: input.mediaUrl,
-          thumbnail: "test",
-          assetId: asset.id,
-        },
-      });
-
-      // global notification
-      // await ctx.db.notification.create({
+      if (input.issuer) {
+        const asset = await ctx.db.asset.create({
+          data: {
+            code: input.AssetName,
+            issuer: input.issuer.publicKey,
+            issuerPrivate: input.issuer.secretKey,
+            creatorId: ctx.session.user.id,
+          },
+        });
+        await ctx.db.shopAsset.create({
+          data: {
+            name: input.name,
+            price: input.price,
+            description: input.description,
+            creatorId: ctx.session.user.id,
+            mediaUrl: input.mediaUrl,
+            thumbnail: "test",
+            assetId: asset.id,
+          },
+        });
+      }
     }),
 
   deleteAsset: protectedProcedure

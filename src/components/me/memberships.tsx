@@ -11,7 +11,7 @@ export default function Memberships() {
       {/* <h2 className="mb-5 text-center text-2xl font-bold">Memberships</h2> */}
 
       {subscriptions.data?.map((el) => (
-        <div key={el.id} className="card w-96 bg-neutral">
+        <div key={el.id} className="card w-96 bg-base-100">
           <div className="card-body">
             <div className="flex items-center gap-2">
               <div>

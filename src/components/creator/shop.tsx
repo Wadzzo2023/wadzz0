@@ -47,7 +47,7 @@ export function ShopItem({ item }: { item: ShopItemProps }) {
   const { data } = useSession();
   if (data)
     return (
-      <div className="card w-96 bg-neutral shadow-xl">
+      <div className="card w-96 bg-base-100 shadow-xl">
         <div className="card-body">
           <div className="flex justify-between">
             <h2 className="card-title">{item.name}</h2>

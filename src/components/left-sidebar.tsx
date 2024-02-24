@@ -46,8 +46,8 @@ export const CreatorNavigation = {
 
 export default function LeftBar() {
   return (
-    <div className="hidden pb-4 px-4 pt-10 flex-col items-center justify-between bg-base-100/80 sm:flex sm:w-56 md:w-80">
-        <div className="flex w-full flex-1 flex-col items-center gap-2  py-2">
+    <div className="hidden flex-col items-center justify-between overflow-auto bg-base-100/80 px-4 pb-4 pt-10 scrollbar-hide sm:flex sm:w-56 md:w-80">
+      <div className="flex w-full flex-1 flex-col items-center gap-2  py-2">
         <div className="mt-7 w-full flex-1">
           <NavigationButtons />
         </div>
@@ -56,7 +56,6 @@ export default function LeftBar() {
         <LeftBottom />
       </div>
     </div>
-  
   );
 }
 
@@ -99,7 +98,7 @@ function ProfileComponent({
 }) {
   return (
     <div
-      className="btn btn-active btn-ghost w-full  items-center  gap-x-4 "
+      className="btn btn-ghost btn-active w-full  items-center  gap-x-4 "
       onClick={handleModeChange}
     >
       <SwitchCamera />
@@ -164,9 +163,15 @@ function Profile() {
 function LeftBottom() {
   return (
     <div className="flex w-full flex-col justify-center gap-1">
-      <Link href="https://bandcoin.io" className="btn">WALLET</Link>
-      <Link href="https://music.bandcoin.io" className="btn">MUSIC</Link>
-      <Link href="https://music.bandcoin.io/marketplace" className="btn">MARKETPLACE</Link>
+      <Link href="https://bandcoin.io" className="btn">
+        WALLET
+      </Link>
+      <Link href="https://music.bandcoin.io" className="btn">
+        MUSIC
+      </Link>
+      <Link href="https://music.bandcoin.io/marketplace" className="btn">
+        MARKETPLACE
+      </Link>
       <ConnectWalletButton />
       <div className="flex justify-between space-x-2">
         <Link

@@ -24,14 +24,13 @@ export const ShopItemSchema = z.object({
   AssetLimit: z.number().nonnegative().int(),
   price: z.number().nonnegative(),
   mediaUrl: z.string().optional(),
-  issuer: AccounSchema,
+  issuer: AccounSchema.optional(),
 });
 
 export default function AddItem2Shop() {
   const modalRef = useRef<HTMLDialogElement>(null);
 
   const [medialUrl, setMediaUrl] = React.useState<string>();
-  const [xdr, setXdr] = React.useState<string>();
   const [step, setStep] = React.useState(1);
 
   const { isAva, pubkey, walletType, uid, email } =
@@ -49,9 +48,23 @@ export default function AddItem2Shop() {
   const xdrMutation = api.trx.createAssetTrx.useMutation({
     onSuccess(data, variables, context) {
       if (data) {
-        setXdr(data.xdr);
-        setValue("issuer", data.issuer);
-        setStep(3);
+        const { issuer, xdr } = data;
+        setValue("issuer", issuer);
+        if (xdr) {
+          clientsign({
+            presignedxdr: xdr,
+            pubkey,
+            walletType,
+            test: clientSelect(),
+          })
+            .then((res) => {
+              const data = getValues();
+              res && addMutation.mutate(data);
+            })
+            .catch((e) => console.log(e));
+        } else {
+          console.log("Error happened");
+        }
       } else {
         toast.error("Error happened");
       }
@@ -71,23 +84,13 @@ export default function AddItem2Shop() {
   });
 
   const onSubmit: SubmitHandler<z.infer<typeof ShopItemSchema>> = (data) => {
-    if (xdr && !addMutation.isSuccess) {
-      clientsign({
-        presignedxdr: xdr,
-        pubkey,
-        walletType,
-        test: clientSelect(),
-      })
-        .then((res) => {
-          res && addMutation.mutate(data);
-        })
-        .catch((e) => console.log(e));
-    } else {
-      console.log("Error happened");
-    }
+    xdrMutation.mutate({
+      code: getValues("AssetName"),
+      limit: getValues("AssetLimit"),
+    });
   };
 
-  // console.log(errors, "errors");
+  console.log(errors, "errors");
 
   const handleModal = () => {
     modalRef.current?.showModal();
@@ -102,32 +105,27 @@ export default function AddItem2Shop() {
       <dialog id="my_modal_1" className="modal" ref={modalRef}>
         <div className="modal-box">
           <h3 className="mb-10 text-center text-lg font-bold">Creat NFT</h3>
-          <Steps />
 
           <div className="mt-4 ">
             <form
               onSubmit={handleSubmit(onSubmit)}
               className="flex flex-col items-center gap-2 rounded-md bg-base-300 p-4"
             >
-              {step == 1 && <ItemInfo />}
+              <ItemInfo />
 
-              {step == 2 && <AssetInfo />}
+              <AssetInfo />
 
-              {step == 3 && (
-                <button
-                  // onClick={() => onSubmit()}
-                  // type="button"
-                  className="btn btn-primary"
-                  disabled={
-                    addMutation.isLoading || !xdr || addMutation.isSuccess
-                  }
-                >
-                  {addMutation.isLoading && (
-                    <span className="loading loading-spinner"></span>
-                  )}
-                  Add Item
-                </button>
-              )}
+              <UploadMedia />
+
+              <button
+                className="btn btn-primary"
+                disabled={addMutation.isLoading || addMutation.isSuccess}
+              >
+                {addMutation.isLoading && (
+                  <span className="loading loading-spinner"></span>
+                )}
+                Add Item
+              </button>
             </form>
           </div>
 
@@ -181,47 +179,7 @@ export default function AddItem2Shop() {
             </div>
           )}
         </label>
-        <div className="flex h-40 w-full flex-col items-center justify-center gap-2">
-          {medialUrl && (
-            <Image src={medialUrl} alt="d" height={100} width={100} />
-          )}
-          <UploadButton
-            content={{ button: "Add Photo", allowedContent: "Max (4MB)" }}
-            endpoint="imageUploader"
-            onClientUploadComplete={(res) => {
-              // Do something with the response
-              // alert("Upload Completed");
-              const data = res[0];
-
-              if (data?.url) {
-                setMediaUrl(data.url);
-                // setValue("mediaType", MediaType.IMAGE);
-                setValue("mediaUrl", data.url);
-                // updateProfileMutation.mutate(data.url);
-              }
-              // updateProfileMutation.mutate(res);
-            }}
-            onUploadError={(error: Error) => {
-              // Do something with the error.
-              alert(`ERROR! ${error.message}`);
-            }}
-          />
-          <button
-            type="button"
-            className="btn btn-primary w-full max-w-xs "
-            // disabled={isNameDesError()}
-            onClick={async () => {
-              const isOk = await triggerErrorInInf();
-              if (isOk) {
-                if (step < 3) {
-                  setStep(step + 1);
-                }
-              }
-            }}
-          >
-            Next
-          </button>
-        </div>
+        
       </div>
     );
   }
@@ -311,60 +269,41 @@ export default function AddItem2Shop() {
             content={`To create a Item, you'll need ${assetAmount.data} ${PLATFROM_ASSET.code} for your Asset account. Additionally, there's a platform fee of ${PLATFROM_FEE} ${PLATFROM_ASSET.code}.`}
           />
         </div>
-        <button
-          type="button"
-          disabled={xdrMutation.isLoading || !!xdr || xdrMutation.isSuccess}
-          onClick={async () => {
-            const isOk = await triggerErroInAssetInfo();
-            if (isOk) {
-              xdrMutation.mutate({
-                code: getValues("AssetName"),
-                limit: getValues("AssetLimit"),
-              });
-            }
-          }}
-          className="btn btn-primary mt-2 w-full max-w-xs"
-        >
-          {xdrMutation.isLoading && (
-            <span className="loading loading-spinner"></span>
-          )}
-          Create Asset
-        </button>
       </div>
     );
   }
-  function Steps() {
+
+  function UploadMedia() {
     return (
-      <ul className="steps w-full border-b border-base-300">
-        <li
-          className={clsx(
-            "step",
-            step > 0 && (isNameDesError() ? "step-warning" : "step-primary"),
+      <>
+        <div className="mt-4">
+          <UploadButton
+            endpoint="imageUploader"
+            content={{ button: "Add Media", allowedContent: "Max (4MB)" }}
+            onClientUploadComplete={(res) => {
+              // Do something with the response
+              // alert("Upload Completed");
+              const data = res[0];
+
+              if (data?.url) {
+                setMediaUrl(data.url);
+                // setValue("mediaType", MediaType.IMAGE);
+                setValue("mediaUrl", data.url);
+              }
+              // updateProfileMutation.mutate(res);
+            }}
+            onUploadError={(error: Error) => {
+              // Do something with the error.
+              alert(`ERROR! ${error.message}`);
+            }}
+          />
+        </div>
+        <div className="flex h-40 w-full flex-col items-center justify-center gap-2">
+          {medialUrl && (
+            <Image src={medialUrl} alt="d" height={100} width={100} />
           )}
-          onClick={() => setStep(1)}
-        >
-          Item Info
-        </li>
-        <li
-          className={clsx(
-            "step",
-            step > 1 && (isAssetInfoError() ? "step-warning" : "step-primary"),
-          )}
-          onClick={() => triggerErrorInInf().then((ok) => ok && setStep(2))}
-        >
-          Asset Info
-        </li>
-        <li
-          className={clsx("step", step > 2 && "step-primary")}
-          onClick={() =>
-            step == 2 &&
-            xdr &&
-            triggerErroInAssetInfo().then((ok) => ok && setStep(3))
-          }
-        >
-          Confirm
-        </li>
-      </ul>
+        </div>
+      </>
     );
   }
 }
