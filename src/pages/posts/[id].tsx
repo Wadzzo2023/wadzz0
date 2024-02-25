@@ -17,12 +17,5 @@ export default function PostPage() {
 }
 
 function Page({ postId }: { postId: string }) {
-  return (
-    <div className="flex h-full  flex-1 flex-col items-center  p-5">
-      <h2 className="mb-5 text-center text-2xl font-bold">Post by Creator</h2>
-      <div className=" w-full  flex-1  overflow-auto rounded-box ">
-        <SinglePostView postId={Number(postId)} />
-      </div>
-    </div>
-  );
+  return <SinglePostView postId={Number(postId)} />;
 }

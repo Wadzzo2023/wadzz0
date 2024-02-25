@@ -156,17 +156,17 @@ export const postRouter = createTRPCRouter({
 
       if (post) {
         if (post.subscription) {
-          // choose creator highest priority
+          // choose creator highest priority valid subscription
           const subscription = await ctx.db.user_Subscription.findFirst({
             where: {
               AND: [
                 { userId },
                 { subscription: { creatorId: post.creatorId } },
                 // here i have to check not expired highest subscriptin.
-                { endDate: {} },
+                { endDate: { gte: new Date() } },
               ],
             },
-            include: { subscription: {} },
+            include: { subscription: true },
             orderBy: { subscription: { priority: "desc" } },
           });
 

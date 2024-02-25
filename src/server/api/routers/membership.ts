@@ -119,7 +119,11 @@ export const membershipRouter = createTRPCRouter({
   getAllSubscription: protectedProcedure.query(async ({ ctx }) => {
     return await ctx.db.user_Subscription.findMany({
       where: {
-        userId: ctx.session.user.id,
+        AND: [
+          { userId: ctx.session.user.id },
+          // here i have to check not expired highest subscriptin.
+          { endDate: { gte: new Date() } },
+        ],
       },
       include: {
         subscription: {
