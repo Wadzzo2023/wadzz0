@@ -168,7 +168,11 @@ export const shopRouter = createTRPCRouter({
   getUserShopAsset: protectedProcedure.query(async ({ ctx }) => {
     return await ctx.db.userShopAsset.findMany({
       where: { userId: ctx.session.user.id },
-      include: { shopAsset: { include: { asset: true } } },
+      include: {
+        shopAsset: {
+          include: { asset: { select: { code: true, issuer: true } } },
+        },
+      },
     });
   }),
 });

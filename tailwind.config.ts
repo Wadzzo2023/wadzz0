@@ -20,6 +20,7 @@ export default withUt({
     themes: ["light"],
   },
   plugins: [
+    require("tailwindcss-animate"),
     require("tailwind-scrollbar-hide"),
     require("@tailwindcss/typography"),
     require("daisyui"),

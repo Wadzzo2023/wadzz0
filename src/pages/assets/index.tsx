@@ -21,7 +21,26 @@ function RenderTabs() {
     case AssetMenu.SubscriptionAsset:
       return <SubscriptionAsset />;
     case AssetMenu.Assets:
-      return <div>Assets</div>;
+      return <ShopAsset />;
+  }
+}
+
+function ShopAsset() {
+  const assets = api.shop.getUserShopAsset.useQuery();
+
+  if (assets.data && assets.data.length > 0) {
+    <div>
+      {assets.data.map((asset) => (
+        <AssetItemComponent
+          code={asset.shopAsset.asset.code}
+          name={asset.shopAsset.name}
+          description={asset.shopAsset.description ?? "Shop Asset"}
+          key={asset.id}
+        />
+      ))}
+    </div>;
+  } else {
+    return <p>No asset found</p>;
   }
 }
 

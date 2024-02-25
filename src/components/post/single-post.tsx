@@ -79,16 +79,18 @@ export function SinglePostView({ postId }: { postId: number }) {
                       </div>
 
                       <div className="flex-1 overflow-auto rounded-lg bg-base-200 px-2 py-4 scrollbar-hide">
-                        <div className="">
-                          <div className="flex flex-col">
-                            <div className=" flex flex-col rounded-lg  lg:hidden">
-                              <Slider
-                                images={post.data.Media.map((el) => el.url)}
-                              />
-                            </div>
+                        <div className="h-full">
+                          <div className="flex h-full flex-col justify-between">
+                            <div>
+                              <div className=" flex flex-col rounded-lg  lg:hidden">
+                                <Slider
+                                  images={post.data.Media.map((el) => el.url)}
+                                />
+                              </div>
 
-                            {post.data.content}
-                            {formatPostCreatedAt(post.data.createdAt)}
+                              <p>{post.data.content}</p>
+                              <p>{formatPostCreatedAt(post.data.createdAt)}</p>
+                            </div>
 
                             {comments.data && comments.data.length > 0 && (
                               <div className="mt-10 flex flex-col gap-4 border-t-2 border-t-base-100">
