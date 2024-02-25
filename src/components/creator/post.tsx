@@ -10,6 +10,7 @@ import { Media, Post } from "@prisma/client";
 import { PostContextMenu } from "../post/post-context-menu";
 import { PostReadMore } from "../post/post-read-more";
 import Avater from "../ui/avater";
+import { getBageStyle } from "./card";
 
 export function PostCard({
   post,
@@ -61,7 +62,9 @@ export function PostCard({
               </Link>
               <p>
                 {priority && (
-                  <span className="badge badge-secondary mr-1">{priority}</span>
+                  <span className={clsx("badge  mr-1", getBageStyle(priority))}>
+                    {priority}
+                  </span>
                 )}
                 {formatPostCreatedAt(post.createdAt)}
               </p>
