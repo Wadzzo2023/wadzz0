@@ -1,10 +1,11 @@
 import { signIn, signOut, useSession } from "next-auth/react";
 import Head from "next/head";
 import Link from "next/link";
-import { PostCard } from "~/components/creator/post";
+import { PostCard } from "~/components/fan/creator/post";
 
 import { api } from "~/utils/api";
 import { CreatorAvater } from "./search";
+import Main from "~/components/wallete/main";
 
 export default function Home() {
   return (
@@ -35,9 +36,10 @@ function AuthShowcase() {
   return (
     <div className="p-5">
       <h1 className="hidden text-2xl font-bold md:flex">Homepage</h1>
-      <div className="mt-10 flex flex-col items-center">
+      <Main tags={[]} />
+      {/* <div className="mt-10 flex flex-col items-center">
         <AllRecentPost />
-      </div>
+      </div> */}
     </div>
   );
 }

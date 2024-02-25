@@ -1,5 +1,5 @@
 import React from "react";
-import About from "~/components/creator/about";
+import About from "~/components/fan/creator/about";
 import { CreatorBack } from "../me/creator";
 import { api } from "~/utils/api";
 

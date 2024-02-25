@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { CreatorAboutShema } from "~/components/creator/about";
+import { CreatorAboutShema } from "~/components/fan/creator/about";
 
 import {
   createTRPCRouter,

@@ -1,8 +1,8 @@
 import { NotificationType } from "@prisma/client";
 import { z } from "zod";
-import { CreatorAboutShema } from "~/components/creator/about";
-import { TierSchema } from "~/components/creator/add-tier-modal";
-import { EditTierSchema } from "~/components/creator/edit-tier-modal";
+import { CreatorAboutShema } from "~/components/fan/creator/about";
+import { TierSchema } from "~/components/fan/creator/add-tier-modal";
+import { EditTierSchema } from "~/components/fan/creator/edit-tier-modal";
 import { AccounSchema } from "~/lib/stellar/utils";
 
 import {

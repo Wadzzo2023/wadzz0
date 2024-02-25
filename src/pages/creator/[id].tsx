@@ -1,10 +1,10 @@
 import { useRouter } from "next/router";
 import React from "react";
-import { PostCard } from "~/components/creator/post";
+import { PostCard } from "~/components/fan/creator/post";
 import { api } from "~/utils/api";
 import { CreatorBack } from "../me/creator";
 import { Creator, Subscription } from "@prisma/client";
-import MemberShipCard from "~/components/creator/card";
+import MemberShipCard from "~/components/fan/creator/card";
 import { clientsign, useConnectWalletStateStore } from "package/connect_wallet";
 import toast from "react-hot-toast";
 import { MyAssetType } from "~/lib/stellar/utils";
@@ -13,8 +13,8 @@ import {
   useCreatorProfileMenu,
 } from "~/lib/state/creator-profile-menu";
 import clsx from "clsx";
-import { ShopItem } from "~/components/creator/shop";
-import SubscribeMembership from "~/components/creator/confirm-subscription-modal";
+import { ShopItem } from "~/components/fan/creator/shop";
+import SubscribeMembership from "~/components/fan/creator/confirm-subscription-modal";
 
 export default function CreatorPage() {
   const router = useRouter();

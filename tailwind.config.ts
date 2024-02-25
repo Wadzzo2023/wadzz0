@@ -23,6 +23,7 @@ export default withUt({
     require("tailwindcss-animate"),
     require("tailwind-scrollbar-hide"),
     require("@tailwindcss/typography"),
+    require("tailwind-scrollbar")({ nocompatible: true }),
     require("daisyui"),
   ],
 }) satisfies Config;

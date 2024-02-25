@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { twMerge } from "tailwind-merge";
-import { LOGO_BLURDATA } from "~/lib/defaults";
+import { LOGO_BLURDATA } from "~/lib/wallate/defaults";
 export default function Logo({ className }: { className?: string }) {
   return (
     <Link

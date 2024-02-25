@@ -3,6 +3,10 @@
 @tailwind utilities;
 
 @layer components {
+  .scrollbar-style {
+    @apply scrollbar-thin scrollbar-track-base-content/5 scrollbar-thumb-base-content/5 scrollbar-track-rounded-md  scrollbar-thumb-rounded hover:scrollbar-thumb-base-content/40;
+  }
+
   .tsd {
     @apply transition-all duration-500 ease-in-out;
   }
@@ -21,7 +25,7 @@
   }
 
   .main-asset-area {
-    @apply scrollbar-style xs:grid-cols-2 grid max-h-full gap-3 overflow-y-auto px-1 md:grid-cols-3 xl:grid-cols-5 2xl:grid-cols-8;
+    @apply scrollbar-style grid max-h-full gap-3 overflow-y-auto px-1 md:grid-cols-3 xl:grid-cols-5 2xl:grid-cols-8;
   }
 }
 

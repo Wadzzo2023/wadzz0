@@ -4,7 +4,7 @@ import { ConnectWalletButton } from "package/connect_wallet";
 
 import Logo from "./logo";
 import { Hammer } from "lucide-react";
-import { MobileHeaderAvater } from "./mobile/top-nav";
+import { MobileHeaderAvater } from "./fan/mobile/top-nav";
 import Hamburger from "./hamburger";
 
 interface HeaderProps {

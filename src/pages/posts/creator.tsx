@@ -1,6 +1,6 @@
 import clsx from "clsx";
 import React from "react";
-import { CreatPost, PostList } from "~/components/creator/CreatPost";
+import { CreatPost, PostList } from "~/components/fan/creator/CreatPost";
 import { CreateMenu, useCreateMenu } from "~/lib/state/create-menu";
 import { api } from "~/utils/api";
 

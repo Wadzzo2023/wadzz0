@@ -1,4 +1,4 @@
-import Shop from "~/components/creator/shop";
+import Shop from "~/components/fan/creator/shop";
 
 export default function StorePage() {
   return (

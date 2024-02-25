@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { ShopItemSchema } from "~/components/creator/add-shop-item";
+import { ShopItemSchema } from "~/components/fan/creator/add-shop-item";
 
 import {
   createTRPCRouter,

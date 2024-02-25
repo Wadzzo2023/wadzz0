@@ -6,7 +6,7 @@ import { api } from "~/utils/api";
 import Button from "./ui/button";
 import Link from "next/link";
 import { Search } from "lucide-react";
-import BuyItemModal from "./shop/buy-item-modal";
+import BuyItemModal from "./fan/shop/buy-item-modal";
 import { ShopAsset } from "@prisma/client";
 import Image from "next/image";
 import { isValidUrl } from "~/utils/string";
