@@ -13,7 +13,7 @@ const config = {
         hostname: "utfs.io",
 
       },
-      { hostname: "daisyui.com" }
+      { hostname: "daisyui.com" }, { hostname: "picsum.photos" }
     ]
   },
 

@@ -22,66 +22,20 @@ interface MainProps {
 }
 
 function Main({ tags }: MainProps) {
-  const stStore = useSearchTagStore();
-  const usoStore = useSearchOpenStore();
-  const mtStore = useMyTagStore();
-  const umaoStore = useMyAssetOpenStore();
-  const { loading, setLoading } = useAssetLoadingStore();
-  const umsaStore = useMySearchArrayStore();
-  const ucwsStore = useConnectWalletStateStore();
-  const utrkStore = useTagsResetKeyStore();
-
-  function reset() {
-    usoStore.setOpen(false);
-    resetWithoutSearch();
-  }
-
-  function resetWithoutSearch() {
-    stStore.reset!();
-    umaoStore.setOpen(false);
-    mtStore.setIsOpen(false);
-    umsaStore.setValue([]);
-    utrkStore.toggle();
-  }
-
-  useEffect(() => {
-    if (!usoStore.open) {
-    } else {
-      resetWithoutSearch();
-    }
-  }, [usoStore.open]);
-
-  useEffect(() => {
-    reset();
-  }, [ucwsStore.pubkey]);
-
-  useEffect(() => {
-    if (stStore.value.length !== 0) {
-      umaoStore.setOpen(false);
-    }
-  }, [stStore.value]);
-
-  useEffect(() => {
-    if (umaoStore.open) {
-      stStore.setData!({ name: "My assets", queryParams: "", value: "" });
-    } else {
-      setLoading(false);
-    }
-  }, [umaoStore.open]);
   return (
     <div className="h-full space-y-2 tracking-wider">
       {/* {usoStore.open && <SearchBar />} */}
-      {mtStore.isOpen ? <MyTags /> : <AllTags key={String(utrkStore.open)} />}
+      {/* {mtStore.isOpen ? <MyTags /> : <AllTags key={String(utrkStore.open)} />} */}
       <div className="h-full space-y-2">
-        <p className="mx-2 flex items-center gap-2 ">
+        {/* <p className="mx-2 flex items-center gap-2 ">
           Asset: {stStore.name ? `${stStore.name} ${stStore.value}` : ""}{" "}
           {loading && <span className="loading loading-xs" />}
-        </p>
+        </p> */}
         <p>search asset</p>
 
         <MyAsset />
 
-        <AllAsset key={stStore.queryParams} />
+        <AllAsset />
       </div>
     </div>
   );

@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import type { AssetType } from "../../action-lib/interfaces";
+import type { AssetType } from "../../wallate/interfaces";
 
 interface RightState {
   open: boolean;

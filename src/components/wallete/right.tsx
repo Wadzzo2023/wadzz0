@@ -31,7 +31,7 @@ function Right(_props: RightProps) {
   } = currentData;
 
   return (
-    <div className="h-full max-h-[800px] w-full">
+    <div className=" h-full max-h-[800px]">
       <div className="scrollbar-style relative h-full w-full overflow-y-auto rounded-xl bg-base-100/90">
         <div
           className="absolute h-full w-full opacity-10"
