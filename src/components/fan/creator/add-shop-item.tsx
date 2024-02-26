@@ -9,10 +9,10 @@ import toast from "react-hot-toast";
 import clsx from "clsx";
 import { clientsign, useConnectWalletStateStore } from "package/connect_wallet";
 import { Keypair } from "stellar-sdk";
-import { AccounSchema, clientSelect } from "~/lib/stellar/utils";
+import { AccounSchema, clientSelect } from "~/lib/stellar/wallete/utils";
 import { Plus } from "lucide-react";
 import Alert from "../../ui/alert";
-import { PLATFROM_ASSET, PLATFROM_FEE } from "~/lib/stellar/constant";
+import { PLATFROM_ASSET, PLATFROM_FEE } from "~/lib/stellar/wallete/constant";
 
 export const ShopItemSchema = z.object({
   name: z.string().min(4, { message: "Minimum 4 Required" }),

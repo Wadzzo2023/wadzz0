@@ -1,11 +1,11 @@
 import clsx from "clsx";
 import React from "react";
-import { CreatorMenu, useCreator } from "~/lib/state/creator-menu";
+import { CreatorMenu, useCreator } from "~/lib/state/fan/creator-menu";
 
 export default function Tabs() {
   const { selectedMenu, setSelectedMenu } = useCreator();
   return (
-    <div role="tablist" className="tabs-lifted tabs">
+    <div role="tablist" className="tabs tabs-lifted">
       {Object.values(CreatorMenu).map((key) => {
         return (
           <a

@@ -1,6 +1,6 @@
 import { Menu } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "src/components/ui/sheet";
-import { useDrawerOpenStore } from "~/lib/state/drawer_open";
+import { useDrawerOpenStore } from "~/lib/state/fan/drawer_open";
 import LeftBar from "./left-sidebar";
 
 function Hamburger() {

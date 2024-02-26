@@ -31,6 +31,7 @@ export const env = createEnv({
     DISCORD_CLIENT_ID: z.string(),
     DISCORD_CLIENT_SECRET: z.string(),
     DISTRIBUTOR_SECRET: z.string(),
+
   },
 
   /**
@@ -46,6 +47,10 @@ export const env = createEnv({
       .transform((s) => s === "true"),
     NEXT_PUBLIC_ASSET_CODE: z.string(),
     NEXT_PUBLIC_ASSET_ISSUER: z.string(),
+    NEXT_PUBLIC_LOG_ENABLE: z
+      .string()
+      .refine((s) => s === "true" || s === "false")
+      .transform((s) => s === "true"),
   },
 
   /**
@@ -63,6 +68,7 @@ export const env = createEnv({
     DISTRIBUTOR_SECRET: process.env.DISTRIBUTOR_SECRET,
     NEXT_PUBLIC_ASSET_CODE: process.env.NEXT_PUBLIC_ASSET_CODE,
     NEXT_PUBLIC_ASSET_ISSUER: process.env.NEXT_PUBLIC_ASSET_ISSUER,
+    NEXT_PUBLIC_LOG_ENABLE: process.env.NEXT_PUBLIC_LOG_ENABLE,
 
   },
   /**

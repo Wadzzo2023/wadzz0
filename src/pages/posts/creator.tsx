@@ -1,7 +1,7 @@
 import clsx from "clsx";
 import React from "react";
 import { CreatPost, PostList } from "~/components/fan/creator/CreatPost";
-import { CreateMenu, useCreateMenu } from "~/lib/state/create-menu";
+import { CreateMenu, useCreateMenu } from "~/lib/state/fan/create-menu";
 import { api } from "~/utils/api";
 
 export default function CreatorsPost() {

@@ -20,7 +20,7 @@ import {
   Store,
 } from "lucide-react";
 import { api } from "~/utils/api";
-import { Mode, useMode } from "~/lib/state/left-side-mode";
+import { Mode, useMode } from "~/lib/state/fan/left-side-mode";
 import { useRouter } from "next/router";
 import Image from "next/image";
 import { cn } from "~/lib/wallate/utils";
@@ -28,7 +28,7 @@ import { cn } from "~/lib/wallate/utils";
 export const UserNavigation = {
   Home: { path: "/", icon: HomeIcon, text: "HOMEPAGE" },
   // Search: { path: "/search", icon: Search, text: "Search" },
-  YourAsset: { path: "/assets", icon: Diamond, text: "FAN ITEMS" },
+  Music: { path: "/music", icon: Diamond, text: "Music" },
   Notification: { path: "/notification", icon: Bell, text: "NOTIFICATION" },
   Settings: { path: "/settings", icon: Settings2, text: "SETTINGS" },
 } as const;
@@ -117,7 +117,7 @@ function ProfileComponent({
 function UserAvater() {
   const router = useRouter();
   const { setSelectedMenu } = useMode();
-  const user = api.user.getUser.useQuery();
+  const user = api.fan.user.getUser.useQuery();
   const handleClick = () => {
     setSelectedMenu(Mode.Creator);
     router.push("/me/creator");
@@ -136,7 +136,7 @@ function UserAvater() {
 function CreatorAvater() {
   const router = useRouter();
   const { setSelectedMenu } = useMode();
-  const creator = api.creator.meCreator.useQuery();
+  const creator = api.fan.creator.meCreator.useQuery();
 
   const handleClick = () => {
     setSelectedMenu(Mode.User);
@@ -157,7 +157,7 @@ function Profile() {
   const { isAva } = useConnectWalletStateStore();
   const { selectedMenu, getAnotherMenu, toggleSelectedMenu } = useMode();
 
-  const creator = api.creator.meCreator.useQuery();
+  const creator = api.fan.creator.meCreator.useQuery();
 
   if (isAva) {
     if (selectedMenu == Mode.User) {

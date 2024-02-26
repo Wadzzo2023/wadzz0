@@ -1,7 +1,7 @@
 import React from "react";
 import Logo from "../../logo";
 import Avater from "../../ui/avater";
-import { Mode, useMode } from "~/lib/state/left-side-mode";
+import { Mode, useMode } from "~/lib/state/fan/left-side-mode";
 import { useRouter } from "next/router";
 import { ConnectWalletButton } from "package/connect_wallet";
 import Link from "next/link";

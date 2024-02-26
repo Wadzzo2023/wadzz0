@@ -1,6 +1,6 @@
 import clsx from "clsx";
 import React from "react";
-import { SettingsMenu, useSettingsMenu } from "~/lib/state/settings-menu";
+import { SettingsMenu, useSettingsMenu } from "~/lib/state/fan/settings-menu";
 import { useSession } from "next-auth/react";
 import About from "~/components/fan/me/user-profile";
 import Memberships from "~/components/fan/me/memberships";

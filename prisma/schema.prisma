@@ -15,6 +15,48 @@ datasource db {
     url      = env("DATABASE_URL")
 }
 
+// ------------------------Generic SCHEMA-------------------------
+
+model Tag {
+    id            Int             @id @default(autoincrement())
+    name          String
+    AdminAssetTag AdminAssetTag[]
+}
+
+model Asset {
+    id   Int    @id @default(autoincrement())
+    code String
+
+    issuer        String
+    issuerPrivate String?
+
+    escrow Boolean @default(false)
+
+    // different type of asset.
+    subscription Subscription[]
+    ShopAsset    ShopAsset[]
+    Song         Song[]
+    AdminAsset   AdminAsset[]
+
+    @@index([code, issuer])
+}
+
+enum MediaType {
+    MUSIC
+    VIDEO
+    IMAGE
+}
+
+// ------------------------NOTIFICATION SCHEMA-------------------------
+
+enum NotificationType {
+    LIKE
+    COMMENT
+    SUBSCRIPTION
+    POST
+    SHOP_ASSET
+}
+
 // it is kinda notification actor and the entity that is being acted upon
 model NotificationObject {
     id         Int              @id @default(autoincrement())
@@ -43,42 +85,7 @@ model Notification {
     isCreator  Boolean @default(true) // is for creator
 }
 
-model Asset {
-    id   Int    @id @default(autoincrement())
-    code String
-
-    issuer        String
-    issuerPrivate String
-
-    creatorId String
-    creator   Creator @relation(fields: [creatorId], references: [id], onDelete: NoAction)
-
-    escrow Boolean @default(false)
-
-    subscription Subscription[]
-    ShopAsset    ShopAsset[]
-
-    @@index([code, issuer])
-}
-
-model ShopAsset {
-    id          Int     @id @default(autoincrement())
-    name        String
-    description String?
-    price       Float
-    mediaUrl    String?
-    thumbnail   String?
-
-    assetId Int
-    asset   Asset @relation(fields: [assetId], references: [id], onDelete: NoAction)
-
-    creatorId     String
-    creator       Creator         @relation(fields: [creatorId], references: [id], onDelete: Cascade)
-    UserShopAsset UserShopAsset[]
-
-    @@index([name, description])
-}
-
+// ------------------------FAN SCHEMA-------------------------
 model Subscription {
     id        Int     @id @default(autoincrement())
     priority  Int
@@ -171,15 +178,8 @@ model Creator {
     posts         Post[]
     subscriptions Subscription[]
     ShopAsset     ShopAsset[]
-    Asset         Asset[]
 
     @@index([bio, name])
-}
-
-enum MediaType {
-    MUSIC
-    VIDEO
-    IMAGE
 }
 
 model Post {
@@ -245,6 +245,7 @@ model User {
     Like              Like[]
     Comment           Comment[]
     UserShopAsset     UserShopAsset[]
+    Admin             Admin[]
 }
 
 model VerificationToken {
@@ -255,10 +256,111 @@ model VerificationToken {
     @@unique([identifier, token])
 }
 
-enum NotificationType {
-    LIKE
-    COMMENT
-    SUBSCRIPTION
-    POST
-    SHOP_ASSET
+// ------------------------MUSIC SCHEMA-------------------------
+
+model Album {
+    id          Int    @id @default(autoincrement())
+    name        String
+    description String
+    coverImgUrl String
+
+    createdAt DateTime @default(now())
+    Song      Song[]
+}
+
+model Song {
+    id           Int      @id @default(autoincrement())
+    serialNumber Int
+    name         String
+    artist       String
+    coverImgUrl  String
+    musicUrl     String
+    duration     String
+    createdAt    DateTime @default(now())
+
+    assetId Int
+    asset   Asset @relation(fields: [assetId], references: [id], onDelete: NoAction)
+
+    albumId Int
+    album   Album @relation(fields: [albumId], references: [id], onDelete: Cascade)
+}
+
+enum ItemPrivacy {
+    DRAFT
+    FOR_SALE // for sell
+    NOT_FOR_SALE // for public
+}
+
+// ------------------------Marketplace SCHEMA-------------------------
+
+model ShopAsset {
+    id          Int     @id @default(autoincrement())
+    name        String
+    description String?
+    price       Float
+    mediaUrl    String?
+    thumbnail   String?
+
+    assetId Int
+    asset   Asset @relation(fields: [assetId], references: [id], onDelete: NoAction)
+
+    creatorId     String
+    creator       Creator         @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+    UserShopAsset UserShopAsset[]
+
+    @@index([name, description])
+}
+
+// ------------------------Wallete SCHEMA-------------------------
+
+model AdminAsset {
+    id Int @id @default(autoincrement())
+
+    assetId Int
+    asset   Asset @relation(fields: [assetId], references: [id], onDelete: Cascade)
+
+    description String
+    link        String
+    codeIssuer  String
+
+    logoUrl      String
+    logoBlueData String?
+    color        String
+
+    adminId String
+    admin   Admin  @relation(fields: [adminId], references: [id], onDelete: NoAction)
+
+    AdminAssetTag AdminAssetTag[]
+}
+
+model Market {
+    id       Int     @id @default(autoincrement())
+    title    String
+    link     String
+    logoUrl  String?
+    blueData String?
+    color    String?
+}
+
+model AdminAssetTag {
+    id Int @id @default(autoincrement())
+
+    tagId Int
+    tag   Tag @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+    adminAssetId Int
+    addminAsset  AdminAsset @relation(fields: [adminAssetId], references: [id], onDelete: Cascade)
+}
+
+model Admin {
+    id       String   @id
+    joinedAt DateTime @default(now())
+
+    profileUrl String?
+    coverUrl   String?
+    bio        String?
+    name       String?
+
+    user       User         @relation(fields: [id], references: [id], onDelete: Cascade)
+    AdminAsset AdminAsset[]
 }

@@ -7,11 +7,11 @@ import { Creator, Subscription } from "@prisma/client";
 import MemberShipCard from "~/components/fan/creator/card";
 import { clientsign, useConnectWalletStateStore } from "package/connect_wallet";
 import toast from "react-hot-toast";
-import { MyAssetType } from "~/lib/stellar/utils";
+import { MyAssetType } from "~/lib/stellar/wallete/utils";
 import {
   CreatorProfileMenu,
   useCreatorProfileMenu,
-} from "~/lib/state/creator-profile-menu";
+} from "~/lib/state/fan/creator-profile-menu";
 import clsx from "clsx";
 import { ShopItem } from "~/components/fan/creator/shop";
 import SubscribeMembership from "~/components/fan/creator/confirm-subscription-modal";

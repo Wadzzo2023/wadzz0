@@ -4,7 +4,7 @@ import Link from "next/link";
 import React, { useState } from "react";
 import { AssetItem } from "~/components/right-sidebar";
 import Avater from "~/components/ui/avater";
-import { SearchMenu, useSearchMenu } from "~/lib/state/search-menu";
+import { SearchMenu, useSearchMenu } from "~/lib/state/fan/search-menu";
 import { api } from "~/utils/api";
 import { truncateString } from "~/utils/string";
 

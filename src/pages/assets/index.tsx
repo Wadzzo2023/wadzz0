@@ -1,6 +1,6 @@
 import clsx from "clsx";
 import React from "react";
-import { AssetMenu, useAssetMenu } from "~/lib/state/user-asset-menu";
+import { AssetMenu, useAssetMenu } from "~/lib/state/fan/user-asset-menu";
 import { api } from "~/utils/api";
 
 export default function MyAssetsPage() {

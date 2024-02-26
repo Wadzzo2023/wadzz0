@@ -1,17 +1,17 @@
 import { getAccSecret } from "package/connect_wallet";
 import { Asset } from "stellar-sdk";
 import { z } from "zod";
-import { buyAssetTrx } from "~/lib/stellar/buy_asset";
-import { clawBackAccCreate } from "~/lib/stellar/clawback";
-import { createAsset } from "~/lib/stellar/create_asset";
+import { buyAssetTrx } from "~/lib/stellar/wallete/buy_asset";
+import { clawBackAccCreate } from "~/lib/stellar/wallete/clawback";
+import { createAsset } from "~/lib/stellar/wallete/create_asset";
 import {
   getAssetNumberForXLM,
   getBandcoinPrice,
   getPlatfromAssetPrice,
-} from "~/lib/stellar/get_token_price";
-import { signXdrTransaction } from "~/lib/stellar/signXDR";
-import { getClawbackAsPayment } from "~/lib/stellar/subscribe";
-import { AssetSchema } from "~/lib/stellar/utils";
+} from "~/lib/stellar/wallete/get_token_price";
+import { signXdrTransaction } from "~/lib/stellar/wallete/signXDR";
+import { getClawbackAsPayment } from "~/lib/stellar/wallete/subscribe";
+import { AssetSchema } from "~/lib/stellar/wallete/utils";
 
 import {
   createTRPCRouter,

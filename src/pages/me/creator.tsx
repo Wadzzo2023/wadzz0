@@ -7,7 +7,7 @@ import MemberShip from "~/components/fan/creator/membership";
 import Shop from "~/components/fan/creator/shop";
 import Tabs from "~/components/fan/creator/tabs";
 import Avater from "~/components/ui/avater";
-import { CreatorMenu, useCreator } from "~/lib/state/creator-menu";
+import { CreatorMenu, useCreator } from "~/lib/state/fan/creator-menu";
 import { api } from "~/utils/api";
 
 export default function CreatorProfile() {

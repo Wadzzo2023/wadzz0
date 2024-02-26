@@ -2,7 +2,7 @@ import { Home } from "lucide-react";
 import React from "react";
 import { CreatorNavigation, UserNavigation } from "../../left-sidebar";
 import Link from "next/link";
-import { Mode, useMode } from "~/lib/state/left-side-mode";
+import { Mode, useMode } from "~/lib/state/fan/left-side-mode";
 import clsx from "clsx";
 import { useRouter } from "next/router";
 

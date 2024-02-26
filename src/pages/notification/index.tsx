@@ -4,7 +4,7 @@ import React from "react";
 import {
   NotificationMenu,
   useNotificationMenu,
-} from "~/lib/state/notification-menu";
+} from "~/lib/state/fan/notification-menu";
 import { api } from "~/utils/api";
 import { formatPostCreatedAt } from "~/utils/format-date";
 import { getNotificationMessage } from "~/utils/notificationConfig";
