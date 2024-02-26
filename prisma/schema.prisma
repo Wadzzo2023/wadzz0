@@ -178,6 +178,7 @@ model Creator {
     posts         Post[]
     subscriptions Subscription[]
     ShopAsset     ShopAsset[]
+    Song          Song[]
 
     @@index([bio, name])
 }
@@ -283,6 +284,9 @@ model Song {
 
     albumId Int
     album   Album @relation(fields: [albumId], references: [id], onDelete: Cascade)
+
+    creatorId String
+    creator   Creator @relation(fields: [creatorId], references: [id], onDelete: Cascade)
 }
 
 enum ItemPrivacy {

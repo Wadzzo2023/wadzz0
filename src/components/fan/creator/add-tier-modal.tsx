@@ -99,7 +99,7 @@ export default function AddTierModal({ creator }: { creator: Creator }) {
 
     trxMutation.mutate({
       code: getValues("name"),
-      signWith: needSign(walletType),
+      signWith: needSign(),
     });
     // mutation.mutate(data);
   };

@@ -24,6 +24,8 @@ import {
   protectedProcedure,
   publicProcedure,
 } from "~/server/api/trpc";
+import { SongFormSchema } from "~/components/music/modal/song_create";
+import { SignUser } from "~/lib/stellar/utils";
 
 export type authDocType = {
   pubkey: string;
@@ -46,10 +48,12 @@ export const stellarRouter = createTRPCRouter({
           { message: "Invalid number" },
         ),
         secret: z.string().min(56).optional(),
+        signWith: SignUser,
       }),
     )
     .mutation(async ({ input }) => {
-      const { limit, assetCode, issuerPub, pubkey, price, secret } = input;
+      const { limit, assetCode, issuerPub, pubkey, price, secret, signWith } =
+        input;
       try {
         let xdr: string;
         if (secret) {
@@ -63,11 +67,12 @@ export const stellarRouter = createTRPCRouter({
           });
         } else {
           xdr = await secondTransection({
-            assetCode,
+            code: assetCode,
             issuerPub,
             userPub: pubkey,
             price,
             limit,
+            signWith,
           });
         }
         if (xdr) {
@@ -89,28 +94,26 @@ export const stellarRouter = createTRPCRouter({
       }
     }),
 
-  // generateMusicAsset: protectedProcedure
-  //   .input(
-  //     z.object({
-  //       pubkey: z.string(),
-  //       code: z.string().min(2).max(12),
-  //       limit: z.string().refine(
-  //         (v) => {
-  //           const n = Number(v);
-  //           return !isNaN(n) && v?.length > 0 && n > 0;
-  //         },
-  //         { message: "Invalid number" },
-  //       ),
-  //     }),
-  //   )
-  //   .mutation(async ({ input }) => {
-  //     return await firstTransection({
-  //       assetCode: input.code,
-  //       limit: input.limit,
-  //       motherSecret: "",
-  //       storageSecret: "",
-  //     });
-  //   }),
+  getMusicAssetXdr: protectedProcedure
+    .input(
+      z.object({
+        signWith: SignUser,
+        code: z.string(),
+        limit: z.number(),
+        ipfsHash: z.string(),
+      }),
+    )
+    .mutation(async ({ input: i }) => {
+      //validate input
+      const assetLimit = i.limit.toString();
+
+      return await firstTransection({
+        assetCode: i.code,
+        limit: assetLimit,
+        signWith: i.signWith,
+        ipfsHash: i.ipfsHash,
+      });
+    }),
 
   getOrGeneratePub: publicProcedure
     .input(z.object({ uid: z.string() }))

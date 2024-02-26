@@ -185,26 +185,6 @@ export default function AddItem2Shop() {
     );
   }
 
-  async function triggerErrorInInf() {
-    return await trigger(["name", "description"]);
-  }
-
-  function isNameDesError() {
-    // toast.error("Error happened");
-    if (errors.name ?? errors.description) {
-      return true;
-    } else {
-      return false;
-    }
-  }
-  function isAssetInfoError() {
-    if (errors.AssetLimit ?? errors.AssetName ?? errors.price) return true;
-    else false;
-  }
-  async function triggerErroInAssetInfo() {
-    return await trigger(["AssetName", "AssetLimit", "price"]);
-  }
-
   function AssetInfo() {
     return (
       <div className="flex w-full flex-col items-center gap-3">

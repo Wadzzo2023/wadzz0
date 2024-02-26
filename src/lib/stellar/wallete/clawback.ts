@@ -18,6 +18,7 @@ import {
   networkPassphrase,
 } from "./constant";
 import { AccountType } from "./utils";
+import { SignUserType, WithSing } from "../utils";
 
 // transection variables
 
@@ -25,10 +26,12 @@ export async function clawBackAccCreate({
   pubkey,
   assetCode,
   actionAmount,
+  signWith,
 }: {
   pubkey: string;
   assetCode: string;
   actionAmount: string; // this is amount that will be used to refund xlm
+  signWith: SignUserType;
 }) {
   const server = new Server(STELLAR_URL);
   const limit = "50000";
@@ -106,12 +109,17 @@ export async function clawBackAccCreate({
     .setTimeout(0)
     .build();
 
+  // sign
   Tx1.sign(escrowAcc, distributorAcc);
+
+  // fab and oogle user sing
+  const trx = Tx1.toXDR();
+  const signedXDr = await WithSing({ xdr: trx, signWith });
 
   const escrow: AccountType = {
     publicKey: escrowAcc.publicKey(),
     secretKey: escrowAcc.secret(),
   };
 
-  return { trx: Tx1.toXDR(), escrow };
+  return { trx: signedXDr, escrow };
 }

@@ -2,6 +2,7 @@ import { z } from "zod";
 import { SongPrivacy, ZodSongAsset } from "~/lib/music/types/dbTypes";
 
 import {
+  adminProcedure,
   createTRPCRouter,
   protectedProcedure,
   publicProcedure,
@@ -12,6 +13,7 @@ import { ASSETS } from "~/lib/stellar/music/constant";
 import { getUserAllAssetsInSongAssets } from "~/lib/stellar/music/utils/asset";
 import { firstTransection } from "~/lib/stellar/music/trx/create_song_token";
 import log from "~/lib/logger/logger";
+import { SongFormSchema } from "~/components/music/modal/song_create";
 
 export const songRouter = createTRPCRouter({
   getAllSong: publicProcedure.query(async ({ ctx }) => {
@@ -181,144 +183,45 @@ export const songRouter = createTRPCRouter({
     }),
 
   getAsong: publicProcedure
-    .input(z.object({ songId: z.string() }))
-    .query(async ({ input }) => {
-      return {};
-      // const docRef = doc(db, FCname.songs, input.songId);
-      // const docSnap = await getDoc(docRef);
-      // const song = docSnap.data();
-      // return song && (song as Song);
+    .input(z.object({ songId: z.number() }))
+    .query(async ({ input, ctx }) => {
+      return await ctx.db.song.findUnique({ where: { id: input.songId } });
     }),
 
-  deleteAsong: protectedProcedure
-    .input(z.object({ songId: z.number(), albumId: z.number() }))
-    .mutation(async ({ input }) => {
-      // const result = await runTransaction(db, async (transaction) => {
-      //   // write to root songs
-      //   // also add to albums
-      //   const albumRef = doc(db, FCname.albums, input.albumId);
-      //   // Read the current state of the album document
-      //   const albumSnapshot = await transaction.get(albumRef);
-      //   const albumData = albumSnapshot.data();
-      //   const songIdToRemove = input.songId;
-      //   const newDocRef = doc(db, FCname.songs, songIdToRemove); // Reference to the song to be deleted
-      //   // Check if the song exists in the album's "songs" array
-      //   if (albumData) {
-      //     const songs = albumData.songs as string[];
-      //     if (songs.includes(songIdToRemove)) {
-      //       // Remove the song ID from the "songs" array using filter
-      //       const updatedSongs = songs.filter(
-      //         (songId: string) => songId !== songIdToRemove,
-      //       );
-      //       // Update the album's "songs" array
-      //       transaction.update(albumRef, { songs: updatedSongs });
-      //       // Delete the song document
-      //       transaction.delete(newDocRef);
-      //     }
-      //   }
-      //   return input.songId;
-      // });
-      // const docRef = doc(db, FCname.songs, input.songId);
-      // await deleteDoc(docRef);
+  deleteAsong: adminProcedure
+    .input(z.object({ songId: z.number() }))
+    .mutation(async ({ ctx, input }) => {
+      await ctx.db.song.delete({ where: { id: input.songId } });
     }),
 
   create: protectedProcedure
-    .input(
-      z.object({
-        name: z.string().min(3),
-        artist: z.string(),
-        albumId: z.string(),
-        coverImgUrl: z.string().url(),
-        musicUrl: z.string().url(),
-        id: z.string(),
-        duration: z.string(),
-        edit: z.boolean(),
-        serial: z.number().optional(),
-        privacy: z.nativeEnum(SongPrivacy),
-        asset: ZodSongAsset,
-      }),
-    )
-    .mutation(async ({ input }) => {
-      // try {
-      //   const serialNumber = 1;
-      //   const newSong: Song = {
-      //     albumId: input.albumId,
-      //     serialNumber: input.serial ? input.serial : 1,
-      //     id: input.id,
-      //     name: input.name,
-      //     artist: input.artist,
-      //     coverImgUrl: input.coverImgUrl,
-      //     musicUrl: input.musicUrl,
-      //     duration: input.duration,
-      //     date: new Date(),
-      //     privacy: input.privacy,
-      //     views: 0,
-      //   };
-      //   if (input.edit) {
-      //   }
-      //   // Conditionally add description property
-      //   // you can't firebase data fild to undefined
-      //   // asset
-      //   // issuer
-      //   if (typeof input.asset !== "undefined") {
-      //     newSong.songAsset = input.asset;
-      //   }
-      //   const result = await runTransaction(db, async (transaction) => {
-      //     // write to root songs
-      //     const newDocRef = doc(db, FCname.songs, input.id);
-      //     // also add to albums
-      //     let albumRef = doc(db, FCname.albums, input.albumId);
-      //     // Read the current state of the album document
-      //     const albumSnapshot = await transaction.get(albumRef);
-      //     // Check if the album exists
-      //     if (!albumSnapshot.exists()) {
-      //       albumRef = doc(db, FCname.albums, "UNKOWN");
-      //     }
-      //     // Add the new ID to the "songs" array using arrayUnion
-      //     const updateData = {
-      //       songs: arrayUnion(input.id),
-      //     };
-      //     transaction.update(albumRef, updateData);
-      //     // Create or update the new song document within the transaction
-      //     transaction.set(newDocRef, newSong);
-      //     return input.id;
-      //   });
-      //   return result;
-      // } catch (e) {
-      //   throw new TRPCError({
-      //     code: "PARSE_ERROR",
-      //     message: "Firebase error",
-      //     // optional: pass the original error to retain stack trace
-      //     cause: e,
-      //   });
-      // }
-    }),
+    .input(SongFormSchema)
+    .mutation(async ({ input, ctx }) => {
+      const { artist, coverImgUrl, albumId, musicUrl, name, code, issuer } =
+        input;
+      const serialNumber = 1; // will query based on createdAt
+      const duration = "1.1"; // just demo
 
-  saveToken: protectedProcedure
-    .input(
-      z.object({ songId: z.string(), pubKey: z.string(), secret: z.string() }),
-    )
-    .mutation(async ({ input }) => {
-      // const songDocRef = doc(db, FCname.songs, input.songId);
-      // const token = {
-      //   publicKey: input.pubKey,
-      //   secretKey: input.secret,
-      // };
-      // await updateDoc(songDocRef, { token: token });
-    }),
-
-  changeOrder: protectedProcedure
-    .input(z.object({ ids: z.array(z.string()), albumId: z.string() }))
-    .mutation(async ({ input }) => {
-      // const collectionRef = collection(db, FCname.songs);
-      // // Assuming you have a list of ordered song IDs from your drag-and-drop operation
-      // const orderedIds = input.ids; // Replace with the new order of song IDs
-      // const batch = writeBatch(db);
-      // orderedIds.forEach((songId, newIndex) => {
-      //   const songRef = doc(collectionRef, songId);
-      //   batch.update(songRef, { serialNumber: newIndex + 1 });
-      // });
-      // await batch.commit();
+      if (issuer) {
+        await ctx.db.asset.create({
+          data: {
+            code,
+            issuer: issuer.publicKey,
+            issuerPrivate: issuer.secretKey,
+            Song: {
+              create: {
+                artist,
+                coverImgUrl,
+                duration,
+                musicUrl,
+                name,
+                serialNumber,
+                albumId,
+              },
+            },
+          },
+        });
+      }
     }),
 
   changePrivacy: protectedProcedure

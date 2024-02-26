@@ -13,6 +13,7 @@ import {
 } from "./constant";
 import { env } from "~/env";
 import { AccounSchema, AccountType } from "./utils";
+import { SignUserType, WithSing } from "../utils";
 
 const log = console;
 
@@ -31,11 +32,13 @@ export async function createAsset({
   code,
   limit: limitValue,
   actionAmount,
+  signWith,
 }: {
   pubkey: string;
   code: string;
   limit: number;
   actionAmount: string;
+  signWith: SignUserType;
 }) {
   const limit = limitValue.toString();
   const server = new Server(STELLAR_URL);
@@ -120,10 +123,17 @@ export async function createAsset({
     .setTimeout(0)
     .build();
 
+  // sign
   Tx1.sign(issuerAcc, distributorAcc);
+  const xdr = Tx1.toXDR();
+  const signedXDr = await WithSing({
+    xdr: xdr,
+    signWith,
+  });
+
   const issuer: AccountType = {
     publicKey: issuerAcc.publicKey(),
     secretKey: issuerAcc.secret(),
   };
-  return { xdr: Tx1.toXDR(), issuer };
+  return { xdr: signedXDr, issuer };
 }

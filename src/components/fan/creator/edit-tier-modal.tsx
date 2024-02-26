@@ -32,7 +32,7 @@ export const EditTierSchema = z.object({
 export default function EditTierModal({ item }: { item: Subscription }) {
   const router = useRouter();
   const modalRef = useRef<HTMLDialogElement>(null);
-  const mutation = api.member.editTierModal.useMutation();
+  const mutation = api.fan.member.editTierModal.useMutation();
   const {
     register,
     handleSubmit,

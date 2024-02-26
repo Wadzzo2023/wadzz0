@@ -1,6 +1,7 @@
 import { getAccSecret } from "package/connect_wallet";
 import { Asset } from "stellar-sdk";
 import { z } from "zod";
+import { SignUser, WithSing } from "~/lib/stellar/utils";
 import { buyAssetTrx } from "~/lib/stellar/wallete/buy_asset";
 import { clawBackAccCreate } from "~/lib/stellar/wallete/clawback";
 import { createAsset } from "~/lib/stellar/wallete/create_asset";
@@ -19,11 +20,6 @@ import {
   publicProcedure,
 } from "~/server/api/trpc";
 
-export const SignUser = z
-  .object({ uid: z.string(), email: z.string() })
-  .optional();
-type SignUserType = z.TypeOf<typeof SignUser>;
-
 export const trxRouter = createTRPCRouter({
   clawbackAssetCreationTrx: protectedProcedure
     .input(z.object({ code: z.string(), signWith: SignUser }))
@@ -31,14 +27,12 @@ export const trxRouter = createTRPCRouter({
       const { code, signWith } = input;
       const assetAmout = await getAssetNumberForXLM();
 
-      const data = await clawBackAccCreate({
+      return await clawBackAccCreate({
         actionAmount: assetAmout.toString(),
         pubkey: ctx.session.user.id,
         assetCode: code,
+        signWith,
       });
-      const signedXDr = await WithSing({ xdr: data.trx, signWith });
-      data.trx = signedXDr;
-      return data;
     }),
 
   clawbackAssetPaymentTrx: protectedProcedure
@@ -68,19 +62,13 @@ export const trxRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       const assetAmout = await getAssetNumberForXLM();
 
-      const data = await createAsset({
+      return await createAsset({
         actionAmount: assetAmout.toString(),
         pubkey: ctx.session.user.id,
         code: input.code,
         limit: input.limit,
-      });
-
-      const signedXDr = await WithSing({
-        xdr: data.xdr,
         signWith: input.signWith,
       });
-      data.xdr = signedXDr;
-      return data;
     }),
 
   buyAssetTrx: protectedProcedure
@@ -126,16 +114,3 @@ export const trxRouter = createTRPCRouter({
       return signXdrTransaction(xdr, secret);
     }),
 });
-
-async function WithSing({
-  xdr,
-  signWith,
-}: {
-  xdr: string;
-  signWith: SignUserType;
-}) {
-  if (signWith) {
-    const secret = await getAccSecret(signWith.uid, signWith.email);
-    return signXdrTransaction(xdr, secret);
-  } else return xdr;
-}

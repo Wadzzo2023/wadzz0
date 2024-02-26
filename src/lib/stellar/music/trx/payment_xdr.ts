@@ -8,34 +8,33 @@ import {
 } from "stellar-sdk";
 import { DEFAULT_ASSET_LIMIT, STELLAR_URL, STORAGE_SECRET } from "../constant";
 import { networkPassphrase } from "./create_song_token";
+import { SignUserType, WithSing } from "../../utils";
 
 const log = console;
 
 export async function secondTransection({
-  assetCode,
+  signWith,
+  code,
   issuerPub,
   userPub,
   price,
   limit,
 }: {
   userPub: string;
-  assetCode: string;
+  code: string;
   issuerPub: string;
   price: string;
   limit: string;
+  signWith: SignUserType;
 }) {
   // this asset limit only for buying more item.
-  const assetLimit = (Number(limit) / Number(DEFAULT_ASSET_LIMIT))
-    .toFixed(7)
-    .toString();
-  const asset = new Asset(assetCode, issuerPub);
-  const server = new Server(STELLAR_URL);
 
+  const asset = new Asset(code, issuerPub);
+  const server = new Server(STELLAR_URL);
   const storageAcc = Keypair.fromSecret(STORAGE_SECRET);
 
   const transactionInializer = await server.loadAccount(userPub);
 
-  log.info("price", price);
   for (const balance of transactionInializer.balances) {
     if (balance.asset_type === "native") {
       if (Number(balance.balance) < Number(price)) {
@@ -62,7 +61,7 @@ export async function secondTransection({
     .addOperation(
       Operation.changeTrust({
         asset: asset,
-        limit: assetLimit,
+        limit: limit,
         source: userPub,
       }),
     )
@@ -80,13 +79,10 @@ export async function secondTransection({
 
   await Tx2.sign(storageAcc);
 
-  const transectionXDR = Tx2.toXDR();
+  const xdr = Tx2.toXDR();
+  const singedXdr = WithSing({ xdr, signWith });
   // log.info("transectionXDR: ", transectionXDR);
-  return transectionXDR;
-
-  // Tx1.sign(storageAcc);
-  // const txResponse = await server.submitTransaction(Tx1);
-  // log.info(txResponse);
+  return singedXdr;
 }
 
 export async function secondTransectionForFbAndGoogleUser({
