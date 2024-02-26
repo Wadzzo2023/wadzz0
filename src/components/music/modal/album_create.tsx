@@ -19,7 +19,10 @@ type AlbumCreate = {
 
 export const AlbumFormShema = z.object({
   id: z.number().optional(),
-  name: z.string(),
+  name: z
+    .string()
+    .max(20, { message: "Maximum 20 char" })
+    .min(3, { message: "Minimum 3 char" }),
   description: z.string(),
   coverImgUrl: z.string(),
 });
@@ -77,16 +80,14 @@ export default function AlbumCreate({ mode, album }: AlbumCreate) {
           >
             <div className="flex flex-col gap-2">
               <input
-                {...register("name", { required: "Album name is required" })}
+                {...register("name")}
                 type="text"
                 required
                 placeholder="Album Name"
                 className="input input-bordered input-sm  w-full"
               />
               <input
-                {...register("description", {
-                  required: "Description is required",
-                })}
+                {...register("description")}
                 type="text"
                 required
                 placeholder="Description"

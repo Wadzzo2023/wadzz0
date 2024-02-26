@@ -135,34 +135,9 @@ export const songRouter = createTRPCRouter({
     }),
 
   getAllByAlbum: protectedProcedure
-    .input(z.object({ albumId: z.string() }))
-    .query(async ({ input }) => {
-      return [];
-      // const albumRef = doc(db, FCname.albums, input.albumId);
-      // // Fetch the album document
-      // const albumDoc = await getDoc(albumRef);
-      // const songs: Song[] = [];
-      // if (albumDoc.exists()) {
-      //   // Access the "songs" array field from the document's data
-      //   const songsArray = albumDoc.data().songs as string[];
-
-      //   if (Array.isArray(songsArray)) {
-      //     for (const songId of songsArray) {
-      //       const songDoc = await getDoc(doc(db, FCname.songs, songId));
-      //       if (songDoc.exists()) {
-      //         const song = songDoc.data() as Song;
-      //         songs.push(song);
-      //       }
-      //     }
-      //   } else {
-      //     log.info("The 'songs' field is not an array.");
-      //   }
-      // } else {
-      //   log.info("Album document does not exist.");
-      // }
-
-      // // const snapAsset = await getDoc(doc(db, FCname.albums));
-      // return songs;
+    .input(z.object({ albumId: z.number() }))
+    .query(async ({ input, ctx }) => {
+      return await ctx.db.song.findMany({ where: { albumId: input.albumId } });
     }),
 
   getAllByAlbumBasedonUserPub: publicProcedure
@@ -216,7 +191,7 @@ export const songRouter = createTRPCRouter({
     }),
 
   deleteAsong: protectedProcedure
-    .input(z.object({ songId: z.string(), albumId: z.string() }))
+    .input(z.object({ songId: z.number(), albumId: z.number() }))
     .mutation(async ({ input }) => {
       // const result = await runTransaction(db, async (transaction) => {
       //   // write to root songs

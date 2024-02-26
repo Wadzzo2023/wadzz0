@@ -9,17 +9,19 @@ import { useContentWidthStore } from "~/lib/state/music/content_width";
 export default function AlbumSection({ albums }: { albums: Album[] }) {
   const { width } = useContentWidthStore();
 
-  if (albums.length > 0)
-    return (
-      <Link href={`/album/${1}`}>
-        <Card
-          title={"album.name"}
-          subtitle={"album.description"}
-          imageUrl={"album.coverImgUrl"}
-        />
-      </Link>
-    );
-  else {
+  if (albums.length > 0) {
+    return albums.map((album) => {
+      return (
+        <Link href={`/music/album/${album.id}`}>
+          <Card
+            title={album.name}
+            subtitle={album.description}
+            imageUrl={album.coverImgUrl}
+          />
+        </Link>
+      );
+    });
+  } else {
     return <p>No album</p>;
   }
 }

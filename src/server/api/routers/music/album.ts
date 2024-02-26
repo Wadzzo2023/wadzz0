@@ -10,26 +10,25 @@ import { TRPCError } from "@trpc/server";
 import { AlbumFormShema } from "~/components/music/modal/album_create";
 
 export const albumRouter = createTRPCRouter({
-  getAll: publicProcedure.query(async () => {
-    // const querySnapshot = await getDocs(firebaseCollection.albums);
-    // const ablums = querySnapshot.docs.map((doc) => {
-    //   return doc.data() as Album;
-    // });
-    // const snapAsset = await getDoc(doc(db, FCname.albums));
-    // return ablums;
-    return [];
+  getAll: publicProcedure.query(async ({ ctx }) => {
+    return await ctx.db.album.findMany();
   }),
 
   getById: publicProcedure
     .input(z.object({ albumId: z.number() }))
     .query(async ({ input, ctx }) => {
-      return await ctx.db.album.findUnique({ where: { id: input.albumId } });
+      return await ctx.db.album.findUnique({
+        where: { id: input.albumId },
+        include: { Song: true },
+      });
     }),
 
   delete: adminProcedure
     .input(z.object({ albumId: z.number() }))
     .mutation(async ({ ctx, input }) => {
-      await ctx.db.album.delete({ where: { id: input.albumId } });
+      await ctx.db.album.delete({
+        where: { id: input.albumId },
+      });
     }),
 
   create: publicProcedure

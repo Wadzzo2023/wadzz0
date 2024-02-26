@@ -14,4 +14,4 @@ export const STELLAR_URL = env.NEXT_PUBLIC_STELLAR_PUBNET
   ? "https://horizon.stellar.org"
   : "https://horizon-testnet.stellar.org";
 
-export const STORAGE_PUB = env.NEXT_PUBLIC_STORAGE_PUB;
+export const STORAGE_PUB = "test"; // env.NEXT_PUBLIC_STORAGE_PUB;

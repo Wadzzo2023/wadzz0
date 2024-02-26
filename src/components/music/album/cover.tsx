@@ -1,5 +1,4 @@
 import { useSession } from "next-auth/react";
-import { Album } from "~/lib/types/dbTypes";
 import { MouseEvent } from "react";
 import AlbumCreate from "../modal/album_create";
 import { ModalMode } from "../modal/modal_template";
@@ -7,8 +6,9 @@ import { api } from "~/utils/api";
 import { useRouter } from "next/router";
 import Image from "next/image";
 import ConfirmationModal from "../modal/confirmation";
-import { useContentWidthStore } from "~/lib/states/content_width";
+import { useContentWidthStore } from "~/lib/state/music/content_width";
 import clsx from "clsx";
+import { Album } from "@prisma/client";
 
 export default function AlbumCover({
   album,
@@ -20,7 +20,7 @@ export default function AlbumCover({
   const { status } = useSession();
   const router = useRouter();
   const { width } = useContentWidthStore();
-  const mutation = api.album.delete.useMutation();
+  const mutation = api.music.album.delete.useMutation();
 
   function handleAlbumDelete() {
     mutation.mutate({ albumId: album.id });
@@ -34,7 +34,7 @@ export default function AlbumCover({
         (width ?? 400) > 500 ? "flex-row items-end" : "flex-col",
       )}
     >
-      <div className="h-48 w-48  flex-shrink-0 bg-neutral-focus bg-gradient-to-r from-slate-900 via-purple-900 to-slate-900 shadow-md">
+      <div className="bg-neutral-focus h-48  w-48 flex-shrink-0 bg-gradient-to-r from-slate-900 via-purple-900 to-slate-900 shadow-md">
         <Image
           src={album.coverImgUrl}
           height={192}

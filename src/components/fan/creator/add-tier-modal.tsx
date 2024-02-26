@@ -10,9 +10,8 @@ import {
   needSign,
   useConnectWalletStateStore,
 } from "package/connect_wallet";
-import { AccounSchema, clientSelect } from "~/lib/stellar/wallete/utils";
+import { clientSelect } from "~/lib/stellar/wallete/utils";
 import { Plus } from "lucide-react";
-import CollapseSible from "../../ui/collapse";
 import Alert from "../../ui/alert";
 import { PLATFROM_ASSET, PLATFROM_FEE } from "~/lib/stellar/wallete/constant";
 
@@ -41,14 +40,14 @@ export default function AddTierModal({ creator }: { creator: Creator }) {
   const [isModalOpen, setIsModalOpen] = React.useState(false);
 
   const { pubkey, walletType, needSign } = useConnectWalletStateStore();
-  const mutation = api.member.createMembership.useMutation({
+  const mutation = api.fan.member.createMembership.useMutation({
     onSuccess: () => {
       reset();
     },
   });
-  const assetAmount = api.trx.getAssetNumberforXlm.useQuery();
+  const assetAmount = api.fan.trx.getAssetNumberforXlm.useQuery();
 
-  const trxMutation = api.trx.clawbackAssetCreationTrx.useMutation({
+  const trxMutation = api.fan.trx.clawbackAssetCreationTrx.useMutation({
     onSuccess: async (data) => {
       if (data) {
         // sign the transaction for fbgoogle

@@ -38,16 +38,16 @@ export default function AddItem2Shop() {
   const { isAva, pubkey, walletType, uid, email } =
     useConnectWalletStateStore();
 
-  const assetAmount = api.trx.getAssetNumberforXlm.useQuery();
+  const assetAmount = api.fan.trx.getAssetNumberforXlm.useQuery();
 
-  const addMutation = api.shop.createShopAsset.useMutation({
+  const addMutation = api.fan.shop.createShopAsset.useMutation({
     onSuccess: () => {
       toast.success("Item created successfully!");
       reset();
     },
   });
 
-  const xdrMutation = api.trx.createAssetTrx.useMutation({
+  const xdrMutation = api.fan.trx.createAssetTrx.useMutation({
     onSuccess(data, variables, context) {
       if (data) {
         const { issuer, xdr } = data;

@@ -1,3 +1,4 @@
+import { Song } from "@prisma/client";
 import Head from "next/head";
 import Image from "next/image";
 import {
@@ -14,12 +15,12 @@ import { api } from "~/utils/api";
 export default function Home() {
   const { isAva } = useConnectWalletStateStore();
   const { height } = useContentWidthStore();
-  const { data: banner } = api.music.banner.get.useQuery();
+  // const { data: banner } = api.music.banner.get.useQuery();
+  const albums = api.music.album.getAll.useQuery();
 
-  const albums = useAlbumStore((state) => state.albums);
-  const publicSongs = [];
-  const mySong = [];
-  const safeAllsong = [];
+  const publicSongs = [] as Song[];
+  const mySong = [] as Song[];
+  const safeAllsong = [] as Song[];
 
   function conditionalRender() {
     if (isAva) {
@@ -49,7 +50,7 @@ export default function Home() {
 
       <div className="flex flex-col gap-5 ">
         <div className="mt-4 w-full">
-          {banner ? (
+          {/* {banner ? (
             <div className=" w-full">
               <div
                 className="relative w-full rounded-2xl bg-gradient-to-r from-base-300 via-base-100 to-base-300"
@@ -65,12 +66,12 @@ export default function Home() {
             </div>
           ) : (
             <div className=" rounded-2xl bg-base-300"></div>
-          )}
+          )} */}
         </div>
-        {albums && (
+        {albums.data && (
           <div>
             <h3 className="py-4 text-2xl font-bold">ALBUMS</h3>
-            <AlbumSection albums={albums} />
+            <AlbumSection albums={albums.data} />
           </div>
         )}
 
