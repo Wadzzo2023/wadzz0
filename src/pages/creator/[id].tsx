@@ -28,7 +28,9 @@ export default function CreatorPage() {
 }
 
 function CreatorPageView({ creatorId }: { creatorId: string }) {
-  const { data: creator } = api.creator.getCreator.useQuery({ id: creatorId });
+  const { data: creator } = api.fan.creator.getCreator.useQuery({
+    id: creatorId,
+  });
   if (creator)
     return (
       <div className="flex w-full flex-col gap-4 overflow-y-auto">
@@ -45,7 +47,7 @@ function CreatorPageView({ creatorId }: { creatorId: string }) {
 }
 
 function CreatorPosts({ creatorId }: { creatorId: string }) {
-  const { data, isLoading, error } = api.post.getPosts.useInfiniteQuery(
+  const { data, isLoading, error } = api.fan.post.getPosts.useInfiniteQuery(
     {
       pubkey: creatorId,
       limit: 10,
@@ -53,7 +55,7 @@ function CreatorPosts({ creatorId }: { creatorId: string }) {
     { getNextPageParam: (lastPage) => lastPage.nextCursor },
   );
 
-  const subscription = api.member.aCraatorSubscribedToken.useQuery({
+  const subscription = api.fan.member.aCraatorSubscribedToken.useQuery({
     creatorId,
   });
 
@@ -127,7 +129,7 @@ function Tabs() {
 
 export function ChooseMemberShip({ creator }: { creator: Creator }) {
   const { data: subscriptonModel, isLoading } =
-    api.member.getCreatorMembership.useQuery(creator.id);
+    api.fan.member.getCreatorMembership.useQuery(creator.id);
 
   if (subscriptonModel && subscriptonModel.length > 0) {
     return (
@@ -184,7 +186,7 @@ function SubscriptionCard({
 }) {
   const { isAva, pubkey, walletType, uid, email } =
     useConnectWalletStateStore();
-  const { data: subscriptions } = api.member.userSubscriptions.useQuery();
+  const { data: subscriptions } = api.fan.member.userSubscriptions.useQuery();
 
   return (
     <MemberShipCard
@@ -206,7 +208,7 @@ function SubscriptionCard({
 }
 
 function AllShopItems({ creatorId }: { creatorId: string }) {
-  const { data: items, isLoading } = api.shop.getCreatorShopAsset.useQuery({
+  const { data: items, isLoading } = api.fan.shop.getCreatorShopAsset.useQuery({
     creatorId,
   });
   if (isLoading) return <div>Loading...</div>;

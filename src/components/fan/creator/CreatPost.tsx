@@ -49,15 +49,15 @@ export function CreatPost() {
   const [media, setMedia] = useState<MediaInfoType[]>([]);
   const [wantMediaType, setWantMedia] = useState<MediaType>();
 
-  const creator = api.creator.meCreator.useQuery();
+  const creator = api.fan.creator.meCreator.useQuery();
 
-  const createPostMutation = api.post.create.useMutation({
+  const createPostMutation = api.fan.post.create.useMutation({
     onSuccess: () => {
       reset();
       toast.success("Post Created");
     },
   });
-  const { data, isLoading } = api.member.getAllMembership.useQuery();
+  const { data, isLoading } = api.fan.member.getAllMembership.useQuery();
 
   const onSubmit: SubmitHandler<z.infer<typeof PostSchema>> = (data) => {
     data.medias = media;
@@ -229,7 +229,7 @@ export function CreatPost() {
     );
 }
 export function PostList(props: { id: string }) {
-  const posts = api.post.getPosts.useInfiniteQuery(
+  const posts = api.fan.post.getPosts.useInfiniteQuery(
     {
       pubkey: props.id,
       limit: 10,

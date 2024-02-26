@@ -1,14 +1,13 @@
-import { deleteDoc, doc, getDoc, getDocs, setDoc } from "firebase/firestore";
 import { z } from "zod";
 
 import {
   createTRPCRouter,
   protectedProcedure,
+  adminProcedure,
   publicProcedure,
 } from "~/server/api/trpc";
 import { TRPCError } from "@trpc/server";
-import { deleteObject, ref } from "firebase/storage";
-import { Album } from "~/lib/music/types/dbTypes";
+import { AlbumFormShema } from "~/components/music/modal/album_create";
 
 export const albumRouter = createTRPCRouter({
   getAll: publicProcedure.query(async () => {
@@ -22,57 +21,41 @@ export const albumRouter = createTRPCRouter({
   }),
 
   getById: publicProcedure
-    .input(z.object({ albumId: z.string() }))
-    .query(async ({ input }) => {
-      // const docSnapshot = await getDoc(doc(db, FCname.albums, input.albumId));
-      // return docSnapshot.data() as Album;
-      return {} as Album;
+    .input(z.object({ albumId: z.number() }))
+    .query(async ({ input, ctx }) => {
+      return await ctx.db.album.findUnique({ where: { id: input.albumId } });
     }),
 
-  delete: protectedProcedure
-    .input(z.object({ albumId: z.string() }))
-    .mutation(async ({ input }) => {
-      // await deleteDoc(doc(db, FCname.albums, input.albumId));
-      // const storageRef1 = ref(storage, getAlbumBase(input.albumId));
-      // await deleteObject(storageRef1);
+  delete: adminProcedure
+    .input(z.object({ albumId: z.number() }))
+    .mutation(async ({ ctx, input }) => {
+      await ctx.db.album.delete({ where: { id: input.albumId } });
     }),
 
-  create: protectedProcedure
-    .input(
-      z.object({
-        name: z.string(),
-        description: z.string(),
-        coverImgUrl: z.string(),
-        id: z.string(),
-        edit: z.boolean(),
-      }),
-    )
-    .mutation(async ({ input }) => {
-      // const newAlbum: Album = {
-      //   id: input.id,
-      //   name: input.name,
-      //   description: input.description,
-      //   coverImgUrl: input.coverImgUrl,
-      // };
-      // try {
-      //   const newDocRef = doc(db, FCname.albums, input.id);
-      //   await setDoc(newDocRef, newAlbum);
-      //   return input.id;
-      //   // const docSnapshot = await getDoc(newDocRef);
-      //   // if (docSnapshot.exists() && input.edit) {
-      //   //   await setDoc(newDocRef, newAlbum);
-      //   //   return input.id;
-      //   // } else {
-      //   //   await setDoc(newDocRef, newAlbum);
-      //   //   return input.id;
-      //   // }
-      // } catch (e) {
-      //   throw new TRPCError({
-      //     code: "PARSE_ERROR",
-      //     message: "Id is already exists, so try another name",
-      //     // optional: pass the original error to retain stack trace
-      //     cause: e,
-      //   });
-      // }
+  create: publicProcedure
+    .input(AlbumFormShema)
+
+    .mutation(async ({ input, ctx }) => {
+      const { coverImgUrl, description, name } = input;
+      await ctx.db.album.create({ data: { name, coverImgUrl, description } });
+    }),
+
+  update: protectedProcedure
+    .input(AlbumFormShema)
+    .mutation(async ({ input, ctx }) => {
+      if (input.id) {
+        const album = await ctx.db.album.findUnique({
+          where: { id: input.id },
+        });
+        if (!album)
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "Album not found",
+          });
+        await ctx.db.album.update({
+          where: { id: input.id },
+          data: { ...input },
+        });
+      }
     }),
 });

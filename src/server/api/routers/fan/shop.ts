@@ -17,7 +17,6 @@ export const shopRouter = createTRPCRouter({
             code: input.AssetName,
             issuer: input.issuer.publicKey,
             issuerPrivate: input.issuer.secretKey,
-            creatorId: ctx.session.user.id,
           },
         });
         await ctx.db.shopAsset.create({
@@ -34,11 +33,11 @@ export const shopRouter = createTRPCRouter({
       }
     }),
 
-  deleteAsset: protectedProcedure
+  deleteAsset: protectedProcedure // fix the logic
     .input(z.number())
     .mutation(async ({ ctx, input }) => {
       return await ctx.db.asset.delete({
-        where: { id: input, creatorId: ctx.session.user.id },
+        where: { id: input },
       });
     }),
   getCreatorShopAsset: publicProcedure

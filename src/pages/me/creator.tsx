@@ -19,7 +19,7 @@ export default function CreatorProfile() {
 }
 
 function CreatorExist(props: { user: Session["user"] }) {
-  const { data: creator, isLoading } = api.creator.getCreator.useQuery({
+  const { data: creator, isLoading } = api.fan.creator.getCreator.useQuery({
     id: props.user.id,
   });
 
@@ -84,7 +84,7 @@ function ConditionallyRenderMenuPage({ creator }: { creator: Creator }) {
 }
 
 function CreateCreator(props: { id: string }) {
-  const makeCreatorMutation = api.creator.makeMeCreator.useMutation();
+  const makeCreatorMutation = api.fan.creator.makeMeCreator.useMutation();
 
   return (
     <div className="flex h-full flex-col items-center justify-center gap-2 ">

@@ -2,7 +2,6 @@ import { TRPCError } from "@trpc/server";
 
 import { Keypair } from "stellar-sdk";
 import { z } from "zod";
-i;
 import log from "~/lib/logger/logger";
 import {
   MOTHER_SECRET,
@@ -116,35 +115,36 @@ export const stellarRouter = createTRPCRouter({
   getOrGeneratePub: publicProcedure
     .input(z.object({ uid: z.string() }))
     .query(async ({ input }) => {
-      const docRef = doc(db, FCname.auth, input.uid);
-      const userSnapshot = await getDoc(docRef);
+      return "";
+      // const docRef = doc(db, FCname.auth, input.uid);
+      // const userSnapshot = await getDoc(docRef);
 
-      // Check if the album exists
-      if (userSnapshot.exists()) {
-        const userAuth = userSnapshot.data() as authDocType;
-        return userAuth.pubkey;
-      } else {
-        const userPair = Keypair.random();
-        const newDoc: authDocType = {
-          pubkey: userPair.publicKey(),
-          secret: userPair.secret(),
-        };
-        await setDoc(docRef, newDoc);
+      // // Check if the album exists
+      // if (userSnapshot.exists()) {
+      //   const userAuth = userSnapshot.data() as authDocType;
+      //   return userAuth.pubkey;
+      // } else {
+      //   const userPair = Keypair.random();
+      //   const newDoc: authDocType = {
+      //     pubkey: userPair.publicKey(),
+      //     secret: userPair.secret(),
+      //   };
+      //   await setDoc(docRef, newDoc);
 
-        return userPair.publicKey();
-      }
+      //   return userPair.publicKey();
+      // }
     }),
 
   getToml: publicProcedure.query(async () => {
-    const collectionRef = collection(db, FCname.songs);
+    // const collectionRef = collection(db, FCname.songs);
 
-    // Create a query that orders the documents by views in descending order and limits the result to a specific number (e.g., 10).
-    const q = query(collectionRef, orderBy("songAsset"));
-    // Fetch the documents based on the query.
-    const querySnapshot = await getDocs(q);
-    const songs = querySnapshot.docs.map((doc) => {
-      return doc.data() as Song;
-    });
+    // // Create a query that orders the documents by views in descending order and limits the result to a specific number (e.g., 10).
+    // const q = query(collectionRef, orderBy("songAsset"));
+    // // Fetch the documents based on the query.
+    // const querySnapshot = await getDocs(q);
+    // const songs = querySnapshot.docs.map((doc) => {
+    //   return doc.data() as Song;
+    // });
 
     // [DOCUMENTATION];
     // ORG_URL = "<https://music.bandcoin.io/>"[[CURRENCIES]];
@@ -156,9 +156,10 @@ export const stellarRouter = createTRPCRouter({
     // limit = limit;
     // display_decimals = 7;
 
-    for (const song of songs) {
-    }
-    return songs;
+    // for (const song of songs) {
+    // }
+    // return songs;
+    return [];
   }),
 
   getStorageBalances: publicProcedure.query(() => {

@@ -197,28 +197,29 @@ export const stellarRouter = createTRPCRouter({
     }),
 
   getToml: publicProcedure.query(async () => {
-    const collectionRef = collection(db, FSdocName.nfts);
+    // const collectionRef = collection(db, FSdocName.nfts);
 
-    // Create a query that orders the documents by views in descending order and limits the result to a specific number (e.g., 10).
-    const q = query(collectionRef, orderBy("songAsset"));
-    // Fetch the documents based on the query.
-    const querySnapshot = await getDocs(q);
-    const songs = querySnapshot.docs.map((doc) => {
-      return doc.data() as NFT;
-    });
+    // // Create a query that orders the documents by views in descending order and limits the result to a specific number (e.g., 10).
+    // const q = query(collectionRef, orderBy("songAsset"));
+    // // Fetch the documents based on the query.
+    // const querySnapshot = await getDocs(q);
+    // const songs = querySnapshot.docs.map((doc) => {
+    //   return doc.data() as NFT;
+    // });
 
-    // [DOCUMENTATION];
-    // issuer = "get asset issuer";
-    // code = "get asset code";
-    // name = "get asset name";
-    // desc = "This is a description of the cool NFT.";
-    // image = "ipfs link ending with file format extension";
-    // limit = limit;
-    // display_decimals = 7;
+    // // [DOCUMENTATION];
+    // // issuer = "get asset issuer";
+    // // code = "get asset code";
+    // // name = "get asset name";
+    // // desc = "This is a description of the cool NFT.";
+    // // image = "ipfs link ending with file format extension";
+    // // limit = limit;
+    // // display_decimals = 7;
 
-    for (const song of songs) {
-    }
-    return songs;
+    // for (const song of songs) {
+    // }
+    // return songs;
+    return [];
   }),
 
   getStorageBalances: publicProcedure.query(() => {
@@ -258,3 +259,7 @@ export const stellarRouter = createTRPCRouter({
     return "you can now see this secret message!";
   }),
 });
+
+function getUserSecret(arg0: { uid: string; email: string }) {
+  return "testSecret";
+}

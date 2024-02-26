@@ -1,16 +1,3 @@
-import {
-  collection,
-  deleteDoc,
-  doc,
-  getDoc,
-  getDocs,
-  limit,
-  orderBy,
-  query,
-  updateDoc,
-  where,
-  writeBatch,
-} from "firebase/firestore";
 import { z } from "zod";
 import {
   NFT,
@@ -30,25 +17,28 @@ import { MarketNFT } from "./marketplace";
 
 export const nftRouter = createTRPCRouter({
   getAllNft: publicProcedure.query(async () => {
-    const collectionRef = collection(db, FSdocName.nfts);
-    const querySnapshot = await getDocs(collectionRef);
-    const nfts = querySnapshot.docs.map((doc) => {
-      const docD = doc.data() as MarketNFT;
-      docD.path = doc.ref.path;
-      return docD;
-    });
-    return nfts;
+    // const collectionRef = collection(db, FSdocName.nfts);
+    // const querySnapshot = await getDocs(collectionRef);
+    // const nfts = querySnapshot.docs.map((doc) => {
+    //   const docD = doc.data() as MarketNFT;
+    //   docD.path = doc.ref.path;
+    //   return docD;
+    // });
+    // return nfts;
+    return [];
   }),
 
   deleteNFT: protectedProcedure
     .input(z.object({ path: z.string() }))
     .mutation(async ({ input }) => {
-      const docRef = doc(db, input.path);
-      try {
-        await deleteDoc(docRef);
-      } catch (e: unknown) {
-        console.log("delete error");
-      }
+      // const docRef = doc(db, input.path);
+      // try {
+      //   await deleteDoc(docRef);
+      // } catch (e: unknown) {
+      //   console.log("delete error");
+      // }
+
+      return [];
     }),
 
   getAllSongWithOrderByAndLimit: publicProcedure
@@ -59,85 +49,95 @@ export const nftRouter = createTRPCRouter({
       }),
     )
     .query(async ({ input }) => {
-      const songLimit = input.limit ? input.limit : 6;
-      const orderby = input.orderBy;
+      // const songLimit = input.limit ? input.limit : 6;
+      // const orderby = input.orderBy;
 
-      const collectionRef = collection(db, FSdocName.nfts);
+      // const collectionRef = collection(db, FSdocName.nfts);
 
-      // Create a query that orders the documents by views in descending order and limits the result to a specific number (e.g., 10).
-      const q = query(collectionRef, orderBy(input.orderBy), limit(songLimit));
-      // Fetch the documents based on the query.
-      const querySnapshot = await getDocs(q);
-      const songs = querySnapshot.docs.map((doc) => {
-        return doc.data() as NFT;
-      });
-      return songs;
+      // // Create a query that orders the documents by views in descending order and limits the result to a specific number (e.g., 10).
+      // const q = query(collectionRef, orderBy(input.orderBy), limit(songLimit));
+      // // Fetch the documents based on the query.
+      // const querySnapshot = await getDocs(q);
+      // const songs = querySnapshot.docs.map((doc) => {
+      //   return doc.data() as NFT;
+      // });
+      // return songs;
+
+      return [];
     }),
 
   getAllSongsByPrivacy: publicProcedure
     .input(z.object({ privacy: z.nativeEnum(NFTPrivacy) }))
     .query(async ({ input }) => {
-      const collectionRef = collection(db, FSdocName.nfts);
+      // const collectionRef = collection(db, FSdocName.nfts);
 
-      // Create a query that orders the documents by views in descending order and limits the result to a specific number (e.g., 10).
-      const q = query(collectionRef, where("privacy", "==", input.privacy));
-      // Fetch the documents based on the query.
-      const querySnapshot = await getDocs(q);
-      const songs = querySnapshot.docs.map((doc) => {
-        return doc.data() as NFT;
-      });
-      return songs;
+      // // Create a query that orders the documents by views in descending order and limits the result to a specific number (e.g., 10).
+      // const q = query(collectionRef, where("privacy", "==", input.privacy));
+      // // Fetch the documents based on the query.
+      // const querySnapshot = await getDocs(q);
+      // const songs = querySnapshot.docs.map((doc) => {
+      //   return doc.data() as NFT;
+      // });
+      // return songs;
+
+      return [];
     }),
 
   getAllSongsWithAssetCode: publicProcedure.query(async () => {
-    const collectionRef = collection(db, FSdocName.nfts);
+    // const collectionRef = collection(db, FSdocName.nfts);
 
-    // Create a query that orders the documents by views in descending order and limits the result to a specific number (e.g., 10).
-    const q = query(collectionRef, orderBy("songAsset"));
-    // Fetch the documents based on the query.
-    const querySnapshot = await getDocs(q);
-    const songs = querySnapshot.docs.map((doc) => {
-      return doc.data() as NFT;
-    });
-    return songs;
+    // // Create a query that orders the documents by views in descending order and limits the result to a specific number (e.g., 10).
+    // const q = query(collectionRef, orderBy("songAsset"));
+    // // Fetch the documents based on the query.
+    // const querySnapshot = await getDocs(q);
+    // const songs = querySnapshot.docs.map((doc) => {
+    //   return doc.data() as NFT;
+    // });
+    // return songs;
+
+    return [];
   }),
 
   getUserBuyedSongs: publicProcedure
     .input(z.object({ pubkey: z.string().length(56) }))
     .query(async ({ input }) => {
-      const collectionRef = collection(db, FSdocName.nfts);
+      // const collectionRef = collection(db, FSdocName.nfts);
 
-      const userDocRef = doc(db, FSdocName.users, input.pubkey);
-      // Get the user's document
-      const userDocSnapshot = await getDoc(userDocRef);
+      // const userDocRef = doc(db, FSdocName.users, input.pubkey);
+      // // Get the user's document
+      // const userDocSnapshot = await getDoc(userDocRef);
 
-      let userSongs: string[] = [];
+      // let userSongs: string[] = [];
 
-      if (userDocSnapshot.exists()) {
-        // Access the songs array from the user's document data
-        const userData = userDocSnapshot.data();
-        userSongs = (userData.songs as string[]) || []; // Default to an empty array if songs is not defined
-      } else {
-        log.info("User document does not exist.");
-        userSongs = [];
-      }
+      // if (userDocSnapshot.exists()) {
+      //   // Access the songs array from the user's document data
+      //   const userData = userDocSnapshot.data();
+      //   userSongs = (userData.songs as string[]) || []; // Default to an empty array if songs is not defined
+      // } else {
+      //   log.info("User document does not exist.");
+      //   userSongs = [];
+      // }
 
-      const q = query(collectionRef, where("id", "in", userSongs));
+      // const q = query(collectionRef, where("id", "in", userSongs));
 
-      const querySnapshot = await getDocs(q);
-      const songs = querySnapshot.docs.map((doc) => {
-        return doc.data() as NFT;
-      });
-      return songs;
+      // const querySnapshot = await getDocs(q);
+      // const songs = querySnapshot.docs.map((doc) => {
+      //   return doc.data() as NFT;
+      // });
+      // return songs;
+
+      return [];
     }),
 
   getAsong: publicProcedure
     .input(z.object({ songId: z.string() }))
     .query(async ({ input }) => {
-      const docRef = doc(db, FSdocName.nfts, input.songId);
-      const docSnap = await getDoc(docRef);
-      const song = docSnap.data();
-      return song && (song as NFT);
+      // const docRef = doc(db, FSdocName.nfts, input.songId);
+      // const docSnap = await getDoc(docRef);
+      // const song = docSnap.data();
+      // return song && (song as NFT);
+
+      return [];
     }),
 
   create: protectedProcedure
@@ -161,80 +161,72 @@ export const nftRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ input }) => {
-      const newNFT: NFT = {
-        price: input.price,
-        nftAsset: input.asset,
-        copies: input.copies,
-        original: true,
-        id: input.id,
-        type: input.type,
-        name: input.name,
-        thumbnailUrl: input.thumbnailUrl,
-        mediaUrl: input.mediaUrl,
-        date: new Date(),
-        privacy: input.privacy,
-        views: 0,
-        description: input.description,
-      };
-
-      const batch = writeBatch(db);
-
-      if (input.edit) {
-        // edit the docs
-        const updateField = {
-          name: input.name,
-          price: input.price,
-          privacy: input.privacy,
-          description: input.description,
-        };
-        if (input.path) {
-          const docRef = doc(db, input.path);
-          batch.update(docRef, updateField);
-
-          await batch.commit();
-        }
-        return newNFT.id;
-      } else {
-        // write new nft doc.
-        if (input.issuerSecretInfo) {
-          // write to another doc for private key
-          const newIssuerSecretInfo: NFTIssuerPrivateInfo =
-            input.issuerSecretInfo;
-          const newIssuerDocRef = doc(db, FSdocName.issuerSecret, input.id);
-          batch.set(newIssuerDocRef, newIssuerSecretInfo);
-        }
-
-        // Conditionally add asset property
-        // you can't firebase data fild to undefined
-        // asset
-
-        // write to root nfts
-        const newNftDocRef = doc(db, FSdocName.nfts, input.id);
-        batch.set(newNftDocRef, newNFT);
-
-        type TomlData = {
-          code: string;
-          name: string;
-          issuer: string;
-          ipfs: string;
-        };
-        const tomlDocRef = firebaseDoc.toml;
-        const { code, ipfs, issuer } = input.asset;
-
-        const tomlData: TomlData = {
-          code,
-          issuer: issuer.pub,
-          ipfs,
-          name: input.name,
-        };
-        const data: TomlDataMap = {
-          [`${code}-${issuer.pub}`]: tomlData,
-        };
-        batch.update(tomlDocRef, data);
-        await batch.commit();
-
-        return newNFT.id;
-      }
+      // const newNFT: NFT = {
+      //   price: input.price,
+      //   nftAsset: input.asset,
+      //   copies: input.copies,
+      //   original: true,
+      //   id: input.id,
+      //   type: input.type,
+      //   name: input.name,
+      //   thumbnailUrl: input.thumbnailUrl,
+      //   mediaUrl: input.mediaUrl,
+      //   date: new Date(),
+      //   privacy: input.privacy,
+      //   views: 0,
+      //   description: input.description,
+      // };
+      // const batch = writeBatch(db);
+      // if (input.edit) {
+      //   // edit the docs
+      //   const updateField = {
+      //     name: input.name,
+      //     price: input.price,
+      //     privacy: input.privacy,
+      //     description: input.description,
+      //   };
+      //   if (input.path) {
+      //     const docRef = doc(db, input.path);
+      //     batch.update(docRef, updateField);
+      //     await batch.commit();
+      //   }
+      //   return newNFT.id;
+      // } else {
+      //   // write new nft doc.
+      //   if (input.issuerSecretInfo) {
+      //     // write to another doc for private key
+      //     const newIssuerSecretInfo: NFTIssuerPrivateInfo =
+      //       input.issuerSecretInfo;
+      //     const newIssuerDocRef = doc(db, FSdocName.issuerSecret, input.id);
+      //     batch.set(newIssuerDocRef, newIssuerSecretInfo);
+      //   }
+      //   // Conditionally add asset property
+      //   // you can't firebase data fild to undefined
+      //   // asset
+      //   // write to root nfts
+      //   const newNftDocRef = doc(db, FSdocName.nfts, input.id);
+      //   batch.set(newNftDocRef, newNFT);
+      //   type TomlData = {
+      //     code: string;
+      //     name: string;
+      //     issuer: string;
+      //     ipfs: string;
+      //   };
+      //   const tomlDocRef = firebaseDoc.toml;
+      //   const { code, ipfs, issuer } = input.asset;
+      //   const tomlData: TomlData = {
+      //     code,
+      //     issuer: issuer.pub,
+      //     ipfs,
+      //     name: input.name,
+      //   };
+      //   const data: TomlDataMap = {
+      //     [`${code}-${issuer.pub}`]: tomlData,
+      //   };
+      //   batch.update(tomlDocRef, data);
+      //   await batch.commit();
+      //   return newNFT.id;
+      // }
     }),
 
   saveToken: protectedProcedure
@@ -242,38 +234,37 @@ export const nftRouter = createTRPCRouter({
       z.object({ songId: z.string(), pubKey: z.string(), secret: z.string() }),
     )
     .mutation(async ({ input }) => {
-      const songDocRef = doc(db, FSdocName.nfts, input.songId);
-      const token = {
-        publicKey: input.pubKey,
-        secretKey: input.secret,
-      };
-      await updateDoc(songDocRef, { token: token });
+      // const songDocRef = doc(db, FSdocName.nfts, input.songId);
+      // const token = {
+      //   publicKey: input.pubKey,
+      //   secretKey: input.secret,
+      // };
+      // await updateDoc(songDocRef, { token: token });
     }),
 
   getToml: publicProcedure.query(async () => {
-    const tomlSnap = await getDoc(firebaseDoc.toml);
-    const tomlmap = tomlSnap.data() as TomlDataMap;
-    return tomlmap;
+    // const tomlSnap = await getDoc(firebaseDoc.toml);
+    // const tomlmap = tomlSnap.data() as TomlDataMap;
+    // return tomlmap;
   }),
 
   writeOldNft2toml: protectedProcedure.mutation(async () => {
-    const querySnap = await getDocs(FScollectionRef.originalNfts);
-    const nfts = querySnap.docs.map((doc) => doc.data() as NFT);
-
-    for (const nft of nfts) {
-      const { code, issuer, ipfs } = nft.nftAsset;
-      const tomlData: TomlData = {
-        code,
-        issuer: issuer.pub,
-        ipfs,
-        name: nft.name,
-      };
-      const data: TomlDataMap = {
-        [`${code}-${issuer.pub}`]: tomlData,
-      };
-      const tomlDocRef = firebaseDoc.toml;
-      await updateDoc(tomlDocRef, data);
-    }
+    // const querySnap = await getDocs(FScollectionRef.originalNfts);
+    // const nfts = querySnap.docs.map((doc) => doc.data() as NFT);
+    // for (const nft of nfts) {
+    //   const { code, issuer, ipfs } = nft.nftAsset;
+    //   const tomlData: TomlData = {
+    //     code,
+    //     issuer: issuer.pub,
+    //     ipfs,
+    //     name: nft.name,
+    //   };
+    //   const data: TomlDataMap = {
+    //     [`${code}-${issuer.pub}`]: tomlData,
+    //   };
+    //   const tomlDocRef = firebaseDoc.toml;
+    //   await updateDoc(tomlDocRef, data);
+    // }
   }),
 });
 

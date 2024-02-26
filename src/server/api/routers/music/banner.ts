@@ -10,8 +10,7 @@ import { TRPCError } from "@trpc/server";
 
 export const bannerRouter = createTRPCRouter({
   get: publicProcedure.query(async () => {
-    const docSnapshot = await getDoc(firebaseDoc.banner);
-    return docSnapshot.data() as Banner;
+    return { heading: "test", imgUrl: "test" };
   }),
 
   create: protectedProcedure
@@ -22,22 +21,21 @@ export const bannerRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ input }) => {
-      const { heading, imgUrl } = input;
-      const newBanner: Banner = {
-        heading,
-        imgUrl,
-      };
-
-      try {
-        await setDoc(firebaseDoc.banner, newBanner);
-        return input.imgUrl;
-      } catch (e) {
-        throw new TRPCError({
-          code: "PARSE_ERROR",
-          message: "Some error happens",
-          // optional: pass the original error to retain stack trace
-          cause: e,
-        });
-      }
+      //   const { heading, imgUrl } = input;
+      //   const newBanner: Banner = {
+      //     heading,
+      //     imgUrl,
+      //   };
+      //   try {
+      //     await setDoc(firebaseDoc.banner, newBanner);
+      //     return input.imgUrl;
+      //   } catch (e) {
+      //     throw new TRPCError({
+      //       code: "PARSE_ERROR",
+      //       message: "Some error happens",
+      //       // optional: pass the original error to retain stack trace
+      //       cause: e,
+      //     });
+      //   }
     }),
 });
