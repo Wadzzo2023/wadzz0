@@ -1,11 +1,11 @@
 import Image from "next/image";
 import Link from "next/link";
-import { Song } from "~/lib/types/dbTypes";
 import { AssetBadge } from "./asset_badge";
 import { PlayCircle } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { usePlayerStore } from "~/lib/states/track";
+import { usePlayerStore } from "~/lib/state/music/track";
 import clsx from "clsx";
+import { Song } from "@prisma/client";
 
 export default function MusicItem({
   item,
@@ -13,7 +13,7 @@ export default function MusicItem({
   playable,
 }: {
   item: Song;
-  albumId: string;
+  albumId: number;
   playable?: boolean;
 }) {
   const [hovered, setHoved] = useState(false);
@@ -41,7 +41,7 @@ export default function MusicItem({
     return (
       <div className="flex flex-row items-center justify-between   p-2">
         <div className="flex">
-          <div className="mr-4 h-10 w-10 flex-shrink-0 bg-neutral-focus">
+          <div className="bg-neutral-focus mr-4 h-10 w-10 flex-shrink-0">
             <Image
               src={item.coverImgUrl}
               width={40}
@@ -66,7 +66,7 @@ export default function MusicItem({
           </div>
         </div>
         <div>
-          <AssetBadge asset={item.songAsset} />
+          <AssetBadge asset={{ code: "vong", issuer: "cong" }} />
         </div>
       </div>
     );
@@ -82,7 +82,7 @@ export default function MusicItem({
         onMouseOut={() => setHoved(false)}
       >
         <div className="flex ">
-          <div className="mr-4 h-10 w-10 bg-neutral-focus">
+          <div className="bg-neutral-focus mr-4 h-10 w-10">
             <Image
               src={item.coverImgUrl}
               width={40}

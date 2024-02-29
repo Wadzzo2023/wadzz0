@@ -12,7 +12,7 @@ import toast from "react-hot-toast";
 import clsx from "clsx";
 import { api } from "~/utils/api";
 import { clientsign, useConnectWalletStateStore } from "package/connect_wallet";
-import { AccounSchema, clientSelect } from "~/lib/stellar/wallete/utils";
+import { AccountSchema, clientSelect } from "~/lib/stellar/fan/utils";
 
 type SongCreateProps = {
   albumId: number;
@@ -33,7 +33,7 @@ export const SongFormSchema = z.object({
     .string()
     .min(4, { message: "Minimum 4 char" })
     .max(12, { message: "Maximum 12 char" }),
-  issuer: AccounSchema.optional(),
+  issuer: AccountSchema.optional(),
 });
 
 type SongFormType = z.TypeOf<typeof SongFormSchema>;
@@ -59,7 +59,7 @@ export default function SongCreate({ albumId, mode, song }: SongCreateProps) {
 
   const xdrMutation = api.music.steller.getMusicAssetXdr.useMutation({
     onSuccess(data, variables, context) {
-      if (data) {
+      if (false) {
         const { issuer, xdr } = data;
         setValue("issuer", issuer);
         clientsign({
@@ -75,6 +75,10 @@ export default function SongCreate({ albumId, mode, song }: SongCreateProps) {
           })
           .catch((e) => console.log(e));
       }
+
+      const formData = getValues();
+      // res && addMutation.mutate(data);
+      addSong.mutate(formData);
     },
   });
 

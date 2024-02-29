@@ -10,7 +10,7 @@ import {
 import { env } from "~/env";
 import { DEFAULT_ASSET_LIMIT, STELLAR_URL, STORAGE_PUB } from "../constant";
 import { SignUserType, WithSing } from "../../utils";
-import { AccountType } from "../../wallete/utils";
+import { AccountType } from "../../fan/utils";
 
 const log = console;
 

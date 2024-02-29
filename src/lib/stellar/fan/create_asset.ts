@@ -12,7 +12,7 @@ import {
   networkPassphrase,
 } from "./constant";
 import { env } from "~/env";
-import { AccounSchema, AccountType } from "./utils";
+import { AccountSchema, AccountType } from "./utils";
 import { SignUserType, WithSing } from "../utils";
 
 const log = console;

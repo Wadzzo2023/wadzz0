@@ -1,38 +1,33 @@
-import React, { ReactNode, useRef, useState } from "react";
-import Modal from "./modal_template";
-import ModalButton from "../button/add_button";
-import { CheckCircle2, PlusIcon, Variable, XCircle } from "lucide-react";
-import { api } from "~/utils/api";
+import { useRef, useState } from "react";
 import toast from "react-hot-toast";
-import albedo from "@albedo-link/intent";
-import { env } from "~/env";
-import { checkAssetBalance } from "~/lib/stellar/trx/create_song_token";
-import { error } from "console";
-import { ErrorAlert } from "../alert/error";
-import { SuccessAlert } from "../alert/success";
-import {
-  DEFAULT_ASSET_LIMIT,
-  STORAGE_PUB,
-} from "~/lib/stellar/wallete/constant";
-import { addrShort } from "~/lib/utils";
-import { WalletType } from "~/lib/enums";
+import { api } from "~/utils/api";
+
 import log from "~/lib/logger/logger";
-import axios from "axios";
-import { z } from "zod";
-import { useSongStore } from "~/lib/states/songs";
-import { Balance4, useBalanceStore } from "~/lib/states/storageAcc";
-import { Song } from "~/lib/types/dbTypes";
+import { DEFAULT_ASSET_LIMIT, STORAGE_PUB } from "~/lib/stellar/music/constant";
+import { checkAssetBalance } from "~/lib/stellar/music/trx/create_song_token";
+
+import { Song } from "@prisma/client";
+import { clientsign, useConnectWalletStateStore } from "package/connect_wallet";
+import Alert from "~/components/ui/alert";
+import { Balance4, useBalanceStore } from "~/lib/state/music/storageAcc";
+import { addrShort } from "~/lib/wallate/utils";
+
+export type AssetType = {
+  asset: {
+    code: string;
+    issuer: string;
+  };
+};
 
 type BuyModalProps = {
-  item: Song;
+  item: Song & AssetType;
   // button: ReactNode;
 };
 export default function BuyModal({
   item,
   // copies,
 }: BuyModalProps) {
-  const { isAva, pubkey, walletType, uid, email } =
-    useConnectWalletStateStore();
+  const { needSign, pubkey, walletType } = useConnectWalletStateStore();
 
   const [xdr, setXdr] = useState<string>();
   const createAlbumModal = useRef<HTMLDialogElement>(null);
@@ -40,21 +35,21 @@ export default function BuyModal({
   const [loading, setLoading] = useState(false);
   const [submitL, setsLoad] = useState(false);
 
-  const { id: songId, songAsset } = item;
-  const issuerPub = songAsset!.issuer.pub;
-  const { code: assetCode, price, limit } = songAsset!;
+  const { id: songId, asset, price, limit } = item;
+  const issuerPub = asset.issuer;
+  const { code, issuer } = asset;
 
   // aviable copies are the balance of storage
   const copies = useBalanceStore((state) =>
     state.getAssetBalance({
-      code: item.songAsset?.code,
-      issuer: item.songAsset?.issuer.pub,
+      code,
+      issuer,
       limit: true,
       for: Balance4.STORAGE,
     }),
   );
 
-  const xdrMutaion = api.steller.getPaymentXDR.useMutation({
+  const xdrMutaion = api.music.steller.getPaymentXDR.useMutation({
     onSuccess: (data, Variable) => {
       if (data) setXdr(data);
     },
@@ -62,52 +57,20 @@ export default function BuyModal({
       setsLoad(false);
     },
   });
-  const utils = api.useContext();
-  const songAddMutation = api.user.addSong.useMutation({
-    async onSuccess(data, variables, context) {
-      await utils.steller.getStorageBalances.invalidate();
-    },
-  });
+  const songAddMutation = api.music.song.buySong.useMutation({});
 
   const handleModal = () => {
     createAlbumModal.current?.showModal();
   };
   async function handleConfirmClick() {
     if (xdr) {
-      if (
-        env.NEXT_PUBLIC_STELLAR_PUBNET ||
-        walletType == WalletType.google ||
-        walletType == WalletType.facebook
-      ) {
-        setsLoad(true);
-        const res = await clientsign({ walletType, pubkey, presignedxdr: xdr });
-        if (res) {
-          // payment succesfull
-          // save to store this state to firebase.
-          songAddMutation.mutate({ pubkey, songId });
-        } else {
-          toast("Payment is not successfull, Try again");
-        }
-        setsLoad(false);
+      const res = await clientsign({ walletType, pubkey, presignedxdr: xdr });
+      if (res) {
+        songAddMutation.mutate({ songId });
       } else {
-        // for test net only albedo
-        const res = albedo.tx({
-          xdr,
-          network: "testnet",
-          pubkey,
-          submit: true,
-        });
-        res
-          .then((response) => {
-            log.info("ihRes", response.result);
-            songAddMutation.mutate({ pubkey, songId });
-          })
-          .catch((e) => {
-            log.info("ihErro", e, false);
-          });
+        toast.error("Payment is not successfull, Try again");
       }
-    } else {
-      toast("First get the xdr");
+      setsLoad(false);
     }
   }
 
@@ -116,58 +79,23 @@ export default function BuyModal({
       setLoading(true);
       const balance = await checkAssetBalance({
         storagePub: STORAGE_PUB,
-        assset: { code: assetCode, issuer: issuerPub },
+        assset: { code, issuer },
       });
       if (balance) {
         if (Number(balance) >= Number(DEFAULT_ASSET_LIMIT)) {
-          if (
-            // here facebook and google need resolvation
-            walletType == WalletType.facebook ||
-            walletType == WalletType.google
-          ) {
-            if (uid && email) {
-              // first get secret
-              const res = await axios.get(
-                "https://accounts.action-tokens.com/api/getAccSecret",
-                {
-                  params: {
-                    uid,
-                    email,
-                  },
-                },
-              );
-              const secretKeySchema = z.object({
-                secretKey: z.string().min(56),
-              });
-
-              const { secretKey } = await secretKeySchema.parseAsync(res.data);
-              xdrMutaion.mutate({
-                pubkey,
-                assetCode,
-                issuerPub,
-                price,
-                limit,
-                secret: secretKey,
-              });
-            } else {
-              setErr("email and uid not found");
-            }
-          } else {
+          {
             xdrMutaion.mutate({
               pubkey,
-              assetCode,
+              assetCode: code,
               issuerPub,
               price,
               limit,
+              signWith: needSign(),
             });
           }
-        } else {
-          setErr("This asset is not available for sell");
-          log.info("here", balance);
         }
-      } else {
-        setErr("There are some problem, this asset can not be buyed");
       }
+
       setLoading(false);
     } catch (error) {
       setLoading(false);
@@ -194,8 +122,7 @@ export default function BuyModal({
           <div className="flex flex-col items-center gap-y-2">
             <div className="flex flex-col  bg-base-300 p-10">
               <p>
-                Asset Name:{" "}
-                <span className="badge badge-primary">{assetCode}</span>
+                Asset Name: <span className="badge badge-primary">{code}</span>
               </p>
               <p className="text-warning">Price: {price} XLM</p>
               <p className="text-sm text-accent">Copies available: {copies}</p>
@@ -204,11 +131,14 @@ export default function BuyModal({
 
             <div>
               {songAddMutation.isSuccess && (
-                <SuccessAlert message="You have succesfull bought this nft song, you will find this in your home page" />
+                <Alert
+                  type="success"
+                  content="You have succesfull bought this nft song, you will find this in your home page"
+                />
               )}
-              {err && <ErrorAlert message={err} />}
+              {err && <Alert type="error" content={err} />}
               {xdrMutaion.isError && (
-                <ErrorAlert message={xdrMutaion.error.message} />
+                <Alert type="error" content={xdrMutaion.error.message} />
               )}
             </div>
 
@@ -223,7 +153,7 @@ export default function BuyModal({
                   className="btn btn-success"
                   onClick={() => handleXDR()}
                 >
-                  Checkout for {assetCode}
+                  Checkout for {code}
                 </button>
               )}
 

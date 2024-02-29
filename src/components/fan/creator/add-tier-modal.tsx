@@ -10,10 +10,10 @@ import {
   needSign,
   useConnectWalletStateStore,
 } from "package/connect_wallet";
-import { clientSelect } from "~/lib/stellar/wallete/utils";
+import { clientSelect } from "~/lib/stellar/fan/utils";
 import { Plus } from "lucide-react";
 import Alert from "../../ui/alert";
-import { PLATFROM_ASSET, PLATFROM_FEE } from "~/lib/stellar/wallete/constant";
+import { PLATFROM_ASSET, PLATFROM_FEE } from "~/lib/stellar/fan/constant";
 
 export const TierSchema = z.object({
   name: z

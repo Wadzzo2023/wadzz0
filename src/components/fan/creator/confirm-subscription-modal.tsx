@@ -6,12 +6,12 @@ import toast from "react-hot-toast";
 import { api } from "~/utils/api";
 import { truncateString } from "~/utils/string";
 
-import { PLATFROM_ASSET, PLATFROM_FEE } from "~/lib/stellar/wallete/constant";
+import { PLATFROM_ASSET, PLATFROM_FEE } from "~/lib/stellar/fan/constant";
 import MemberShipCard, { getColor } from "./card";
 import { get } from "http";
 import clsx from "clsx";
 import Alert from "../../ui/alert";
-import { clientSelect } from "~/lib/stellar/wallete/utils";
+import { clientSelect } from "~/lib/stellar/fan/utils";
 
 export default function SubscribeMembership({
   subscription,

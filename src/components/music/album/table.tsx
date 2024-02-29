@@ -5,6 +5,10 @@ import { api } from "~/utils/api";
 import { useSession } from "next-auth/react";
 
 import { Song } from "@prisma/client";
+import clsx from "clsx";
+import MusicItem from "../track/music_item";
+import { Play } from "lucide-react";
+import BuyModal from "../modal/buy_modal";
 
 export default function SongList({
   songs,
@@ -22,32 +26,14 @@ export default function SongList({
   const trackUrlStore = usePlayerStore();
   const deleteSongMutation = api.music.song.deleteAsong.useMutation();
 
-  const orderMutation = api.music.song.changeOrder.useMutation();
-
   const handleMusicEdit = (id: number) => {
-    // toast(`Selected song: ${id}`);
-    deleteSongMutation.mutate({ songId: id, albumId });
+    deleteSongMutation.mutate({ songId: id });
   };
 
   const playTheSong = (song: Song) => {
     // toast("hei i'm cliked");
     trackUrlStore.setNewTrack(song);
   };
-
-  // function handleOrderSave(): void {
-  //   const prevIds = songs.map((song) => song.id);
-  //   const ids = data.map((song) => song.id);
-  //   if (isEqual(prevIds, ids)) {
-  //     // setDataChanged(false);
-  //     toast("data not hanged");
-  //   } else {
-  //     toast("data changed");
-  //     // setDataChanged(true);
-  //     // now run a mutation
-  //   }
-
-  //   orderMutation.mutate({ albumId: albumId, ids: ids });
-  // }
 
   return (
     <div className="p-2">
@@ -57,11 +43,31 @@ export default function SongList({
         <tbody>
           {songs.map((song) => {
             return (
-              <tr>
-                <th>1</th>
-                <td>Cy Ganderton</td>
-                <td>Quality Control Specialist</td>
-                <td>Blue</td>
+              <tr
+                className={clsx(activeRow == song.id ? "bg-base-300" : "hover")}
+              >
+                <td>
+                  <div
+                    className="space-x-3"
+                    // onClick={() => info.playTheSong(info.row.original)}
+                  >
+                    <MusicItem item={song} albumId={albumId} />
+                  </div>
+                </td>
+
+                <td>
+                  <Play
+                    className={clsx(song.id == activeRow && "text-primary")}
+                    onClick={() => {
+                      setActiveRow(song.id);
+                      trackUrlStore.setNewTrack(song);
+                    }}
+                  />
+
+                  <div className="w-12">
+                    <BuyModal item={song} />
+                  </div>
+                </td>
               </tr>
             );
           })}

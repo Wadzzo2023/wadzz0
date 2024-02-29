@@ -1,9 +1,6 @@
 import { create } from "zustand";
-import { Song } from "../types/dbTypes";
-import { OfflineSongs } from "../firebase/offiledb";
-import { Horizon } from "stellar-sdk";
-import { DEFAULT_ASSET_LIMIT } from "../stellar/constant";
-import { BalanceType } from "../stellar/trx/create_song_token";
+import { DEFAULT_ASSET_LIMIT } from "~/lib/stellar/music/constant";
+import { BalanceType } from "~/lib/stellar/music/trx/create_song_token";
 
 interface Balance {
   storageBalances?: BalanceType[];

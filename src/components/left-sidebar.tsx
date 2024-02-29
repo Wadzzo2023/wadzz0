@@ -28,8 +28,8 @@ import { cn } from "~/lib/wallate/utils";
 export const UserNavigation = {
   Home: { path: "/", icon: HomeIcon, text: "HOMEPAGE" },
   // Search: { path: "/search", icon: Search, text: "Search" },
-  Music: { path: "/music", icon: Diamond, text: "Music" },
-  Notification: { path: "/notification", icon: Bell, text: "NOTIFICATION" },
+  Music: { path: "/music", icon: Diamond, text: "MUSIC" },
+  Notification: { path: "/marketplace", icon: Bell, text: "MARKETPLACE" },
   Settings: { path: "/settings", icon: Settings2, text: "SETTINGS" },
 } as const;
 

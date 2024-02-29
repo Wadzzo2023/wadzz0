@@ -7,7 +7,7 @@ import { Creator, Subscription } from "@prisma/client";
 import MemberShipCard from "~/components/fan/creator/card";
 import { clientsign, useConnectWalletStateStore } from "package/connect_wallet";
 import toast from "react-hot-toast";
-import { MyAssetType } from "~/lib/stellar/wallete/utils";
+import { MyAssetType } from "~/lib/stellar/fan/utils";
 import {
   CreatorProfileMenu,
   useCreatorProfileMenu,

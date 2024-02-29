@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { SongPrivacy, ZodSongAsset } from "~/lib/music/types/dbTypes";
+import { SongPrivacy } from "~/lib/music/types/dbTypes";
 
 import {
   adminProcedure,
@@ -7,12 +7,6 @@ import {
   protectedProcedure,
   publicProcedure,
 } from "~/server/api/trpc";
-import { TRPCError } from "@trpc/server";
-import { ADMIN_MASTER_PUBKEY } from "~/utils/music/constants";
-import { ASSETS } from "~/lib/stellar/music/constant";
-import { getUserAllAssetsInSongAssets } from "~/lib/stellar/music/utils/asset";
-import { firstTransection } from "~/lib/stellar/music/trx/create_song_token";
-import log from "~/lib/logger/logger";
 import { SongFormSchema } from "~/components/music/modal/song_create";
 
 export const songRouter = createTRPCRouter({
@@ -222,6 +216,12 @@ export const songRouter = createTRPCRouter({
           },
         });
       }
+    }),
+
+  buySong: protectedProcedure
+    .input(z.object({ songId: z.number() }))
+    .mutation(async ({ input, ctx }) => {
+      // await ctx.db.Song_
     }),
 
   changePrivacy: protectedProcedure

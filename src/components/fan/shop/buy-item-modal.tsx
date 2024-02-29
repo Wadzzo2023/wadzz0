@@ -6,8 +6,8 @@ import { Asset } from "stellar-sdk";
 import { api } from "~/utils/api";
 import { truncateString } from "~/utils/string";
 import { ShopItemProps } from "../creator/shop";
-import { PLATFROM_ASSET, PLATFROM_FEE } from "~/lib/stellar/wallete/constant";
-import { clientSelect } from "~/lib/stellar/wallete/utils";
+import { PLATFROM_ASSET, PLATFROM_FEE } from "~/lib/stellar/fan/constant";
+import { clientSelect } from "~/lib/stellar/fan/utils";
 import { cn } from "~/lib/wallate/utils";
 
 export default function BuyItemModal({

@@ -18,27 +18,8 @@ datasource db {
 // ------------------------Generic SCHEMA-------------------------
 
 model Tag {
-    id            Int             @id @default(autoincrement())
-    name          String
+    name          String          @id
     AdminAssetTag AdminAssetTag[]
-}
-
-model Asset {
-    id   Int    @id @default(autoincrement())
-    code String
-
-    issuer        String
-    issuerPrivate String?
-
-    escrow Boolean @default(false)
-
-    // different type of asset.
-    subscription Subscription[]
-    ShopAsset    ShopAsset[]
-    Song         Song[]
-    AdminAsset   AdminAsset[]
-
-    @@index([code, issuer])
 }
 
 enum MediaType {
@@ -92,14 +73,18 @@ model Subscription {
     name      String  @default("Platinum")
     creatorId String
     creator   Creator @relation(fields: [creatorId], references: [id])
-    assetId   Int
-    asset     Asset   @relation(fields: [assetId], references: [id], onDelete: NoAction)
-    days      Int
-    features  String
-    Post      Post[]
 
-    price             Float               @default(1000)
-    User_Subscription User_Subscription[]
+    code          String
+    issuer        String
+    issuerPrivate String?
+    escrow        Boolean @default(false)
+
+    days     Int
+    features String
+    Post     Post[]
+
+    price           Float               @default(1000)
+    subscribedUsers User_Subscription[]
 
     // Unique constraint on userId and subscriptionId
     @@unique([creatorId, priority])
@@ -134,25 +119,25 @@ model Comment {
     Comment   Comment[] @relation("ParentComment")
 }
 
-model UserShopAsset {
+model User_Asset {
     id     Int    @id @default(autoincrement())
     userId String
     user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-    shopAssetId Int
-    shopAsset   ShopAsset @relation(fields: [shopAssetId], references: [id], onDelete: NoAction)
+    assetId Int
+    asset   Asset @relation(fields: [assetId], references: [id], onDelete: NoAction)
 
-    createdAt DateTime @default(now())
+    buyAt DateTime @default(now())
 }
 
 model User_Subscription {
-    id             Int          @id @default(autoincrement())
-    userId         String
-    user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-    subscriptionId Int
-    subscription   Subscription @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
-    createdAt      DateTime     @default(now())
-    endDate        DateTime
+    id                 Int          @id @default(autoincrement())
+    userId             String
+    user               User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+    subscriptionId     Int
+    subscription       Subscription @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
+    subcribedAt        DateTime     @default(now())
+    subcriptionEndDate DateTime
 
     // Unique constraint on userId and subscriptionId
     @@unique([userId, subscriptionId])
@@ -168,17 +153,21 @@ model Media {
 }
 
 model Creator {
-    id            String         @id
-    joinedAt      DateTime       @default(now())
-    profileUrl    String?
-    coverUrl      String?
-    bio           String?
-    name          String
+    id         String   @id
+    joinedAt   DateTime @default(now())
+    profileUrl String?
+    coverUrl   String?
+    bio        String?
+    name       String
+
+    storagePub    String
+    storageSecret String
+
     user          User           @relation(fields: [id], references: [id], onDelete: Cascade)
     posts         Post[]
     subscriptions Subscription[]
-    ShopAsset     ShopAsset[]
-    Song          Song[]
+    assets        Asset[]
+    marketAssets  MarketAsset[]
 
     @@index([bio, name])
 }
@@ -197,9 +186,9 @@ model Post {
 
     subscription   Subscription? @relation(fields: [subscriptionId], references: [id])
     subscriptionId Int?
-    Like           Like[]
-    Comment        Comment[]
-    Media          Media[]
+    likes          Like[]
+    comments       Comment[]
+    medias         Media[]
 
     @@index([heading])
 }
@@ -239,14 +228,15 @@ model User {
     image         String?
     emailVerified DateTime?
 
-    accounts          Account[]
-    sessions          Session[]
-    creator           Creator?
-    User_Subscription User_Subscription[]
-    Like              Like[]
-    Comment           Comment[]
-    UserShopAsset     UserShopAsset[]
-    Admin             Admin[]
+    accounts      Account[]
+    sessions      Session[]
+    creator       Creator?
+    subscriptions User_Subscription[]
+    likes         Like[]
+    comments      Comment[]
+    assets        User_Asset[]
+    Admin         Admin[]
+    songs         User_Song[]
 }
 
 model VerificationToken {
@@ -270,23 +260,27 @@ model Album {
 }
 
 model Song {
-    id           Int      @id @default(autoincrement())
-    serialNumber Int
-    name         String
-    artist       String
-    coverImgUrl  String
-    musicUrl     String
-    duration     String
-    createdAt    DateTime @default(now())
+    id Int @id @default(autoincrement())
 
-    assetId Int
-    asset   Asset @relation(fields: [assetId], references: [id], onDelete: NoAction)
+    artist String
+
+    assetId Int   @unique
+    asset   Asset @relation(fields: [assetId], references: [id])
 
     albumId Int
     album   Album @relation(fields: [albumId], references: [id], onDelete: Cascade)
 
-    creatorId String
-    creator   Creator @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+    User_Song User_Song[]
+}
+
+model User_Song {
+    userId String
+    user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    songId Int
+    song   Song @relation(fields: [songId], references: [id], onDelete: Cascade)
+
+    @@id([userId, songId])
 }
 
 enum ItemPrivacy {
@@ -297,31 +291,51 @@ enum ItemPrivacy {
 
 // ------------------------Marketplace SCHEMA-------------------------
 
-model ShopAsset {
+model Asset {
     id          Int     @id @default(autoincrement())
     name        String
     description String?
-    price       Float
-    mediaUrl    String?
-    thumbnail   String?
 
-    assetId Int
-    asset   Asset @relation(fields: [assetId], references: [id], onDelete: NoAction)
+    code          String
+    issuer        String
+    issuerPrivate String?
+    price         Float
+    limit         Int
 
-    creatorId     String
-    creator       Creator         @relation(fields: [creatorId], references: [id], onDelete: Cascade)
-    UserShopAsset UserShopAsset[]
+    mediaType MediaType
+    mediaUrl  String
+    thumbnail String
+
+    privacy ItemPrivacy @default(FOR_SALE)
+
+    creatorId String? // if null then it is admin asset
+    creator   Creator? @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+
+    Song        Song?
+    buyers      User_Asset[]
+    MarketAsset MarketAsset[]
 
     @@index([name, description])
+}
+
+model MarketAsset {
+    id Int @id @default(autoincrement())
+
+    limit Int
+
+    assetId Int
+    asset   Asset @relation(fields: [assetId], references: [id], onDelete: Cascade)
+
+    placedAt DateTime @default(now())
+
+    creatorId String
+    creator   Creator @relation(fields: [creatorId], references: [id], onDelete: Cascade)
 }
 
 // ------------------------Wallete SCHEMA-------------------------
 
 model AdminAsset {
     id Int @id @default(autoincrement())
-
-    assetId Int
-    asset   Asset @relation(fields: [assetId], references: [id], onDelete: Cascade)
 
     description String
     link        String
@@ -334,23 +348,14 @@ model AdminAsset {
     adminId String
     admin   Admin  @relation(fields: [adminId], references: [id], onDelete: NoAction)
 
-    AdminAssetTag AdminAssetTag[]
-}
-
-model Market {
-    id       Int     @id @default(autoincrement())
-    title    String
-    link     String
-    logoUrl  String?
-    blueData String?
-    color    String?
+    tags AdminAssetTag[]
 }
 
 model AdminAssetTag {
     id Int @id @default(autoincrement())
 
-    tagId Int
-    tag   Tag @relation(fields: [tagId], references: [id], onDelete: Cascade)
+    tagName String
+    tag     Tag    @relation(fields: [tagName], references: [name], onDelete: Cascade)
 
     adminAssetId Int
     addminAsset  AdminAsset @relation(fields: [adminAssetId], references: [id], onDelete: Cascade)

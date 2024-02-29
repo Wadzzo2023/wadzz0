@@ -1,11 +1,14 @@
 import Link from "next/link";
-import { SongAsset } from "~/lib/types/dbTypes";
 
-export const AssetBadge = ({ asset }: { asset: SongAsset }) => {
+export const AssetBadge = ({
+  asset,
+}: {
+  asset: { code: string; issuer: string };
+}) => {
   if (asset)
     return (
       <Link
-        href={`https://stellar.expert/explorer/public/asset/${asset.code}-${asset.issuer.pub}`}
+        href={`https://stellar.expert/explorer/public/asset/${asset.code}-${asset.issuer}`}
       >
         <div className="badge badge-primary">{asset.code}</div>
       </Link>

@@ -1,6 +1,5 @@
 import { initializeApp } from "firebase/app";
-import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
-import isEmpty from "lodash/isEmpty";
+import isEmpty from "lodash.isEmpty";
 import { ChangeEvent, useEffect, useState } from "react";
 import { api } from "~/utils/api";
 import Modal, { ModalMode, ModalType } from "./modal_template";
@@ -10,15 +9,14 @@ import Image from "next/image";
 import { SubmitHandler, useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { env } from "~/env";
-import { uploadFileToFirstore } from "~/lib/firebase/utils";
 import log from "~/lib/logger/logger";
-import { PinataResponse } from "~/lib/pinata/upload";
-import { useConnectWalletStateStore } from "package/connect_wallet/src/state/connect_wallet_state";
-import { DEFAULT_ASSET_PRICE } from "~/lib/stellar/constant";
+// import { PinataResponse } from "~/lib/pinata/upload";
+import { useConnectWalletStateStore } from "package/connect_wallet";
+import { DEFAULT_ASSET_PRICE } from "~/lib/stellar/marketplace/constant";
 import {
   firstTransection,
   trxResponse,
-} from "~/lib/stellar/trx/create_song_token";
+} from "~/lib/stellar/marketplace/trx/create_song_token";
 import { NFTAsset, NFTPrivacy, NFTType } from "~/lib/types/dbTypes";
 import { MarketNFT } from "~/server/api/routers/marketplace";
 import { uid } from "~/utils/utils";
@@ -436,6 +434,7 @@ export default function NFTCreate({ mode, nft }: NFTCreateProps) {
       );
     }
   }
+
   function conditionalAssetCreateButton() {
     if (!trxdata?.successful)
       return (

@@ -3,7 +3,7 @@ import { z } from "zod";
 import { CreatorAboutShema } from "~/components/fan/creator/about";
 import { TierSchema } from "~/components/fan/creator/add-tier-modal";
 import { EditTierSchema } from "~/components/fan/creator/edit-tier-modal";
-import { AccounSchema } from "~/lib/stellar/wallete/utils";
+import { AccountSchema } from "~/lib/stellar/fan/utils";
 
 import {
   createTRPCRouter,
@@ -14,7 +14,7 @@ import { NotificationEntity } from "~/utils/notificationConfig";
 
 export const membershipRouter = createTRPCRouter({
   createMembership: protectedProcedure
-    .input(TierSchema.extend({ escrow: AccounSchema }))
+    .input(TierSchema.extend({ escrow: AccountSchema }))
     .mutation(async ({ ctx, input }) => {
       const maxPriority = (await ctx.db.subscription.findFirst({
         where: { creatorId: ctx.session.user.id },

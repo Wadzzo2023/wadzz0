@@ -12,7 +12,7 @@ import { SignUserType, WithSing } from "../../utils";
 
 const log = console;
 
-export async function secondTransection({
+export async function XDR4songBuy({
   signWith,
   code,
   issuerPub,

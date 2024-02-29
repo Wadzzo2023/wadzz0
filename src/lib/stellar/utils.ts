@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { signXdrTransaction } from "./wallete/signXDR";
+import { signXdrTransaction } from "./fan/signXDR";
 import { getAccSecret } from "package/connect_wallet";
 
 export const SignUser = z

@@ -2,12 +2,14 @@ import { Creator } from "@prisma/client";
 import { type Session } from "next-auth";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
+import { clientsign, useConnectWalletStateStore } from "package/connect_wallet";
 import { PostMenu } from "~/components/fan/creator/CreatPost";
 import MemberShip from "~/components/fan/creator/membership";
 import Shop from "~/components/fan/creator/shop";
 import Tabs from "~/components/fan/creator/tabs";
 import Avater from "~/components/ui/avater";
 import { CreatorMenu, useCreator } from "~/lib/state/fan/creator-menu";
+import { clientSelect } from "~/lib/stellar/fan/utils";
 import { api } from "~/utils/api";
 
 export default function CreatorProfile() {
@@ -84,15 +86,30 @@ function ConditionallyRenderMenuPage({ creator }: { creator: Creator }) {
 }
 
 function CreateCreator(props: { id: string }) {
+  const { pubkey, needSign, walletType } = useConnectWalletStateStore();
   const makeCreatorMutation = api.fan.creator.makeMeCreator.useMutation();
+  const xdr = api.fan.trx.createStorageAccount.useMutation({
+    onSuccess: (data) => {
+      const { xdr, storage } = data;
+      clientsign({
+        presignedxdr: xdr,
+        pubkey,
+        walletType,
+        test: clientSelect(),
+      })
+        .then((isSucces) => {
+          if (isSucces) {
+            makeCreatorMutation.mutate({ storage });
+          }
+        })
+        .catch((e) => console.log(e));
+    },
+  });
 
   return (
     <div className="flex h-full flex-col items-center justify-center gap-2 ">
       <p className="text-2xl font-bold">You are not a creator</p>
-      <button
-        className="btn btn-primary"
-        onClick={() => makeCreatorMutation.mutate({ id: props.id })}
-      >
+      <button className="btn btn-primary" onClick={() => xdr.mutate()}>
         {makeCreatorMutation.isLoading && (
           <span className="loading loading-spinner" />
         )}

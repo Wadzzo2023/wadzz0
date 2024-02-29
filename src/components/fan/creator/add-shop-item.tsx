@@ -6,13 +6,11 @@ import { api } from "~/utils/api";
 import { UploadButton } from "~/utils/uploadthing";
 import Image from "next/image";
 import toast from "react-hot-toast";
-import clsx from "clsx";
 import { clientsign, useConnectWalletStateStore } from "package/connect_wallet";
-import { Keypair } from "stellar-sdk";
-import { AccounSchema, clientSelect } from "~/lib/stellar/wallete/utils";
+import { AccountSchema, clientSelect } from "~/lib/stellar/fan/utils";
 import { Plus } from "lucide-react";
 import Alert from "../../ui/alert";
-import { PLATFROM_ASSET, PLATFROM_FEE } from "~/lib/stellar/wallete/constant";
+import { PLATFROM_ASSET, PLATFROM_FEE } from "~/lib/stellar/fan/constant";
 
 export const ShopItemSchema = z.object({
   name: z.string().min(4, { message: "Minimum 4 Required" }),
@@ -21,11 +19,11 @@ export const ShopItemSchema = z.object({
     .string()
     .min(4, { message: "Asset name should be minimum 4" })
     .max(12, { message: "Asset name should be maximum 12" }),
-  AssetLimit: z.number().nonnegative().int(),
+  limit: z.number().nonnegative().int(),
   price: z.number().nonnegative(),
   mediaUrl: z.string().optional(),
   thumbnail: z.string().optional(),
-  issuer: AccounSchema.optional(),
+  issuer: AccountSchema.optional(),
 });
 
 export default function AddItem2Shop() {
@@ -88,7 +86,7 @@ export default function AddItem2Shop() {
   const onSubmit: SubmitHandler<z.infer<typeof ShopItemSchema>> = (data) => {
     xdrMutation.mutate({
       code: getValues("AssetName"),
-      limit: getValues("AssetLimit"),
+      limit: getValues("limit"),
     });
   };
 
@@ -210,17 +208,17 @@ export default function AddItem2Shop() {
             <span className="label-text">Asset Limit</span>
           </div>
           <input
-            {...register("AssetLimit", { valueAsNumber: true })}
+            {...register("limit", { valueAsNumber: true })}
             className="input input-bordered w-full max-w-xs"
             type="number"
             step="1"
             min="1"
             placeholder="Limit"
           ></input>
-          {errors.AssetLimit && (
+          {errors.limit && (
             <div className="label">
               <span className="label-text-alt text-warning">
-                {errors.AssetLimit.message}
+                {errors.limit.message}
               </span>
             </div>
           )}

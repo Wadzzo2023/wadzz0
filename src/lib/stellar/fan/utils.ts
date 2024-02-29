@@ -1,12 +1,12 @@
 import { z } from "zod";
 import { env } from "~/env";
 
-export const AccounSchema = z.object({
+export const AccountSchema = z.object({
   publicKey: z.string(),
   secretKey: z.string(),
 });
 
-export type AccountType = z.infer<typeof AccounSchema>;
+export type AccountType = z.infer<typeof AccountSchema>;
 
 export const AssetSchema = z.object({
   code: z.string(),

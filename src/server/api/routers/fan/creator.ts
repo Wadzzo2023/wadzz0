@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { CreatorAboutShema } from "~/components/fan/creator/about";
+import { AccountSchema } from "~/lib/stellar/fan/utils";
 
 import {
   createTRPCRouter,
@@ -27,13 +28,16 @@ export const creatorRouter = createTRPCRouter({
   }),
 
   makeMeCreator: protectedProcedure
-    .input(z.object({ id: z.string() }))
-    .mutation(async ({ ctx, input }) => {
+    .input(AccountSchema)
+    .mutation(async ({ ctx, input: i }) => {
+      const id = ctx.session.user.id;
       const data = await ctx.db.creator.create({
         data: {
-          name: truncateString(input.id),
-          bio: input.id,
-          user: { connect: { id: input.id } },
+          name: truncateString(id),
+          bio: id,
+          user: { connect: { id: id } },
+          storagePub: i.publicKey,
+          storageSecret: i.secretKey,
         },
       });
     }),

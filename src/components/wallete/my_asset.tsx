@@ -1,9 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import Asset from "./asset";
 import { useAssetLoadingStore } from "~/lib/state/wallete/asset_loading";
-import { MY_PAGE_SIZE } from "~/lib/wallate/constants";
 import MyError from "./my_error";
-import { InfiniteScroll } from "./infinite-scroll";
 import { useConnectWalletStateStore } from "package/connect_wallet";
 
 export default function MyAsset() {

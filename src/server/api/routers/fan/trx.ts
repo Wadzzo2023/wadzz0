@@ -2,23 +2,24 @@ import { getAccSecret } from "package/connect_wallet";
 import { Asset } from "stellar-sdk";
 import { z } from "zod";
 import { SignUser, WithSing } from "~/lib/stellar/utils";
-import { buyAssetTrx } from "~/lib/stellar/wallete/buy_asset";
-import { clawBackAccCreate } from "~/lib/stellar/wallete/clawback";
-import { createAsset } from "~/lib/stellar/wallete/create_asset";
+import { buyAssetTrx } from "~/lib/stellar/fan/buy_asset";
+import { clawBackAccCreate } from "~/lib/stellar/fan/clawback";
+import { createAsset } from "~/lib/stellar/fan/create_asset";
 import {
   getAssetNumberForXLM,
   getBandcoinPrice,
   getPlatfromAssetPrice,
-} from "~/lib/stellar/wallete/get_token_price";
-import { signXdrTransaction } from "~/lib/stellar/wallete/signXDR";
-import { getClawbackAsPayment } from "~/lib/stellar/wallete/subscribe";
-import { AssetSchema } from "~/lib/stellar/wallete/utils";
+} from "~/lib/stellar/fan/get_token_price";
+import { signXdrTransaction } from "~/lib/stellar/fan/signXDR";
+import { getClawbackAsPayment } from "~/lib/stellar/fan/subscribe";
+import { AssetSchema } from "~/lib/stellar/fan/utils";
 
 import {
   createTRPCRouter,
   protectedProcedure,
   publicProcedure,
 } from "~/server/api/trpc";
+import { createStorageTrx } from "~/lib/stellar/fan/create_storage";
 
 export const trxRouter = createTRPCRouter({
   clawbackAssetCreationTrx: protectedProcedure
@@ -113,4 +114,8 @@ export const trxRouter = createTRPCRouter({
       const secret = await getAccSecret(uid, email);
       return signXdrTransaction(xdr, secret);
     }),
+
+  createStorageAccount: protectedProcedure.mutation(async ({ ctx }) => {
+    return await createStorageTrx({ pubkey: ctx.session.user.id });
+  }),
 });
