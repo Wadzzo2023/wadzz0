@@ -20,6 +20,9 @@ import {
   publicProcedure,
 } from "~/server/api/trpc";
 import { createStorageTrx } from "~/lib/stellar/fan/create_storage";
+import { createUniAsset } from "~/lib/stellar/uni_create_asset";
+import { db } from "~/server/db";
+import { env } from "~/env";
 
 export const trxRouter = createTRPCRouter({
   clawbackAssetCreationTrx: protectedProcedure
@@ -72,6 +75,41 @@ export const trxRouter = createTRPCRouter({
       });
     }),
 
+  createUniAssetTrx: protectedProcedure
+    .input(
+      z.object({
+        code: z.string(),
+        limit: z.number(),
+        signWith: SignUser,
+        admin: z.boolean().default(false),
+      }),
+    )
+    .mutation(async ({ ctx, input: i }) => {
+      const assetAmout = await getAssetNumberForXLM();
+
+      // get storage secret
+      let storageSecret: string;
+      if (i.admin) storageSecret = env.STORAGE_SECRET;
+      else {
+        const storage = await db.creator.findFirst({
+          where: { id: ctx.session.user.id },
+          select: { storageSecret: true },
+        });
+        if (!storage) throw new Error("No storage account found");
+        storageSecret = storage.storageSecret;
+      }
+
+      return await createUniAsset({
+        actionAmount: assetAmout.toString(),
+        pubkey: ctx.session.user.id,
+        storageSecret,
+        code: i.code,
+        homeDomain: "vong@cong.com",
+        limit: i.limit.toString(),
+        signWith: i.signWith,
+      });
+    }),
+
   buyAssetTrx: protectedProcedure
     .input(
       AssetSchema.extend({
@@ -105,14 +143,6 @@ export const trxRouter = createTRPCRouter({
     .input(z.number().optional())
     .query(async ({ input }) => {
       return await getAssetNumberForXLM(input);
-    }),
-
-  signXDRForFbGoogleEmail: protectedProcedure
-    .input(z.object({ xdr: z.string(), uid: z.string(), email: z.string() }))
-    .query(async ({ ctx, input }) => {
-      const { xdr, uid, email } = input;
-      const secret = await getAccSecret(uid, email);
-      return signXdrTransaction(xdr, secret);
     }),
 
   createStorageAccount: protectedProcedure

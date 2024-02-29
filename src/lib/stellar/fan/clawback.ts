@@ -36,7 +36,7 @@ export async function clawBackAccCreate({
   const server = new Server(STELLAR_URL);
   const limit = "50000";
 
-  const distributorAcc = Keypair.fromSecret(env.DISTRIBUTOR_SECRET);
+  const distributorAcc = Keypair.fromSecret(env.STORAGE_SECRET);
 
   const escrowAcc = Keypair.random();
   const asset = new Asset(assetCode, escrowAcc.publicKey());

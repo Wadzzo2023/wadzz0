@@ -53,7 +53,7 @@ export async function firstTransection({
   // log.info("storageSecret", storageSecret);
   // log.info("motherSec", motherSecret);
 
-  const storageAcc = Keypair.fromSecret(env.DISTRIBUTOR_SECRET);
+  const storageAcc = Keypair.fromSecret(env.STORAGE_SECRET);
 
   // Create two new Acc
   // issuer

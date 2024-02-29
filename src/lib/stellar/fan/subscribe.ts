@@ -34,7 +34,7 @@ export async function getClawbackAsPayment({
 }) {
   const server = new Server(STELLAR_URL);
 
-  const distributorAcc = Keypair.fromSecret(env.DISTRIBUTOR_SECRET);
+  const distributorAcc = Keypair.fromSecret(env.STORAGE_SECRET);
   const asset = new Asset(assetInfo.code, assetInfo.issuer);
 
   const transactionInializer = await server.loadAccount(userPubkey);

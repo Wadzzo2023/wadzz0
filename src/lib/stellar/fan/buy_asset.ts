@@ -31,7 +31,7 @@ export async function buyAssetTrx({
   const server = new Server(STELLAR_URL);
   const asset = new Asset(assetType.code, assetType.issuer);
 
-  const distributorAcc = Keypair.fromSecret(env.DISTRIBUTOR_SECRET);
+  const distributorAcc = Keypair.fromSecret(env.STORAGE_SECRET);
 
   const transactionInializer = await server.loadAccount(customerPubkey);
 

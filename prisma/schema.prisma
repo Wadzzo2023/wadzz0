@@ -315,6 +315,7 @@ model Asset {
     buyers      User_Asset[]
     MarketAsset MarketAsset[]
 
+    @@unique([code, issuer])
     @@index([name, description])
 }
 

@@ -10,42 +10,38 @@ import {
   PLATFROM_FEE,
   STELLAR_URL,
   networkPassphrase,
-} from "./constant";
+} from "./fan/constant";
 import { env } from "~/env";
-import { AccountSchema, AccountType } from "./utils";
-import { SignUserType, WithSing } from "../utils";
+import { AccountSchema, AccountType } from "./fan/utils";
+import { SignUserType, WithSing } from "./utils";
 
 const log = console;
 
 // transection variables
 
-export type trxResponse = {
-  successful: boolean;
-  issuerAcc: { pub: string; secret: string };
-  distributorSecret: string;
-  ipfsHash: string;
-  error?: { status: number; msg: string };
-};
-
-export async function createAsset({
+export async function createUniAsset({
   pubkey,
   code,
-  limit: limitValue,
-  actionAmount,
+  limit,
   signWith,
+  homeDomain,
+  storageSecret,
 }: {
   pubkey: string;
   code: string;
-  limit: number;
+  limit: string;
   actionAmount: string;
+  storageSecret: string;
   signWith: SignUserType;
+  homeDomain: string;
 }) {
-  const limit = limitValue.toString();
   const server = new Server(STELLAR_URL);
 
+  const actionAmount = "40";
   // issuer
   const issuerAcc = Keypair.random();
   const distributorAcc = Keypair.fromSecret(env.STORAGE_SECRET);
+  const asesetStorage = Keypair.fromSecret(storageSecret);
 
   const asset = new Asset(code, issuerAcc.publicKey());
 
@@ -55,7 +51,7 @@ export async function createAsset({
     fee: "200",
     networkPassphrase,
   })
-    // first get action for required xl.
+    // first get action for required xl. and fee.
     .addOperation(
       Operation.payment({
         destination: distributorAcc.publicKey(),
@@ -92,7 +88,7 @@ export async function createAsset({
       Operation.changeTrust({
         asset,
         limit: limit,
-        source: distributorAcc.publicKey(),
+        source: asesetStorage.publicKey(),
       }),
     )
     // 3
@@ -101,25 +97,17 @@ export async function createAsset({
         asset,
         amount: limit,
         source: issuerAcc.publicKey(),
-        destination: distributorAcc.publicKey(),
+        destination: pubkey,
       }),
     )
     // 4
     .addOperation(
       Operation.setOptions({
-        homeDomain: "vongcong.com",
+        homeDomain,
         source: issuerAcc.publicKey(),
       }),
     )
-    // sending platform fee.
-    .addOperation(
-      Operation.payment({
-        amount: PLATFROM_FEE,
-        asset: PLATFROM_ASSET,
-        destination: distributorAcc.publicKey(),
-      }),
-    )
-    // 5
+
     .setTimeout(0)
     .build();
 

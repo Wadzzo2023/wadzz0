@@ -90,6 +90,7 @@ export default function Modal({
           <button>close</button>
         </form> */}
       </dialog>
+     
       <ModalButton content={getButtonText()} handleClick={handleModal}>
         {mode == ModalMode.ADD ? <PlusIcon /> : <Edit2Icon />}
       </ModalButton>

@@ -208,9 +208,11 @@ function SubscriptionCard({
 }
 
 function AllShopItems({ creatorId }: { creatorId: string }) {
-  const { data: items, isLoading } = api.fan.shop.getCreatorShopAsset.useQuery({
-    creatorId,
-  });
+  const { data: items, isLoading } = api.fan.asset.getCreatorShopAsset.useQuery(
+    {
+      creatorId,
+    },
+  );
   if (isLoading) return <div>Loading...</div>;
 
   if (items && items.length > 0) {

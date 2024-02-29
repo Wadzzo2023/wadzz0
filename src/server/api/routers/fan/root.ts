@@ -2,7 +2,7 @@ import { postRouter } from "~/server/api/routers/fan/post";
 import { createTRPCRouter } from "~/server/api/trpc";
 import { creatorRouter } from "./creator";
 import { membershipRouter } from "./membership";
-import { shopRouter } from "./shop";
+import { shopRouter } from "./asset";
 import { trxRouter } from "./trx";
 import { notificationRouter } from "./notification";
 import { userRouter } from "./user";
@@ -16,7 +16,7 @@ export const fanRouter = createTRPCRouter({
   post: postRouter,
   creator: creatorRouter,
   member: membershipRouter,
-  shop: shopRouter,
+  asset: shopRouter,
   trx: trxRouter,
   notification: notificationRouter,
   user: userRouter,

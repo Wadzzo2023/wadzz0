@@ -38,7 +38,7 @@ export default function AddItem2Shop() {
 
   const assetAmount = api.fan.trx.getAssetNumberforXlm.useQuery();
 
-  const addMutation = api.fan.shop.createShopAsset.useMutation({
+  const addMutation = api.fan.asset.createAsset.useMutation({
     onSuccess: () => {
       toast.success("Item created successfully!");
       reset();

@@ -27,7 +27,7 @@ export const postRouter = createTRPCRouter({
           subscriptionId: input.subscription
             ? Number(input.subscription)
             : null,
-          Media: input.medias
+          medias: input.medias
             ? {
                 createMany: {
                   data: input.medias,
@@ -72,10 +72,10 @@ export const postRouter = createTRPCRouter({
         include: {
           _count: {
             select: {
-              Like: {
+              likes: {
                 where: { status: true },
               },
-              Comment: true,
+              comments: true,
             },
           },
           subscription: true,
@@ -118,10 +118,10 @@ export const postRouter = createTRPCRouter({
         include: {
           subscription: true,
           _count: {
-            select: { Like: true, Comment: true },
+            select: { likes: true, comments: true },
           },
           creator: { select: { name: true, id: true } },
-          Media: true,
+          medias: true,
         },
       });
 
@@ -145,10 +145,10 @@ export const postRouter = createTRPCRouter({
       const post = await ctx.db.post.findUnique({
         where: { id: input },
         include: {
-          _count: { select: { Like: true, Comment: true } },
+          _count: { select: { likes: true, comments: true } },
           creator: { select: { name: true, id: true } },
           subscription: { select: { priority: true } },
-          Media: true,
+          medias: true,
         },
       });
 
@@ -163,7 +163,7 @@ export const postRouter = createTRPCRouter({
                 { userId },
                 { subscription: { creatorId: post.creatorId } },
                 // here i have to check not expired highest subscriptin.
-                { endDate: { gte: new Date() } },
+                { subcriptionEndDate: { gte: new Date() } },
               ],
             },
             include: { subscription: true },
