@@ -15,6 +15,7 @@ export const creatorRouter = createTRPCRouter({
     .query(async ({ input, ctx }) => {
       const creator = await ctx.db.creator.findFirst({
         where: { id: input.id },
+        // select: {  },
       });
       if (creator) {
         return creator;

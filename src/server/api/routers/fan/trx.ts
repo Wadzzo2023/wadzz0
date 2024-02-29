@@ -115,7 +115,12 @@ export const trxRouter = createTRPCRouter({
       return signXdrTransaction(xdr, secret);
     }),
 
-  createStorageAccount: protectedProcedure.mutation(async ({ ctx }) => {
-    return await createStorageTrx({ pubkey: ctx.session.user.id });
-  }),
+  createStorageAccount: protectedProcedure
+    .input(SignUser)
+    .mutation(async ({ ctx, input }) => {
+      return await createStorageTrx({
+        pubkey: ctx.session.user.id,
+        signWith: input,
+      });
+    }),
 });

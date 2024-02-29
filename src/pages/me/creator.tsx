@@ -3,6 +3,7 @@ import { type Session } from "next-auth";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
 import { clientsign, useConnectWalletStateStore } from "package/connect_wallet";
+import toast from "react-hot-toast";
 import { PostMenu } from "~/components/fan/creator/CreatPost";
 import MemberShip from "~/components/fan/creator/membership";
 import Shop from "~/components/fan/creator/shop";
@@ -21,9 +22,12 @@ export default function CreatorProfile() {
 }
 
 function CreatorExist(props: { user: Session["user"] }) {
-  const { data: creator, isLoading } = api.fan.creator.getCreator.useQuery({
-    id: props.user.id,
-  });
+  const { data: creator, isLoading } = api.fan.creator.getCreator.useQuery(
+    {
+      id: props.user.id,
+    },
+    { refetchOnWindowFocus: false },
+  );
 
   if (isLoading) return <div>Checking..</div>;
   if (creator) {
@@ -99,7 +103,8 @@ function CreateCreator(props: { id: string }) {
       })
         .then((isSucces) => {
           if (isSucces) {
-            makeCreatorMutation.mutate({ storage });
+            toast.success("You are now a creator");
+            makeCreatorMutation.mutate(storage);
           }
         })
         .catch((e) => console.log(e));
@@ -109,7 +114,10 @@ function CreateCreator(props: { id: string }) {
   return (
     <div className="flex h-full flex-col items-center justify-center gap-2 ">
       <p className="text-2xl font-bold">You are not a creator</p>
-      <button className="btn btn-primary" onClick={() => xdr.mutate()}>
+      <button
+        className="btn btn-primary"
+        onClick={() => xdr.mutate(needSign())}
+      >
         {makeCreatorMutation.isLoading && (
           <span className="loading loading-spinner" />
         )}

@@ -14,10 +14,17 @@ import {
   networkPassphrase,
 } from "./constant";
 import { AccountType } from "./utils";
+import { SignUserType, WithSing } from "../utils";
 
 const log = console;
 
-export async function createStorageTrx({ pubkey }: { pubkey: string }) {
+export async function createStorageTrx({
+  pubkey,
+  signWith,
+}: {
+  pubkey: string;
+  signWith: SignUserType;
+}) {
   const server = new Server(STELLAR_URL);
 
   const storageAcc = Keypair.random();
@@ -46,5 +53,7 @@ export async function createStorageTrx({ pubkey }: { pubkey: string }) {
     secretKey: storageAcc.secret(),
   };
 
-  return { xdr: Tx1.toXDR(), storage };
+  const xdr = await WithSing({ xdr: Tx1.toXDR(), signWith });
+
+  return { xdr, storage };
 }
