@@ -9,7 +9,7 @@ import {
 } from "stellar-sdk";
 import { env } from "~/env";
 import {
-  DEFAULT_ASSET_LIMIT,
+  STROOP,
   STELLAR_URL,
   STORAGE_PUB,
   networkPassphrase,
@@ -44,9 +44,7 @@ export async function firstTransection({
     // mother acc
 
     const motherAcc = Keypair.fromSecret(motherSecret);
-    const limit = (nftLimit * Number(DEFAULT_ASSET_LIMIT))
-      .toFixed(7)
-      .toString();
+    const limit = (nftLimit * Number(STROOP)).toFixed(7).toString();
 
     // generating new mother account everytime
     // let motherAcc = Keypair.random();

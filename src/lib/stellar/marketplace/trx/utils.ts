@@ -1,6 +1,6 @@
 import { AccountResponse, Server } from "stellar-sdk";
 import { SITE_ASSET_OBJ } from "./constant";
-import { DEFAULT_ASSET_LIMIT, STELLAR_URL } from "../constant";
+import { STROOP, STELLAR_URL } from "../constant";
 
 export function checkSiteAssetBalance(accRes: AccountResponse) {
   for (const balance of accRes.balances) {
@@ -27,11 +27,11 @@ export function checkNativeBalance(accRes: AccountResponse) {
 }
 
 export function getAssetCount(balance: string) {
-  return Number(balance) / Number(DEFAULT_ASSET_LIMIT);
+  return Number(balance) / Number(STROOP);
 }
 
 export function getPrice(balance: string) {
-  return (Number(balance) * Number(DEFAULT_ASSET_LIMIT)).toFixed(7).toString();
+  return (Number(balance) * Number(STROOP)).toFixed(7).toString();
 }
 
 export async function alreadyHaveTrustOnNft({

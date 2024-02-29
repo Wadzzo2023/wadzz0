@@ -3,7 +3,7 @@ import { env } from "~/env";
 
 export const HORIZON_URL = "https://horizon.stellar.org"; // Horizon server for pubnet
 
-export const DEFAULT_ASSET_LIMIT = "0.0000001";
+export const STROOP = "0.0000001";
 export const DEFAULT_ASSET_PRICE = "1"; // siteAsset
 
 export const networkPassphrase = env.NEXT_PUBLIC_STELLAR_PUBNET

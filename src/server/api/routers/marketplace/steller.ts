@@ -13,7 +13,7 @@ import {
 } from "~/lib/stellar/marketplace/trx/create_song_token";
 import {
   revertPlacedNftXDr,
-  sendNft2StorageTransection,
+  sendNft2StorageXDR,
 } from "~/lib/stellar/marketplace/trx/nft_2_storage";
 import { NFT } from "~/lib/marketplace/types/dbTypes";
 
@@ -107,7 +107,7 @@ export const stellarRouter = createTRPCRouter({
     .mutation(async ({ input }) => {
       const { assetCode, issuerPub, pubkey, price, secret, copyLimit } = input;
       try {
-        const xdr = await sendNft2StorageTransection({
+        const xdr = await sendNft2StorageXDR({
           // have write this
           assetCode,
           issuerPub,

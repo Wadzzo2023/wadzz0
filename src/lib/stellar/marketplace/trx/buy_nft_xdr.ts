@@ -8,11 +8,7 @@ import {
 } from "stellar-sdk";
 import { env } from "~/env";
 
-import {
-  DEFAULT_ASSET_LIMIT,
-  networkPassphrase,
-  STELLAR_URL,
-} from "../constant";
+import { STROOP, networkPassphrase, STELLAR_URL } from "../constant";
 import { STORAGE_SECRET } from "../SECRET";
 import { SITE_ASSET } from "./constant";
 import {
@@ -38,9 +34,7 @@ export async function buyNftTransection({
   secret?: string;
   sellerPub?: string;
 }) {
-  const assetLimit = (Number(limit) / Number(DEFAULT_ASSET_LIMIT))
-    .toFixed(7)
-    .toString();
+  const assetLimit = (Number(limit) / Number(STROOP)).toFixed(7).toString();
   const asset = new Asset(assetCode, issuerPub);
   const server = new Server(STELLAR_URL);
 
@@ -106,7 +100,7 @@ export async function buyNftTransection({
       .addOperation(
         Operation.payment({
           asset: asset,
-          amount: DEFAULT_ASSET_LIMIT,
+          amount: STROOP,
           source: storageAcc.publicKey(),
           destination: userPub,
         }),
@@ -149,7 +143,7 @@ export async function buyNftTransection({
       .addOperation(
         Operation.payment({
           asset: asset,
-          amount: DEFAULT_ASSET_LIMIT,
+          amount: STROOP,
           source: storageAcc.publicKey(),
           destination: userPub,
         }),

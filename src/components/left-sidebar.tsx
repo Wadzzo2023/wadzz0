@@ -29,7 +29,8 @@ export const UserNavigation = {
   Home: { path: "/", icon: HomeIcon, text: "HOMEPAGE" },
   // Search: { path: "/search", icon: Search, text: "Search" },
   Music: { path: "/music", icon: Diamond, text: "MUSIC" },
-  Notification: { path: "/marketplace", icon: Bell, text: "MARKETPLACE" },
+  Marketplace: { path: "/marketplace", icon: Bell, text: "MARKETPLACE" },
+  MyAssets: { path: "/assets", icon: Bell, text: "MY ASSETS" },
   Settings: { path: "/settings", icon: Settings2, text: "SETTINGS" },
 } as const;
 

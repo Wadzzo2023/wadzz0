@@ -7,30 +7,30 @@ import {
   TransactionBuilder,
 } from "stellar-sdk";
 import log from "~/lib/logger/logger";
-import { DEFAULT_ASSET_LIMIT, STELLAR_URL } from "../constant";
+import { STROOP, STELLAR_URL } from "../constant";
 import { STORAGE_SECRET } from "../SECRET";
 import { networkPassphrase } from "../constant";
 import { getPrice } from "./utils";
+import { SignUserType, WithSing } from "../../utils";
 
-export async function sendNft2StorageTransection({
+export async function sendNft2StorageXDR({
   assetCode,
   issuerPub,
+  assetAmount,
   userPub,
-  secret,
-  assetCount,
+  storagePub,
+  signWith,
 }: {
   userPub: string;
+  storagePub: string;
   assetCode: string;
   issuerPub: string;
-  assetCount: string;
-  secret?: string;
+  assetAmount: string;
+  signWith: SignUserType;
 }) {
-  const assetAmount = getPrice(assetCount);
   // const assetAmount = DEFAULT_ASSET_LIMIT
   const asset = new Asset(assetCode, issuerPub);
   const server = new Server(STELLAR_URL);
-
-  const storageAcc = Keypair.fromSecret(STORAGE_SECRET);
 
   const transactionInializer = await server.loadAccount(userPub);
 
@@ -41,7 +41,7 @@ export async function sendNft2StorageTransection({
     //
     .addOperation(
       Operation.payment({
-        destination: storageAcc.publicKey(),
+        destination: storagePub,
         amount: assetAmount, //copy,
         asset: asset,
         source: userPub,
@@ -50,17 +50,7 @@ export async function sendNft2StorageTransection({
     .setTimeout(0)
     .build();
 
-  if (secret) {
-    // fb and google acc
-    const userAcc = Keypair.fromSecret(secret);
-    Tx2.sign(userAcc);
-
-    const transectionXDR = Tx2.toXDR();
-    return transectionXDR;
-  }
-
-  const transectionXDR = Tx2.toXDR();
-  return transectionXDR;
+  return await WithSing({ xdr: Tx2.toXDR(), signWith });
 }
 
 export async function revertPlacedNftXDr({
@@ -124,9 +114,7 @@ export async function secondTransectionForFbAndGoogleUser({
   // const docRef = doc(db, FCname.auth, uid);
   // const userSnapshot = await getDoc(docRef);
 
-  const assetLimit = (Number(limit) / Number(DEFAULT_ASSET_LIMIT))
-    .toFixed(7)
-    .toString();
+  const assetLimit = (Number(limit) / Number(STROOP)).toFixed(7).toString();
   const asset = new Asset(assetCode, issuerPub);
   const server = new Server(STELLAR_URL);
 
@@ -169,7 +157,7 @@ export async function secondTransectionForFbAndGoogleUser({
     .addOperation(
       Operation.payment({
         asset: asset,
-        amount: DEFAULT_ASSET_LIMIT,
+        amount: STROOP,
         source: storageAcc.publicKey(),
         destination: userPub,
       }),

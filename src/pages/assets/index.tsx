@@ -7,12 +7,27 @@ export default function MyAssetsPage() {
   return (
     <div className="p-5">
       <h1 className="mb-2 text-2xl font-bold">FAN ITEMS</h1>
-      <div className="flex flex-col items-center gap-4">
-        <CreateTabs />
-        <RenderTabs />
-      </div>
+      <MyAssets />
     </div>
   );
+}
+
+function MyAssets() {
+  const acc = api.wallate.acc.getAccountInfo.useQuery();
+  if (acc.isLoading) return <span className="loading loading-spinner" />;
+  if (acc.data)
+    return acc.data.map((asset, i) => {
+      return (
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <AssetItemComponent
+            code={asset.code}
+            name={asset.copies.toString()}
+            description={asset.homeDomain}
+            key={i}
+          />
+        </div>
+      );
+    });
 }
 
 function RenderTabs() {

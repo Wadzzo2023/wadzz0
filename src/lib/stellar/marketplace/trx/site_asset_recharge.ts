@@ -6,7 +6,7 @@ import {
   Server,
   TransactionBuilder,
 } from "stellar-sdk";
-import { DEFAULT_ASSET_LIMIT, STELLAR_URL } from "../constant";
+import { STROOP, STELLAR_URL } from "../constant";
 import { STORAGE_SECRET } from "../SECRET";
 import { SITE_ASSET, SITE_ASSET_OBJ } from "./constant";
 import { networkPassphrase } from "../constant";

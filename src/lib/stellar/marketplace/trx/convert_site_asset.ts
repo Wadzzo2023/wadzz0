@@ -6,7 +6,7 @@ import {
   Server,
   TransactionBuilder,
 } from "stellar-sdk";
-import { DEFAULT_ASSET_LIMIT, STELLAR_URL } from "../constant";
+import { STROOP, STELLAR_URL } from "../constant";
 import { STORAGE_SECRET } from "../SECRET";
 import { SITE_ASSET } from "./constant";
 import { networkPassphrase } from "../constant";
@@ -20,7 +20,7 @@ export async function covertSiteAsset2XLM(props: {
   // take siteAsset and send xlm from storage
   const { pubkey, siteAssetAmount, xlm, secret } = props;
 
-  const assetAmount = (Number(siteAssetAmount) * Number(DEFAULT_ASSET_LIMIT))
+  const assetAmount = (Number(siteAssetAmount) * Number(STROOP))
     .toFixed(7)
     .toString();
 
