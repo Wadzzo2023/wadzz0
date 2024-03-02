@@ -19,9 +19,25 @@ function Right(_props: RightProps) {
   const soStore = useSearchOpenStore();
   const { currentData } = useRightStore();
   if (!currentData) return <Loading />;
-  const { codeIssuer, logoBlueData, logoUrl, link, description, color, tags } =
-    currentData;
-  const code = "vong";
+  const {
+    codeIssuer,
+    logoBlueData,
+    logoUrl,
+    link,
+    description,
+    color,
+    tags,
+    code,
+    Litemint,
+    StellarTerm,
+    StellarX,
+  } = currentData;
+
+  const availableMarket = [
+    { title: "Litemint", link: Litemint },
+    { title: "StellarTerm", link: StellarTerm },
+    { title: "StellarX", link: StellarX },
+  ].filter((el) => el.link !== null);
 
   return (
     <div className=" h-full max-h-[800px]">
@@ -78,16 +94,22 @@ function Right(_props: RightProps) {
                   {extractHostnameFromURL(link)}
                 </Link>
               </div>
-              {/* {availableMarket.length != 0 && (
+              {availableMarket.length != 0 && (
                 <div>
                   <p className="font-semibold">Trade/ Buy on:</p>
                   <div className="my-1 flex flex-wrap gap-1">
                     {availableMarket.map((market, i) => (
-                      <MarketLayout key={i} {...market} />
+                      <MarketLayout
+                        key={i}
+                        title={market.title}
+                        link={market.link!}
+                        color={color}
+                        logoImg={{ blurData: logoBlueData, url: logoUrl }}
+                      />
                     ))}
                   </div>
                 </div>
-              )} */}
+              )}
               <div>
                 <p className="font-semibold">Tags:</p>
                 <div
