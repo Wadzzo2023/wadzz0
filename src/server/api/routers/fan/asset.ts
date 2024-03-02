@@ -130,17 +130,17 @@ export const shopRouter = createTRPCRouter({
   //     };
   //   }),
 
-  // buyAsset: protectedProcedure
-  //   .input(z.object({ shopAssetId: z.number() }))
-  //   .mutation(async ({ input, ctx }) => {
-  //     const { shopAssetId } = input;
-  //     return await ctx.db.userShopAsset.create({
-  //       data: {
-  //         userId: ctx.session.user.id,
-  //         shopAssetId: shopAssetId,
-  //       },
-  //     });
-  //   }),
+  buyAsset: protectedProcedure
+    .input(z.object({ shopAssetId: z.number() }))
+    .mutation(async ({ input, ctx }) => {
+      const { shopAssetId } = input;
+      // return await ctx.db..create({
+      //   data: {
+      //     userId: ctx.session.user.id,
+      //     shopAssetId: shopAssetId,
+      //   },
+      // });
+    }),
 
   // getAllPopularAsset: publicProcedure
   //   .input(

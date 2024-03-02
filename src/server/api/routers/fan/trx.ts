@@ -99,6 +99,8 @@ export const trxRouter = createTRPCRouter({
         storageSecret = storage.storageSecret;
       }
 
+      console.log(storageSecret, "storageSecret");
+
       return await createUniAsset({
         actionAmount: assetAmout.toString(),
         pubkey: ctx.session.user.id,
@@ -118,14 +120,21 @@ export const trxRouter = createTRPCRouter({
         creatorId: z.string(),
       }),
     )
-    .query(async ({ input, ctx }) => {
+    .mutation(async ({ input, ctx }) => {
       const price = input.price.toString();
       const customerPubkey = ctx.session.user.id; // is the custeomr
+
+      const creator = await ctx.db.creator.findUniqueOrThrow({
+        where: { id: input.creatorId },
+        select: { storageSecret: true },
+      });
+
       const xdr = await buyAssetTrx({
         customerPubkey,
         assetType: input,
         creatorId: input.creatorId,
         price: price,
+        storageSecret: creator.storageSecret,
       });
 
       return await WithSing({ xdr, signWith: input.signWith });

@@ -1,4 +1,4 @@
-import { Creator, ShopAsset } from "@prisma/client";
+import { Asset, Creator, ShopAsset } from "@prisma/client";
 import React from "react";
 import AddItem2Shop from "./add-shop-item";
 import { api } from "~/utils/api";
@@ -22,7 +22,7 @@ function AllShopItems() {
     data: items,
     isLoading,
     isError,
-  } = api.shop.getAllShopAsset.useQuery();
+  } = api.fan.asset.getAllShopAsset.useQuery();
   if (isLoading) return <div>Loading...</div>;
   if (isError) return <div>Error </div>;
   if (items?.length == 0) return <div>There is no item</div>;
@@ -43,9 +43,9 @@ export interface ShopItemProps extends ShopAsset {
   };
 }
 
-export function ShopItem({ item }: { item: ShopItemProps }) {
+export function ShopItem({ item }: { item: Asset }) {
   const { data } = useSession();
-  if (data)
+  if (data && item.creatorId)
     return (
       <div className="card w-96 bg-base-100 shadow-xl">
         <div className="card-body">
@@ -56,7 +56,7 @@ export function ShopItem({ item }: { item: ShopItemProps }) {
           <p>{item.description}</p>
           <div className="card-actions justify-end">
             <button className="btn btn-outline btn-primary self-start">
-              {item.asset.code}
+              {item.code}
             </button>
             {item.creatorId != data.user.id && <BuyItemModal item={item} />}
           </div>
@@ -76,9 +76,9 @@ function ShopItemContextMenu({
   itemId: number;
 }) {
   const { data } = useSession();
-  const deleteAsset = api.shop.deleteAsset.useMutation();
+  // const deleteAsset = api.shop.deleteAsset.useMutation();
 
-  const handleDelete = () => deleteAsset.mutate(itemId);
+  const handleDelete = () => console.log("deleted testing"); //deleteAsset.mutate(itemId);
 
   if (data?.user && data.user.id === creatorId) {
     return (

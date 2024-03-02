@@ -3,13 +3,10 @@ import { getTailwindScreenSize } from "~/lib/wallate/clientUtils";
 import type { AssetType } from "~/lib/wallate/interfaces";
 import { useRightStore } from "~/lib/state/wallete/right";
 import ImageVideViewer from "./Image_video_viewer";
+import { AdminAsset } from "@prisma/client";
 
-interface AssetProps {
-  asset: AssetType;
-}
-
-function Asset({ asset }: AssetProps) {
-  const { code, logoImg, color } = asset;
+function Asset({ asset }: { asset: AdminAsset }) {
+  const { logoUrl, logoBlueData, color } = asset;
   const urs = useRightStore();
   return (
     <div>
@@ -32,9 +29,9 @@ function Asset({ asset }: AssetProps) {
           <div className="avatar ">
             <div className="relative w-24 rounded-full">
               <ImageVideViewer
-                blurData={logoImg.blurData}
-                code={code}
-                url={logoImg.url}
+                blurData={logoBlueData}
+                code={"code"}
+                url={logoUrl}
                 sizes="100px"
               />
             </div>

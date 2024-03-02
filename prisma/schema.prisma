@@ -341,6 +341,7 @@ model AdminAsset {
     description String
     link        String
     codeIssuer  String
+    code        String
 
     logoUrl      String
     logoBlueData String?

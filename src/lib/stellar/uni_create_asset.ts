@@ -40,7 +40,6 @@ export async function createUniAsset({
   const actionAmount = "40";
   // issuer
   const issuerAcc = Keypair.random();
-  const distributorAcc = Keypair.fromSecret(env.STORAGE_SECRET);
   const asesetStorage = Keypair.fromSecret(storageSecret);
 
   const asset = new Asset(code, issuerAcc.publicKey());
@@ -51,24 +50,24 @@ export async function createUniAsset({
     fee: "200",
     networkPassphrase,
   })
-    // first get action for required xl. and fee.
-    .addOperation(
-      Operation.payment({
-        destination: distributorAcc.publicKey(),
-        asset: PLATFROM_ASSET,
-        amount: actionAmount,
-      }),
-    )
+    // // first get action for required xl. and fee.
+    // .addOperation(
+    //   Operation.payment({
+    //     destination: distributorAcc.publicKey(),
+    //     asset: PLATFROM_ASSET,
+    //     amount: actionAmount,
+    //   }),
+    // )
 
-    // send this required xlm
-    .addOperation(
-      Operation.payment({
-        destination: pubkey,
-        asset: Asset.native(),
-        amount: "1.5",
-        source: distributorAcc.publicKey(),
-      }),
-    )
+    // // send this required xlm
+    // .addOperation(
+    //   Operation.payment({
+    //     destination: pubkey,
+    //     asset: Asset.native(),
+    //     amount: "1.5",
+    //     source: distributorAcc.publicKey(),
+    //   }),
+    // )
     // create issuer account
     .addOperation(
       Operation.createAccount({
@@ -112,7 +111,7 @@ export async function createUniAsset({
     .build();
 
   // sign
-  Tx1.sign(issuerAcc, distributorAcc);
+  Tx1.sign(issuerAcc, asesetStorage); //TODO add distributorStorage
   const xdr = Tx1.toXDR();
   const signedXDr = await WithSing({
     xdr: xdr,

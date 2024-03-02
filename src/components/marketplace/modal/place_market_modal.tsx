@@ -65,7 +65,7 @@ export default function PlaceMarketModal({
       const formData = getValues();
       // res && addMutation.mutate(data);
       placeItem.mutate(formData);
-      toast.success("NFT Created");
+      toast.success("NFT has been placed in market");
     },
   });
 

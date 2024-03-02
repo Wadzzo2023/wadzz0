@@ -9,11 +9,11 @@ import {
   PLATFROM_ASSET,
   PLATFROM_FEE,
   STELLAR_URL,
-  LOWEST_ASSET_AMOUNT,
   networkPassphrase,
 } from "./constant";
 import { env } from "~/env";
 import { MyAssetType } from "./utils";
+import { STROOP } from "../marketplace/constant";
 
 const log = console;
 
@@ -22,16 +22,19 @@ export async function buyAssetTrx({
   assetType,
   creatorId,
   price,
+  storageSecret,
 }: {
   customerPubkey: string;
   assetType: MyAssetType;
   price: string;
   creatorId: string;
+  storageSecret: string;
 }) {
   const server = new Server(STELLAR_URL);
   const asset = new Asset(assetType.code, assetType.issuer);
 
-  const distributorAcc = Keypair.fromSecret(env.STORAGE_SECRET);
+  const assetStorage = Keypair.fromSecret(storageSecret);
+  const maotherAcc = Keypair.fromSecret(env.MOTHER_SECRET);
 
   const transactionInializer = await server.loadAccount(customerPubkey);
 
@@ -47,14 +50,12 @@ export async function buyAssetTrx({
       }),
     )
 
-    // pay first
-
     // get payment
     .addOperation(
       Operation.payment({
         asset,
-        amount: LOWEST_ASSET_AMOUNT,
-        source: distributorAcc.publicKey(),
+        amount: STROOP,
+        source: assetStorage.publicKey(),
         destination: customerPubkey,
       }),
     )
@@ -71,13 +72,13 @@ export async function buyAssetTrx({
       Operation.payment({
         amount: PLATFROM_FEE,
         asset: PLATFROM_ASSET,
-        destination: distributorAcc.publicKey(),
+        destination: maotherAcc.publicKey(),
       }),
     )
 
     .setTimeout(0)
     .build();
 
-  Tx1.sign(distributorAcc);
+  Tx1.sign(assetStorage);
   return Tx1.toXDR();
 }

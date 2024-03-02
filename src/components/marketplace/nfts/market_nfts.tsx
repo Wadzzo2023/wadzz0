@@ -4,27 +4,19 @@ import { useEffect, useRef, useState } from "react";
 import { api } from "~/utils/api";
 import MarketItem from "./market_item";
 import React from "react";
-import { MarketNFT } from "~/server/api/routers/marketplace/marketplace";
-
-export enum MARKETPLACE_FILTER {
-  ORIGINAL = "Primary Market",
-  DUPLICATE = "Secondary Market",
-}
 
 function MarketNfts() {
   const [searchString, setSearchString] = useState<string>("");
-  const [filter, setFilters] = useState<MARKETPLACE_FILTER>();
 
-  // const { data, isLoading, hasNextPage, isFetchingNextPage, fetchNextPage } =
-  //   api.music.market.getMarketNft.useInfiniteQuery(
-  //     {
-  //       limit: 15,
-  //     },
-  //     {
-  //       getNextPageParam: ({ lastItemPath }) => lastItemPath,
-  //       refetchOnWindowFocus: false,
-  //     },
-  //   );
+  const marketNfts = api.marketplace.market.getMarketNft.useInfiniteQuery(
+    {
+      limit: 15,
+    },
+    {
+      getNextPageParam: ({ nextCursor }) => nextCursor,
+      refetchOnWindowFocus: false,
+    },
+  );
 
   // const { isLoading: allNftLoading, isSuccess } = api.market.getAllNft.useQuery(
   //   undefined,
@@ -65,7 +57,7 @@ function MarketNfts() {
         />
       </div>
 
-      <div className=" flex gap-2 p-2">
+      {/* <div className=" flex gap-2 p-2">
         {Object.values(MARKETPLACE_FILTER).map((v: MARKETPLACE_FILTER, i) => (
           <button
             key={i}
@@ -82,7 +74,7 @@ function MarketNfts() {
             {v}
           </button>
         ))}
-      </div>
+      </div> */}
 
       {isLoading ? (
         <div className="main-asset-area">
@@ -98,16 +90,13 @@ function MarketNfts() {
           ref={divRef}
           className="main-asset-area"
         >
-          {/* 
           <React.Fragment>
-            {data?.pages[currentPage]?.nfts.map((nft, i) => {
-              // if (nft.copies > 0) {
-              return <MarketItem key={i} item={nft} />;
-              // }
-              // return null; // Ensure you always return something in a map function
-            })}
+            {marketNfts.data?.pages.map((page) =>
+              page.nfts.map((nft, i) => {
+                return <MarketItem key={i} item={nft} />;
+              }),
+            )}
           </React.Fragment>
-            */}
         </div>
       )}
 

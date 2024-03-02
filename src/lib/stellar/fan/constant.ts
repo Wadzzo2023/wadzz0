@@ -15,4 +15,3 @@ export const PLATFROM_ASSET = new Asset(
 );
 
 export const PLATFROM_FEE = env.NEXT_PUBLIC_STELLAR_PUBNET ? "500" : "5";
-export const LOWEST_ASSET_AMOUNT = "0.000001";

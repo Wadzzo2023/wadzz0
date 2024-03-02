@@ -1,10 +1,7 @@
-import { signIn, signOut, useSession } from "next-auth/react";
 import Head from "next/head";
-import Link from "next/link";
 import { PostCard } from "~/components/fan/creator/post";
 
 import { api } from "~/utils/api";
-import { CreatorAvater } from "./search";
 import Main from "~/components/wallete/main";
 
 export default function Home() {
@@ -26,13 +23,6 @@ export default function Home() {
 }
 
 function AuthShowcase() {
-  const { data: sessionData } = useSession();
-
-  const { data: secretMessage } = api.post.getSecretMessage.useQuery(
-    undefined, // no input
-    { enabled: sessionData?.user !== undefined },
-  );
-
   return (
     <div className="p-5">
       <h1 className="hidden text-2xl font-bold md:flex">Homepage</h1>
@@ -45,7 +35,7 @@ function AuthShowcase() {
 }
 
 function AllRecentPost() {
-  const posts = api.post.getAllRecentPosts.useInfiniteQuery(
+  const posts = api.fan.post.getAllRecentPosts.useInfiniteQuery(
     {
       limit: 5,
     },
@@ -63,7 +53,7 @@ function AllRecentPost() {
   };
 
   const { data: user_subscriptions, isLoading: isLoading2 } =
-    api.member.getAllSubscription.useQuery();
+    api.fan.member.getAllSubscription.useQuery();
 
   // if (isLoading2) return <div>Loading to fetch membership...</div>;
 
@@ -76,21 +66,21 @@ function AllRecentPost() {
             {page.posts.map((post) => (
               <PostCard
                 priority={post.subscription?.priority}
-                comments={post._count.Comment}
+                comments={post._count.comments}
                 creator={post.creator}
                 key={post.id}
                 post={post}
-                like={post._count.Like}
+                like={post._count.likes}
                 show={
                   !post.subscription ||
                   user_subscriptions?.some(
                     (el) =>
-                      el.subscription.creatorId == post.creatorId &&
-                      post.subscription &&
-                      el.subscription.priority <= post.subscription.priority,
+                      // el.s.creatorId == post.creatorId &&
+                      post.subscription,
+                    // el.subscription.priority <= post.subscription.priority,
                   )
                 }
-                media={post.Media.length > 0 ? post.Media[0] : undefined}
+                media={post.medias.length > 0 ? post.medias[0] : undefined}
               />
             ))}
           </>

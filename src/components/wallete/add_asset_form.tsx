@@ -1,6 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import React, { useRef, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
+import toast from "react-hot-toast";
 import { z } from "zod";
 import { AccountSchema } from "~/lib/stellar/fan/utils";
 import { api } from "~/utils/api";
@@ -11,22 +12,17 @@ export const AdminAssetFormSchema = z.object({
     .string()
     .min(4, { message: "Minimum 4 char" })
     .max(12, { message: "Maximum 12 char" }),
-  issuer: AccountSchema.optional(),
+  issuer: z.string(),
   description: z.string(),
   link: z.string().url(),
-  tags: z
-    .string()
-    .trim()
-    .transform((v) =>
-      Array.from(new Set(v.split(",").map((x) => x.trim().toLowerCase()))),
-    ),
+  tags: z.string(),
 
-  litemint: z.string(),
-  stellarx: z.string(),
-  stellarterm: z.string(),
+  litemint: z.string().optional(),
+  stellarx: z.string().optional(),
+  stellarterm: z.string().optional(),
 });
 
-const Form: React.FC = () => {
+const MintedItemAdd: React.FC = () => {
   const [type, setType] = useState<string | null>(null);
 
   const {
@@ -41,7 +37,11 @@ const Form: React.FC = () => {
     resolver: zodResolver(AdminAssetFormSchema),
   });
 
-  const assetAdd = api.wallate.asset.addAsset.useMutation();
+  const assetAdd = api.wallate.asset.addAsset.useMutation({
+    onSuccess: () => {
+      toast.success("Asset added");
+    },
+  });
 
   // const handleFindSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
   //   e.preventDefault();
@@ -136,8 +136,11 @@ const Form: React.FC = () => {
   const onSubmit: SubmitHandler<z.infer<typeof AdminAssetFormSchema>> = (
     data,
   ) => {
+    toast.success("form ok");
     assetAdd.mutate(data);
   };
+
+  console.log(errors, "err");
 
   return (
     <>
@@ -153,7 +156,7 @@ const Form: React.FC = () => {
             <input
               type="text"
               id="assetCode"
-              name="code"
+              {...register("code")}
               required
               className="input "
             />
@@ -162,28 +165,28 @@ const Form: React.FC = () => {
             <label htmlFor="issuerAddress">Issuer Address</label>
             <input
               type="text"
+              {...register("issuer")}
               id="issuerAddress"
-              name="issuer"
               required
               className="input"
             />
           </div>
           <button type="submit" className="btn btn-primary">
-            {findLoading && <span className="loading" />}
+            {/* {findLoading && <span className="loading" />} */}
             Find
           </button>
         </form>
       </div>
       <form
-        onSubmit={(e) => void handleSubmit2(e)}
         className="container mt-2 space-y-2 rounded-box bg-base-300 p-4"
+        onSubmit={handleSubmit(onSubmit)}
       >
         <div className="form-control">
           <label htmlFor="logo">Logo Image Link</label>
           <input
             type="text"
+            {...register("logoUrl")}
             id="logo"
-            name="logoUrl"
             required
             className="input"
           />
@@ -193,7 +196,7 @@ const Form: React.FC = () => {
           <input
             type="text"
             id="assetCode"
-            name="code"
+            {...register("code")}
             required
             className="input"
           />
@@ -203,7 +206,7 @@ const Form: React.FC = () => {
           <input
             type="text"
             id="issuerAddress"
-            name="issuer"
+            {...register("issuer")}
             required
             className="input"
           />
@@ -212,7 +215,7 @@ const Form: React.FC = () => {
           <label htmlFor="description">Description</label>
           <textarea
             id="description"
-            name="description"
+            {...register("description")}
             required
             maxLength={180}
             className="textarea textarea-bordered"
@@ -220,18 +223,30 @@ const Form: React.FC = () => {
         </div>
         <div className="form-control">
           <label htmlFor="link">Link</label>
-          <input type="text" id="link" name="link" required className="input" />
+          <input
+            type="text"
+            id="link"
+            {...register("link")}
+            required
+            className="input"
+          />
         </div>
         <div className="form-control">
           <label htmlFor="tags">Tags [tags separate with , ]</label>
-          <input type="text" id="tags" name="tags" required className="input" />
+          <input
+            type="text"
+            {...register("tags")}
+            id="tags"
+            required
+            className="input"
+          />
         </div>
         <div className="form-control">
           <label htmlFor="litemintLink">Litemint (Optional)</label>
           <input
             type="text"
             id="litemintLink"
-            name="litemint"
+            {...register("litemint")}
             className="input"
           />
         </div>
@@ -239,8 +254,8 @@ const Form: React.FC = () => {
           <label htmlFor="stellarXLink">StellarX (Optional)</label>
           <input
             type="text"
+            {...register("stellarx")}
             id="stellarXLink"
-            name="stellarx"
             className="input"
           />
         </div>
@@ -248,8 +263,8 @@ const Form: React.FC = () => {
           <label htmlFor="stellarTermLink">StellarTerm (Optional)</label>
           <input
             type="text"
+            {...register("stellarterm")}
             id="stellarTermLink"
-            name="stellarterm"
             className="input"
           />
         </div>
@@ -278,4 +293,4 @@ const Form: React.FC = () => {
   );
 };
 
-export default Form;
+export default MintedItemAdd;

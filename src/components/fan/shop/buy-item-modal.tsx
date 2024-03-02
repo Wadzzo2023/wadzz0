@@ -1,20 +1,18 @@
-import { ShopAsset } from "@prisma/client";
 import { clientsign, useConnectWalletStateStore } from "package/connect_wallet";
 import React, { useRef, useState } from "react";
 import toast from "react-hot-toast";
-import { Asset } from "stellar-sdk";
 import { api } from "~/utils/api";
 import { truncateString } from "~/utils/string";
-import { ShopItemProps } from "../creator/shop";
 import { PLATFROM_ASSET, PLATFROM_FEE } from "~/lib/stellar/fan/constant";
 import { clientSelect } from "~/lib/stellar/fan/utils";
 import { cn } from "~/lib/wallate/utils";
+import { Asset } from "@prisma/client";
 
 export default function BuyItemModal({
   item,
   btnClassName,
 }: {
-  item: ShopItemProps;
+  item: Asset;
   btnClassName?: string;
 }) {
   const modalRef = useRef<HTMLDialogElement>(null);
@@ -54,46 +52,36 @@ export default function BuyItemModal({
   );
 }
 
-function ModalContent({ item }: { item: ShopItemProps }) {
+function ModalContent({ item }: { item: Asset }) {
   const { isAva, pubkey, walletType, uid, email } =
     useConnectWalletStateStore();
   const [trxMsg, setTrxMsg] = useState<string>();
 
-  const buyAsset = api.shop.buyAsset.useMutation();
-
-  const xdr = api.trx.buyAssetTrx.useQuery(
-    {
-      creatorId: item.creatorId,
-      price: item.price,
-      code: item.asset.code,
-      issuer: item.asset.issuer,
-    },
-    { refetchOnWindowFocus: false },
-  );
-
-  function handleSubmit() {
-    if (xdr.data)
+  const xdr = api.fan.trx.buyAssetTrx.useMutation({
+    onSuccess: (data) => {
       clientsign({
-        presignedxdr: xdr.data,
+        presignedxdr: data,
         pubkey,
         walletType,
         test: clientSelect(),
       })
         .then((res) => {
           if (res) {
-            buyAsset.mutate({
-              shopAssetId: item.id,
-            });
-            setTrxMsg(undefined);
-            toast.success("Transaction success");
-          } else {
-            setTrxMsg(
-              "Transaction failed. Please check your account balance to ensure that you have sufficient ACTION TOKEN and XLM available.",
-            );
-            toast.error("Transaction failed");
+            toast.success("Transaction Success");
           }
         })
         .catch((e) => console.log(e));
+    },
+  });
+
+  function handleSubmit() {
+    if (item.creatorId)
+      xdr.mutate({
+        creatorId: item.creatorId,
+        price: item.price,
+        code: item.code,
+        issuer: item.issuer,
+      });
   }
 
   if (xdr.isLoading)
@@ -112,10 +100,10 @@ function ModalContent({ item }: { item: ShopItemProps }) {
         <div>
           <p>
             Name:
-            <span className="badge">{item.asset.code}</span>
+            <span className="badge">{item.code}</span>
           </p>
           {/* {xdr && <p>issuer: {truncateString(xdr.data, 10, 5)}</p>} */}
-          <p>Issuer: {truncateString(item.asset.issuer)}</p>
+          <p>Issuer: {truncateString(item.issuer)}</p>
           <p>
             Price: {item.price} {PLATFROM_ASSET.code}
             <br />

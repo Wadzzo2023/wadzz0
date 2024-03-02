@@ -1,34 +1,23 @@
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { useRightStore } from "~/lib/state/wallete/right";
 import { useSearchTagStore } from "~/lib/state/wallete/search_tag";
 import Loading from "./loading";
-import type { AssetType, GetAssetsType } from "~/lib/wallate/interfaces";
+import type { AssetType } from "~/lib/wallate/interfaces";
 import Asset from "./asset";
-import { MY_PAGE_SIZE } from "~/lib/wallate/constants";
-import axios, { type AxiosResponse } from "axios";
 import MyError from "./my_error";
-import { InfiniteScroll } from "./infinite-scroll";
+import { api } from "~/utils/api";
 
-const asset: AssetType = {
-  availableMarket: [],
-  code: "vong",
-  codeIssuer: "vong",
-  color: "red",
-  description: "vong cong",
-  issuer: "vong",
-  link: "vong",
-  logoImg: { blurData: "data", url: "https://picsum.photos/200/200" },
-  tags: [],
-};
 export default function AllAsset() {
   const { queryParams } = useSearchTagStore();
   const { setData } = useRightStore();
-  const [assets, setAssets] = useState<AssetType[]>([asset]);
+  // const [assets, setAssets] = useState<AssetType[]>([asset]);
 
   const [error, setError] = useState(false);
   const lastPoint = useRef<null | string>(null);
   const divRef = useRef<HTMLDivElement>(null);
   const [hasMoreItems, setHasMoreItems] = useState(true);
+
+  const assets = api.wallate.asset.getAssets.useQuery();
 
   // async function getData() {
   //   setError(false);
@@ -63,11 +52,11 @@ export default function AllAsset() {
   //   }
   // }, [assets]);
 
-  if (!assets) {
-    return <Loading />;
-  } else if (error) {
+  if (assets.isLoading) return <Loading />;
+  if (assets.isError)
     return <MyError text="Error catch. Please reload this page." />;
-  } else {
+
+  if (assets.data) {
     return (
       <div
         style={{
@@ -84,7 +73,7 @@ export default function AllAsset() {
           loader={<div className="loading" />}
           batchSize={MY_PAGE_SIZE}
         > */}
-        {assets.map((item, i) => (
+        {assets.data.map((item, i) => (
           <Asset key={i} asset={item} />
         ))}
         {/* </InfiniteScroll> */}

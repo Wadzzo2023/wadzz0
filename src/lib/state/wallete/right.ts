@@ -1,11 +1,11 @@
 import { create } from "zustand";
-import type { AssetType } from "../../wallate/interfaces";
+import { AdminAsset } from "@prisma/client";
 
 interface RightState {
   open: boolean;
-  currentData?: AssetType;
+  currentData?: AdminAsset;
   setOpen: (value: boolean) => void;
-  setData: (value: AssetType) => void;
+  setData: (value: AdminAsset) => void;
 }
 
 export const useRightStore = create<RightState>((set) => ({

@@ -1,6 +1,7 @@
 import clsx from "clsx";
 import React from "react";
 import WallateNFTs from "~/components/marketplace/bandcoin_nfts";
+import MarketNfts from "~/components/marketplace/nfts/market_nfts";
 import { MarketMenu, useMarketMenu } from "~/lib/state/marketplace/tab-menu";
 
 export default function MarketplacePage() {
@@ -18,6 +19,10 @@ function RenderTabs() {
   switch (selectedMenu) {
     case MarketMenu.Wallate:
       return <WallateNFTs />;
+    case MarketMenu.Music:
+      return <p>Music</p>;
+    case MarketMenu.Subscription:
+      return <MarketNfts />;
   }
 }
 

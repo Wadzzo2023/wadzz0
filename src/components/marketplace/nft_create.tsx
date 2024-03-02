@@ -53,15 +53,20 @@ export default function NftCreate() {
     control,
   } = useForm<z.infer<typeof NftFormSchema>>({
     resolver: zodResolver(NftFormSchema),
-    defaultValues: { mediaType: MediaType.IMAGE },
+    defaultValues: {
+      mediaType: MediaType.IMAGE,
+      mediaUrl: "https://picsum.photos/202/200",
+      coverImgUrl: "https://picsum.photos/200/200",
+    },
   });
 
   const addAsset = api.fan.asset.createAsset.useMutation();
 
   const xdrMutation = api.fan.trx.createUniAssetTrx.useMutation({
     onSuccess(data, variables, context) {
-      if (false) {
+      if (true) {
         const { issuer, xdr } = data;
+        console.log(xdr, "xdr");
         setValue("issuer", issuer);
         clientsign({
           presignedxdr: xdr,
@@ -70,9 +75,13 @@ export default function NftCreate() {
           test: clientSelect(),
         })
           .then((res) => {
-            const data = getValues();
-            // res && addMutation.mutate(data);
-            addAsset.mutate(data);
+            if (res) {
+              const data = getValues();
+              // res && addMutation.mutate(data);
+              addAsset.mutate(data);
+            } else {
+              toast.error("Transaction Failed");
+            }
           })
           .catch((e) => console.log(e));
       }

@@ -3,13 +3,9 @@ import { getTailwindScreenSize } from "~/lib/marketplace/clientUtils";
 import { useRightStore } from "~/lib/state/marketplace/right";
 import clsx from "clsx";
 import ImageVideViewer from "~/components/wallete/Image_video_viewer";
-import { MarketNFT } from "~/server/api/routers/marketplace/marketplace";
 
-interface AssetProps {
-  item: MarketNFT;
-}
 
-function MarketItem({ item }: AssetProps) {
+function MarketItem({ item }: { item: any}) {
   const { name: code, thumbnailUrl } = item;
   const { setRightData, setOpen } = useRightStore();
   // const copies = useBalanceStore((state) =>
