@@ -1,61 +1,39 @@
-import { useSearchOpenStore } from "~/lib/state/wallete/searchOpen";
-import useAssetTags from "~/lib/wallate/hooks/useAssetsTags";
-import { useRef } from "react";
-import { InfiniteScroll } from "./infinite-scroll";
-import { TAG_SIZE } from "~/lib/wallate/constants";
-import { useSearchTagStore } from "~/lib/state/wallete/search_tag";
+import { useTagStore } from "~/lib/state/wallete/tag";
+import { api } from "~/utils/api";
 
 export default function AllTags() {
-  const stStore = useSearchTagStore();
-  const soStore = useSearchOpenStore();
-  const { tags, hasMoreItems, getData } = useAssetTags();
-  const divRef = useRef<HTMLDivElement>(null);
-  return (
-    <div
-      ref={divRef}
-      style={{
-        scrollbarGutter: "stable",
-      }}
-      className="scrollbar-style join flex w-full space-x-2 overflow-x-auto py-1"
-    >
-      <InfiniteScroll
-        scrollDirection="horizontal"
-        dataLength={tags.length}
-        parentRef={divRef}
-        loadMore={() => void getData()}
-        hasMore={hasMoreItems}
-        loader={<div className="loading" />}
-        batchSize={TAG_SIZE}
+  const { selectTag } = useTagStore();
+
+  const tags = api.wallate.tag.getAllTags.useQuery();
+
+  if (tags.isLoading) return <span className="loading loading-spinner" />;
+
+  if (tags.data)
+    return (
+      <div
+        style={{
+          scrollbarGutter: "stable",
+        }}
+        className="scrollbar-style join flex w-full space-x-2 overflow-x-auto py-1"
       >
         <input
-          onClick={() => {
-            stStore.reset!();
-            soStore.setOpen(false);
-          }}
+          onClick={() => {}}
           className="!btn join-item"
           key={""}
           type="radio"
           name="options"
           aria-label="Tags: "
         />
-        {tags.map((item, i) => (
+        {tags.data.map((item, i) => (
           <input
             type="radio"
             name="options"
-            aria-label={item.name}
-            onClick={() => {
-              stStore.setData!({
-                name: "Tag for",
-                queryParams: `?tag=${item.name}`,
-                value: item.name,
-              });
-              soStore.setOpen(false);
-            }}
+            aria-label={item.tagName}
+            onClick={() => selectTag(item.tagName)}
             className="!btn join-item"
             key={i}
           />
         ))}
-      </InfiniteScroll>
-    </div>
-  );
+      </div>
+    );
 }

@@ -104,6 +104,9 @@ dependencies:
   clsx:
     specifier: ^2.0.0
     version: 2.1.0
+  colors-helper-tools:
+    specifier: ^1.5.7
+    version: 1.5.7
   cookies-next:
     specifier: ^2.1.1
     version: 2.1.2
@@ -3503,6 +3506,11 @@ packages:
 
   /colorette@2.0.20:
     resolution: {integrity: sha512-IfEDxwoWIjkeXL1eXcDiow4UbKjhLdq6/EuSVR9GMN7KVH3r9gQ83e73hsz1Nd1T3ijd5xv1wcWRYO+D6kCI2w==}
+    dev: false
+
+  /colors-helper-tools@1.5.7:
+    resolution: {integrity: sha512-qUaR0nhWrsKSQC63X81TiJ4j1XOTLA+dq8iogItw3eyXVXT2F0/nLZ6Pf+pjrfHpe6pbG8JTxlSBqkPORYkmZQ==}
+    engines: {node: '>=14'}
     dev: false
 
   /combined-stream@1.0.8:

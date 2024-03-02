@@ -2,7 +2,6 @@ import { useRouter } from "next/router";
 import React from "react";
 import { PostCard } from "~/components/fan/creator/post";
 import { api } from "~/utils/api";
-import { CreatorBack } from "../me/creator";
 import { Creator, Subscription } from "@prisma/client";
 import MemberShipCard from "~/components/fan/creator/card";
 import { clientsign, useConnectWalletStateStore } from "package/connect_wallet";
@@ -69,9 +68,9 @@ function CreatorPosts({ creatorId }: { creatorId: string }) {
           page.posts.map((el) => (
             <PostCard
               priority={el.subscription?.priority}
-              comments={el._count.Comment}
+              comments={el._count.comments}
               creator={el.creator}
-              like={el._count.Like}
+              like={el._count.likes}
               key={el.id}
               post={el}
               show={(() => {

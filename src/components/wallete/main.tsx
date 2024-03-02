@@ -1,17 +1,13 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import React from "react";
-import type { Tag } from "~/lib/wallate/interfaces";
 import MyAsset from "./my_asset";
 import AllAsset from "./all_asset";
+import AllTag from "./all_tags";
+import { useTagStore } from "~/lib/state/wallete/tag";
 
-interface MainProps {
-  key?: React.Key;
-  tags: Tag[];
-}
-
-function Main({ tags }: MainProps) {
+function Main() {
   return (
     <div className="h-full space-y-2 tracking-wider">
+      <AllTag />
       <div className="h-full space-y-2">
         <p>search asset</p>
 

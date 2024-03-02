@@ -46,6 +46,7 @@
     "axios": "^1.5.0",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.0.0",
+    "colors-helper-tools": "^1.5.7",
     "cookies-next": "^2.1.1",
     "crypto-random-string": "^5.0.0",
     "csv-iter-parse": "^0.0.4",

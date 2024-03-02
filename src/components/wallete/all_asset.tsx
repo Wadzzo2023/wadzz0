@@ -1,16 +1,18 @@
-import { useRef, useState } from "react";
-import { useRightStore } from "~/lib/state/wallete/right";
-import { useSearchTagStore } from "~/lib/state/wallete/search_tag";
 import Loading from "./loading";
-import type { AssetType } from "~/lib/wallate/interfaces";
 import Asset from "./asset";
 import MyError from "./my_error";
 import { api } from "~/utils/api";
+import { useTagStore } from "~/lib/state/wallete/tag";
 
 export default function AllAsset() {
-  const divRef = useRef<HTMLDivElement>(null);
+  const { selectedTag } = useTagStore();
 
-  const assets = api.wallate.asset.getAssets.useQuery();
+  const assets = api.wallate.asset.getAssets.useInfiniteQuery(
+    { limit: 10, tag: selectedTag },
+    {
+      getNextPageParam: (lastPage) => lastPage.nextCursor,
+    },
+  );
 
   if (assets.isLoading) return <Loading />;
   if (assets.isError)
@@ -22,21 +24,19 @@ export default function AllAsset() {
         style={{
           scrollbarGutter: "stable",
         }}
-        ref={divRef}
         className="main-asset-area"
       >
-        {/* <InfiniteScroll
-          parentRef={divRef}
-          dataLength={assets.length}
-          loadMore={() => void getData()}
-          hasMore={hasMoreItems}
-          loader={<div className="loading" />}
-          batchSize={MY_PAGE_SIZE}
-        > */}
-        {assets.data.map((item, i) => (
-          <Asset key={i} asset={item} />
-        ))}
-        {/* </InfiniteScroll> */}
+        {assets.data.pages.map((page) =>
+          page.assets.map((item, i) => <Asset key={i} asset={item} />),
+        )}
+        {assets.hasNextPage && (
+          <button
+            className="btn btn-outline btn-primary"
+            onClick={() => void assets.fetchNextPage()}
+          >
+            Load More
+          </button>
+        )}
       </div>
     );
   }

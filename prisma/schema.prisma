@@ -347,6 +347,11 @@ model AdminAsset {
     logoBlueData String?
     color        String
 
+    // market links
+    StellarTerm String?
+    StellarX    String?
+    Litemint    String?
+
     adminId String
     admin   Admin  @relation(fields: [adminId], references: [id], onDelete: NoAction)
 
