@@ -5,7 +5,13 @@ import { useRightStore } from "~/lib/state/wallete/right";
 import ImageVideViewer from "./Image_video_viewer";
 import { AdminAsset } from "@prisma/client";
 
-function Asset({ asset }: { asset: AdminAsset }) {
+
+export type AdminAssetWithTag = AdminAsset & {
+    tags: {
+      tagName: string;
+    }[];
+  };
+function Asset({ asset }: { asset: AdminAssetWithTag }) {
   const { logoUrl, logoBlueData, color } = asset;
   const urs = useRightStore();
   return (

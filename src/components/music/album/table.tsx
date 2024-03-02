@@ -10,11 +10,19 @@ import MusicItem from "../track/music_item";
 import { Play } from "lucide-react";
 import BuyModal from "../modal/buy_modal";
 
+export type SongWithAsset = Song & {
+  asset: {
+    code: string;
+    issuer: string;
+    price: number;
+  };
+};
+
 export default function SongList({
   songs,
   albumId,
 }: {
-  songs: Song[];
+  songs: SongWithAsset[];
   albumId: number;
 }) {
   const { status } = useSession();

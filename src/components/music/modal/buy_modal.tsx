@@ -11,16 +11,10 @@ import { clientsign, useConnectWalletStateStore } from "package/connect_wallet";
 import Alert from "~/components/ui/alert";
 import { Balance4, useBalanceStore } from "~/lib/state/music/storageAcc";
 import { addrShort } from "~/lib/wallate/utils";
-
-export type AssetType = {
-  asset: {
-    code: string;
-    issuer: string;
-  };
-};
+import { SongWithAsset } from "../album/table";
 
 type BuyModalProps = {
-  item: Song & AssetType;
+  item: SongWithAsset;
   // button: ReactNode;
 };
 export default function BuyModal({
@@ -35,9 +29,8 @@ export default function BuyModal({
   const [loading, setLoading] = useState(false);
   const [submitL, setsLoad] = useState(false);
 
-  const { id: songId, asset, price, limit } = item;
-  const issuerPub = asset.issuer;
-  const { code, issuer } = asset;
+  const { id: songId, asset } = item;
+  const { code, issuer, price } = asset;
 
   // aviable copies are the balance of storage
   const copies = useBalanceStore((state) =>
@@ -87,7 +80,7 @@ export default function BuyModal({
             xdrMutaion.mutate({
               pubkey,
               assetCode: code,
-              issuerPub,
+              issuerPub: issuer,
               price,
               limit,
               signWith: needSign(),
@@ -126,7 +119,7 @@ export default function BuyModal({
               </p>
               <p className="text-warning">Price: {price} XLM</p>
               <p className="text-sm text-accent">Copies available: {copies}</p>
-              <p className="text-sm">Issuer: {addrShort(issuerPub, 15)}</p>
+              <p className="text-sm">Issuer: {addrShort(issuer, 15)}</p>
             </div>
 
             <div>

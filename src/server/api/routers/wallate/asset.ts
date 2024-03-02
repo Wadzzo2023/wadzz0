@@ -10,7 +10,9 @@ import {
 
 export const assetRouter = createTRPCRouter({
   getAssets: protectedProcedure.query(async ({ ctx, input }) => {
-    return await ctx.db.adminAsset.findMany();
+    return await ctx.db.adminAsset.findMany({
+      include: { tags: { select: { tagName: true } } },
+    });
   }),
   addAsset: protectedProcedure
     .input(AdminAssetFormSchema)

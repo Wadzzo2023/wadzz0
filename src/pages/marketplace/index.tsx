@@ -3,6 +3,7 @@ import React from "react";
 import WallateNFTs from "~/components/marketplace/bandcoin_nfts";
 import MarketNfts from "~/components/marketplace/nfts/market_nfts";
 import { MarketMenu, useMarketMenu } from "~/lib/state/marketplace/tab-menu";
+import { api } from "~/utils/api";
 
 export default function MarketplacePage() {
   return (
@@ -20,9 +21,24 @@ function RenderTabs() {
     case MarketMenu.Wallate:
       return <WallateNFTs />;
     case MarketMenu.Music:
-      return <p>Music</p>;
+      return <MusicNFts />;
     case MarketMenu.Subscription:
       return <MarketNfts />;
+  }
+}
+
+function MusicNFts() {
+  const songs = api.music.song.getAllSong.useQuery();
+  if (songs.isLoading) return <div>Loading...</div>;
+  if (songs.isError) return <div>Error</div>;
+  if (songs.data) {
+    return (
+      <div>
+        {songs.data.map((song) => {
+          return <div key={song.id}>{song.artist}</div>;
+        })}
+      </div>
+    );
   }
 }
 

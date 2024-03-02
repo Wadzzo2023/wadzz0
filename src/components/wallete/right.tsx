@@ -19,16 +19,9 @@ function Right(_props: RightProps) {
   const soStore = useSearchOpenStore();
   const { currentData } = useRightStore();
   if (!currentData) return <Loading />;
-  const {
-    code,
-    issuer,
-    link,
-    logoImg,
-    tags,
-    availableMarket,
-    description,
-    color,
-  } = currentData;
+  const { codeIssuer, logoBlueData, logoUrl, link, description, color, tags } =
+    currentData;
+  const code = "vong";
 
   return (
     <div className=" h-full max-h-[800px]">
@@ -45,8 +38,8 @@ function Right(_props: RightProps) {
               <ImageVideViewer
                 code={code}
                 color={color}
-                url={logoImg.url}
-                blurData={logoImg.blurData}
+                url={logoUrl}
+                blurData={logoBlueData}
               />
             </div>
             <p className="absolute bottom-2 flex w-full justify-center font-semibold">
@@ -65,9 +58,9 @@ function Right(_props: RightProps) {
               <div className="flex items-center justify-between gap-1">
                 <p>
                   <span className="font-semibold">Issuer Address:</span>{" "}
-                  {addrShort(issuer, 3)}
+                  {addrShort(codeIssuer, 3)}
                 </p>
-                <CopyToClip text={issuer} collapse={5} />
+                <CopyToClip text={codeIssuer} collapse={5} />
               </div>
             </div>
             <div>
@@ -85,7 +78,7 @@ function Right(_props: RightProps) {
                   {extractHostnameFromURL(link)}
                 </Link>
               </div>
-              {availableMarket.length != 0 && (
+              {/* {availableMarket.length != 0 && (
                 <div>
                   <p className="font-semibold">Trade/ Buy on:</p>
                   <div className="my-1 flex flex-wrap gap-1">
@@ -94,7 +87,7 @@ function Right(_props: RightProps) {
                     ))}
                   </div>
                 </div>
-              )}
+              )} */}
               <div>
                 <p className="font-semibold">Tags:</p>
                 <div
@@ -109,14 +102,14 @@ function Right(_props: RightProps) {
                         stStore.setData!({
                           name: "Tag for",
                           queryParams: `?tag=${tag}`,
-                          value: tag,
+                          value: tag.tagName,
                         });
                         soStore.setOpen(false);
                       }}
                       key={i}
                       className="btn btn-xs text-xs normal-case"
                     >
-                      {tag}
+                      {tag.tagName}
                     </button>
                   ))}
                 </div>

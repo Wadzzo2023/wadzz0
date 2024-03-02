@@ -8,49 +8,9 @@ import MyError from "./my_error";
 import { api } from "~/utils/api";
 
 export default function AllAsset() {
-  const { queryParams } = useSearchTagStore();
-  const { setData } = useRightStore();
-  // const [assets, setAssets] = useState<AssetType[]>([asset]);
-
-  const [error, setError] = useState(false);
-  const lastPoint = useRef<null | string>(null);
   const divRef = useRef<HTMLDivElement>(null);
-  const [hasMoreItems, setHasMoreItems] = useState(true);
 
   const assets = api.wallate.asset.getAssets.useQuery();
-
-  // async function getData() {
-  //   setError(false);
-  //   try {
-  //     const raw: AxiosResponse<GetAssetsType> = await axios.get(
-  //       `/api/get-assets${queryParams}`,
-  //       {
-  //         params: {
-  //           point: lastPoint.current,
-  //         },
-  //       },
-  //     );
-
-  //     const combinedItems = assets.concat(raw.data.assets || []);
-
-  //     setHasMoreItems(raw.data.assets.length >= MY_PAGE_SIZE);
-
-  //     const lastAsset = raw.data.assets[raw.data.assets.length - 1];
-  //     if (lastAsset) {
-  //       lastPoint.current = lastAsset.code;
-  //     }
-  //     setAssets(combinedItems);
-  //   } catch (error) {
-  //     console.error(error);
-  //     setError(true);
-  //   }
-  // }
-
-  // useEffect(() => {
-  //   if (assets?.[0]) {
-  //     setData(assets[0]);
-  //   }
-  // }, [assets]);
 
   if (assets.isLoading) return <Loading />;
   if (assets.isError)

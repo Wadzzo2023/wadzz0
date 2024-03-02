@@ -14,6 +14,7 @@ import { api } from "~/utils/api";
 import { clientsign, useConnectWalletStateStore } from "package/connect_wallet";
 import { AccountSchema, clientSelect } from "~/lib/stellar/fan/utils";
 import { PlusIcon } from "lucide-react";
+import { randomUUID } from "crypto";
 
 export const SongFormSchema = z.object({
   name: z.string(),
@@ -52,10 +53,15 @@ export default function SongCreate({ albumId }: { albumId: number }) {
     defaultValues: { albumId },
   });
 
-  const addSong = api.music.song.create.useMutation();
+  const addSong = api.music.song.create.useMutation({
+    onSuccess: () => {
+      toast.success("Song added");
+    },
+  });
 
   const xdrMutation = api.music.steller.getMusicAssetXdr.useMutation({
     onSuccess(data, variables, context) {
+      toast.success("XDR generated");
       if (false) {
         const { issuer, xdr } = data;
         setValue("issuer", issuer);
@@ -73,15 +79,22 @@ export default function SongCreate({ albumId }: { albumId: number }) {
           .catch((e) => console.log(e));
       }
 
+      const { issuer, xdr } = data;
+      setValue("issuer", issuer);
       const formData = getValues();
       // res && addMutation.mutate(data);
       addSong.mutate(formData);
+    },
+    onError(err, variables, context) {
+      toast.error("Error");
+      console.log(err);
     },
   });
 
   // Function to upload the selected file to Pinata
 
   const onSubmit: SubmitHandler<z.infer<typeof SongFormSchema>> = (data) => {
+    toast.success("form ok");
     xdrMutation.mutate({
       code: data.code,
       limit: data.limit,

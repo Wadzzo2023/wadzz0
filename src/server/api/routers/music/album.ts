@@ -21,7 +21,11 @@ export const albumRouter = createTRPCRouter({
         where: { id: input.albumId },
         include: {
           Song: {
-            include: { asset: { select: { code: true, issuer: true } } },
+            include: {
+              asset: {
+                select: { code: true, issuer: true, price: true, limit: true },
+              },
+            },
           },
         },
       });

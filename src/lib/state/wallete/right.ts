@@ -1,11 +1,11 @@
 import { create } from "zustand";
-import { AdminAsset } from "@prisma/client";
+import { AdminAssetWithTag } from "~/components/wallete/asset";
 
 interface RightState {
   open: boolean;
-  currentData?: AdminAsset;
+  currentData?: AdminAssetWithTag;
   setOpen: (value: boolean) => void;
-  setData: (value: AdminAsset) => void;
+  setData: (value: AdminAssetWithTag) => void;
 }
 
 export const useRightStore = create<RightState>((set) => ({

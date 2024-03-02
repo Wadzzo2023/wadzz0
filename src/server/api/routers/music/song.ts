@@ -11,31 +11,8 @@ import { SongFormSchema } from "~/components/music/modal/song_create";
 
 export const songRouter = createTRPCRouter({
   getAllSong: publicProcedure.query(async ({ ctx }) => {
-    return [];
+    return await ctx.db.song.findMany({ include: { asset: true } });
   }),
-  getAllSongWithOrderByAndLimit: publicProcedure
-    .input(
-      z.object({
-        limit: z.number().optional(),
-        orderBy: z.enum(["views", "date"]),
-      }),
-    )
-    .query(async ({ input }) => {
-      return [];
-      // const songLimit = input.limit ? input.limit : 6;
-      // const orderby = input.orderBy;
-
-      // const collectionRef = collection(db, FCname.songs);
-
-      // // Create a query that orders the documents by views in descending order and limits the result to a specific number (e.g., 10).
-      // const q = query(collectionRef, orderBy(input.orderBy), limit(songLimit));
-      // // Fetch the documents based on the query.
-      // const querySnapshot = await getDocs(q);
-      // const songs = querySnapshot.docs.map((doc) => {
-      //   return doc.data() as Song;
-      // });
-      // return songs;
-    }),
 
   getAllSongsByPrivacy: publicProcedure
     .input(z.object({ privacy: z.nativeEnum(SongPrivacy) }))
@@ -191,8 +168,17 @@ export const songRouter = createTRPCRouter({
   create: protectedProcedure
     .input(SongFormSchema)
     .mutation(async ({ input, ctx }) => {
-      const { artist, coverImgUrl, albumId, musicUrl, name, code, issuer } =
-        input;
+      const {
+        artist,
+        coverImgUrl,
+        albumId,
+        musicUrl,
+        description,
+        price,
+        name,
+        code,
+        issuer,
+      } = input;
       const serialNumber = 1; // will query based on createdAt
       const duration = "1.1"; // just demo
 
@@ -205,14 +191,16 @@ export const songRouter = createTRPCRouter({
             Song: {
               create: {
                 artist,
-                coverImgUrl,
-                duration,
-                musicUrl,
-                name,
-                serialNumber,
                 albumId,
               },
             },
+            limit: 34,
+            mediaType: "IMAGE",
+            name,
+            mediaUrl: musicUrl,
+            thumbnail: coverImgUrl,
+            price: price,
+            description: description,
           },
         });
       }

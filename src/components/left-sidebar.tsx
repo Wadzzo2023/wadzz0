@@ -31,6 +31,7 @@ export const UserNavigation = {
   Music: { path: "/music", icon: Diamond, text: "MUSIC" },
   Marketplace: { path: "/marketplace", icon: Bell, text: "MARKETPLACE" },
   MyAssets: { path: "/assets", icon: Bell, text: "MY ASSETS" },
+  Fan: { path: "/fans/home", icon: Bell, text: "BANDFAN" },
   Settings: { path: "/settings", icon: Settings2, text: "SETTINGS" },
 } as const;
 

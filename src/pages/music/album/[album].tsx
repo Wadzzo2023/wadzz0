@@ -43,7 +43,7 @@ export function AlbumPage({ albumId }: { albumId: number }) {
     if (status === "authenticated" && album.data) {
       return (
         <>
-          <SongCreate mode={ModalMode.ADD} albumId={albumId} />
+          <SongCreate albumId={albumId} />
           {album.data.Song.length > 0 && (
             <div>
               <h3 className="text-2xl font-bold">Songs</h3>
