@@ -41,6 +41,7 @@ export default function PlaceMarketModal({
     control,
   } = useForm<z.infer<typeof PlaceMarketFormSchema>>({
     resolver: zodResolver(PlaceMarketFormSchema),
+    defaultValues: { code: item.code, issuer: item.issuer },
   });
 
   const placeItem = api.marketplace.market.placeToMarketDB.useMutation();

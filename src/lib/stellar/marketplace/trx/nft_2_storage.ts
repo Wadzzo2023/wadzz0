@@ -53,25 +53,27 @@ export async function sendNft2StorageXDR({
   return await WithSing({ xdr: Tx2.toXDR(), signWith });
 }
 
-export async function revertPlacedNftXDr({
+export async function sendNftback({
   assetCode,
   issuerPub,
+  assetAmount,
   userPub,
-  assetCount,
+  storageSecret,
+  signWith,
 }: {
   userPub: string;
+  storageSecret: string;
   assetCode: string;
   issuerPub: string;
-  assetCount: string;
+  assetAmount: string;
+  signWith: SignUserType;
 }) {
-  const assetAmount = getPrice(assetCount);
   // const assetAmount = DEFAULT_ASSET_LIMIT
   const asset = new Asset(assetCode, issuerPub);
+  const storageAcc = Keypair.fromSecret(storageSecret);
   const server = new Server(STELLAR_URL);
 
-  const storageAcc = Keypair.fromSecret(STORAGE_SECRET);
-
-  const transactionInializer = await server.loadAccount(storageAcc.publicKey());
+  const transactionInializer = await server.loadAccount(userPub);
 
   const Tx2 = new TransactionBuilder(transactionInializer, {
     fee: BASE_FEE,
@@ -80,10 +82,10 @@ export async function revertPlacedNftXDr({
     //
     .addOperation(
       Operation.payment({
-        source: storageAcc.publicKey(),
+        destination: userPub,
         amount: assetAmount, //copy,
         asset: asset,
-        destination: userPub,
+        source: storageAcc.publicKey(),
       }),
     )
     .setTimeout(0)
@@ -91,87 +93,5 @@ export async function revertPlacedNftXDr({
 
   Tx2.sign(storageAcc);
 
-  const transectionXDR = Tx2.toXDR();
-  return transectionXDR;
-}
-
-export async function secondTransectionForFbAndGoogleUser({
-  assetCode,
-  issuerPub,
-  userPub,
-  price,
-  limit,
-  secret,
-}: {
-  userPub: string;
-  assetCode: string;
-  issuerPub: string;
-  price: string;
-  limit: string;
-  secret: string;
-}) {
-  // get data from firebase
-  // const docRef = doc(db, FCname.auth, uid);
-  // const userSnapshot = await getDoc(docRef);
-
-  const assetLimit = (Number(limit) / Number(STROOP)).toFixed(7).toString();
-  const asset = new Asset(assetCode, issuerPub);
-  const server = new Server(STELLAR_URL);
-
-  const storageAcc = Keypair.fromSecret(STORAGE_SECRET);
-  const userAcc = Keypair.fromSecret(secret);
-
-  const transactionInializer = await server.loadAccount(userPub);
-
-  for (const balance of transactionInializer.balances) {
-    if (balance.asset_type === "native") {
-      if (Number(balance.balance) < Number(price)) {
-        throw new Error("You don't have sufficient balance");
-      }
-      log.info(`XLM Balance for ${userPub}: ${balance.balance}`);
-      break;
-    }
-  }
-  const Tx2 = new TransactionBuilder(transactionInializer, {
-    fee: BASE_FEE,
-    networkPassphrase,
-  })
-    //1
-    .addOperation(
-      Operation.payment({
-        destination: storageAcc.publicKey(),
-        amount: price,
-        asset: Asset.native(),
-        source: userPub,
-      }),
-    )
-    //2
-    .addOperation(
-      Operation.changeTrust({
-        asset: asset,
-        limit: assetLimit,
-        source: userPub,
-      }),
-    )
-    // 3
-    .addOperation(
-      Operation.payment({
-        asset: asset,
-        amount: STROOP,
-        source: storageAcc.publicKey(),
-        destination: userPub,
-      }),
-    )
-    .setTimeout(0)
-    .build();
-
-  Tx2.sign(userAcc, storageAcc);
-
-  const transectionXDR = Tx2.toXDR();
-  // log.info("transectionXDR: ", transectionXDR);
-  return transectionXDR;
-
-  // Tx1.sign(storageAcc);
-  // const txResponse = await server.submitTransaction(Tx1);
-  // log.info(txResponse);
+  return await WithSing({ xdr: Tx2.toXDR(), signWith });
 }

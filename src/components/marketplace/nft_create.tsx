@@ -64,7 +64,7 @@ export default function NftCreate() {
 
   const xdrMutation = api.fan.trx.createUniAssetTrx.useMutation({
     onSuccess(data, variables, context) {
-      if (true) {
+      if (false) {
         const { issuer, xdr } = data;
         console.log(xdr, "xdr");
         setValue("issuer", issuer);
@@ -87,6 +87,7 @@ export default function NftCreate() {
       }
 
       const formData = getValues();
+      setValue("issuer", data.issuer);
       // res && addMutation.mutate(data);
       addAsset.mutate(formData);
       toast.success("NFT Created");

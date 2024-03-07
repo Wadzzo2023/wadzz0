@@ -1,5 +1,7 @@
 import clsx from "clsx";
 import React from "react";
+import PlaceMarketModal from "~/components/marketplace/modal/place_market_modal";
+import RevertPlaceMarketModal from "~/components/marketplace/modal/revert_place_market_modal";
 import { AssetMenu, useAssetMenu } from "~/lib/state/fan/user-asset-menu";
 import { api } from "~/utils/api";
 
@@ -106,6 +108,10 @@ function AssetItemComponent({
           <button className="btn btn-outline btn-primary self-start">
             {code}
           </button>
+          {/* <RevertPlaceMarketModal /> */}
+          <PlaceMarketModal
+            item={{ code: "vong", copies: 10, issuer: "cong" }}
+          />
         </div>
       </div>
     </div>

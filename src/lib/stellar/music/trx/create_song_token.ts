@@ -44,15 +44,6 @@ export async function firstTransection({
 
   const motherAcc = Keypair.fromSecret(env.MOTHER_SECRET);
 
-  // generating new mother account everytime
-  // let motherAcc = Keypair.random();
-  // await fundAccount(motherAcc);
-
-  // storageAcc
-  // log.info(STELLAR_URL);
-  // log.info("storageSecret", storageSecret);
-  // log.info("motherSec", motherSecret);
-
   const storageAcc = Keypair.fromSecret(env.STORAGE_SECRET);
 
   // Create two new Acc

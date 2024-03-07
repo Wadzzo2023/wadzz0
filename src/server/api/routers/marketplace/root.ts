@@ -1,5 +1,4 @@
 import { createTRPCRouter } from "~/server/api/trpc";
-import { nftRouter } from "./nft";
 import { marketRouter } from "./marketplace";
 import { stellarRouter } from "./steller";
 import { userRouter } from "./user";
@@ -11,7 +10,6 @@ import { payRouter } from "./pay";
  * All routers added in /api/routers should be manually added here.
  */
 export const marketplaceRouter = createTRPCRouter({
-  nft: nftRouter,
   market: marketRouter,
   steller: stellarRouter,
   user: userRouter,

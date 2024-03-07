@@ -89,24 +89,26 @@ export const trxRouter = createTRPCRouter({
 
       // get storage secret
       let storageSecret: string;
-      if (i.admin) storageSecret = env.STORAGE_SECRET;
-      else {
+      let homeDomain: string;
+      if (i.admin) {
+        storageSecret = env.STORAGE_SECRET;
+        homeDomain = "bandcoin.io";
+      } else {
         const storage = await db.creator.findFirst({
           where: { id: ctx.session.user.id },
           select: { storageSecret: true },
         });
         if (!storage) throw new Error("No storage account found");
         storageSecret = storage.storageSecret;
+        homeDomain = "fan.bandcoin.io";
       }
-
-      console.log(storageSecret, "storageSecret");
 
       return await createUniAsset({
         actionAmount: assetAmout.toString(),
         pubkey: ctx.session.user.id,
         storageSecret,
         code: i.code,
-        homeDomain: "vong@cong.com",
+        homeDomain,
         limit: i.limit.toString(),
         signWith: i.signWith,
       });
