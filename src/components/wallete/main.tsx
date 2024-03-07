@@ -2,7 +2,6 @@ import React from "react";
 import MyAsset from "./my_asset";
 import AllAsset from "./all_asset";
 import AllTag from "./all_tags";
-import { useTagStore } from "~/lib/state/wallete/tag";
 
 function Main() {
   return (

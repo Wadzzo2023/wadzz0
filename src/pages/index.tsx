@@ -1,7 +1,4 @@
 import Head from "next/head";
-import { PostCard } from "~/components/fan/creator/post";
-
-import { api } from "~/utils/api";
 import Main from "~/components/wallete/main";
 
 export default function Home() {
@@ -16,12 +13,12 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className="">
-        <AuthShowcase />
+        <MainSection />
       </main>
     </>
   );
 }
 
-function AuthShowcase() {
+function MainSection() {
   return <Main  />;
 }
