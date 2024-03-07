@@ -8,7 +8,7 @@ import {
   publicProcedure,
   adminProcedure,
 } from "~/server/api/trpc";
-import { getBlurData } from "~/lib/marketplace/serverUtils";
+import { getBlurData } from "~/lib/serverUtils";
 
 export const assetRouter = createTRPCRouter({
   getAssets: protectedProcedure

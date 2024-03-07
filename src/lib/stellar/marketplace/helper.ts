@@ -1,8 +1,11 @@
 import axios, { type AxiosResponse } from "axios";
-import type { CheckAnyPlotProps, HorizonAccount } from "../interfaces";
-import log from "../logger/logger";
-import { CODE_ISSUER_JOINER } from "../constants";
-import { joinCodeIssuer } from "../helper/helper_client";
+import log from "~/lib/logger/logger";
+import { CODE_ISSUER_JOINER } from "~/lib/marketplace/constants";
+import {
+  CheckAnyPlotProps,
+  HorizonAccount,
+} from "~/lib/marketplace/interfaces";
+import { joinCodeIssuer } from "~/lib/helper/helper_client";
 
 export async function checkAnyPlot({
   pubkey,

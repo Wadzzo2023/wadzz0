@@ -1,4 +1,4 @@
-import React, { ReactNode, useEffect, useRef, useState } from "react";
+import { useRef } from "react";
 import { useConnectWalletStateStore } from "package/connect_wallet/src/state/connect_wallet_state";
 import { Maximize } from "lucide-react";
 import Image from "next/image";

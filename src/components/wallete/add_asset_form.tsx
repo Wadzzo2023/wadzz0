@@ -1,9 +1,8 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import React, { useRef, useState } from "react";
+import React, { useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { z } from "zod";
-import { AccountSchema } from "~/lib/stellar/fan/utils";
 import { api } from "~/utils/api";
 
 export const AdminAssetFormSchema = z.object({

@@ -1,9 +1,9 @@
 import axios from "axios";
 import { HORIZON_URL } from "../constant";
 import { Server, Asset } from "stellar-sdk";
-import { HorizonAccount } from "~/lib/interfaces";
-import { concatAssetWithIssuer } from "../../../../package/connect_wallet/src/lib/stellar/utils";
 import log from "~/lib/logger/logger";
+import { HorizonAccount } from "~/lib/marketplace/interfaces";
+import { concatAssetWithIssuer } from "../../music/utils";
 
 export async function checkAssetInAccount(
   accountId: string,

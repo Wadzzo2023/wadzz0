@@ -1,6 +1,4 @@
 import { create } from "zustand";
-import { Song } from "../types/dbTypes";
-import { OfflineSongs } from "../firebase/offiledb";
 
 interface Table {
   activeRow?: number;

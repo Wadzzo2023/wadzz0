@@ -1,7 +1,6 @@
 import { createTRPCRouter } from "~/server/api/trpc";
 import { marketRouter } from "./marketplace";
 import { stellarRouter } from "./steller";
-import { userRouter } from "./user";
 import { payRouter } from "./pay";
 
 /**
@@ -12,7 +11,6 @@ import { payRouter } from "./pay";
 export const marketplaceRouter = createTRPCRouter({
   market: marketRouter,
   steller: stellarRouter,
-  user: userRouter,
   pay: payRouter,
 });
 

@@ -15,4 +15,4 @@ export const SUPPORTED_IMAGE_OPTIMIZE = [
   "tokens.bandcoin.io",
   "raw.githubusercontent.com",
   "avatars.githubusercontent.com",
-]; // need to updated next.config.mjs
+];

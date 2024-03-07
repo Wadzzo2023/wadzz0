@@ -12,6 +12,7 @@ import {
   publicProcedure,
 } from "~/server/api/trpc";
 import { SignUser } from "~/lib/stellar/utils";
+import { copyToBalance } from "~/lib/stellar/marketplace/test/acc";
 
 export const stellarRouter = createTRPCRouter({
   getPaymentXDR: publicProcedure
@@ -20,25 +21,41 @@ export const stellarRouter = createTRPCRouter({
         pubkey: z.string(),
         assetCode: z.string(),
         issuerPub: z.string(),
-        limit: z.string(),
-        price: z.string().refine(
-          (v) => {
-            const n = Number(v);
-            return !isNaN(n) && v?.length > 0 && n > 0;
-          },
-          { message: "Invalid number" },
-        ),
+        limit: z.number(),
+        price: z.number(),
         signWith: SignUser,
+        creatorPub: z.string(),
       }),
     )
-    .mutation(async ({ input }) => {
-      const { limit, assetCode, issuerPub, pubkey, price, signWith } = input;
+    .mutation(async ({ input, ctx }) => {
+      const {
+        limit: l,
+        assetCode,
+        issuerPub,
+        pubkey,
+        price,
+        signWith,
+        creatorPub,
+      } = input;
+
+      const creatorId = creatorPub;
+      const storage = await ctx.db.creator.findUnique({
+        where: { id: creatorId },
+        select: { storageSecret: true },
+      });
+      if (!storage || !storage.storageSecret) {
+        throw new Error("storage does not exist");
+      }
+
+      const limit = copyToBalance(l);
 
       return await XDR4songBuy({
+        creatorPub: creatorId,
+        storageSecret: storage.storageSecret,
         code: assetCode,
         issuerPub,
         userPub: pubkey,
-        price,
+        price: price.toString(),
         limit,
         signWith,
       });

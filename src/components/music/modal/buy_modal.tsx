@@ -1,17 +1,12 @@
-import { useRef, useState } from "react";
-import toast from "react-hot-toast";
+import { useRef } from "react";
 import { api } from "~/utils/api";
 
-import log from "~/lib/logger/logger";
 import { DEFAULT_ASSET_LIMIT, STORAGE_PUB } from "~/lib/stellar/music/constant";
 import { checkAssetBalance } from "~/lib/stellar/music/trx/create_song_token";
 
-import { Song } from "@prisma/client";
-import { clientsign, useConnectWalletStateStore } from "package/connect_wallet";
-import Alert from "~/components/ui/alert";
-import { Balance4, useBalanceStore } from "~/lib/state/music/storageAcc";
-import { addrShort } from "~/lib/wallate/utils";
+import { useConnectWalletStateStore } from "package/connect_wallet";
 import { SongWithAsset } from "../album/table";
+import { addrShort } from "~/lib/utils";
 
 type BuyModalProps = {
   item: SongWithAsset;
@@ -23,77 +18,43 @@ export default function BuyModal({
 }: BuyModalProps) {
   const { needSign, pubkey, walletType } = useConnectWalletStateStore();
 
-  const [xdr, setXdr] = useState<string>();
   const createAlbumModal = useRef<HTMLDialogElement>(null);
-  const [err, setErr] = useState<string>();
-  const [loading, setLoading] = useState(false);
-  const [submitL, setsLoad] = useState(false);
 
   const { id: songId, asset } = item;
   const { code, issuer, price } = asset;
 
-  // aviable copies are the balance of storage
-  const copies = useBalanceStore((state) =>
-    state.getAssetBalance({
-      code,
-      issuer,
-      limit: true,
-      for: Balance4.STORAGE,
-    }),
-  );
+  const copies = 10;
 
   const xdrMutaion = api.music.steller.getPaymentXDR.useMutation({
-    onSuccess: (data, Variable) => {
-      if (data) setXdr(data);
-    },
-    onError: () => {
-      setsLoad(false);
-    },
+    onSuccess: (data, Variable) => {},
+    onError: () => {},
   });
-  const songAddMutation = api.music.song.buySong.useMutation({});
+  // const songAddMutation = api.music.song.buySong.useMutation({});
 
   const handleModal = () => {
     createAlbumModal.current?.showModal();
   };
-  async function handleConfirmClick() {
-    if (xdr) {
-      const res = await clientsign({ walletType, pubkey, presignedxdr: xdr });
-      if (res) {
-        songAddMutation.mutate({ songId });
-      } else {
-        toast.error("Payment is not successfull, Try again");
-      }
-      setsLoad(false);
-    }
-  }
 
   async function handleXDR() {
-    try {
-      setLoading(true);
-      const balance = await checkAssetBalance({
-        storagePub: STORAGE_PUB,
-        assset: { code, issuer },
-      });
-      if (balance) {
-        if (Number(balance) >= Number(DEFAULT_ASSET_LIMIT)) {
-          {
-            xdrMutaion.mutate({
-              pubkey,
-              assetCode: code,
-              issuerPub: issuer,
-              price,
-              limit,
-              signWith: needSign(),
-            });
-          }
+    const balance = await checkAssetBalance({
+      storagePub: STORAGE_PUB,
+      assset: { code, issuer },
+    });
+    if (balance) {
+      if (Number(balance) >= Number(DEFAULT_ASSET_LIMIT)) {
+        {
+          xdrMutaion.mutate({
+            pubkey,
+            assetCode: code,
+            issuerPub: issuer,
+            creatorPub: "vong", //TODO: get creator pub from song and also consider admin
+            price: item.asset.price,
+
+            limit: 1,
+            signWith: needSign(),
+          });
         }
       }
-
-      setLoading(false);
-    } catch (error) {
-      setLoading(false);
-      setErr("There are some problem");
-      log.info(error);
     }
   }
 
@@ -122,21 +83,8 @@ export default function BuyModal({
               <p className="text-sm">Issuer: {addrShort(issuer, 15)}</p>
             </div>
 
-            <div>
-              {songAddMutation.isSuccess && (
-                <Alert
-                  type="success"
-                  content="You have succesfull bought this nft song, you will find this in your home page"
-                />
-              )}
-              {err && <Alert type="error" content={err} />}
-              {xdrMutaion.isError && (
-                <Alert type="error" content={xdrMutaion.error.message} />
-              )}
-            </div>
-
             <div className="flex flex-col items-center">
-              {xdrMutaion.isLoading || loading ? (
+              {xdrMutaion.isLoading ? (
                 <div>
                   <span className="loading loading-infinity loading-lg text-success"></span>
                 </div>
@@ -149,29 +97,6 @@ export default function BuyModal({
                   Checkout for {code}
                 </button>
               )}
-
-              {submitL || songAddMutation.isLoading ? (
-                <div>
-                  <span className="loading loading-infinity loading-lg text-success"></span>
-                </div>
-              ) : (
-                <button
-                  disabled={
-                    !xdrMutaion.isSuccess ||
-                    songAddMutation.isSuccess ||
-                    xdr === undefined ||
-                    err !== undefined
-                  }
-                  className="btn btn-success mt-3"
-                  onClick={() => {
-                    void (async () => {
-                      await handleConfirmClick();
-                    })();
-                  }}
-                >
-                  Pay using Stellar
-                </button>
-              )}
             </div>
           </div>
           <div className="modal-action">
@@ -180,10 +105,6 @@ export default function BuyModal({
             </form>
           </div>
         </div>
-
-        {/* <form method="dialog" className="modal-backdrop">
-          <button>close</button>
-        </form> */}
       </dialog>
       <button
         className="btn btn-secondary btn-sm my-2 w-full transition duration-500 ease-in-out"

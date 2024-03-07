@@ -1,7 +1,7 @@
 import axios from "axios";
 import { Server, Asset } from "stellar-sdk";
-import { HorizonAccount } from "~/lib/interfaces";
 import log from "~/lib/logger/logger";
+import { HorizonAccount } from "~/lib/marketplace/interfaces";
 
 export async function checkAssetInAccount(
   accountId: string,
