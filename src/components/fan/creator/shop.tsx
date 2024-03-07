@@ -1,4 +1,4 @@
-import { Asset, Creator, ShopAsset } from "@prisma/client";
+import { Asset, Creator } from "@prisma/client";
 import React from "react";
 import AddItem2Shop from "./add-shop-item";
 import { api } from "~/utils/api";

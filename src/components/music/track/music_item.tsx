@@ -7,13 +7,20 @@ import { usePlayerStore } from "~/lib/state/music/track";
 import clsx from "clsx";
 import { Song } from "@prisma/client";
 
+export type SongItem = Song & {
+  asset: {
+    code: string;
+    issuer: string;
+    thumbnail: string;
+    name: string;
+  };
+};
+
 export default function MusicItem({
   item,
-  albumId,
   playable,
 }: {
-  item: Song;
-  albumId: number;
+  item: SongItem;
   playable?: boolean;
 }) {
   const [hovered, setHoved] = useState(false);
@@ -43,7 +50,7 @@ export default function MusicItem({
         <div className="flex">
           <div className="bg-neutral-focus mr-4 h-10 w-10 flex-shrink-0">
             <Image
-              src={item.coverImgUrl}
+              src={item.asset.thumbnail}
               width={40}
               height={40}
               alt="music cover"
@@ -57,7 +64,7 @@ export default function MusicItem({
                   divWidth2 && "truncate",
                 )}
               >
-                {item.name}
+                {item.asset.code}
               </p>
             </Link>
             <p className={clsx("text-sm", divWidth2 && "truncate")}>
@@ -84,7 +91,7 @@ export default function MusicItem({
         <div className="flex ">
           <div className="bg-neutral-focus mr-4 h-10 w-10">
             <Image
-              src={item.coverImgUrl}
+              src={item.asset.thumbnail}
               width={40}
               height={40}
               alt="music cover"
@@ -92,7 +99,7 @@ export default function MusicItem({
           </div>
           <div ref={divRef} style={{ width: divWidth }}>
             <p className={clsx(" text-base font-bold", divWidth && "truncate")}>
-              {item.name}
+              {item.asset.code}
             </p>
             <p className={clsx("text-sm", divWidth && "truncate")}>
               {item.artist}

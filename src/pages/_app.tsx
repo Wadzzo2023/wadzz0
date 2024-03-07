@@ -8,6 +8,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import dynamic from "next/dynamic";
 import { Titillium_Web, Arvo } from "next/font/google";
 import "~/styles/globals.css";
+import "~/styles/music.scss";
 import Layout from "~/components/layout";
 import Header from "~/components/header";
 

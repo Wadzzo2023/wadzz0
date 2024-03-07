@@ -44,35 +44,14 @@ export const songRouter = createTRPCRouter({
     // return songs;
   }),
 
-  getUserBuyedSongs: publicProcedure
-    .input(z.object({ pubkey: z.string().length(56) }))
-    .query(async ({ input }) => {
-      return [];
-      // const collectionRef = collection(db, FCname.songs);
-
-      // const userDocRef = doc(db, FCname.users, input.pubkey);
-      // // Get the user's document
-      // const userDocSnapshot = await getDoc(userDocRef);
-
-      // let userSongs: string[] = [];
-
-      // if (userDocSnapshot.exists()) {
-      //   // Access the songs array from the user's document data
-      //   const userData = userDocSnapshot.data();
-      //   userSongs = (userData.songs as string[]) || []; // Default to an empty array if songs is not defined
-      // } else {
-      //   log.info("User document does not exist.");
-      //   userSongs = [];
-      // }
-
-      // const q = query(collectionRef, where("id", "in", userSongs));
-
-      // const querySnapshot = await getDocs(q);
-      // const songs = querySnapshot.docs.map((doc) => {
-      //   return doc.data() as Song;
-      // });
-      // return songs;
-    }),
+  getUserBuyedSongs: publicProcedure.query(async ({ ctx }) => {
+    return await ctx.db.song.findMany({
+      include: {
+        asset: { select: { thumbnail: true, code: true, issuer: true , name: true} },
+      },
+    });
+    // return songs;
+  }),
 
   getAllSongBasedOnUserPubkey: publicProcedure
     .input(z.object({ pubKey: z.string(), asset: z.string().optional() }))
