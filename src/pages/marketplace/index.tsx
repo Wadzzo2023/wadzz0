@@ -1,6 +1,8 @@
 import clsx from "clsx";
+import { Fan } from "lucide-react";
 import React from "react";
 import WallateNFTs from "~/components/marketplace/bandcoin_nfts";
+import FanAssetNfts from "~/components/marketplace/fans_assets";
 import { MarketMenu, useMarketMenu } from "~/lib/state/marketplace/tab-menu";
 import { api } from "~/utils/api";
 
@@ -23,6 +25,8 @@ function RenderTabs() {
       return <MusicNFts />;
     case MarketMenu.Subscription:
     // return <MarketNfts />;
+    case MarketMenu.FanAsset:
+      return <FanAssetNfts />;
   }
 }
 

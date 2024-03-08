@@ -22,6 +22,7 @@ function MyAssets() {
       return (
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
           <AssetItemComponent
+            issuer={asset.issuer}
             code={asset.code}
             name={asset.copies.toString()}
             description={asset.homeDomain}
@@ -49,6 +50,7 @@ function ShopAsset() {
     <div>
       {assets.data.map((asset) => (
         <AssetItemComponent
+          issuer={asset.shopAsset.issuer}
           code={asset.shopAsset.asset.code}
           name={asset.shopAsset.name}
           description={asset.shopAsset.description ?? "Shop Asset"}
@@ -83,10 +85,12 @@ function AssetItemComponent({
   name,
   description,
   code,
+  issuer,
 }: {
   name: string;
   description: string;
   code: string;
+  issuer: string;
 }) {
   return (
     <div className="card w-96 bg-base-100 shadow-xl">
@@ -109,9 +113,7 @@ function AssetItemComponent({
             {code}
           </button>
           {/* <RevertPlaceMarketModal /> */}
-          <PlaceMarketModal
-            item={{ code: "vong", copies: 10, issuer: "cong" }}
-          />
+          <PlaceMarketModal item={{ code, copies: 10, issuer }} />
         </div>
       </div>
     </div>

@@ -86,7 +86,7 @@ export const marketRouter = createTRPCRouter({
 
       await ctx.db.marketAsset.create({
         data: {
-          limit: 99999999999,
+          limit: 999,
           assetId: asset.id,
           creatorId: ctx.session.user.id,
         },
@@ -110,6 +110,7 @@ export const marketRouter = createTRPCRouter({
         take: limit + 1,
         skip: skip,
         cursor: cursor ? { id: cursor } : undefined,
+        include: { asset: { select: { code: true, name: true } } },
       });
 
       let nextCursor: typeof cursor | undefined = undefined;

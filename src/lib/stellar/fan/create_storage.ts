@@ -1,18 +1,6 @@
-import {
-  Keypair,
-  Operation,
-  Server,
-  TransactionBuilder,
-  Asset,
-} from "stellar-sdk";
+import { Keypair, Operation, Server, TransactionBuilder } from "stellar-sdk";
 
-import {
-  PLATFROM_ASSET,
-  PLATFROM_FEE,
-  STELLAR_URL,
-  LOWEST_ASSET_AMOUNT,
-  networkPassphrase,
-} from "./constant";
+import { STELLAR_URL, networkPassphrase } from "./constant";
 import { AccountType } from "./utils";
 import { SignUserType, WithSing } from "../utils";
 
@@ -40,7 +28,7 @@ export async function createStorageTrx({
     .addOperation(
       Operation.createAccount({
         destination: storageAcc.publicKey(),
-        startingBalance: "1.5",
+        startingBalance: "100", // TODO: change to 1.5
       }),
     )
     // pay the creator the price amount

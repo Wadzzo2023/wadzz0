@@ -1,22 +1,16 @@
-import Loading from "./loading";
-import Asset from "./asset";
-import MyError from "./my_error";
 import { api } from "~/utils/api";
-import { useTagStore } from "~/lib/state/wallete/tag";
+import Asset from "../wallete/asset";
 
-export default function AllAsset() {
-  const { selectedTag } = useTagStore();
-
-  const assets = api.wallate.asset.getBancoinAssets.useInfiniteQuery(
-    { limit: 10, tag: selectedTag },
+export default function FanAssetNfts() {
+  // first fetch from database and later validate
+  const assets = api.marketplace.market.getMarketNft.useInfiniteQuery(
+    { limit: 4 },
     {
       getNextPageParam: (lastPage) => lastPage.nextCursor,
     },
   );
 
-  if (assets.isLoading) return <Loading />;
-  if (assets.isError)
-    return <MyError text="Error catch. Please reload this page." />;
+  if (assets.isLoading) return <span className="loading loading-spinner" />;
 
   if (assets.data) {
     return (
@@ -26,8 +20,11 @@ export default function AllAsset() {
         }}
         className="main-asset-area"
       >
+        <p>hi</p>
         {assets.data.pages.map((page) =>
-          page.assets.map((item, i) => <Asset key={i} asset={item} />),
+          page.nfts.map((item, i) => (
+            <li key={i}> {`${item.asset.name} ${item.asset.code}`}</li>
+          )),
         )}
         {assets.hasNextPage && (
           <button

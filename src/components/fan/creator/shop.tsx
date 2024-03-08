@@ -5,12 +5,14 @@ import { api } from "~/utils/api";
 import BuyItemModal from "../shop/buy-item-modal";
 import { useSession } from "next-auth/react";
 import ContextMenu from "../../ui/context-menu";
+import NftCreate from "~/components/marketplace/nft_create";
 
 export default function Shop({ creator }: { creator?: Creator }) {
   return (
     <div className="my-7">
       <div className="fixed bottom-0 right-0 z-50 p-4">
-        <AddItem2Shop />
+        {/* <AddItem2Shop /> */}
+        <NftCreate />
       </div>
       <AllShopItems />
     </div>

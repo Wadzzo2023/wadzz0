@@ -11,7 +11,7 @@ import {
 import { getBlurData } from "~/lib/serverUtils";
 
 export const assetRouter = createTRPCRouter({
-  getAssets: protectedProcedure
+  getBancoinAssets: protectedProcedure
     .input(
       z.object({
         tag: z.string().optional(),

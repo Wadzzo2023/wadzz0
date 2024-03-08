@@ -1,4 +1,4 @@
-import React, { ReactNode, useEffect, useRef, useState } from "react";
+import { useRef } from "react";
 import { api } from "~/utils/api";
 import { useConnectWalletStateStore } from "package/connect_wallet";
 import { clientsign } from "package/connect_wallet/src/lib/stellar/utils";
@@ -9,7 +9,6 @@ import { addrShort } from "~/lib/utils";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { clientSelect } from "~/lib/stellar/fan/utils";
-import toast from "react-hot-toast";
 
 export const PlaceMarketFormSchema = z.object({
   price: z.number().nonnegative(),
@@ -47,7 +46,7 @@ export default function PlaceMarketModal({
   const placeItem = api.marketplace.market.placeToMarketDB.useMutation();
   const xdrMutaion = api.marketplace.market.placeNft2MarketXdr.useMutation({
     onSuccess(data, variables, context) {
-      if (false) {
+      if (true) {
         const xdr = data;
         clientsign({
           presignedxdr: xdr,
@@ -63,10 +62,10 @@ export default function PlaceMarketModal({
           .catch((e) => console.log(e));
       }
 
-      const formData = getValues();
-      // res && addMutation.mutate(data);
-      placeItem.mutate(formData);
-      toast.success("NFT has been placed in market");
+      // const formData = getValues();
+      // // res && addMutation.mutate(data);
+      // placeItem.mutate(formData);
+      // toast.success("NFT has been placed in market");
     },
   });
 

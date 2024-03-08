@@ -103,6 +103,8 @@ export const trxRouter = createTRPCRouter({
         homeDomain = "fan.bandcoin.io";
       }
 
+      console.log("storageSecret", storageSecret);
+
       return await createUniAsset({
         actionAmount: assetAmout.toString(),
         pubkey: ctx.session.user.id,

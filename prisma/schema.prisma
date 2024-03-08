@@ -323,6 +323,7 @@ model MarketAsset {
     id Int @id @default(autoincrement())
 
     limit Int
+    price Float?
 
     assetId Int
     asset   Asset @relation(fields: [assetId], references: [id], onDelete: Cascade)
@@ -331,6 +332,8 @@ model MarketAsset {
 
     creatorId String
     creator   Creator @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+
+    @@unique([assetId, creatorId])
 }
 
 // ------------------------Wallete SCHEMA-------------------------

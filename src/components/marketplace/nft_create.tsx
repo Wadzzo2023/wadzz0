@@ -60,11 +60,13 @@ export default function NftCreate() {
     },
   });
 
-  const addAsset = api.fan.asset.createAsset.useMutation();
+  const addAsset = api.fan.asset.createAsset.useMutation({
+    onSuccess: () => toast.success("NFT Created"),
+  });
 
   const xdrMutation = api.fan.trx.createUniAssetTrx.useMutation({
     onSuccess(data, variables, context) {
-      if (false) {
+      if (true) {
         const { issuer, xdr } = data;
         console.log(xdr, "xdr");
         setValue("issuer", issuer);
@@ -86,11 +88,11 @@ export default function NftCreate() {
           .catch((e) => console.log(e));
       }
 
-      const formData = getValues();
-      setValue("issuer", data.issuer);
-      // res && addMutation.mutate(data);
-      addAsset.mutate(formData);
-      toast.success("NFT Created");
+      // const formData = getValues();
+      // setValue("issuer", data.issuer);
+      // // res && addMutation.mutate(data);
+      // addAsset.mutate(formData);
+      // toast.success("NFT Created");
     },
   });
 
