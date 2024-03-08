@@ -12,7 +12,7 @@ import {
   useCreatorProfileMenu,
 } from "~/lib/state/fan/creator-profile-menu";
 import clsx from "clsx";
-import { ShopItem } from "~/components/fan/creator/shop";
+// import { ShopItem } from "~/components/fan/creator/shop";
 import SubscribeMembership from "~/components/fan/creator/confirm-subscription-modal";
 import { CreatorBack } from "~/pages/me/creator";
 
@@ -99,7 +99,7 @@ function RenderTabs({ creatorId }: { creatorId: string }) {
     case CreatorProfileMenu.Contents:
       return <CreatorPosts creatorId={creatorId} />;
     case CreatorProfileMenu.Shop:
-      return <AllShopItems creatorId={creatorId} />;
+    // return <AllShopItems creatorId={creatorId} />;
   }
 }
 
@@ -139,7 +139,8 @@ export function ChooseMemberShip({ creator }: { creator: Creator }) {
 
         <SubscriptionGridWrapper itemLength={subscriptonModel.length}>
           {subscriptonModel?.map((el) => (
-            <SubscriptionCard key={el.id} creator={creator} subscription={el} />
+            <p>{el.code}</p>
+            // <SubscriptionCard key={el.id} creator={creator} subscription={el} />
           ))}
         </SubscriptionGridWrapper>
       </div>
@@ -207,26 +208,26 @@ function SubscriptionCard({
   );
 }
 
-function AllShopItems({ creatorId }: { creatorId: string }) {
-  const { data: items, isLoading } = api.fan.asset.getCreatorShopAsset.useQuery(
-    {
-      creatorId,
-    },
-  );
-  if (isLoading) return <div>Loading...</div>;
+// function AllShopItems({ creatorId }: { creatorId: string }) {
+//   const { data: items, isLoading } = api.fan.asset.getCreatorShopAsset.useQuery(
+//     {
+//       creatorId,
+//     },
+//   );
+//   if (isLoading) return <div>Loading...</div>;
 
-  if (items && items.length > 0) {
-    return (
-      <div className="flex flex-col items-center">
-        <p className="my-5 text-center text-lg font-bold">Shop items</p>
-        <div className="flex flex-col gap-2">
-          {items.map((item) => (
-            <ShopItem key={item.id} item={item} />
-          ))}
-        </div>
-      </div>
-    );
-  } else {
-    return <p>There is no nft item</p>;
-  }
-}
+//   if (items && items.length > 0) {
+//     return (
+//       <div className="flex flex-col items-center">
+//         <p className="my-5 text-center text-lg font-bold">Shop items</p>
+//         <div className="flex flex-col gap-2">
+//           {items.map((item) => (
+//             <ShopItem key={item.id} item={item} />
+//           ))}
+//         </div>
+//       </div>
+//     );
+//   } else {
+//     return <p>There is no nft item</p>;
+//   }
+// }

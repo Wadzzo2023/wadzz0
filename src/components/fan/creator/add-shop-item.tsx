@@ -59,7 +59,7 @@ export default function AddItem2Shop() {
           })
             .then((res) => {
               const data = getValues();
-              res && addMutation.mutate(data);
+              // res && addMutation.mutate(data);
             })
             .catch((e) => console.log(e));
         } else {

@@ -5,7 +5,7 @@ import Avater from "../../ui/avater";
 import { truncateString } from "~/utils/string";
 
 export default function Memberships() {
-  const subscriptions = api.member.getAllSubscription.useQuery();
+  const subscriptions = api.fan.member.getAllSubscription.useQuery();
   return (
     <div className="my-5">
       {/* <h2 className="mb-5 text-center text-2xl font-bold">Memberships</h2> */}
@@ -27,12 +27,12 @@ export default function Memberships() {
                 </p>
               </div>
             </div>
-            <h2 className="btn btn-outline btn-primary card-title">
+            {/* <h2 className="btn btn-outline btn-primary card-title">
               {el.subscription.asset.code}
-            </h2>
+            </h2> */}
 
             <p>
-              {getDaysLeft(getEndDay(el.createdAt, el.subscription.days))} days
+              {/* {getDaysLeft(getEndDay(el.createdAt, el.subscription.days))} days */}
               remains
             </p>
             <div className="card-actions">

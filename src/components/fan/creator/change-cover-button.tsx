@@ -5,7 +5,7 @@ import { UploadButton } from "~/utils/uploadthing";
 export function CoverChange() {
   const router = useRouter();
   const coverChangeMutation =
-    api.creator.changeCreatorCoverPicture.useMutation();
+    api.fan.creator.changeCreatorCoverPicture.useMutation();
 
   if (router.pathname == "/settings/creator")
     return (

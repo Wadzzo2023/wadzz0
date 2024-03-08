@@ -29,10 +29,10 @@ export function PostCard({
   priority?: number;
   media?: Media;
 }) {
-  const likeMutation = api.post.likeApost.useMutation();
-  const deleteLike = api.post.unLike.useMutation();
+  const likeMutation = api.fan.post.likeApost.useMutation();
+  const deleteLike = api.fan.post.unLike.useMutation();
   // const { data: likes, isLoading } = api.post.getLikes.useQuery(post.id);
-  const { data: liked } = api.post.isLiked.useQuery(post.id);
+  const { data: liked } = api.fan.post.isLiked.useQuery(post.id);
 
   return (
     <div

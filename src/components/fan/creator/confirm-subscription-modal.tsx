@@ -1,4 +1,4 @@
-import { Creator, ShopAsset, Subscription } from "@prisma/client";
+import { Creator, Subscription } from "@prisma/client";
 import { clientsign, useConnectWalletStateStore } from "package/connect_wallet";
 import React, { useRef, useState } from "react";
 import toast from "react-hot-toast";
@@ -76,8 +76,8 @@ function ModalContent({
   const { isAva, pubkey, walletType, uid, email } =
     useConnectWalletStateStore();
   const [trxMsg, setTrxMsg] = useState<string>();
-  const subscribe = api.member.subscribe.useMutation();
-  const xdrMutation = api.trx.clawbackAssetPaymentTrx.useMutation({
+  const subscribe = api.fan.member.subscribe.useMutation();
+  const xdrMutation = api.fan.trx.clawbackAssetPaymentTrx.useMutation({
     onSuccess(data, variables, context) {
       if (data) {
         clientsign({

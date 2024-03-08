@@ -5,7 +5,7 @@ import { CreateMenu, useCreateMenu } from "~/lib/state/fan/create-menu";
 import { api } from "~/utils/api";
 
 export default function CreatorsPost() {
-  const creator = api.creator.meCreator.useQuery();
+  const creator = api.fan.creator.meCreator.useQuery();
   if (creator.data)
     return (
       <div className="h-screen p-5">
@@ -32,7 +32,7 @@ function RenderTabs() {
 }
 
 function Posts() {
-  const creator = api.creator.meCreator.useQuery();
+  const creator = api.fan.creator.meCreator.useQuery();
   if (creator.data) {
     return <PostList id={creator.data.id} />;
   }

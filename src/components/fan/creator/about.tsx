@@ -29,9 +29,9 @@ export const CreatorAboutShema = z.object({
 });
 
 function AboutForm({ creator }: { creator: Creator }) {
-  const mutation = api.creator.updateCreatorProfile.useMutation();
+  const mutation = api.fan.creator.updateCreatorProfile.useMutation();
   const updateProfileMutation =
-    api.creator.changeCreatorProfilePicture.useMutation();
+    api.fan.creator.changeCreatorProfilePicture.useMutation();
   const {
     register,
     handleSubmit,

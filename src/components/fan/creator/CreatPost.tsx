@@ -97,12 +97,12 @@ export function CreatPost() {
                     <option selected disabled>
                       Choose Subscription Model
                     </option>
-                    {data.map((model) => (
+                    {/* {data.map((model) => (
                       <option
                         key={model.id}
                         value={model.id}
                       >{`${model.name} ${model.priority}`}</option>
-                    ))}
+                    ))} */}
                   </select>
                 )}
               />

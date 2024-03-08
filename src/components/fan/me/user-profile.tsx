@@ -8,7 +8,7 @@ import { api } from "~/utils/api";
 import { UploadButton } from "~/utils/uploadthing";
 
 export default function About() {
-  const user = api.user.getUser.useQuery();
+  const user = api.fan.user.getUser.useQuery();
   if (user.data)
     return (
       <div className="flex  flex-col items-center ">
@@ -30,8 +30,9 @@ export const UserAboutShema = z.object({
 });
 
 function AboutForm({ user }: { user: User }) {
-  const mutation = api.user.updateUserProfile.useMutation();
-  const updateProfileMutation = api.user.changeUserProfilePicture.useMutation();
+  const mutation = api.fan.user.updateUserProfile.useMutation();
+  const updateProfileMutation =
+    api.fan.user.changeUserProfilePicture.useMutation();
   const {
     register,
     handleSubmit,
