@@ -1,8 +1,10 @@
 import { api } from "~/utils/api";
-import Asset from "../wallete/asset";
+import BuyModal from "../music/modal/buy_modal";
+import { useConnectWalletStateStore } from "package/connect_wallet";
 
 export default function FanAssetNfts() {
   // first fetch from database and later validate
+  const { pubkey } = useConnectWalletStateStore();
   const assets = api.marketplace.market.getMarketNft.useInfiniteQuery(
     { limit: 4 },
     {
@@ -23,7 +25,14 @@ export default function FanAssetNfts() {
         <p>hi</p>
         {assets.data.pages.map((page) =>
           page.nfts.map((item, i) => (
-            <li key={i}> {`${item.asset.name} ${item.asset.code}`}</li>
+            <li className="bg-blue-200" key={i}>
+              {`${item.asset.name} ${item.asset.code}`}
+              {item.creatorId == pubkey ? (
+                <p>tak back</p>
+              ) : (
+                <BuyModal item={{ asset: item.asset }} />
+              )}
+            </li>
           )),
         )}
         {assets.hasNextPage && (

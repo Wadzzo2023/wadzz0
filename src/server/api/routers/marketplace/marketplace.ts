@@ -110,7 +110,17 @@ export const marketRouter = createTRPCRouter({
         take: limit + 1,
         skip: skip,
         cursor: cursor ? { id: cursor } : undefined,
-        include: { asset: { select: { code: true, name: true } } },
+        include: {
+          asset: {
+            select: {
+              code: true,
+              name: true,
+              price: true,
+              issuer: true,
+              creatorId: true,
+            },
+          },
+        },
       });
 
       let nextCursor: typeof cursor | undefined = undefined;

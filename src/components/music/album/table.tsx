@@ -10,11 +10,14 @@ import MusicItem from "../track/music_item";
 import { Play } from "lucide-react";
 import BuyModal from "../modal/buy_modal";
 
-export type SongWithAsset = Song & {
+export type SongWithAsset = Song & AssetType;
+
+export type AssetType = {
   asset: {
     code: string;
     issuer: string;
     price: number;
+    creatorId: string | null;
   };
 };
 

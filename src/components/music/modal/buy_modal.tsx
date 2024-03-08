@@ -1,61 +1,69 @@
 import { useRef } from "react";
 import { api } from "~/utils/api";
 
-import { DEFAULT_ASSET_LIMIT, STORAGE_PUB } from "~/lib/stellar/music/constant";
-import { checkAssetBalance } from "~/lib/stellar/music/trx/create_song_token";
-
-import { useConnectWalletStateStore } from "package/connect_wallet";
-import { SongWithAsset } from "../album/table";
+import { clientsign, useConnectWalletStateStore } from "package/connect_wallet";
+import { AssetType } from "../album/table";
 import { addrShort } from "~/lib/utils";
+import toast from "react-hot-toast";
+import { clientSelect } from "~/lib/stellar/fan/utils";
 
 type BuyModalProps = {
-  item: SongWithAsset;
+  item: AssetType;
+
   // button: ReactNode;
 };
-export default function BuyModal({
-  item,
-  // copies,
-}: BuyModalProps) {
+export default function BuyModal({ item }: BuyModalProps) {
   const { needSign, pubkey, walletType } = useConnectWalletStateStore();
 
   const createAlbumModal = useRef<HTMLDialogElement>(null);
 
-  const { id: songId, asset } = item;
+  const { asset } = item;
   const { code, issuer, price } = asset;
 
   const copies = 10;
 
   const xdrMutaion = api.music.steller.getPaymentXDR.useMutation({
-    onSuccess: (data, Variable) => {},
-    onError: () => {},
+    onSuccess: (data, Variable) => {
+      const presignedxdr = data;
+      clientsign({
+        presignedxdr,
+        pubkey,
+        walletType,
+        test: clientSelect(),
+      })
+        .then((res) => {
+          if (res) toast.success("Payment Success");
+        })
+        .catch((e) => console.log(e));
+    },
+    onError: () => toast.error("Payment Failed"),
   });
-  // const songAddMutation = api.music.song.buySong.useMutation({});
 
   const handleModal = () => {
     createAlbumModal.current?.showModal();
   };
 
   async function handleXDR() {
-    const balance = await checkAssetBalance({
-      storagePub: STORAGE_PUB,
-      assset: { code, issuer },
-    });
-    if (balance) {
-      if (Number(balance) >= Number(DEFAULT_ASSET_LIMIT)) {
-        {
-          xdrMutaion.mutate({
-            pubkey,
-            assetCode: code,
-            issuerPub: issuer,
-            creatorPub: "vong", //TODO: get creator pub from song and also consider admin
-            price: item.asset.price,
+    // const balance = await checkAssetBalance({
+    //   storagePub: STORAGE_PUB,
+    //   assset: { code, issuer },
+    // });
+    // if (balance) {
+    //   if (Number(balance) >= Number(DEFAULT_ASSET_LIMIT)) {
+    //     {
+    xdrMutaion.mutate({
+      pubkey,
+      assetCode: code,
+      issuerPub: issuer,
+      creatorPub: item.asset.creatorId,
+      price: item.asset.price,
 
-            limit: 1,
-            signWith: needSign(),
-          });
-        }
-      }
-    }
+      limit: 1,
+      signWith: needSign(),
+    });
+    //     }
+    //   }
+    // }
   }
 
   return (

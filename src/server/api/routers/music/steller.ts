@@ -13,6 +13,7 @@ import {
 } from "~/server/api/trpc";
 import { SignUser } from "~/lib/stellar/utils";
 import { copyToBalance } from "~/lib/stellar/marketplace/test/acc";
+import { env } from "~/env";
 
 export const stellarRouter = createTRPCRouter({
   getPaymentXDR: publicProcedure
@@ -24,7 +25,7 @@ export const stellarRouter = createTRPCRouter({
         limit: z.number(),
         price: z.number(),
         signWith: SignUser,
-        creatorPub: z.string(),
+        creatorPub: z.string().nullable(),
       }),
     )
     .mutation(async ({ input, ctx }) => {
@@ -38,20 +39,34 @@ export const stellarRouter = createTRPCRouter({
         creatorPub,
       } = input;
 
-      const creatorId = creatorPub;
-      const storage = await ctx.db.creator.findUnique({
-        where: { id: creatorId },
-        select: { storageSecret: true },
-      });
-      if (!storage || !storage.storageSecret) {
-        throw new Error("storage does not exist");
+      // validate and transfor input
+
+      let creatorId: string;
+      let storageSecret: string;
+
+      if (creatorPub) {
+        // cretor
+        creatorId = creatorPub;
+
+        const storage = await ctx.db.creator.findUnique({
+          where: { id: creatorId },
+          select: { storageSecret: true },
+        });
+        if (!storage || !storage.storageSecret) {
+          throw new Error("storage does not exist");
+        }
+        storageSecret = storage.storageSecret;
+      } else {
+        // admin
+        creatorId = env.MOTHER_SECRET;
+        storageSecret = env.STORAGE_SECRET;
       }
 
       const limit = copyToBalance(l);
 
       return await XDR4songBuy({
         creatorPub: creatorId,
-        storageSecret: storage.storageSecret,
+        storageSecret,
         code: assetCode,
         issuerPub,
         userPub: pubkey,
