@@ -14,7 +14,10 @@ const config = {
     "src/server/uploadthing.ts",
     "src/components/left-sidebar.tsx",
     "src/components/mobile/bottom-nav.tsx",
-    "src/components/ui/sheet.tsx"
+    "src/components/ui/sheet.tsx",
+    "src/components/ui/dialog.tsx",
+    "src/components/ui/tooltip.tsx",
+
   ],
   rules: {
     // These opinionated rules are enabled in stylistic-type-checked above.

@@ -9,7 +9,7 @@ export const CommentSchema = z.object({
 });
 
 export function AddComment({ postId }: { postId: number }) {
-  const commentM = api.post.createComment.useMutation({
+  const commentM = api.fan.post.createComment.useMutation({
     onSuccess: () => {
       reset();
     },

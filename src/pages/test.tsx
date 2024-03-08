@@ -5,7 +5,7 @@ import Carousel from "~/components/ui/carosel";
 import { api } from "~/utils/api";
 
 export default function TestPage() {
-  const price = api.trx.getAssetPrice.useQuery();
+  const price = api.fan.trx.getAssetPrice.useQuery();
   function handleClick(): void {
     // NextLogin("test3", "test").catch(() => console.log("err"));
   }

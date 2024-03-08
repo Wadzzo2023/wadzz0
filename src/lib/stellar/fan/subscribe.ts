@@ -9,7 +9,6 @@ import {
   AuthRevocableFlag,
 } from "stellar-sdk";
 import {
-  LOWEST_ASSET_AMOUNT,
   PLATFROM_ASSET,
   PLATFROM_FEE,
   STELLAR_URL,
@@ -17,6 +16,7 @@ import {
 } from "./constant";
 import { MyAssetType } from "./utils";
 import { env } from "~/env";
+import { STROOP } from "../marketplace/constant";
 
 const log = console;
 // transection variables
@@ -53,7 +53,7 @@ export async function getClawbackAsPayment({
     .addOperation(
       Operation.payment({
         destination: userPubkey,
-        amount: LOWEST_ASSET_AMOUNT,
+        amount: STROOP,
         asset,
         source: distributorAcc.publicKey(),
       }),

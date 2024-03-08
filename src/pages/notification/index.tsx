@@ -10,12 +10,13 @@ import { formatPostCreatedAt } from "~/utils/format-date";
 import { getNotificationMessage } from "~/utils/notificationConfig";
 
 export default function NotificationPage() {
-  const notifications = api.notification.getUserNotification.useInfiniteQuery(
-    {
-      limit: 10,
-    },
-    { getNextPageParam: (lastPage) => lastPage.nextCursor },
-  );
+  const notifications =
+    api.fan.notification.getUserNotification.useInfiniteQuery(
+      {
+        limit: 10,
+      },
+      { getNextPageParam: (lastPage) => lastPage.nextCursor },
+    );
 
   return (
     <div className="p-5">

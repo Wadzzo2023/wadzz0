@@ -10,7 +10,7 @@ export function PostContextMenu({
   postId: number;
 }) {
   const { data } = useSession();
-  const deletePost = api.post.deletePost.useMutation();
+  const deletePost = api.fan.post.deletePost.useMutation();
 
   const handleDelete = () => deletePost.mutate(postId);
 

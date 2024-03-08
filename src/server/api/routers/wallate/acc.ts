@@ -20,7 +20,7 @@ export const accRouter = createTRPCRouter({
       where: { id: creatorId },
       select: { storagePub: true },
     });
-    if (!storage || !storage.storagePub) {
+    if (!storage?.storagePub) {
       throw new Error("storage does not exist");
     }
 

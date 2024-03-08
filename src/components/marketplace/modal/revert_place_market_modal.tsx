@@ -68,7 +68,9 @@ export default function PlaceMarketModal({
     },
   });
 
-  function resetState() {}
+  function resetState() {
+    console.log("hi");
+  }
 
   const handleModal = () => {
     modalRef.current?.showModal();

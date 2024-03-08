@@ -1,5 +1,3 @@
-import { Song } from "~/lib/music/types/dbTypes";
-
 export function generateSlugFromAlbumName(albumName: string) {
   // Convert to lowercase and replace spaces with dashes
   const slug = albumName.toLowerCase().replace(/\s+/g, "-");

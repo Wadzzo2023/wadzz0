@@ -52,7 +52,7 @@ export const stellarRouter = createTRPCRouter({
           where: { id: creatorId },
           select: { storageSecret: true },
         });
-        if (!storage || !storage.storageSecret) {
+        if (  !storage?.storageSecret) {
           throw new Error("storage does not exist");
         }
         storageSecret = storage.storageSecret;

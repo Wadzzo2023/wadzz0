@@ -18,6 +18,8 @@ export type AssetType = {
     issuer: string;
     price: number;
     creatorId: string | null;
+    thumbnail: string;
+    name: string;
   };
 };
 
@@ -41,7 +43,7 @@ export default function SongList({
     deleteSongMutation.mutate({ songId: id });
   };
 
-  const playTheSong = (song: Song) => {
+  const playTheSong = (song: SongWithAsset) => {
     // toast("hei i'm cliked");
     trackUrlStore.setNewTrack(song);
   };
@@ -55,6 +57,7 @@ export default function SongList({
           {songs.map((song) => {
             return (
               <tr
+                key={song.id}
                 className={clsx(activeRow == song.id ? "bg-base-300" : "hover")}
               >
                 <td>
@@ -62,7 +65,7 @@ export default function SongList({
                     className="space-x-3"
                     // onClick={() => info.playTheSong(info.row.original)}
                   >
-                    <MusicItem item={song} albumId={albumId} />
+                    <MusicItem item={song} />
                   </div>
                 </td>
 

@@ -139,7 +139,7 @@ export function ChooseMemberShip({ creator }: { creator: Creator }) {
 
         <SubscriptionGridWrapper itemLength={subscriptonModel.length}>
           {subscriptonModel?.map((el) => (
-            <p>{el.code}</p>
+            <p key={el.id}>{el.code}</p>
             // <SubscriptionCard key={el.id} creator={creator} subscription={el} />
           ))}
         </SubscriptionGridWrapper>

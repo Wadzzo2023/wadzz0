@@ -17,7 +17,6 @@ export default function AllTags() {
         className="scrollbar-style join flex w-full space-x-2 overflow-x-auto py-1"
       >
         <input
-          onClick={() => {}}
           className="!btn join-item"
           key={""}
           type="radio"

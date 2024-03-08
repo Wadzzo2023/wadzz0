@@ -4,7 +4,7 @@ import { CreatorBack } from "../me/creator";
 import { api } from "~/utils/api";
 
 export default function CreatorSettings() {
-  const creator = api.creator.meCreator.useQuery();
+  const creator = api.fan.creator.meCreator.useQuery();
 
   if (creator.data)
     return (

@@ -6,7 +6,7 @@ export default function AlbumSection({ albums }: { albums: Album[] }) {
   if (albums.length > 0) {
     return albums.map((album) => {
       return (
-        <Link href={`/music/album/${album.id}`}>
+        <Link key={album.id} href={`/music/album/${album.id}`}>
           <Card
             title={album.name}
             subtitle={album.description}

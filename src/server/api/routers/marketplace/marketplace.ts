@@ -27,7 +27,7 @@ export const marketRouter = createTRPCRouter({
         where: { id: creatorId },
         select: { storagePub: true },
       });
-      if (!storage || !storage.storagePub) {
+      if (!storage?.storagePub) {
         throw new Error("storage does not exist");
       }
 
@@ -55,7 +55,7 @@ export const marketRouter = createTRPCRouter({
         where: { id: creatorId },
         select: { storageSecret: true },
       });
-      if (!storage || !storage.storageSecret) {
+      if (!storage?.storageSecret) {
         throw new Error("storage does not exist");
       }
 
@@ -118,6 +118,7 @@ export const marketRouter = createTRPCRouter({
               price: true,
               issuer: true,
               creatorId: true,
+              thumbnail: true,
             },
           },
         },
@@ -167,18 +168,17 @@ export const marketRouter = createTRPCRouter({
         select: { id: true },
       });
 
-      if(!assetRow) throw new Error("asset not found");
+      if (!assetRow) throw new Error("asset not found");
       const assetId = assetRow.id;
       const creatorId = ctx.session.user.id;
 
       // validate the request marketassetId is created by the user
       const asset = await ctx.db.marketAsset.findUnique({
-        where: { assetId_creatorId: {assetId, creatorId } },
+        where: { assetId_creatorId: { assetId, creatorId } },
         select: { id: true },
       });
 
       if (!asset) throw new Error("asset not found");
-
 
       await ctx.db.marketAsset.update({
         where: { id: asset.id },

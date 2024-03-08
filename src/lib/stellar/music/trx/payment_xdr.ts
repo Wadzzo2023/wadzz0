@@ -73,7 +73,7 @@ export async function XDR4songBuy({
     .setTimeout(0)
     .build();
 
-  await Tx2.sign(storageAcc);
+  Tx2.sign(storageAcc);
 
   const xdr = Tx2.toXDR();
   const singedXdr = WithSing({ xdr, signWith });

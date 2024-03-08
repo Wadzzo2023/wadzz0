@@ -65,7 +65,7 @@ function CommentContextMenu({
   commentId: number;
 }) {
   const { data } = useSession();
-  const deletePost = api.post.deleteComment.useMutation();
+  const deletePost = api.fan.post.deleteComment.useMutation();
 
   const handleDelete = () => deletePost.mutate(commentId);
 

@@ -7,8 +7,6 @@ import { ConnectWalletButton } from "package/connect_wallet";
 import { useSession } from "next-auth/react";
 import clsx from "clsx";
 import Header from "./header";
-import { cn } from "~/lib/wallate/utils";
-import Right from "./wallete/right";
 
 export default function Layout({
   children,

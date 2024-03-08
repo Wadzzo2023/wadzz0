@@ -2,9 +2,11 @@ import axios from "axios";
 import { HORIZON_URL } from "../constant";
 import { Server, Asset } from "stellar-sdk";
 import log from "~/lib/logger/logger";
-import { HorizonAccount } from "~/lib/marketplace/interfaces";
 import { concatAssetWithIssuer } from "../../music/utils";
 
+export interface HorizonAccount {
+  balances: { asset_code: string; asset_issuer: string; balance: string }[];
+}
 export async function checkAssetInAccount(
   accountId: string,
   assetType: string,

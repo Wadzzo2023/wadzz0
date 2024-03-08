@@ -6,7 +6,7 @@ import { getNotificationMessage } from "~/utils/notificationConfig";
 
 export default function CreatorNotofication() {
   const notifications =
-    api.notification.getCreatorNotifications.useInfiniteQuery(
+    api.fan.notification.getCreatorNotifications.useInfiniteQuery(
       { limit: 10 },
       { getNextPageParam: (lastPage) => lastPage.nextCursor },
     );

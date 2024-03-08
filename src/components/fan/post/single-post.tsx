@@ -13,16 +13,16 @@ import { PostReadMore } from "./post-read-more";
 import Slider from "../../ui/carosel";
 
 export function SinglePostView({ postId }: { postId: number }) {
-  const post = api.post.getAPost.useQuery(postId, {
+  const post = api.fan.post.getAPost.useQuery(postId, {
     refetchOnWindowFocus: false,
   });
 
   // return <div></div>;
-  const likeMutation = api.post.likeApost.useMutation();
-  const deleteLike = api.post.unLike.useMutation();
+  const likeMutation = api.fan.post.likeApost.useMutation();
+  const deleteLike = api.fan.post.unLike.useMutation();
   // const { data: likes, isLoading } = api.post.getLikes.useQuery(post.id);
-  const { data: liked } = api.post.isLiked.useQuery(postId);
-  const comments = api.post.getComments.useQuery(postId);
+  const { data: liked } = api.fan.post.isLiked.useQuery(postId);
+  const comments = api.fan.post.getComments.useQuery(postId);
   if (post.isLoading) return <div>Loading...</div>;
 
   if (post.isError) return <div>Post not found</div>;
@@ -35,9 +35,9 @@ export function SinglePostView({ postId }: { postId: number }) {
         <div className=" w-full  flex-1  overflow-auto rounded-box ">
           <div className="h-full overflow-auto">
             <div className="flex h-full w-full flex-col overflow-auto  lg:flex-row">
-              {post.data.Media.length > 0 && (
+              {post.data.medias.length > 0 && (
                 <div className="hidden h-full  flex-1 lg:flex">
-                  <Slider images={post.data.Media.map((el) => el.url)} />
+                  <Slider images={post.data.medias.map((el) => el.url)} />
                 </div>
               )}
 
@@ -84,7 +84,7 @@ export function SinglePostView({ postId }: { postId: number }) {
                             <div>
                               <div className=" flex flex-col rounded-lg  lg:hidden">
                                 <Slider
-                                  images={post.data.Media.map((el) => el.url)}
+                                  images={post.data.medias.map((el) => el.url)}
                                 />
                               </div>
 
@@ -132,7 +132,9 @@ export function SinglePostView({ postId }: { postId: number }) {
                                 />
                               </div>
                             )}
-                            <p className="font-bold">{post.data._count.Like}</p>
+                            <p className="font-bold">
+                              {post.data._count.likes}
+                            </p>
                           </div>
 
                           <Link className="" href={`/posts/${post.data.id}`}>

@@ -1,10 +1,4 @@
-import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import log from "~/lib/logger/logger";
-import {
-  MOTHER_SECRET,
-  STORAGE_SECRET,
-} from "~/lib/stellar/marketplace/SECRET";
 
 // import { getUserSecret } from "~/components/recharge/utils";
 import { covertSiteAsset2XLM } from "~/lib/stellar/marketplace/trx/convert_site_asset";
@@ -34,7 +28,7 @@ export const stellarRouter = createTRPCRouter({
     .mutation(async ({ input }) => {
       const { pubkey, uid, email, siteAssetAmount, xlm } = input;
 
-      const secret = await getUserSecret({ uid, email });
+      const secret = getUserSecret({ uid, email });
 
       const xdr = await covertSiteAsset2XLM({
         pubkey,

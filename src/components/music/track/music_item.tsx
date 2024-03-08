@@ -6,15 +6,9 @@ import { useEffect, useRef, useState } from "react";
 import { usePlayerStore } from "~/lib/state/music/track";
 import clsx from "clsx";
 import { Song } from "@prisma/client";
+import { AssetType } from "../album/table";
 
-export type SongItem = Song & {
-  asset: {
-    code: string;
-    issuer: string;
-    thumbnail: string;
-    name: string;
-  };
-};
+export type SongItem = Song & AssetType;
 
 export default function MusicItem({
   item,

@@ -18,7 +18,7 @@ function MyStorageAsset() {
   if (acc.isLoading) return <span className="loading loading-spinner" />;
   if (acc.data)
     return acc.data.map((asset, i) => {
-      return <StorageAsset code={asset.code} issuer={asset.issuer} />;
+      return <StorageAsset key={i} code={asset.code} issuer={asset.issuer} />;
     });
 }
 
@@ -58,7 +58,10 @@ function MyAssets() {
   if (acc.data)
     return acc.data.map((asset, i) => {
       return (
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <div
+          key={i}
+          className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3"
+        >
           <AssetItemComponent
             issuer={asset.issuer}
             code={asset.code}

@@ -2,7 +2,6 @@ import { Creator } from "@prisma/client";
 import clsx from "clsx";
 import Link from "next/link";
 import React, { useState } from "react";
-import { AssetItem } from "~/components/right-sidebar";
 import Avater from "~/components/ui/avater";
 import { SearchMenu, useSearchMenu } from "~/lib/state/fan/search-menu";
 import { api } from "~/utils/api";
@@ -61,14 +60,14 @@ function ConditionallyRenderSearch() {
     <div className="w-full">
       {selectedMenu === SearchMenu.Post && <Posts />}
       {selectedMenu === SearchMenu.Creator && <Creator />}
-      {selectedMenu === SearchMenu.Asset && <AssetsList />}
+      {/* {selectedMenu === SearchMenu.Asset && <AssetsList />} */}
     </div>
   );
 }
 
 function Posts() {
   const { searchString } = useSearchMenu();
-  const posts = api.post.search.useInfiniteQuery(
+  const posts = api.fan.post.search.useInfiniteQuery(
     { searchInput: searchString, limit: 5 },
     { getNextPageParam: (lastPage) => lastPage.nextCursor },
   );
@@ -107,7 +106,7 @@ function Posts() {
 
 function Creator() {
   const { searchString } = useSearchMenu();
-  const creators = api.creator.search.useInfiniteQuery(
+  const creators = api.fan.creator.search.useInfiniteQuery(
     { limit: 10, searchInput: searchString },
     {
       getNextPageParam: (lastPage) => lastPage.nextCursor,
@@ -151,39 +150,39 @@ export function CreatorAvater({ creator }: { creator: Creator }) {
     </div>
   );
 }
-function AssetsList() {
-  const { searchString } = useSearchMenu();
-  const assets = api.shop.search.useInfiniteQuery(
-    { limit: 10, searchInput: searchString },
-    { getNextPageParam: (lastPage) => lastPage.nextCursor },
-  );
-  return (
-    <div className="flex flex-col items-center">
-      {assets.isLoading && <div>Loading...</div>}
-      <div className="w-full max-w-sm rounded-box bg-base-300 p-4">
-        {assets.data?.pages.map((page) => {
-          return page.items.map((asset) => {
-            return (
-              <div key={asset.id} className="p-4 hover:bg-base-100">
-                <AssetItem shopItem={asset} />
-                {/* <p className="font-bold">{asset.asset.code}</p>
-                <p className="text-sm">
-                  {truncateString(asset.asset.issuer, 15, 5)}
-                </p> */}
-              </div>
-            );
-          });
-        })}
+// function AssetsList() {
+//   const { searchString } = useSearchMenu();
+//   const assets = api.shop.search.useInfiniteQuery(
+//     { limit: 10, searchInput: searchString },
+//     { getNextPageParam: (lastPage) => lastPage.nextCursor },
+//   );
+//   return (
+//     <div className="flex flex-col items-center">
+//       {assets.isLoading && <div>Loading...</div>}
+//       <div className="w-full max-w-sm rounded-box bg-base-300 p-4">
+//         {assets.data?.pages.map((page) => {
+//           return page.items.map((asset) => {
+//             return (
+//               <div key={asset.id} className="p-4 hover:bg-base-100">
+//                 <AssetItem shopItem={asset} />
+//                 {/* <p className="font-bold">{asset.asset.code}</p>
+//                 <p className="text-sm">
+//                   {truncateString(asset.asset.issuer, 15, 5)}
+//                 </p> */}
+//               </div>
+//             );
+//           });
+//         })}
 
-        {assets.hasNextPage && (
-          <button
-            className="btn btn-outline"
-            onClick={() => void assets.fetchNextPage()}
-          >
-            Load More
-          </button>
-        )}
-      </div>
-    </div>
-  );
-}
+//         {assets.hasNextPage && (
+//           <button
+//             className="btn btn-outline"
+//             onClick={() => void assets.fetchNextPage()}
+//           >
+//             Load More
+//           </button>
+//         )}
+//       </div>
+//     </div>
+//   );
+// }

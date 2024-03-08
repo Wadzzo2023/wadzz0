@@ -16,7 +16,8 @@ export default function TrackSection({ header }: TrackSectionProp) {
       <div>
         <h3 className="py-2 text-2xl font-bold">{header}</h3>
         {songs.data.map((song) => (
-          <MusicItem item={song} />
+          <p key={song.id}>1</p>
+          // <MusicItem key={song.id} item={song} />
         ))}
 
         <div className="flex flex-col gap-2"></div>

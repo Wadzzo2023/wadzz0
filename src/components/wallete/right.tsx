@@ -123,7 +123,7 @@ function Right(_props: RightProps) {
                       onClick={() => {
                         stStore.setData!({
                           name: "Tag for",
-                          queryParams: `?tag=${tag}`,
+                          queryParams: `?tag=${tag.tagName}`,
                           value: tag.tagName,
                         });
                         soStore.setOpen(false);
