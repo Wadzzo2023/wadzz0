@@ -5,12 +5,17 @@ import { TierSchema } from "~/components/fan/creator/add-tier-modal";
 import { EditTierSchema } from "~/components/fan/creator/edit-tier-modal";
 import { AccountSchema } from "~/lib/stellar/fan/utils";
 
-import {
-  createTRPCRouter,
-  protectedProcedure,
-  publicProcedure,
-} from "~/server/api/trpc";
-import { NotificationEntity } from "~/utils/notificationConfig";
+import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
+
+const selectedColumn = {
+  code: true,
+  name: true,
+  price: true,
+  features: true,
+  priority: true,
+  days: true,
+  id: true,
+};
 
 export const membershipRouter = createTRPCRouter({
   createMembership: protectedProcedure
@@ -35,21 +40,15 @@ export const membershipRouter = createTRPCRouter({
         return 7;
       }
 
-      const asset = await ctx.db.asset.create({
+      await ctx.db.subscription.create({
         data: {
           code: input.name,
           issuer: input.escrow.publicKey,
           issuerPrivate: input.escrow.secretKey,
-          creatorId: ctx.session.user.id,
-          escrow: true,
-        },
-      });
 
-      await ctx.db.subscription.create({
-        data: {
-          assetId: asset.id,
           creatorId: ctx.session.user.id,
           days: getDaysBasedOnPriority(maxPriority.priority),
+
           name: input.name,
           features: input.featureDescription,
           priority: maxPriority.priority,
@@ -88,11 +87,7 @@ export const membershipRouter = createTRPCRouter({
     .query(async ({ ctx, input }) => {
       return await ctx.db.subscription.findMany({
         where: { creatorId: input },
-        include: {
-          asset: {
-            select: { code: true, issuer: true },
-          },
-        },
+        select: selectedColumn,
       });
     }),
 
@@ -113,6 +108,7 @@ export const membershipRouter = createTRPCRouter({
   getAllMembership: protectedProcedure.query(async ({ ctx }) => {
     return await ctx.db.subscription.findMany({
       where: { creatorId: ctx.session.user.id },
+      select: selectedColumn,
     });
   }),
 
@@ -122,15 +118,12 @@ export const membershipRouter = createTRPCRouter({
         AND: [
           { userId: ctx.session.user.id },
           // here i have to check not expired highest subscriptin.
-          { endDate: { gte: new Date() } },
+          { subcriptionEndDate: { gte: new Date() } },
         ],
       },
       include: {
         subscription: {
           include: {
-            asset: {
-              select: { code: true, issuer: true },
-            },
             creator: true,
           },
         },
@@ -154,7 +147,7 @@ export const membershipRouter = createTRPCRouter({
         data: {
           userId: ctx.session.user.id,
           subscriptionId: input.subscriptionId,
-          endDate: currentDate,
+          subcriptionEndDate: currentDate,
         },
       });
       await ctx.db.notificationObject.create({

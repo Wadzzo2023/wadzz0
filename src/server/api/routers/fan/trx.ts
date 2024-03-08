@@ -1,5 +1,3 @@
-import { getAccSecret } from "package/connect_wallet";
-import { Asset } from "stellar-sdk";
 import { z } from "zod";
 import { SignUser, WithSing } from "~/lib/stellar/utils";
 import { buyAssetTrx } from "~/lib/stellar/fan/buy_asset";
@@ -7,10 +5,8 @@ import { clawBackAccCreate } from "~/lib/stellar/fan/clawback";
 import { createAsset } from "~/lib/stellar/fan/create_asset";
 import {
   getAssetNumberForXLM,
-  getBandcoinPrice,
   getPlatfromAssetPrice,
 } from "~/lib/stellar/fan/get_token_price";
-import { signXdrTransaction } from "~/lib/stellar/fan/signXDR";
 import { getClawbackAsPayment } from "~/lib/stellar/fan/subscribe";
 import { AssetSchema } from "~/lib/stellar/fan/utils";
 

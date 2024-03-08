@@ -6,6 +6,7 @@ import React, { useRef } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { z } from "zod";
 import { api } from "~/utils/api";
+import { SubscriptionType } from "./card";
 
 export const EditTierSchema = z.object({
   name: z
@@ -29,7 +30,7 @@ export const EditTierSchema = z.object({
   id: z.number(),
 });
 
-export default function EditTierModal({ item }: { item: Subscription }) {
+export default function EditTierModal({ item }: { item: SubscriptionType }) {
   const router = useRouter();
   const modalRef = useRef<HTMLDialogElement>(null);
   const mutation = api.fan.member.editTierModal.useMutation();

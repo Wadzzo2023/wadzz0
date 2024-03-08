@@ -77,7 +77,7 @@ export async function clawBackAccCreate({
     // 1 escrow acc setting his auth clawbackflag.
     .addOperation(
       Operation.setOptions({
-        homeDomain: "test.com",
+        homeDomain: "fan.bandcoin.io",
         setFlags: (AuthClawbackEnabledFlag | AuthRevocableFlag) as AuthFlag,
         source: escrowAcc.publicKey(),
       }),

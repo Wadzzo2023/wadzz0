@@ -4,6 +4,15 @@ import { Creator, Subscription } from "@prisma/client";
 import clsx from "clsx";
 import EditTierModal from "./edit-tier-modal";
 
+export type SubscriptionType = {
+  name: string;
+  price: number;
+  features: string;
+  id: number;
+  priority: number;
+  days: number;
+};
+
 export default function MemberShipCard({
   creator,
   subscription,
@@ -11,7 +20,7 @@ export default function MemberShipCard({
   children,
 }: {
   creator: Creator;
-  subscription: Subscription;
+  subscription: SubscriptionType;
   className?: string;
   children?: React.ReactNode;
 }) {
