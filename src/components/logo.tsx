@@ -1,7 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
 import { twMerge } from "tailwind-merge";
-import { LOGO_BLURDATA } from "~/lib/wallate/defaults";
 export default function Logo({ className }: { className?: string }) {
   return (
     <Link
@@ -14,7 +13,6 @@ export default function Logo({ className }: { className?: string }) {
             fill={true}
             alt="BandCoin logo"
             src="/images/bandcoin-logo.png"
-            blurDataURL={LOGO_BLURDATA}
           />
         </div>
         <h1

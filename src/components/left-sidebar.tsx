@@ -23,7 +23,7 @@ import { api } from "~/utils/api";
 import { Mode, useMode } from "~/lib/state/fan/left-side-mode";
 import { useRouter } from "next/router";
 import Image from "next/image";
-import { cn } from "~/lib/wallate/utils";
+import { cn } from "~/lib/utils";
 
 export const UserNavigation = {
   Home: { path: "/", icon: HomeIcon, text: "HOMEPAGE" },

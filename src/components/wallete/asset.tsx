@@ -1,16 +1,14 @@
 import React from "react";
-import { getTailwindScreenSize } from "~/lib/wallate/clientUtils";
-import type { AssetType } from "~/lib/wallate/interfaces";
+import { getTailwindScreenSize } from "~/lib/clientUtils";
 import { useRightStore } from "~/lib/state/wallete/right";
 import ImageVideViewer from "./Image_video_viewer";
 import { AdminAsset } from "@prisma/client";
 
-
 export type AdminAssetWithTag = AdminAsset & {
-    tags: {
-      tagName: string;
-    }[];
-  };
+  tags: {
+    tagName: string;
+  }[];
+};
 function Asset({ asset }: { asset: AdminAssetWithTag }) {
   const { logoUrl, logoBlueData, color } = asset;
   const urs = useRightStore();

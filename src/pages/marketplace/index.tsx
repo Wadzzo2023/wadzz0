@@ -1,7 +1,6 @@
 import clsx from "clsx";
 import React from "react";
 import WallateNFTs from "~/components/marketplace/bandcoin_nfts";
-import MarketNfts from "~/components/marketplace/nfts/market_nfts";
 import { MarketMenu, useMarketMenu } from "~/lib/state/marketplace/tab-menu";
 import { api } from "~/utils/api";
 
@@ -23,7 +22,7 @@ function RenderTabs() {
     case MarketMenu.Music:
       return <MusicNFts />;
     case MarketMenu.Subscription:
-      return <MarketNfts />;
+    // return <MarketNfts />;
   }
 }
 

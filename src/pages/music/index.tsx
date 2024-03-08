@@ -1,21 +1,15 @@
 import { Song } from "@prisma/client";
 import Head from "next/head";
-import Image from "next/image";
 import {
   ConnectWalletButton,
   useConnectWalletStateStore,
 } from "package/connect_wallet";
 import AlbumSection from "~/components/music/album/section";
 import TrackSection from "~/components/music/track/section";
-import { env } from "~/env";
-import { useAlbumStore } from "~/lib/state/music/album";
-import { useContentWidthStore } from "~/lib/state/music/content_width";
 import { api } from "~/utils/api";
 
 export default function Home() {
   const { isAva } = useConnectWalletStateStore();
-  const { height } = useContentWidthStore();
-  // const { data: banner } = api.music.banner.get.useQuery();
   const albums = api.music.album.getAll.useQuery();
 
   const publicSongs = [] as Song[];
@@ -27,7 +21,7 @@ export default function Home() {
       if (mySong.length > 0) {
         return (
           <div className="py-4">
-            <TrackSection header="Your songs" songs={mySong} />
+            <TrackSection header="Your songs" />
           </div>
         );
       }
@@ -75,14 +69,10 @@ export default function Home() {
           </div>
         )}
 
-        <TrackSection
-          itemsPerPage={5}
-          header="Recently added song"
-          songs={safeAllsong}
-        />
+        <TrackSection header="Recently added song" />
         {conditionalRender()}
 
-        <TrackSection header="Public songs" songs={publicSongs} />
+        <TrackSection header="Public songs" />
 
         <div className="h-60"></div>
       </div>

@@ -1,7 +1,17 @@
-import { type Market } from "~/lib/wallate/interfaces";
 import Link from "next/link";
 import Image from "next/image";
-import { MARKET } from "~/lib/wallate/defaults";
+import { MARKET } from "~/lib/defaults";
+
+export interface Market {
+  title: string;
+  link: string;
+  logoImg?: LogoImg;
+  color?: string;
+}
+export interface LogoImg {
+  url: string;
+  blurData: string | null;
+}
 
 export default function MarketLayout({ link, title }: Market) {
   let layoutData;

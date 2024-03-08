@@ -1,5 +1,4 @@
 import { z } from "zod";
-import { SongPrivacy } from "~/lib/music/types/dbTypes";
 
 import {
   adminProcedure,
@@ -14,40 +13,20 @@ export const songRouter = createTRPCRouter({
     return await ctx.db.song.findMany({ include: { asset: true } });
   }),
 
-  getAllSongsByPrivacy: publicProcedure
-    .input(z.object({ privacy: z.nativeEnum(SongPrivacy) }))
-    .query(async ({ input }) => {
-      return [];
-      // const collectionRef = collection(db, FCname.songs);
-
-      // // Create a query that orders the documents by views in descending order and limits the result to a specific number (e.g., 10).
-      // const q = query(collectionRef, where("privacy", "==", input.privacy));
-      // // Fetch the documents based on the query.
-      // const querySnapshot = await getDocs(q);
-      // const songs = querySnapshot.docs.map((doc) => {
-      //   return doc.data() as Song;
-      // });
-      // return songs;
-    }),
+  getAllSongsByPrivacy: publicProcedure.query(async ({ input }) => {
+    return [];
+  }),
 
   getAllSongsWithAssetCode: publicProcedure.query(async () => {
     return [];
-    // const collectionRef = collection(db, FCname.songs);
-
-    // // Create a query that orders the documents by views in descending order and limits the result to a specific number (e.g., 10).
-    // const q = query(collectionRef, orderBy("songAsset"));
-    // // Fetch the documents based on the query.
-    // const querySnapshot = await getDocs(q);
-    // const songs = querySnapshot.docs.map((doc) => {
-    //   return doc.data() as Song;
-    // });
-    // return songs;
   }),
 
   getUserBuyedSongs: publicProcedure.query(async ({ ctx }) => {
     return await ctx.db.song.findMany({
       include: {
-        asset: { select: { thumbnail: true, code: true, issuer: true , name: true} },
+        asset: {
+          select: { thumbnail: true, code: true, issuer: true, name: true },
+        },
       },
     });
     // return songs;
@@ -57,33 +36,6 @@ export const songRouter = createTRPCRouter({
     .input(z.object({ pubKey: z.string(), asset: z.string().optional() }))
     .query(async ({ input }) => {
       return [];
-      //   const collectionRef = collection(db, FCname.songs);
-      //   // Create a query that orders the documents by views in descending order and limits the result to a specific number (e.g., 10).
-      //   const assetWithIssuerArray = await getUserAllAssetsInSongAssets(
-      //     input.pubKey,
-      //     ASSETS,
-      //   );
-
-      //   if (!assetWithIssuerArray) return [];
-
-      //   let q = query(
-      //     collectionRef,
-      //     where("privacy", "==", SongPrivacy.RESTRICTED),
-      //     where("assetWithIssuer", "in", assetWithIssuerArray),
-      //   );
-      //   if (input.asset) {
-      //     q = query(
-      //       collectionRef,
-      //       where("privacy", "==", SongPrivacy.RESTRICTED),
-      //       where("assetWithIssuer", "==", input.asset),
-      //     );
-      //   }
-      //   // Fetch the documents based on the query.
-      //   const querySnapshot = await getDocs(q);
-      //   const songs = querySnapshot.docs.map((doc) => {
-      //     return doc.data() as Song;
-      //   });
-      //   return songs;
     }),
 
   getAllByAlbum: protectedProcedure
@@ -96,40 +48,6 @@ export const songRouter = createTRPCRouter({
     .input(z.object({ pubKey: z.string(), albumId: z.string() }))
     .query(async ({ input }) => {
       return [];
-      // const albumRef = doc(db, FCname.albums, input.albumId);
-
-      // const assetInPublic = await getUserAllAssetsInSongAssets(
-      //   input.pubKey,
-      //   ASSETS,
-      // );
-      // log.info("here", assetInPublic);
-      // if (!assetInPublic) return [];
-
-      // // Fetch the album document
-      // const albumDoc = await getDoc(albumRef);
-      // const songs: Song[] = [];
-      // if (albumDoc.exists()) {
-      //   // Access the "songs" array field from the document's data
-      //   const songsArray = albumDoc.data().songs as string[];
-
-      //   if (Array.isArray(songsArray)) {
-      //     for (const songId of songsArray) {
-      //       const songDoc = await getDoc(doc(db, FCname.songs, songId));
-      //       const song = songDoc.data() as Song;
-      //       // if (song.assetWithIssuer) {
-      //       //   if (assetInPublic.includes(song.assetWithIssuer))
-      //       //     songs.push(song);
-      //       // }
-      //     }
-      //   } else {
-      //     log.info("The 'songs' field is not an array.");
-      //   }
-      // } else {
-      //   log.info("Album document does not exist.");
-      // }
-
-      // // const snapAsset = await getDoc(doc(db, FCname.albums));
-      // return songs;
     }),
 
   getAsong: publicProcedure
@@ -194,7 +112,6 @@ export const songRouter = createTRPCRouter({
   changePrivacy: protectedProcedure
     .input(
       z.object({
-        privacy: z.enum([SongPrivacy.DRAFT, SongPrivacy.RESTRICTED]),
         songId: z.string(),
       }),
     )

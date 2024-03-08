@@ -2,7 +2,7 @@ import { Copy } from "lucide-react";
 import { useState } from "react";
 import CopyToClipboard from "react-copy-to-clipboard";
 import toast from "react-hot-toast";
-import { addrShort, delay } from "~/lib/wallate/utils";
+import { addrShort, delay } from "~/lib/utils";
 
 interface CopyToClipProps {
   text: string;
