@@ -121,6 +121,7 @@ export const marketRouter = createTRPCRouter({
             },
           },
         },
+        where: { disabled: false },
       });
 
       let nextCursor: typeof cursor | undefined = undefined;
@@ -133,5 +134,55 @@ export const marketRouter = createTRPCRouter({
         nfts: items,
         nextCursor,
       };
+    }),
+
+  toggleVisibilityMarketNft: protectedProcedure
+    .input(z.object({ id: z.number(), visibility: z.boolean() }))
+    .mutation(async ({ input, ctx }) => {
+      const marketAssetId = input.id;
+      const creatorId = ctx.session.user.id;
+
+      // validate the request marketassetId is created by the user
+      const asset = await ctx.db.marketAsset.findUnique({
+        where: { id: marketAssetId },
+        select: { creatorId: true },
+      });
+
+      if (!asset) throw new Error("asset not found");
+
+      if (asset.creatorId !== creatorId) throw new Error("not authorized");
+
+      await ctx.db.marketAsset.update({
+        where: { id: marketAssetId },
+        data: { disabled: !input.visibility },
+      });
+    }),
+  enableVisibilityMarketNft: protectedProcedure
+    .input(z.object({ code: z.string(), issuer: z.string() }))
+    .mutation(async ({ input, ctx }) => {
+      const { code, issuer } = input;
+
+      const assetRow = await ctx.db.asset.findUnique({
+        where: { code_issuer: { code, issuer } },
+        select: { id: true },
+      });
+
+      if(!assetRow) throw new Error("asset not found");
+      const assetId = assetRow.id;
+      const creatorId = ctx.session.user.id;
+
+      // validate the request marketassetId is created by the user
+      const asset = await ctx.db.marketAsset.findUnique({
+        where: { assetId_creatorId: {assetId, creatorId } },
+        select: { id: true },
+      });
+
+      if (!asset) throw new Error("asset not found");
+
+
+      await ctx.db.marketAsset.update({
+        where: { id: asset.id },
+        data: { disabled: false },
+      });
     }),
 });

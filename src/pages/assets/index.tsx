@@ -1,8 +1,5 @@
-import clsx from "clsx";
 import React from "react";
 import PlaceMarketModal from "~/components/marketplace/modal/place_market_modal";
-import RevertPlaceMarketModal from "~/components/marketplace/modal/revert_place_market_modal";
-import { AssetMenu, useAssetMenu } from "~/lib/state/fan/user-asset-menu";
 import { api } from "~/utils/api";
 
 export default function MyAssetsPage() {
@@ -10,6 +7,47 @@ export default function MyAssetsPage() {
     <div className="p-5">
       <h1 className="mb-2 text-2xl font-bold">FAN ITEMS</h1>
       <MyAssets />
+      <MyStorageAsset />
+    </div>
+  );
+}
+
+function MyStorageAsset() {
+  const acc = api.wallate.acc.getCreatorStorageInfo.useQuery();
+
+  if (acc.isLoading) return <span className="loading loading-spinner" />;
+  if (acc.data)
+    return acc.data.map((asset, i) => {
+      return <StorageAsset code={asset.code} issuer={asset.issuer} />;
+    });
+}
+
+function StorageAsset({ code, issuer }: { code: string; issuer: string }) {
+  const toggleVisibility =
+    api.marketplace.market.toggleVisibilityMarketNft.useMutation();
+  const isInMarket = api.wallate.acc.isItemPlacedInMarket.useQuery({
+    code,
+    issuer,
+  });
+  return (
+    <div className="grid grid-cols-1 gap-4 bg-blue-200 md:grid-cols-2 lg:grid-cols-3">
+      <p>{code}</p>
+      {isInMarket.isLoading && (
+        <button
+          className="btn btn-primary btn-sm"
+          onClick={() => {
+            toggleVisibility.mutate({
+              id: 1,
+              visibility: false,
+            });
+          }}
+        >
+          {toggleVisibility.isLoading && (
+            <span className="loading loading-spinner" />
+          )}
+          Enable
+        </button>
+      )}
     </div>
   );
 }
@@ -31,54 +69,6 @@ function MyAssets() {
         </div>
       );
     });
-}
-
-function RenderTabs() {
-  const { setSelectedMenu, selectedMenu } = useAssetMenu();
-  switch (selectedMenu) {
-    case AssetMenu.SubscriptionAsset:
-      return <SubscriptionAsset />;
-    case AssetMenu.Assets:
-      return <ShopAsset />;
-  }
-}
-
-function ShopAsset() {
-  const assets = api.shop.getUserShopAsset.useQuery();
-
-  if (assets.data && assets.data.length > 0) {
-    <div>
-      {assets.data.map((asset) => (
-        <AssetItemComponent
-          issuer={asset.shopAsset.issuer}
-          code={asset.shopAsset.asset.code}
-          name={asset.shopAsset.name}
-          description={asset.shopAsset.description ?? "Shop Asset"}
-          key={asset.id}
-        />
-      ))}
-    </div>;
-  } else {
-    return <p>No asset found</p>;
-  }
-}
-
-function SubscriptionAsset() {
-  const subscriptions = api.member.getAllSubscription.useQuery();
-  return (
-    <div>
-      {subscriptions.data?.map((sub) => {
-        return (
-          <AssetItemComponent
-            key={sub.id}
-            code={sub.subscription.assetId.toString()}
-            description={sub.subscription.features}
-            name={sub.subscription.id.toString()}
-          />
-        );
-      })}
-    </div>
-  );
 }
 
 function AssetItemComponent({
@@ -116,30 +106,6 @@ function AssetItemComponent({
           <PlaceMarketModal item={{ code, copies: 10, issuer }} />
         </div>
       </div>
-    </div>
-  );
-}
-
-function CreateTabs() {
-  const { setSelectedMenu, selectedMenu } = useAssetMenu();
-  return (
-    <div role="tablist" className="tabs-boxed tabs">
-      {Object.values(AssetMenu).map((key) => {
-        return (
-          <a
-            key={key}
-            onClick={() => setSelectedMenu(key)}
-            role="tab"
-            className={clsx(
-              "tab",
-              selectedMenu == key && "tab-active text-primary",
-              "font-bold",
-            )}
-          >
-            {key}
-          </a>
-        );
-      })}
     </div>
   );
 }

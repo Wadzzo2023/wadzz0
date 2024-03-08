@@ -319,19 +319,21 @@ model Asset {
     @@index([name, description])
 }
 
+// this for creators;
 model MarketAsset {
     id Int @id @default(autoincrement())
 
     limit Int
-    price Float?
+
+    disabled Boolean @default(false)
 
     assetId Int
     asset   Asset @relation(fields: [assetId], references: [id], onDelete: Cascade)
 
     placedAt DateTime @default(now())
 
-    creatorId String
-    creator   Creator @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+    creatorId String? //this admin created asset
+    creator   Creator? @relation(fields: [creatorId], references: [id], onDelete: Cascade)
 
     @@unique([assetId, creatorId])
 }
