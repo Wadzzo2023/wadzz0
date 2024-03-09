@@ -51,7 +51,7 @@ export default function SongList({
   return (
     <div className="p-2">
       {/* <div className="h-4" /> */}
-      <table className="table">
+      <table className="table bg-base-300">
         <thead></thead>
         <tbody>
           {songs.map((song) => {
@@ -70,13 +70,13 @@ export default function SongList({
                 </td>
 
                 <td>
-                  <Play
+                  {/* <Play
                     className={clsx(song.id == activeRow && "text-primary")}
                     onClick={() => {
                       setActiveRow(song.id);
                       trackUrlStore.setNewTrack(song);
                     }}
-                  />
+                  /> */}
 
                   <div className="w-12">
                     <BuyModal item={song} />

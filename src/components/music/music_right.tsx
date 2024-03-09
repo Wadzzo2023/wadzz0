@@ -8,7 +8,7 @@ export function MusicRightSide() {
   const trackUrlStore = usePlayerStore();
 
   return (
-    <div className="flex w-96 flex-col gap-y-2 bg-base-300">
+    <div className="flex h-full flex-col gap-y-2 bg-base-300">
       <RightSongs />
 
       <div className="flex flex-1 flex-col justify-between rounded bg-base-100">

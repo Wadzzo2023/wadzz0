@@ -53,7 +53,20 @@ export const songRouter = createTRPCRouter({
   getAsong: publicProcedure
     .input(z.object({ songId: z.number() }))
     .query(async ({ input, ctx }) => {
-      return await ctx.db.song.findUnique({ where: { id: input.songId } });
+      return await ctx.db.song.findUnique({
+        where: { id: input.songId },
+        include: {
+          asset: {
+            select: {
+              name: true,
+              code: true,
+              thumbnail: true,
+              issuer: true,
+              mediaUrl: true,
+            },
+          },
+        },
+      });
     }),
 
   deleteAsong: adminProcedure

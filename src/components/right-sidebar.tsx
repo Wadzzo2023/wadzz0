@@ -11,7 +11,7 @@ export default function RightBar() {
         <Right />
       </div>
     );
-  else if (router.pathname == "/music")
+  else if (router.pathname.includes("/music"))
     return (
       <div className="hidden h-full w-80  flex-col bg-base-100/80  lg:flex">
         <MusicRightSide />

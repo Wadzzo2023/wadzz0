@@ -19,24 +19,9 @@ export default function MusicItem({
 }) {
   const [hovered, setHoved] = useState(false);
   const { song: playedSong, setNewTrack } = usePlayerStore();
-  const [divWidth, setDivWidth] = useState<number>();
-  const [divWidth2, setDivWidth2] = useState<number>();
 
   const divRef = useRef<HTMLDivElement>(null);
   const divRef2 = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (divRef.current) {
-      const divW = divRef.current.offsetWidth;
-      setDivWidth(divW);
-      // toast(`div1 ${divW}`);
-    }
-    if (divRef2.current) {
-      const divW = divRef2.current.offsetWidth;
-      setDivWidth2(divW);
-      // toast(`div2 ${divW}`);
-    }
-  }, []);
 
   if (!playable) {
     return (
@@ -50,20 +35,11 @@ export default function MusicItem({
               alt="music cover"
             />
           </div>
-          <div ref={divRef2} className="" style={{ width: divWidth2 }}>
-            <Link href={`/track/${item.id}`}>
-              <p
-                className={clsx(
-                  " text-base font-bold",
-                  divWidth2 && "truncate",
-                )}
-              >
-                {item.asset.code}
-              </p>
+          <div ref={divRef2} className="">
+            <Link href={`/music/track/${item.id}`}>
+              <p className={clsx(" text-base font-bold")}>{item.asset.code}</p>
             </Link>
-            <p className={clsx("text-sm", divWidth2 && "truncate")}>
-              {item.artist}
-            </p>
+            <p className={clsx("text-sm")}>{item.artist}</p>
           </div>
         </div>
         <div>
@@ -91,13 +67,9 @@ export default function MusicItem({
               alt="music cover"
             />
           </div>
-          <div ref={divRef} style={{ width: divWidth }}>
-            <p className={clsx(" text-base font-bold", divWidth && "truncate")}>
-              {item.asset.code}
-            </p>
-            <p className={clsx("text-sm", divWidth && "truncate")}>
-              {item.artist}
-            </p>
+          <div ref={divRef}>
+            <p className={clsx(" text-base font-bold")}>{item.asset.code}</p>
+            <p className={clsx("text-sm")}>{item.artist}</p>
           </div>
         </div>
         {hovered || playedSong?.id === item.id ? (

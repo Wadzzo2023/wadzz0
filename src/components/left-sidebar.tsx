@@ -171,15 +171,6 @@ function Profile() {
 function LeftBottom() {
   return (
     <div className="flex w-full flex-col justify-center gap-1">
-      <Link href="https://bandcoin.io" className="btn">
-        WALLET
-      </Link>
-      <Link href="https://music.bandcoin.io" className="btn">
-        MUSIC
-      </Link>
-      <Link href="https://music.bandcoin.io/marketplace" className="btn">
-        MARKETPLACE
-      </Link>
       <ConnectWalletButton />
       <div className="flex justify-between space-x-2">
         <Link
