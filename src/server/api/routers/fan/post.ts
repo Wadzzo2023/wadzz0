@@ -2,7 +2,7 @@ import { NotificationType } from "@prisma/client";
 import { z } from "zod";
 import { PostSchema } from "~/components/fan/creator/CreatPost";
 import { CommentSchema } from "~/components/fan/post/add-comment";
-import NotificationPage from "~/pages/notification";
+import NotificationPage from "~/pages/fans/notifications";
 
 import {
   createTRPCRouter,
