@@ -53,7 +53,7 @@ function CreatorAvater() {
 
   const handleClick = () => {
     setSelectedMenu(Mode.User);
-    router.push("/");
+    router.push("/fans/home");
   };
 
   return (

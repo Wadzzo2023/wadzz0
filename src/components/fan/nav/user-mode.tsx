@@ -5,6 +5,16 @@ import { api } from "~/utils/api";
 
 import { Search } from "lucide-react";
 import Link from "next/link";
+import Button from "~/components/ui/button";
+
+export function UserMode() {
+  return (
+    <div className="m-2 flex flex-1 flex-col gap-2 overflow-auto  rounded-lg  bg-base-200 p-2">
+      <AllCreators />
+      <BottonNav />
+    </div>
+  );
+}
 
 export function AllCreators() {
   const creators = api.fan.creator.getAllCreator.useInfiniteQuery(
@@ -41,6 +51,10 @@ export function AllCreators() {
       </div>
     </div>
   );
+}
+
+function BottonNav() {
+  return <Button path="/fans/notifications" text="Notification" />;
 }
 
 // function PopularItems() {

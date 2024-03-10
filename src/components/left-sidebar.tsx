@@ -4,7 +4,6 @@ import { Facebook, Instagram } from "lucide-react";
 import Button from "./ui/button";
 import Link from "next/link";
 import { HomeIcon, Settings2, Diamond, Bell } from "lucide-react";
-import { Mode, useMode } from "~/lib/state/fan/left-side-mode";
 import Image from "next/image";
 import { cn } from "~/lib/utils";
 

@@ -7,11 +7,11 @@ export const CreatorNavigation = {
   Create: { path: "/fans/creator/posts", icon: PenSquare, text: "CREATE" },
   Store: { path: "/fans/creator/store", icon: Store, text: "STORE" },
   Notification: {
-    path: "fans/creator/notification",
+    path: "/fans/creator/notification",
     icon: Bell,
     text: "Notification",
   },
-  Settings: { path: "/creator/settings", icon: Settings2, text: "Settings" },
+  Settings: { path: "/fans/creator/settings", icon: Settings2, text: "Settings" },
 } as const;
 
 export function CreatorNavButtons() {
