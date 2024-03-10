@@ -2,8 +2,9 @@ import { useRouter } from "next/router";
 
 import Right from "./wallete/right";
 import { MusicRightSide } from "./music/music_right";
+import RightBar from "./fan/fan-right";
 
-export default function RightBar() {
+export default function RightSideBar() {
   const router = useRouter();
   if (router.pathname == "/")
     return (
@@ -15,6 +16,12 @@ export default function RightBar() {
     return (
       <div className="hidden h-full w-80  flex-col bg-base-100/80  lg:flex">
         <MusicRightSide />
+      </div>
+    );
+  else if (router.pathname.includes("/fans"))
+    return (
+      <div className="hidden h-full w-80  flex-col bg-base-100/80  lg:flex">
+        <RightBar />
       </div>
     );
 }

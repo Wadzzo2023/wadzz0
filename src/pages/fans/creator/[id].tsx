@@ -14,7 +14,7 @@ import {
 import clsx from "clsx";
 // import { ShopItem } from "~/components/fan/creator/shop";
 import SubscribeMembership from "~/components/fan/creator/confirm-subscription-modal";
-import { CreatorBack } from "~/pages/me/creator";
+import { CreatorBack } from "~/pages/fans/creator";
 
 export default function CreatorPage() {
   const router = useRouter();

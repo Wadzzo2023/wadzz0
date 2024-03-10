@@ -1,31 +1,14 @@
-import {
-  ConnectWalletButton,
-  useConnectWalletStateStore,
-} from "package/connect_wallet";
-import React from "react";
-import Avater from "./ui/avater";
-import { useSession } from "next-auth/react";
-import { Facebook, Instagram, Sparkle, SwitchCamera } from "lucide-react";
+import { ConnectWalletButton } from "package/connect_wallet";
+import { Facebook, Instagram } from "lucide-react";
 
 import Button from "./ui/button";
 import Link from "next/link";
-import Logo from "./logo";
-import {
-  HomeIcon,
-  PenSquare,
-  Search,
-  Settings2,
-  Diamond,
-  Bell,
-  Store,
-} from "lucide-react";
-import { api } from "~/utils/api";
+import { HomeIcon, Settings2, Diamond, Bell } from "lucide-react";
 import { Mode, useMode } from "~/lib/state/fan/left-side-mode";
-import { useRouter } from "next/router";
 import Image from "next/image";
 import { cn } from "~/lib/utils";
 
-export const UserNavigation = {
+export const LeftNavigation = {
   Home: { path: "/", icon: HomeIcon, text: "HOMEPAGE" },
   // Search: { path: "/search", icon: Search, text: "Search" },
   Music: { path: "/music", icon: Diamond, text: "MUSIC" },
@@ -33,18 +16,6 @@ export const UserNavigation = {
   MyAssets: { path: "/assets", icon: Bell, text: "MY ASSETS" },
   Fan: { path: "/fans/home", icon: Bell, text: "BANDFAN" },
   Settings: { path: "/settings", icon: Settings2, text: "SETTINGS" },
-} as const;
-
-export const CreatorNavigation = {
-  Page: { path: "/me/creator", icon: PenSquare, text: "PAGE" },
-  Create: { path: "/posts/creator", icon: PenSquare, text: "CREATE" },
-  Store: { path: "/store/creator", icon: Store, text: "STORE" },
-  Notification: {
-    path: "/notification/creator",
-    icon: Bell,
-    text: "Notification",
-  },
-  Settings: { path: "/settings/creator", icon: Settings2, text: "Settings" },
 } as const;
 
 export default function LeftBar({ className }: { className?: string }) {
@@ -68,16 +39,9 @@ export default function LeftBar({ className }: { className?: string }) {
 }
 
 function NavigationButtons() {
-  const { selectedMenu, toggleSelectedMenu } = useMode();
-
-  function getNavigation() {
-    if (selectedMenu == Mode.Creator) return CreatorNavigation;
-    else return UserNavigation;
-  }
-
   return (
     <div className="flex h-full w-full flex-col items-start gap-2 ">
-      {Object.entries(getNavigation()).map(
+      {Object.entries(LeftNavigation).map(
         ([key, { path, icon: Icon, text }]) => (
           <Link href={path} className="w-full" key={key}>
             <Button
@@ -88,84 +52,9 @@ function NavigationButtons() {
           </Link>
         ),
       )}
-      <Profile />
+      {/* <Profile /> */}
     </div>
   );
-}
-
-function ProfileComponent({
-  avaterUrl,
-  handleModeChange,
-  name,
-  mode,
-}: {
-  avaterUrl: string | null;
-  handleModeChange: () => void;
-  name: string | null;
-  mode: Mode;
-}) {
-  return (
-    <div
-      className="btn btn-ghost btn-active w-full  items-center  gap-x-4 "
-      onClick={handleModeChange}
-    >
-      <SwitchCamera />
-      <p className="">Switch to {mode}</p>
-      <Sparkle />
-    </div>
-  );
-}
-
-function UserAvater() {
-  const router = useRouter();
-  const { setSelectedMenu } = useMode();
-  const user = api.fan.user.getUser.useQuery();
-  const handleClick = () => {
-    setSelectedMenu(Mode.Creator);
-    router.push("/me/creator");
-  };
-  if (user.data) {
-    return (
-      <ProfileComponent
-        handleModeChange={handleClick}
-        avaterUrl={user.data.image}
-        mode={Mode.Creator}
-        name={user.data.name}
-      />
-    );
-  }
-}
-function CreatorAvater() {
-  const router = useRouter();
-  const { setSelectedMenu } = useMode();
-  const creator = api.fan.creator.meCreator.useQuery();
-
-  const handleClick = () => {
-    setSelectedMenu(Mode.User);
-    router.push("/");
-  };
-
-  return (
-    <ProfileComponent
-      handleModeChange={handleClick}
-      avaterUrl={creator?.data?.profileUrl ?? null}
-      mode={Mode.User}
-      name={creator?.data?.name ?? "Unknown"}
-    />
-  );
-}
-
-function Profile() {
-  const { isAva } = useConnectWalletStateStore();
-  const { selectedMenu, getAnotherMenu, toggleSelectedMenu } = useMode();
-
-  const creator = api.fan.creator.meCreator.useQuery();
-
-  if (isAva) {
-    if (selectedMenu == Mode.User) {
-      return <UserAvater />;
-    } else return <CreatorAvater />;
-  }
 }
 
 function LeftBottom() {

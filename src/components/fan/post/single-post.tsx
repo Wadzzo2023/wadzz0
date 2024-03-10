@@ -23,10 +23,13 @@ export function SinglePostView({ postId }: { postId: number }) {
   // const { data: likes, isLoading } = api.post.getLikes.useQuery(post.id);
   const { data: liked } = api.fan.post.isLiked.useQuery(postId);
   const comments = api.fan.post.getComments.useQuery(postId);
+
   if (post.isLoading) return <div>Loading...</div>;
 
   if (post.isError) return <div>Post not found</div>;
-  if (post.data)
+  if (post.data) {
+    const creatorProfileUrl = `/fans/creator/${post.data.creatorId}`;
+    const postUrl = `/fans/posts/${post.data.id}`;
     return (
       <div className="flex h-full  flex-1 flex-col items-center  p-5">
         <h2 className="mb-5 text-center text-2xl font-bold">
@@ -56,7 +59,7 @@ export function SinglePostView({ postId }: { postId: number }) {
                             </div>
                             <div>
                               <Link
-                                href={`/creator/${post.data.creator.id}`}
+                                href={creatorProfileUrl}
                                 className="font-bold"
                               >
                                 {post.data.creator.name}
@@ -137,7 +140,7 @@ export function SinglePostView({ postId }: { postId: number }) {
                             </p>
                           </div>
 
-                          <Link className="" href={`/posts/${post.data.id}`}>
+                          <Link className="" href={postUrl}>
                             <div className="flex items-center justify-center gap-1">
                               <div className="btn btn-circle btn-ghost btn-sm">
                                 <MessageCircle />
@@ -158,7 +161,7 @@ export function SinglePostView({ postId }: { postId: number }) {
         </div>
       </div>
     );
-  else {
+  } else {
     return <p> You do not have proper permission</p>;
   }
 }

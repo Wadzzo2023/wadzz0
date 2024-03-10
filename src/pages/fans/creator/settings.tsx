@@ -1,6 +1,6 @@
 import React from "react";
 import About from "~/components/fan/creator/about";
-import { CreatorBack } from "../me/creator";
+import { CreatorBack } from ".";
 import { api } from "~/utils/api";
 
 export default function CreatorSettings() {

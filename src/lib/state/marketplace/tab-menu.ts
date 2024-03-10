@@ -3,7 +3,6 @@ import { create } from "zustand";
 export enum MarketMenu {
   Wallate = "Bandcoin",
   Music = "Music",
-  Subscription = "Subscription",
   FanAsset = "Fan Asset",
 }
 

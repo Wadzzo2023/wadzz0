@@ -23,8 +23,7 @@ function RenderTabs() {
       return <WallateNFTs />;
     case MarketMenu.Music:
       return <MusicNFts />;
-    case MarketMenu.Subscription:
-    // return <MarketNfts />;
+
     case MarketMenu.FanAsset:
       return <FanAssetNfts />;
   }

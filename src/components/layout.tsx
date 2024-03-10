@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import LeftBar from "./left-sidebar";
-import RightBar from "./right-sidebar";
+import RightSideBar from "./right-sidebar";
 import BottomNav from "./fan/mobile/bottom-nav";
 import TopNav from "./fan/mobile/top-nav";
 import { ConnectWalletButton } from "package/connect_wallet";
@@ -37,7 +37,7 @@ export default function Layout({
             </div>
           </div>
 
-          <RightBar />
+          <RightSideBar />
         </div>
       </div>
     </div>

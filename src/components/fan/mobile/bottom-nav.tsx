@@ -1,6 +1,6 @@
 import { Home } from "lucide-react";
 import React from "react";
-import { CreatorNavigation, UserNavigation } from "../../left-sidebar";
+import { CreatorNavigation, LeftNavigation } from "../../left-sidebar";
 import Link from "next/link";
 import { Mode, useMode } from "~/lib/state/fan/left-side-mode";
 import clsx from "clsx";
@@ -12,7 +12,7 @@ export default function BottomNav() {
 
   function getNavigation() {
     if (selectedMenu == Mode.Creator) return CreatorNavigation;
-    else return UserNavigation;
+    else return LeftNavigation;
   }
 
   return (

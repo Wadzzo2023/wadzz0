@@ -34,6 +34,9 @@ export function PostCard({
   // const { data: likes, isLoading } = api.post.getLikes.useQuery(post.id);
   const { data: liked } = api.fan.post.isLiked.useQuery(post.id);
 
+  const creatorProfileUrl = `/fans/creator/${post.creatorId}`;
+  const postUrl = `/fans/posts/${post.id}`;
+
   return (
     <div
       key={post.id}
@@ -57,7 +60,7 @@ export function PostCard({
               <Avater className="w-8" />
             </div>
             <div>
-              <Link href={`/creator/${creator.id}`} className="font-bold">
+              <Link href={creatorProfileUrl} className="font-bold">
                 {creator.name}
               </Link>
               <p>
@@ -76,13 +79,13 @@ export function PostCard({
         {!show ? (
           <h2 className="card-title">{post.heading}</h2>
         ) : (
-          <Link href={`/posts/${post.id}`}>
+          <Link href={postUrl}>
             <h2 className="card-title">{post.heading}</h2>
           </Link>
         )}
 
         {!show ? (
-          <Link href={`/creator/${post.creatorId}`} className="btn ">
+          <Link href={creatorProfileUrl} className="btn ">
             <Lock />
             Unlock Post
           </Link>
@@ -109,7 +112,7 @@ export function PostCard({
                 <p className="font-bold">{like}</p>
               </div>
 
-              <Link className="" href={`/posts/${post.id}`}>
+              <Link className="" href={postUrl}>
                 <div className="flex items-center justify-center gap-1">
                   <div className="btn btn-circle btn-ghost btn-sm">
                     <MessageCircle />
