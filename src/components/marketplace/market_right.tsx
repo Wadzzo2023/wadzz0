@@ -45,7 +45,7 @@ export default function MarketRight() {
         />
         <div className="flex h-full flex-col justify-between space-y-2 p-2">
           <div className="relative space-y-2 rounded-box border-4 border-base-100 p-1 text-sm tracking-wider">
-            <MediaViewer item={currentData} color={color} />
+            <MediaViewer color={color} />
           </div>
 
           <div className="relative space-y-2 rounded-box border-4 border-base-100 p-4 text-sm tracking-wider">
@@ -137,8 +137,8 @@ function OtherButtons() {
 //   }
 // }
 
-function MediaViewer(props: { color: string; item: any }) {
-  const { item, color } = props;
+function MediaViewer(props: { color: string }) {
+  const { color } = props;
   // const { thumbnailUrl, mediaUrl, name } = item;
   const thumbnailUrl = "https://picsum.photos/200/200";
   const name = "vog";
