@@ -1,6 +1,5 @@
 import { Home } from "lucide-react";
 import React from "react";
-import { CreatorNavigation, LeftNavigation } from "../../left-sidebar";
 import Link from "next/link";
 import { Mode, useMode } from "~/lib/state/fan/left-side-mode";
 import clsx from "clsx";
@@ -9,11 +8,6 @@ import { useRouter } from "next/router";
 export default function BottomNav() {
   const { selectedMenu, toggleSelectedMenu } = useMode();
   const router = useRouter();
-
-  function getNavigation() {
-    if (selectedMenu == Mode.Creator) return CreatorNavigation;
-    else return LeftNavigation;
-  }
 
   return (
     <div className="btm-nav sm:hidden">

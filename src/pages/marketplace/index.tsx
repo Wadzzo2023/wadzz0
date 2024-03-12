@@ -1,15 +1,13 @@
 import clsx from "clsx";
-import { Fan } from "lucide-react";
-import React from "react";
 import WallateNFTs from "~/components/marketplace/bandcoin_nfts";
 import FanAssetNfts from "~/components/marketplace/fans_assets";
+import MusicAssetNfts from "~/components/marketplace/music_assets";
 import { MarketMenu, useMarketMenu } from "~/lib/state/marketplace/tab-menu";
-import { api } from "~/utils/api";
 
 export default function MarketplacePage() {
   return (
     <div>
-      <h2>MarketplacePage</h2>
+      {/* <h2>MarketplacePage</h2> */}
       <MarketTabs />
       <RenderTabs />
     </div>
@@ -22,25 +20,10 @@ function RenderTabs() {
     case MarketMenu.Wallate:
       return <WallateNFTs />;
     case MarketMenu.Music:
-      return <MusicNFts />;
+      return <MusicAssetNfts />;
 
     case MarketMenu.FanAsset:
       return <FanAssetNfts />;
-  }
-}
-
-function MusicNFts() {
-  const songs = api.music.song.getAllSong.useQuery();
-  if (songs.isLoading) return <div>Loading...</div>;
-  if (songs.isError) return <div>Error</div>;
-  if (songs.data) {
-    return (
-      <div>
-        {songs.data.map((song) => {
-          return <div key={song.id}>{song.artist}</div>;
-        })}
-      </div>
-    );
   }
 }
 

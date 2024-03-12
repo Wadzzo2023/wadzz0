@@ -17,6 +17,7 @@ const config = {
     "src/components/ui/sheet.tsx",
     "src/components/ui/dialog.tsx",
     "src/components/ui/tooltip.tsx",
+    "src/components/fan/nav/profile-menu.tsx"
 
   ],
   rules: {

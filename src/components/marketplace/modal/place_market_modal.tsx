@@ -20,7 +20,7 @@ export const PlaceMarketFormSchema = z.object({
   issuer: z.string(),
 });
 
-type PlaceMarketFormType = z.TypeOf<typeof PlaceMarketFormSchema>;
+export type PlaceMarketFormType = z.TypeOf<typeof PlaceMarketFormSchema>;
 
 export default function PlaceMarketModal({
   item,

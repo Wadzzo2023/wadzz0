@@ -7,11 +7,48 @@ import {
   publicProcedure,
 } from "~/server/api/trpc";
 import { SongFormSchema } from "~/components/music/modal/song_create";
+import { AssetSelectAllProperty } from "../marketplace/marketplace";
 
 export const songRouter = createTRPCRouter({
   getAllSong: publicProcedure.query(async ({ ctx }) => {
     return await ctx.db.song.findMany({ include: { asset: true } });
   }),
+
+  getAllSongAssets: protectedProcedure
+    .input(
+      z.object({
+        limit: z.number(),
+        // cursor is a reference to the last item in the previous batch
+        // it's used to fetch the next batch
+        cursor: z.number().nullish(),
+        skip: z.number().optional(),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      const { limit, cursor, skip } = input;
+
+      const items = await ctx.db.song.findMany({
+        take: limit + 1,
+        skip: skip,
+        cursor: cursor ? { id: cursor } : undefined,
+        include: {
+          asset: {
+            select: AssetSelectAllProperty,
+          },
+        },
+      });
+
+      let nextCursor: typeof cursor | undefined = undefined;
+      if (items.length > limit) {
+        const nextItem = items.pop(); // return the last item from the array
+        nextCursor = nextItem?.id;
+      }
+
+      return {
+        nfts: items,
+        nextCursor,
+      };
+    }),
 
   getAllSongsByPrivacy: publicProcedure.query(async ({ input }) => {
     return [];

@@ -11,57 +11,28 @@ import { useRightStore } from "~/lib/state/wallete/right";
 import { useConnectWalletStateStore } from "package/connect_wallet";
 import MyError from "../wallete/my_error";
 import { useMarketRightStore } from "~/lib/state/marketplace/right";
-import { Media, MediaType } from "@prisma/client";
+import { Asset, Media, MediaType } from "@prisma/client";
 import ImageVideViewer from "../wallete/Image_video_viewer";
+import BuyModal from "../music/modal/buy_modal";
+import PlaceMarketModal from "./modal/place_market_modal";
+import { AssetType } from "../music/album/table";
 
-interface RightProps {
-  key?: React.Key;
-}
+export type MarketAssetType = Omit<Asset, "issuerPrivate">;
 
-export default function MarketRight(_props: RightProps) {
+export default function MarketRight() {
   const { currentData } = useMarketRightStore();
   const { isAva, pubkey } = useConnectWalletStateStore();
 
-  if (!currentData)
-    return (
-      <div className="flex h-full w-full  items-start justify-center pt-10">
-        <MyError text="No item selected" />
-      </div>
-    );
+  // if (!currentData)
+  //   return (
+  //     <div className="flex h-full w-full  items-start justify-center pt-10">
+  //       <MyError text="No item selected" />
+  //     </div>
+  //   );
 
   const color = "blue";
   // const { name, description, type, mediaUrl } = currentData;
   // const issuer = nftAsset.issuer.pub;
-
-  // function renderButtons(): React.ReactNode {
-  //   if (isAva) {
-  //     if (currentData) {
-  //       if (navPath == NAVIGATION.MARKETPLACE) {
-  //         // Admin item
-  //         if (currentData.ownerAcc == pubkey) return <TakeBack />;
-  //         else if (currentData.copies > 0)
-  //           return <BuyModal item={currentData} />;
-  //         else if (currentData.copies < 1)
-  //           return <p className="btn btn-primary btn-sm w-full">Sold Out</p>;
-  //         else if (currentData.privacy == NFTPrivacy.NOT_FOR_SALE)
-  //           return (
-  //             <p className="btn btn-success btn-sm w-full">
-  //               Find in real world
-  //             </p>
-  //           );
-  //       } else if (navPath == NAVIGATION.MYNFTS) {
-  //         // userItem
-
-  //         if (currentData.copies > 0)
-  //           return <PlaceMarketModal item={currentData} />;
-  //       }
-  //     } else {
-  //       log.info("data not available");
-  //     }
-  //   } else {
-  //     return <ConnectWalletButton />;
-  //   }
-  // }
 
   return (
     <div className="h-full max-h-[800px] w-full">
@@ -113,10 +84,10 @@ export default function MarketRight(_props: RightProps) {
             </div>
             <div className="space-y-2">
               <div>
+                <OtherButtons />
                 {/* {navPath == NAVIGATION.MARKETPLACE && (
                   <NFTCreateWithAuth mode={ModalMode.EDIT} nft={currentData} />
                 )}
-                {renderButtons()}
                 <DeleteButton path={currentData.path} /> */}
               </div>
             </div>
@@ -125,6 +96,17 @@ export default function MarketRight(_props: RightProps) {
       </div>
     </div>
   );
+}
+
+function OtherButtons() {
+  const { currentData } = useMarketRightStore();
+  if (currentData)
+    return (
+      <>
+        <BuyModal item={{ asset: currentData }} />
+        <PlaceMarketModal item={{ ...currentData, copies: 10 }} />
+      </>
+    );
 }
 
 // function DeleteButton({ path }: { path: string }) {
@@ -157,7 +139,10 @@ export default function MarketRight(_props: RightProps) {
 
 function MediaViewer(props: { color: string; item: any }) {
   const { item, color } = props;
-  const { thumbnailUrl, mediaUrl, name } = item;
+  // const { thumbnailUrl, mediaUrl, name } = item;
+  const thumbnailUrl = "https://picsum.photos/200/200";
+  const name = "vog";
+  const mediaUrl = "https://picsum.photos/200/200";
   const [play, setPlay] = useState(false);
 
   const type: MediaType = "IMAGE";

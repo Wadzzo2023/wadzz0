@@ -15,6 +15,21 @@ import {
   publicProcedure,
 } from "~/server/api/trpc";
 
+export const AssetSelectAllProperty = {
+  code: true,
+  name: true,
+  price: true,
+  issuer: true,
+  creatorId: true,
+  thumbnail: true,
+  privacy: true,
+  description: true,
+  id: true,
+  limit: true,
+  mediaType: true,
+  mediaUrl: true,
+};
+
 export const marketRouter = createTRPCRouter({
   placeNft2MarketXdr: protectedProcedure
     .input(PlaceMarketFormSchema.extend({ signWith: SignUser }))
@@ -112,14 +127,7 @@ export const marketRouter = createTRPCRouter({
         cursor: cursor ? { id: cursor } : undefined,
         include: {
           asset: {
-            select: {
-              code: true,
-              name: true,
-              price: true,
-              issuer: true,
-              creatorId: true,
-              thumbnail: true,
-            },
+            select: AssetSelectAllProperty,
           },
         },
         where: { disabled: false },

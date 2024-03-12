@@ -1,11 +1,11 @@
 import { create } from "zustand";
-import { AdminAssetWithTag } from "~/components/wallete/asset";
+import { MarketAssetType } from "~/components/marketplace/market_right";
 
 interface MarketRightState {
   open: boolean;
-  currentData?: AdminAssetWithTag;
+  currentData?: MarketAssetType;
   setOpen: (value: boolean) => void;
-  setData: (value: AdminAssetWithTag) => void;
+  setData: (value: MarketAssetType) => void;
 }
 
 export const useMarketRightStore = create<MarketRightState>((set) => ({

@@ -1,13 +1,11 @@
 import { api } from "~/utils/api";
-import BuyModal from "../music/modal/buy_modal";
 import { useConnectWalletStateStore } from "package/connect_wallet";
-import Asset from "../wallete/asset";
 import MarketAssetComponent from "./market_asset";
 
-export default function FanAssetNfts() {
+export default function MusicAssetNfts() {
   // first fetch from database and later validate
   const { pubkey } = useConnectWalletStateStore();
-  const assets = api.marketplace.market.getMarketNft.useInfiniteQuery(
+  const assets = api.music.song.getAllSongAssets.useInfiniteQuery(
     { limit: 4 },
     {
       getNextPageParam: (lastPage) => lastPage.nextCursor,
