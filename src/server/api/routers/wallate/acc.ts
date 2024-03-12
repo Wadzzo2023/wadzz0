@@ -7,6 +7,7 @@ import {
   publicProcedure,
   adminProcedure,
 } from "~/server/api/trpc";
+import { AssetSelectAllProperty } from "../marketplace/marketplace";
 
 export const accRouter = createTRPCRouter({
   getAccountInfo: protectedProcedure.query(async ({ ctx, input }) => {
@@ -31,6 +32,7 @@ export const accRouter = createTRPCRouter({
     .query(async ({ ctx, input }) => {
       const asset = await ctx.db.marketAsset.findFirst({
         where: { asset: { code: input.code, issuer: input.issuer } },
+        // include: { asset: {select: AssetSelectAllProperty} },
       });
 
       if (asset && !asset.disabled) return true;

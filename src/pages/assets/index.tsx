@@ -1,5 +1,4 @@
-import React from "react";
-import PlaceMarketModal from "~/components/marketplace/modal/place_market_modal";
+import AssetView from "~/components/marketplace/asset/asset_view";
 import { api } from "~/utils/api";
 
 export default function MyAssetsPage() {
@@ -17,9 +16,22 @@ function MyStorageAsset() {
 
   if (acc.isLoading) return <span className="loading loading-spinner" />;
   if (acc.data)
-    return acc.data.map((asset, i) => {
-      return <StorageAsset key={i} code={asset.code} issuer={asset.issuer} />;
-    });
+    <div
+      style={{
+        scrollbarGutter: "stable",
+      }}
+      className="main-asset-area"
+    >
+      {acc.data.map((asset, i) => {
+        return (
+          <div key={i}>
+            <button className="btn relative h-fit w-full overflow-hidden  py-4 ">
+              <AssetView code={asset.code} />
+            </button>
+          </div>
+        );
+      })}
+    </div>;
 }
 
 function StorageAsset({ code, issuer }: { code: string; issuer: string }) {
@@ -56,59 +68,22 @@ function MyAssets() {
   const acc = api.wallate.acc.getAccountInfo.useQuery();
   if (acc.isLoading) return <span className="loading loading-spinner" />;
   if (acc.data)
-    return acc.data.map((asset, i) => {
-      return (
-        <div
-          key={i}
-          className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3"
-        >
-          <AssetItemComponent
-            issuer={asset.issuer}
-            code={asset.code}
-            name={asset.copies.toString()}
-            description={asset.homeDomain}
-            key={i}
-          />
-        </div>
-      );
-    });
-}
-
-function AssetItemComponent({
-  name,
-  description,
-  code,
-  issuer,
-}: {
-  name: string;
-  description: string;
-  code: string;
-  issuer: string;
-}) {
-  return (
-    <div className="card w-96 bg-base-100 shadow-xl">
-      {/* "https://daisyui.com/images/stock/photo-1606107557195-0e29a4b5b4aa.jpg" */}
-      {/* {item.mediaUrl && (
-        <figure className="relative h-40  w-full">
-          <Image
-            src={item.mediaUrl}
-            layout="fill"
-            objectFit="cover"
-            alt="Asset"
-          />
-        </figure>
-      )} */}
-      <div className="card-body">
-        <h2 className="card-title">{name}</h2>
-        <p>{description}</p>
-        <div className="card-actions justify-end">
-          <button className="btn btn-outline btn-primary self-start">
-            {code}
-          </button>
-          {/* <RevertPlaceMarketModal /> */}
-          <PlaceMarketModal item={{ code, copies: 10, issuer }} />
-        </div>
+    return (
+      <div
+        style={{
+          scrollbarGutter: "stable",
+        }}
+        className="main-asset-area"
+      >
+        {acc.data.map((asset, i) => {
+          return (
+            <div key={i}>
+              <button className="btn relative h-fit w-full overflow-hidden  py-4 ">
+                <AssetView code={asset.code} />
+              </button>
+            </div>
+          );
+        })}
       </div>
-    </div>
-  );
+    );
 }

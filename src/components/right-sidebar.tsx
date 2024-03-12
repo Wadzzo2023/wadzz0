@@ -31,5 +31,11 @@ export default function RightSideBar() {
         <MarketRight />
       </div>
     );
+  } else if (router.pathname.includes("/assets")) {
+    return (
+      <div className="hidden h-full w-80  flex-col bg-base-100/80  lg:flex">
+        <MarketRight />
+      </div>
+    );
   }
 }
