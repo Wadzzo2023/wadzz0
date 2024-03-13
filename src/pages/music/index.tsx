@@ -16,24 +16,6 @@ export default function Home() {
   const mySong = [] as Song[];
   const safeAllsong = [] as Song[];
 
-  function conditionalRender() {
-    if (isAva) {
-      if (mySong.length > 0) {
-        return (
-          <div className="py-4">
-            <TrackSection header="Your songs" />
-          </div>
-        );
-      }
-    } else {
-      return (
-        <div>
-          <ConnectWalletButton />
-        </div>
-      );
-    }
-  }
-
   return (
     <>
       <Head>
@@ -70,12 +52,22 @@ export default function Home() {
         )}
 
         <TrackSection header="Recently added song" />
-        {conditionalRender()}
-
-        <TrackSection header="Public songs" />
+        <MySongs />
 
         <div className="h-60"></div>
       </div>
     </>
+  );
+}
+
+function MySongs() {
+  const myAssets = api.wallate.acc.getAccountInfo.useQuery();
+
+  if (myAssets.isLoading) return <span className="loading loading-spinner" />;
+
+  return (
+    <div className="py-4">
+      <TrackSection header="Your songs" />
+    </div>
   );
 }

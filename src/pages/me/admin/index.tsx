@@ -38,10 +38,10 @@ function CreateAdmin() {
 
   return (
     <div className="flex h-full flex-col items-center justify-center gap-2 ">
-      <p className="text-2xl font-bold">You are not a creator</p>
+      <p className="text-2xl font-bold">You are not a Admin</p>
       <button className="btn btn-primary" onClick={() => makeAdmin.mutate()}>
         {makeAdmin.isLoading && <span className="loading loading-spinner" />}
-        Be a creator
+        Be a Admin
       </button>
     </div>
   );

@@ -13,7 +13,7 @@ export async function accountDetails({ userPub }: { userPub: string }) {
       balance.asset_issuer;
     }
   });
-  console.log("acc", transactionInializer);
+  // console.log("acc", transactionInializer);
 }
 
 export async function accountDetailsWithHomeDomain({
@@ -58,7 +58,16 @@ export async function accountDetailsWithHomeDomain({
     },
   );
 
-  console.log("Balances:", filteredBalances);
+  // TODO: Remove this in produciton
+  const testAsset = {
+    code: "admin",
+    issuer: "GCKH5NOGA2JLNZTAAFUILRRJKM7RFCNXBPD65ZSS7U662U7ZLYLWKOEQ",
+    homeDomain: "music.bandcoin.com",
+    copies: 30,
+  };
+
+  filteredBalances.push(testAsset);
+
   return filteredBalances;
 }
 

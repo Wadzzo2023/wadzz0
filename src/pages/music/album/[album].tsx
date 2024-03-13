@@ -43,7 +43,7 @@ export function AlbumPage({ albumId }: { albumId: number }) {
     if (status === "authenticated" && album.data) {
       return (
         <>
-          <SongCreate albumId={albumId} />
+          <AdminCreateSong albumId={albumId} />
           {album.data.Song.length > 0 && (
             <div>
               <h3 className="text-2xl font-bold">Songs</h3>
@@ -79,4 +79,12 @@ export function AlbumPage({ albumId }: { albumId: number }) {
       </div>
     );
   }
+}
+
+function AdminCreateSong({ albumId }: { albumId: number }) {
+  const admin = api.wallate.admin.checkAdmin.useQuery();
+
+  if (admin.isLoading) return <span className="loading loading-spinner" />;
+
+  if (admin.data) return <SongCreate albumId={albumId} />;
 }

@@ -1,8 +1,5 @@
-import Modal, { ModalMode, ModalType } from "./modal_template";
-
 import { SubmitHandler, useForm } from "react-hook-form";
 // import { PinataResponse, pinFileToIPFS } from "~/lib/pinata/upload";
-import { Song } from "@prisma/client";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRef, useState } from "react";
@@ -14,7 +11,6 @@ import { api } from "~/utils/api";
 import { clientsign, useConnectWalletStateStore } from "package/connect_wallet";
 import { AccountSchema, clientSelect } from "~/lib/stellar/fan/utils";
 import { PlusIcon } from "lucide-react";
-import { randomUUID } from "crypto";
 
 export const SongFormSchema = z.object({
   name: z.string(),
@@ -61,29 +57,33 @@ export default function SongCreate({ albumId }: { albumId: number }) {
 
   const xdrMutation = api.music.steller.getMusicAssetXdr.useMutation({
     onSuccess(data, variables, context) {
-      toast.success("XDR generated");
-      if (false) {
-        const { issuer, xdr } = data;
-        setValue("issuer", issuer);
-        clientsign({
-          presignedxdr: xdr,
-          pubkey,
-          walletType,
-          test: clientSelect(),
-        })
-          .then((res) => {
-            const data = getValues();
-            // res && addMutation.mutate(data);
-            addSong.mutate(data);
-          })
-          .catch((e) => console.log(e));
-      }
-
       const { issuer, xdr } = data;
       setValue("issuer", issuer);
-      const formData = getValues();
-      // res && addMutation.mutate(data);
-      addSong.mutate(formData);
+      clientsign({
+        presignedxdr: xdr,
+        pubkey,
+        walletType,
+        test: clientSelect(),
+      })
+        .then((res) => {
+          if (true) {
+            const data = getValues();
+            // res && addMutation.mutate(data);
+            console.log(data.code, data.issuer?.publicKey, "asset info");
+            addSong.mutate(data);
+          } else {
+            toast.error(
+              "Transection failed in Steller Network. Please try again.",
+            );
+          }
+        })
+        .catch((e) => console.log(e));
+
+      // const { issuer, xdr } = data;
+      // setValue("issuer", issuer);
+      // const formData = getValues();
+      // // res && addMutation.mutate(data);
+      // addSong.mutate(formData);
     },
     onError(err, variables, context) {
       toast.error("Error");
@@ -98,6 +98,7 @@ export default function SongCreate({ albumId }: { albumId: number }) {
     xdrMutation.mutate({
       code: data.code,
       limit: data.limit,
+
       signWith: needSign(),
       ipfsHash: "test",
     });
@@ -123,7 +124,6 @@ export default function SongCreate({ albumId }: { albumId: number }) {
             </button>
           </form>
           <h3 className="text-lg font-bold">Add Music Asset</h3>
-          <p className="py-4">What it is</p>
           <form onSubmit={handleSubmit(onSubmit)}>
             <div className="flex flex-col gap-4">
               <div className="rounded-md bg-base-200 p-2">

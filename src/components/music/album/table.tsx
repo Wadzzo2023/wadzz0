@@ -1,8 +1,6 @@
 import { usePlayerStore } from "~/lib/state/music/track";
 
-import React, { useState } from "react";
 import { api } from "~/utils/api";
-import { useSession } from "next-auth/react";
 
 import { Song } from "@prisma/client";
 import clsx from "clsx";
@@ -25,29 +23,10 @@ export type AssetType = {
 
 export default function SongList({
   songs,
-  albumId,
 }: {
   songs: SongWithAsset[];
   albumId: number;
 }) {
-  const { status } = useSession();
-
-  const [data, setData] = React.useState(songs);
-  const [activeRow, setActiveRow] = useState<number>();
-  // const [isDragAble, setIsDragAble] = useState();
-  const [isDataChanged, setDataChanged] = useState(false);
-  const trackUrlStore = usePlayerStore();
-  const deleteSongMutation = api.music.song.deleteAsong.useMutation();
-
-  const handleMusicEdit = (id: number) => {
-    deleteSongMutation.mutate({ songId: id });
-  };
-
-  const playTheSong = (song: SongWithAsset) => {
-    // toast("hei i'm cliked");
-    trackUrlStore.setNewTrack(song);
-  };
-
   return (
     <div className="p-2">
       {/* <div className="h-4" /> */}
@@ -58,43 +37,75 @@ export default function SongList({
             return (
               <tr
                 key={song.id}
-                className={clsx(activeRow == song.id ? "bg-base-300" : "hover")}
+                // className={clsx(activeRow == song.id ? "bg-base-300" : "hover")}
               >
                 <td>
-                  <div
-                    className="space-x-3"
-                    // onClick={() => info.playTheSong(info.row.original)}
-                  >
+                  <div className="space-x-3">
                     <MusicItem item={song} />
                   </div>
                 </td>
 
                 <td>
-                  {/* <Play
-                    className={clsx(song.id == activeRow && "text-primary")}
-                    onClick={() => {
-                      setActiveRow(song.id);
-                      trackUrlStore.setNewTrack(song);
-                    }}
-                  /> */}
-
-                  <div className="w-12">
-                    <BuyModal item={song} />
-                  </div>
+                  <PlayOrBuy song={song} />
+                </td>
+                <td>
+                  <DeleteSongButton songId={song.id} />
                 </td>
               </tr>
             );
           })}
         </tbody>
       </table>
-      {isDataChanged && songs.length > 0 && (
-        <button
-          className="btn btn-primary btn-sm"
-          // onClick={() => handleOrderSave()}
-        >
-          Save
-        </button>
-      )}
     </div>
   );
+}
+
+function DeleteSongButton({ songId }: { songId: number }) {
+  const admin = api.wallate.admin.checkAdmin.useQuery();
+  const deleteSongMutation = api.music.song.deleteAsong.useMutation();
+
+  if (admin.isLoading || deleteSongMutation.isLoading)
+    return <span className="loading loading-spinner" />;
+
+  return (
+    <button
+      className="btn btn-warning btn-sm w-20"
+      onClick={() => deleteSongMutation.mutate({ songId })}
+    >
+      Delete
+    </button>
+  );
+}
+
+function PlayOrBuy({ song }: { song: SongWithAsset }) {
+  const trackUrlStore = usePlayerStore();
+  const userAssets = api.wallate.acc.getAccountInfo.useQuery();
+
+  if (userAssets.isLoading) return <span className="loading loading-spinner" />;
+
+  if (
+    userAssets.data?.some(
+      (el) => el.code === song.asset.code && el.issuer === song.asset.issuer,
+    )
+  ) {
+    return (
+      <>
+        <Play
+          // className={clsx(song.id == activeRow && "text-primary")}
+          onClick={() => {
+            // setActiveRow(song.id);
+            trackUrlStore.setNewTrack(song);
+          }}
+        />
+      </>
+    );
+  } else {
+    return (
+      <>
+        <div className="w-12">
+          <BuyModal item={song} />
+        </div>
+      </>
+    );
+  }
 }

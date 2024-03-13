@@ -34,7 +34,7 @@ export function MusicRightSide() {
 
 function RightSongs() {
   return (
-    <div className="flex-1 rounded bg-base-100 pl-2">
+    <div className="border-5 m-2 flex-1 rounded-lg border-base-100 bg-base-200/80 p-2">
       <TrackSection header="Playable songs" />
     </div>
   );

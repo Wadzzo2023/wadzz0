@@ -50,20 +50,20 @@ export async function firstTransection({
   // issuer
   const issuerAcc = Keypair.random();
   // distributor
-  const distributorAcc = Keypair.random();
+  // const distributorAcc = Keypair.random();
 
   const musicAsset = new Asset(assetCode, issuerAcc.publicKey());
 
   const transactionInializer = await server.loadAccount(motherAcc.publicKey());
-  for (const balance of transactionInializer.balances) {
-    if (balance.asset_type === "native") {
-      if (Number(balance.balance) < 5) {
-        throw new Error("You don't have sufficient balance");
-      }
-      log.info(`XLM Balance for ${balance.balance}`);
-      break;
-    }
-  }
+  // for (const balance of transactionInializer.balances) {
+  //   if (balance.asset_type === "native") {
+  //     if (Number(balance.balance) < 5) {
+  //       throw new Error("You don't have sufficient balance");
+  //     }
+  //     log.info(`XLM Balance for ${balance.balance}`);
+  //     break;
+  //   }
+  // }
 
   const Tx1 = new TransactionBuilder(transactionInializer, {
     fee: "200",
@@ -78,58 +78,40 @@ export async function firstTransection({
         source: motherAcc.publicKey(),
       }),
     )
-    // 1
-    .addOperation(
-      Operation.createAccount({
-        destination: distributorAcc.publicKey(),
-        startingBalance: "1.5",
-        source: motherAcc.publicKey(),
-      }),
-    )
-    // 2
-    .addOperation(
-      Operation.changeTrust({
-        asset: musicAsset,
-        limit: limit,
-        source: distributorAcc.publicKey(),
-      }),
-    )
-    // 3
-    .addOperation(
-      Operation.payment({
-        asset: musicAsset,
-        amount: limit,
-        source: issuerAcc.publicKey(),
-        destination: distributorAcc.publicKey(),
-      }),
-    )
-    // 4
-    .addOperation(
-      Operation.manageData({
-        name: "ipfshash",
-        value: ipfsHash,
-        source: issuerAcc.publicKey(),
-      }),
-    )
-    // 5
-    .addOperation(
-      Operation.setOptions({
-        homeDomain: "music.bandcoin.io",
-        masterWeight: 0,
-        inflationDest: issuerAcc.publicKey(),
-        source: issuerAcc.publicKey(),
-      }),
-    )
-
-    // 5
+    // //
+    // .addOperation(
+    //   Operation.createAccount({
+    //     destination: distributorAcc.publicKey(),
+    //     startingBalance: "1.5",
+    //     source: motherAcc.publicKey(),
+    //   }),
+    // )
+    // //
+    // .addOperation(
+    //   Operation.changeTrust({
+    //     asset: musicAsset,
+    //     limit: limit,
+    //     source: distributorAcc.publicKey(),
+    //   }),
+    // )
+    // //
+    // .addOperation(
+    //   Operation.payment({
+    //     asset: musicAsset,
+    //     amount: limit,
+    //     source: issuerAcc.publicKey(),
+    //     destination: distributorAcc.publicKey(),
+    //   }),
+    // )
+    //
+    //
     .addOperation(
       Operation.changeTrust({
         asset: musicAsset,
         source: storageAcc.publicKey(),
-        limit,
       }),
     )
-    // 6
+    //
     .addOperation(
       Operation.payment({
         destination: storageAcc.publicKey(),
@@ -138,18 +120,34 @@ export async function firstTransection({
         asset: musicAsset,
       }),
     )
+
+    .addOperation(
+      Operation.manageData({
+        name: "ipfshash",
+        value: ipfsHash,
+        source: issuerAcc.publicKey(),
+      }),
+    )
+    //
+    .addOperation(
+      Operation.setOptions({
+        homeDomain: "music.bandcoin.io",
+        source: issuerAcc.publicKey(),
+      }),
+    )
+
     .setTimeout(0)
     .build();
 
-  Tx1.sign(motherAcc, issuerAcc, distributorAcc, storageAcc);
+  Tx1.sign(motherAcc, issuerAcc, storageAcc);
   const xdr = Tx1.toXDR();
-  const signedXDr = await WithSing({ xdr, signWith });
+  // const signedXDr = await WithSing({ xdr, signWith }); // bcz admin only create song
 
   const issuer: AccountType = {
     publicKey: issuerAcc.publicKey(),
     secretKey: issuerAcc.secret(),
   };
-  return { xdr: signedXDr, issuer };
+  return { xdr, issuer };
 }
 
 export const getBalncesOfStorag = async () => {
