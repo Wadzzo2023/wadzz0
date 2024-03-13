@@ -1,12 +1,12 @@
 import { create } from "zustand";
-import { SongItem } from "~/components/music/track/music_item";
+import { SongItemType } from "~/components/music/track/music_item";
 
 interface Track {
-  song?: SongItem;
-  setNewTrack: (song: SongItem) => void;
+  song?: SongItemType;
+  setNewTrack: (song: SongItemType) => void;
 }
 
 export const usePlayerStore = create<Track>((set) => ({
   // song: themeSong,
-  setNewTrack: (song: SongItem) => set({ song: song }),
+  setNewTrack: (song: SongItemType) => set({ song: song }),
 }));

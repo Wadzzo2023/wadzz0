@@ -142,7 +142,7 @@ export function CreatorAvater({ creator }: { creator: Creator }) {
         <Avater url={creator.profileUrl} className="w-8" />
       </div>
       <div>
-        <Link href={`/creator/${creator.id}`} className="font-bold">
+        <Link href={`/fans/creator/${creator.id}`} className="font-bold">
           {creator.name}
         </Link>
         <p className="text-sm">{creator.bio?.slice(0, 30)}</p>

@@ -1,9 +1,10 @@
-import { Song } from "@prisma/client";
 import { api } from "~/utils/api";
 import { MusicItem } from ".";
+import { SongItemType } from "./music_item";
 
 type TrackSectionProp = {
   header: string;
+  songs: SongItemType[];
 };
 
 export default function TrackSection({ header }: TrackSectionProp) {

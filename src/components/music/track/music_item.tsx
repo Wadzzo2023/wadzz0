@@ -8,11 +8,11 @@ import clsx from "clsx";
 import { Song } from "@prisma/client";
 import { AssetType } from "../album/table";
 
-export type SongItem = Song & AssetType;
+export type SongItemType = Song & AssetType;
 
-export default function MusicItem({ item }: { item: SongItem }) {
+export default function MusicItem({ item }: { item: SongItemType }) {
   return (
-    <div className="flex flex-row items-center justify-between   p-2">
+    <div className="flex flex-row items-center justify-between   p-2 hover:bg-base-100">
       <div className="flex">
         <div className="bg-neutral-focus mr-4 h-10 w-10 flex-shrink-0">
           <Image

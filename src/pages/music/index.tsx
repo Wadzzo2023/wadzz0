@@ -50,8 +50,7 @@ export default function Home() {
             <AlbumSection albums={albums.data} />
           </div>
         )}
-
-        <TrackSection header="Recently added song" />
+        <AllSongs />
         <MySongs />
 
         <div className="h-60"></div>
@@ -61,13 +60,29 @@ export default function Home() {
 }
 
 function MySongs() {
-  const myAssets = api.wallate.acc.getAccountInfo.useQuery();
+  const mySongs = api.music.song.getUserBuyedSongs.useQuery();
 
-  if (myAssets.isLoading) return <span className="loading loading-spinner" />;
+  if (mySongs.isLoading) return <span className="loading loading-spinner" />;
 
-  return (
-    <div className="py-4">
-      <TrackSection header="Your songs" />
-    </div>
-  );
+  if (mySongs.data && mySongs.data.length > 0) {
+    return (
+      <div className="py-4">
+        <TrackSection songs={mySongs.data} header="Your songs" />
+      </div>
+    );
+  }
+}
+
+function AllSongs() {
+  const allSongs = api.music.song.getAllSong.useQuery();
+
+  if (allSongs.isLoading) return <span className="loading loading-spinner" />;
+
+  if (allSongs.data && allSongs.data.length > 0) {
+    return (
+      <div className="py-4">
+        <TrackSection songs={allSongs.data} header="Recently Added Songs" />
+      </div>
+    );
+  }
 }

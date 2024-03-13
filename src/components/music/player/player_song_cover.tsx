@@ -1,12 +1,12 @@
 import Image from "next/image";
 import PlayerTrackCover from "./track_cover";
-import { SongItem } from "../track/music_item";
+import { SongItemType } from "../track/music_item";
 
 export function PlayerSongCover({
   song,
   small = false,
 }: {
-  song?: SongItem;
+  song?: SongItemType;
   small?: boolean;
 }) {
   if (song) {

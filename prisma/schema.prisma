@@ -270,6 +270,8 @@ model Song {
     albumId Int
     album   Album @relation(fields: [albumId], references: [id], onDelete: Cascade)
 
+    createdAt DateTime @default(now())
+
     User_Song User_Song[]
 }
 

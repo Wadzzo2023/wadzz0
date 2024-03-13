@@ -8,10 +8,14 @@ import {
 } from "~/server/api/trpc";
 import { SongFormSchema } from "~/components/music/modal/song_create";
 import { AssetSelectAllProperty } from "../marketplace/marketplace";
+import { accountDetailsWithHomeDomain } from "~/lib/stellar/marketplace/test/acc";
 
 export const songRouter = createTRPCRouter({
   getAllSong: publicProcedure.query(async ({ ctx }) => {
-    return await ctx.db.song.findMany({ include: { asset: true } });
+    return await ctx.db.song.findMany({
+      include: { asset: { select: AssetSelectAllProperty } },
+      take: 10,
+    });
   }),
 
   getAllSongAssets: protectedProcedure
@@ -58,15 +62,21 @@ export const songRouter = createTRPCRouter({
     return [];
   }),
 
-  getUserBuyedSongs: publicProcedure.query(async ({ ctx }) => {
-    return await ctx.db.song.findMany({
-      include: {
-        asset: {
-          select: { thumbnail: true, code: true, issuer: true, name: true },
-        },
+  getUserBuyedSongs: protectedProcedure.query(async ({ ctx }) => {
+    const userPub = ctx.session.user.id;
+    const assets = await accountDetailsWithHomeDomain({ userPub });
+
+    const foundSongs = await ctx.db.song.findMany({
+      where: {
+        OR: assets.map((asset) => ({
+          asset: { code: asset.code, issuer: asset.issuer },
+        })),
       },
+      include: { asset: { select: AssetSelectAllProperty } },
     });
     // return songs;
+
+    return foundSongs;
   }),
 
   getAllSongBasedOnUserPubkey: publicProcedure
