@@ -90,13 +90,14 @@ export async function createUniAsset({
         source: asesetStorage.publicKey(),
       }),
     )
+
     // 3
     .addOperation(
       Operation.payment({
         asset,
         amount: limit,
         source: issuerAcc.publicKey(),
-        destination: pubkey,
+        destination: asesetStorage.publicKey(),
       }),
     )
     // 4
@@ -111,7 +112,7 @@ export async function createUniAsset({
     .build();
 
   // sign
-  Tx1.sign(issuerAcc, asesetStorage); //TODO add distributorStorage
+  Tx1.sign(issuerAcc, asesetStorage);
   const xdr = Tx1.toXDR();
   const signedXDr = await WithSing({
     xdr: xdr,

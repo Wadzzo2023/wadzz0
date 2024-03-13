@@ -77,18 +77,20 @@ export const trxRouter = createTRPCRouter({
         code: z.string(),
         limit: z.number(),
         signWith: SignUser,
-        admin: z.boolean().default(false),
       }),
     )
     .mutation(async ({ ctx, input: i }) => {
       const assetAmout = await getAssetNumberForXLM();
 
+      let pubkey = ctx.session.user.id;
+      let signWith = i.signWith;
       // get storage secret
       let storageSecret: string;
       let homeDomain: string;
-      if (i.admin) {
+      if (signWith && "isAdmin" in signWith) {
         storageSecret = env.STORAGE_SECRET;
         homeDomain = "bandcoin.io";
+        pubkey = env.MOTHER_SECRET;
       } else {
         const storage = await db.creator.findFirst({
           where: { id: ctx.session.user.id },
@@ -99,16 +101,16 @@ export const trxRouter = createTRPCRouter({
         homeDomain = "fan.bandcoin.io";
       }
 
-      console.log("storageSecret", storageSecret);
+      // console.log("storageSecret", storageSecret);
 
       return await createUniAsset({
         actionAmount: assetAmout.toString(),
-        pubkey: ctx.session.user.id,
+        pubkey,
         storageSecret,
         code: i.code,
         homeDomain,
         limit: i.limit.toString(),
-        signWith: i.signWith,
+        signWith,
       });
     }),
 

@@ -12,6 +12,7 @@ import { api } from "~/utils/api";
 import { clientsign, useConnectWalletStateStore } from "package/connect_wallet";
 import { AccountSchema, clientSelect } from "~/lib/stellar/fan/utils";
 import { PlusIcon } from "lucide-react";
+import { WalletType } from "package/connect_wallet/src/lib/enums";
 
 export const ExtraSongInfo = z.object({
   artist: z.string(),
@@ -36,13 +37,18 @@ export const NftFormSchema = z.object({
 
 type NftFormType = z.TypeOf<typeof NftFormSchema>;
 
-export default function NftCreate() {
+export default function NftCreate({ admin: isAdmin }: { admin?: true }) {
   const modalRef = useRef<HTMLDialogElement>(null);
   const [mediaType, setMediaType] = useState<MediaType>(MediaType.IMAGE);
 
   const [mediaUrl, setMediaUrl] = useState<string>();
   const [coverUrl, setCover] = useState<string>();
-  const { needSign, pubkey, walletType } = useConnectWalletStateStore();
+  const {
+    needSign,
+    pubkey,
+    walletType: connectedWalletType,
+  } = useConnectWalletStateStore();
+  const walletType = isAdmin ? WalletType.isAdmin : connectedWalletType;
 
   const {
     register,
@@ -102,7 +108,7 @@ export default function NftCreate() {
     xdrMutation.mutate({
       code: data.code,
       limit: data.limit,
-      signWith: needSign(),
+      signWith: needSign(walletType),
       // ipfsHash: "test",
     });
   };

@@ -13,7 +13,7 @@ function AdminPageTemplate() {
   return (
     <div>
       <AlbumCreate mode={ModalMode.ADD} />
-      <NftCreate />
+      <NftCreate admin />
       <div className="max-w-xl">
         <MintedItemAdd />
       </div>
