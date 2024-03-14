@@ -23,12 +23,12 @@ export default function MarketRight() {
   const { currentData } = useMarketRightStore();
   const { isAva, pubkey } = useConnectWalletStateStore();
 
-  // if (!currentData)
-  //   return (
-  //     <div className="flex h-full w-full  items-start justify-center pt-10">
-  //       <MyError text="No item selected" />
-  //     </div>
-  //   );
+  if (!currentData)
+    return (
+      <div className="flex h-full w-full  items-start justify-center pt-10">
+        <MyError text="No item selected" />
+      </div>
+    );
 
   const color = "blue";
   // const { name, description, type, mediaUrl } = currentData;
@@ -45,24 +45,29 @@ export default function MarketRight() {
         />
         <div className="flex h-full flex-col justify-between space-y-2 p-2">
           <div className="relative space-y-2 rounded-box border-4 border-base-100 p-1 text-sm tracking-wider">
-            <MediaViewer color={color} />
+            <MediaViewer
+              mediaUrl={currentData.mediaUrl}
+              thumbnailUrl={currentData.thumbnail}
+              name={currentData.name}
+              color={color}
+            />
           </div>
 
           <div className="relative space-y-2 rounded-box border-4 border-base-100 p-4 text-sm tracking-wider">
             <div className="">
               <p>
-                <span className="font-semibold">Name:</span> {"name"}
+                <span className="font-semibold">Name:</span> {currentData.name}
               </p>
               <p>
                 <span className="font-semibold">Tag:</span>{" "}
-                <span className="badge badge-primary">{"code"}</span>
+                <span className="badge badge-primary">{currentData.code}</span>
                 {/* {currentData.original && (
                   <span className="badge badge-secondary">Original</span>
                 )} */}
               </p>
 
               <p className="line-clamp-2">
-                <b>Description: </b> {"description"}
+                <b>Description: </b> {currentData.description}
               </p>
               <p>
                 <span className="font-semibold">Available:</span> {10} copy
@@ -79,7 +84,7 @@ export default function MarketRight() {
                 </p>
               )} */}
               <p>
-                <b>Media:</b> {"video"}
+                <b>Media:</b> {currentData.mediaType}
               </p>
             </div>
             <div className="space-y-2">
@@ -137,12 +142,17 @@ function OtherButtons() {
 //   }
 // }
 
-function MediaViewer(props: { color: string }) {
+function MediaViewer(props: {
+  color: string;
+  thumbnailUrl: string;
+  mediaUrl: string;
+  name: string;
+}) {
   const { color } = props;
-  // const { thumbnailUrl, mediaUrl, name } = item;
-  const thumbnailUrl = "https://picsum.photos/200/200";
-  const name = "vog";
-  const mediaUrl = "https://picsum.photos/200/200";
+  const { thumbnailUrl, mediaUrl, name } = props;
+  // const thumbnailUrl = "https://picsum.photos/200/200";
+  // const name = "vog";
+  // const mediaUrl = "https://picsum.photos/200/200";
   const [play, setPlay] = useState(false);
 
   const type: MediaType = "IMAGE";

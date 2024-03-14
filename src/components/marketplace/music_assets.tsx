@@ -4,7 +4,6 @@ import MarketAssetComponent from "./market_asset";
 
 export default function MusicAssetNfts() {
   // first fetch from database and later validate
-  const { pubkey } = useConnectWalletStateStore();
   const assets = api.music.song.getAllSongAssets.useInfiniteQuery(
     { limit: 4 },
     {
