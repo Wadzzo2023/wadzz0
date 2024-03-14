@@ -1,21 +1,13 @@
-import React, { useEffect, useState } from "react";
-import Link from "next/link";
-import { extractHostnameFromURL } from "~/lib/helper/helper_client";
-import log from "~/lib/logger/logger";
+import { useEffect, useState } from "react";
 import { Play, XCircle } from "lucide-react";
 // import ReactPlayer from "react-player";
-import { useSession } from "next-auth/react";
 import { api } from "~/utils/api";
-import toast from "react-hot-toast";
-import { useRightStore } from "~/lib/state/wallete/right";
 import { useConnectWalletStateStore } from "package/connect_wallet";
 import MyError from "../wallete/my_error";
 import { useMarketRightStore } from "~/lib/state/marketplace/right";
-import { Asset, Media, MediaType } from "@prisma/client";
+import { Asset, MediaType } from "@prisma/client";
 import ImageVideViewer from "../wallete/Image_video_viewer";
 import BuyModal from "../music/modal/buy_modal";
-import PlaceMarketModal from "./modal/place_market_modal";
-import { AssetType } from "../music/album/table";
 
 export type MarketAssetType = Omit<Asset, "issuerPrivate">;
 
@@ -105,13 +97,48 @@ export default function MarketRight() {
 
 function OtherButtons() {
   const { currentData } = useMarketRightStore();
-  if (currentData)
-    return (
-      <>
-        <BuyModal item={{ asset: currentData }} />
-        <PlaceMarketModal item={{ ...currentData, copies: 10 }} />
-      </>
-    );
+  const { pubkey } = useConnectWalletStateStore();
+
+  if (currentData) {
+    if (currentData.creatorId == pubkey) {
+      return (
+        <DisableFromMarketButton
+          code={currentData.code}
+          issuer={currentData.issuer}
+        />
+      );
+    } else
+      return (
+        <>
+          <BuyModal item={{ asset: currentData }} />
+        </>
+      );
+  }
+}
+
+function DisableFromMarketButton({
+  code,
+  issuer,
+}: {
+  code: string;
+  issuer: string;
+}) {
+  const { setData } = useMarketRightStore();
+  const disable = api.marketplace.market.changeVisibilityMarketNft.useMutation({
+    onSuccess() {
+      setData(undefined);
+    },
+  });
+
+  return (
+    <button
+      className="btn btn-secondary btn-sm my-2 w-full transition duration-500 ease-in-out"
+      onClick={() => disable.mutate({ code, issuer, visibility: false })}
+    >
+      {disable.isLoading && <span className="loading loading-spinner" />}
+      DISABLE
+    </button>
+  );
 }
 
 // function DeleteButton({ path }: { path: string }) {

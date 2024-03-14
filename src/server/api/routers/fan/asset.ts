@@ -60,25 +60,6 @@ export const shopRouter = createTRPCRouter({
         where: { id: input },
       });
     }),
-  // getCreatorShopAsset: publicProcedure
-  //   .input(z.object({ creatorId: z.string() }))
-  //   .query(async ({ ctx, input }) => {
-  //     return await ctx.db.shopAsset.findMany({
-  //       where: { creatorId: input.creatorId },
-  //       include: { asset: { select: { code: true, issuer: true } } },
-  //     });
-  //   }),
-
-  // getAllShopAsset: protectedProcedure.query(async ({ ctx }) => {
-  //   return await ctx.db.shopAsset.findMany({
-  //     where: { creatorId: ctx.session.user.id },
-  //     include: { asset: { select: { code: true, issuer: true } } },
-  //   });
-  // }),
-
-  // getSecretMessage: protectedProcedure.query(() => {
-  //   return "you can now see this secret message!";
-  // }),
 
   // search: publicProcedure
   //   .input(

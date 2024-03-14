@@ -5,7 +5,7 @@ interface MarketRightState {
   open: boolean;
   currentData?: MarketAssetType;
   setOpen: (value: boolean) => void;
-  setData: (value: MarketAssetType) => void;
+  setData: (value?: MarketAssetType) => void;
 }
 
 export const useMarketRightStore = create<MarketRightState>((set) => ({

@@ -203,10 +203,16 @@ export const marketRouter = createTRPCRouter({
         data: { disabled: !input.visibility },
       });
     }),
-  enableVisibilityMarketNft: protectedProcedure
-    .input(z.object({ code: z.string(), issuer: z.string() }))
+  changeVisibilityMarketNft: protectedProcedure
+    .input(
+      z.object({
+        code: z.string(),
+        issuer: z.string(),
+        visibility: z.boolean(),
+      }),
+    )
     .mutation(async ({ input, ctx }) => {
-      const { code, issuer } = input;
+      const { code, issuer, visibility } = input;
 
       const assetRow = await ctx.db.asset.findUnique({
         where: { code_issuer: { code, issuer } },
@@ -227,7 +233,7 @@ export const marketRouter = createTRPCRouter({
 
       await ctx.db.marketAsset.update({
         where: { id: asset.id },
-        data: { disabled: false },
+        data: { disabled: !visibility },
       });
     }),
 });
