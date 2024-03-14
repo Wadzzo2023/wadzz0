@@ -108,7 +108,7 @@ export const marketRouter = createTRPCRouter({
       });
     }),
 
-  getMarketNft: protectedProcedure
+  getFanMarketNft: protectedProcedure
     .input(
       z.object({
         limit: z.number(),

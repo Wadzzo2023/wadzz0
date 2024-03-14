@@ -7,7 +7,7 @@ import MarketAssetComponent from "./market_asset";
 export default function FanAssetNfts() {
   // first fetch from database and later validate
   const { pubkey } = useConnectWalletStateStore();
-  const assets = api.marketplace.market.getMarketNft.useInfiniteQuery(
+  const assets = api.marketplace.market.getFanMarketNft.useInfiniteQuery(
     { limit: 4 },
     {
       getNextPageParam: (lastPage) => lastPage.nextCursor,

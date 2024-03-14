@@ -6,37 +6,57 @@ import BuyItemModal from "../shop/buy-item-modal";
 import { useSession } from "next-auth/react";
 import ContextMenu from "../../ui/context-menu";
 import NftCreate from "~/components/marketplace/nft_create";
+import MarketAssetComponent from "~/components/marketplace/market_asset";
 
 export default function Shop({ creator }: { creator?: Creator }) {
   return (
     <div className="my-7">
       <div className="fixed bottom-0 right-0 z-50 p-4">
-        {/* <AddItem2Shop /> */}
         <NftCreate />
       </div>
-      {/* <AllShopItems /> */}
+      <AllShopItems />
     </div>
   );
 }
 
-// function AllShopItems() {
-//   const {
-//     data: items,
-//     isLoading,
-//     isError,
-//   } = api.fan.asset.getAllShopAsset.useQuery();
-//   if (isLoading) return <div>Loading...</div>;
-//   if (isError) return <div>Error </div>;
-//   if (items?.length == 0) return <div>There is no item</div>;
-//   return (
-//     <div className="flex flex-col items-center">
-//       {/* <p className=" text-center text-lg font-bold">Shop items</p> */}
-//       <div className="flex flex-col gap-2">
-//         {items?.map((item) => <ShopItem key={item.id} item={item} />)}
-//       </div>
-//     </div>
-//   );
-// }
+function AllShopItems() {
+  const assets = api.marketplace.market.getFanMarketNft.useInfiniteQuery(
+    { limit: 4 },
+    {
+      getNextPageParam: (lastPage) => lastPage.nextCursor,
+    },
+  );
+
+  const toggleVisibility =
+    api.marketplace.market.toggleVisibilityMarketNft.useMutation();
+
+  if (assets.isLoading) return <span className="loading loading-spinner" />;
+
+  if (assets.data) {
+    return (
+      <div
+        style={{
+          scrollbarGutter: "stable",
+        }}
+        className="main-asset-area"
+      >
+        {assets.data.pages.map((page) =>
+          page.nfts.map((item, i) => (
+            <MarketAssetComponent key={i} item={item.asset} />
+          )),
+        )}
+        {assets.hasNextPage && (
+          <button
+            className="btn btn-outline btn-primary"
+            onClick={() => void assets.fetchNextPage()}
+          >
+            Load More
+          </button>
+        )}
+      </div>
+    );
+  }
+}
 
 // export interface ShopItemProps extends ShopAsset {
 //   asset: {
