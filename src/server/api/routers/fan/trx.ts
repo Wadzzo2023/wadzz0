@@ -19,6 +19,7 @@ import { createStorageTrx } from "~/lib/stellar/fan/create_storage";
 import { createUniAsset } from "~/lib/stellar/uni_create_asset";
 import { db } from "~/server/db";
 import { env } from "~/env";
+import { Keypair } from "stellar-sdk";
 
 export const trxRouter = createTRPCRouter({
   clawbackAssetCreationTrx: protectedProcedure
@@ -81,16 +82,17 @@ export const trxRouter = createTRPCRouter({
     )
     .mutation(async ({ ctx, input: i }) => {
       const assetAmout = await getAssetNumberForXLM();
+      const signWith = i.signWith;
 
+      // set this for admin and user
       let pubkey = ctx.session.user.id;
-      let signWith = i.signWith;
-      // get storage secret
       let storageSecret: string;
       let homeDomain: string;
+
       if (signWith && "isAdmin" in signWith) {
         storageSecret = env.STORAGE_SECRET;
         homeDomain = "bandcoin.io";
-        pubkey = env.MOTHER_SECRET;
+        pubkey = Keypair.fromSecret(env.MOTHER_SECRET).publicKey();
       } else {
         const storage = await db.creator.findFirst({
           where: { id: ctx.session.user.id },

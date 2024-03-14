@@ -38,6 +38,7 @@ export async function createUniAsset({
   const server = new Server(STELLAR_URL);
 
   const actionAmount = "40";
+
   // issuer
   const issuerAcc = Keypair.random();
   const asesetStorage = Keypair.fromSecret(storageSecret);
@@ -114,6 +115,7 @@ export async function createUniAsset({
   // sign
   Tx1.sign(issuerAcc, asesetStorage);
   const xdr = Tx1.toXDR();
+
   const signedXDr = await WithSing({
     xdr: xdr,
     signWith,

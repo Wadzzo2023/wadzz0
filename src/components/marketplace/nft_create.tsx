@@ -33,6 +33,7 @@ export const NftFormSchema = z.object({
     .max(12, { message: "Maximum 12 char" }),
   issuer: AccountSchema.optional(),
   songInfo: ExtraSongInfo.optional(),
+  isAdmin: z.boolean().optional(),
 });
 
 type NftFormType = z.TypeOf<typeof NftFormSchema>;
@@ -84,6 +85,7 @@ export default function NftCreate({ admin: isAdmin }: { admin?: true }) {
         })
           .then((res) => {
             if (res) {
+              setValue("isAdmin",   isAdmin);
               const data = getValues();
               // res && addMutation.mutate(data);
               addAsset.mutate(data);

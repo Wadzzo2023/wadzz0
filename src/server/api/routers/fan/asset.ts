@@ -23,9 +23,12 @@ export const shopRouter = createTRPCRouter({
         price,
         issuer,
         songInfo,
+        isAdmin,
       } = input;
 
       if (issuer) {
+        const creatorId = isAdmin ? undefined : ctx.session.user.id;
+
         const asset = await ctx.db.asset.create({
           data: {
             code,
@@ -37,7 +40,14 @@ export const shopRouter = createTRPCRouter({
             price,
             description,
             thumbnail: coverImgUrl,
-            creatorId: ctx.session.user.id,
+            creatorId,
+          },
+        });
+        await ctx.db.marketAsset.create({
+          data: {
+            limit: 999,
+            assetId: asset.id,
+            creatorId,
           },
         });
       }
