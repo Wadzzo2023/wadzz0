@@ -13,7 +13,7 @@ import { STROOP } from "../../marketplace/constant";
 
 const log = console;
 
-export async function XDR4songBuy({
+export async function XDR4BuyAsset({
   signWith,
   code,
   issuerPub,
@@ -57,7 +57,6 @@ export async function XDR4songBuy({
     .addOperation(
       Operation.changeTrust({
         asset: asset,
-        limit: limit,
         source: userPub,
       }),
     )

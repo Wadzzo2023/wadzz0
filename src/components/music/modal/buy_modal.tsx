@@ -9,8 +9,6 @@ import { clientSelect } from "~/lib/stellar/fan/utils";
 
 type BuyModalProps = {
   item: AssetType;
-
-  // button: ReactNode;
 };
 export default function BuyModal({ item }: BuyModalProps) {
   const { needSign, pubkey, walletType } = useConnectWalletStateStore();
@@ -52,12 +50,8 @@ export default function BuyModal({ item }: BuyModalProps) {
     //   if (Number(balance) >= Number(DEFAULT_ASSET_LIMIT)) {
     //     {
     xdrMutaion.mutate({
-      pubkey,
       assetCode: code,
       issuerPub: issuer,
-      creatorPub: item.asset.creatorId,
-      price: item.asset.price,
-
       limit: 1,
       signWith: needSign(),
     });

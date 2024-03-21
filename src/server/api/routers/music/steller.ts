@@ -4,7 +4,7 @@ import {
   firstTransection,
   getAccBalance,
 } from "~/lib/stellar/music/trx/create_song_token";
-import { XDR4songBuy } from "~/lib/stellar/music/trx/payment_xdr";
+import { XDR4BuyAsset } from "~/lib/stellar/music/trx/payment_xdr";
 
 import {
   createTRPCRouter,
@@ -14,30 +14,31 @@ import {
 import { SignUser } from "~/lib/stellar/utils";
 import { copyToBalance } from "~/lib/stellar/marketplace/test/acc";
 import { env } from "~/env";
+import { Keypair } from "stellar-sdk";
 
 export const stellarRouter = createTRPCRouter({
-  getPaymentXDR: publicProcedure
+  getPaymentXDR: protectedProcedure
     .input(
       z.object({
-        pubkey: z.string(),
         assetCode: z.string(),
         issuerPub: z.string(),
         limit: z.number(),
-        price: z.number(),
         signWith: SignUser,
-        creatorPub: z.string().nullable(),
       }),
     )
     .mutation(async ({ input, ctx }) => {
-      const {
-        limit: l,
-        assetCode,
-        issuerPub,
-        pubkey,
-        price,
-        signWith,
-        creatorPub,
-      } = input;
+      const { limit: l, assetCode, issuerPub, signWith } = input;
+
+      const pubkey = ctx.session.user.id; // customer pubkey
+
+      const dbAsset = await ctx.db.asset.findUnique({
+        where: { code_issuer: { code: assetCode, issuer: issuerPub } },
+        select: { creatorId: true, price: true },
+      });
+
+      if (!dbAsset) throw new Error("asset not found");
+
+      const { creatorId: creatorPub, price } = dbAsset;
 
       // validate and transfor input
 
@@ -52,19 +53,19 @@ export const stellarRouter = createTRPCRouter({
           where: { id: creatorId },
           select: { storageSecret: true },
         });
-        if (  !storage?.storageSecret) {
+        if (!storage?.storageSecret) {
           throw new Error("storage does not exist");
         }
         storageSecret = storage.storageSecret;
       } else {
         // admin
-        creatorId = env.MOTHER_SECRET;
+        creatorId = Keypair.fromSecret(env.MOTHER_SECRET).publicKey();
         storageSecret = env.STORAGE_SECRET;
       }
 
       const limit = copyToBalance(l);
 
-      return await XDR4songBuy({
+      return await XDR4BuyAsset({
         creatorPub: creatorId,
         storageSecret,
         code: assetCode,
@@ -79,7 +80,6 @@ export const stellarRouter = createTRPCRouter({
   getMusicAssetXdr: protectedProcedure
     .input(
       z.object({
-        signWith: SignUser,
         code: z.string(),
         limit: z.number(),
         ipfsHash: z.string(),
@@ -92,7 +92,6 @@ export const stellarRouter = createTRPCRouter({
       return await firstTransection({
         assetCode: i.code,
         limit: assetLimit,
-        signWith: i.signWith,
         ipfsHash: i.ipfsHash,
       });
     }),

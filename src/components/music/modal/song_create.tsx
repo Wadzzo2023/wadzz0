@@ -8,7 +8,11 @@ import Image from "next/image";
 import toast from "react-hot-toast";
 import clsx from "clsx";
 import { api } from "~/utils/api";
-import { clientsign, useConnectWalletStateStore } from "package/connect_wallet";
+import {
+  clientsign,
+  useConnectWalletStateStore,
+  WalletType,
+} from "package/connect_wallet";
 import { AccountSchema, clientSelect } from "~/lib/stellar/fan/utils";
 import { PlusIcon } from "lucide-react";
 
@@ -35,7 +39,7 @@ export default function SongCreate({ albumId }: { albumId: number }) {
 
   const [musicUrl, setMusicUrl] = useState<string>();
   const [coverImgUrl, setCover] = useState<string>();
-  const { needSign, pubkey, walletType } = useConnectWalletStateStore();
+  const { needSign, pubkey } = useConnectWalletStateStore();
 
   const {
     register,
@@ -62,14 +66,11 @@ export default function SongCreate({ albumId }: { albumId: number }) {
       clientsign({
         presignedxdr: xdr,
         pubkey,
-        walletType,
-        test: clientSelect(),
+        walletType: WalletType.isAdmin,
       })
         .then((res) => {
-          if (true) {
+          if (res) {
             const data = getValues();
-            // res && addMutation.mutate(data);
-            console.log(data.code, data.issuer?.publicKey, "asset info");
             addSong.mutate(data);
           } else {
             toast.error(
@@ -98,8 +99,6 @@ export default function SongCreate({ albumId }: { albumId: number }) {
     xdrMutation.mutate({
       code: data.code,
       limit: data.limit,
-
-      signWith: needSign(),
       ipfsHash: "test",
     });
   };

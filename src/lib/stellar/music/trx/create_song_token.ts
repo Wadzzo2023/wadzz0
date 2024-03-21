@@ -32,12 +32,10 @@ export async function firstTransection({
   assetCode,
   limit,
   ipfsHash,
-  signWith,
 }: {
   assetCode: string;
   limit: string; // full number
   ipfsHash: string;
-  signWith: SignUserType;
 }) {
   const server = new Server(STELLAR_URL);
   // mother acc

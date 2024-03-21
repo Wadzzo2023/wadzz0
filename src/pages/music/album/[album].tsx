@@ -3,7 +3,6 @@ import SongList from "~/components/music/album/table";
 import SongCreate from "~/components/music/modal/song_create";
 import { useRouter } from "next/router";
 import { useSession } from "next-auth/react";
-import { ModalMode } from "~/components/music/modal/modal_template";
 import { useEffect, useState } from "react";
 import {
   ConnectWalletButton,
