@@ -20,7 +20,7 @@ export default function Shop({ creator }: { creator?: Creator }) {
 }
 
 function AllShopItems() {
-  const assets = api.marketplace.market.getFanMarketNft.useInfiniteQuery(
+  const assets = api.marketplace.market.getACreatorNfts.useInfiniteQuery(
     { limit: 4 },
     {
       getNextPageParam: (lastPage) => lastPage.nextCursor,

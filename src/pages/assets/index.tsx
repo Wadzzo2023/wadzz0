@@ -1,14 +1,27 @@
+import clsx from "clsx";
 import AssetView from "~/components/marketplace/asset/asset_view";
+import {
+  AssetMenu,
+  useAssetMenu,
+} from "~/lib/state/marketplace/asset-tab-menu";
 import { api } from "~/utils/api";
 
 export default function MyAssetsPage() {
   return (
     <div className="p-5">
-      <h1 className="mb-2 text-2xl font-bold">FAN ITEMS</h1>
-      <MyAssets />
-      <MyStorageAsset />
+      <AssetTabs />
+      <RenderTabs />
     </div>
   );
+}
+function RenderTabs() {
+  const { selectedMenu, setSelectedMenu } = useAssetMenu();
+  switch (selectedMenu) {
+    case AssetMenu.OWN:
+      return <MyAssets />;
+    case AssetMenu.STORAGE:
+      return <MyStorageAsset />;
+  }
 }
 
 function MyStorageAsset() {
@@ -86,4 +99,28 @@ function MyAssets() {
         })}
       </div>
     );
+}
+
+function AssetTabs() {
+  const { selectedMenu, setSelectedMenu } = useAssetMenu();
+  return (
+    <div role="tablist" className="tabs-boxed tabs my-5 ">
+      {Object.values(AssetMenu).map((key) => {
+        return (
+          <a
+            key={key}
+            onClick={() => setSelectedMenu(key)}
+            role="tab"
+            className={clsx(
+              "tab",
+              selectedMenu == key && "tab-active text-primary",
+              "font-bold",
+            )}
+          >
+            {key}
+          </a>
+        );
+      })}
+    </div>
+  );
 }

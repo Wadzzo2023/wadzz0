@@ -182,6 +182,44 @@ export const marketRouter = createTRPCRouter({
       };
     }),
 
+  getACreatorNfts: protectedProcedure
+    .input(
+      z.object({
+        limit: z.number(),
+        // cursor is a reference to the last item in the previous batch
+        // it's used to fetch the next batch
+        cursor: z.number().nullish(),
+        skip: z.number().optional(),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      const { limit, cursor, skip } = input;
+      const creatorId = ctx.session.user.id;
+
+      const items = await ctx.db.marketAsset.findMany({
+        take: limit + 1,
+        skip: skip,
+        cursor: cursor ? { id: cursor } : undefined,
+        include: {
+          asset: {
+            select: AssetSelectAllProperty,
+          },
+        },
+        where: { creatorId: creatorId },
+      });
+
+      let nextCursor: typeof cursor | undefined = undefined;
+      if (items.length > limit) {
+        const nextItem = items.pop(); // return the last item from the array
+        nextCursor = nextItem?.id;
+      }
+
+      return {
+        nfts: items,
+        nextCursor,
+      };
+    }),
+
   toggleVisibilityMarketNft: protectedProcedure
     .input(z.object({ id: z.number(), visibility: z.boolean() }))
     .mutation(async ({ input, ctx }) => {
