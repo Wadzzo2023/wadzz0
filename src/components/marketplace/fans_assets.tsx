@@ -1,7 +1,5 @@
 import { api } from "~/utils/api";
-import BuyModal from "../music/modal/buy_modal";
 import { useConnectWalletStateStore } from "package/connect_wallet";
-import Asset from "../wallete/asset";
 import MarketAssetComponent from "./market_asset";
 
 export default function FanAssetNfts() {
@@ -13,9 +11,6 @@ export default function FanAssetNfts() {
       getNextPageParam: (lastPage) => lastPage.nextCursor,
     },
   );
-
-  const toggleVisibility =
-    api.marketplace.market.toggleVisibilityMarketNft.useMutation();
 
   if (assets.isLoading) return <span className="loading loading-spinner" />;
 

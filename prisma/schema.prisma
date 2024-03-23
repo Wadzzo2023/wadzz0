@@ -325,19 +325,17 @@ model Asset {
 model MarketAsset {
     id Int @id @default(autoincrement())
 
-    limit Int
-
-    disabled Boolean @default(false)
+    price Float @default(10)
 
     assetId Int
     asset   Asset @relation(fields: [assetId], references: [id], onDelete: Cascade)
 
     placedAt DateTime @default(now())
 
-    creatorId String? //this admin created asset
-    creator   Creator? @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+    placerId String //
+    placer   Creator @relation(fields: [placerId], references: [id], onDelete: Cascade)
 
-    @@unique([assetId, creatorId])
+    @@unique([assetId, placerId])
 }
 
 // ------------------------Wallete SCHEMA-------------------------

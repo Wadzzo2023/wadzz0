@@ -1,6 +1,6 @@
 import { where } from "firebase/firestore";
 import { z } from "zod";
-import { PlaceMarketFormSchema } from "~/components/marketplace/modal/place_market_modal";
+import { PlaceMarketFormSchema } from "~/components/marketplace/modal/place_2storage_modal";
 import { BackMarketFormSchema } from "~/components/marketplace/modal/revert_place_market_modal";
 import { copyToBalance } from "~/lib/stellar/marketplace/test/acc";
 import {
@@ -31,11 +31,11 @@ export const AssetSelectAllProperty = {
 };
 
 export const marketRouter = createTRPCRouter({
-  placeNft2MarketXdr: protectedProcedure
+  placeNft2StorageXdr: protectedProcedure
     .input(PlaceMarketFormSchema.extend({ signWith: SignUser }))
     .mutation(async ({ input, ctx }) => {
       // validate and transfor input
-      const { code, issuer, placingCopies, price, signWith } = input;
+      const { code, issuer, placingCopies, signWith } = input;
 
       const creatorId = ctx.session.user.id;
       const storage = await ctx.db.creator.findUnique({
@@ -88,22 +88,49 @@ export const marketRouter = createTRPCRouter({
     }),
 
   placeToMarketDB: protectedProcedure
-    .input(PlaceMarketFormSchema)
+    .input(
+      z.object({ code: z.string(), issuer: z.string(), price: z.number() }),
+    )
     .mutation(async ({ input, ctx }) => {
-      const { code, issuer, placingCopies, price } = input;
-      const creatorId = ctx.session.user.id;
+      const { code, issuer, price } = input;
+
+      const userId = ctx.session.user.id;
+
       const asset = await ctx.db.asset.findUnique({
         where: { code_issuer: { code, issuer } },
-        select: { id: true },
+        select: { id: true, creatorId: true },
       });
 
       if (!asset) throw new Error("asset not found");
 
+      let placerId = userId;
+
       await ctx.db.marketAsset.create({
         data: {
-          limit: 999,
+          placerId,
+          price,
           assetId: asset.id,
-          creatorId: ctx.session.user.id,
+        },
+      });
+    }),
+
+  disableToMarketDB: protectedProcedure
+    .input(z.object({ code: z.string(), issuer: z.string() }))
+    .mutation(async ({ input, ctx }) => {
+      const { code, issuer } = input;
+
+      const userId = ctx.session.user.id;
+
+      const asset = await ctx.db.asset.findUnique({
+        where: { code_issuer: { code, issuer } },
+        select: { id: true, creatorId: true },
+      });
+
+      if (!asset) throw new Error("asset not found");
+
+      await ctx.db.marketAsset.deleteMany({
+        where: {
+          AND: [{ assetId: asset.id }, { placerId: userId }],
         },
       });
     }),
@@ -130,7 +157,7 @@ export const marketRouter = createTRPCRouter({
             select: AssetSelectAllProperty,
           },
         },
-        where: { disabled: false, creatorId: { not: null } },
+        where: { asset: { creatorId: { not: null } } },
       });
 
       let nextCursor: typeof cursor | undefined = undefined;
@@ -167,7 +194,7 @@ export const marketRouter = createTRPCRouter({
             select: AssetSelectAllProperty,
           },
         },
-        where: { disabled: false, creatorId: null },
+        where: { asset: { creatorId: null } },
       });
 
       let nextCursor: typeof cursor | undefined = undefined;
@@ -205,7 +232,7 @@ export const marketRouter = createTRPCRouter({
             select: AssetSelectAllProperty,
           },
         },
-        where: { creatorId: creatorId },
+        where: { asset: { creatorId: creatorId } },
       });
 
       let nextCursor: typeof cursor | undefined = undefined;
@@ -218,60 +245,5 @@ export const marketRouter = createTRPCRouter({
         nfts: items,
         nextCursor,
       };
-    }),
-
-  toggleVisibilityMarketNft: protectedProcedure
-    .input(z.object({ id: z.number(), visibility: z.boolean() }))
-    .mutation(async ({ input, ctx }) => {
-      const marketAssetId = input.id;
-      const creatorId = ctx.session.user.id;
-
-      // validate the request marketassetId is created by the user
-      const asset = await ctx.db.marketAsset.findUnique({
-        where: { id: marketAssetId },
-        select: { creatorId: true },
-      });
-
-      if (!asset) throw new Error("asset not found");
-
-      if (asset.creatorId !== creatorId) throw new Error("not authorized");
-
-      await ctx.db.marketAsset.update({
-        where: { id: marketAssetId },
-        data: { disabled: !input.visibility },
-      });
-    }),
-  changeVisibilityMarketNft: protectedProcedure
-    .input(
-      z.object({
-        code: z.string(),
-        issuer: z.string(),
-        visibility: z.boolean(),
-      }),
-    )
-    .mutation(async ({ input, ctx }) => {
-      const { code, issuer, visibility } = input;
-
-      const assetRow = await ctx.db.asset.findUnique({
-        where: { code_issuer: { code, issuer } },
-        select: { id: true },
-      });
-
-      if (!assetRow) throw new Error("asset not found");
-      const assetId = assetRow.id;
-      const creatorId = ctx.session.user.id;
-
-      // validate the request marketassetId is created by the user
-      const asset = await ctx.db.marketAsset.findUnique({
-        where: { assetId_creatorId: { assetId, creatorId } },
-        select: { id: true },
-      });
-
-      if (!asset) throw new Error("asset not found");
-
-      await ctx.db.marketAsset.update({
-        where: { id: asset.id },
-        data: { disabled: !visibility },
-      });
     }),
 });

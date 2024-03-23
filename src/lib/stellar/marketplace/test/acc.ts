@@ -58,15 +58,14 @@ export async function accountDetailsWithHomeDomain({
     },
   );
 
-  // TODO: Remove this in produciton
-  const testAsset = {
-    code: "admin",
-    issuer: "GCKH5NOGA2JLNZTAAFUILRRJKM7RFCNXBPD65ZSS7U662U7ZLYLWKOEQ",
-    homeDomain: "music.bandcoin.com",
-    copies: 30,
-  };
+  // const testAsset = {
+  //   code: "admin",
+  //   issuer: "GCKH5NOGA2JLNZTAAFUILRRJKM7RFCNXBPD65ZSS7U662U7ZLYLWKOEQ",
+  //   homeDomain: "music.bandcoin.com",
+  //   copies: 30,
+  // };
 
-  filteredBalances.push(testAsset);
+  // filteredBalances.push(testAsset);
 
   return filteredBalances;
 }

@@ -1,5 +1,4 @@
 import { getTailwindScreenSize } from "~/lib/clientUtils";
-import ImageVideViewer from "../wallete/Image_video_viewer";
 import { MarketAssetType } from "./market_right";
 import { useMarketRightStore } from "~/lib/state/marketplace/right";
 import AssetView from "./asset/asset_view";
@@ -19,12 +18,10 @@ function MarketAssetComponent({ item }: { item: MarketAssetType }) {
         }}
         className="btn relative h-fit w-full overflow-hidden  py-4 "
       >
-        <AssetView   code={item.code}/>
+        <AssetView code={item.code} />
       </button>
     </div>
   );
 }
 
 export default MarketAssetComponent;
-
-

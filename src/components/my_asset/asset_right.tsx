@@ -4,15 +4,16 @@ import { Play, XCircle } from "lucide-react";
 import { api } from "~/utils/api";
 import { useConnectWalletStateStore } from "package/connect_wallet";
 import MyError from "../wallete/my_error";
-import { useMarketRightStore } from "~/lib/state/marketplace/right";
 import { Asset, MediaType } from "@prisma/client";
 import ImageVideViewer from "../wallete/Image_video_viewer";
 import BuyModal from "../music/modal/buy_modal";
+import { useAssetRightStore } from "~/lib/state/assets_right";
+import PlaceNFT2Storage from "../marketplace/modal/place_2storage_modal";
 
 export type MarketAssetType = Omit<Asset, "issuerPrivate">;
 
-export default function MarketRight() {
-  const { currentData } = useMarketRightStore();
+export default function AssetRight() {
+  const { currentData } = useAssetRightStore();
   const { isAva, pubkey } = useConnectWalletStateStore();
 
   if (!currentData)
@@ -22,9 +23,7 @@ export default function MarketRight() {
       </div>
     );
 
-  const color = "blue";
-  // const { name, description, type, mediaUrl } = currentData;
-  // const issuer = nftAsset.issuer.pub;
+  const color = "green";
 
   return (
     <div className="h-full max-h-[800px] w-full">
@@ -53,9 +52,6 @@ export default function MarketRight() {
               <p>
                 <span className="font-semibold">Tag:</span>{" "}
                 <span className="badge badge-primary">{currentData.code}</span>
-                {/* {currentData.original && (
-                  <span className="badge badge-secondary">Original</span>
-                )} */}
               </p>
 
               <p className="line-clamp-2">
@@ -64,17 +60,7 @@ export default function MarketRight() {
               <p>
                 <span className="font-semibold">Available:</span> {10} copy
               </p>
-              {/* {navPath == NAVIGATION.MARKETPLACE && (
-                <p>
-                  <span className="font-semibold">Price:</span>{" "}
-                  {Number(currentData.price) + 50}
-                </p>
-              )} */}
-              {/* {currentData.ownerAcc && (
-                <p>
-                  <b>Seller</b>: {addrShort(currentData.ownerAcc, 5)}
-                </p>
-              )} */}
+
               <p>
                 <b>Media:</b> {currentData.mediaType}
               </p>
@@ -82,10 +68,6 @@ export default function MarketRight() {
             <div className="space-y-2">
               <div>
                 <OtherButtons />
-                {/* {navPath == NAVIGATION.MARKETPLACE && (
-                  <NFTCreateWithAuth mode={ModalMode.EDIT} nft={currentData} />
-                )}
-                <DeleteButton path={currentData.path} /> */}
               </div>
             </div>
           </div>
@@ -96,49 +78,19 @@ export default function MarketRight() {
 }
 
 function OtherButtons() {
-  const { currentData } = useMarketRightStore();
+  const { currentData } = useAssetRightStore();
   const { pubkey } = useConnectWalletStateStore();
 
-  if (currentData) {
-    if (currentData.creatorId == pubkey) {
-      return (
-        <DisableFromMarketButton
-          code={currentData.code}
-          issuer={currentData.issuer}
-        />
-      );
-    } else
-      return (
-        <>
-          <BuyModal item={{ asset: currentData }} />
-        </>
-      );
-  }
-}
-
-export function DisableFromMarketButton({
-  code,
-  issuer,
-}: {
-  code: string;
-  issuer: string;
-}) {
-  const { setData } = useMarketRightStore();
-  const disable = api.marketplace.market.disableToMarketDB.useMutation({
-    onSuccess() {
-      setData(undefined);
-    },
-  });
-
-  return (
-    <button
-      className="btn btn-secondary btn-sm my-2 w-full transition duration-500 ease-in-out"
-      onClick={() => disable.mutate({ code, issuer })}
-    >
-      {disable.isLoading && <span className="loading loading-spinner" />}
-      DISABLE
-    </button>
-  );
+  if (currentData)
+    return (
+      <EnableToMarketplace
+        item={{
+          code: currentData.code,
+          copies: 10,
+          issuer: currentData.issuer,
+        }}
+      />
+    );
 }
 
 function MediaViewer(props: {

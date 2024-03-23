@@ -45,8 +45,6 @@ export const assetRouter = createTRPCRouter({
         where: whereClause,
       });
 
-      console.log("items length", items.length);
-
       let nextCursor: typeof cursor | undefined = undefined;
       if (items.length > limit) {
         const nextItem = items.pop(); // return the last item from the array
