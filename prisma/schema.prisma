@@ -256,7 +256,7 @@ model Album {
     coverImgUrl String
 
     createdAt DateTime @default(now())
-    Song      Song[]
+    songs     Song[]
 }
 
 model Song {
@@ -266,6 +266,8 @@ model Song {
 
     assetId Int   @unique
     asset   Asset @relation(fields: [assetId], references: [id])
+
+    price Float
 
     albumId Int
     album   Album @relation(fields: [albumId], references: [id], onDelete: Cascade)
@@ -301,8 +303,6 @@ model Asset {
     code          String
     issuer        String
     issuerPrivate String?
-    price         Float
-    limit         Int
 
     mediaType MediaType
     mediaUrl  String
@@ -313,27 +313,36 @@ model Asset {
     creatorId String? // if null then it is admin asset
     creator   Creator? @relation(fields: [creatorId], references: [id], onDelete: Cascade)
 
-    Song        Song?
+    song        Song?
     buyers      User_Asset[]
-    MarketAsset MarketAsset[]
+    marketItems MarketAsset[]
 
     @@unique([code, issuer])
     @@index([name, description])
+}
+
+// this will eliminate asset buy modal overhead.
+enum MarketType {
+    SONG
+    ADMIN
+    FAN
 }
 
 // this for creators;
 model MarketAsset {
     id Int @id @default(autoincrement())
 
-    price Float @default(10)
+    price Float
+
+    type MarketType @default(FAN)
 
     assetId Int
     asset   Asset @relation(fields: [assetId], references: [id], onDelete: Cascade)
 
     placedAt DateTime @default(now())
 
-    placerId String //
-    placer   Creator @relation(fields: [placerId], references: [id], onDelete: Cascade)
+    placerId String? // admin placing this assets
+    placer   Creator? @relation(fields: [placerId], references: [id], onDelete: Cascade)
 
     @@unique([assetId, placerId])
 }

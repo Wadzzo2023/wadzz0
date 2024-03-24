@@ -43,10 +43,10 @@ export function AlbumPage({ albumId }: { albumId: number }) {
       return (
         <>
           <AdminCreateSong albumId={albumId} />
-          {album.data.Song.length > 0 && (
+          {album.data.songs.length > 0 && (
             <div>
               <h3 className="text-2xl font-bold">Songs</h3>
-              <SongList albumId={albumId} songs={album.data.Song} />
+              <SongList albumId={albumId} songs={album.data.songs} />
             </div>
           )}
         </>
@@ -64,10 +64,10 @@ export function AlbumPage({ albumId }: { albumId: number }) {
     }
   };
 
-  if (album.data && album.data.Song) {
+  if (album.data && album.data.songs) {
     return (
       <div className="">
-        <AlbumCover album={album.data} songNumber={album.data.Song.length} />
+        <AlbumCover album={album.data} songNumber={album.data.songs.length} />
         {logicalRender()}
       </div>
     );

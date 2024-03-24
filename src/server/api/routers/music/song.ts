@@ -119,7 +119,10 @@ export const songRouter = createTRPCRouter({
   deleteAsong: adminProcedure
     .input(z.object({ songId: z.number() }))
     .mutation(async ({ ctx, input }) => {
-      await ctx.db.song.delete({ where: { id: input.songId } });
+      await ctx.db.song.delete({
+        where: { id: input.songId },
+        include: { asset: { include: { marketItems: true } } },
+      });
     }),
 
   create: protectedProcedure
@@ -137,7 +140,6 @@ export const songRouter = createTRPCRouter({
         issuer,
       } = input;
       const serialNumber = 1; // will query based on createdAt
-      const duration = "1.1"; // just demo
 
       if (issuer) {
         await ctx.db.asset.create({
@@ -145,18 +147,18 @@ export const songRouter = createTRPCRouter({
             code,
             issuer: issuer.publicKey,
             issuerPrivate: issuer.secretKey,
-            Song: {
+            song: {
               create: {
                 artist,
+                price,
                 albumId,
               },
             },
-            limit: 34,
-            mediaType: "IMAGE",
+            marketItems: { create: { price, type: "SONG" } },
+            mediaType: "MUSIC",
             name,
             mediaUrl: musicUrl,
             thumbnail: coverImgUrl,
-            price: price,
             description: description,
           },
         });

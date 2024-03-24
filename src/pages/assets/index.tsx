@@ -57,36 +57,6 @@ function MyStorageAsset() {
     );
 }
 
-// function StorageAsset({ code, issuer }: { code: string; issuer: string }) {
-//   const toggleVisibility =
-//     api.marketplace.market.toggleVisibilityMarketNft.useMutation();
-//   const isInMarket = api.wallate.acc.isItemPlacedInMarket.useQuery({
-//     code,
-//     issuer,
-//   });
-//   return (
-//     <div className="grid grid-cols-1 gap-4 bg-blue-200 md:grid-cols-2 lg:grid-cols-3">
-//       <p>{code}</p>
-//       {isInMarket.isLoading && (
-//         <button
-//           className="btn btn-primary btn-sm"
-//           onClick={() => {
-//             toggleVisibility.mutate({
-//               id: 1,
-//               visibility: false,
-//             });
-//           }}
-//         >
-//           {toggleVisibility.isLoading && (
-//             <span className="loading loading-spinner" />
-//           )}
-//           Enable
-//         </button>
-//       )}
-//     </div>
-//   );
-// }
-
 function MyAssets() {
   const acc = api.wallate.acc.getAccountInfo.useQuery();
   const { setData } = useAssetRightStore();
@@ -100,7 +70,7 @@ function MyAssets() {
         }}
         className="main-asset-area"
       >
-        {acc.data.dbAssets.map((asset, i) => {
+        {acc.data.map((asset, i) => {
           // if (asset.copies > 0)
           return (
             <div key={i}>

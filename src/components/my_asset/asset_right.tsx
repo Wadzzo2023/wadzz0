@@ -9,6 +9,7 @@ import ImageVideViewer from "../wallete/Image_video_viewer";
 import BuyModal from "../music/modal/buy_modal";
 import { useAssetRightStore } from "~/lib/state/assets_right";
 import PlaceNFT2Storage from "../marketplace/modal/place_2storage_modal";
+import EnableInMarket from "../marketplace/modal/place_market_modal";
 
 export type MarketAssetType = Omit<Asset, "issuerPrivate">;
 
@@ -83,12 +84,8 @@ function OtherButtons() {
 
   if (currentData)
     return (
-      <EnableToMarketplace
-        item={{
-          code: currentData.code,
-          copies: 10,
-          issuer: currentData.issuer,
-        }}
+      <EnableInMarket
+        item={{ code: currentData.code, issuer: currentData.issuer }}
       />
     );
 }

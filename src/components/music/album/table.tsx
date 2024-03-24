@@ -14,7 +14,6 @@ export type AssetType = {
   asset: {
     code: string;
     issuer: string;
-    price: number;
     creatorId: string | null;
     thumbnail: string;
     name: string;
@@ -103,7 +102,7 @@ function PlayOrBuy({ song }: { song: SongWithAsset }) {
     return (
       <>
         <div className="w-12">
-          <BuyModal item={song} />
+          <BuyModal item={song} price={song.price} />
         </div>
       </>
     );

@@ -27,26 +27,19 @@ export const shopRouter = createTRPCRouter({
       } = input;
 
       if (issuer) {
-        const creatorId = isAdmin ? undefined : ctx.session.user.id;
+        const userId = ctx.session.user.id;
+        const creatorId = isAdmin ? undefined : userId; // for admin creator and placer id is undefined
 
         const asset = await ctx.db.asset.create({
           data: {
             code,
             issuer: issuer.publicKey,
-            limit,
             name,
             mediaType,
             mediaUrl,
-            price,
+            marketItems: { create: { price, placerId: creatorId } },
             description,
             thumbnail: coverImgUrl,
-            creatorId,
-          },
-        });
-        await ctx.db.marketAsset.create({
-          data: {
-            limit: 999,
-            assetId: asset.id,
             creatorId,
           },
         });

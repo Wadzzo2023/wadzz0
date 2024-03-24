@@ -17,65 +17,45 @@ import { env } from "~/env";
 import { Keypair } from "stellar-sdk";
 
 export const stellarRouter = createTRPCRouter({
-  getPaymentXDR: protectedProcedure
-    .input(
-      z.object({
-        assetCode: z.string(),
-        issuerPub: z.string(),
-        limit: z.number(),
-        signWith: SignUser,
-      }),
-    )
-    .mutation(async ({ input, ctx }) => {
-      const { limit: l, assetCode, issuerPub, signWith } = input;
+  //   getPaymentXDR: protectedProcedure
+  //     .input(
+  //       z.object({
+  //         assetCode: z.string(),
+  //         issuerPub: z.string(),
+  //         limit: z.number(),
+  //         signWith: SignUser,
+  //       }),
+  //     )
+  //     .mutation(async ({ input, ctx }) => {
+  //       const { limit: l, assetCode, issuerPub, signWith,  } = input;
 
-      const pubkey = ctx.session.user.id; // customer pubkey
+  //       const pubkey = ctx.session.user.id; // customer pubkey
 
-      const dbAsset = await ctx.db.asset.findUnique({
-        where: { code_issuer: { code: assetCode, issuer: issuerPub } },
-        select: { creatorId: true, price: true },
-      });
+  // //asset: { code: assetCode, issuer: issuerPub }
+  //       const dbAsset = await ctx.db.song.findUnique({
+  //         where: { id: },
+  //         select: {  price: true },
+  //       });
 
-      if (!dbAsset) throw new Error("asset not found");
+  //       if (!dbAsset) throw new Error("asset not found");
 
-      const { creatorId: creatorPub, price } = dbAsset;
+  //         // admin
+  //       const  creatorId = Keypair.fromSecret(env.MOTHER_SECRET).publicKey();
+  //       const  storageSecret = env.STORAGE_SECRET;
 
-      // validate and transfor input
+  //       const limit = copyToBalance(l);
 
-      let creatorId: string;
-      let storageSecret: string;
-
-      if (creatorPub) {
-        // cretor
-        creatorId = creatorPub;
-
-        const storage = await ctx.db.creator.findUnique({
-          where: { id: creatorId },
-          select: { storageSecret: true },
-        });
-        if (!storage?.storageSecret) {
-          throw new Error("storage does not exist");
-        }
-        storageSecret = storage.storageSecret;
-      } else {
-        // admin
-        creatorId = Keypair.fromSecret(env.MOTHER_SECRET).publicKey();
-        storageSecret = env.STORAGE_SECRET;
-      }
-
-      const limit = copyToBalance(l);
-
-      return await XDR4BuyAsset({
-        creatorPub: creatorId,
-        storageSecret,
-        code: assetCode,
-        issuerPub,
-        userPub: pubkey,
-        price: price.toString(),
-        limit,
-        signWith,
-      });
-    }),
+  //       return await XDR4BuyAsset({
+  //         seller: creatorId,
+  //         storageSecret,
+  //         code: assetCode,
+  //         issuerPub,
+  //         buyer: pubkey,
+  //         price: price.toString(),
+  //         limit,
+  //         signWith,
+  //       });
+  //     }),
 
   getMusicAssetXdr: protectedProcedure
     .input(

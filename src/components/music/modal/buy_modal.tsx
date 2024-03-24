@@ -9,33 +9,37 @@ import { clientSelect } from "~/lib/stellar/fan/utils";
 
 type BuyModalProps = {
   item: AssetType;
+  placerId?: string;
+  price: number;
 };
-export default function BuyModal({ item }: BuyModalProps) {
+export default function BuyModal({ item, placerId, price }: BuyModalProps) {
   const { needSign, pubkey, walletType } = useConnectWalletStateStore();
 
   const createAlbumModal = useRef<HTMLDialogElement>(null);
 
   const { asset } = item;
-  const { code, issuer, price } = asset;
+  const { code, issuer } = asset;
 
+  // feth the copies from the storage acc.
   const copies = 10;
 
-  const xdrMutaion = api.music.steller.getPaymentXDR.useMutation({
-    onSuccess: (data, Variable) => {
-      const presignedxdr = data;
-      clientsign({
-        presignedxdr,
-        pubkey,
-        walletType,
-        test: clientSelect(),
-      })
-        .then((res) => {
-          if (res) toast.success("Payment Success");
+  const xdrMutaion =
+    api.marketplace.steller.buyFromMarketPaymentXDR.useMutation({
+      onSuccess: (data, Variable) => {
+        const presignedxdr = data;
+        clientsign({
+          presignedxdr,
+          pubkey,
+          walletType,
+          test: clientSelect(),
         })
-        .catch((e) => console.log(e));
-    },
-    onError: () => toast.error("Payment Failed"),
-  });
+          .then((res) => {
+            if (res) toast.success("Payment Success");
+          })
+          .catch((e) => console.log(e));
+      },
+      onError: () => toast.error("Payment Failed"),
+    });
 
   const handleModal = () => {
     createAlbumModal.current?.showModal();
@@ -50,6 +54,7 @@ export default function BuyModal({ item }: BuyModalProps) {
     //   if (Number(balance) >= Number(DEFAULT_ASSET_LIMIT)) {
     //     {
     xdrMutaion.mutate({
+      placerId,
       assetCode: code,
       issuerPub: issuer,
       limit: 1,

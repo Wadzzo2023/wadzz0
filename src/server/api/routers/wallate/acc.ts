@@ -30,7 +30,7 @@ export const accRouter = createTRPCRouter({
       });
     });
 
-    return { dbAssets, otherAssets };
+    return dbAssets;
   }),
 
   getCreatorStorageInfo: protectedProcedure.query(async ({ ctx, input }) => {
@@ -59,17 +59,4 @@ export const accRouter = createTRPCRouter({
 
     return dbAssets;
   }),
-
-  isItemPlacedInMarket: protectedProcedure
-    .input(z.object({ code: z.string(), issuer: z.string() }))
-    .query(async ({ ctx, input }) => {
-      const asset = await ctx.db.marketAsset.findFirst({
-        where: { asset: { code: input.code, issuer: input.issuer } },
-        // include: { asset: {select: AssetSelectAllProperty} },
-      });
-
-      if (asset && !asset.disabled) return true;
-
-      return false;
-    }),
 });

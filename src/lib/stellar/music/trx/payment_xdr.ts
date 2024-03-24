@@ -17,20 +17,20 @@ export async function XDR4BuyAsset({
   signWith,
   code,
   issuerPub,
-  userPub,
+  buyer,
   price,
   limit,
   storageSecret,
-  creatorPub,
+  seller,
 }: {
-  userPub: string;
+  buyer: string;
   code: string;
   issuerPub: string;
   price: string;
   limit: string;
   signWith: SignUserType;
   storageSecret: string;
-  creatorPub: string;
+  seller: string;
 }) {
   // this asset limit only for buying more item.
 
@@ -38,7 +38,7 @@ export async function XDR4BuyAsset({
   const server = new Server(STELLAR_URL);
   const storageAcc = Keypair.fromSecret(storageSecret);
 
-  const transactionInializer = await server.loadAccount(userPub);
+  const transactionInializer = await server.loadAccount(buyer);
 
   const Tx2 = new TransactionBuilder(transactionInializer, {
     fee: BASE_FEE,
@@ -47,17 +47,17 @@ export async function XDR4BuyAsset({
     //1
     .addOperation(
       Operation.payment({
-        destination: creatorPub,
+        destination: seller,
         amount: price,
         asset: Asset.native(),
-        source: userPub,
+        source: buyer,
       }),
     )
     //2
     .addOperation(
       Operation.changeTrust({
         asset: asset,
-        source: userPub,
+        source: buyer,
       }),
     )
     // 3
@@ -66,7 +66,7 @@ export async function XDR4BuyAsset({
         asset: asset,
         amount: STROOP,
         source: storageAcc.publicKey(),
-        destination: userPub,
+        destination: buyer,
       }),
     )
     .setTimeout(0)

@@ -21,7 +21,7 @@ export const BackMarketFormSchema = z.object({
 
 type PlaceMarketFormType = z.TypeOf<typeof BackMarketFormSchema>;
 
-export default function PlaceMarketModal({
+export default function NftBackModal({
   item,
 }: {
   item: { code: string; issuer: string; copies: number };

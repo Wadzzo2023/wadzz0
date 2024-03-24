@@ -20,17 +20,14 @@ export const albumRouter = createTRPCRouter({
       return await ctx.db.album.findUnique({
         where: { id: input.albumId },
         include: {
-          Song: {
+          songs: {
             include: {
               asset: {
                 select: {
                   code: true,
                   issuer: true,
-                  price: true,
-                  limit: true,
                   name: true,
                   thumbnail: true,
-
                   creatorId: true,
                 },
               },

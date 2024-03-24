@@ -19,10 +19,10 @@ export const PlaceMarketFormSchema = z.object({
 
 export type PlaceMarketFormType = z.TypeOf<typeof PlaceMarketFormSchema>;
 
-export default function PlaceNFT2Storage({
+export default function EnableInMarket({
   item,
 }: {
-  item: { code: string; issuer: string; copies: number };
+  item: { code: string; issuer: string };
 }) {
   const modalRef = useRef<HTMLDialogElement>(null);
 

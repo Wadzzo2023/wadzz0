@@ -106,6 +106,11 @@ export async function firstTransection({
     .addOperation(
       Operation.changeTrust({
         asset: musicAsset,
+      }),
+    )
+    .addOperation(
+      Operation.changeTrust({
+        asset: musicAsset,
         source: storageAcc.publicKey(),
       }),
     )
