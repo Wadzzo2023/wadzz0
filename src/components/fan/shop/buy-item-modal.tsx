@@ -57,6 +57,9 @@ function ModalContent({ item }: { item: Asset }) {
     useConnectWalletStateStore();
   const [trxMsg, setTrxMsg] = useState<string>();
 
+  // TODO: fix this default value
+  const price = 10;
+
   const xdr = api.fan.trx.buyAssetTrx.useMutation({
     onSuccess: (data) => {
       clientsign({
@@ -78,7 +81,8 @@ function ModalContent({ item }: { item: Asset }) {
     if (item.creatorId)
       xdr.mutate({
         creatorId: item.creatorId,
-        price: item.price,
+
+        price,
         code: item.code,
         issuer: item.issuer,
       });
@@ -105,7 +109,7 @@ function ModalContent({ item }: { item: Asset }) {
           {/* {xdr && <p>issuer: {truncateString(xdr.data, 10, 5)}</p>} */}
           <p>Issuer: {truncateString(item.issuer)}</p>
           <p>
-            Price: {item.price} {PLATFROM_ASSET.code}
+            Price: {price} {PLATFROM_ASSET.code}
             <br />
             Platform Fee: {PLATFROM_FEE} {PLATFROM_ASSET.code}
           </p>

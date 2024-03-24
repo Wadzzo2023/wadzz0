@@ -1,6 +1,5 @@
 import React from "react";
 import { api } from "~/utils/api";
-import AllAsset from "../wallete/all_asset";
 import MarketAssetComponent from "./market_asset";
 
 export default function WallateNFTs() {
@@ -10,9 +9,6 @@ export default function WallateNFTs() {
       getNextPageParam: (lastPage) => lastPage.nextCursor,
     },
   );
-
-  const toggleVisibility =
-    api.marketplace.market.toggleVisibilityMarketNft.useMutation();
 
   if (assets.isLoading) return <span className="loading loading-spinner" />;
 

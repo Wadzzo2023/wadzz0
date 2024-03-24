@@ -11,9 +11,6 @@ export default function MusicAssetNfts() {
     },
   );
 
-  const toggleVisibility =
-    api.marketplace.market.toggleVisibilityMarketNft.useMutation();
-
   if (assets.isLoading) return <span className="loading loading-spinner" />;
 
   if (assets.data) {

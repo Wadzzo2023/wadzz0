@@ -103,7 +103,7 @@ export const marketRouter = createTRPCRouter({
 
       if (!asset) throw new Error("asset not found");
 
-      let placerId = userId;
+      const placerId = userId;
 
       await ctx.db.marketAsset.create({
         data: {

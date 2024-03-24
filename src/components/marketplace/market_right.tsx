@@ -110,7 +110,8 @@ function OtherButtons() {
     } else
       return (
         <>
-          <BuyModal item={{ asset: currentData }} />
+          {/* TODO: fix this */}
+          <BuyModal item={{ asset: currentData }} price={10} placerId="vong" />
         </>
       );
   }

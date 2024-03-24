@@ -27,8 +27,8 @@ function AllShopItems() {
     },
   );
 
-  const toggleVisibility =
-    api.marketplace.market.toggleVisibilityMarketNft.useMutation();
+  // const toggleVisibility =
+  //   api.marketplace.market.toggleVisibilityMarketNft.useMutation();
 
   if (assets.isLoading) return <span className="loading loading-spinner" />;
 
