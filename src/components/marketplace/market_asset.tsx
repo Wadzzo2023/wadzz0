@@ -1,10 +1,10 @@
 import { getTailwindScreenSize } from "~/lib/clientUtils";
-import { MarketAssetType } from "./market_right";
+import { AssetType, MarketAssetType } from "./market_right";
 import { useMarketRightStore } from "~/lib/state/marketplace/right";
 import AssetView from "./asset/asset_view";
 
 function MarketAssetComponent({ item }: { item: MarketAssetType }) {
-  const { thumbnail } = item;
+  const { asset } = item;
 
   const urs = useMarketRightStore();
   return (
@@ -18,7 +18,7 @@ function MarketAssetComponent({ item }: { item: MarketAssetType }) {
         }}
         className="btn relative h-fit w-full overflow-hidden  py-4 "
       >
-        <AssetView code={item.code} />
+        <AssetView code={asset.code} />
       </button>
     </div>
   );

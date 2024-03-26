@@ -26,7 +26,7 @@ export const stellarRouter = createTRPCRouter({
         assetCode: z.string(),
         issuerPub: z.string(),
         limit: z.number(),
-        placerId: z.string().optional(),
+        placerId: z.string().optional().nullable(),
         signWith: SignUser,
       }),
     )

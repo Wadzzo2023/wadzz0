@@ -18,7 +18,6 @@ import {
 export const AssetSelectAllProperty = {
   code: true,
   name: true,
-  price: true,
   issuer: true,
   creatorId: true,
   thumbnail: true,
@@ -135,7 +134,7 @@ export const marketRouter = createTRPCRouter({
       });
     }),
 
-  getFanMarketNft: protectedProcedure
+  getFanMarketNfts: protectedProcedure
     .input(
       z.object({
         limit: z.number(),
@@ -157,7 +156,7 @@ export const marketRouter = createTRPCRouter({
             select: AssetSelectAllProperty,
           },
         },
-        where: { asset: { creatorId: { not: null } } },
+        where: { placerId: { not: null }, type: { equals: "FAN" } },
       });
 
       let nextCursor: typeof cursor | undefined = undefined;
@@ -172,7 +171,7 @@ export const marketRouter = createTRPCRouter({
       };
     }),
 
-  getMarketAdminNft: protectedProcedure
+  getMarketAdminNfts: protectedProcedure
     .input(
       z.object({
         limit: z.number(),
@@ -194,7 +193,7 @@ export const marketRouter = createTRPCRouter({
             select: AssetSelectAllProperty,
           },
         },
-        where: { asset: { creatorId: null } },
+        where: { placerId: null, type: { equals: "ADMIN" } },
       });
 
       let nextCursor: typeof cursor | undefined = undefined;

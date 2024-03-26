@@ -18,7 +18,7 @@ export const songRouter = createTRPCRouter({
     });
   }),
 
-  getAllSongAssets: protectedProcedure
+  getAllSongMarketAssets: protectedProcedure
     .input(
       z.object({
         limit: z.number(),
@@ -31,7 +31,7 @@ export const songRouter = createTRPCRouter({
     .query(async ({ ctx, input }) => {
       const { limit, cursor, skip } = input;
 
-      const items = await ctx.db.song.findMany({
+      const items = await ctx.db.marketAsset.findMany({
         take: limit + 1,
         skip: skip,
         cursor: cursor ? { id: cursor } : undefined,
@@ -40,6 +40,7 @@ export const songRouter = createTRPCRouter({
             select: AssetSelectAllProperty,
           },
         },
+        where: { type: { equals: "SONG" }, placerId: null },
       });
 
       let nextCursor: typeof cursor | undefined = undefined;

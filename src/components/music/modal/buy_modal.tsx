@@ -9,7 +9,7 @@ import { clientSelect } from "~/lib/stellar/fan/utils";
 
 type BuyModalProps = {
   item: AssetType;
-  placerId?: string;
+  placerId?: string | null;
   price: number;
 };
 export default function BuyModal({ item, placerId, price }: BuyModalProps) {

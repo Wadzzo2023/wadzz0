@@ -85,7 +85,7 @@ export default function NftCreate({ admin: isAdmin }: { admin?: true }) {
         })
           .then((res) => {
             if (res) {
-              setValue("isAdmin",   isAdmin);
+              setValue("isAdmin", isAdmin);
               const data = getValues();
               // res && addMutation.mutate(data);
               addAsset.mutate(data);
@@ -114,9 +114,6 @@ export default function NftCreate({ admin: isAdmin }: { admin?: true }) {
       // ipfsHash: "test",
     });
   };
-
-  console.log("errors", errors);
-  console.log("mediaUrl", getValues("mediaType"));
 
   function getEndpoint(mediaType: MediaType) {
     switch (mediaType) {

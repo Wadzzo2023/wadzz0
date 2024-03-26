@@ -5,11 +5,15 @@ import { api } from "~/utils/api";
 import { useConnectWalletStateStore } from "package/connect_wallet";
 import MyError from "../wallete/my_error";
 import { useMarketRightStore } from "~/lib/state/marketplace/right";
-import { Asset, MediaType } from "@prisma/client";
+import { Asset, MediaType, MarketAsset } from "@prisma/client";
 import ImageVideViewer from "../wallete/Image_video_viewer";
 import BuyModal from "../music/modal/buy_modal";
 
-export type MarketAssetType = Omit<Asset, "issuerPrivate">;
+export type AssetType = Omit<Asset, "issuerPrivate">;
+
+export type MarketAssetType = MarketAsset & {
+  asset: AssetType;
+};
 
 export default function MarketRight() {
   const { currentData } = useMarketRightStore();
@@ -38,9 +42,9 @@ export default function MarketRight() {
         <div className="flex h-full flex-col justify-between space-y-2 p-2">
           <div className="relative space-y-2 rounded-box border-4 border-base-100 p-1 text-sm tracking-wider">
             <MediaViewer
-              mediaUrl={currentData.mediaUrl}
-              thumbnailUrl={currentData.thumbnail}
-              name={currentData.name}
+              mediaUrl={currentData.asset.mediaUrl}
+              thumbnailUrl={currentData.asset.thumbnail}
+              name={currentData.asset.name}
               color={color}
             />
           </div>
@@ -48,18 +52,21 @@ export default function MarketRight() {
           <div className="relative space-y-2 rounded-box border-4 border-base-100 p-4 text-sm tracking-wider">
             <div className="">
               <p>
-                <span className="font-semibold">Name:</span> {currentData.name}
+                <span className="font-semibold">Name:</span>{" "}
+                {currentData.asset.name}
               </p>
               <p>
                 <span className="font-semibold">Tag:</span>{" "}
-                <span className="badge badge-primary">{currentData.code}</span>
+                <span className="badge badge-primary">
+                  {currentData.asset.code}
+                </span>
                 {/* {currentData.original && (
                   <span className="badge badge-secondary">Original</span>
                 )} */}
               </p>
 
               <p className="line-clamp-2">
-                <b>Description: </b> {currentData.description}
+                <b>Description: </b> {currentData.asset.description}
               </p>
               <p>
                 <span className="font-semibold">Available:</span> {10} copy
@@ -76,7 +83,7 @@ export default function MarketRight() {
                 </p>
               )} */}
               <p>
-                <b>Media:</b> {currentData.mediaType}
+                <b>Media:</b> {currentData.asset.mediaType}
               </p>
             </div>
             <div className="space-y-2">
@@ -100,18 +107,21 @@ function OtherButtons() {
   const { pubkey } = useConnectWalletStateStore();
 
   if (currentData) {
-    if (currentData.creatorId == pubkey) {
+    if (currentData.asset.creatorId == pubkey) {
       return (
         <DisableFromMarketButton
-          code={currentData.code}
-          issuer={currentData.issuer}
+          code={currentData.asset.code}
+          issuer={currentData.asset.issuer}
         />
       );
     } else
       return (
         <>
-          {/* TODO: fix this */}
-          <BuyModal item={{ asset: currentData }} price={10} placerId="vong" />
+          <BuyModal
+            item={{ asset: currentData.asset }}
+            price={currentData.price}
+            placerId={currentData.placerId}
+          />
         </>
       );
   }

@@ -4,7 +4,7 @@ import MarketAssetComponent from "./market_asset";
 
 export default function MusicAssetNfts() {
   // first fetch from database and later validate
-  const assets = api.music.song.getAllSongAssets.useInfiniteQuery(
+  const assets = api.music.song.getAllSongMarketAssets.useInfiniteQuery(
     { limit: 4 },
     {
       getNextPageParam: (lastPage) => lastPage.nextCursor,
