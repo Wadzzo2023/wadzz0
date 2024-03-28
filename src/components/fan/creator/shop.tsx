@@ -42,7 +42,7 @@ function AllShopItems() {
       >
         {assets.data.pages.map((page) =>
           page.nfts.map((item, i) => (
-            <MarketAssetComponent key={i} item={item.asset} />
+            <MarketAssetComponent key={i} item={item} />
           )),
         )}
         {assets.hasNextPage && (

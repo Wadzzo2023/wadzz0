@@ -70,7 +70,7 @@ export default function EnableInMarket({
               ✕
             </button>
           </form>
-          <h3 className="mb-2 text-lg font-bold">Place in market</h3>
+          <h3 className="mb-2 text-lg font-bold">Enable in market</h3>
 
           <form onSubmit={handleSubmit(onSubmit)}>
             <div className="mt-4 flex flex-col items-center gap-y-2">

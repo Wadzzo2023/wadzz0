@@ -5,7 +5,7 @@ import {
   AssetMenu,
   useAssetMenu,
 } from "~/lib/state/marketplace/asset-tab-menu";
-import { useMarketRightStore } from "~/lib/state/marketplace/right";
+
 import { api } from "~/utils/api";
 
 export default function MyAssetsPage() {
@@ -27,7 +27,7 @@ function RenderTabs() {
 }
 
 function MyStorageAsset() {
-  const { setData } = useMarketRightStore();
+  const { setData } = useAssetRightStore();
   const acc = api.wallate.acc.getCreatorStorageInfo.useQuery();
 
   if (acc.isLoading) return <span className="loading loading-spinner" />;
@@ -39,15 +39,17 @@ function MyStorageAsset() {
         }}
         className="main-asset-area"
       >
-        {acc.data.map((asset, i) => {
+        {acc.data.dbAssets.map((asset, i) => {
           return (
             <div key={i}>
               <button
                 className="btn relative h-fit w-full overflow-hidden  py-4 "
                 onClick={() => {
                   setData(asset);
+                  const copies = acc.data.accAssets[i]?.copies ?? 0;
                 }}
               >
+                <p>{acc.data.accAssets[i]?.copies}</p>
                 <AssetView code={asset.code} />
               </button>
             </div>
@@ -70,7 +72,7 @@ function MyAssets() {
         }}
         className="main-asset-area"
       >
-        {acc.data.map((asset, i) => {
+        {acc.data.dbAssets.map((asset, i) => {
           // if (asset.copies > 0)
           return (
             <div key={i}>
@@ -80,7 +82,7 @@ function MyAssets() {
                   setData(asset);
                 }}
               >
-                {/* <p>{asset.copies}</p> */}
+                <p>{acc.data.accAssets[i]?.copies}</p>
                 <AssetView code={asset.code} />
               </button>
             </div>
@@ -92,13 +94,15 @@ function MyAssets() {
 
 function AssetTabs() {
   const { selectedMenu, setSelectedMenu } = useAssetMenu();
+  const { setData } = useAssetRightStore();
+
   return (
     <div role="tablist" className="tabs-boxed tabs my-5 ">
       {Object.values(AssetMenu).map((key) => {
         return (
           <a
             key={key}
-            onClick={() => setSelectedMenu(key)}
+            onClick={handleClick(key)}
             role="tab"
             className={clsx(
               "tab",
@@ -112,4 +116,11 @@ function AssetTabs() {
       })}
     </div>
   );
+
+  function handleClick(key: AssetMenu) {
+    return () => {
+      setSelectedMenu(key);
+      setData(undefined);
+    };
+  }
 }

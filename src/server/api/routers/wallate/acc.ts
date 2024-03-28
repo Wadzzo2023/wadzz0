@@ -24,13 +24,13 @@ export const accRouter = createTRPCRouter({
       select: AssetSelectAllProperty,
     });
 
-    const otherAssets = assets.filter((asset) => {
-      return !dbAssets.some((dbAsset) => {
+    const accAssets = assets.filter((asset) => {
+      return dbAssets.some((dbAsset) => {
         return dbAsset.code === asset.code && dbAsset.issuer === asset.issuer;
       });
     });
 
-    return dbAssets;
+    return { dbAssets, accAssets };
   }),
 
   getCreatorStorageInfo: protectedProcedure.query(async ({ ctx, input }) => {
@@ -57,6 +57,24 @@ export const accRouter = createTRPCRouter({
       select: AssetSelectAllProperty,
     });
 
-    return dbAssets;
+    const accAssets = assets.filter((asset) => {
+      return dbAssets.some((dbAsset) => {
+        return dbAsset.code === asset.code && dbAsset.issuer === asset.issuer;
+      });
+    });
+
+    return { dbAssets, accAssets };
   }),
+
+  getAStorageAssetInMarket: protectedProcedure
+    .input(z.object({ code: z.string(), issuer: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const creatorId = ctx.session.user.id;
+      return await ctx.db.marketAsset.findFirst({
+        where: {
+          placerId: creatorId,
+          asset: { code: input.code, issuer: input.issuer },
+        },
+      });
+    }),
 });

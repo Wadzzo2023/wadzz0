@@ -1,5 +1,5 @@
 import { getTailwindScreenSize } from "~/lib/clientUtils";
-import { AssetType, MarketAssetType } from "./market_right";
+import { MarketAssetType } from "./market_right";
 import { useMarketRightStore } from "~/lib/state/marketplace/right";
 import AssetView from "./asset/asset_view";
 

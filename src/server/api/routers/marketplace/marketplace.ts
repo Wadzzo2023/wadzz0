@@ -24,7 +24,6 @@ export const AssetSelectAllProperty = {
   privacy: true,
   description: true,
   id: true,
-  limit: true,
   mediaType: true,
   mediaUrl: true,
 };
@@ -75,6 +74,7 @@ export const marketRouter = createTRPCRouter({
 
       const assetAmount = copyToBalance(placingCopies);
 
+      console.log(assetAmount)
       // stellear sdk for xdr
       return await sendNftback({
         assetAmount,

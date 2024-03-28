@@ -5,7 +5,7 @@ import MarketAssetComponent from "./market_asset";
 export default function FanAssetNfts() {
   // first fetch from database and later validate
   const { pubkey } = useConnectWalletStateStore();
-  const assets = api.marketplace.market.getFanMarketNft.useInfiniteQuery(
+  const assets = api.marketplace.market.getFanMarketNfts.useInfiniteQuery(
     { limit: 4 },
     {
       getNextPageParam: (lastPage) => lastPage.nextCursor,
@@ -45,7 +45,7 @@ export default function FanAssetNfts() {
             //     <BuyModal item={{ asset: item.asset }} />
             //   )}
             // </li>
-            <MarketAssetComponent key={i} item={item.asset} />
+            <MarketAssetComponent key={i} item={item} />
           )),
         )}
         {assets.hasNextPage && (

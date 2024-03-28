@@ -31,14 +31,20 @@ export async function accountDetailsWithHomeDomain({
         balance.asset_type === "credit_alphanum12" ||
         balance.asset_type === "credit_alphanum4"
       ) {
-        const issuerAccount = await server.loadAccount(balance.asset_issuer);
-        if (issuerAccount.home_domain)
-          return {
-            code: balance.asset_code,
-            issuer: balance.asset_issuer,
-            homeDomain: issuerAccount.home_domain,
-            copies: balaceToCopy(balance.balance),
-          };
+        if (balance.is_authorized) {
+          const issuerAccount = await server.loadAccount(balance.asset_issuer);
+          if (issuerAccount.home_domain) {
+            const copies = balaceToCopy(balance.balance);
+            if (copies > 0) {
+              return {
+                code: balance.asset_code,
+                issuer: balance.asset_issuer,
+                homeDomain: issuerAccount.home_domain,
+                copies,
+              };
+            }
+          }
+        }
       }
     }),
   );
@@ -70,9 +76,11 @@ export async function accountDetailsWithHomeDomain({
   return filteredBalances;
 }
 
-export function balaceToCopy(balance: string) {
-  return Number(balance) / Number(STROOP);
+export function balaceToCopy(balance: string): number {
+  return Math.floor(Number(balance) / Number(STROOP));
 }
-export function copyToBalance(copy: number) {
-  return String(copy * Number(STROOP));
+
+export function copyToBalance(copy: number): string {
+  const amount = (copy * Number(STROOP)).toFixed(7);
+  return amount;
 }

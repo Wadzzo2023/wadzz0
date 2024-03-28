@@ -9,6 +9,7 @@ import { addrShort } from "~/lib/utils";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { clientSelect } from "~/lib/stellar/fan/utils";
+import toast from "react-hot-toast";
 
 export const BackMarketFormSchema = z.object({
   placingCopies: z.number().nonnegative().int(),
@@ -24,7 +25,7 @@ type PlaceMarketFormType = z.TypeOf<typeof BackMarketFormSchema>;
 export default function NftBackModal({
   item,
 }: {
-  item: { code: string; issuer: string; copies: number };
+  item: { code: string; issuer: string };
 }) {
   const modalRef = useRef<HTMLDialogElement>(null);
 
@@ -45,26 +46,22 @@ export default function NftBackModal({
   // const placeItem = api.marketplace.market.placeToMarketDB.useMutation();
   const xdrMutaion = api.marketplace.market.placeBackNftXdr.useMutation({
     onSuccess(data, variables, context) {
-      if (false) {
-        const xdr = data;
-        clientsign({
-          presignedxdr: xdr,
-          pubkey,
-          walletType,
-          test: clientSelect(),
+      const xdr = data;
+      clientsign({
+        presignedxdr: xdr,
+        pubkey,
+        walletType,
+        test: clientSelect(),
+      })
+        .then((res) => {
+          if (res) {
+            toast.success("Success");
+          } else {
+            toast.error("Failed");
+          }
+          // const data = getValues();
         })
-          .then((res) => {
-            const data = getValues();
-            // res && addMutation.mutate(data);
-            // placeItem.mutate(data);
-          })
-          .catch((e) => console.log(e));
-      }
-
-      const formData = getValues();
-      // res && addMutation.mutate(data);
-      // placeItem.mutate(formData);
-      // toast.success("NFT has been placed in market");
+        .catch((e) => console.log(e));
     },
   });
 
@@ -99,7 +96,9 @@ export default function NftBackModal({
               ✕
             </button>
           </form>
-          <h3 className="mb-2 text-lg font-bold">Place in market</h3>
+          <h3 className="mb-2 text-lg font-bold">
+            Take Asset Back to Main Acc
+          </h3>
 
           <form onSubmit={handleSubmit(onSubmit)}>
             <div className="mt-4 flex flex-col items-center gap-y-2">
@@ -111,7 +110,7 @@ export default function NftBackModal({
                 </p>
                 {/* <p className="">Price: {item.price} XLM</p> */}
                 <p className="text-sm text-primary">
-                  Items left: {item.copies}
+                  Items left: {"item.copies"}
                 </p>
                 <p className="text-sm">Issuer: {addrShort(item.issuer, 15)}</p>
               </div>

@@ -105,6 +105,8 @@ function CreateCreator(props: { id: string }) {
           if (isSucces) {
             toast.success("You are now a creator");
             makeCreatorMutation.mutate(storage);
+          } else {
+            toast.error("Failed to create account");
           }
         })
         .catch((e) => console.log(e));

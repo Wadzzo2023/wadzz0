@@ -10,6 +10,11 @@ import BuyModal from "../music/modal/buy_modal";
 import { useAssetRightStore } from "~/lib/state/assets_right";
 import PlaceNFT2Storage from "../marketplace/modal/place_2storage_modal";
 import EnableInMarket from "../marketplace/modal/place_market_modal";
+import {
+  AssetMenu,
+  useAssetMenu,
+} from "~/lib/state/marketplace/asset-tab-menu";
+import NftBackModal from "../marketplace/modal/revert_place_market_modal";
 
 export type MarketAssetType = Omit<Asset, "issuerPrivate">;
 
@@ -81,13 +86,35 @@ export default function AssetRight() {
 function OtherButtons() {
   const { currentData } = useAssetRightStore();
   const { pubkey } = useConnectWalletStateStore();
+  const { selectedMenu, setSelectedMenu } = useAssetMenu();
 
-  if (currentData)
+  if (currentData) {
+    if (selectedMenu == AssetMenu.OWN) {
+      return <PlaceNFT2Storage item={{ ...currentData, copies: 20 }} />;
+    }
+    if (selectedMenu == AssetMenu.STORAGE) {
+      return (
+        <MarketButtons code={currentData.code} issuer={currentData.issuer} />
+      );
+    }
+  }
+}
+
+function MarketButtons({ code, issuer }: { code: string; issuer: string }) {
+  const inMarket = api.wallate.acc.getAStorageAssetInMarket.useQuery({
+    code,
+    issuer,
+  });
+  if (inMarket.isLoading) return <div>Loading...</div>;
+
+  if (inMarket.data)
     return (
-      <EnableInMarket
-        item={{ code: currentData.code, issuer: currentData.issuer }}
-      />
+      <div>
+        Item is in market
+        <NftBackModal item={{ code, issuer }} />
+      </div>
     );
+  else return <EnableInMarket item={{ code, issuer }} />;
 }
 
 function MediaViewer(props: {
