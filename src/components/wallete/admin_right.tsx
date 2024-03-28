@@ -34,6 +34,7 @@ export function AdminButtons() {
         const enumValue = AdminNavigation[key as keyof typeof AdminNavigation];
         return (
           <button
+            key={key}
             className={clsx(
               "btn w-full",
               enumValue === selectedMenu && "btn-primary",
