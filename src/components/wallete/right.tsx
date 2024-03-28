@@ -9,6 +9,7 @@ import ImageVideViewer from "./Image_video_viewer";
 import { useSearchTagStore } from "~/lib/state/wallete/search_tag";
 import { useSearchOpenStore } from "~/lib/state/wallete/searchOpen";
 import { addrShort } from "~/lib/utils";
+import { api } from "~/utils/api";
 
 interface RightProps {
   key?: React.Key;
@@ -136,6 +137,7 @@ function Right(_props: RightProps) {
                   ))}
                 </div>
               </div>
+              <DeleteWallateAsset id={currentData.id} />
             </div>
           </div>
         </div>
@@ -145,3 +147,18 @@ function Right(_props: RightProps) {
 }
 
 export default Right;
+
+function DeleteWallateAsset({ id }: { id: number }) {
+  const admin = api.wallate.admin.checkAdmin.useQuery();
+  const del = api.wallate.asset.deleteAsset.useMutation();
+
+  if (admin.data)
+    return (
+      <button
+        className="btn btn-warning btn-sm w-full"
+        onClick={() => del.mutate(id)}
+      >
+        {del.isLoading && <span className="loading loading-spinner" />}Delete
+      </button>
+    );
+}

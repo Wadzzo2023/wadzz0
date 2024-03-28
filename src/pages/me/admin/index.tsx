@@ -3,6 +3,7 @@ import NftCreate from "~/components/marketplace/nft_create";
 import AlbumCreate from "~/components/music/modal/album_create";
 import { ModalMode } from "~/components/music/modal/modal_template";
 import MintedItemAdd from "~/components/wallete/add_asset_form";
+import { AdminNavigation, useAdminMenu } from "~/lib/state/admin-tab-menu";
 import { api } from "~/utils/api";
 
 export default function AdminPage() {
@@ -12,14 +13,41 @@ export default function AdminPage() {
 function AdminPageTemplate() {
   return (
     <div>
-      <AlbumCreate mode={ModalMode.ADD} />
-      <NftCreate admin />
-      <div className="max-w-xl">
-        <MintedItemAdd />
-      </div>
+      <RenderTabs />
     </div>
   );
 }
+
+function RenderTabs() {
+  const { selectedMenu } = useAdminMenu();
+
+  switch (selectedMenu) {
+    case AdminNavigation.WALLET:
+      return (
+        <div className="max-w-xl">
+          <MintedItemAdd />
+        </div>
+      );
+    case AdminNavigation.NFT:
+      return (
+        <div className="p-4">
+          <h2 className="mb-5 text-lg font-bold">Add Admin NFTs</h2>
+          <p>This nfts will be created with platform mother acount</p>
+          <NftCreate admin />
+        </div>
+      );
+    case AdminNavigation.ALBUM:
+      return (
+        <div className="p-4">
+          <h2 className="mb-5 text-lg font-bold">Add Music Album</h2>
+          <AlbumCreate mode={ModalMode.ADD} />
+        </div>
+      );
+  }
+
+  return <p>vong</p>;
+}
+
 function IsAdmin() {
   const admin = api.wallate.admin.checkAdmin.useQuery(undefined, {
     refetchOnWindowFocus: false,

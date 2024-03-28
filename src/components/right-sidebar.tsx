@@ -5,6 +5,7 @@ import { MusicRightSide } from "./music/music_right";
 import RightBar from "./fan/fan-right";
 import MarketRight from "./marketplace/market_right";
 import AssetRight from "./my_asset/asset_right";
+import AdminRightSide from "./wallete/admin_right";
 
 export default function RightSideBar() {
   const router = useRouter();
@@ -36,6 +37,12 @@ export default function RightSideBar() {
     return (
       <div className="hidden h-full w-80  flex-col bg-base-100/80  lg:flex">
         <AssetRight />
+      </div>
+    );
+  } else if (router.pathname.includes("/me/admin")) {
+    return (
+      <div className="hidden h-full w-80  flex-col bg-base-100/80  lg:flex">
+        <AdminRightSide />
       </div>
     );
   }

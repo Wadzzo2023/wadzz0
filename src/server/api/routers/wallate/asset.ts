@@ -115,4 +115,14 @@ export const assetRouter = createTRPCRouter({
         },
       });
     }),
+
+  deleteAsset: adminProcedure
+    .input(z.number())
+    .mutation(async ({ ctx, input }) => {
+      await ctx.db.adminAsset.delete({
+        where: {
+          id: input,
+        },
+      });
+    }),
 });

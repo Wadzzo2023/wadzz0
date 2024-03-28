@@ -38,104 +38,15 @@ const MintedItemAdd: React.FC = () => {
 
   const assetAdd = api.wallate.asset.addAsset.useMutation({
     onSuccess: () => {
+      reset();
       toast.success("Asset added");
     },
   });
 
-  // const handleFindSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-  //   e.preventDefault();
-  //   const fromData = new FormData(e.currentTarget);
-
-  //   try {
-  //     setFindLoading(true);
-
-  //     const { data }: AxiosResponse<AssetType> = await toast.promise(
-  //       axios.get("/api/get-asset", {
-  //         params: Object.fromEntries(fromData),
-  //       }),
-  //       {
-  //         loading: "Getting asset data...",
-  //         error: (e: {
-  //           response: {
-  //             data: {
-  //               error: string;
-  //             };
-  //           };
-  //         }) => {
-  //           return e.response.data.error;
-  //         },
-  //         success: "Found asset",
-  //       },
-  //     );
-
-  //     // refs.tags.current!.value = data.tags.join(",");
-  //     // get all the comma seperated tag
-
-  //     // seems market is selected
-
-  //     // for (const market of data.availableMarket) {
-  //     //   switch (market.title.toLowerCase()) {
-  //     //     case "litemint":
-  //     //       refs.litemint.current!.value = market.link;
-  //     //       break;
-  //     //     case "stellarx":
-  //     //       refs.stellarx.current!.value = market.link;
-  //     //       break;
-  //     //     case "stellarterm":
-  //     //       refs.stellarterm.current!.value = market.link;
-  //     //       break;
-  //     //     default:
-  //     //       break;
-  //     //   }
-  //     // }
-  //   } catch (e) {
-  //     console.error(e);
-  //   } finally {
-  //     setFindLoading(false);
-  //   }
-  // };
-
-  // const handleSubmit2 = async (e: React.FormEvent<HTMLFormElement>) => {
-  //   e.preventDefault();
-  //   const fromData = new FormData(e.currentTarget);
-  //   if (!type) {
-  //     toast.error("Select a type");
-  //     return;
-  //   }
-
-  //   try {
-  //     setLoading(true);
-
-  //     await toast.promise(
-  //       axios.post("/api/add-asset", {
-  //         type,
-  //         data: Object.fromEntries(fromData),
-  //       }),
-  //       {
-  //         loading: `${type}ing...`,
-  //         error: (e: {
-  //           response: {
-  //             data: {
-  //               error: string;
-  //             };
-  //           };
-  //         }) => {
-  //           return e.response.data.error;
-  //         },
-  //         success: "Success",
-  //       },
-  //     );
-  //   } catch (e) {
-  //     console.error(e);
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
-
   const onSubmit: SubmitHandler<z.infer<typeof AdminAssetFormSchema>> = (
     data,
   ) => {
-    toast.success("form ok");
+    // toast.success("form ok");
     assetAdd.mutate(data);
   };
 
@@ -143,43 +54,11 @@ const MintedItemAdd: React.FC = () => {
 
   return (
     <>
-      <div className="container mt-2 h-full rounded-box bg-base-300 p-4">
-        <span className="text-xl font-bold">Find asset</span>
-        <form
-          onSubmit={handleSubmit(onSubmit)}
-          // onSubmit={(e) => void handleFindSubmit(e)}
-          className="flex flex-col items-end gap-2 md:flex-row"
-        >
-          <div className="form-control w-full">
-            <label htmlFor="assetCode">Asset Code</label>
-            <input
-              type="text"
-              id="assetCode"
-              {...register("code")}
-              required
-              className="input "
-            />
-          </div>
-          <div className="form-control w-full">
-            <label htmlFor="issuerAddress">Issuer Address</label>
-            <input
-              type="text"
-              {...register("issuer")}
-              id="issuerAddress"
-              required
-              className="input"
-            />
-          </div>
-          <button type="submit" className="btn btn-primary">
-            {/* {findLoading && <span className="loading" />} */}
-            Find
-          </button>
-        </form>
-      </div>
       <form
         className="container mt-2 space-y-2 rounded-box bg-base-300 p-4"
         onSubmit={handleSubmit(onSubmit)}
       >
+        <h2 className="text-lg font-bold">Add Wallate Asset</h2>
         <div className="form-control">
           <label htmlFor="logo">Logo Image Link</label>
           <input
@@ -268,7 +147,7 @@ const MintedItemAdd: React.FC = () => {
           />
         </div>
         <div className="space-x-2">
-          <select
+          {/* <select
             onChange={(e) => {
               setType(e.currentTarget.value);
             }}
@@ -281,7 +160,7 @@ const MintedItemAdd: React.FC = () => {
             <option>add</option>
             <option>update</option>
             <option>delete</option>
-          </select>
+          </select> */}
           <button type="submit" className="btn btn-primary">
             {assetAdd.isLoading && <span className="loading" />}
             Submit
