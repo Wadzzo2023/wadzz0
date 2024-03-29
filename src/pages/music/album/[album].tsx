@@ -11,12 +11,17 @@ import {
 import log from "~/lib/logger/logger";
 import { api } from "~/utils/api";
 import Alert from "~/components/ui/alert";
+import { AlbumSkeleton } from "..";
 
 export default function AlbumPageWrapper() {
   const router = useRouter();
   const albumId = router.query.album;
   if (typeof albumId == "string") {
-    return <AlbumPage albumId={Number(albumId)} />;
+    return (
+      <div className="p-4">
+        <AlbumPage albumId={Number(albumId)} />
+      </div>
+    );
   } else {
     log.info("albumId", albumId);
     log.info("query: ", router.query);
@@ -50,7 +55,7 @@ export function AlbumPage({ albumId }: { albumId: number }) {
     }
   };
 
-  if (album.isLoading) return <span className="loading loading-spinner" />;
+  if (album.isLoading) return <AlbumSkeleton />;
 
   if (album.data && album.data.songs) {
     return (
@@ -59,12 +64,18 @@ export function AlbumPage({ albumId }: { albumId: number }) {
         {logicalRender()}
       </div>
     );
+  } else {
+    return (
+      <div className="mt-10">
+        <Alert type="info" content="This Album does not exist" />
+      </div>
+    );
   }
 
   if (album.isError)
     return (
       <div className="mt-10">
-        <Alert type="info" content="This Album does not exist" />
+        <Alert type="info" content="There something wrong" />
       </div>
     );
 }
@@ -72,7 +83,11 @@ export function AlbumPage({ albumId }: { albumId: number }) {
 function AdminCreateSong({ albumId }: { albumId: number }) {
   const admin = api.wallate.admin.checkAdmin.useQuery();
 
-  if (admin.isLoading) return <span className="loading loading-spinner" />;
+  if (admin.isLoading) return <ButtonSkeleton />;
 
   if (admin.data) return <SongCreate albumId={albumId} />;
+}
+
+export function ButtonSkeleton() {
+  return <div className="btn skeleton " />;
 }

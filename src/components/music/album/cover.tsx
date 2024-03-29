@@ -6,6 +6,7 @@ import Image from "next/image";
 import ConfirmationModal from "../modal/confirmation";
 import clsx from "clsx";
 import { Album } from "@prisma/client";
+import { ButtonSkeleton } from "~/pages/music/album/[album]";
 
 export default function AlbumCover({
   album,
@@ -45,7 +46,7 @@ function AlbumAdminActionButtons({ album }: { album: Album }) {
   const mutation = api.music.album.delete.useMutation();
   const isAdmin = api.wallate.admin.checkAdmin.useQuery();
 
-  if (isAdmin.isLoading) return <span className="loading loading-spinner" />;
+  if (isAdmin.isLoading) return <ButtonSkeleton />;
 
   function handleAlbumDelete() {
     mutation.mutate({ albumId: album.id });

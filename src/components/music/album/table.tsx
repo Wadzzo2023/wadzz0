@@ -7,6 +7,7 @@ import clsx from "clsx";
 import MusicItem from "../track/music_item";
 import { Play } from "lucide-react";
 import BuyModal from "../modal/buy_modal";
+import { ButtonSkeleton } from "~/pages/music/album/[album]";
 
 export type SongWithAsset = Song & AssetType;
 
@@ -27,7 +28,7 @@ export default function SongList({
   albumId: number;
 }) {
   return (
-    <div className="p-2">
+    <div className="py-2">
       {/* <div className="h-4" /> */}
       <table className="table bg-base-300">
         <thead></thead>
@@ -63,7 +64,8 @@ function DeleteSongButton({ songId }: { songId: number }) {
   const admin = api.wallate.admin.checkAdmin.useQuery();
   const deleteSongMutation = api.music.song.deleteAsong.useMutation();
 
-  if (admin.isLoading || deleteSongMutation.isLoading)
+  if (admin.isLoading) return <ButtonSkeleton />;
+  if (deleteSongMutation.isLoading)
     return <span className="loading loading-spinner" />;
 
   return (
@@ -80,7 +82,7 @@ function PlayOrBuy({ song }: { song: SongWithAsset }) {
   const trackUrlStore = usePlayerStore();
   const userAssets = api.wallate.acc.getAccountInfo.useQuery();
 
-  if (userAssets.isLoading) return <span className="loading loading-spinner" />;
+  if (userAssets.isLoading) return <ButtonSkeleton />;
 
   if (
     userAssets.data?.dbAssets?.some(

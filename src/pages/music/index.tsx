@@ -44,7 +44,15 @@ function AlbumsContainer() {
       </div>
     );
 
-  if (albums.isLoading) return <div className="skeleton h-32 w-32"></div>;
+  if (albums.isLoading) return <AlbumSkeleton />;
+}
+
+export function AlbumSkeleton() {
+  return (
+    <div>
+      <div className="skeleton h-40 w-40" />
+    </div>
+  );
 }
 
 function MySongs() {
