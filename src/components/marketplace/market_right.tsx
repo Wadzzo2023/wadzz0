@@ -21,7 +21,7 @@ export default function MarketRight() {
 
   if (!currentData)
     return (
-      <div className="flex h-full w-full  items-start justify-center pt-10">
+      <div className="flex h-full w-full  items-start justify-center">
         <MyError text="No item selected" />
       </div>
     );
@@ -31,7 +31,7 @@ export default function MarketRight() {
   // const issuer = nftAsset.issuer.pub;
 
   return (
-    <div className="h-full max-h-[800px] w-full">
+    <div className="max-h h-full w-full">
       <div className="scrollbar-style relative h-full w-full overflow-y-auto rounded-xl bg-base-100/90">
         <div
           className="absolute h-full w-full opacity-10"
@@ -40,59 +40,61 @@ export default function MarketRight() {
           }}
         />
         <div className="flex h-full flex-col justify-between space-y-2 p-2">
-          <div className="relative space-y-2 rounded-box border-4 border-base-100 p-1 text-sm tracking-wider">
-            <MediaViewer
-              mediaUrl={currentData.asset.mediaUrl}
-              thumbnailUrl={currentData.asset.thumbnail}
-              name={currentData.asset.name}
-              color={color}
-            />
-          </div>
+          <div className="flex h-full flex-col gap-2 ">
+            <div className="relative flex-1 space-y-2 rounded-xl border-4 border-base-100 p-1 text-sm tracking-wider">
+              <MediaViewer
+                mediaUrl={currentData.asset.mediaUrl}
+                thumbnailUrl={currentData.asset.thumbnail}
+                name={currentData.asset.name}
+                color={color}
+              />
+            </div>
 
-          <div className="relative space-y-2 rounded-box border-4 border-base-100 p-4 text-sm tracking-wider">
-            <div className="">
-              <p>
-                <span className="font-semibold">Name:</span>{" "}
-                {currentData.asset.name}
-              </p>
-              <p>
-                <span className="font-semibold">Tag:</span>{" "}
-                <span className="badge badge-primary">
-                  {currentData.asset.code}
-                </span>
-                {/* {currentData.original && (
+            <div className="relative flex-1 space-y-2 rounded-xl border-4 border-base-100 p-4 text-sm tracking-wider">
+              <div className="">
+                <p>
+                  <span className="font-semibold">Name:</span>{" "}
+                  {currentData.asset.name}
+                </p>
+                <p>
+                  <span className="font-semibold">Tag:</span>{" "}
+                  <span className="badge badge-primary">
+                    {currentData.asset.code}
+                  </span>
+                  {/* {currentData.original && (
                   <span className="badge badge-secondary">Original</span>
                 )} */}
-              </p>
+                </p>
 
-              <p className="line-clamp-2">
-                <b>Description: </b> {currentData.asset.description}
-              </p>
-              <p>
-                <span className="font-semibold">Available:</span> {10} copy
-              </p>
-              {/* {navPath == NAVIGATION.MARKETPLACE && (
+                <p className="line-clamp-2">
+                  <b>Description: </b> {currentData.asset.description}
+                </p>
+                <p>
+                  <span className="font-semibold">Available:</span> {10} copy
+                </p>
+                {/* {navPath == NAVIGATION.MARKETPLACE && (
                 <p>
                   <span className="font-semibold">Price:</span>{" "}
                   {Number(currentData.price) + 50}
                 </p>
               )} */}
-              {/* {currentData.ownerAcc && (
+                {/* {currentData.ownerAcc && (
                 <p>
                   <b>Seller</b>: {addrShort(currentData.ownerAcc, 5)}
                 </p>
               )} */}
-              <p>
-                <b>Media:</b> {currentData.asset.mediaType}
-              </p>
-            </div>
-            <div className="space-y-2">
-              <div>
-                <OtherButtons />
-                {/* {navPath == NAVIGATION.MARKETPLACE && (
+                <p>
+                  <b>Media:</b> {currentData.asset.mediaType}
+                </p>
+              </div>
+              <div className="space-y-2">
+                <div>
+                  <OtherButtons />
+                  {/* {navPath == NAVIGATION.MARKETPLACE && (
                   <NFTCreateWithAuth mode={ModalMode.EDIT} nft={currentData} />
                 )}
                 <DeleteButton path={currentData.path} /> */}
+                </div>
               </div>
             </div>
           </div>

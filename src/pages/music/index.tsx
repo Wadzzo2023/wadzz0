@@ -5,16 +5,13 @@ import {
   useConnectWalletStateStore,
 } from "package/connect_wallet";
 import AlbumSection from "~/components/music/album/section";
-import TrackSection from "~/components/music/track/section";
+import TrackSection, {
+  TrackSectionSkeleton,
+} from "~/components/music/track/section";
 import { api } from "~/utils/api";
 
 export default function Home() {
   const { isAva } = useConnectWalletStateStore();
-  const albums = api.music.album.getAll.useQuery();
-
-  const publicSongs = [] as Song[];
-  const mySong = [] as Song[];
-  const safeAllsong = [] as Song[];
 
   return (
     <>
@@ -24,32 +21,9 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <div className="flex flex-col gap-5 ">
-        <div className="mt-4 w-full">
-          {/* {banner ? (
-            <div className=" w-full">
-              <div
-                className="relative w-full rounded-2xl bg-gradient-to-r from-base-300 via-base-100 to-base-300"
-                style={{ height: height ? height / 2 : "45vh" }}
-              >
-                <Image
-                  alt="Banner"
-                  src={banner.imgUrl}
-                  fill
-                  className="rounded-2xl  object-scale-down md:object-contain"
-                />
-              </div>
-            </div>
-          ) : (
-            <div className=" rounded-2xl bg-base-300"></div>
-          )} */}
-        </div>
-        {albums.data && (
-          <div>
-            <h3 className="py-4 text-2xl font-bold">ALBUMS</h3>
-            <AlbumSection albums={albums.data} />
-          </div>
-        )}
+      <div className="flex flex-col gap-5 p-4">
+        <AlbumsContainer />
+
         <AllSongs />
         <MySongs />
 
@@ -59,15 +33,31 @@ export default function Home() {
   );
 }
 
+function AlbumsContainer() {
+  const albums = api.music.album.getAll.useQuery();
+
+  if (albums.data)
+    return (
+      <div>
+        <h3 className="pb-4 text-2xl font-bold">ALBUMS</h3>
+        <AlbumSection albums={albums.data} />
+      </div>
+    );
+
+  if (albums.isLoading) return <div className="skeleton h-32 w-32"></div>;
+}
+
 function MySongs() {
   const mySongs = api.music.song.getUserBuyedSongs.useQuery();
 
-  if (mySongs.isLoading) return <span className="loading loading-spinner" />;
+  const header = "Your songs";
+
+  if (mySongs.isLoading) return <TrackSectionSkeleton header={header} />;
 
   if (mySongs.data && mySongs.data.length > 0) {
     return (
       <div className="py-4">
-        <TrackSection songs={mySongs.data} header="Your songs" />
+        <TrackSection songs={mySongs.data} header={header} />
       </div>
     );
   }
@@ -76,12 +66,14 @@ function MySongs() {
 function AllSongs() {
   const allSongs = api.music.song.getAllSong.useQuery();
 
-  if (allSongs.isLoading) return <span className="loading loading-spinner" />;
+  const header = "Recently Added Songs";
+
+  if (allSongs.isLoading) return <TrackSectionSkeleton header={header} />;
 
   if (allSongs.data && allSongs.data.length > 0) {
     return (
       <div className="py-4">
-        <TrackSection songs={allSongs.data} header="Recently Added Songs" />
+        <TrackSection songs={allSongs.data} header={header} />
       </div>
     );
   }

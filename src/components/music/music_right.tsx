@@ -37,7 +37,14 @@ export function MusicRightSide() {
 function RightSongs() {
   const songs = api.music.song.getUserBuyedSongs.useQuery();
 
-  if (songs.isLoading) return <span className="loading loading-spinner" />;
+  if (songs.isLoading)
+    return (
+      <div className=" flex-1 rounded-xl border-4 border-base-100 bg-base-200/80 p-2">
+        <h3 className="py-2 text-2xl font-bold">Playable songs</h3>
+        <div className="skeleton my-2 h-10 w-full" />
+        <div className="skeleton h-10 w-full" />
+      </div>
+    );
 
   if (songs.data)
     return (

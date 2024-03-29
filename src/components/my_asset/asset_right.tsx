@@ -32,7 +32,7 @@ export default function AssetRight() {
   const color = "green";
 
   return (
-    <div className="h-full max-h-[800px] w-full">
+    <div className="h-full  w-full">
       <div className="scrollbar-style relative h-full w-full overflow-y-auto rounded-xl bg-base-100/90">
         <div
           className="absolute h-full w-full opacity-10"
@@ -41,39 +41,44 @@ export default function AssetRight() {
           }}
         />
         <div className="flex h-full flex-col justify-between space-y-2 p-2">
-          <div className="relative space-y-2 rounded-box border-4 border-base-100 p-1 text-sm tracking-wider">
-            <MediaViewer
-              mediaUrl={currentData.mediaUrl}
-              thumbnailUrl={currentData.thumbnail}
-              name={currentData.name}
-              color={color}
-            />
-          </div>
-
-          <div className="relative space-y-2 rounded-box border-4 border-base-100 p-4 text-sm tracking-wider">
-            <div className="">
-              <p>
-                <span className="font-semibold">Name:</span> {currentData.name}
-              </p>
-              <p>
-                <span className="font-semibold">Tag:</span>{" "}
-                <span className="badge badge-primary">{currentData.code}</span>
-              </p>
-
-              <p className="line-clamp-2">
-                <b>Description: </b> {currentData.description}
-              </p>
-              <p>
-                <span className="font-semibold">Available:</span> {10} copy
-              </p>
-
-              <p>
-                <b>Media:</b> {currentData.mediaType}
-              </p>
+          <div className="flex h-full flex-col justify-between space-y-2">
+            <div className="relative flex-1 space-y-2 rounded-xl border-4 border-base-100 p-1 text-sm tracking-wider">
+              <MediaViewer
+                mediaUrl={currentData.mediaUrl}
+                thumbnailUrl={currentData.thumbnail}
+                name={currentData.name}
+                color={color}
+              />
             </div>
-            <div className="space-y-2">
-              <div>
-                <OtherButtons />
+
+            <div className="relative flex-1 space-y-2 rounded-xl border-4 border-base-100 p-4 text-sm tracking-wider">
+              <div className="">
+                <p>
+                  <span className="font-semibold">Name:</span>{" "}
+                  {currentData.name}
+                </p>
+                <p>
+                  <span className="font-semibold">Tag:</span>{" "}
+                  <span className="badge badge-primary">
+                    {currentData.code}
+                  </span>
+                </p>
+
+                <p className="line-clamp-2">
+                  <b>Description: </b> {currentData.description}
+                </p>
+                <p>
+                  <span className="font-semibold">Available:</span> {10} copy
+                </p>
+
+                <p>
+                  <b>Media:</b> {currentData.mediaType}
+                </p>
+              </div>
+              <div className="space-y-2">
+                <div>
+                  <OtherButtons />
+                </div>
               </div>
             </div>
           </div>
