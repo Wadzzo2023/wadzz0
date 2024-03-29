@@ -50,7 +50,7 @@ function MyStorageAsset() {
                   const copies = acc.data.accAssets[i]?.copies ?? 0;
                 }}
               >
-                <p>{acc.data.accAssets[i]?.copies}</p>
+                {/* <p>{acc.data.accAssets[i]?.copies}</p> */}
                 <AssetView code={asset.code} thumbnail={asset.thumbnail} />
               </button>
             </div>
@@ -83,7 +83,7 @@ function MyAssets() {
                   setData(asset);
                 }}
               >
-                <p>{acc.data.accAssets[i]?.copies}</p>
+                {/* <p>{acc.data.accAssets[i]?.copies}</p> */}
                 <AssetView code={asset.code} thumbnail={asset.thumbnail} />
               </button>
             </div>

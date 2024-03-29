@@ -55,9 +55,10 @@ export function CreatPost() {
     onSuccess: () => {
       reset();
       toast.success("Post Created");
+      setMedia([]);
     },
   });
-  const { data, isLoading } = api.fan.member.getAllMembership.useQuery();
+  const tiers = api.fan.member.getAllMembership.useQuery();
 
   const onSubmit: SubmitHandler<z.infer<typeof PostSchema>> = (data) => {
     data.medias = media;
@@ -74,127 +75,128 @@ export function CreatPost() {
   };
 
   if (!creator.data) return <div>You are not creator</div>;
-  if (isLoading) return <div>Loading... while getting subscription</div>;
-  if (data)
-    return (
-      <div className="w-full ">
-        <form
-          onSubmit={handleSubmit(onSubmit)}
-          className="flex w-full flex-col gap-2 rounded-3xl bg-base-200 p-5"
-        >
-          <div className="mb-5 flex items-end justify-between ">
-            <div className="flex items-center gap-2 ">
-              <Avater className="w-8" url={creator.data.profileUrl} />
-              <p>{creator.data.name}</p>
-            </div>
-            <div className="flex items-center gap-2">
-              <Users2 size={30} />
-              <Controller
-                name="subscription"
-                control={control}
-                render={({ field }) => (
-                  <select {...field} className="select select-bordered ">
-                    <option selected disabled>
-                      Choose Subscription Model
-                    </option>
-                    {/* {data.map((model) => (
-                      <option
-                        key={model.id}
-                        value={model.id}
-                      >{`${model.name} ${model.priority}`}</option>
-                    ))} */}
-                  </select>
-                )}
-              />
-            </div>
+
+  function TiersOptions() {
+    if (tiers.isLoading) return <div className="skeleton h-10 w-20"></div>;
+    if (tiers.data) {
+      return (
+        <Controller
+          name="subscription"
+          control={control}
+          render={({ field }) => (
+            <select {...field} className="select select-bordered ">
+              <option selected disabled>
+                Choose Subscription Model
+              </option>
+              {tiers.data.map((model) => (
+                <option
+                  key={model.id}
+                  value={model.id}
+                >{`${model.name} ${model.priority}`}</option>
+              ))}
+            </select>
+          )}
+        />
+      );
+    }
+  }
+  return (
+    <div className="w-full ">
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        className="flex w-full flex-col gap-2 rounded-3xl bg-base-200 p-5"
+      >
+        <div className="mb-5 flex items-end justify-between ">
+          <div className="flex items-center gap-2 ">
+            <Avater className="w-8" url={creator.data.profileUrl} />
+            <p>{creator.data.name}</p>
           </div>
-          <label className="form-control w-full ">
-            <input
-              type="text"
-              placeholder="Add a title..."
-              {...register("heading")}
-              className="input input-bordered w-full "
-            />
-            {errors.heading && (
-              <div className="label">
-                <span className="label-text-alt text-warning">
-                  {errors.heading.message}
-                </span>
-              </div>
+          <div className="flex items-center gap-2">
+            <Users2 size={30} />
+            <TiersOptions />
+          </div>
+        </div>
+        <label className="form-control w-full ">
+          <input
+            type="text"
+            placeholder="Add a title..."
+            {...register("heading")}
+            className="input input-bordered w-full "
+          />
+          {errors.heading && (
+            <div className="label">
+              <span className="label-text-alt text-warning">
+                {errors.heading.message}
+              </span>
+            </div>
+          )}
+        </label>
+
+        <label className="form-control">
+          <textarea
+            {...register("content")}
+            className="textarea textarea-bordered h-48"
+            placeholder="How's your next thing comming?"
+          ></textarea>
+          {errors.content && (
+            <div className="label">
+              <span className="label-text-alt text-warning">
+                {errors.content.message}
+              </span>
+            </div>
+          )}
+        </label>
+
+        <div>
+          <div className="flex h-40 flex-col items-center gap-2">
+            <div className="flex gap-2">
+              {media.map((el, id) => (
+                <Image key={id} src={el.url} alt="d" height={100} width={100} />
+              ))}
+            </div>
+            {wantMediaType && (
+              <UploadButton
+                endpoint="imageUploader"
+                content={{ button: "Add Media", allowedContent: "Max (4MB)" }}
+                onClientUploadComplete={(res) => {
+                  // Do something with the response
+                  // alert("Upload Completed");
+                  const data = res[0];
+
+                  if (data?.url) {
+                    addMediaItem(data.url, wantMediaType);
+                    setWantMedia(undefined);
+                    // setMediaUrl(data.url);
+                    // console.log(wantMediaType, "mediaType");
+                    // setValue("mediaType", wantMediaType);
+                    // setValue("mediaUrl", data.url);
+                    // updateProfileMutation.mutate(data.url);
+                  }
+                  // updateProfileMutation.mutate(res);
+                }}
+                onUploadError={(error: Error) => {
+                  // Do something with the error.
+                  alert(`ERROR! ${error.message}`);
+                }}
+              />
             )}
-          </label>
+          </div>
 
-          <label className="form-control">
-            <textarea
-              {...register("content")}
-              className="textarea textarea-bordered h-48"
-              placeholder="How's your next thing comming?"
-            ></textarea>
-            {errors.content && (
-              <div className="label">
-                <span className="label-text-alt text-warning">
-                  {errors.content.message}
-                </span>
-              </div>
-            )}
-          </label>
-
-          <div>
-            <div className="flex h-40 flex-col items-center gap-2">
-              <div className="flex gap-2">
-                {media.map((el, id) => (
-                  <Image
-                    key={id}
-                    src={el.url}
-                    alt="d"
-                    height={100}
-                    width={100}
-                  />
-                ))}
-              </div>
-              {wantMediaType && (
-                <UploadButton
-                  endpoint="imageUploader"
-                  content={{ button: "Add Media", allowedContent: "Max (4MB)" }}
-                  onClientUploadComplete={(res) => {
-                    // Do something with the response
-                    // alert("Upload Completed");
-                    const data = res[0];
-
-                    if (data?.url) {
-                      addMediaItem(data.url, wantMediaType);
-                      setWantMedia(undefined);
-                      // setMediaUrl(data.url);
-                      // console.log(wantMediaType, "mediaType");
-                      // setValue("mediaType", wantMediaType);
-                      // setValue("mediaUrl", data.url);
-                      // updateProfileMutation.mutate(data.url);
-                    }
-                    // updateProfileMutation.mutate(res);
-                  }}
-                  onUploadError={(error: Error) => {
-                    // Do something with the error.
-                    alert(`ERROR! ${error.message}`);
+          <div className="flex items-center justify-between">
+            <div className="my-4 flex justify-between p-2">
+              <div className="flex gap-4 ">
+                <ImageIcon
+                  className={clsx(
+                    MediaType.IMAGE == wantMediaType && "text-primary",
+                    wantMediaType != undefined &&
+                      MediaType.IMAGE != wantMediaType &&
+                      "text-neutral",
+                  )}
+                  onClick={() => {
+                    handleWantMediaType(MediaType.IMAGE);
                   }}
                 />
-              )}
-            </div>
-
-            <div className="flex items-center justify-between">
-              <div className="my-4 flex justify-between p-2">
-                <div className="flex gap-4 ">
-                  <ImageIcon
-                    className={clsx(
-                      MediaType.IMAGE == wantMediaType && "text-primary",
-                      wantMediaType != undefined &&
-                        MediaType.IMAGE != wantMediaType &&
-                        "text-neutral",
-                    )}
-                    onClick={() => {
-                      handleWantMediaType(MediaType.IMAGE);
-                    }}
-                  />
-                  {/* {mediaTypes.map(({ type, icon: IconComponent }) => (
+                {/* {mediaTypes.map(({ type, icon: IconComponent }) => (
                     <IconComponent
                       key={type}
                       className={clsx(
@@ -208,25 +210,25 @@ export function CreatPost() {
                       }}
                     />
                   ))} */}
-                </div>
-
-                {wantMediaType && <X onClick={() => setWantMedia(undefined)} />}
               </div>
+
+              {wantMediaType && <X onClick={() => setWantMedia(undefined)} />}
             </div>
           </div>
-          <button
-            className="btn btn-primary"
-            type="submit"
-            disabled={createPostMutation.isLoading}
-          >
-            {createPostMutation.isLoading && (
-              <span className="loading loading-spinner"></span>
-            )}
-            Save
-          </button>
-        </form>
-      </div>
-    );
+        </div>
+        <button
+          className="btn btn-primary"
+          type="submit"
+          disabled={createPostMutation.isLoading}
+        >
+          {createPostMutation.isLoading && (
+            <span className="loading loading-spinner"></span>
+          )}
+          Save
+        </button>
+      </form>
+    </div>
+  );
 }
 export function PostList(props: { id: string }) {
   const posts = api.fan.post.getPosts.useInfiniteQuery(

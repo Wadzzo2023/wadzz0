@@ -171,12 +171,18 @@ export const postRouter = createTRPCRouter({
           });
 
           const userSubscriptionPriority = subscription?.subscription?.priority;
-          const postSubscriptionPriority = post.subscription?.priority;
+          const postSubscriptionPriority = post.subscription.priority;
+
+          console.log(
+            "....hi....",
+            userSubscriptionPriority,
+            postSubscriptionPriority,
+          );
 
           if (
             userSubscriptionPriority &&
             postSubscriptionPriority &&
-            userSubscriptionPriority >= postSubscriptionPriority
+            userSubscriptionPriority <= postSubscriptionPriority
           ) {
             return post;
           }

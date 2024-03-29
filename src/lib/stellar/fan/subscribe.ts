@@ -61,13 +61,13 @@ export async function getClawbackAsPayment({
       }),
     )
     // pay the creator the price amount
-    .addOperation(
-      Operation.payment({
-        amount: price,
-        asset: PLATFROM_ASSET,
-        destination: creatorId,
-      }),
-    )
+    // .addOperation(
+    //   Operation.payment({
+    //     amount: price,
+    //     asset: PLATFROM_ASSET,
+    //     destination: creatorId,
+    //   }),
+    // )
     // sending platform fee.
     // .addOperation(
     //   Operation.payment({

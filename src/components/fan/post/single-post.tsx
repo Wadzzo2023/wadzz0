@@ -1,6 +1,5 @@
 import clsx from "clsx";
 import { Heart, MessageCircle } from "lucide-react";
-import Image from "next/image";
 import Link from "next/link";
 import { api } from "~/utils/api";
 import { formatPostCreatedAt } from "~/utils/format-date";
@@ -9,8 +8,8 @@ import Avater from "../../ui/avater";
 import { AddComment } from "./add-comment";
 import CommentView from "./comment";
 import { PostContextMenu } from "./post-context-menu";
-import { PostReadMore } from "./post-read-more";
 import Slider from "../../ui/carosel";
+import Loading from "~/components/wallete/loading";
 
 export function SinglePostView({ postId }: { postId: number }) {
   const post = api.fan.post.getAPost.useQuery(postId, {
@@ -24,7 +23,7 @@ export function SinglePostView({ postId }: { postId: number }) {
   const { data: liked } = api.fan.post.isLiked.useQuery(postId);
   const comments = api.fan.post.getComments.useQuery(postId);
 
-  if (post.isLoading) return <div>Loading...</div>;
+  if (post.isLoading) return <Loading />;
 
   if (post.isError) return <div>Post not found</div>;
   if (post.data) {

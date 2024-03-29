@@ -115,7 +115,7 @@ export const membershipRouter = createTRPCRouter({
     });
   }),
 
-  getAllSubscription: protectedProcedure.query(async ({ ctx }) => {
+  getUserSubcribed: protectedProcedure.query(async ({ ctx }) => {
     return await ctx.db.user_Subscription.findMany({
       where: {
         AND: [

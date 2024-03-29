@@ -52,11 +52,18 @@ function AllRecentPost() {
   };
 
   const { data: user_subscriptions, isLoading: isLoading2 } =
-    api.fan.member.getAllSubscription.useQuery();
+    api.fan.member.getUserSubcribed.useQuery();
 
   // if (isLoading2) return <div>Loading to fetch membership...</div>;
 
-  if (posts.isLoading) return <div>Loading...</div>;
+  if (posts.isLoading)
+    return (
+      <div className="flex flex-col gap-4">
+        <PostSkeleton />
+        <PostSkeleton />
+      </div>
+    );
+
   if (posts.data) {
     return (
       <div className="flex flex-col gap-4">
@@ -74,9 +81,9 @@ function AllRecentPost() {
                   !post.subscription ||
                   user_subscriptions?.some(
                     (el) =>
-                      // el.s.creatorId == post.creatorId &&
-                      post.subscription,
-                    // el.subscription.priority <= post.subscription.priority,
+                      el.subscription.creatorId == post.creatorId &&
+                      post.subscription &&
+                      el.subscription.priority <= post.subscription.priority,
                   )
                 }
                 media={post.medias.length > 0 ? post.medias[0] : undefined}
@@ -96,4 +103,15 @@ function AllRecentPost() {
       </div>
     );
   }
+}
+
+export function PostSkeleton() {
+  return (
+    <div className="flex w-64 flex-col gap-4">
+      <div className="skeleton h-32 w-full"></div>
+      <div className="skeleton h-4 w-28"></div>
+      <div className="skeleton h-4 w-full"></div>
+      <div className="skeleton h-4 w-full"></div>
+    </div>
+  );
 }
