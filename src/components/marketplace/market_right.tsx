@@ -8,6 +8,7 @@ import { useMarketRightStore } from "~/lib/state/marketplace/right";
 import { Asset, MediaType, MarketAsset } from "@prisma/client";
 import ImageVideViewer from "../wallete/Image_video_viewer";
 import BuyModal from "../music/modal/buy_modal";
+import { addrShort } from "~/lib/utils";
 
 export type AssetType = Omit<Asset, "issuerPrivate">;
 
@@ -51,38 +52,38 @@ export default function MarketRight() {
             </div>
 
             <div className="relative flex-1 space-y-2 rounded-xl border-4 border-base-100 p-4 text-sm tracking-wider">
-              <div className="">
+              <div className="flex flex-col gap-2">
                 <p>
                   <span className="font-semibold">Name:</span>{" "}
                   {currentData.asset.name}
                 </p>
                 <p>
-                  <span className="font-semibold">Tag:</span>{" "}
                   <span className="badge badge-primary">
                     {currentData.asset.code}
                   </span>
-                  {/* {currentData.original && (
-                  <span className="badge badge-secondary">Original</span>
-                )} */}
+                  {!currentData.placerId && (
+                    <span className="badge badge-secondary">Original</span>
+                  )}
                 </p>
 
                 <p className="line-clamp-2">
                   <b>Description: </b> {currentData.asset.description}
                 </p>
                 <p>
-                  <span className="font-semibold">Available:</span> {10} copy
+                  <span className="font-semibold">Available:</span>{" "}
+                  <TokenCopies id={currentData.id} /> copy
                 </p>
-                {/* {navPath == NAVIGATION.MARKETPLACE && (
+
                 <p>
-                  <span className="font-semibold">Price:</span>{" "}
-                  {Number(currentData.price) + 50}
+                  <span className="font-semibold">
+                    Price: {currentData.price}{" "}
+                  </span>
                 </p>
-              )} */}
-                {/* {currentData.ownerAcc && (
-                <p>
-                  <b>Seller</b>: {addrShort(currentData.ownerAcc, 5)}
-                </p>
-              )} */}
+                {currentData.placerId && (
+                  <p>
+                    <b>Seller</b>: {addrShort(currentData.placerId, 5)}
+                  </p>
+                )}
                 <p>
                   <b>Media:</b> {currentData.asset.mediaType}
                 </p>
@@ -90,10 +91,6 @@ export default function MarketRight() {
               <div className="space-y-2">
                 <div>
                   <OtherButtons />
-                  {/* {navPath == NAVIGATION.MARKETPLACE && (
-                  <NFTCreateWithAuth mode={ModalMode.EDIT} nft={currentData} />
-                )}
-                <DeleteButton path={currentData.path} /> */}
                 </div>
               </div>
             </div>
@@ -102,6 +99,17 @@ export default function MarketRight() {
       </div>
     </div>
   );
+}
+
+function TokenCopies({ id }: { id: number }) {
+  const { currentData } = useMarketRightStore();
+  const copy = api.marketplace.market.getMarketAssetAvailableCopy.useQuery({
+    id,
+  });
+
+  if (copy.isLoading) return <span className="loading loading-spinner" />;
+
+  if (copy.data) return <span>copy.data</span>;
 }
 
 function OtherButtons() {

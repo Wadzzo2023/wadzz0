@@ -1,19 +1,39 @@
 import { Server } from "stellar-sdk";
 import { STELLAR_URL, STROOP } from "../constant";
 
-export async function accountDetails({ userPub }: { userPub: string }) {
+export async function accountBalances({ userPub }: { userPub: string }) {
   const server = new Server(STELLAR_URL);
 
   const transactionInializer = await server.loadAccount(userPub);
-  transactionInializer.balances.forEach((balance) => {
+  const balances = transactionInializer.balances;
+
+  return balances;
+  // console.log("acc", transactionInializer);
+}
+
+export async function getAssetBalance({
+  pubkey,
+  code,
+  issuer,
+}: {
+  pubkey: string;
+
+  code: string;
+  issuer: string;
+}) {
+  const balances = await accountBalances({ userPub: pubkey });
+
+  const asset = balances.find((balance) => {
     if (
       balance.asset_type === "credit_alphanum12" ||
       balance.asset_type === "credit_alphanum4"
     ) {
-      balance.asset_issuer;
+      if (balance.asset_code === code && balance.asset_issuer === issuer)
+        return balance.balance;
     }
   });
-  // console.log("acc", transactionInializer);
+
+  return asset;
 }
 
 export async function accountDetailsWithHomeDomain({

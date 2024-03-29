@@ -1,7 +1,10 @@
 import { where } from "firebase/firestore";
+import { Keypair } from "stellar-sdk";
 import { z } from "zod";
 import { PlaceMarketFormSchema } from "~/components/marketplace/modal/place_2storage_modal";
 import { BackMarketFormSchema } from "~/components/marketplace/modal/revert_place_market_modal";
+import { env } from "~/env";
+import { StellarAccount } from "~/lib/stellar/marketplace/test/Account";
 import { copyToBalance } from "~/lib/stellar/marketplace/test/acc";
 import {
   sendNft2StorageXDR,
@@ -244,5 +247,53 @@ export const marketRouter = createTRPCRouter({
         nfts: items,
         nextCursor,
       };
+    }),
+
+  getMarketAssetAvailableCopy: protectedProcedure
+    .input(z.object({ id: z.number().optional() }))
+    .query(async ({ ctx, input }) => {
+      const { id } = input;
+
+      if (!id) throw new Error("id is required");
+
+      const marketItem = await ctx.db.marketAsset.findUnique({
+        where: { id },
+        include: { asset: { select: { code: true, issuer: true } } },
+      });
+
+      if (!marketItem) throw new Error("market item not found");
+
+      const placerId = marketItem.placerId;
+
+      if (placerId) {
+        // placer have to be creator, have an storage account,
+        const placer = await ctx.db.creator.findUnique({
+          where: { id: placerId },
+        });
+
+        if (!placer) throw new Error("seller not found");
+
+        const placerStorage = placer.storagePub;
+
+        const bal = new StellarAccount(placerStorage);
+        const copy = await bal.getTokenBalance(
+          marketItem.asset.code,
+          marketItem.asset.issuer,
+        );
+
+        return copy;
+      } else {
+        // admin or original item
+        const adminStorage = Keypair.fromSecret(env.STORAGE_SECRET).publicKey();
+
+        const bal = new StellarAccount(adminStorage);
+        const copy = await bal.getTokenBalance(
+          marketItem.asset.code,
+          marketItem.asset.issuer,
+        );
+
+        return copy;
+      }
+      // return copies.length;
     }),
 });

@@ -6,10 +6,6 @@ function Main() {
     <div className="h-full space-y-2 tracking-wider">
       <AllTag />
       <div className="h-full space-y-2">
-        <p>search asset</p>
-
-        {/* <MyAsset /> */}
-
         <AllAsset />
       </div>
     </div>

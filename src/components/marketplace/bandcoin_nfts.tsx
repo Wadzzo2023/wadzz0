@@ -10,7 +10,7 @@ export default function WallateNFTs() {
     },
   );
 
-  if (assets.isLoading) return <span className="loading loading-spinner" />;
+  if (assets.isLoading) return <MoreAssetsSkeleton />;
 
   if (assets.data) {
     return (
@@ -22,7 +22,7 @@ export default function WallateNFTs() {
       >
         {assets.data.pages.map((page) =>
           page.nfts.map((item, i) => (
-            <MarketAssetComponent key={i}  item={item} />
+            <MarketAssetComponent key={i} item={item} />
           )),
         )}
         {assets.hasNextPage && (
@@ -36,4 +36,24 @@ export default function WallateNFTs() {
       </div>
     );
   }
+}
+
+export function MoreAssetsSkeleton() {
+  return (
+    <div
+      style={{
+        scrollbarGutter: "stable",
+      }}
+      className="main-asset-area"
+    >
+      <MarketAssetSkeleton />
+      <MarketAssetSkeleton />
+      <MarketAssetSkeleton />
+      <MarketAssetSkeleton />
+    </div>
+  );
+}
+
+function MarketAssetSkeleton() {
+  return <div className="skeleton h-40 w-full"></div>;
 }
