@@ -10,7 +10,7 @@ export type AdminAssetWithTag = AdminAsset & {
   }[];
 };
 function Asset({ asset }: { asset: AdminAssetWithTag }) {
-  const { logoUrl, logoBlueData, color } = asset;
+  const { logoUrl, logoBlueData, color, code } = asset;
   const urs = useRightStore();
   return (
     <div>
@@ -34,16 +34,13 @@ function Asset({ asset }: { asset: AdminAssetWithTag }) {
             <div className="relative w-24 rounded-full">
               <ImageVideViewer
                 blurData={logoBlueData}
-                code={"code"}
+                code={code}
                 url={logoUrl}
                 sizes="100px"
               />
             </div>
           </div>
-          <p>
-            {/* <Highlight hit={asset } attribute="code" /> */}
-            Highight
-          </p>
+          <p>{code}</p>
         </div>
       </button>
     </div>

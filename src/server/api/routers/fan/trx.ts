@@ -20,6 +20,7 @@ import { createUniAsset } from "~/lib/stellar/uni_create_asset";
 import { db } from "~/server/db";
 import { env } from "~/env";
 import { Keypair } from "stellar-sdk";
+import { copyToBalance } from "~/lib/stellar/marketplace/test/acc";
 
 export const trxRouter = createTRPCRouter({
   clawbackAssetCreationTrx: protectedProcedure
@@ -83,6 +84,7 @@ export const trxRouter = createTRPCRouter({
     .mutation(async ({ ctx, input: i }) => {
       const assetAmout = await getAssetNumberForXLM();
       const signWith = i.signWith;
+      const limit = copyToBalance(i.limit);
 
       // set this for admin and user
       let pubkey = ctx.session.user.id;
@@ -111,7 +113,7 @@ export const trxRouter = createTRPCRouter({
         storageSecret,
         code: i.code,
         homeDomain,
-        limit: i.limit.toString(),
+        limit,
         signWith,
       });
     }),

@@ -67,7 +67,7 @@ export const stellarRouter = createTRPCRouter({
     )
     .mutation(async ({ input: i }) => {
       //validate input
-      const assetLimit = i.limit.toString();
+      const assetLimit = copyToBalance(i.limit);
 
       return await firstTransection({
         assetCode: i.code,
