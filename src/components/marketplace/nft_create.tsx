@@ -40,6 +40,7 @@ type NftFormType = z.TypeOf<typeof NftFormSchema>;
 
 export default function NftCreate({ admin: isAdmin }: { admin?: true }) {
   const modalRef = useRef<HTMLDialogElement>(null);
+  const [submitLoading, setSubmitLoading] = useState(false);
   const [mediaType, setMediaType] = useState<MediaType>(MediaType.IMAGE);
 
   const [mediaUrl, setMediaUrl] = useState<string>();
@@ -56,6 +57,7 @@ export default function NftCreate({ admin: isAdmin }: { admin?: true }) {
     handleSubmit,
     setValue,
     getValues,
+    reset,
     formState: { errors },
     control,
   } = useForm<z.infer<typeof NftFormSchema>>({
@@ -68,39 +70,34 @@ export default function NftCreate({ admin: isAdmin }: { admin?: true }) {
   });
 
   const addAsset = api.fan.asset.createAsset.useMutation({
-    onSuccess: () => toast.success("NFT Created"),
+    onSuccess: () => {
+      toast.success("NFT Created");
+      reset();
+    },
   });
 
   const xdrMutation = api.fan.trx.createUniAssetTrx.useMutation({
     onSuccess(data, variables, context) {
-      if (true) {
-        const { issuer, xdr } = data;
-        console.log(xdr, "xdr");
-        setValue("issuer", issuer);
-        clientsign({
-          presignedxdr: xdr,
-          pubkey,
-          walletType,
-          test: clientSelect(),
+      const { issuer, xdr } = data;
+      console.log(xdr, "xdr");
+      setValue("issuer", issuer);
+      clientsign({
+        presignedxdr: xdr,
+        pubkey,
+        walletType,
+        test: clientSelect(),
+      })
+        .then((res) => {
+          if (res) {
+            setValue("isAdmin", isAdmin);
+            const data = getValues();
+            // res && addMutation.mutate(data);
+            addAsset.mutate(data);
+          } else {
+            toast.error("Transaction Failed");
+          }
         })
-          .then((res) => {
-            if (res) {
-              setValue("isAdmin", isAdmin);
-              const data = getValues();
-              // res && addMutation.mutate(data);
-              addAsset.mutate(data);
-            } else {
-              toast.error("Transaction Failed");
-            }
-          })
-          .catch((e) => console.log(e));
-      }
-
-      // const formData = getValues();
-      // setValue("issuer", data.issuer);
-      // // res && addMutation.mutate(data);
-      // addAsset.mutate(formData);
-      // toast.success("NFT Created");
+        .catch((e) => console.log(e));
     },
   });
 
@@ -362,7 +359,17 @@ export default function NftCreate({ admin: isAdmin }: { admin?: true }) {
                 </>
               </div>
 
-              <input className="btn btn-primary btn-sm mt-4" type="submit" />
+              <button
+                className="btn btn-primary"
+                type="submit"
+                disabled={xdrMutation.isLoading || addAsset.isLoading}
+              >
+                {(xdrMutation.isLoading || addAsset.isLoading) && (
+                  <span className="loading loading-spinner"></span>
+                )}
+                Create Asset
+              </button>
+              {/* <input className="btn btn-primary btn-sm mt-4" type="submit" /> */}
             </div>
           </form>
 

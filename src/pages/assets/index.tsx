@@ -1,5 +1,6 @@
 import clsx from "clsx";
 import AssetView from "~/components/marketplace/asset/asset_view";
+import { MoreAssetsSkeleton } from "~/components/marketplace/bandcoin_nfts";
 import { useAssetRightStore } from "~/lib/state/assets_right";
 import {
   AssetMenu,
@@ -30,7 +31,7 @@ function MyStorageAsset() {
   const { setData } = useAssetRightStore();
   const acc = api.wallate.acc.getCreatorStorageInfo.useQuery();
 
-  if (acc.isLoading) return <span className="loading loading-spinner" />;
+  if (acc.isLoading) return <MoreAssetsSkeleton />;
   if (acc.data)
     return (
       <div
@@ -63,7 +64,7 @@ function MyAssets() {
   const acc = api.wallate.acc.getAccountInfo.useQuery();
   const { setData } = useAssetRightStore();
 
-  if (acc.isLoading) return <span className="loading loading-spinner" />;
+  if (acc.isLoading) return <MoreAssetsSkeleton />;
   if (acc.data)
     return (
       <div
