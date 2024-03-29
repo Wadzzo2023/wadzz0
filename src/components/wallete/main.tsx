@@ -1,5 +1,3 @@
-import React from "react";
-import MyAsset from "./my_asset";
 import AllAsset from "./all_asset";
 import AllTag from "./all_tags";
 
@@ -10,7 +8,7 @@ function Main() {
       <div className="h-full space-y-2">
         <p>search asset</p>
 
-        <MyAsset />
+        {/* <MyAsset /> */}
 
         <AllAsset />
       </div>

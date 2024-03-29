@@ -4,16 +4,9 @@ import MyError from "./my_error";
 import { useConnectWalletStateStore } from "package/connect_wallet";
 
 export default function MyAsset() {
-  const { setLoading } = useAssetLoadingStore();
   const walletState = useConnectWalletStateStore();
   const [isWalletAva, setIsWalletAva] = useState(false);
   const divRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    setIsWalletAva(walletState.isAva);
-  }, [walletState.isAva]);
-
- 
 
   return isWalletAva ? (
     <>
@@ -37,7 +30,6 @@ export default function MyAsset() {
           ))}
         </InfiniteScroll> */}
       </div>
-      
     </>
   ) : (
     <MyError text="Connect your wallet" />

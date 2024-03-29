@@ -5,7 +5,7 @@ interface RightState {
   open: boolean;
   currentData?: AdminAssetWithTag;
   setOpen: (value: boolean) => void;
-  setData: (value: AdminAssetWithTag) => void;
+  setData: (value?: AdminAssetWithTag) => void;
 }
 
 export const useRightStore = create<RightState>((set) => ({

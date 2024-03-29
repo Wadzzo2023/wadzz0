@@ -1,8 +1,10 @@
+import { useRightStore } from "~/lib/state/wallete/right";
 import { useTagStore } from "~/lib/state/wallete/tag";
 import { api } from "~/utils/api";
 
 export default function AllTags() {
-  const { selectTag } = useTagStore();
+  const { selectTag, selectedTag } = useTagStore();
+  const { setData } = useRightStore();
 
   const tags = api.wallate.tag.getAllTags.useQuery();
 
@@ -22,13 +24,20 @@ export default function AllTags() {
           type="radio"
           name="options"
           aria-label="Tags: "
+          onClick={() => {
+            selectTag(undefined);
+            setData(undefined);
+          }}
         />
         {tags.data.map((item, i) => (
           <input
             type="radio"
             name="options"
             aria-label={item.tagName}
-            onClick={() => selectTag(item.tagName)}
+            onClick={() => {
+              selectTag(item.tagName);
+              setData(undefined);
+            }}
             className="!btn join-item"
             key={i}
           />

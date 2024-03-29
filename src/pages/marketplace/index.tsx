@@ -2,6 +2,7 @@ import clsx from "clsx";
 import WallateNFTs from "~/components/marketplace/bandcoin_nfts";
 import FanAssetNfts from "~/components/marketplace/fans_assets";
 import MusicAssetNfts from "~/components/marketplace/music_assets";
+import { useMarketRightStore } from "~/lib/state/marketplace/right";
 import { MarketMenu, useMarketMenu } from "~/lib/state/marketplace/tab-menu";
 
 export default function MarketplacePage() {
@@ -29,13 +30,17 @@ function RenderTabs() {
 
 function MarketTabs() {
   const { selectedMenu, setSelectedMenu } = useMarketMenu();
+  const { setData } = useMarketRightStore();
   return (
     <div role="tablist" className="tabs-boxed tabs my-5 ">
       {Object.values(MarketMenu).map((key) => {
         return (
           <a
             key={key}
-            onClick={() => setSelectedMenu(key)}
+            onClick={() => {
+              setSelectedMenu(key);
+              setData(undefined);
+            }}
             role="tab"
             className={clsx(
               "tab",
