@@ -1,12 +1,11 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Subscription } from "@prisma/client";
 import { Pencil } from "lucide-react";
 import { useRouter } from "next/router";
 import React, { useRef } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { z } from "zod";
+import { SubscriptionType } from "~/pages/fans/creator/[id]";
 import { api } from "~/utils/api";
-import { SubscriptionType } from "./card";
 
 export const EditTierSchema = z.object({
   name: z
