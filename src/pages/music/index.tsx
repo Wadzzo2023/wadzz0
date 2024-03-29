@@ -65,7 +65,7 @@ function MySongs() {
   if (mySongs.data && mySongs.data.length > 0) {
     return (
       <div className="py-4">
-        <TrackSection songs={mySongs.data} header={header} />
+        <TrackSection songs={mySongs.data} header={header} playable />
       </div>
     );
   }

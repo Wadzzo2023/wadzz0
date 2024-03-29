@@ -5,11 +5,7 @@ import { SubmitHandler, useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { z } from "zod";
 import { api } from "~/utils/api";
-import {
-  clientsign,
-  needSign,
-  useConnectWalletStateStore,
-} from "package/connect_wallet";
+import { clientsign, useConnectWalletStateStore } from "package/connect_wallet";
 import { clientSelect } from "~/lib/stellar/fan/utils";
 import { Plus } from "lucide-react";
 import Alert from "../../ui/alert";

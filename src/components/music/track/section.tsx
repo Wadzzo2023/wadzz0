@@ -5,9 +5,10 @@ import { SongItemType } from "./music_item";
 type TrackSectionProp = {
   header: string;
   songs: SongItemType[];
+  playable?: boolean;
 };
 
-export default function TrackSection({ header }: TrackSectionProp) {
+export default function TrackSection({ header, playable }: TrackSectionProp) {
   const songs = api.music.song.getUserBuyedSongs.useQuery();
 
   if (songs.isLoading) return <span className="loading loading-spinner" />;
@@ -17,7 +18,7 @@ export default function TrackSection({ header }: TrackSectionProp) {
       <div>
         <h3 className="py-2 text-2xl font-bold">{header}</h3>
         {songs.data.map((song) => (
-          <MusicItem key={song.id} item={song} />
+          <MusicItem key={song.id} item={song} playable={playable} />
         ))}
 
         <div className="flex flex-col gap-2"></div>

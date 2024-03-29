@@ -7,12 +7,28 @@ import { usePlayerStore } from "~/lib/state/music/track";
 import clsx from "clsx";
 import { Song } from "@prisma/client";
 import { AssetType } from "../album/table";
+import toast from "react-hot-toast";
 
 export type SongItemType = Song & AssetType;
 
-export default function MusicItem({ item }: { item: SongItemType }) {
+export default function MusicItem({
+  item,
+  playable,
+}: {
+  item: SongItemType;
+  playable?: boolean;
+}) {
+  const trackUrlStore = usePlayerStore();
+
+  function playSong() {
+    if (playable) trackUrlStore.setNewTrack(item);
+  }
+
   return (
-    <div className="flex flex-row items-center justify-between   p-2 hover:bg-base-100">
+    <div
+      className="flex flex-row items-center justify-between   p-2 hover:bg-base-100"
+      onClick={playSong}
+    >
       <div className="flex">
         <div className="bg-neutral-focus mr-4 h-10 w-10 flex-shrink-0">
           <Image

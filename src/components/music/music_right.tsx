@@ -49,7 +49,7 @@ function RightSongs() {
   if (songs.data)
     return (
       <div className=" flex-1 rounded-xl border-4 border-base-100 bg-base-200/80 p-2">
-        <TrackSection songs={songs.data} header="Playable songs" />
+        <TrackSection songs={songs.data} header="Playable songs" playable />
       </div>
     );
 }

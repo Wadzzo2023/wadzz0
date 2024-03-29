@@ -68,14 +68,15 @@ function DeleteSongButton({ songId }: { songId: number }) {
   if (deleteSongMutation.isLoading)
     return <span className="loading loading-spinner" />;
 
-  return (
-    <button
-      className="btn btn-warning btn-sm w-20"
-      onClick={() => deleteSongMutation.mutate({ songId })}
-    >
-      Delete
-    </button>
-  );
+  if (admin.data)
+    return (
+      <button
+        className="btn btn-warning btn-sm w-20"
+        onClick={() => deleteSongMutation.mutate({ songId })}
+      >
+        Delete
+      </button>
+    );
 }
 
 function PlayOrBuy({ song }: { song: SongWithAsset }) {
