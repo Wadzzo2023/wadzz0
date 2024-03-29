@@ -10,6 +10,7 @@ import { useSearchTagStore } from "~/lib/state/wallete/search_tag";
 import { useSearchOpenStore } from "~/lib/state/wallete/searchOpen";
 import { addrShort } from "~/lib/utils";
 import { api } from "~/utils/api";
+import MyError from "./my_error";
 
 interface RightProps {
   key?: React.Key;
@@ -19,7 +20,12 @@ function Right(_props: RightProps) {
   const stStore = useSearchTagStore();
   const soStore = useSearchOpenStore();
   const { currentData } = useRightStore();
-  if (!currentData) return <Loading />;
+  if (!currentData)
+    return (
+      <div className="flex h-full w-full  items-start justify-center">
+        <MyError text="No item selected" />
+      </div>
+    );
   const {
     codeIssuer,
     logoBlueData,
@@ -41,8 +47,8 @@ function Right(_props: RightProps) {
   ].filter((el) => el.link !== null);
 
   return (
-    <div className=" h-full max-h-[800px]">
-      <div className="scrollbar-style relative h-full w-full overflow-y-auto rounded-xl bg-base-100/90">
+    <div className="h-full ">
+      <div className="scrollbar-style relative h-full w-full  rounded-xl bg-base-100/90">
         <div
           className="absolute h-full w-full opacity-10"
           style={{
@@ -64,8 +70,8 @@ function Right(_props: RightProps) {
             </p>
           </div>
 
-          <div className="relative space-y-2 rounded-box border-4 border-base-100 p-4 text-sm tracking-wider">
-            <div className="space-y-1">
+          <div className="relative space-y-2 overflow-y-auto rounded-box border-4 border-base-100 p-4 text-sm tracking-wider scrollbar-hide">
+            <div className="space-y-1 ">
               <div className="flex items-center justify-between gap-1">
                 <p>
                   <span className="font-semibold">Asset Code:</span> {code}
