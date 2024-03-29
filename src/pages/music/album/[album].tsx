@@ -29,14 +29,8 @@ export default function AlbumPageWrapper() {
 }
 export function AlbumPage({ albumId }: { albumId: number }) {
   const { status } = useSession();
-  const walletState = useConnectWalletStateStore();
-  const [isWalletAva, setIsWalletAva] = useState(false);
 
   const album = api.music.album.getById.useQuery({ albumId });
-
-  useEffect(() => {
-    setIsWalletAva(walletState.isAva);
-  }, [walletState.isAva]);
 
   const logicalRender = () => {
     if (status === "authenticated" && album.data) {
@@ -52,17 +46,11 @@ export function AlbumPage({ albumId }: { albumId: number }) {
         </>
       );
     } else {
-      if (isWalletAva) {
-        // return pubSongs.length ? (
-        //   <SongList albumId={albumId} songs={pubSongs} />
-        // ) : (
-        //   <p>There are no available song</p>
-        // );
-      } else {
-        return <ConnectWalletButton />;
-      }
+      return <ConnectWalletButton />;
     }
   };
+
+  if (album.isLoading) return <span className="loading loading-spinner" />;
 
   if (album.data && album.data.songs) {
     return (
@@ -71,13 +59,14 @@ export function AlbumPage({ albumId }: { albumId: number }) {
         {logicalRender()}
       </div>
     );
-  } else {
+  }
+
+  if (album.isError)
     return (
       <div className="mt-10">
         <Alert type="info" content="This Album does not exist" />
       </div>
     );
-  }
 }
 
 function AdminCreateSong({ albumId }: { albumId: number }) {

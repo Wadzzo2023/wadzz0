@@ -74,7 +74,7 @@ export const marketRouter = createTRPCRouter({
 
       const assetAmount = copyToBalance(placingCopies);
 
-      console.log(assetAmount)
+      console.log(assetAmount);
       // stellear sdk for xdr
       return await sendNftback({
         assetAmount,
@@ -193,7 +193,7 @@ export const marketRouter = createTRPCRouter({
             select: AssetSelectAllProperty,
           },
         },
-        where: { placerId: null, type: { equals: "ADMIN" } },
+        where: { type: "ADMIN" },
       });
 
       let nextCursor: typeof cursor | undefined = undefined;

@@ -46,6 +46,7 @@ export default function SongCreate({ albumId }: { albumId: number }) {
     handleSubmit,
     setValue,
     getValues,
+    reset,
     formState: { errors },
     control,
   } = useForm<z.infer<typeof SongFormSchema>>({
@@ -56,6 +57,7 @@ export default function SongCreate({ albumId }: { albumId: number }) {
   const addSong = api.music.song.create.useMutation({
     onSuccess: () => {
       toast.success("Song added");
+      reset();
     },
   });
 
@@ -103,7 +105,7 @@ export default function SongCreate({ albumId }: { albumId: number }) {
     });
   };
 
-  console.log("errors", errors);
+  // console.log("errors", errors);
 
   const handleModal = () => {
     modalRef.current?.showModal();
@@ -156,10 +158,13 @@ export default function SongCreate({ albumId }: { albumId: number }) {
                   </div>
                 </div>
                 <label className="label font-bold">Upload Files</label>
-                <div className="form-control w-full max-w-xs">
+                <div className="form-control w-full">
                   <label className="label">
                     <span className="label-text">
                       Choose a thumbnail. (this will be used as NFT Image)
+                      {errors.coverImgUrl && (
+                        <span className="text-warning">`(is requried)`</span>
+                      )}
                     </span>
                   </label>
 
@@ -200,10 +205,15 @@ export default function SongCreate({ albumId }: { albumId: number }) {
                     )}
                   </div>
 
-                  <div className="form-control w-full max-w-xs">
+                  <div className="form-control w-full">
                     <label className="label">
                       <span className="label-text">
-                        Choose your music (required)
+                        Choose your music{" "}
+                        {errors.musicUrl ? (
+                          <span className="text-warning">`(requried)`</span>
+                        ) : (
+                          `(required)`
+                        )}
                       </span>
                     </label>
 
@@ -240,7 +250,7 @@ export default function SongCreate({ albumId }: { albumId: number }) {
                 </div>
 
                 <div className="w-full max-w-xs">
-                  <label className="label">Choose Song privacy type</label>
+                  {/* <label className="label">Choose Song privacy type</label> */}
                   {/* <select
               className="select select-bordered select-sm w-full max-w-xs"
               onChange={onOptionChanged}
@@ -348,7 +358,16 @@ export default function SongCreate({ albumId }: { albumId: number }) {
                 </>
               </div>
 
-              <input className="btn btn-primary btn-sm mt-4" type="submit" />
+              <button
+                className="btn btn-primary"
+                type="submit"
+                disabled={xdrMutation.isLoading || addSong.isLoading}
+              >
+                {(xdrMutation.isLoading || addSong.isLoading) && (
+                  <span className="loading loading-spinner"></span>
+                )}
+                Add Music Asset
+              </button>
             </div>
           </form>
 

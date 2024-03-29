@@ -83,7 +83,7 @@ function PlayOrBuy({ song }: { song: SongWithAsset }) {
   if (userAssets.isLoading) return <span className="loading loading-spinner" />;
 
   if (
-    userAssets.data?.some(
+    userAssets.data?.dbAssets?.some(
       (el) => el.code === song.asset.code && el.issuer === song.asset.issuer,
     )
   ) {
