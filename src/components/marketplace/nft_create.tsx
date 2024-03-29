@@ -92,6 +92,7 @@ export default function NftCreate({ admin: isAdmin }: { admin?: true }) {
             setValue("isAdmin", isAdmin);
             const data = getValues();
             // res && addMutation.mutate(data);
+
             addAsset.mutate(data);
           } else {
             toast.error("Transaction Failed");

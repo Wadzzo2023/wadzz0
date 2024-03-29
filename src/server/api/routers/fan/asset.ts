@@ -16,13 +16,13 @@ export const shopRouter = createTRPCRouter({
         code,
         coverImgUrl,
         description,
-        limit,
+
         mediaType,
         mediaUrl,
         name,
         price,
         issuer,
-        songInfo,
+
         isAdmin,
       } = input;
 
@@ -30,6 +30,9 @@ export const shopRouter = createTRPCRouter({
         const userId = ctx.session.user.id;
         const creatorId = isAdmin ? undefined : userId; // for admin creator and placer id is undefined
         const nftType = isAdmin ? "ADMIN" : "FAN";
+
+
+        console.log("mediaType", mediaType, mediaUrl)
 
         const asset = await ctx.db.asset.create({
           data: {

@@ -15,6 +15,9 @@ const selectedColumn = {
   priority: true,
   days: true,
   id: true,
+  creatorId: true,
+  issuer: true,
+  escrow: true,
 };
 
 export const membershipRouter = createTRPCRouter({

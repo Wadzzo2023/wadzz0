@@ -27,16 +27,18 @@ export async function clawBackAccCreate({
   assetCode,
   actionAmount,
   signWith,
+  storageSecret,
 }: {
   pubkey: string;
   assetCode: string;
   actionAmount: string; // this is amount that will be used to refund xlm
   signWith: SignUserType;
+  storageSecret: string;
 }) {
   const server = new Server(STELLAR_URL);
   const limit = "50000";
 
-  const distributorAcc = Keypair.fromSecret(env.STORAGE_SECRET);
+  const storageAcc = Keypair.fromSecret(storageSecret);
 
   const escrowAcc = Keypair.random();
   const asset = new Asset(assetCode, escrowAcc.publicKey());
@@ -48,23 +50,23 @@ export async function clawBackAccCreate({
     networkPassphrase,
   })
     // first get action for required xlm.
-    .addOperation(
-      Operation.payment({
-        destination: distributorAcc.publicKey(),
-        asset: PLATFROM_ASSET,
-        amount: actionAmount,
-      }),
-    )
+    // .addOperation(
+    //   Operation.payment({
+    //     destination: storageAcc.publicKey(),
+    //     asset: PLATFROM_ASSET,
+    //     amount: actionAmount,
+    //   }),
+    // )
 
     // send this required xlm
-    .addOperation(
-      Operation.payment({
-        destination: pubkey,
-        asset: Asset.native(),
-        amount: "1.5",
-        source: distributorAcc.publicKey(),
-      }),
-    )
+    // .addOperation(
+    //   Operation.payment({
+    //     destination: pubkey,
+    //     asset: Asset.native(),
+    //     amount: "1.5",
+    //     source: storageAcc.publicKey(),
+    //   }),
+    // )
 
     // create escrow acc
     .addOperation(
@@ -77,7 +79,7 @@ export async function clawBackAccCreate({
     // 1 escrow acc setting his auth clawbackflag.
     .addOperation(
       Operation.setOptions({
-        homeDomain: "fan.bandcoin.io",
+        homeDomain: "tier.bandcoin.io",
         setFlags: (AuthClawbackEnabledFlag | AuthRevocableFlag) as AuthFlag,
         source: escrowAcc.publicKey(),
       }),
@@ -86,7 +88,7 @@ export async function clawBackAccCreate({
     .addOperation(
       Operation.changeTrust({
         asset,
-        source: distributorAcc.publicKey(),
+        source: storageAcc.publicKey(),
       }),
     )
     // 3
@@ -95,22 +97,22 @@ export async function clawBackAccCreate({
         asset: asset,
         amount: limit,
         source: escrowAcc.publicKey(),
-        destination: distributorAcc.publicKey(),
+        destination: storageAcc.publicKey(),
       }),
     )
     // sending platform fee.
-    .addOperation(
-      Operation.payment({
-        amount: PLATFROM_FEE,
-        asset: PLATFROM_ASSET,
-        destination: distributorAcc.publicKey(),
-      }),
-    )
+    // .addOperation(
+    //   Operation.payment({
+    //     amount: PLATFROM_FEE,
+    //     asset: PLATFROM_ASSET,
+    //     destination: storageAcc.publicKey(),
+    //   }),
+    // )
     .setTimeout(0)
     .build();
 
   // sign
-  Tx1.sign(escrowAcc, distributorAcc);
+  Tx1.sign(escrowAcc, storageAcc);
 
   // fab and oogle user sing
   const trx = Tx1.toXDR();

@@ -3,15 +3,7 @@ import AddTierModal from "./add-tier-modal";
 import { Creator, Subscription } from "@prisma/client";
 import clsx from "clsx";
 import EditTierModal from "./edit-tier-modal";
-
-export type SubscriptionType = {
-  name: string;
-  price: number;
-  features: string;
-  id: number;
-  priority: number;
-  days: number;
-};
+import { SubscriptionType } from "~/pages/fans/creator/[id]";
 
 export default function MemberShipCard({
   creator,

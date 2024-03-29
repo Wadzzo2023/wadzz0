@@ -51,7 +51,7 @@ function MyStorageAsset() {
                 }}
               >
                 <p>{acc.data.accAssets[i]?.copies}</p>
-                <AssetView code={asset.code} />
+                <AssetView code={asset.code} thumbnail={asset.thumbnail} />
               </button>
             </div>
           );
@@ -84,7 +84,7 @@ function MyAssets() {
                 }}
               >
                 <p>{acc.data.accAssets[i]?.copies}</p>
-                <AssetView code={asset.code} />
+                <AssetView code={asset.code} thumbnail={asset.thumbnail} />
               </button>
             </div>
           );

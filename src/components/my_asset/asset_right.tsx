@@ -15,6 +15,7 @@ import {
   useAssetMenu,
 } from "~/lib/state/marketplace/asset-tab-menu";
 import NftBackModal from "../marketplace/modal/revert_place_market_modal";
+import toast from "react-hot-toast";
 
 export type MarketAssetType = Omit<Asset, "issuerPrivate">;
 
@@ -44,6 +45,7 @@ export default function AssetRight() {
           <div className="flex h-full flex-col justify-between space-y-2">
             <div className="relative flex-1 space-y-2 rounded-xl border-4 border-base-100 p-1 text-sm tracking-wider">
               <MediaViewer
+                type={currentData.mediaType}
                 mediaUrl={currentData.mediaUrl}
                 thumbnailUrl={currentData.thumbnail}
                 name={currentData.name}
@@ -127,17 +129,14 @@ function MediaViewer(props: {
   thumbnailUrl: string;
   mediaUrl: string;
   name: string;
+  type: MediaType;
 }) {
-  const { color } = props;
+  const { color, type } = props;
   const { thumbnailUrl, mediaUrl, name } = props;
-  // const thumbnailUrl = "https://picsum.photos/200/200";
-  // const name = "vog";
-  // const mediaUrl = "https://picsum.photos/200/200";
-  const [play, setPlay] = useState(false);
 
-  const type: MediaType = "IMAGE";
+  const [play, setPlay] = useState(true);
 
-  useEffect(() => setPlay(false), [props]);
+  // useEffect(() => setPlay(false), [props]);
 
   function MediaPlay() {
     switch (type) {

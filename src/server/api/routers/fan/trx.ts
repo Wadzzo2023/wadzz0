@@ -29,9 +29,18 @@ export const trxRouter = createTRPCRouter({
       const { code, signWith } = input;
       const assetAmout = await getAssetNumberForXLM();
 
+      const creatorId = ctx.session.user.id;
+
+      const creator = await ctx.db.creator.findUniqueOrThrow({
+        where: { id: creatorId },
+      });
+
+      const creatorStorageSec = creator.storageSecret;
+
       return await clawBackAccCreate({
         actionAmount: assetAmout.toString(),
-        pubkey: ctx.session.user.id,
+        storageSecret: creatorStorageSec,
+        pubkey: creatorId,
         assetCode: code,
         signWith,
       });
@@ -47,8 +56,16 @@ export const trxRouter = createTRPCRouter({
     )
     .mutation(async ({ input, ctx }) => {
       const price = input.price.toString();
+
+      const creator = await ctx.db.creator.findUniqueOrThrow({
+        where: { id: input.creatorId },
+        select: { storageSecret: true },
+      });
+      const creatorStorageSec = creator.storageSecret;
+
       const xdr = await getClawbackAsPayment({
         creatorId: input.creatorId,
+        creatorStorageSec,
         price: price,
         assetInfo: input,
         userPubkey: ctx.session.user.id,

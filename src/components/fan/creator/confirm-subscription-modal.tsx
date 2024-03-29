@@ -8,17 +8,17 @@ import { truncateString } from "~/utils/string";
 
 import { PLATFROM_ASSET, PLATFROM_FEE } from "~/lib/stellar/fan/constant";
 import MemberShipCard, { getColor } from "./card";
-import { get } from "http";
 import clsx from "clsx";
 import Alert from "../../ui/alert";
 import { clientSelect } from "~/lib/stellar/fan/utils";
+import { SubscriptionType } from "~/pages/fans/creator/[id]";
 
 export default function SubscribeMembership({
   subscription,
   disabled,
   creator,
 }: {
-  subscription: Subscription & { asset: { code: string; issuer: string } };
+  subscription: SubscriptionType;
   disabled?: boolean;
   creator: Creator;
 }) {
@@ -70,10 +70,10 @@ function ModalContent({
   subscription,
   creator,
 }: {
-  subscription: Subscription & { asset: { code: string; issuer: string } };
+  subscription: SubscriptionType;
   creator: Creator;
 }) {
-  const { isAva, pubkey, walletType, uid, email } =
+  const { isAva, pubkey, walletType, uid, email, needSign } =
     useConnectWalletStateStore();
   const [trxMsg, setTrxMsg] = useState<string>();
   const subscribe = api.fan.member.subscribe.useMutation();
@@ -127,7 +127,9 @@ function ModalContent({
           className="btn btn-outline btn-primary  mt-4  w-full max-w-xs"
           onClick={() => {
             xdrMutation.mutate({
-              ...subscription.asset,
+              code: subscription.code,
+              issuer: subscription.issuer,
+              signWith: needSign(),
               creatorId: subscription.creatorId,
               price: subscription.price,
             });

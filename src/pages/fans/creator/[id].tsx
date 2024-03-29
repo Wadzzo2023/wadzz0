@@ -139,8 +139,8 @@ export function ChooseMemberShip({ creator }: { creator: Creator }) {
 
         <SubscriptionGridWrapper itemLength={subscriptonModel.length}>
           {subscriptonModel?.map((el) => (
-            <p key={el.id}>{el.code}</p>
-            // <SubscriptionCard key={el.id} creator={creator} subscription={el} />
+            // <p key={el.id}>{el.code}</p>
+            <SubscriptionCard key={el.id} creator={creator} subscription={el} />
           ))}
         </SubscriptionGridWrapper>
       </div>
@@ -178,15 +178,15 @@ export function SubscriptionGridWrapper({
   );
 }
 
+export type SubscriptionType = Omit<Subscription, "issuerPrivate">;
+
 function SubscriptionCard({
   subscription,
   creator,
 }: {
-  subscription: Subscription & { asset: MyAssetType };
+  subscription: SubscriptionType;
   creator: Creator;
 }) {
-  const { isAva, pubkey, walletType, uid, email } =
-    useConnectWalletStateStore();
   const { data: subscriptions } = api.fan.member.userSubscriptions.useQuery();
 
   return (
