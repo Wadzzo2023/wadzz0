@@ -37,7 +37,7 @@ export async function clawBackAccCreate({
   const server = new Server(STELLAR_URL);
   const limit = "50000";
 
-  const requiredAsset2refundXlm = await getAssetNumberForXLM();
+  const requiredAsset2refundXlm = await getAssetNumberForXLM(2);
   const totalAction = requiredAsset2refundXlm + Number(PLATFROM_FEE);
 
   const storageAcc = Keypair.fromSecret(storageSecret);
@@ -64,7 +64,7 @@ export async function clawBackAccCreate({
     // send this required xlm to storage so that it can lock new  trusting asset (0.5xlm)
     .addOperation(
       Operation.payment({
-        destination: pubkey,
+        destination: storageAcc.publicKey(),
         asset: Asset.native(),
         amount: "0.5",
         source: PLATFORM_MOTHER_ACC.publicKey(),

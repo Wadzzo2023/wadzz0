@@ -14,6 +14,7 @@ import {
 import { env } from "~/env";
 import { AccountSchema, AccountType } from "./fan/utils";
 import { SignUserType, WithSing } from "./utils";
+import { getAssetNumberForXLM } from "./fan/get_token_price";
 
 const log = console;
 
@@ -37,45 +38,63 @@ export async function createUniAsset({
 }) {
   const server = new Server(STELLAR_URL);
 
-  const actionAmount = "40";
-
-  // issuer
+  // accounts
   const issuerAcc = Keypair.random();
   const asesetStorage = Keypair.fromSecret(storageSecret);
+  const PLATFORM_MOTHER_ACC = Keypair.fromSecret(env.MOTHER_SECRET);
 
   const asset = new Asset(code, issuerAcc.publicKey());
+
+  // get total platform token
+  const requiredAsset2refundXlm = await getAssetNumberForXLM(2.5);
+  const totalAction = requiredAsset2refundXlm + Number(PLATFROM_FEE);
 
   const transactionInializer = await server.loadAccount(pubkey);
 
   const Tx1 = new TransactionBuilder(transactionInializer, {
     fee: "200",
     networkPassphrase,
-  })
-    // // first get action for required xl. and fee.
-    // .addOperation(
-    //   Operation.payment({
-    //     destination: distributorAcc.publicKey(),
-    //     asset: PLATFROM_ASSET,
-    //     amount: actionAmount,
-    //   }),
-    // )
+  });
 
-    // // send this required xlm
-    // .addOperation(
-    //   Operation.payment({
-    //     destination: pubkey,
-    //     asset: Asset.native(),
-    //     amount: "1.5",
-    //     source: distributorAcc.publicKey(),
-    //   }),
-    // )
-    // create issuer account
-    .addOperation(
-      Operation.createAccount({
-        destination: issuerAcc.publicKey(),
-        startingBalance: "1.5",
+  // is admin is creating the trx
+  if (signWith && !("isAdmin" in signWith)) {
+    // first get action for required xlm. and platformFee
+    Tx1.addOperation(
+      Operation.payment({
+        destination: PLATFORM_MOTHER_ACC.publicKey(),
+        asset: PLATFROM_ASSET,
+        amount: totalAction.toString(),
       }),
     )
+
+      // send this required xlm to storage so that it can lock new  trusting asset (0.5xlm)
+      .addOperation(
+        Operation.payment({
+          destination: asesetStorage.publicKey(),
+          asset: Asset.native(),
+          amount: "0.5",
+          source: PLATFORM_MOTHER_ACC.publicKey(),
+        }),
+      )
+      // send this required xlm to creator puby so that it can lock new  trusting asset (0.5xlm)
+      .addOperation(
+        Operation.payment({
+          destination: pubkey,
+          asset: Asset.native(),
+          amount: "0.5",
+          source: PLATFORM_MOTHER_ACC.publicKey(),
+        }),
+      );
+  }
+
+  // create issuer account
+  Tx1.addOperation(
+    Operation.createAccount({
+      destination: issuerAcc.publicKey(),
+      startingBalance: "1.5",
+      source: PLATFORM_MOTHER_ACC.publicKey(),
+    }),
+  )
     //
     .addOperation(
       Operation.changeTrust({
@@ -109,21 +128,24 @@ export async function createUniAsset({
       }),
     )
 
-    .setTimeout(0)
-    .build();
+    .setTimeout(0);
+
+  const buildTrx = Tx1.build();
 
   // sign
-  Tx1.sign(issuerAcc, asesetStorage);
-  const xdr = Tx1.toXDR();
+  buildTrx.sign(issuerAcc, asesetStorage, PLATFORM_MOTHER_ACC);
+  const xdr = buildTrx.toXDR();
 
   const signedXDr = await WithSing({
     xdr: xdr,
-    signWith,
+    signWith: signWith && "isAdmin" in signWith ? undefined : signWith,
   });
 
   const issuer: AccountType = {
     publicKey: issuerAcc.publicKey(),
     secretKey: issuerAcc.secret(),
   };
+
+  // console.info("xdrdd", signedXDr);
   return { xdr: signedXDr, issuer };
 }

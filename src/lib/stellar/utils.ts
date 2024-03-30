@@ -14,7 +14,7 @@ export async function WithSing({
   signWith,
 }: {
   xdr: string;
-  signWith: SignUserType;
+  signWith?: SignUserType;
 }) {
   if (signWith) {
     if ("uid" in signWith && "email" in signWith) {
