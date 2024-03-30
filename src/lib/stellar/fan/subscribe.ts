@@ -17,6 +17,8 @@ import {
 import { MyAssetType } from "./utils";
 import { env } from "~/env";
 import { STROOP } from "../marketplace/constant";
+import { SignUserType, WithSing } from "../utils";
+import { StellarAccount } from "../marketplace/test/Account";
 
 const log = console;
 // transection variables
@@ -27,59 +29,79 @@ export async function getClawbackAsPayment({
   price,
   creatorId,
   creatorStorageSec,
+  signWith,
 }: {
   userPubkey: string;
   assetInfo: MyAssetType;
   price: string;
   creatorId: string;
   creatorStorageSec: string;
+  signWith: SignUserType;
 }) {
   const server = new Server(STELLAR_URL);
 
   const creatorStorageAcc = Keypair.fromSecret(creatorStorageSec);
   const asset = new Asset(assetInfo.code, assetInfo.issuer);
 
+  const motherAccount = Keypair.fromSecret(env.MOTHER_SECRET);
+
   const transactionInializer = await server.loadAccount(userPubkey);
+
+  // For a Tier User can have already trustline
+  // So first have to sure that trusline exist and then send 0.5 xlm to storage.
+  const creatorStorageBal = await StellarAccount.create(userPubkey);
+  const hasTrust = creatorStorageBal.hasTrustline(asset.code, asset.issuer);
+
+  console.log(hasTrust, "..............................trust....me");
+  console.log(creatorId, "..............................creatorId....me");
 
   const Tx1 = new TransactionBuilder(transactionInializer, {
     fee: "200",
     networkPassphrase,
-  })
+  });
 
-    .addOperation(
+  if (!hasTrust) {
+    Tx1.addOperation(
       Operation.changeTrust({
         asset,
+        source: userPubkey,
       }),
-    )
-    // 0
+    );
+  }
+  // 0
+  Tx1.addOperation(
+    Operation.payment({
+      destination: userPubkey,
+      amount: STROOP,
+      asset,
+      source: creatorStorageAcc.publicKey(),
+    }),
+  )
+    // pay the creator the price amount
     .addOperation(
       Operation.payment({
-        destination: userPubkey,
-        amount: STROOP,
-        asset,
-        source: creatorStorageAcc.publicKey(),
+        amount: price,
+        asset: PLATFROM_ASSET,
+        destination: creatorId,
       }),
     )
-    // pay the creator the price amount
-    // .addOperation(
-    //   Operation.payment({
-    //     amount: price,
-    //     asset: PLATFROM_ASSET,
-    //     destination: creatorId,
-    //   }),
-    // )
     // sending platform fee.
-    // .addOperation(
-    //   Operation.payment({
-    //     amount: PLATFROM_FEE,
-    //     asset: PLATFROM_ASSET,
-    //     destination: creatorStorageAcc.publicKey(),
-    //   }),
-    // )
-    .setTimeout(0)
-    .build();
+    .addOperation(
+      Operation.payment({
+        amount: PLATFROM_FEE,
+        asset: PLATFROM_ASSET,
+        destination: motherAccount.publicKey(),
+      }),
+    )
 
-  Tx1.sign(creatorStorageAcc);
+    .setTimeout(0);
 
-  return Tx1.toXDR();
+  const buildTrx = Tx1.build();
+
+  buildTrx.sign(creatorStorageAcc);
+
+  const xdr = buildTrx.toXDR();
+  const singedXdr = WithSing({ xdr, signWith });
+  console.log(singedXdr, ".................singedXdr");
+  return singedXdr;
 }

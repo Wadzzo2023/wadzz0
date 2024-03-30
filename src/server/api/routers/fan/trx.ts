@@ -53,6 +53,7 @@ export const trxRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ input, ctx }) => {
+      const { signWith } = input;
       const price = input.price.toString();
 
       const creator = await ctx.db.creator.findUniqueOrThrow({
@@ -62,6 +63,7 @@ export const trxRouter = createTRPCRouter({
       const creatorStorageSec = creator.storageSecret;
 
       const xdr = await getClawbackAsPayment({
+        signWith,
         creatorId: input.creatorId,
         creatorStorageSec,
         price: price,

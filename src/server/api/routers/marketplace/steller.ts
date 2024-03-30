@@ -80,7 +80,6 @@ export const stellarRouter = createTRPCRouter({
         issuerPub,
         buyer,
         price: marketAsset.price.toString(),
-        limit,
         signWith,
       });
     }),

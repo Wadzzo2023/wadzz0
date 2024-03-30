@@ -73,8 +73,7 @@ function ModalContent({
   subscription: SubscriptionType;
   creator: Creator;
 }) {
-  const { isAva, pubkey, walletType, uid, email, needSign } =
-    useConnectWalletStateStore();
+  const { pubkey, walletType, needSign } = useConnectWalletStateStore();
   const [trxMsg, setTrxMsg] = useState<string>();
   const subscribe = api.fan.member.subscribe.useMutation();
   const xdrMutation = api.fan.trx.clawbackAssetPaymentTrx.useMutation({
@@ -127,9 +126,9 @@ function ModalContent({
           className="btn btn-outline btn-primary  mt-4  w-full max-w-xs"
           onClick={() => {
             xdrMutation.mutate({
+              signWith: needSign(),
               code: subscription.code,
               issuer: subscription.issuer,
-              signWith: needSign(),
               creatorId: subscription.creatorId,
               price: subscription.price,
             });

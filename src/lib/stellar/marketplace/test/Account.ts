@@ -14,18 +14,19 @@ export class StellarAccount {
   private pubkey: string;
   private balances: Ballance;
 
-  constructor(pubkey: string) {
+  constructor(pubkey: string, balances: Ballance) {
     this.server = new Server(STELLAR_URL);
     this.pubkey = pubkey;
-    this.balances = [];
+    this.balances = balances;
   }
 
-  async initializeAccountBalances() {
-    const transactionInitializer = await this.server.loadAccount(this.pubkey);
-    this.balances = transactionInitializer.balances;
+  static async create(pubkey: string) {
+    const server = new Server(STELLAR_URL);
+    const transactionInitializer = await server.loadAccount(pubkey);
+    return new StellarAccount(pubkey, transactionInitializer.balances);
   }
 
-  async getNativeBalance() {
+  getNativeBalance() {
     return this.balances.find((balance) => {
       if (balance.asset_type === "native") {
         return balance.balance;
@@ -33,7 +34,7 @@ export class StellarAccount {
     })?.balance;
   }
 
-  async getTokenBalance(code: string, issuer: string) {
+  getTokenBalance(code: string, issuer: string) {
     const asset = this.balances.find((balance) => {
       if (
         balance.asset_type === "credit_alphanum12" ||
@@ -48,5 +49,20 @@ export class StellarAccount {
     if (asset) {
       return balaceToCopy(asset.balance);
     } else return 0;
+  }
+
+  hasTrustline(code: string, issuer: string) {
+    const trustline = this.balances.find((balance) => {
+      if (
+        (balance.asset_type === "credit_alphanum12" ||
+          balance.asset_type === "credit_alphanum4") &&
+        balance.asset_code === code &&
+        balance.asset_issuer === issuer
+      ) {
+        return true;
+      }
+    });
+
+    return !!trustline;
   }
 }

@@ -275,8 +275,8 @@ export const marketRouter = createTRPCRouter({
 
         const placerStorage = placer.storagePub;
 
-        const bal = new StellarAccount(placerStorage);
-        const copy = await bal.getTokenBalance(
+        const bal = await StellarAccount.create(placerStorage);
+        const copy = bal.getTokenBalance(
           marketItem.asset.code,
           marketItem.asset.issuer,
         );
@@ -286,8 +286,8 @@ export const marketRouter = createTRPCRouter({
         // admin or original item
         const adminStorage = Keypair.fromSecret(env.STORAGE_SECRET).publicKey();
 
-        const bal = new StellarAccount(adminStorage);
-        const copy = await bal.getTokenBalance(
+        const bal = await StellarAccount.create(adminStorage);
+        const copy = bal.getTokenBalance(
           marketItem.asset.code,
           marketItem.asset.issuer,
         );

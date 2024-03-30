@@ -19,7 +19,6 @@ export async function XDR4BuyAsset({
   issuerPub,
   buyer,
   price,
-  limit,
   storageSecret,
   seller,
 }: {
@@ -27,7 +26,6 @@ export async function XDR4BuyAsset({
   code: string;
   issuerPub: string;
   price: string;
-  limit: string;
   signWith: SignUserType;
   storageSecret: string;
   seller: string;
