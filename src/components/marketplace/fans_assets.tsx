@@ -17,26 +17,30 @@ export default function FanAssetNfts() {
 
   if (assets.data) {
     return (
-      <div
-        style={{
-          scrollbarGutter: "stable",
-        }}
-        className="main-asset-area"
-      >
-        {assets.data.pages.map((page) =>
-          page.nfts.map((item, i) => (
-            <MarketAssetComponent key={i} item={item} />
-          )),
-        )}
-        {assets.hasNextPage && (
-          <button
-            className="btn btn-outline btn-primary"
-            onClick={() => void assets.fetchNextPage()}
-          >
-            Load More
-          </button>
-        )}
-      </div>
+      <>
+        <div
+          style={{
+            scrollbarGutter: "stable",
+          }}
+          className="main-asset-area"
+        >
+          {assets.data.pages.map((page) =>
+            page.nfts.map((item, i) => (
+              <MarketAssetComponent key={i} item={item} />
+            )),
+          )}
+        </div>
+        <div className="mt-5">
+          {assets.hasNextPage && (
+            <button
+              className="btn btn-outline btn-primary"
+              onClick={() => void assets.fetchNextPage()}
+            >
+              Load More
+            </button>
+          )}
+        </div>
+      </>
     );
   }
 }

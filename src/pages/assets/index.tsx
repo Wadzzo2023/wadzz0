@@ -46,8 +46,8 @@ function MyStorageAsset() {
               <button
                 className="btn relative h-fit w-full overflow-hidden  py-4 "
                 onClick={() => {
-                  setData(asset);
                   const copies = acc.data.accAssets[i]?.copies ?? 0;
+                  setData({ ...asset, copies });
                 }}
               >
                 {/* <p>{acc.data.accAssets[i]?.copies}</p> */}
@@ -80,7 +80,8 @@ function MyAssets() {
               <button
                 className="btn relative h-fit w-full overflow-hidden  py-4 "
                 onClick={() => {
-                  setData(asset);
+                  const copies = acc.data.accAssets[i]?.copies ?? 0;
+                  setData({ ...asset, copies });
                 }}
               >
                 {/* <p>{acc.data.accAssets[i]?.copies}</p> */}

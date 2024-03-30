@@ -6,13 +6,23 @@ import { AssetType } from "../album/table";
 import { addrShort } from "~/lib/utils";
 import toast from "react-hot-toast";
 import { clientSelect } from "~/lib/stellar/fan/utils";
+import {
+  SongTokenCopies,
+  TokenCopies,
+} from "~/components/marketplace/market_right";
 
 type BuyModalProps = {
   item: AssetType;
   placerId?: string | null;
   price: number;
+  marketItemId?: number; // undefined will mean it is song
 };
-export default function BuyModal({ item, placerId, price }: BuyModalProps) {
+export default function BuyModal({
+  item,
+  placerId,
+  price,
+  marketItemId,
+}: BuyModalProps) {
   const { needSign, pubkey, walletType } = useConnectWalletStateStore();
 
   const createAlbumModal = useRef<HTMLDialogElement>(null);
@@ -21,7 +31,6 @@ export default function BuyModal({ item, placerId, price }: BuyModalProps) {
   const { code, issuer } = asset;
 
   // feth the copies from the storage acc.
-  const copies = 10;
 
   const xdrMutaion =
     api.marketplace.steller.buyFromMarketPaymentXDR.useMutation({
@@ -86,7 +95,14 @@ export default function BuyModal({ item, placerId, price }: BuyModalProps) {
                 Asset Name: <span className="badge badge-primary">{code}</span>
               </p>
               <p className="text-warning">Price: {price} XLM</p>
-              <p className="text-sm text-accent">Copies available: {copies}</p>
+              <p className="text-sm text-accent">
+                Copies available:{" "}
+                {marketItemId ? (
+                  <TokenCopies id={marketItemId} />
+                ) : (
+                  <SongTokenCopies issuer={issuer} code={code} />
+                )}
+              </p>
               <p className="text-sm">Issuer: {addrShort(issuer, 15)}</p>
             </div>
 

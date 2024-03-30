@@ -249,6 +249,20 @@ export const marketRouter = createTRPCRouter({
       };
     }),
 
+  getSongAssetAvailableCopy: protectedProcedure
+    .input(z.object({ code: z.string(), issuer: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const { code, issuer } = input;
+
+      const adminStoragePub = Keypair.fromSecret(
+        env.STORAGE_SECRET,
+      ).publicKey();
+
+      const bal = await StellarAccount.create(adminStoragePub);
+      const copy = bal.getTokenBalance(code, issuer);
+      return copy;
+    }),
+
   getMarketAssetAvailableCopy: protectedProcedure
     .input(z.object({ id: z.number().optional() }))
     .query(async ({ ctx, input }) => {

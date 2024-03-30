@@ -6,12 +6,11 @@ import {
   Server,
   TransactionBuilder,
 } from "stellar-sdk";
-import log from "~/lib/logger/logger";
-import { STROOP, STELLAR_URL } from "../constant";
-import { STORAGE_SECRET } from "../SECRET";
+import { STELLAR_URL } from "../constant";
 import { networkPassphrase } from "../constant";
-import { getPrice } from "./utils";
 import { SignUserType, WithSing } from "../../utils";
+import { env } from "~/env";
+import { PLATFROM_ASSET, PLATFROM_FEE } from "../../fan/constant";
 
 export async function sendNft2StorageXDR({
   assetCode,
@@ -38,6 +37,13 @@ export async function sendNft2StorageXDR({
     fee: BASE_FEE,
     networkPassphrase,
   })
+    .addOperation(
+      Operation.payment({
+        destination: Keypair.fromSecret(env.MOTHER_SECRET).publicKey(),
+        amount: PLATFROM_FEE,
+        asset: PLATFROM_ASSET,
+      }),
+    )
     //
     .addOperation(
       Operation.payment({
@@ -71,6 +77,8 @@ export async function sendNftback({
   // const assetAmount = DEFAULT_ASSET_LIMIT
   const asset = new Asset(assetCode, issuerPub);
   const storageAcc = Keypair.fromSecret(storageSecret);
+  const motherAcc = Keypair.fromSecret(env.MOTHER_SECRET);
+
   const server = new Server(STELLAR_URL);
 
   const transactionInializer = await server.loadAccount(userPub);
@@ -79,7 +87,14 @@ export async function sendNftback({
     fee: BASE_FEE,
     networkPassphrase,
   })
-    //
+    // add platform fee
+    .addOperation(
+      Operation.payment({
+        destination: motherAcc.publicKey(),
+        amount: PLATFROM_FEE,
+        asset: PLATFROM_ASSET,
+      }),
+    )
     .addOperation(
       Operation.payment({
         destination: userPub,

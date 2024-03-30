@@ -70,7 +70,8 @@ export default function AssetRight() {
                   <b>Description: </b> {currentData.description}
                 </p>
                 <p>
-                  <span className="font-semibold">Available:</span> {10} copy
+                  <span className="font-semibold">Available:</span>{" "}
+                  {currentData.copies} copy
                 </p>
 
                 <p>

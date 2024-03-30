@@ -101,7 +101,7 @@ export default function MarketRight() {
   );
 }
 
-function TokenCopies({ id }: { id: number }) {
+export function TokenCopies({ id }: { id: number }) {
   const { currentData } = useMarketRightStore();
   const copy = api.marketplace.market.getMarketAssetAvailableCopy.useQuery({
     id,
@@ -109,8 +109,19 @@ function TokenCopies({ id }: { id: number }) {
 
   if (copy.isLoading) return <span className="loading loading-spinner" />;
 
-  if (copy.data) return <span>copy.data</span>;
+  if (copy.data) return <span>{copy.data}</span>;
 }
+
+export function SongTokenCopies({ code, issuer }: { code: string; issuer: string }) {
+  const copy = api.marketplace.market.getSongAssetAvailableCopy.useQuery({
+   code, issuer
+  });
+
+  if (copy.isLoading) return <span className="loading loading-spinner" />;
+
+  if (copy.data) return <span>{copy.data}</span>;
+}
+
 
 function OtherButtons() {
   const { currentData } = useMarketRightStore();
@@ -131,6 +142,9 @@ function OtherButtons() {
             item={{ asset: currentData.asset }}
             price={currentData.price}
             placerId={currentData.placerId}
+            marketItemId={currentData.id}
+            
+
           />
         </>
       );

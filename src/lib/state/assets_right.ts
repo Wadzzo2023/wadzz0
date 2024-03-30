@@ -1,11 +1,13 @@
 import { create } from "zustand";
 import { AssetType } from "~/components/marketplace/market_right";
 
+type AssetRightType = AssetType & { copies: number };
+
 interface AssetRightState {
   open: boolean;
-  currentData?: AssetType;
+  currentData?: AssetRightType;
   setOpen: (value: boolean) => void;
-  setData: (value?: AssetType) => void;
+  setData: (value?: AssetRightType) => void;
 }
 
 export const useAssetRightStore = create<AssetRightState>((set) => ({
