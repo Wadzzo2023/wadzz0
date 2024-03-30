@@ -1,20 +1,15 @@
 import { z } from "zod";
-import { STORAGE_PUB } from "~/lib/stellar/music/constant";
 import {
   firstTransection,
   getAccBalance,
 } from "~/lib/stellar/music/trx/create_song_token";
-import { XDR4BuyAsset } from "~/lib/stellar/music/trx/payment_xdr";
 
 import {
   createTRPCRouter,
   protectedProcedure,
   publicProcedure,
 } from "~/server/api/trpc";
-import { SignUser } from "~/lib/stellar/utils";
 import { copyToBalance } from "~/lib/stellar/marketplace/test/acc";
-import { env } from "~/env";
-import { Keypair } from "stellar-sdk";
 
 export const stellarRouter = createTRPCRouter({
   //   getPaymentXDR: protectedProcedure
@@ -75,10 +70,6 @@ export const stellarRouter = createTRPCRouter({
         ipfsHash: i.ipfsHash,
       });
     }),
-
-  getStorageBalances: publicProcedure.query(() => {
-    return getAccBalance(STORAGE_PUB);
-  }),
 
   getAccBalances: publicProcedure
     .input(z.object({ pub: z.string().min(56) }))

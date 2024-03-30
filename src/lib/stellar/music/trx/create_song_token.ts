@@ -1,5 +1,4 @@
 import {
-  BASE_FEE,
   Keypair,
   Operation,
   Server,
@@ -8,8 +7,7 @@ import {
   Asset,
 } from "stellar-sdk";
 import { env } from "~/env";
-import { DEFAULT_ASSET_LIMIT, STELLAR_URL, STORAGE_PUB } from "../constant";
-import { SignUserType, WithSing } from "../../utils";
+import { STELLAR_URL } from "../constant";
 import { AccountType } from "../../fan/utils";
 
 const log = console;
@@ -152,16 +150,6 @@ export async function firstTransection({
   };
   return { xdr, issuer };
 }
-
-export const getBalncesOfStorag = async () => {
-  try {
-    const server = new Server(STELLAR_URL);
-    const account = await server.loadAccount(STORAGE_PUB);
-    return account.balances;
-  } catch (e) {
-    log.info(e);
-  }
-};
 
 export type BalanceType = {
   asset: string;
