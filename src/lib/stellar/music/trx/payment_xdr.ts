@@ -6,10 +6,13 @@ import {
   Server,
   TransactionBuilder,
 } from "stellar-sdk";
-import { DEFAULT_ASSET_LIMIT, STELLAR_URL, STORAGE_SECRET } from "../constant";
+import { STELLAR_URL } from "../constant";
 import { networkPassphrase } from "./create_song_token";
 import { SignUserType, WithSing } from "../../utils";
 import { STROOP } from "../../marketplace/constant";
+import { StellarAccount } from "../../marketplace/test/Account";
+import { PLATFROM_ASSET, PLATFROM_FEE } from "../../fan/constant";
+import { env } from "~/env";
 
 const log = console;
 
@@ -36,43 +39,60 @@ export async function XDR4BuyAsset({
   const server = new Server(STELLAR_URL);
   const storageAcc = Keypair.fromSecret(storageSecret);
 
+  // check if the buyer has trustline
+  const creatorStorageBal = await StellarAccount.create(buyer);
+  const hasTrust = creatorStorageBal.hasTrustline(asset.code, asset.issuer);
+
   const transactionInializer = await server.loadAccount(buyer);
 
   const Tx2 = new TransactionBuilder(transactionInializer, {
     fee: BASE_FEE,
     networkPassphrase,
   })
-    //1
+    // pay price to seller
     .addOperation(
       Operation.payment({
         destination: seller,
         amount: price,
-        asset: Asset.native(),
+        asset: PLATFROM_ASSET,
         source: buyer,
       }),
-    )
-    //2
-    .addOperation(
+    );
+
+  if (!hasTrust) {
+    Tx2.addOperation(
       Operation.changeTrust({
         asset: asset,
         source: buyer,
       }),
-    )
-    // 3
+    );
+  }
+
+  // send token to buyyer
+  Tx2.addOperation(
+    Operation.payment({
+      asset: asset,
+      amount: STROOP,
+      source: storageAcc.publicKey(),
+      destination: buyer,
+    }),
+  )
+
+    // pay fee for platform
     .addOperation(
       Operation.payment({
-        asset: asset,
-        amount: STROOP,
-        source: storageAcc.publicKey(),
-        destination: buyer,
+        asset: PLATFROM_ASSET,
+        amount: PLATFROM_FEE,
+        destination: Keypair.fromSecret(env.MOTHER_SECRET).publicKey(),
       }),
     )
-    .setTimeout(0)
-    .build();
+    .setTimeout(0);
 
-  Tx2.sign(storageAcc);
+  const buildTrx = Tx2.build();
 
-  const xdr = Tx2.toXDR();
+  buildTrx.sign(storageAcc);
+
+  const xdr = buildTrx.toXDR();
   const singedXdr = WithSing({ xdr, signWith });
   return singedXdr;
 }

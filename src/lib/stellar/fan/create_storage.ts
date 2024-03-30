@@ -1,8 +1,21 @@
-import { Keypair, Operation, Server, TransactionBuilder } from "stellar-sdk";
+import {
+  Asset,
+  Keypair,
+  Operation,
+  Server,
+  TransactionBuilder,
+} from "stellar-sdk";
 
-import { STELLAR_URL, networkPassphrase } from "./constant";
+import {
+  PLATFROM_ASSET,
+  PLATFROM_FEE,
+  STELLAR_URL,
+  networkPassphrase,
+} from "./constant";
 import { AccountType } from "./utils";
 import { SignUserType, WithSing } from "../utils";
+import { env } from "~/env";
+import { getAssetNumberForXLM } from "./get_token_price";
 
 const log = console;
 
@@ -21,25 +34,59 @@ export async function createStorageTrx({
   const server = new Server(STELLAR_URL);
 
   const storageAcc = Keypair.random();
+  const motherAcc = Keypair.fromSecret(env.MOTHER_SECRET);
 
   const transactionInializer = await server.loadAccount(pubkey);
+
+  // total platform token r
+
+  const requiredAsset2refundXlm = await getAssetNumberForXLM();
+  const totalAction = requiredAsset2refundXlm + Number(PLATFROM_FEE);
 
   const Tx1 = new TransactionBuilder(transactionInializer, {
     fee: "200",
     networkPassphrase,
   })
+    // send mother required platform fee and extra
+    .addOperation(
+      Operation.payment({
+        destination: motherAcc.publicKey(),
+        amount: totalAction.toString(),
+        asset: PLATFROM_ASSET,
+        source: pubkey,
+      }),
+    )
 
-    // get payment
+    // send required xlm to the user account pubkey
+    .addOperation(
+      Operation.payment({
+        destination: pubkey,
+        amount: "1.5",
+        asset: Asset.native(),
+        source: motherAcc.publicKey(),
+      }),
+    )
+
+    // create storage account
     .addOperation(
       Operation.createAccount({
         destination: storageAcc.publicKey(),
-        startingBalance: "100", // TODO: change to 1.5
+        startingBalance: "2", // 1.5 for escrow and 0.5 for trust
+      }),
+    )
+    .addOperation(Operation.changeTrust({ asset: PLATFROM_ASSET }))
+    .addOperation(
+      Operation.changeTrust({
+        asset: PLATFROM_ASSET,
+        source: storageAcc.publicKey(),
       }),
     )
     // pay the creator the price amount
 
     .setTimeout(0)
     .build();
+
+  Tx1.sign(storageAcc, motherAcc);
 
   const storage: AccountType = {
     publicKey: storageAcc.publicKey(),

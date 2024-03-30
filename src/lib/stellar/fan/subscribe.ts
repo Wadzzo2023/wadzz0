@@ -52,9 +52,6 @@ export async function getClawbackAsPayment({
   const creatorStorageBal = await StellarAccount.create(userPubkey);
   const hasTrust = creatorStorageBal.hasTrustline(asset.code, asset.issuer);
 
-  console.log(hasTrust, "..............................trust....me");
-  console.log(creatorId, "..............................creatorId....me");
-
   const Tx1 = new TransactionBuilder(transactionInializer, {
     fee: "200",
     networkPassphrase,
@@ -102,6 +99,6 @@ export async function getClawbackAsPayment({
 
   const xdr = buildTrx.toXDR();
   const singedXdr = WithSing({ xdr, signWith });
-  console.log(singedXdr, ".................singedXdr");
+
   return singedXdr;
 }
