@@ -27,7 +27,6 @@ export const trxRouter = createTRPCRouter({
     .input(z.object({ code: z.string(), signWith: SignUser }))
     .mutation(async ({ ctx, input }) => {
       const { code, signWith } = input;
-      const assetAmout = await getAssetNumberForXLM();
 
       const creatorId = ctx.session.user.id;
 
@@ -38,7 +37,6 @@ export const trxRouter = createTRPCRouter({
       const creatorStorageSec = creator.storageSecret;
 
       return await clawBackAccCreate({
-        actionAmount: assetAmout.toString(),
         storageSecret: creatorStorageSec,
         pubkey: creatorId,
         assetCode: code,

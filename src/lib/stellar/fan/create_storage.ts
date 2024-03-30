@@ -13,6 +13,11 @@ export async function createStorageTrx({
   pubkey: string;
   signWith: SignUserType;
 }) {
+  /*
+  |---------------------------------------------------
+  | Create storage account and also trust storage token
+  |---------------------------------------------------
+  */
   const server = new Server(STELLAR_URL);
 
   const storageAcc = Keypair.random();
