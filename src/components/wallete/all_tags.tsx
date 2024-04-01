@@ -8,7 +8,7 @@ export default function AllTags() {
 
   const tags = api.wallate.tag.getAllTags.useQuery();
 
-  if (tags.isLoading) return <span className="loading loading-spinner" />;
+  if (tags.isLoading) return <div className="skeleton h-10 w-full" />;
 
   if (tags.data)
     return (

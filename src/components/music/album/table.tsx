@@ -2,29 +2,15 @@ import { usePlayerStore } from "~/lib/state/music/track";
 
 import { api } from "~/utils/api";
 
-import { Song } from "@prisma/client";
-import clsx from "clsx";
-import MusicItem from "../track/music_item";
+import MusicItem, { SongItemType } from "../track/music_item";
 import { Play } from "lucide-react";
 import BuyModal from "../modal/buy_modal";
 import { ButtonSkeleton } from "~/pages/music/album/[album]";
 
-export type SongWithAsset = Song & AssetType;
-
-export type AssetType = {
-  asset: {
-    code: string;
-    issuer: string;
-    creatorId: string | null;
-    thumbnail: string;
-    name: string;
-  };
-};
-
 export default function SongList({
   songs,
 }: {
-  songs: SongWithAsset[];
+  songs: SongItemType[];
   albumId: number;
 }) {
   return (
@@ -48,9 +34,8 @@ export default function SongList({
                 <td>
                   <PlayOrBuy song={song} />
                 </td>
-                <td>
-                  <DeleteSongButton songId={song.id} />
-                </td>
+
+                <DeleteSongButton songId={song.id} />
               </tr>
             );
           })}
@@ -70,16 +55,18 @@ function DeleteSongButton({ songId }: { songId: number }) {
 
   if (admin.data)
     return (
-      <button
-        className="btn btn-warning btn-sm w-20"
-        onClick={() => deleteSongMutation.mutate({ songId })}
-      >
-        Delete
-      </button>
+      <td>
+        <button
+          className="btn btn-warning btn-sm w-20"
+          onClick={() => deleteSongMutation.mutate({ songId })}
+        >
+          Delete
+        </button>
+      </td>
     );
 }
 
-function PlayOrBuy({ song }: { song: SongWithAsset }) {
+function PlayOrBuy({ song }: { song: SongItemType }) {
   const trackUrlStore = usePlayerStore();
   const userAssets = api.wallate.acc.getAccountInfo.useQuery();
 
@@ -105,7 +92,7 @@ function PlayOrBuy({ song }: { song: SongWithAsset }) {
     return (
       <>
         <div className="w-12">
-          <BuyModal item={song} price={song.price} />
+          <BuyModal item={song.asset} price={song.price} />
         </div>
       </>
     );

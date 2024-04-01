@@ -1,9 +1,5 @@
-import { Song } from "@prisma/client";
 import Head from "next/head";
-import {
-  ConnectWalletButton,
-  useConnectWalletStateStore,
-} from "package/connect_wallet";
+import { useConnectWalletStateStore } from "package/connect_wallet";
 import AlbumSection from "~/components/music/album/section";
 import TrackSection, {
   TrackSectionSkeleton,
@@ -27,7 +23,8 @@ export default function Home() {
         <AllSongs />
         <MySongs />
 
-        <div className="h-60"></div>
+        {/* <BottonPlayer /> */}
+        {/* <div className="h-60"></div> */}
       </div>
     </>
   );

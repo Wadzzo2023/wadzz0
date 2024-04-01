@@ -5,7 +5,7 @@ import { usePlayerStore } from "~/lib/state/music/track";
 import { api } from "~/utils/api";
 
 export function MusicRightSide() {
-  const trackUrlStore = usePlayerStore();
+  const { song, isPlaying, setisPlaying } = usePlayerStore();
 
   return (
     <div className="flex h-full flex-col gap-2 bg-base-300 p-2">
@@ -16,17 +16,21 @@ export function MusicRightSide() {
           <h3 className="p-2 text-2xl font-bold">Now playing</h3>
           <div className="flex flex-1 flex-col justify-end rounded-lg bg-base-200">
             <div className=" flex  w-full flex-1">
-              <PlayerSongCover song={trackUrlStore.song} />
+              <PlayerSongCover song={song} />
             </div>
-            <div className="">
+            {/* <div className="">
               <AudioPlayer
                 // autoPlay={false}
                 src={
-                  "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"
+                  song
+                    ? song.asset.mediaUrl
+                    : "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"
                 }
                 volume={0.3}
+                // onPlay={(e) => setisPlaying(true)}
+                // onPause={(e) => setisPlaying(false)}
               />
-            </div>
+            </div> */}
           </div>
         </div>
       </div>

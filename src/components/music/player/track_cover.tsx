@@ -21,7 +21,7 @@ export default function PlayerTrackCover({
           alt="music cover"
         />
       </div>
-      <div className="w-64">
+      <div className="w-40">
         <Link href={`/track/${item.id}`}>
           <p className="truncate text-base">{item.asset.code}</p>
         </Link>

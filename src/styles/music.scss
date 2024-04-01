@@ -1,11 +1,10 @@
-$rhap_theme-color: #d8dc29 !default;
-$rhap_background-color: hsl(var(--b3) / var(--tw-bg-opacity)) !default;
-$rhap_bar-color: #dddddd !default;
-$rhap_time-color: #f0e7e7 !default;
+$rhap_theme-color: #ff00d3 !default;
+$rhap_background-color: "red"; //hsl(var(--b3) / var(--tw-bg-opacity)) !default;
+$rhap_bar-color: #272020 !default;
+$rhap_time-color: #272020 !default;
 $rhap_font-family: inherit !default;
 
 .rhap_container {
-  box-sizing: border-box;
   display: flex;
   flex-direction: column;
   line-height: 1;
@@ -13,7 +12,7 @@ $rhap_font-family: inherit !default;
   width: 100%;
   padding: 10px 15px;
   background-color: $rhap_background-color;
-  box-shadow: 0 0 3px 0 rgba(0, 0, 0, 0.2);
+  // box-shadow: 0 0 3px 0 rgba(0, 0, 0, 0.2);
 
   &:focus:not(:focus-visible) {
     outline: 0;

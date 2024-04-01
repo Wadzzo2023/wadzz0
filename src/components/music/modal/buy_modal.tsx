@@ -2,14 +2,14 @@ import { useRef } from "react";
 import { api } from "~/utils/api";
 
 import { clientsign, useConnectWalletStateStore } from "package/connect_wallet";
-import { AssetType } from "../album/table";
-import { addrShort } from "~/lib/utils";
 import toast from "react-hot-toast";
 import { clientSelect } from "~/lib/stellar/fan/utils";
 import {
+  AssetType,
   SongTokenCopies,
   TokenCopies,
 } from "~/components/marketplace/market_right";
+import { addrShort } from "~/lib/utils";
 
 type BuyModalProps = {
   item: AssetType;
@@ -27,8 +27,8 @@ export default function BuyModal({
 
   const createAlbumModal = useRef<HTMLDialogElement>(null);
 
-  const { asset } = item;
-  const { code, issuer } = asset;
+  // const { asset } = item;
+  const { code, issuer } = item;
 
   // feth the copies from the storage acc.
 

@@ -8,6 +8,7 @@ import {
 } from "~/server/api/trpc";
 import { TRPCError } from "@trpc/server";
 import { AlbumFormShema } from "~/components/music/modal/album_create";
+import { AssetSelectAllProperty } from "../marketplace/marketplace";
 
 export const albumRouter = createTRPCRouter({
   getAll: publicProcedure.query(async ({ ctx }) => {
@@ -23,13 +24,7 @@ export const albumRouter = createTRPCRouter({
           songs: {
             include: {
               asset: {
-                select: {
-                  code: true,
-                  issuer: true,
-                  name: true,
-                  thumbnail: true,
-                  creatorId: true,
-                },
+                select: AssetSelectAllProperty,
               },
             },
           },

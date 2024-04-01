@@ -1,16 +1,14 @@
-import { useEffect, useState } from "react";
-import { Play, XCircle } from "lucide-react";
+import { useState } from "react";
 // import ReactPlayer from "react-player";
 import { api } from "~/utils/api";
 import { useConnectWalletStateStore } from "package/connect_wallet";
 import MyError from "../wallete/my_error";
 import { Asset, MediaType } from "@prisma/client";
-import ImageVideViewer, {
+import {
   AudioViewer,
   ThumbNailView,
   VideoViewer,
 } from "../wallete/Image_video_viewer";
-import BuyModal from "../music/modal/buy_modal";
 import { useAssetRightStore } from "~/lib/state/assets_right";
 import PlaceNFT2Storage from "../marketplace/modal/place_2storage_modal";
 import EnableInMarket from "../marketplace/modal/place_market_modal";
@@ -19,7 +17,6 @@ import {
   useAssetMenu,
 } from "~/lib/state/marketplace/asset-tab-menu";
 import NftBackModal from "../marketplace/modal/revert_place_market_modal";
-import toast from "react-hot-toast";
 
 export type MarketAssetType = Omit<Asset, "issuerPrivate">;
 

@@ -6,10 +6,10 @@ import { useEffect, useRef, useState } from "react";
 import { usePlayerStore } from "~/lib/state/music/track";
 import clsx from "clsx";
 import { Song } from "@prisma/client";
-import { AssetType } from "../album/table";
 import toast from "react-hot-toast";
+import { AssetType } from "~/components/marketplace/market_right";
 
-export type SongItemType = Song & AssetType;
+export type SongItemType = Song & { asset: AssetType };
 
 export default function MusicItem({
   item,

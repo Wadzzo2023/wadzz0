@@ -8,6 +8,11 @@ import { useSession } from "next-auth/react";
 import clsx from "clsx";
 import Header from "./header";
 import RightDialog from "./right_dialog";
+import BottonPlayer from "./bottom_player";
+import { usePlayerStore } from "~/lib/state/music/track";
+import { useRouter } from "next/router";
+import { homedir } from "os";
+import { X } from "lucide-react";
 
 export default function Layout({
   children,
@@ -27,7 +32,7 @@ export default function Layout({
           <div className="flex h-full border-t-2">
             <LeftBar className="hidden md:flex" />
             <div className="flex-1 border-x-2 ">
-              <div className="h-full overflow-y-auto bg-base-100/80 scrollbar-hide">
+              <div className=" h-full overflow-y-auto bg-base-100/80 scrollbar-hide">
                 {data?.user.id ? (
                   <>{children}</>
                 ) : (
@@ -35,6 +40,7 @@ export default function Layout({
                     <ConnectWalletButton />
                   </div>
                 )}
+                <div className="h-44 " />
                 {/* <BottomNav /> */}
               </div>
             </div>
@@ -43,7 +49,49 @@ export default function Layout({
           </div>
         </div>
         <RightDialog />
+        <BottomPlayerContainer />
       </div>
     </>
   );
+}
+
+function BottomPlayerContainer() {
+  const router = useRouter();
+  const { bottomVisiable, isPlaying, setNewTrack } = usePlayerStore();
+
+  const [isHovered, setIsHovered] = useState(false);
+
+  return (
+    <div
+      className={clsx("absolute bottom-0 w-full")}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      <div className="flex items-center justify-center">
+        <div className="w-full max-w-2xl">
+          {isHovered && (
+            <button
+              className="btn btn-circle btn-secondary btn-sm -mb-8"
+              onClick={() => setNewTrack(undefined)}
+            >
+              <X />
+            </button>
+          )}
+          <BottonPlayer />
+        </div>
+      </div>
+    </div>
+  );
+  // } else {
+  // if (isPlaying)
+  //   return (
+  //     <div className="absolute bottom-0 w-full">
+  //       <div className="flex items-center justify-center">
+  //         <div className="w-full max-w-2xl">
+  //           <BottonPlayer />
+  //         </div>
+  //       </div>
+  //     </div>
+  //   );
+  // }
 }
