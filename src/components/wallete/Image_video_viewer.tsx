@@ -25,7 +25,7 @@ export default function ImageVideViewer({
   const isVideo = url.endsWith(".mp4");
 
   return isVideo ? (
-    <div className="relative flex h-full w-full items-center justify-center ">
+    <div className="flex h-full w-full items-center justify-center ">
       {loading && <div className="loading absolute" />}
       <Suspense fallback={<VideoOff />}>
         <video
@@ -48,8 +48,10 @@ export default function ImageVideViewer({
     </div>
   ) : (
     <Image
-      fill
-      sizes={sizes}
+      // fill
+      // sizes={sizes ?? "100"}
+      height={100}
+      width={100}
       alt={code}
       style={{
         backgroundColor: color ?? undefined,
@@ -59,5 +61,103 @@ export default function ImageVideViewer({
       placeholder={blurData ? "blur" : "empty"}
       blurDataURL={blurData ?? undefined}
     />
+  );
+}
+
+export function ThumbNailView(props: { thumbnailUrl: string }) {
+  const color = "blue";
+  const { thumbnailUrl } = props;
+  const code = "thumbnail";
+  return (
+    <div className="h-full w-full p-6">
+      <Image
+        // fill
+        // sizes={sizes ?? "100"}
+        height={100}
+        width={100}
+        alt={code}
+        style={{
+          backgroundColor: color ?? undefined,
+          height: "100%",
+
+          width: "100%",
+        }}
+        className={twMerge("rounded-full p-2")}
+        src={thumbnailUrl}
+        // placeholder={blurData ? "blur" : "empty"}
+        // blurDataURL={blurData ?? undefined}
+      />
+    </div>
+  );
+}
+
+export function VideoViewer({ url }: { url: string }) {
+  const [loading, setLoading] = useState(true);
+
+  // const url = "https://media.w3.org/2010/05/sintel/trailer_hd.mp4";
+
+  return (
+    <div className="flex h-full w-full items-center justify-center ">
+      {loading && <div className="loading absolute" />}
+      <Suspense fallback={<VideoOff />}>
+        <video
+          className={twMerge("rounded-sm p-2")}
+          onPlay={() => setLoading(false)}
+          style={{
+            width: loading ? "0" : "100%",
+            height: loading ? "0" : "100%",
+            objectFit: "cover",
+            objectPosition: "center",
+            // backgroundColor: "red",
+          }}
+          src={url}
+          autoPlay
+          loop
+          controls
+          playsInline
+          controlsList="nodownload"
+          muted
+        />
+      </Suspense>
+    </div>
+  );
+}
+
+export function AudioViewer({
+  url,
+  thumbnailUrl,
+}: {
+  url: string;
+  thumbnailUrl: string;
+}) {
+  const [loading, setLoading] = useState(true);
+
+  // const url = "https://media.w3.org/2010/05/sintel/trailer_hd.mp4";
+
+  return (
+    <div className="flex h-full w-full flex-col items-center justify-center ">
+      {loading && <div className="loading absolute" />}
+      <ThumbNailView thumbnailUrl={thumbnailUrl} />
+      <Suspense fallback={<VideoOff />}>
+        <audio
+          className={twMerge("rounded-sm p-2")}
+          onPlay={() => setLoading(false)}
+          style={{
+            // width: loading ? "0" : "100%",
+            // height: loading ? "0" : "100%",
+            objectFit: "cover",
+            objectPosition: "center",
+            // backgroundColor: "red",
+          }}
+          src={url}
+          // autoPlay
+          loop
+          controls
+          playsInline
+          controlsList="nodownload nofullscreen noplaybackrate noremoteplayback"
+          muted
+        />
+      </Suspense>
+    </div>
   );
 }

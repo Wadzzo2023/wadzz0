@@ -13,7 +13,9 @@ const RightDialog: NextPage<Props> = ({}) => {
   return (
     <Dialog open={urs.open} onOpenChange={urs.setOpen}>
       <DialogContent className="scrollbar-style !m-0 max-h-screen overflow-y-auto !rounded-xl !p-1">
-        <Right />
+        <div>
+          <Right />
+        </div>
       </DialogContent>
     </Dialog>
   );
