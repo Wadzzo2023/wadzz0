@@ -6,16 +6,25 @@ import RightBar from "./fan/fan-right";
 import MarketRight from "./marketplace/market_right";
 import AssetRight from "./my_asset/asset_right";
 import AdminRightSide from "./wallete/admin_right";
+import { useTagStore } from "~/lib/state/wallete/tag";
 
 export default function RightSideBar() {
   const router = useRouter();
-  if (router.pathname == "/")
-    return (
-      <div className="hidden h-full w-80  flex-col bg-base-100/80  lg:flex">
-        <Right />
-      </div>
-    );
-  else if (router.pathname.includes("/music"))
+  const { selectedTag } = useTagStore();
+  if (router.pathname == "/") {
+    if (selectedTag == "bandcoin")
+      return (
+        <div className="hidden h-full w-80  flex-col bg-base-100/80  lg:flex">
+          <MarketRight />
+        </div>
+      );
+    else
+      return (
+        <div className="hidden h-full w-80  flex-col bg-base-100/80  lg:flex">
+          <Right />
+        </div>
+      );
+  } else if (router.pathname.includes("/music"))
     return (
       <div className="hidden h-full w-80  flex-col bg-base-100/80  lg:flex">
         <MusicRightSide />

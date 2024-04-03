@@ -20,7 +20,18 @@ export default function AllTags() {
       >
         <input
           className="!btn join-item"
-          key={""}
+          key={"bandcoin"}
+          type="radio"
+          name="options"
+          aria-label="Bandcoin: "
+          onClick={() => {
+            selectTag("bandcoin");
+            setData(undefined);
+          }}
+        />
+        <input
+          className="!btn join-item"
+          key={"tags"}
           type="radio"
           name="options"
           aria-label="Tags: "
