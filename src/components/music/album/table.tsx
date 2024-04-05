@@ -6,6 +6,7 @@ import MusicItem, { SongItemType } from "../track/music_item";
 import { Play } from "lucide-react";
 import BuyModal from "../modal/buy_modal";
 import { ButtonSkeleton } from "~/pages/music/album/[album]";
+import clsx from "clsx";
 
 export default function SongList({
   songs,
@@ -23,7 +24,7 @@ export default function SongList({
             return (
               <tr
                 key={song.id}
-                // className={clsx(activeRow == song.id ? "bg-base-300" : "hover")}
+                className={clsx("bg-base-300", "hover:bg-base-100")}
               >
                 <td>
                   <div className="space-x-3">

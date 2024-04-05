@@ -26,7 +26,7 @@ export default function MusicItem({
 
   return (
     <div
-      className="flex flex-row items-center justify-between   p-2 hover:bg-base-100"
+      className="flex max-w-md flex-row items-center   justify-between p-2 hover:bg-base-100"
       onClick={playSong}
     >
       <div className="flex">

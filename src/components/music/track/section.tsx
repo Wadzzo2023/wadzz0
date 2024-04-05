@@ -35,7 +35,7 @@ export function TrackSectionSkeleton({
 }) {
   return (
     <div>
-      <h3 className="py-2 text-2xl font-bold">Playable songs</h3>
+      <h3 className="py-2 text-2xl font-bold">{header}</h3>
       <div className="skeleton my-2 h-10 w-full" />
       <div className="skeleton h-10 w-full" />
     </div>
