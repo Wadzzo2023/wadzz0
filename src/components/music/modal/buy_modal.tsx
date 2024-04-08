@@ -94,7 +94,7 @@ export default function BuyModal({
               <p>
                 Asset Name: <span className="badge badge-primary">{code}</span>
               </p>
-              <p className="text-warning">Price: {price} XLM</p>
+              <p className="text-warning">Price: {price} ACTION</p>
               <p className="text-sm text-accent">
                 Copies available:{" "}
                 {marketItemId ? (

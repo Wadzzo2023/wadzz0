@@ -113,11 +113,11 @@ export const trxRouter = createTRPCRouter({
         homeDomain = "bandcoin.io";
         pubkey = Keypair.fromSecret(env.MOTHER_SECRET).publicKey();
       } else {
-        const storage = await db.creator.findFirst({
+        const storage = await db.creator.findFirstOrThrow({
           where: { id: ctx.session.user.id },
           select: { storageSecret: true },
         });
-        if (!storage) throw new Error("No storage account found");
+
         storageSecret = storage.storageSecret;
         homeDomain = "fan.bandcoin.io";
       }

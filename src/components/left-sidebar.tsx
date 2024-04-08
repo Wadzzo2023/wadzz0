@@ -9,10 +9,10 @@ import { cn } from "~/lib/utils";
 
 export const LeftNavigation = {
   Home: { path: "/", icon: HomeIcon, text: "HOMEPAGE" },
+  MyAssets: { path: "/assets", icon: Bell, text: "MY ASSETS" },
   // Search: { path: "/search", icon: Search, text: "Search" },
   Music: { path: "/music", icon: Diamond, text: "MUSIC" },
   Marketplace: { path: "/marketplace", icon: Bell, text: "MARKETPLACE" },
-  MyAssets: { path: "/assets", icon: Bell, text: "MY ASSETS" },
   Fan: { path: "/fans/home", icon: Bell, text: "BANDFAN" },
   Settings: { path: "/settings", icon: Settings2, text: "SETTINGS" },
 } as const;

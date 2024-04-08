@@ -3,45 +3,79 @@ import Asset from "./asset";
 import MyError from "./my_error";
 import { api } from "~/utils/api";
 import { useTagStore } from "~/lib/state/wallete/tag";
-import WallateNFTs from "../marketplace/bandcoin_nfts";
+import MarketAssetComponent from "../marketplace/market_asset";
 
 export default function AllAsset() {
-  const { selectedTag } = useTagStore();
-
   const assets = api.wallate.asset.getBancoinAssets.useInfiniteQuery(
-    { limit: 10, tag: selectedTag },
+    { limit: 4 },
     {
       getNextPageParam: (lastPage) => lastPage.nextCursor,
     },
   );
 
-  if (assets.isLoading) return <Loading />;
+  const musicAssets = api.music.song.getAllSongMarketAssets.useInfiniteQuery(
+    { limit: 4 },
+    {
+      getNextPageParam: (lastPage) => lastPage.nextCursor,
+    },
+  );
+
+  const adminAssets =
+    api.marketplace.market.getMarketAdminNfts.useInfiniteQuery(
+      { limit: 4 },
+      {
+        getNextPageParam: (lastPage) => lastPage.nextCursor,
+      },
+    );
+
+  if (assets.isLoading && musicAssets.isLoading && adminAssets.isLoading)
+    return <Loading />;
+
   if (assets.isError)
     return <MyError text="Error catch. Please reload this page." />;
 
-  if (selectedTag == "bandcoin") {
-    return <WallateNFTs />;
-  } else {
-    if (assets.data) {
+  if (assets.data) {
+    return (
+      <div
+        style={{
+          scrollbarGutter: "stable",
+        }}
+        className="main-asset-area"
+      >
+        {assets.data.pages.map((page) =>
+          page.assets.map((item, i) => <Asset key={i} asset={item} />),
+        )}
+        {musicAssets.data?.pages.map((page) => {
+          return page.nfts.map((item, id) => (
+            <MarketAssetComponent key={id} item={item} />
+          ));
+        })}
+        {adminAssets.data?.pages.map((page) =>
+          page.nfts.map((item, i) => (
+            <MarketAssetComponent key={i} item={item} />
+          )),
+        )}
+        <LoadMore />
+      </div>
+    );
+  }
+
+  function LoadMore() {
+    function loadMore() {
+      if (assets.hasNextPage) assets.fetchNextPage();
+      if (musicAssets.hasNextPage) musicAssets.fetchNextPage();
+      if (adminAssets.hasNextPage) adminAssets.fetchNextPage();
+    }
+
+    if (
+      assets.hasNextPage ||
+      musicAssets.hasNextPage ||
+      adminAssets.hasNextPage
+    ) {
       return (
-        <div
-          style={{
-            scrollbarGutter: "stable",
-          }}
-          className="main-asset-area"
-        >
-          {assets.data.pages.map((page) =>
-            page.assets.map((item, i) => <Asset key={i} asset={item} />),
-          )}
-          {assets.hasNextPage && (
-            <button
-              className="btn btn-outline btn-primary"
-              onClick={() => void assets.fetchNextPage()}
-            >
-              Load More
-            </button>
-          )}
-        </div>
+        <button className="btn btn-outline btn-primary" onClick={loadMore}>
+          Load More
+        </button>
       );
     }
   }
