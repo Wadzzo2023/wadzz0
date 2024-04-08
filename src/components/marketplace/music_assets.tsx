@@ -5,7 +5,7 @@ import { MoreAssetsSkeleton } from "./bandcoin_nfts";
 export default function MusicAssetNfts() {
   // first fetch from database and later validate
   const assets = api.music.song.getAllSongMarketAssets.useInfiniteQuery(
-    { limit: 4 },
+    { limit: 10 },
     {
       getNextPageParam: (lastPage) => lastPage.nextCursor,
     },

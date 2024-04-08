@@ -7,7 +7,7 @@ export default function FanAssetNfts() {
   // first fetch from database and later validate
   const { pubkey } = useConnectWalletStateStore();
   const assets = api.marketplace.market.getFanMarketNfts.useInfiniteQuery(
-    { limit: 4 },
+    { limit: 10 },
     {
       getNextPageParam: (lastPage) => lastPage.nextCursor,
     },

@@ -1,8 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import LeftBar from "./left-sidebar";
 import RightSideBar from "./right-sidebar";
-import BottomNav from "./fan/mobile/bottom-nav";
-import TopNav from "./fan/mobile/top-nav";
 import { ConnectWalletButton } from "package/connect_wallet";
 import { useSession } from "next-auth/react";
 import clsx from "clsx";
@@ -11,7 +9,6 @@ import RightDialog from "./right_dialog";
 import BottonPlayer from "./bottom_player";
 import { usePlayerStore } from "~/lib/state/music/track";
 import { useRouter } from "next/router";
-import { homedir } from "os";
 import { X } from "lucide-react";
 
 export default function Layout({

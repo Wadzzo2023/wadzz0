@@ -4,7 +4,7 @@ import MarketAssetComponent from "./market_asset";
 
 export default function WallateNFTs() {
   const assets = api.marketplace.market.getMarketAdminNfts.useInfiniteQuery(
-    { limit: 4 },
+    { limit: 10 },
     {
       getNextPageParam: (lastPage) => lastPage.nextCursor,
     },

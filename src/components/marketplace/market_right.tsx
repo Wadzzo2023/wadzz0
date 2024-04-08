@@ -107,21 +107,28 @@ export function TokenCopies({ id }: { id: number }) {
     id,
   });
 
-  if (copy.isLoading) return <span className="loading loading-spinner" />;
+  if (copy.isLoading)
+    return <span className="loading loading-dots loading-sm" />;
 
   if (copy.data) return <span>{copy.data}</span>;
 }
 
-export function SongTokenCopies({ code, issuer }: { code: string; issuer: string }) {
+export function SongTokenCopies({
+  code,
+  issuer,
+}: {
+  code: string;
+  issuer: string;
+}) {
   const copy = api.marketplace.market.getSongAssetAvailableCopy.useQuery({
-   code, issuer
+    code,
+    issuer,
   });
 
   if (copy.isLoading) return <span className="loading loading-spinner" />;
 
   if (copy.data) return <span>{copy.data}</span>;
 }
-
 
 function OtherButtons() {
   const { currentData } = useMarketRightStore();
@@ -139,12 +146,10 @@ function OtherButtons() {
       return (
         <>
           <BuyModal
-            item={ currentData.asset }
+            item={currentData.asset}
             price={currentData.price}
             placerId={currentData.placerId}
             marketItemId={currentData.id}
-            
-
           />
         </>
       );

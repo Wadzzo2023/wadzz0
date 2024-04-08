@@ -9,50 +9,26 @@ import AdminRightSide from "./wallete/admin_right";
 import { useTagStore } from "~/lib/state/wallete/tag";
 
 export default function RightSideBar() {
+  return (
+    <div className="hidden h-full w-80  flex-col bg-base-100/80  lg:flex">
+      <RightComponent />
+    </div>
+  );
+}
+
+export function RightComponent() {
   const router = useRouter();
   const { selectedTag } = useTagStore();
   if (router.pathname == "/") {
-    if (selectedTag == "bandcoin")
-      return (
-        <div className="hidden h-full w-80  flex-col bg-base-100/80  lg:flex">
-          <MarketRight />
-        </div>
-      );
-    else
-      return (
-        <div className="hidden h-full w-80  flex-col bg-base-100/80  lg:flex">
-          <Right />
-        </div>
-      );
-  } else if (router.pathname.includes("/music"))
-    return (
-      <div className="hidden h-full w-80  flex-col bg-base-100/80  lg:flex">
-        <MusicRightSide />
-      </div>
-    );
-  else if (router.pathname.includes("/fans"))
-    return (
-      <div className="hidden h-full w-80  flex-col bg-base-100/80  lg:flex">
-        <RightBar />
-      </div>
-    );
+    if (selectedTag == "bandcoin") return <MarketRight />;
+    else return <Right />;
+  } else if (router.pathname.includes("/music")) return <MusicRightSide />;
+  else if (router.pathname.includes("/fans")) return <RightBar />;
   else if (router.pathname.includes("/marketplace")) {
-    return (
-      <div className="hidden h-full w-80  flex-col bg-base-100/80  lg:flex">
-        <MarketRight />
-      </div>
-    );
+    return <MarketRight />;
   } else if (router.pathname.includes("/assets")) {
-    return (
-      <div className="hidden h-full w-80  flex-col bg-base-100/80  lg:flex">
-        <AssetRight />
-      </div>
-    );
+    return <AssetRight />;
   } else if (router.pathname.includes("/me/admin")) {
-    return (
-      <div className="hidden h-full w-80  flex-col bg-base-100/80  lg:flex">
-        <AdminRightSide />
-      </div>
-    );
+    return <AdminRightSide />;
   }
 }
