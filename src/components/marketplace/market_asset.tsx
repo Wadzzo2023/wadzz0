@@ -3,6 +3,7 @@ import { MarketAssetType } from "./market_right";
 import { useMarketRightStore } from "~/lib/state/marketplace/right";
 import AssetView from "./asset/asset_view";
 import { usePopUpState } from "~/lib/state/right-pop";
+import { MarketType } from "@prisma/client";
 
 function MarketAssetComponent({ item }: { item: MarketAssetType }) {
   const { asset } = item;
@@ -14,6 +15,8 @@ function MarketAssetComponent({ item }: { item: MarketAssetType }) {
       <button
         onClick={() => {
           urs.setData(item);
+          pop.setType(MarketType.ADMIN);
+
           if (!getTailwindScreenSize().includes("xl")) {
             pop.setOpen(true);
           }

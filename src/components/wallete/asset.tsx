@@ -20,6 +20,7 @@ function Asset({ asset }: { asset: AdminAssetWithTag }) {
       <button
         onClick={() => {
           urs.setData(asset);
+          pop.setType("Other");
           if (!getTailwindScreenSize().includes("xl")) {
             pop.setOpen(true);
           }

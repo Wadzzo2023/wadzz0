@@ -62,9 +62,9 @@ export default function AllAsset() {
 
   function LoadMore() {
     function loadMore() {
-      if (assets.hasNextPage) assets.fetchNextPage();
-      if (musicAssets.hasNextPage) musicAssets.fetchNextPage();
-      if (adminAssets.hasNextPage) adminAssets.fetchNextPage();
+      if (assets.hasNextPage) void assets.fetchNextPage();
+      if (musicAssets.hasNextPage) void musicAssets.fetchNextPage();
+      if (adminAssets.hasNextPage) void adminAssets.fetchNextPage();
     }
 
     if (
