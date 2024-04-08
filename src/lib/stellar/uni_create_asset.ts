@@ -92,7 +92,7 @@ export async function createUniAsset({
     Operation.createAccount({
       destination: issuerAcc.publicKey(),
       startingBalance: "1.5",
-      source: PLATFORM_MOTHER_ACC.publicKey(),
+      // source: PLATFORM_MOTHER_ACC.publicKey(),
     }),
   )
     //
@@ -133,7 +133,7 @@ export async function createUniAsset({
   const buildTrx = Tx1.build();
 
   // sign
-  buildTrx.sign(issuerAcc, asesetStorage, PLATFORM_MOTHER_ACC);
+  buildTrx.sign(PLATFORM_MOTHER_ACC, issuerAcc, asesetStorage);
   const xdr = buildTrx.toXDR();
 
   const signedXDr = await WithSing({

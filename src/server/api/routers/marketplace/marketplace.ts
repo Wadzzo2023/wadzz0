@@ -13,6 +13,7 @@ import {
 import { SignUser } from "~/lib/stellar/utils";
 
 import {
+  adminProcedure,
   createTRPCRouter,
   protectedProcedure,
   publicProcedure,
@@ -309,5 +310,14 @@ export const marketRouter = createTRPCRouter({
         return copy;
       }
       // return copies.length;
+    }),
+
+  deleteMarketAsset: adminProcedure
+    .input(z.number())
+    .mutation(async ({ ctx, input }) => {
+      await ctx.db.marketAsset.delete({
+        where: { id: input },
+        include: { asset: true },
+      });
     }),
 });

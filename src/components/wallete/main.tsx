@@ -1,10 +1,10 @@
 import { useTagStore } from "~/lib/state/wallete/tag";
 import AllAsset from "./all_asset";
 import AllTag from "./all_tags";
-import { MarketType } from "@prisma/client";
 import WallateNFTs from "../marketplace/bandcoin_nfts";
 import MusicAssetNfts from "../marketplace/music_assets";
 import OtherAssets from "./other_assets";
+import { AssetVariant } from "../right-sidebar";
 
 function Main() {
   return (
@@ -22,8 +22,8 @@ export default Main;
 function HomeAssets() {
   const { selectedTag } = useTagStore();
   if (selectedTag) {
-    if (selectedTag == MarketType.ADMIN) return <WallateNFTs />;
-    if (selectedTag == MarketType.SONG) return <MusicAssetNfts />;
-    if (selectedTag == "Other") return <OtherAssets />;
+    if (selectedTag == AssetVariant.ADMIN) return <WallateNFTs />;
+    if (selectedTag == AssetVariant.SONG) return <MusicAssetNfts />;
+    if (selectedTag == AssetVariant.Other) return <OtherAssets />;
   } else return <AllAsset />;
 }

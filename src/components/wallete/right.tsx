@@ -155,8 +155,14 @@ function Right(_props: RightProps) {
 export default Right;
 
 function DeleteWallateAsset({ id }: { id: number }) {
+  const { setData } = useRightStore();
   const admin = api.wallate.admin.checkAdmin.useQuery();
-  const del = api.wallate.asset.deleteAsset.useMutation();
+
+  const del = api.wallate.asset.deleteAsset.useMutation({
+    onSuccess: () => {
+      setData(undefined);
+    },
+  });
 
   if (admin.data)
     return (

@@ -92,6 +92,7 @@ export default function MarketRight() {
                 <div>
                   <OtherButtons />
                 </div>
+                <DeleteAssetByAdmin id={currentData.id} />
               </div>
             </div>
           </div>
@@ -274,4 +275,24 @@ function ThumbNailView(props: { name: string; thumbnailUrl: string }) {
 
 function TakeBack() {
   return <button className="btn btn-primary btn-sm w-full">You NFT</button>;
+}
+
+function DeleteAssetByAdmin({ id }: { id: number }) {
+  const { setData } = useMarketRightStore();
+  const admin = api.wallate.admin.checkAdmin.useQuery();
+  const del = api.marketplace.market.deleteMarketAsset.useMutation({
+    onSuccess: () => {
+      setData(undefined);
+    },
+  });
+
+  if (admin.data)
+    return (
+      <button
+        className="btn btn-warning btn-sm w-full"
+        onClick={() => del.mutate(id)}
+      >
+        {del.isLoading && <span className="loading loading-spinner" />}Delete
+      </button>
+    );
 }
