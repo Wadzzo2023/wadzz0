@@ -2,18 +2,20 @@ import { getTailwindScreenSize } from "~/lib/clientUtils";
 import { MarketAssetType } from "./market_right";
 import { useMarketRightStore } from "~/lib/state/marketplace/right";
 import AssetView from "./asset/asset_view";
+import { usePopUpState } from "~/lib/state/right-pop";
 
 function MarketAssetComponent({ item }: { item: MarketAssetType }) {
   const { asset } = item;
 
   const urs = useMarketRightStore();
+  const pop = usePopUpState();
   return (
     <div>
       <button
         onClick={() => {
           urs.setData(item);
           if (!getTailwindScreenSize().includes("xl")) {
-            urs.setOpen(true);
+            pop.setOpen(true);
           }
         }}
         className="btn relative h-fit w-full overflow-hidden  py-4 "

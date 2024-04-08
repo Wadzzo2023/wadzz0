@@ -3,6 +3,7 @@ import { getTailwindScreenSize } from "~/lib/clientUtils";
 import { useRightStore } from "~/lib/state/wallete/right";
 import ImageVideViewer from "./Image_video_viewer";
 import { AdminAsset } from "@prisma/client";
+import { usePopUpState } from "~/lib/state/right-pop";
 
 export type AdminAssetWithTag = AdminAsset & {
   tags: {
@@ -12,13 +13,15 @@ export type AdminAssetWithTag = AdminAsset & {
 function Asset({ asset }: { asset: AdminAssetWithTag }) {
   const { logoUrl, logoBlueData, color, code } = asset;
   const urs = useRightStore();
+  const pop = usePopUpState();
+
   return (
     <div>
       <button
         onClick={() => {
           urs.setData(asset);
           if (!getTailwindScreenSize().includes("xl")) {
-            urs.setOpen(true);
+            pop.setOpen(true);
           }
         }}
         className="btn relative h-fit w-full overflow-hidden  py-4 "

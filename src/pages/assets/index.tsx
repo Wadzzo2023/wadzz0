@@ -1,11 +1,13 @@
 import clsx from "clsx";
 import AssetView from "~/components/marketplace/asset/asset_view";
 import { MoreAssetsSkeleton } from "~/components/marketplace/bandcoin_nfts";
+import { getTailwindScreenSize } from "~/lib/clientUtils";
 import { useAssetRightStore } from "~/lib/state/assets_right";
 import {
   AssetMenu,
   useAssetMenu,
 } from "~/lib/state/marketplace/asset-tab-menu";
+import { usePopUpState } from "~/lib/state/right-pop";
 
 import { api } from "~/utils/api";
 
@@ -63,6 +65,7 @@ function MyStorageAsset() {
 function MyAssets() {
   const acc = api.wallate.acc.getAccountInfo.useQuery();
   const { setData } = useAssetRightStore();
+  const pop = usePopUpState();
 
   if (acc.isLoading) return <MoreAssetsSkeleton />;
   if (acc.data)
@@ -82,9 +85,11 @@ function MyAssets() {
                 onClick={() => {
                   const copies = acc.data.accAssets[i]?.copies ?? 0;
                   setData({ ...asset, copies });
+                  if (!getTailwindScreenSize().includes("xl")) {
+                    pop.setOpen(true);
+                  }
                 }}
               >
-                {/* <p>{acc.data.accAssets[i]?.copies}</p> */}
                 <AssetView code={asset.code} thumbnail={asset.thumbnail} />
               </button>
             </div>
