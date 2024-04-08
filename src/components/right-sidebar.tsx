@@ -10,6 +10,8 @@ import { useTagStore } from "~/lib/state/wallete/tag";
 import { MarketType } from "@prisma/client";
 import { usePopUpState } from "~/lib/state/right-pop";
 
+export const AssetVariant = { ...MarketType, Other: "Other" } as const;
+
 export default function RightSideBar() {
   return (
     <div className="hidden h-full w-80  flex-col bg-base-100/80  lg:flex">
@@ -23,12 +25,12 @@ export function RightComponent() {
   const { selectedTag } = useTagStore();
   const pop = usePopUpState();
   if (router.pathname == "/") {
-    if (selectedTag == MarketType.ADMIN) return <MarketRight />;
-    if (selectedTag == MarketType.SONG) return <MarketRight />;
-    if (selectedTag == "Other") return <Right />;
+    if (selectedTag == AssetVariant.ADMIN) return <MarketRight />;
+    if (selectedTag == AssetVariant.SONG) return <MarketRight />;
+    if (selectedTag == AssetVariant.Other) return <Right />;
     if (selectedTag === undefined) {
-      if (pop.type == MarketType.ADMIN) return <MarketRight />;
-      if ((pop.type = "Other")) return <Right />;
+      if (pop.type == AssetVariant.ADMIN) return <MarketRight />;
+      if ((pop.type = AssetVariant.Other)) return <Right />;
     }
   } else if (router.pathname.includes("/music")) return <MusicRightSide />;
   else if (router.pathname.includes("/fans")) return <RightBar />;

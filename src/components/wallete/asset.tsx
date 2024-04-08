@@ -4,6 +4,7 @@ import { useRightStore } from "~/lib/state/wallete/right";
 import ImageVideViewer from "./Image_video_viewer";
 import { AdminAsset } from "@prisma/client";
 import { usePopUpState } from "~/lib/state/right-pop";
+import { AssetVariant } from "../right-sidebar";
 
 export type AdminAssetWithTag = AdminAsset & {
   tags: {
@@ -20,7 +21,7 @@ function Asset({ asset }: { asset: AdminAssetWithTag }) {
       <button
         onClick={() => {
           urs.setData(asset);
-          pop.setType("Other");
+          pop.setType(AssetVariant.Other);
           if (!getTailwindScreenSize().includes("xl")) {
             pop.setOpen(true);
           }

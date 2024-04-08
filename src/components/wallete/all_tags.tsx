@@ -3,6 +3,7 @@ import { useMarketRightStore } from "~/lib/state/marketplace/right";
 import { useRightStore } from "~/lib/state/wallete/right";
 import { useTagStore } from "~/lib/state/wallete/tag";
 import { api } from "~/utils/api";
+import { AssetVariant } from "../right-sidebar";
 
 export default function AllTags() {
   const { selectTag, selectedTag } = useTagStore();
@@ -35,7 +36,7 @@ export default function AllTags() {
         name="options"
         aria-label="Bandcoin"
         onClick={() => {
-          selectTag(MarketType.ADMIN);
+          selectTag(AssetVariant.ADMIN);
           setData(undefined);
           setMarektData(undefined);
         }}
@@ -47,7 +48,7 @@ export default function AllTags() {
         name="options"
         aria-label="Music"
         onClick={() => {
-          selectTag(MarketType.SONG);
+          selectTag(AssetVariant.SONG);
           setData(undefined);
           setMarektData(undefined);
         }}
@@ -59,7 +60,7 @@ export default function AllTags() {
         name="options"
         aria-label="Other"
         onClick={() => {
-          selectTag("Other");
+          selectTag(AssetVariant.Other);
           setData(undefined);
           setMarektData(undefined);
         }}

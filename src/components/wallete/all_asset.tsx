@@ -68,8 +68,8 @@ export default function AllAsset() {
     }
 
     if (
-      assets.hasNextPage ||
-      musicAssets.hasNextPage ||
+      assets.hasNextPage ??
+      musicAssets.hasNextPage ??
       adminAssets.hasNextPage
     ) {
       return (
