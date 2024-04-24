@@ -31,34 +31,32 @@ export default function AllAsset() {
   if (assets.isLoading && musicAssets.isLoading && adminAssets.isLoading)
     return <Loading />;
 
-  if (assets.isError)
-    return <MyError text="Error catch. Please reload this page." />;
+  // if (assets.isError)
+  //   return <MyError text="Error catch. Please reload this page." />;
 
-  if (assets.data) {
-    return (
-      <div
-        style={{
-          scrollbarGutter: "stable",
-        }}
-        className="main-asset-area"
-      >
-        {assets.data.pages.map((page) =>
-          page.assets.map((item, i) => <Asset key={i} asset={item} />),
-        )}
-        {musicAssets.data?.pages.map((page) => {
-          return page.nfts.map((item, id) => (
-            <MarketAssetComponent key={id} item={item} />
-          ));
-        })}
-        {adminAssets.data?.pages.map((page) =>
-          page.nfts.map((item, i) => (
-            <MarketAssetComponent key={i} item={item} />
-          )),
-        )}
-        <LoadMore />
-      </div>
-    );
-  }
+  return (
+    <div
+      style={{
+        scrollbarGutter: "stable",
+      }}
+      className="main-asset-area"
+    >
+      {assets.data?.pages.map((page) =>
+        page.assets.map((item, i) => <Asset key={i} asset={item} />),
+      )}
+      {musicAssets.data?.pages.map((page) => {
+        return page.nfts.map((item, id) => (
+          <MarketAssetComponent key={id} item={item} />
+        ));
+      })}
+      {adminAssets.data?.pages.map((page) =>
+        page.nfts.map((item, i) => (
+          <MarketAssetComponent key={i} item={item} />
+        )),
+      )}
+      <LoadMore />
+    </div>
+  );
 
   function LoadMore() {
     function loadMore() {

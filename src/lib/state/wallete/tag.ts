@@ -6,6 +6,6 @@ interface TagState {
 }
 
 export const useTagStore = create<TagState>((set, get) => ({
-  selectedTag: "bandcoin",
+  selectedTag: undefined,
   selectTag: (tag) => set({ selectedTag: tag }),
 }));
