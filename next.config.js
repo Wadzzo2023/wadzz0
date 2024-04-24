@@ -18,6 +18,17 @@ const config = {
     ]
   },
 
+  async rewrites() {
+
+    return [
+      {
+        source: "/.well-known/stellar.toml",
+        destination: "/api/toml",
+        // persistance: true
+      },
+    ];
+
+  },
 
 
 

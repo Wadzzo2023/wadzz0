@@ -87,7 +87,7 @@ function LeftBottom() {
         </Link>
       </div>
       <div className="flex w-full flex-col text-center text-xs text-base-content">
-        <p>© 2023 bandcoin.io</p>
+        <p>© 2024 bandcoin.io</p>
         <div className="flex w-full justify-center gap-2 ">
           <Link className="link-hover link" href="/about">
             About
