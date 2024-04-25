@@ -119,7 +119,7 @@ export const trxRouter = createTRPCRouter({
         });
 
         storageSecret = storage.storageSecret;
-        homeDomain = "fan.bandcoin.io";
+        homeDomain = "bandcoin.io";
       }
 
       // console.log("storageSecret", storageSecret);

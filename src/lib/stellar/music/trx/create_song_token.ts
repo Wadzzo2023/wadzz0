@@ -132,7 +132,7 @@ export async function firstTransection({
     //
     .addOperation(
       Operation.setOptions({
-        homeDomain: "music.bandcoin.io",
+        homeDomain: "bandcoin.io",
         source: issuerAcc.publicKey(),
       }),
     )
