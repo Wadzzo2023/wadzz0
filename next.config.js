@@ -13,8 +13,8 @@ const config = {
         hostname: "utfs.io",
 
       },
+      { hostname: "ipfs.io" },
       { hostname: "daisyui.com" }, { hostname: "picsum.photos" }
-
     ]
   },
 

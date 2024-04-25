@@ -97,7 +97,7 @@ export default function SongCreate({ albumId }: { albumId: number }) {
   // Function to upload the selected file to Pinata
 
   const onSubmit: SubmitHandler<z.infer<typeof SongFormSchema>> = (data) => {
-    toast.success("form ok");
+    // toast.success("form ok");
     xdrMutation.mutate({
       code: data.code,
       limit: data.limit,

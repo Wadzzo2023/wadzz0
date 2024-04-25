@@ -3,7 +3,7 @@ import { SubmitHandler, useForm, Controller } from "react-hook-form";
 import { MediaType, Song } from "@prisma/client";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useRef, useState } from "react";
+import { ChangeEvent, useRef, useState } from "react";
 import { UploadButton } from "~/utils/uploadthing";
 import Image from "next/image";
 import toast from "react-hot-toast";
@@ -39,8 +39,16 @@ export const NftFormSchema = z.object({
 type NftFormType = z.TypeOf<typeof NftFormSchema>;
 
 export default function NftCreate({ admin: isAdmin }: { admin?: true }) {
+  // pinta upload
+  const [file, setFile] = useState<File>();
+  const [ipfs, setCid] = useState<string>();
+  const [uploading, setUploading] = useState(false);
+
+  const inputFile = useRef(null);
+  // other
   const modalRef = useRef<HTMLDialogElement>(null);
   const [submitLoading, setSubmitLoading] = useState(false);
+
   const [mediaType, setMediaType] = useState<MediaType>(MediaType.IMAGE);
 
   const [mediaUrl, setMediaUrl] = useState<string>();
@@ -65,7 +73,6 @@ export default function NftCreate({ admin: isAdmin }: { admin?: true }) {
     defaultValues: {
       mediaType: MediaType.IMAGE,
       mediaUrl: "https://picsum.photos/202/200",
-      coverImgUrl: "https://picsum.photos/200/200",
     },
   });
 
@@ -105,12 +112,13 @@ export default function NftCreate({ admin: isAdmin }: { admin?: true }) {
   // Function to upload the selected file to Pinata
 
   const onSubmit: SubmitHandler<z.infer<typeof NftFormSchema>> = (data) => {
-    xdrMutation.mutate({
-      code: data.code,
-      limit: data.limit,
-      signWith: needSign(walletType),
-      // ipfsHash: "test",
-    });
+    if (ipfs)
+      xdrMutation.mutate({
+        code: data.code,
+        limit: data.limit,
+        signWith: needSign(walletType),
+        ipfsHash: ipfs,
+      });
   };
 
   function getEndpoint(mediaType: MediaType) {
@@ -132,6 +140,42 @@ export default function NftCreate({ admin: isAdmin }: { admin?: true }) {
   }
   const handleModal = () => {
     modalRef.current?.showModal();
+  };
+
+  const uploadFile = async (fileToUpload: File) => {
+    try {
+      setUploading(true);
+      const formData = new FormData();
+      formData.append("file", fileToUpload, fileToUpload.name);
+      console.log("formData", fileToUpload);
+      const res = await fetch("/api/file", {
+        method: "POST",
+        body: formData,
+      });
+      const ipfsHash = await res.text();
+      const thumbnail = "https://ipfs.io/ipfs/" + ipfsHash;
+      setCover(thumbnail);
+      setCid(ipfsHash);
+
+      setUploading(false);
+    } catch (e) {
+      console.log(e);
+      setUploading(false);
+      alert("Trouble uploading file");
+    }
+  };
+
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (files) {
+      if (files.length > 0) {
+        const file = files[0];
+        if (file) {
+          setFile(file);
+          uploadFile(file);
+        }
+      }
+    }
   };
 
   return (
@@ -209,8 +253,8 @@ export default function NftCreate({ admin: isAdmin }: { admin?: true }) {
                       </span>
                     </label>
 
-                    <div className="mt-4">
-                      <UploadButton
+                    <div className="mt  ">
+                      {/* <UploadButton
                         endpoint="imageUploader"
                         content={{
                           button: "Add Thumbnail",
@@ -231,8 +275,15 @@ export default function NftCreate({ admin: isAdmin }: { admin?: true }) {
                           // Do something with the error.
                           alert(`ERROR! ${error.message}`);
                         }}
-                      />
+                      /> */}
 
+                      <input
+                        type="file"
+                        id="file"
+                        accept=".jpg, .png"
+                        ref={inputFile}
+                        onChange={handleChange}
+                      />
                       {coverUrl && (
                         <>
                           <Image

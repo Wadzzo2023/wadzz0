@@ -32,6 +32,7 @@ export const env = createEnv({
     DISCORD_CLIENT_SECRET: z.string(),
     STORAGE_SECRET: z.string(),
     MOTHER_SECRET: z.string(),
+    PINATA_JWT: z.string(),
 
   },
 
@@ -71,7 +72,7 @@ export const env = createEnv({
     NEXT_PUBLIC_LOG_ENABLE: process.env.NEXT_PUBLIC_LOG_ENABLE,
     MOTHER_SECRET: process.env.MOTHER_SECRET,
     STORAGE_SECRET: process.env.STORAGE_SECRET,
-
+    PINATA_JWT: process.env.PINATA_JWT,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially

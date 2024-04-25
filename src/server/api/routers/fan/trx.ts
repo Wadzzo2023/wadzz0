@@ -96,6 +96,7 @@ export const trxRouter = createTRPCRouter({
         code: z.string(),
         limit: z.number(),
         signWith: SignUser,
+        ipfsHash: z.string(),
       }),
     )
     .mutation(async ({ ctx, input: i }) => {
@@ -132,6 +133,7 @@ export const trxRouter = createTRPCRouter({
         homeDomain,
         limit,
         signWith,
+        ipfsHash: i.ipfsHash,
       });
     }),
 

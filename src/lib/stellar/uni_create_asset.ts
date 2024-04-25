@@ -27,6 +27,7 @@ export async function createUniAsset({
   signWith,
   homeDomain,
   storageSecret,
+  ipfsHash,
 }: {
   pubkey: string;
   code: string;
@@ -35,6 +36,7 @@ export async function createUniAsset({
   storageSecret: string;
   signWith: SignUserType;
   homeDomain: string;
+  ipfsHash: string;
 }) {
   const server = new Server(STELLAR_URL);
 
@@ -124,6 +126,13 @@ export async function createUniAsset({
     .addOperation(
       Operation.setOptions({
         homeDomain,
+        source: issuerAcc.publicKey(),
+      }),
+    )
+    .addOperation(
+      Operation.manageData({
+        name: "ipfshash",
+        value: ipfsHash,
         source: issuerAcc.publicKey(),
       }),
     )

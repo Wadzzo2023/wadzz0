@@ -74,33 +74,7 @@ export async function firstTransection({
         source: motherAcc.publicKey(),
       }),
     )
-    // //
-    // .addOperation(
-    //   Operation.createAccount({
-    //     destination: distributorAcc.publicKey(),
-    //     startingBalance: "1.5",
-    //     source: motherAcc.publicKey(),
-    //   }),
-    // )
-    // //
-    // .addOperation(
-    //   Operation.changeTrust({
-    //     asset: musicAsset,
-    //     limit: limit,
-    //     source: distributorAcc.publicKey(),
-    //   }),
-    // )
-    // //
-    // .addOperation(
-    //   Operation.payment({
-    //     asset: musicAsset,
-    //     amount: limit,
-    //     source: issuerAcc.publicKey(),
-    //     destination: distributorAcc.publicKey(),
-    //   }),
-    // )
-    //
-    //
+   
     .addOperation(
       Operation.changeTrust({
         asset: musicAsset,
