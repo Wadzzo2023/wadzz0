@@ -35,6 +35,12 @@ export const SongFormSchema = z.object({
 type SongFormType = z.TypeOf<typeof SongFormSchema>;
 
 export default function SongCreate({ albumId }: { albumId: number }) {
+  // pinta upload
+  const [file, setFile] = useState<File>();
+  const [ipfs, setCid] = useState<string>();
+  const [uploading, setUploading] = useState(false);
+
+  const inputFile = useRef(null);
   const modalRef = useRef<HTMLDialogElement>(null);
 
   const [musicUrl, setMusicUrl] = useState<string>();
@@ -98,17 +104,54 @@ export default function SongCreate({ albumId }: { albumId: number }) {
 
   const onSubmit: SubmitHandler<z.infer<typeof SongFormSchema>> = (data) => {
     // toast.success("form ok");
-    xdrMutation.mutate({
-      code: data.code,
-      limit: data.limit,
-      ipfsHash: "test",
-    });
+    if (ipfs)
+      xdrMutation.mutate({
+        code: data.code,
+        limit: data.limit,
+        ipfsHash: ipfs,
+      });
   };
 
   // console.log("errors", errors);
 
   const handleModal = () => {
     modalRef.current?.showModal();
+  };
+
+  const uploadFile = async (fileToUpload: File) => {
+    try {
+      setUploading(true);
+      const formData = new FormData();
+      formData.append("file", fileToUpload, fileToUpload.name);
+      console.log("formData", fileToUpload);
+      const res = await fetch("/api/file", {
+        method: "POST",
+        body: formData,
+      });
+      const ipfsHash = await res.text();
+      const thumbnail = "https://ipfs.io/ipfs/" + ipfsHash;
+      setCover(thumbnail);
+      setCid(ipfsHash);
+
+      setUploading(false);
+    } catch (e) {
+      console.log(e);
+      setUploading(false);
+      alert("Trouble uploading file");
+    }
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (files) {
+      if (files.length > 0) {
+        const file = files[0];
+        if (file) {
+          setFile(file);
+          uploadFile(file);
+        }
+      }
+    }
   };
 
   return (
@@ -169,7 +212,7 @@ export default function SongCreate({ albumId }: { albumId: number }) {
                   </label>
 
                   <div className="mt-4">
-                    <UploadButton
+                    {/* <UploadButton
                       endpoint="imageUploader"
                       content={{
                         button: "Add Thumbnail",
@@ -190,8 +233,14 @@ export default function SongCreate({ albumId }: { albumId: number }) {
                         // Do something with the error.
                         alert(`ERROR! ${error.message}`);
                       }}
+                    /> */}
+                    <input
+                      type="file"
+                      id="file"
+                      accept=".jpg, .png"
+                      ref={inputFile}
+                      onChange={handleChange}
                     />
-
                     {coverImgUrl && (
                       <>
                         <Image
@@ -203,6 +252,18 @@ export default function SongCreate({ albumId }: { albumId: number }) {
                         />
                       </>
                     )}
+
+                    {/* {coverImgUrl && (
+                      <>
+                        <Image
+                          className="p-2"
+                          width={120}
+                          height={120}
+                          alt="preview image"
+                          src={coverImgUrl}
+                        />
+                      </>
+                    )} */}
                   </div>
 
                   <div className="form-control w-full">
