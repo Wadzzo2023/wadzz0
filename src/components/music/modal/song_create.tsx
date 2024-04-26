@@ -147,6 +147,10 @@ export default function SongCreate({ albumId }: { albumId: number }) {
       if (files.length > 0) {
         const file = files[0];
         if (file) {
+          if (file.size > 1024 * 1024) {
+            toast.error("File size should be less than 1MB");
+            return;
+          }
           setFile(file);
           uploadFile(file);
         }
@@ -241,6 +245,9 @@ export default function SongCreate({ albumId }: { albumId: number }) {
                       ref={inputFile}
                       onChange={handleChange}
                     />
+                    {uploading && (
+                      <progress className="progress w-56"></progress>
+                    )}
                     {coverImgUrl && (
                       <>
                         <Image

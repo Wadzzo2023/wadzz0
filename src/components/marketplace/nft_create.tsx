@@ -167,10 +167,15 @@ export default function NftCreate({ admin: isAdmin }: { admin?: true }) {
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
+
     if (files) {
       if (files.length > 0) {
         const file = files[0];
         if (file) {
+          if (file.size > 1024 * 1024) {
+            toast.error("File size should be less than 1MB");
+            return;
+          }
           setFile(file);
           uploadFile(file);
         }
@@ -284,6 +289,9 @@ export default function NftCreate({ admin: isAdmin }: { admin?: true }) {
                         ref={inputFile}
                         onChange={handleChange}
                       />
+                      {uploading && (
+                        <progress className="progress w-56"></progress>
+                      )}
                       {coverUrl && (
                         <>
                           <Image
