@@ -165,7 +165,7 @@ export default function NftCreate({ admin: isAdmin }: { admin?: true }) {
     }
   };
 
-  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+  const handleChange = async (e: ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
 
     if (files) {
@@ -177,7 +177,7 @@ export default function NftCreate({ admin: isAdmin }: { admin?: true }) {
             return;
           }
           setFile(file);
-          uploadFile(file);
+          await uploadFile(file);
         }
       }
     }

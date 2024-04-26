@@ -30,6 +30,7 @@ export const AssetSelectAllProperty = {
   id: true,
   mediaType: true,
   mediaUrl: true,
+  limit: true,
 };
 
 export const marketRouter = createTRPCRouter({

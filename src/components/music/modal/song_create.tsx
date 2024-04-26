@@ -141,7 +141,7 @@ export default function SongCreate({ albumId }: { albumId: number }) {
     }
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (files) {
       if (files.length > 0) {
@@ -152,7 +152,7 @@ export default function SongCreate({ albumId }: { albumId: number }) {
             return;
           }
           setFile(file);
-          uploadFile(file);
+          await uploadFile(file);
         }
       }
     }
