@@ -136,6 +136,7 @@ export const songRouter = createTRPCRouter({
         musicUrl,
         description,
         price,
+        limit,
         name,
         code,
         issuer,
@@ -161,6 +162,7 @@ export const songRouter = createTRPCRouter({
             mediaUrl: musicUrl,
             thumbnail: coverImgUrl,
             description: description,
+            limit,
           },
         });
       }

@@ -300,6 +300,8 @@ model Asset {
     name        String
     description String?
 
+    limit Int? // if null then it is unlimited
+
     code          String
     issuer        String
     issuerPrivate String?

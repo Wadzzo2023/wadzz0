@@ -11,7 +11,14 @@ export default async function handler(
   let Fulltomlstring = defaultTomlString;
 
   const assets = await db.asset.findMany({
-    select: { issuer: true, code: true, name: true, description: true },
+    select: {
+      issuer: true,
+      code: true,
+      name: true,
+      description: true,
+      thumbnail: true,
+      limit: true,
+    },
   });
 
   for (const asset of assets) {
@@ -25,13 +32,15 @@ export default async function handler(
 }
 
 export function dictinaryToTomlString(dict: Asset) {
+  const ipfsHash = dict.thumbnail.split("/").pop();
   let tomlString = "[[CURRENCIES]]\n";
   tomlString += `code="${dict.code}"\n`;
   tomlString += `issuer="${dict.issuer}"\n`;
   tomlString += `display_decimals=7\n`;
   tomlString += `name="${dict.name}"\n`;
   tomlString += `desc="${dict.description}"\n`;
-  // tomlString += `image="${dict.ipfs}"\n`;
+  tomlString += `image="${ipfsHash}"\n`;
+  if (dict.limit) tomlString += `limit="${dict.limit}"\n`;
 
   return tomlString + "\n";
 }

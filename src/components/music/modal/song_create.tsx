@@ -21,7 +21,7 @@ export const SongFormSchema = z.object({
   artist: z.string(),
   musicUrl: z.string(),
   description: z.string(),
-  coverImgUrl: z.string(),
+  coverImgUrl: z.string(), // its last part is the ipfs hash
   albumId: z.number(),
   price: z.number().nonnegative(),
   limit: z.number().nonnegative().int(),
