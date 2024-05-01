@@ -78,7 +78,7 @@ export async function sendSiteAsset2pub(
   return Tx.toXDR();
 }
 
-export async function sendXLM_Wadzzzo(props: {
+export async function sendXLM_SiteAsset(props: {
   siteAssetAmount: number;
   pubkey: string;
   xlm: number;

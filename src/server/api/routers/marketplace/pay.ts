@@ -10,7 +10,7 @@ import { env } from "~/env";
 import { randomUUID } from "crypto";
 import {
   sendSiteAsset2pub,
-  sendXLM_Wadzzzo,
+  sendXLM_SiteAsset,
 } from "~/lib/stellar/marketplace/trx/site_asset_recharge";
 import log from "~/lib/logger/logger";
 
@@ -53,7 +53,7 @@ export const payRouter = createTRPCRouter({
             // here trx will be send xlm
             // and create trustline
             // and send wadzoo
-            return await sendXLM_Wadzzzo({
+            return await sendXLM_SiteAsset({
               siteAssetAmount,
               pubkey,
               xlm: xlm,

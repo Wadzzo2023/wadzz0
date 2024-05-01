@@ -56,6 +56,7 @@ export default function PaymentCard({ pubkey, offer }: PaymentCardType) {
                 xlm: offer.xlm,
               });
             } else {
+              toast.error("Wallet should be google or facebook");
               log.error("wallet should be google or facebook");
             }
             setLoading(false);

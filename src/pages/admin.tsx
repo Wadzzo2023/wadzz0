@@ -1,4 +1,6 @@
 import React from "react";
+import AddAdmin from "~/components/admin/add_admin";
+import AdminsList from "~/components/admin/admins";
 import NftCreate from "~/components/marketplace/nft_create";
 import AlbumCreate from "~/components/music/modal/album_create";
 import { ModalMode } from "~/components/music/modal/modal_template";
@@ -43,9 +45,10 @@ function RenderTabs() {
           <AlbumCreate mode={ModalMode.ADD} />
         </div>
       );
-  }
 
-  return <p>vong</p>;
+    case AdminNavigation.ADMIN:
+      return <AddAdmin />;
+  }
 }
 
 function IsAdmin() {
@@ -57,7 +60,13 @@ function IsAdmin() {
   if (admin.data) {
     return <AdminPageTemplate />;
   } else {
-    return <CreateAdmin />;
+    return (
+      <div>
+        <CreateAdmin />
+        <AdminsList />
+      </div>
+    );
+    // return <p>You are not admin</p>;
   }
 }
 

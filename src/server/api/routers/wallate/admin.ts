@@ -3,6 +3,7 @@ import { z } from "zod";
 import {
   createTRPCRouter,
   protectedProcedure,
+  adminProcedure,
   publicProcedure,
 } from "~/server/api/trpc";
 
@@ -18,5 +19,16 @@ export const adminRouter = createTRPCRouter({
   makeMeAdmin: protectedProcedure.mutation(async ({ ctx }) => {
     const id = ctx.session.user.id;
     await ctx.db.admin.create({ data: { id } });
+  }),
+
+  makeAdmin: adminProcedure
+    .input(z.string().length(56))
+    .mutation(async ({ input, ctx }) => {
+      const id = input;
+      await ctx.db.admin.create({ data: { id } });
+    }),
+
+  admins: adminProcedure.query(async ({ ctx }) => {
+    return await ctx.db.admin.findMany();
   }),
 });

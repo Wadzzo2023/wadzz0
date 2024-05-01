@@ -5,7 +5,7 @@ import { MusicRightSide } from "./music/music_right";
 import RightBar from "./fan/fan-right";
 import MarketRight from "./marketplace/market_right";
 import AssetRight from "./my_asset/asset_right";
-import AdminRightSide from "./wallete/admin_right";
+import AdminRightSide from "./admin/admin_right";
 import { useTagStore } from "~/lib/state/wallete/tag";
 import { MarketType } from "@prisma/client";
 import { usePopUpState } from "~/lib/state/right-pop";
@@ -38,7 +38,7 @@ export function RightComponent() {
     return <MarketRight />;
   } else if (router.pathname.includes("/assets")) {
     return <AssetRight />;
-  } else if (router.pathname.includes("/me/admin")) {
+  } else if (router.pathname.includes("/admin")) {
     return <AdminRightSide />;
   }
 }
