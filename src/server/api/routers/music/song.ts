@@ -65,7 +65,7 @@ export const songRouter = createTRPCRouter({
 
   getUserBuyedSongs: protectedProcedure.query(async ({ ctx }) => {
     const userPub = ctx.session.user.id;
-    const assets = await accountDetailsWithHomeDomain({ userPub });
+    const { tokens: assets } = await accountDetailsWithHomeDomain({ userPub });
 
     const foundSongs = await ctx.db.song.findMany({
       where: {

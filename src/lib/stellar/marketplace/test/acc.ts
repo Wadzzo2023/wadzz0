@@ -1,5 +1,6 @@
 import { Server } from "stellar-sdk";
 import { STELLAR_URL, STROOP } from "../constant";
+import { PLATFROM_ASSET } from "../../fan/constant";
 
 export async function accountBalances({ userPub }: { userPub: string }) {
   const server = new Server(STELLAR_URL);
@@ -45,6 +46,9 @@ export async function accountDetailsWithHomeDomain({
 
   const account = await server.loadAccount(userPub);
 
+  let xlmBalance = 0;
+  let siteAssetBalance = 0;
+
   const balances = await Promise.all(
     account.balances.map(async (balance) => {
       if (
@@ -65,6 +69,15 @@ export async function accountDetailsWithHomeDomain({
             }
           }
         }
+        if (
+          balance.asset_code == PLATFROM_ASSET.code &&
+          balance.asset_issuer == PLATFROM_ASSET.issuer
+        ) {
+          siteAssetBalance = parseFloat(balance.balance);
+        }
+      }
+      if (balance.asset_type === "native") {
+        xlmBalance = parseFloat(balance.balance);
       }
     }),
   );
@@ -93,7 +106,7 @@ export async function accountDetailsWithHomeDomain({
 
   // filteredBalances.push(testAsset);
 
-  return filteredBalances;
+  return { tokens: filteredBalances, xlmBalance, siteAssetBalance };
 }
 
 export function balaceToCopy(balance: string): number {
@@ -103,4 +116,15 @@ export function balaceToCopy(balance: string): number {
 export function copyToBalance(copy: number): string {
   const amount = (copy * Number(STROOP)).toFixed(7);
   return amount;
+}
+
+export async function getAccounXLM_PlatformBalance({
+  userPub,
+}: {
+  userPub: string;
+}) {
+  const { xlmBalance, siteAssetBalance } = await accountDetailsWithHomeDomain({
+    userPub,
+  });
+  return { xlmBalance, siteAssetBalance };
 }

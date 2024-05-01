@@ -12,7 +12,9 @@ import { AssetSelectAllProperty } from "../marketplace/marketplace";
 export const accRouter = createTRPCRouter({
   getAccountInfo: protectedProcedure.query(async ({ ctx, input }) => {
     const userId = ctx.session.user.id;
-    const assets = await accountDetailsWithHomeDomain({ userPub: userId });
+    const { tokens: assets } = await accountDetailsWithHomeDomain({
+      userPub: userId,
+    });
 
     const dbAssets = await ctx.db.asset.findMany({
       where: {
@@ -33,6 +35,17 @@ export const accRouter = createTRPCRouter({
     return { dbAssets, accAssets };
   }),
 
+  getAccountBalance: protectedProcedure.query(async ({ ctx, input }) => {
+    const userId = ctx.session.user.id;
+    const { siteAssetBalance, xlmBalance } = await accountDetailsWithHomeDomain(
+      {
+        userPub: userId,
+      },
+    );
+
+    return { siteAssetBalance, xlmBalance };
+  }),
+
   getCreatorStorageInfo: protectedProcedure.query(async ({ ctx, input }) => {
     const creatorId = ctx.session.user.id;
     const storage = await ctx.db.creator.findUnique({
@@ -43,7 +56,7 @@ export const accRouter = createTRPCRouter({
       throw new Error("storage does not exist");
     }
 
-    const assets = await accountDetailsWithHomeDomain({
+    const { tokens: assets } = await accountDetailsWithHomeDomain({
       userPub: storage.storagePub,
     });
 
