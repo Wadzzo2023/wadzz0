@@ -23,12 +23,7 @@ export default function ConvertCard({
       <div className="flex flex-1 items-center justify-center">
         <div className="flex flex-col items-center justify-center">
           <div className="justify-center-center flex items-center gap-1">
-            <Image
-              alt="site logo"
-              width={20}
-              height={16}
-              src="/favicon_w.ico"
-            />
+            <Image alt="site logo" width={20} height={16} src="/favicon.ico" />
             <p className=" text-lg">{100}</p>
           </div>
           {extra}
