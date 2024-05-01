@@ -33,6 +33,9 @@ export const env = createEnv({
     STORAGE_SECRET: z.string(),
     MOTHER_SECRET: z.string(),
     PINATA_JWT: z.string(),
+    // squire
+    SQUARE_ACCESS_TOKEN: z.string(),
+    SQUARE_ENVIRONMENT: z.string(),
 
   },
 
@@ -42,6 +45,8 @@ export const env = createEnv({
    * `NEXT_PUBLIC_`.
    */
   client: {
+    NEXT_PUBLIC_SITE: z.string(),
+    NEXT_PUBLIC_DESC: z.string(),
     // NEXT_PUBLIC_CLIENTVAR: z.string(),
     NEXT_PUBLIC_STELLAR_PUBNET: z
       .string()
@@ -53,6 +58,11 @@ export const env = createEnv({
       .string()
       .refine((s) => s === "true" || s === "false")
       .transform((s) => s === "true"),
+
+
+    // squire
+    NEXT_PUBLIC_SQUARE_APP_ID: z.string(),
+    NEXT_PUBLIC_SQUARE_LOCATION: z.string(),
   },
 
   /**
@@ -60,6 +70,8 @@ export const env = createEnv({
    * middlewares) or client-side so we need to destruct manually.
    */
   runtimeEnv: {
+    NEXT_PUBLIC_SITE: process.env.NEXT_PUBLIC_SITE,
+    NEXT_PUBLIC_DESC: process.env.NEXT_PUBLIC_DESC,
     DATABASE_URL: process.env.DATABASE_URL,
     NODE_ENV: process.env.NODE_ENV,
     NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET,
@@ -73,6 +85,11 @@ export const env = createEnv({
     MOTHER_SECRET: process.env.MOTHER_SECRET,
     STORAGE_SECRET: process.env.STORAGE_SECRET,
     PINATA_JWT: process.env.PINATA_JWT,
+    // squire
+    SQUARE_ACCESS_TOKEN: process.env.SQUARE_ACCESS_TOKEN,
+    SQUARE_ENVIRONMENT: process.env.SQUARE_ENVIRONMENT,
+    NEXT_PUBLIC_SQUARE_APP_ID: process.env.NEXT_PUBLIC_SQUARE_APP_ID,
+    NEXT_PUBLIC_SQUARE_LOCATION: process.env.NEXT_PUBLIC_SQUARE_LOCATION,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially
