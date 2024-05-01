@@ -1,0 +1,36 @@
+{
+  "1.0.3-alpha": {
+    "date": 1695013928966,
+    "changes": [
+      "No result for search",
+      "Tag button selected style"
+    ]
+  },
+  "1.0.2-alpha": {
+    "date": 1694916495304,
+    "changes": [
+      "algolia search integrate",
+      "about page scrollbar-style, bg black"
+    ]
+  },
+  "1.0.1-alpha": {
+    "date": 1694757346433,
+    "changes": [
+      "right layout tag button",
+      "reset my asset when pubkey change",
+      "app version left component",
+      "logo blurdata",
+      "Infinite Scroll tags",
+      "my tags raw",
+      "close button for my assets",
+      "fixed admin configs",
+      "NextJS v13.4.12"
+    ]
+  },
+  "1.0.0-alpha": {
+    "date": 1694542892082,
+    "changes": [
+      "First version"
+    ]
+  }
+}
