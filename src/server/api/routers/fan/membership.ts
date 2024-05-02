@@ -60,6 +60,12 @@ export const membershipRouter = createTRPCRouter({
       });
     }),
 
+  createCreatePageAsset: protectedProcedure.mutation(async ({ ctx, input }) => {
+    const creatorId = ctx.session.user.id;
+
+    await ctx.db;
+  }),
+
   editTierModal: protectedProcedure
     .input(EditTierSchema)
     .mutation(async ({ ctx, input }) => {

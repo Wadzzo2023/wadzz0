@@ -23,7 +23,7 @@ import { getAssetNumberForXLM } from "./get_token_price";
 
 // transection variables
 
-export async function clawBackAccCreate({
+export async function creatorPageAccCreate({
   pubkey,
   assetCode,
   signWith,
@@ -43,8 +43,8 @@ export async function clawBackAccCreate({
   const storageAcc = Keypair.fromSecret(storageSecret);
   const PLATFORM_MOTHER_ACC = Keypair.fromSecret(env.MOTHER_SECRET);
 
-  const escrowAcc = Keypair.random();
-  const asset = new Asset(assetCode, escrowAcc.publicKey());
+  const issuerAcc = Keypair.random();
+  const asset = new Asset(assetCode, issuerAcc.publicKey());
 
   const transactionInializer = await server.loadAccount(pubkey);
 
@@ -71,10 +71,10 @@ export async function clawBackAccCreate({
       }),
     )
 
-    // create escrow acc
+    // create issuer acc
     .addOperation(
       Operation.createAccount({
-        destination: escrowAcc.publicKey(),
+        destination: issuerAcc.publicKey(),
         startingBalance: "1.5",
         source: PLATFORM_MOTHER_ACC.publicKey(),
       }),
@@ -83,8 +83,7 @@ export async function clawBackAccCreate({
     .addOperation(
       Operation.setOptions({
         homeDomain: "bandcoin.io",
-        setFlags: (AuthClawbackEnabledFlag | AuthRevocableFlag) as AuthFlag,
-        source: escrowAcc.publicKey(),
+        source: issuerAcc.publicKey(),
       }),
     )
     // 2 storage changing trust.
@@ -99,7 +98,7 @@ export async function clawBackAccCreate({
       Operation.payment({
         asset: asset,
         amount: limit,
-        source: escrowAcc.publicKey(),
+        source: issuerAcc.publicKey(),
         destination: storageAcc.publicKey(),
       }),
     )
@@ -108,15 +107,15 @@ export async function clawBackAccCreate({
     .build();
 
   // sign
-  Tx1.sign(escrowAcc, storageAcc, PLATFORM_MOTHER_ACC);
+  Tx1.sign(issuerAcc, storageAcc, PLATFORM_MOTHER_ACC);
 
   // fab and oogle user sing
   const trx = Tx1.toXDR();
   const signedXDr = await WithSing({ xdr: trx, signWith });
 
   const escrow: AccountType = {
-    publicKey: escrowAcc.publicKey(),
-    secretKey: escrowAcc.secret(),
+    publicKey: issuerAcc.publicKey(),
+    secretKey: issuerAcc.secret(),
   };
 
   return { trx: signedXDr, escrow };

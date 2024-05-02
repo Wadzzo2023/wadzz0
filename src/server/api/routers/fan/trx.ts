@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { SignUser, WithSing } from "~/lib/stellar/utils";
 import { buyAssetTrx } from "~/lib/stellar/fan/buy_asset";
-import { clawBackAccCreate } from "~/lib/stellar/fan/clawback";
+import { creatorPageAccCreate } from "~/lib/stellar/fan/clawback";
 import { createAsset } from "~/lib/stellar/fan/create_asset";
 import {
   getAssetNumberForXLM,
@@ -23,7 +23,7 @@ import { Keypair } from "stellar-sdk";
 import { copyToBalance } from "~/lib/stellar/marketplace/test/acc";
 
 export const trxRouter = createTRPCRouter({
-  clawbackAssetCreationTrx: protectedProcedure
+  createCreatorPageAsset: protectedProcedure
     .input(z.object({ code: z.string(), signWith: SignUser }))
     .mutation(async ({ ctx, input }) => {
       const { code, signWith } = input;
@@ -36,7 +36,7 @@ export const trxRouter = createTRPCRouter({
 
       const creatorStorageSec = creator.storageSecret;
 
-      return await clawBackAccCreate({
+      return await creatorPageAccCreate({
         storageSecret: creatorStorageSec,
         pubkey: creatorId,
         assetCode: code,

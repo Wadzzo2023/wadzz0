@@ -43,7 +43,7 @@ export default function AddTierModal({ creator }: { creator: Creator }) {
   });
   const assetAmount = api.fan.trx.getAssetNumberforXlm.useQuery();
 
-  const trxMutation = api.fan.trx.clawbackAssetCreationTrx.useMutation({
+  const trxMutation = api.fan.trx.createCreatorPageAsset.useMutation({
     onSuccess: async (data) => {
       if (data) {
         // sign the transaction for fbgoogle

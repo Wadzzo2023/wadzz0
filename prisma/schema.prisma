@@ -152,6 +152,14 @@ model Media {
     post   Post @relation(fields: [postId], references: [id], onDelete: Cascade)
 }
 
+model CreatorPageAsset {
+    creatorId String @id
+    assetId   Int    @unique
+
+    creator Creator @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+    asset   Asset   @relation(fields: [assetId], references: [id], onDelete: Cascade)
+}
+
 model Creator {
     id         String   @id
     joinedAt   DateTime @default(now())
@@ -163,11 +171,15 @@ model Creator {
     storagePub    String
     storageSecret String
 
-    user          User           @relation(fields: [id], references: [id], onDelete: Cascade)
+    // pageAsset
+    pageAssetId Int?
+
+    user          User              @relation(fields: [id], references: [id], onDelete: Cascade)
     posts         Post[]
     subscriptions Subscription[]
     assets        Asset[]
     marketAssets  MarketAsset[]
+    pageAsset     CreatorPageAsset?
 
     @@index([bio, name])
 }
@@ -315,9 +327,10 @@ model Asset {
     creatorId String? // if null then it is admin asset
     creator   Creator? @relation(fields: [creatorId], references: [id], onDelete: Cascade)
 
-    song        Song?
-    buyers      User_Asset[]
-    marketItems MarketAsset[]
+    song             Song?
+    buyers           User_Asset[]
+    marketItems      MarketAsset[]
+    creatorPageAsset CreatorPageAsset?
 
     @@unique([code, issuer])
     @@index([name, description])
