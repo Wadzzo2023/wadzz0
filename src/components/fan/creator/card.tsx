@@ -1,5 +1,5 @@
 import React from "react";
-import AddTierModal from "./add-tier-modal";
+import AddCreatorPageAssetModal from "./add-createpage-asset";
 import { Creator, Subscription } from "@prisma/client";
 import clsx from "clsx";
 import EditTierModal from "./edit-tier-modal";

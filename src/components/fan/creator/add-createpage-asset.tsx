@@ -6,12 +6,13 @@ import toast from "react-hot-toast";
 import { z } from "zod";
 import { api } from "~/utils/api";
 import { clientsign, useConnectWalletStateStore } from "package/connect_wallet";
+import { clientSelect } from "~/lib/stellar/fan/utils";
 import { Plus } from "lucide-react";
 import Alert from "../../ui/alert";
 import { PLATFROM_ASSET, PLATFROM_FEE } from "~/lib/stellar/fan/constant";
 
-export const TierSchema = z.object({
-  name: z
+export const CreatorPageAssetSchema = z.object({
+  code: z
     .string()
     .min(4, { message: "Minimum 4 charecter" })
     .max(12, { message: "Maximum 12 charecter" })
@@ -24,23 +25,62 @@ export const TierSchema = z.object({
         message: "Input must be a single word",
       },
     ),
-  price: z.number().min(1),
-  featureDescription: z
-    .string()
-    .min(20, { message: "Make description longer" }),
+  price: z.number().min(1).nonnegative(),
+  limit: z.number().min(1).nonnegative(),
+  description: z.string().min(20, { message: "Make description longer" }),
 });
 
-export default function AddTierModal({ creator }: { creator: Creator }) {
+export default function AddCreatorPageAssetModal({
+  creator,
+}: {
+  creator: Creator;
+}) {
   const modalRef = useRef<HTMLDialogElement>(null);
   const [isModalOpen, setIsModalOpen] = React.useState(false);
 
   const { pubkey, walletType, needSign } = useConnectWalletStateStore();
-  const mutation = api.fan.member.createMembership.useMutation({
+  const mutation = api.fan.member.createCreatePageAsset.useMutation({
     onSuccess: () => {
       reset();
     },
   });
   const assetAmount = api.fan.trx.getAssetNumberforXlm.useQuery();
+
+  const trxMutation = api.fan.trx.createCreatorPageAsset.useMutation({
+    onSuccess: async (data) => {
+      if (data) {
+        // sign the transaction for fbgoogle
+
+        clientsign({
+          walletType,
+          presignedxdr: data.trx,
+          pubkey,
+          test: clientSelect(),
+        })
+          .then((res) => {
+            if (res) {
+              toast.success("popup success");
+              mutation.mutate({
+                code: getValues("code"),
+                description: getValues("description") || "No description",
+                issuer: data.escrow,
+                limit: getValues("limit"),
+                price: getValues("price"),
+              });
+            } else {
+              toast.error("Error signing transaction");
+            }
+          })
+          .catch((e) => console.log(e))
+          .finally(() => {
+            setIsModalOpen(false);
+          });
+      } else {
+        toast.error("Error creating tier");
+      }
+      setIsModalOpen(false);
+    },
+  });
 
   const {
     register,
@@ -48,13 +88,22 @@ export default function AddTierModal({ creator }: { creator: Creator }) {
     formState: { errors },
     getValues,
     reset,
-  } = useForm<z.infer<typeof TierSchema>>({
-    resolver: zodResolver(TierSchema),
+  } = useForm<z.infer<typeof CreatorPageAssetSchema>>({
+    resolver: zodResolver(CreatorPageAssetSchema),
     defaultValues: {},
   });
 
-  const onSubmit: SubmitHandler<z.infer<typeof TierSchema>> = (data) => {
-    mutation.mutate(data);
+  const onSubmit: SubmitHandler<z.infer<typeof CreatorPageAssetSchema>> = (
+    data,
+  ) => {
+    setIsModalOpen(true);
+
+    trxMutation.mutate({
+      code: getValues("code"),
+      signWith: needSign(),
+      limit: getValues("limit"),
+    });
+    // mutation.mutate(data);
   };
 
   const handleModal = () => {
@@ -79,22 +128,39 @@ export default function AddTierModal({ creator }: { creator: Creator }) {
             >
               <label className="form-control w-full max-w-xs">
                 <div className="label">
-                  <span className="label-text">Tier Name</span>
+                  <span className="label-text">Page Asset Name</span>
                 </div>
                 <input
                   type="text"
-                  placeholder="Name of the tier"
-                  {...register("name")}
+                  placeholder="Enter Page Asset Code"
+                  {...register("code")}
                   className="input input-bordered w-full max-w-xs"
                 />
-                {errors.name && (
+                {errors.code && (
                   <div className="label">
                     <span className="label-text-alt text-warning">
-                      {errors.name.message}
+                      {errors.code.message}
                     </span>
                   </div>
                 )}
               </label>
+
+              <div className=" w-full max-w-sm ">
+                <label className="label">
+                  <span className="label-text">Quantity</span>
+                  <span className="label-text-alt">
+                    Default quantity would be 1
+                  </span>
+                </label>
+                <input
+                  type="number"
+                  {...register("limit", { valueAsNumber: true })}
+                  min={1}
+                  step={1}
+                  className="input input-bordered input-sm  w-full"
+                  placeholder="How many copy you want to place to market?"
+                />
+              </div>
 
               <label className="form-control w-full max-w-xs">
                 <div className="label">
@@ -122,14 +188,14 @@ export default function AddTierModal({ creator }: { creator: Creator }) {
                   <span className="label-text">Tier Features</span>
                 </div>
                 <textarea
-                  {...register("featureDescription")}
+                  {...register("description")}
                   className="textarea textarea-bordered h-24"
-                  placeholder="What does this tier offer?"
+                  placeholder="Description of your page asset"
                 ></textarea>
-                {errors.featureDescription && (
+                {errors.description && (
                   <div className="label">
                     <span className="label-text-alt text-warning">
-                      {errors.featureDescription.message}
+                      {errors.description.message}
                     </span>
                   </div>
                 )}
@@ -137,7 +203,7 @@ export default function AddTierModal({ creator }: { creator: Creator }) {
               <div className="max-w-xs">
                 <Alert
                   type={mutation.error ? "warning" : "noraml"}
-                  content={`To create a Tier, you'll need ${assetAmount.data} ${PLATFROM_ASSET.code} for your Asset account. Additionally, there's a platform fee of ${PLATFROM_FEE} ${PLATFROM_ASSET.code}. Total: ${assetAmount.data ?? 1 + Number(PLATFROM_FEE)}`}
+                  content={`To create this page token, you'll need ${assetAmount.data} ${PLATFROM_ASSET.code} for your Asset account. Additionally, there's a platform fee of ${PLATFROM_FEE} ${PLATFROM_ASSET.code}. Total: ${assetAmount.data ?? 1 + Number(PLATFROM_FEE)}`}
                 />
               </div>
               <button

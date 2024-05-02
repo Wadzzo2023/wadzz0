@@ -24,18 +24,19 @@ import { getAssetNumberForXLM } from "./get_token_price";
 // transection variables
 
 export async function creatorPageAccCreate({
+  limit,
   pubkey,
   assetCode,
   signWith,
   storageSecret,
 }: {
+  limit: string;
   pubkey: string;
   assetCode: string;
   signWith: SignUserType;
   storageSecret: string;
 }) {
   const server = new Server(STELLAR_URL);
-  const limit = "50000";
 
   const requiredAsset2refundXlm = await getAssetNumberForXLM(2);
   const totalAction = requiredAsset2refundXlm + Number(PLATFROM_FEE);

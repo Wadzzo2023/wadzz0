@@ -2,7 +2,7 @@ import React from "react";
 import MemberShipCard from "./card";
 import { Creator } from "@prisma/client";
 import { api } from "~/utils/api";
-import AddTierModal from "./add-tier-modal";
+import AddCreatorPageAssetModal from "./add-createpage-asset";
 import { SubscriptionGridWrapper } from "~/pages/fans/creator/[id]";
 
 export default function MemberShip({ creator }: { creator: Creator }) {
@@ -12,7 +12,7 @@ export default function MemberShip({ creator }: { creator: Creator }) {
     <div className="my-7 flex flex-col items-center">
       {subscriptions && subscriptions?.length < 3 && (
         <div className="fixed bottom-10 right-0 p-4 ">
-          <AddTierModal creator={creator} />
+          <AddCreatorPageAssetModal creator={creator} />
         </div>
       )}
       <SubscriptionGridWrapper itemLength={subscriptions?.length ?? 1}>

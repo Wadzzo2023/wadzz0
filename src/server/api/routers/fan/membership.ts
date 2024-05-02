@@ -1,6 +1,7 @@
 import { NotificationType } from "@prisma/client";
 import { z } from "zod";
 import { CreatorAboutShema } from "~/components/fan/creator/about";
+import { CreatorPageAssetSchema } from "~/components/fan/creator/add-createpage-asset";
 import { TierSchema } from "~/components/fan/creator/add-tier-modal";
 import { EditTierSchema } from "~/components/fan/creator/edit-tier-modal";
 import { AccountSchema } from "~/lib/stellar/fan/utils";
@@ -22,49 +23,36 @@ const selectedColumn = {
 
 export const membershipRouter = createTRPCRouter({
   createMembership: protectedProcedure
-    .input(TierSchema.extend({ escrow: AccountSchema }))
+    .input(TierSchema)
     .mutation(async ({ ctx, input }) => {
-      const maxPriority = (await ctx.db.subscription.findFirst({
-        where: { creatorId: ctx.session.user.id },
-        select: { priority: true },
-        orderBy: { priority: "desc" },
-      })) ?? { priority: 0 };
-
-      maxPriority.priority += 1;
-
-      function getDaysBasedOnPriority(priority: number) {
-        // for 1 60 day
-        // for 2 30 day
-        // for 3 7 day
-        if (priority == 1) return 60;
-        if (priority == 2) return 30;
-        if (priority == 3) return 7;
-
-        return 7;
-      }
-
+      const { featureDescription, name, price } = input;
       await ctx.db.subscription.create({
         data: {
-          code: input.name,
-          issuer: input.escrow.publicKey,
-          issuerPrivate: input.escrow.secretKey,
-
           creatorId: ctx.session.user.id,
-          days: getDaysBasedOnPriority(maxPriority.priority),
-
-          name: input.name,
-          features: input.featureDescription,
-          priority: maxPriority.priority,
-          price: input.price,
+          name,
+          features: featureDescription,
+          price,
         },
       });
     }),
 
-  createCreatePageAsset: protectedProcedure.mutation(async ({ ctx, input }) => {
-    const creatorId = ctx.session.user.id;
+  createCreatePageAsset: protectedProcedure
+    .input(CreatorPageAssetSchema.extend({ issuer: AccountSchema }))
+    .mutation(async ({ ctx, input }) => {
+      const creatorId = ctx.session.user.id;
 
-    await ctx.db;
-  }),
+      const { code: code, issuer, limit } = input;
+
+      await ctx.db.creatorPageAsset.create({
+        data: {
+          creatorId,
+          limit: limit,
+          code,
+          issuer: issuer.publicKey,
+          issuerPrivate: issuer.secretKey,
+        },
+      });
+    }),
 
   editTierModal: protectedProcedure
     .input(EditTierSchema)
@@ -111,7 +99,6 @@ export const membershipRouter = createTRPCRouter({
           },
         },
         include: { subscription: true },
-        orderBy: { subscription: { priority: "asc" } },
       });
     }),
   getAllMembership: protectedProcedure.query(async ({ ctx }) => {

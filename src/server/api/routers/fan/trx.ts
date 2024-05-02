@@ -24,9 +24,15 @@ import { copyToBalance } from "~/lib/stellar/marketplace/test/acc";
 
 export const trxRouter = createTRPCRouter({
   createCreatorPageAsset: protectedProcedure
-    .input(z.object({ code: z.string(), signWith: SignUser }))
+    .input(
+      z.object({
+        code: z.string(),
+        signWith: SignUser,
+        limit: z.number().nonnegative().min(1),
+      }),
+    )
     .mutation(async ({ ctx, input }) => {
-      const { code, signWith } = input;
+      const { code, signWith, limit } = input;
 
       const creatorId = ctx.session.user.id;
 
@@ -37,6 +43,7 @@ export const trxRouter = createTRPCRouter({
       const creatorStorageSec = creator.storageSecret;
 
       return await creatorPageAccCreate({
+        limit: limit.toString(),
         storageSecret: creatorStorageSec,
         pubkey: creatorId,
         assetCode: code,

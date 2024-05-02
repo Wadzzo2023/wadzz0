@@ -68,26 +68,20 @@ model Notification {
 
 // ------------------------FAN SCHEMA-------------------------
 model Subscription {
-    id        Int     @id @default(autoincrement())
-    priority  Int
-    name      String  @default("Platinum")
+    id Int @id @default(autoincrement())
+
+    name     String
+    features String
+    price    Float // here price is the copy of creator page asset
+
     creatorId String
     creator   Creator @relation(fields: [creatorId], references: [id])
 
-    code          String
-    issuer        String
-    issuerPrivate String?
-    escrow        Boolean @default(false)
+    Post Post[]
 
-    days     Int
-    features String
-    Post     Post[]
-
-    price           Float               @default(1000)
     subscribedUsers User_Subscription[]
 
-    // Unique constraint on userId and subscriptionId
-    @@unique([creatorId, priority])
+    @@unique([name, creatorId])
 }
 
 model Like {
@@ -154,10 +148,14 @@ model Media {
 
 model CreatorPageAsset {
     creatorId String @id
-    assetId   Int    @unique
+
+    code          String
+    issuer        String
+    issuerPrivate String?
+
+    limit Int
 
     creator Creator @relation(fields: [creatorId], references: [id], onDelete: Cascade)
-    asset   Asset   @relation(fields: [assetId], references: [id], onDelete: Cascade)
 }
 
 model Creator {
@@ -327,10 +325,9 @@ model Asset {
     creatorId String? // if null then it is admin asset
     creator   Creator? @relation(fields: [creatorId], references: [id], onDelete: Cascade)
 
-    song             Song?
-    buyers           User_Asset[]
-    marketItems      MarketAsset[]
-    creatorPageAsset CreatorPageAsset?
+    song        Song?
+    buyers      User_Asset[]
+    marketItems MarketAsset[]
 
     @@unique([code, issuer])
     @@index([name, description])
