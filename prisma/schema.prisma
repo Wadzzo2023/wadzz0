@@ -77,7 +77,7 @@ model Subscription {
     creatorId String
     creator   Creator @relation(fields: [creatorId], references: [id])
 
-    Post Post[]
+    posts Post[]
 
     subscribedUsers User_Subscription[]
 

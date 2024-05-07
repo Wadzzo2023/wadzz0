@@ -9,6 +9,7 @@ import { clientsign, useConnectWalletStateStore } from "package/connect_wallet";
 import { Plus } from "lucide-react";
 import Alert from "../../ui/alert";
 import { PLATFROM_ASSET, PLATFROM_FEE } from "~/lib/stellar/fan/constant";
+import { Editor } from "~/components/editor";
 
 export const TierSchema = z.object({
   name: z
@@ -47,6 +48,7 @@ export default function AddTierModal({ creator }: { creator: Creator }) {
     handleSubmit,
     formState: { errors },
     getValues,
+    setValue,
     reset,
   } = useForm<z.infer<typeof TierSchema>>({
     resolver: zodResolver(TierSchema),
@@ -60,6 +62,12 @@ export default function AddTierModal({ creator }: { creator: Creator }) {
   const handleModal = () => {
     modalRef.current?.showModal();
   };
+
+  function handleEditorChange(value: string): void {
+    setValue("featureDescription", value);
+
+    // throw new Error("Function not implemented.");
+  }
 
   return (
     <>
@@ -121,11 +129,15 @@ export default function AddTierModal({ creator }: { creator: Creator }) {
                 <div className="label">
                   <span className="label-text">Tier Features</span>
                 </div>
-                <textarea
+                {/* <textarea
                   {...register("featureDescription")}
                   className="textarea textarea-bordered h-24"
                   placeholder="What does this tier offer?"
-                ></textarea>
+                /> */}
+                <Editor
+                  onChange={handleEditorChange}
+                  value={getValues("featureDescription")}
+                />
                 {errors.featureDescription && (
                   <div className="label">
                     <span className="label-text-alt text-warning">
@@ -134,12 +146,12 @@ export default function AddTierModal({ creator }: { creator: Creator }) {
                   </div>
                 )}
               </label>
-              <div className="max-w-xs">
+              {/* <div className="max-w-xs">
                 <Alert
                   type={mutation.error ? "warning" : "noraml"}
                   content={`To create a Tier, you'll need ${assetAmount.data} ${PLATFROM_ASSET.code} for your Asset account. Additionally, there's a platform fee of ${PLATFROM_FEE} ${PLATFROM_ASSET.code}. Total: ${assetAmount.data ?? 1 + Number(PLATFROM_FEE)}`}
                 />
-              </div>
+              </div> */}
               <button
                 className="btn btn-primary mt-2 w-full max-w-xs"
                 type="submit"

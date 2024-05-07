@@ -4,6 +4,7 @@ import { Creator, Subscription } from "@prisma/client";
 import clsx from "clsx";
 import EditTierModal from "./edit-tier-modal";
 import { SubscriptionType } from "~/pages/fans/creator/[id]";
+import { Preview } from "~/components/preview";
 
 export default function MemberShipCard({
   creator,
@@ -18,7 +19,12 @@ export default function MemberShipCard({
 }) {
   return (
     <div className={clsx("card w-48 bg-base-100  pb-10 shadow-xl", className)}>
-      <div className={clsx("h-20  ", getCardStyle(subscription.priority))}>
+      <div
+        className={clsx(
+          "h-20  ",
+          //  getCardStyle(subscription.priority)
+        )}
+      >
         <EditTierModal item={subscription} />
       </div>
       <div className="card-body p-2">
@@ -30,21 +36,17 @@ export default function MemberShipCard({
             <div
               className={clsx(
                 "badge  text-center",
-                getBageStyle(subscription.priority),
+                // getBageStyle(subscription.priority),
               )}
-            >
-              {subscription.priority}
-            </div>
+            ></div>
           </div>
         </div>
-        <h2 className=" text-2xl">
-          {subscription.price}A/
-          <span className="text-base">{subscription.days} days</span>
-        </h2>
+        <h2 className=" text-2xl">{subscription.price}</h2>
         <div className="">{children}</div>
         <div className="py-4">
           <h4 className="text-lg font-bold">Include</h4>
-          <p>{subscription.features}</p>
+          {/* <p>{subscription.features}</p> */}
+          <Preview value={subscription.features} />
         </div>
       </div>
     </div>
