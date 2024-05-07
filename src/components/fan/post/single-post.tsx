@@ -63,13 +63,13 @@ export function SinglePostView({ postId }: { postId: number }) {
                               >
                                 {post.data.creator.name}
                               </Link>
-                              <p>
+                              {/* <p>
                                 {post.data.subscription && (
                                   <span className="badge badge-secondary mr-1">
-                                    {post.data.subscription.priority}
+                                    {post.data.subscription.price}
                                   </span>
                                 )}
-                              </p>
+                              </p> */}
                             </div>
                           </div>
                           <PostContextMenu

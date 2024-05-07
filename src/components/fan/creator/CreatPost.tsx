@@ -92,7 +92,7 @@ export function CreatPost() {
                 <option
                   key={model.id}
                   value={model.id}
-                >{`${model.name} ${model.priority}`}</option>
+                >{`${model.name} - ${model.price}`}</option>
               ))}
             </select>
           )}

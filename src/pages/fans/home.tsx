@@ -71,21 +71,13 @@ function AllRecentPost() {
           <>
             {page.posts.map((post) => (
               <PostCard
-                priority={post.subscription?.priority}
+                priority={1}
                 comments={post._count.comments}
                 creator={post.creator}
                 key={post.id}
                 post={post}
                 like={post._count.likes}
-                show={
-                  !post.subscription ||
-                  user_subscriptions?.some(
-                    (el) =>
-                      el.subscription.creatorId == post.creatorId &&
-                      post.subscription &&
-                      el.subscription.priority <= post.subscription.priority,
-                  )
-                }
+                show={true}
                 media={post.medias.length > 0 ? post.medias[0] : undefined}
               />
             ))}

@@ -13,7 +13,6 @@ import {
 } from "~/lib/state/fan/creator-profile-menu";
 import clsx from "clsx";
 // import { ShopItem } from "~/components/fan/creator/shop";
-import SubscribeMembership from "~/components/fan/creator/confirm-subscription-modal";
 import { CreatorBack } from "~/pages/fans/creator";
 
 export default function CreatorPage() {
@@ -55,10 +54,6 @@ function CreatorPosts({ creatorId }: { creatorId: string }) {
     { getNextPageParam: (lastPage) => lastPage.nextCursor },
   );
 
-  const subscription = api.fan.member.aCraatorSubscribedToken.useQuery({
-    creatorId,
-  });
-
   if (error) return <div>{error.message}</div>;
   if (isLoading) return <div>Loading...</div>;
 
@@ -68,7 +63,7 @@ function CreatorPosts({ creatorId }: { creatorId: string }) {
         {data.pages.map((page) =>
           page.posts.map((el) => (
             <PostCard
-              priority={el.subscription?.priority}
+              priority={1}
               comments={el._count.comments}
               creator={el.creator}
               like={el._count.likes}
@@ -76,11 +71,8 @@ function CreatorPosts({ creatorId }: { creatorId: string }) {
               post={el}
               show={(() => {
                 if (el.subscription == null) return true;
-                if (subscription.data?.subscription && el.subscription) {
-                  return (
-                    subscription.data.subscription?.priority >=
-                    el.subscription?.priority
-                  );
+                if (el.subscription) {
+                  return el.subscription.price <= 10;
                 }
               })()}
             />
@@ -197,13 +189,13 @@ function SubscriptionCard({
       subscription={subscription}
     >
       {/* <div className="card-actions justify-end"> */}
-      <SubscribeMembership
+      {/* <SubscribeMembership
         creator={creator}
         subscription={subscription}
         disabled={subscriptions?.some(
           (sub) => sub.subscriptionId === subscription.id,
         )}
-      />
+      /> */}
     </MemberShipCard>
   );
 }

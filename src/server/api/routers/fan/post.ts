@@ -140,6 +140,7 @@ export const postRouter = createTRPCRouter({
   getAPost: protectedProcedure
     .input(z.number())
     .query(async ({ input, ctx }) => {
+      const usertoken = 10;
       const userId = ctx.session.user.id;
 
       const post = await ctx.db.post.findUnique({
@@ -147,7 +148,7 @@ export const postRouter = createTRPCRouter({
         include: {
           _count: { select: { likes: true, comments: true } },
           creator: { select: { name: true, id: true } },
-          subscription: { select: { priority: true } },
+          subscription: { select: { price: true } },
           medias: true,
         },
       });
@@ -157,36 +158,10 @@ export const postRouter = createTRPCRouter({
       if (post) {
         if (post.subscription) {
           // choose creator highest priority valid subscription
-          const subscription = await ctx.db.user_Subscription.findFirst({
-            where: {
-              AND: [
-                { userId },
-                { subscription: { creatorId: post.creatorId } },
-                // here i have to check not expired highest subscriptin.
-                { subcriptionEndDate: { gte: new Date() } },
-              ],
-            },
-            include: { subscription: true },
-            orderBy: { subscription: { priority: "desc" } },
-          });
 
-          const userSubscriptionPriority = subscription?.subscription?.priority;
-          const postSubscriptionPriority = post.subscription.priority;
-
-          console.log(
-            "....hi....",
-            userSubscriptionPriority,
-            postSubscriptionPriority,
-          );
-
-          if (
-            userSubscriptionPriority &&
-            postSubscriptionPriority &&
-            userSubscriptionPriority <= postSubscriptionPriority
-          ) {
+          if (usertoken <= post.subscription.price) {
             return post;
           }
-
           return false;
         }
 
