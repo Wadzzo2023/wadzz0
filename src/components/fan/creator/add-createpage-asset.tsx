@@ -114,12 +114,12 @@ export default function AddCreatorPageAssetModal({
     <>
       <button className="btn  btn-primary" onClick={handleModal}>
         <Plus />
-        Add Tier
+        Add Page Asset
       </button>
       <dialog className="modal" ref={modalRef}>
         <div className="modal-box">
           <h3 className="mb-4 text-center text-lg font-bold">
-            Create a subscription tier!
+            Create Page Asset
           </h3>
           <div className="w-full">
             <form
@@ -145,13 +145,10 @@ export default function AddCreatorPageAssetModal({
                 )}
               </label>
 
-              <div className=" w-full max-w-sm ">
-                <label className="label">
-                  <span className="label-text">Quantity</span>
-                  <span className="label-text-alt">
-                    Default quantity would be 1
-                  </span>
-                </label>
+              <label className="form-control w-full max-w-xs">
+                <div className="label">
+                  <span className="label-text">Limit</span>
+                </div>
                 <input
                   type="number"
                   {...register("limit", { valueAsNumber: true })}
@@ -160,7 +157,14 @@ export default function AddCreatorPageAssetModal({
                   className="input input-bordered input-sm  w-full"
                   placeholder="How many copy you want to place to market?"
                 />
-              </div>
+                {errors.limit && (
+                  <div className="label">
+                    <span className="label-text-alt text-warning">
+                      {errors.limit.message}
+                    </span>
+                  </div>
+                )}
+              </label>
 
               <label className="form-control w-full max-w-xs">
                 <div className="label">

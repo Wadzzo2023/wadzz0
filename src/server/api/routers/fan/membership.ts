@@ -9,16 +9,11 @@ import { AccountSchema } from "~/lib/stellar/fan/utils";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 
 const selectedColumn = {
-  code: true,
   name: true,
   price: true,
   features: true,
-  priority: true,
-  days: true,
   id: true,
   creatorId: true,
-  issuer: true,
-  escrow: true,
 };
 
 export const membershipRouter = createTRPCRouter({
