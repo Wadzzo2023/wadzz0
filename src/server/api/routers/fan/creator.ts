@@ -10,12 +10,16 @@ import {
 import { truncateString } from "~/utils/string";
 
 export const creatorRouter = createTRPCRouter({
-  getCreator: publicProcedure
-    .input(z.object({ id: z.string() }))
+  getCreator: protectedProcedure
+    .input(z.object({ id: z.string() }).optional())
     .query(async ({ input, ctx }) => {
+      let id = ctx.session.user.id;
+      if (input) {
+        id = input.id;
+      }
       const creator = await ctx.db.creator.findFirst({
-        where: { id: input.id },
-        // select: {  },
+        where: { id: id },
+        include: { pageAsset: true },
       });
       if (creator) {
         return creator;

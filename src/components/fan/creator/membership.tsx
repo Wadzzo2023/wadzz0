@@ -9,11 +9,12 @@ import AddTierModal from "./add-tier-modal";
 export default function MemberShip({ creator }: { creator: Creator }) {
   const { data: subscriptions, isLoading } =
     api.fan.member.getAllMembership.useQuery();
+
   return (
     <div className="my-7 flex flex-col items-center">
       {/* {subscriptions && subscriptions?.length < 3 && ( */}
 
-      <AddCreatorPageAssetModal creator={creator} />
+      <CreatorAssetView creator={creator} />
       <div className="fixed bottom-10 right-0 p-4 ">
         <AddTierModal creator={creator} />
       </div>
@@ -25,4 +26,20 @@ export default function MemberShip({ creator }: { creator: Creator }) {
       </SubscriptionGridWrapper>
     </div>
   );
+}
+
+function CreatorAssetView({ creator }: { creator: Creator }) {
+  const creatorData = api.fan.creator.getCreator.useQuery(
+    {
+      id: creator.id,
+    },
+    { refetchOnWindowFocus: false },
+  );
+
+  if (creatorData.isLoading) return <div>Loading...</div>;
+
+  const pageAsset = creatorData.data?.pageAsset;
+
+  if (pageAsset) return <p>{pageAsset.code}</p>;
+  else return <AddCreatorPageAssetModal creator={creator} />;
 }
