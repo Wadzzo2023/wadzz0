@@ -14,6 +14,7 @@ import {
 import clsx from "clsx";
 // import { ShopItem } from "~/components/fan/creator/shop";
 import { CreatorBack } from "~/pages/fans/creator";
+import { getAssetBalanceFromBalance } from "~/lib/stellar/marketplace/test/acc";
 
 export default function CreatorPage() {
   const router = useRouter();
@@ -126,14 +127,20 @@ export function ChooseMemberShip({ creator }: { creator: Creator }) {
   if (subscriptonModel && subscriptonModel.length > 0) {
     return (
       <div className="mb-10 flex flex-col gap-4">
-        <h2 className="text-center text-2xl font-bold">Choose Membership</h2>
+        <h2 className="text-center text-2xl font-bold">Your Tier</h2>
         {isLoading && <div>Loading...</div>}
 
         <SubscriptionGridWrapper itemLength={subscriptonModel.length}>
-          {subscriptonModel?.map((el) => (
-            // <p key={el.id}>{el.code}</p>
-            <SubscriptionCard key={el.id} creator={creator} subscription={el} />
-          ))}
+          {subscriptonModel
+            ?.sort((a, b) => a.price - b.price)
+            .map((el, i) => (
+              <SubscriptionCard
+                priority={i + 1}
+                key={el.id}
+                creator={creator}
+                subscription={el}
+              />
+            ))}
         </SubscriptionGridWrapper>
       </div>
     );
@@ -175,9 +182,11 @@ export type SubscriptionType = Omit<Subscription, "issuerPrivate">;
 function SubscriptionCard({
   subscription,
   creator,
+  priority,
 }: {
   subscription: SubscriptionType;
   creator: Creator;
+  priority?: number;
 }) {
   const { data: subscriptions } = api.fan.member.userSubscriptions.useQuery();
 
@@ -186,40 +195,29 @@ function SubscriptionCard({
       key={subscription.id}
       className=" bg-neutral text-neutral-content"
       creator={creator}
+      priority={priority}
       subscription={subscription}
     >
-      {/* <div className="card-actions justify-end"> */}
-      {/* <SubscribeMembership
-        creator={creator}
-        subscription={subscription}
-        disabled={subscriptions?.some(
-          (sub) => sub.subscriptionId === subscription.id,
-        )}
-      /> */}
+      <TierCompleted subscription={subscription} />
     </MemberShipCard>
   );
 }
 
-// function AllShopItems({ creatorId }: { creatorId: string }) {
-//   const { data: items, isLoading } = api.fan.asset.getCreatorShopAsset.useQuery(
-//     {
-//       creatorId,
-//     },
-//   );
-//   if (isLoading) return <div>Loading...</div>;
+function TierCompleted({ subscription }: { subscription: SubscriptionType }) {
+  const accBalances = api.wallate.acc.getUserPubAssetBallances.useQuery();
+  const asset = api.fan.asset.getCreatorAsset.useQuery({
+    creatorId: subscription.creatorId,
+  });
 
-//   if (items && items.length > 0) {
-//     return (
-//       <div className="flex flex-col items-center">
-//         <p className="my-5 text-center text-lg font-bold">Shop items</p>
-//         <div className="flex flex-col gap-2">
-//           {items.map((item) => (
-//             <ShopItem key={item.id} item={item} />
-//           ))}
-//         </div>
-//       </div>
-//     );
-//   } else {
-//     return <p>There is no nft item</p>;
-//   }
-// }
+  if (accBalances.data && asset.data) {
+    const { code, issuer } = asset.data;
+    const bal = getAssetBalanceFromBalance({
+      balances: accBalances.data,
+      code: code,
+      issuer: issuer,
+    });
+    if (bal > subscription.price) {
+      return <div className="btn-warning">Completed</div>;
+    }
+  }
+}

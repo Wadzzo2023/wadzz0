@@ -179,4 +179,14 @@ export const shopRouter = createTRPCRouter({
   //     },
   //   });
   // }),
+
+  getCreatorAsset: protectedProcedure
+    .input(z.object({ creatorId: z.string() }))
+    .query(async ({ input, ctx }) => {
+      const { creatorId } = input;
+      return await ctx.db.creatorPageAsset.findUnique({
+        where: { creatorId: creatorId },
+        select: { code: true, issuer: true },
+      });
+    }),
 });

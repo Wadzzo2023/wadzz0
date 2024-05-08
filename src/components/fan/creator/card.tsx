@@ -11,20 +11,17 @@ export default function MemberShipCard({
   subscription,
   className,
   children,
+  priority,
 }: {
   creator: Creator;
   subscription: SubscriptionType;
   className?: string;
   children?: React.ReactNode;
+  priority?: number;
 }) {
   return (
     <div className={clsx("card w-48 bg-base-100  pb-10 shadow-xl", className)}>
-      <div
-        className={clsx(
-          "h-20  ",
-          //  getCardStyle(subscription.priority)
-        )}
-      >
+      <div className={clsx("h-20  ", getCardStyle(priority))}>
         <EditTierModal item={subscription} />
       </div>
       <div className="card-body p-2">
@@ -34,10 +31,7 @@ export default function MemberShipCard({
               {subscription.name.toLocaleUpperCase()}
             </h2>
             <div
-              className={clsx(
-                "badge  text-center",
-                // getBageStyle(subscription.priority),
-              )}
+              className={clsx("badge  text-center", getBageStyle(priority))}
             ></div>
           </div>
         </div>
@@ -53,18 +47,21 @@ export default function MemberShipCard({
   );
 }
 
-export function getCardStyle(priority: number) {
+export function getCardStyle(priority?: number) {
+  if (!priority) return "bg-primary rounded-2xl";
   if (priority === 1) return "bg-primary rounded-e-2xl";
   if (priority === 2) return "bg-secondary rounded-2xl";
   if (priority === 3) return "bg-accent rounded-s-2xl";
 }
 
-export function getBageStyle(priority: number) {
+export function getBageStyle(priority?: number) {
+  if (!priority) return "badge-primary";
   if (priority === 1) return "badge-primary";
   if (priority === 2) return "badge-secondary";
   if (priority === 3) return "badge-accent";
 }
-export function getColor(priority: number) {
+export function getColor(priority?: number) {
+  if (!priority) return "primary";
   if (priority === 1) return "primary";
   if (priority === 2) return "secondary";
   if (priority === 3) return "accent";
