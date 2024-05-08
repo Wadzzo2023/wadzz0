@@ -64,6 +64,18 @@ export const membershipRouter = createTRPCRouter({
       });
     }),
 
+  deleteTier: protectedProcedure
+    .input(z.object({ id: z.number() }))
+    .mutation(async ({ ctx, input }) => {
+      const creatorId = ctx.session.user.id;
+      return await ctx.db.subscription.delete({
+        where: {
+          id: input.id,
+          creatorId: creatorId,
+        },
+      });
+    }),
+
   updateCreatorProfile: protectedProcedure
     .input(CreatorAboutShema)
     .mutation(async ({ ctx, input }) => {

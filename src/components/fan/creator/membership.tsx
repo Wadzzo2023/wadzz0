@@ -12,13 +12,12 @@ export default function MemberShip({ creator }: { creator: Creator }) {
 
   return (
     <div className="my-7 flex flex-col items-center">
-      {/* {subscriptions && subscriptions?.length < 3 && ( */}
-
       <CreatorAssetView creator={creator} />
-      <div className="fixed bottom-10 right-0 p-4 ">
-        <AddTierModal creator={creator} />
-      </div>
-      {/* )} */}
+      {subscriptions && subscriptions?.length < 3 && (
+        <div className="fixed bottom-10 right-0 p-4 ">
+          <AddTierModal creator={creator} />
+        </div>
+      )}
       <SubscriptionGridWrapper itemLength={subscriptions?.length ?? 1}>
         {subscriptions?.map((el) => (
           <MemberShipCard key={el.id} creator={creator} subscription={el} />

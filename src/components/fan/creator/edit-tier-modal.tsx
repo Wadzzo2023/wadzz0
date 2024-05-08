@@ -4,6 +4,7 @@ import { useRouter } from "next/router";
 import React, { useRef } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { z } from "zod";
+import { Editor } from "~/components/editor";
 import { SubscriptionType } from "~/pages/fans/creator/[id]";
 import { api } from "~/utils/api";
 
@@ -38,6 +39,7 @@ export default function EditTierModal({ item }: { item: SubscriptionType }) {
     handleSubmit,
     formState: { errors },
     getValues,
+    setValue,
     reset,
   } = useForm<z.infer<typeof EditTierSchema>>({
     resolver: zodResolver(EditTierSchema),
@@ -58,8 +60,13 @@ export default function EditTierModal({ item }: { item: SubscriptionType }) {
   const handleModal = () => {
     modalRef.current?.showModal();
   };
+  function handleEditorChange(value: string): void {
+    setValue("featureDescription", value);
 
-  if (router.pathname == "/me/creator")
+    // throw new Error("Function not implemented.");
+  }
+
+  if (router.pathname == "/fans/creator")
     return (
       <>
         <button className="btn btn-circle btn-primary" onClick={handleModal}>
@@ -114,11 +121,10 @@ export default function EditTierModal({ item }: { item: SubscriptionType }) {
                 <div className="label">
                   <span className="label-text">Tier Features</span>
                 </div>
-                <textarea
-                  {...register("featureDescription")}
-                  className="textarea textarea-bordered h-24"
-                  placeholder="What does this tier offer?"
-                ></textarea>
+                <Editor
+                  onChange={handleEditorChange}
+                  value={getValues("featureDescription")}
+                />
                 {errors.featureDescription && (
                   <div className="label">
                     <span className="label-text-alt text-warning">
@@ -138,6 +144,7 @@ export default function EditTierModal({ item }: { item: SubscriptionType }) {
                 )}
                 Edit Tier
               </button>
+              <DeleteTier id={item.id} />
             </form>
             <div className="modal-action">
               <form method="dialog">
@@ -148,4 +155,19 @@ export default function EditTierModal({ item }: { item: SubscriptionType }) {
         </dialog>
       </>
     );
+}
+
+function DeleteTier({ id }: { id: number }) {
+  const mutation = api.fan.member.deleteTier.useMutation();
+  return (
+    <button
+      className="btn btn-warning mt-2 w-full max-w-xs"
+      type="button"
+      onClick={() => mutation.mutate({ id })}
+      disabled={mutation.isLoading}
+    >
+      {mutation.isLoading && <span className="loading loading-spinner"></span>}
+      Delete Tier
+    </button>
+  );
 }
