@@ -1,6 +1,14 @@
 import { Server } from "stellar-sdk";
 import { STELLAR_URL, STROOP } from "../constant";
 import { PLATFROM_ASSET } from "../../fan/constant";
+import { Horizon } from "stellar-sdk";
+
+type Balances = (
+  | Horizon.BalanceLineNative
+  | Horizon.BalanceLineAsset<"credit_alphanum4">
+  | Horizon.BalanceLineAsset<"credit_alphanum12">
+  | Horizon.BalanceLineLiquidityPool
+)[];
 
 export async function accountBalances({ userPub }: { userPub: string }) {
   const server = new Server(STELLAR_URL);
@@ -35,6 +43,34 @@ export async function getAssetBalance({
   });
 
   return asset;
+}
+
+export function getAssetBalanceFromBalance({
+  balances,
+  code,
+  issuer,
+  native = false,
+}: {
+  balances?: Balances;
+  code?: string;
+  issuer?: string;
+  native?: boolean;
+}) {
+  if (!balances || !code || !issuer) return 0;
+  for (const balance of balances) {
+    if (
+      balance.asset_type === "credit_alphanum12" ||
+      balance.asset_type === "credit_alphanum4"
+    ) {
+      if (balance.asset_code === code && balance.asset_issuer === issuer)
+        return parseFloat(balance.balance);
+    }
+    if (balance.asset_type === "native") {
+      if (native) return parseFloat(balance.balance);
+    }
+  }
+
+  return 0;
 }
 
 export async function accountDetailsWithHomeDomain({

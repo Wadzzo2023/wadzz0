@@ -1,5 +1,7 @@
 import Head from "next/head";
+import toast from "react-hot-toast";
 import Main from "~/components/wallete/main";
+import { api } from "~/utils/api";
 
 export default function Home() {
   return (

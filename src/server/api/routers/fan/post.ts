@@ -120,7 +120,13 @@ export const postRouter = createTRPCRouter({
           _count: {
             select: { likes: true, comments: true },
           },
-          creator: { select: { name: true, id: true } },
+          creator: {
+            select: {
+              name: true,
+              id: true,
+              pageAsset: { select: { code: true, issuer: true } },
+            },
+          },
           medias: true,
         },
       });

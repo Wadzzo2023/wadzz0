@@ -3,8 +3,20 @@ import Head from "next/head";
 import { PostCard } from "~/components/fan/creator/post";
 
 import { api } from "~/utils/api";
+import toast from "react-hot-toast";
+import { getAssetBalanceFromBalance } from "~/lib/stellar/marketplace/test/acc";
 
 export default function Home() {
+  const acc = api.wallate.acc.getUserPubAssetBallances.useQuery(undefined, {
+    onSuccess: (data) => {
+      toast.success("Data fetched successfully");
+      console.log(data);
+    },
+    onError: (error) => {
+      toast.error("Failed to fetch data");
+      console.log(error);
+    },
+  });
   return (
     <>
       <Head>
@@ -54,6 +66,8 @@ function AllRecentPost() {
   const { data: user_subscriptions, isLoading: isLoading2 } =
     api.fan.member.getUserSubcribed.useQuery();
 
+  const accBalances = api.wallate.acc.getUserPubAssetBallances.useQuery();
+
   // if (isLoading2) return <div>Loading to fetch membership...</div>;
 
   if (posts.isLoading)
@@ -77,7 +91,20 @@ function AllRecentPost() {
                 key={post.id}
                 post={post}
                 like={post._count.likes}
-                show={true}
+                show={(() => {
+                  if (post.subscription) {
+                    const bal = getAssetBalanceFromBalance({
+                      balances: accBalances.data,
+                      code: post.creator.pageAsset?.code,
+                      issuer: post.creator.pageAsset?.issuer,
+                    });
+                    if (post.subscription.price <= bal) {
+                      return true;
+                    }
+
+                    return false;
+                  } else return true;
+                })()}
                 media={post.medias.length > 0 ? post.medias[0] : undefined}
               />
             ))}

@@ -11,6 +11,7 @@ import { UploadButton } from "~/utils/uploadthing";
 import Image from "next/image";
 import { PostCard } from "./post";
 import Avater from "../../ui/avater";
+import { Editor } from "~/components/editor";
 
 const mediaTypes = [
   { type: MediaType.IMAGE, icon: ImageIcon },
@@ -38,6 +39,7 @@ export function CreatPost() {
     handleSubmit,
     reset,
     control,
+    getValues,
     setValue,
 
     formState: { errors },
@@ -73,6 +75,12 @@ export function CreatPost() {
   const handleWantMediaType = (type: MediaType) => {
     if (!wantMediaType) setWantMedia(type);
   };
+
+  function handleEditorChange(value: string): void {
+    setValue("content", value);
+
+    // throw new Error("Function not implemented.");
+  }
 
   if (!creator.data) return <div>You are not creator</div>;
 
@@ -133,11 +141,12 @@ export function CreatPost() {
         </label>
 
         <label className="form-control">
-          <textarea
+          {/* <textarea
             {...register("content")}
             className="textarea textarea-bordered h-48"
             placeholder="How's your next thing comming?"
-          ></textarea>
+          ></textarea> */}
+          <Editor onChange={handleEditorChange} value={getValues("content")} />
           {errors.content && (
             <div className="label">
               <span className="label-text-alt text-warning">
