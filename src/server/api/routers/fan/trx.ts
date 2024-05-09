@@ -22,6 +22,9 @@ import { env } from "~/env";
 import { Keypair } from "stellar-sdk";
 import { copyToBalance } from "~/lib/stellar/marketplace/test/acc";
 import { follow_creator } from "~/lib/stellar/fan/follow_creator";
+import { sendGift } from "~/lib/stellar/fan/send_gift";
+import axios from "axios";
+import { ACTION_STELLAR_ACCOUNT_URL } from "package/connect_wallet/src/lib/stellar/constant";
 
 export const trxRouter = createTRPCRouter({
   createCreatorPageAsset: protectedProcedure
@@ -220,4 +223,50 @@ export const trxRouter = createTRPCRouter({
         throw new Error("creator has no page asset");
       }
     }),
+
+  giftFollowerXDR: protectedProcedure // only logged creator can do that
+    .input(z.object({ pubkey: z.string().length(56).or(z.string().email()) }))
+    .mutation(async ({ input, ctx }) => {
+      const creatorId = ctx.session.user.id;
+      let pubkey = input.pubkey;
+
+      const creator = await db.creator.findUniqueOrThrow({
+        where: { id: creatorId },
+        include: { pageAsset: true },
+      });
+
+      if (creator.pageAsset) {
+        const { code, issuer } = creator.pageAsset;
+
+        if (isEmail(input.pubkey)) {
+          // send email
+
+          const url = `${ACTION_STELLAR_ACCOUNT_URL}api/pub?email=${input.pubkey}`;
+          const response = await axios.get(url);
+
+          const data = response.data;
+          console.log(data, "..");
+        }
+
+        const { storageSecret } = creator;
+
+        return await sendGift({
+          customerPubkey: pubkey,
+          creatorPageAsset: { code, issuer },
+          creatorStorageSec: storageSecret,
+          creatorPub: creatorId,
+          price: "1",
+        });
+      } else throw new Error("creator has no page asset");
+    }),
 });
+
+function getPubkeyByEmail(email: string) {
+  return "pubkey";
+}
+
+const isEmail = (str: string): boolean => {
+  // Use a regular expression to check if the string matches the email format
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(str);
+};

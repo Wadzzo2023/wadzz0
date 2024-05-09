@@ -63,9 +63,6 @@ function AllRecentPost() {
     void posts.fetchNextPage();
   };
 
-  const { data: user_subscriptions, isLoading: isLoading2 } =
-    api.fan.member.getUserSubcribed.useQuery();
-
   const accBalances = api.wallate.acc.getUserPubAssetBallances.useQuery();
 
   // if (isLoading2) return <div>Loading to fetch membership...</div>;
