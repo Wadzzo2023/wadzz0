@@ -95,19 +95,19 @@ export const membershipRouter = createTRPCRouter({
       });
     }),
 
-  aCraatorSubscribedToken: protectedProcedure
-    .input(z.object({ creatorId: z.string() }))
-    .query(async ({ ctx, input }) => {
-      return await ctx.db.user_Subscription.findFirst({
-        where: {
-          userId: ctx.session.user.id,
-          subscription: {
-            creatorId: input.creatorId,
-          },
-        },
-        include: { subscription: true },
-      });
-    }),
+  // aCraatorSubscribedToken: protectedProcedure
+  //   .input(z.object({ creatorId: z.string() }))
+  //   .query(async ({ ctx, input }) => {
+  //     return await ctx.db.user_Subscription.findFirst({
+  //       where: {
+  //         userId: ctx.session.user.id,
+  //         subscription: {
+  //           creatorId: input.creatorId,
+  //         },
+  //       },
+  //       include: { subscription: true },
+  //     });
+  //   }),
   getAllMembership: protectedProcedure.query(async ({ ctx }) => {
     return await ctx.db.subscription.findMany({
       where: { creatorId: ctx.session.user.id },
@@ -115,59 +115,84 @@ export const membershipRouter = createTRPCRouter({
     });
   }),
 
-  getUserSubcribed: protectedProcedure.query(async ({ ctx }) => {
-    return await ctx.db.user_Subscription.findMany({
-      where: {
-        AND: [
-          { userId: ctx.session.user.id },
-          // here i have to check not expired highest subscriptin.
-          { subcriptionEndDate: { gte: new Date() } },
-        ],
-      },
-      include: {
-        subscription: {
-          include: {
-            creator: true,
+  // getUserSubcribed: protectedProcedure.query(async ({ ctx }) => {
+  //   return await ctx.db.user_Subscription.findMany({
+  //     where: {
+  //       AND: [
+  //         { userId: ctx.session.user.id },
+  //         // here i have to check not expired highest subscriptin.
+  //         { subcriptionEndDate: { gte: new Date() } },
+  //       ],
+  //     },
+  //     include: {
+  //       subscription: {
+  //         include: {
+  //           creator: true,
+  //         },
+  //       },
+  //     },
+  //   });
+  // }),
+
+  // subscribe: protectedProcedure
+  //   .input(
+  //     z.object({
+  //       subscriptionId: z.number(),
+  //       creatorId: z.string(),
+  //       days: z.number(),
+  //     }),
+  //   )
+  //   .mutation(async ({ ctx, input }) => {
+  //     const currentDate = new Date();
+  //     // Add 10 days to the current date
+  //     currentDate.setDate(currentDate.getDate() + input.days);
+  //     const subscription = await ctx.db.user_Subscription.create({
+  //       data: {
+  //         userId: ctx.session.user.id,
+  //         subscriptionId: input.subscriptionId,
+  //         subcriptionEndDate: currentDate,
+  //       },
+  //     });
+  //     await ctx.db.notificationObject.create({
+  //       data: {
+  //         actorId: ctx.session.user.id,
+  //         entityType: NotificationType.SUBSCRIPTION,
+  //         entityId: input.subscriptionId,
+  //         Notification: { create: [{ notifierId: input.creatorId }] },
+  //       },
+  //     });
+  //     return subscription;
+  //   }),
+
+  // userSubscriptions: protectedProcedure.query(async ({ ctx, input }) => {
+  //   const subscriptiosn = await ctx.db.user_Subscription.findMany({
+  //     where: { userId: ctx.session.user.id },
+  //   });
+  //   return subscriptiosn;
+  // }),
+
+  isFollower: protectedProcedure
+    .input(z.object({ creatorId: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const isFollower = await ctx.db.follow.findUnique({
+        where: {
+          userId_creatorId: {
+            creatorId: input.creatorId,
+            userId: ctx.session.user.id,
           },
         },
-      },
-    });
-  }),
-
-  subscribe: protectedProcedure
-    .input(
-      z.object({
-        subscriptionId: z.number(),
-        creatorId: z.string(),
-        days: z.number(),
-      }),
-    )
-    .mutation(async ({ ctx, input }) => {
-      const currentDate = new Date();
-      // Add 10 days to the current date
-      currentDate.setDate(currentDate.getDate() + input.days);
-      const subscription = await ctx.db.user_Subscription.create({
-        data: {
-          userId: ctx.session.user.id,
-          subscriptionId: input.subscriptionId,
-          subcriptionEndDate: currentDate,
-        },
       });
-      await ctx.db.notificationObject.create({
-        data: {
-          actorId: ctx.session.user.id,
-          entityType: NotificationType.SUBSCRIPTION,
-          entityId: input.subscriptionId,
-          Notification: { create: [{ notifierId: input.creatorId }] },
-        },
-      });
-      return subscription;
+      if (isFollower) return true;
+      else false;
     }),
 
-  userSubscriptions: protectedProcedure.query(async ({ ctx, input }) => {
-    const subscriptiosn = await ctx.db.user_Subscription.findMany({
-      where: { userId: ctx.session.user.id },
-    });
-    return subscriptiosn;
-  }),
+  followCreator: protectedProcedure
+    .input(z.object({ creatorId: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      const userId = ctx.session.user.id;
+
+      return await ctx.db.follow.create({
+        data: { creatorId: input.creatorId, userId },
+      });
+    }),
 });

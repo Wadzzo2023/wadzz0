@@ -79,8 +79,6 @@ model Subscription {
 
     posts Post[]
 
-    subscribedUsers User_Subscription[]
-
     @@unique([name, creatorId])
 }
 
@@ -124,17 +122,18 @@ model User_Asset {
     buyAt DateTime @default(now())
 }
 
-model User_Subscription {
-    id                 Int          @id @default(autoincrement())
-    userId             String
-    user               User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-    subscriptionId     Int
-    subscription       Subscription @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
-    subcribedAt        DateTime     @default(now())
-    subcriptionEndDate DateTime
+model Follow {
+    id     Int    @id @default(autoincrement())
+    userId String
+    user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    creatorId String
+    creator   Creator @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+
+    followAt DateTime @default(now())
 
     // Unique constraint on userId and subscriptionId
-    @@unique([userId, subscriptionId])
+    @@unique([userId, creatorId])
 }
 
 model Media {
@@ -178,6 +177,7 @@ model Creator {
     assets        Asset[]
     marketAssets  MarketAsset[]
     pageAsset     CreatorPageAsset?
+    followers     Follow[]
 
     @@index([bio, name])
 }
@@ -238,15 +238,15 @@ model User {
     image         String?
     emailVerified DateTime?
 
-    accounts      Account[]
-    sessions      Session[]
-    creator       Creator?
-    subscriptions User_Subscription[]
-    likes         Like[]
-    comments      Comment[]
-    assets        User_Asset[]
-    Admin         Admin[]
-    songs         User_Song[]
+    accounts   Account[]
+    sessions   Session[]
+    creator    Creator?
+    likes      Like[]
+    comments   Comment[]
+    assets     User_Asset[]
+    Admin      Admin[]
+    songs      User_Song[]
+    followings Follow[]
 }
 
 model VerificationToken {

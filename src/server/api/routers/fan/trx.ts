@@ -21,6 +21,7 @@ import { db } from "~/server/db";
 import { env } from "~/env";
 import { Keypair } from "stellar-sdk";
 import { copyToBalance } from "~/lib/stellar/marketplace/test/acc";
+import { follow_creator } from "~/lib/stellar/fan/follow_creator";
 
 export const trxRouter = createTRPCRouter({
   createCreatorPageAsset: protectedProcedure
@@ -193,5 +194,30 @@ export const trxRouter = createTRPCRouter({
         pubkey: ctx.session.user.id,
         signWith: input,
       });
+    }),
+
+  followCreatorTRX: protectedProcedure
+    .input(z.object({ creatorId: z.string().min(56), signWith: SignUser }))
+    .mutation(async ({ input, ctx }) => {
+      const { creatorId, signWith } = input;
+      const userId = ctx.session.user.id;
+
+      const creator = await ctx.db.creator.findUniqueOrThrow({
+        where: { id: creatorId },
+        include: { pageAsset: true },
+      });
+
+      if (creator.pageAsset) {
+        const { code, issuer } = creator.pageAsset;
+        // creat trust with userId
+        const xdr = await follow_creator({
+          creatorPageAsset: { code, issuer },
+          userPubkey: userId,
+          signWith,
+        });
+        return xdr;
+      } else {
+        throw new Error("creator has no page asset");
+      }
     }),
 });

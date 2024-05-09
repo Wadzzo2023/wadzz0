@@ -53,7 +53,7 @@ export const accRouter = createTRPCRouter({
   getUserPubAssetBallances: protectedProcedure.query(async ({ ctx, input }) => {
     const pubkey = ctx.session.user.id;
 
-    return await accountBalances({ userPub: pubkey });
+    return await accountBalances({ userPub: pubkey },);
   }),
 
   getCreatorStorageInfo: protectedProcedure.query(async ({ ctx, input }) => {

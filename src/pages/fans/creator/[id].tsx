@@ -6,7 +6,7 @@ import { Creator, Subscription } from "@prisma/client";
 import MemberShipCard from "~/components/fan/creator/card";
 import { clientsign, useConnectWalletStateStore } from "package/connect_wallet";
 import toast from "react-hot-toast";
-import { MyAssetType } from "~/lib/stellar/fan/utils";
+import { MyAssetType, clientSelect } from "~/lib/stellar/fan/utils";
 import {
   CreatorProfileMenu,
   useCreatorProfileMenu,
@@ -37,7 +37,9 @@ function CreatorPageView({ creatorId }: { creatorId: string }) {
         <div className="flex w-full flex-col items-center pb-48">
           <>
             <CreatorBack creator={creator} />
+            <FollowButton creator={creator} />
             <ChooseMemberShip creator={creator} />
+
             <Tabs />
             <RenderTabs creatorId={creatorId} />
           </>
@@ -120,6 +122,57 @@ function Tabs() {
   );
 }
 
+export function FollowButton({ creator }: { creator: Creator }) {
+  const { pubkey, walletType, needSign } = useConnectWalletStateStore();
+
+  const isFollower = api.fan.member.isFollower.useQuery({
+    creatorId: creator.id,
+  });
+  const follow = api.fan.member.followCreator.useMutation({
+    onSuccess: () => toast.success("Followed"),
+  });
+  const followXDR = api.fan.trx.followCreatorTRX.useMutation({
+    onSuccess: (xdr) => {
+      if (xdr) {
+        clientsign({
+          presignedxdr: xdr,
+          pubkey,
+          walletType,
+          test: clientSelect(),
+        })
+          .then((res) => {
+            if (res) {
+              if (res) {
+                follow.mutate({ creatorId: creator.id });
+              }
+            }
+          })
+          .catch((e) => console.log(e));
+      } else {
+        toast.error("XDR undefined");
+      }
+    },
+    onError: (e) => toast.error(e.message),
+  });
+  if (isFollower.data) return <p>You are a follower</p>;
+  else
+    return (
+      <div>
+        <button
+          className="btn btn-secondary"
+          onClick={() =>
+            followXDR.mutate({ creatorId: creator.id, signWith: needSign() })
+          }
+        >
+          {followXDR.isLoading && (
+            <span className="loading loading-spinner"></span>
+          )}
+          Follow
+        </button>
+      </div>
+    );
+}
+
 export function ChooseMemberShip({ creator }: { creator: Creator }) {
   const { data: subscriptonModel, isLoading } =
     api.fan.member.getCreatorMembership.useQuery(creator.id);
@@ -188,8 +241,6 @@ function SubscriptionCard({
   creator: Creator;
   priority?: number;
 }) {
-  const { data: subscriptions } = api.fan.member.userSubscriptions.useQuery();
-
   return (
     <MemberShipCard
       key={subscription.id}
