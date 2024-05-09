@@ -47,7 +47,12 @@ function RenderTabs() {
       );
 
     case AdminNavigation.ADMIN:
-      return <AddAdmin />;
+      return (
+        <div>
+          <AddAdmin />
+          <AdminsList />
+        </div>
+      );
   }
 }
 
@@ -61,12 +66,10 @@ function IsAdmin() {
     return <AdminPageTemplate />;
   } else {
     return (
-      <div>
-        <CreateAdmin />
-        <AdminsList />
+      <div className="flex h-full items-center justify-center text-lg">
+        You are not admin
       </div>
     );
-    // return <p>You are not admin</p>;
   }
 }
 

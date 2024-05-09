@@ -92,6 +92,7 @@ function ConditionallyRenderMenuPage({ creator }: { creator: Creator }) {
 function CreateCreator(props: { id: string }) {
   const { pubkey, needSign, walletType } = useConnectWalletStateStore();
   const makeCreatorMutation = api.fan.creator.makeMeCreator.useMutation();
+
   const xdr = api.fan.trx.createStorageAccount.useMutation({
     onSuccess: (data) => {
       const { xdr, storage } = data;
@@ -117,7 +118,7 @@ function CreateCreator(props: { id: string }) {
     <div className="flex h-full flex-col items-center justify-center gap-2 ">
       <p className="text-2xl font-bold">You are not a creator</p>
       <p className="alert-info">
-        Your account should have minimum 4.5 XLM to be a creator.
+        {/* Your account should have minimum  to be a creator. */}
       </p>
       <button
         className="btn btn-primary"

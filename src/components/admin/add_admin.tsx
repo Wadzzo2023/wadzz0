@@ -27,7 +27,7 @@ export default function AddAdmin() {
 
   return (
     <div>
-      AddAdmin
+      <h2 className="my-4 text-lg font-bold">Add Admin</h2>
       <form onSubmit={handleSubmit(onSubmit)}>
         <input
           type="text"

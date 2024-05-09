@@ -6,7 +6,7 @@ export default function AdminsList() {
   if (admins.isLoading) return <div>Loading...</div>;
   if (admins.data)
     return (
-      <div className="overflow-x-auto">
+      <div className="my-4 overflow-x-auto rounded-lg bg-base-200 p-4">
         <table className="table">
           {/* head */}
           <thead>
