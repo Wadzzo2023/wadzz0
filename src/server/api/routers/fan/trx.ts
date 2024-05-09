@@ -241,11 +241,15 @@ export const trxRouter = createTRPCRouter({
         if (isEmail(input.pubkey)) {
           // send email
 
-          const url = `${ACTION_STELLAR_ACCOUNT_URL}api/pub?email=${input.pubkey}`;
-          const response = await axios.get(url);
+          try {
+            const url = `${ACTION_STELLAR_ACCOUNT_URL}api/pub?email=${input.pubkey}`;
+            const response = await axios.get<{ publicKey: string }>(url);
 
-          const data = response.data;
-          console.log(data, "..");
+            const data = response.data;
+            pubkey = data.publicKey;
+          } catch (error) {
+            throw new Error("email not found");
+          }
         }
 
         const { storageSecret } = creator;

@@ -19,10 +19,10 @@ export default function GiftPage() {
     resolver: zodResolver(FanPubkeySchema),
   });
 
-  const addAdmin = api.wallate.admin.makeAdmin.useMutation();
+  const xdr = api.fan.trx.giftFollowerXDR.useMutation();
 
   const onSubmit: SubmitHandler<z.infer<typeof FanPubkeySchema>> = (data) => {
-    addAdmin.mutate(data.pubkey);
+    xdr.mutate({ pubkey: data.pubkey });
   };
 
   return (
@@ -42,7 +42,7 @@ export default function GiftPage() {
           </div>
         )}
         <button className="btn" type="submit">
-          {addAdmin.isLoading && <span className="loading loading-spinner" />}
+          {xdr.isLoading && <span className="loading loading-spinner" />}
           Add
         </button>
       </form>

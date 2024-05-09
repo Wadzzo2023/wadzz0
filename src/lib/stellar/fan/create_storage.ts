@@ -71,7 +71,7 @@ export async function createStorageTrx({
     .addOperation(
       Operation.createAccount({
         destination: storageAcc.publicKey(),
-        startingBalance: "2.5", // 4 for escrow and 0.5 for trust
+        startingBalance: "4.5", // 4 for escrow and 0.5 for trust
       }),
     )
     .addOperation(Operation.changeTrust({ asset: PLATFROM_ASSET }))
