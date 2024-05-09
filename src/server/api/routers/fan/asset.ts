@@ -23,6 +23,7 @@ export const shopRouter = createTRPCRouter({
         price,
         issuer,
         limit,
+        tier,
 
         isAdmin,
       } = input;
@@ -52,6 +53,7 @@ export const shopRouter = createTRPCRouter({
             thumbnail: coverImgUrl,
             creatorId,
             limit,
+            tierId: tier ? Number(tier) : undefined,
           },
         });
       }

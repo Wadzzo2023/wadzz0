@@ -77,7 +77,8 @@ model Subscription {
     creatorId String
     creator   Creator @relation(fields: [creatorId], references: [id])
 
-    posts Post[]
+    posts  Post[]
+    assets Asset[]
 
     @@unique([name, creatorId])
 }
@@ -324,6 +325,9 @@ model Asset {
 
     creatorId String? // if null then it is admin asset
     creator   Creator? @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+
+    tierId Int?
+    tier   Subscription? @relation(fields: [tierId], references: [id], onDelete: SetNull)
 
     song        Song?
     buyers      User_Asset[]

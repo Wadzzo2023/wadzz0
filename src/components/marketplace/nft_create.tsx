@@ -34,6 +34,7 @@ export const NftFormSchema = z.object({
   issuer: AccountSchema.optional(),
   songInfo: ExtraSongInfo.optional(),
   isAdmin: z.boolean().optional(),
+  tier: z.string().optional(),
 });
 
 type NftFormType = z.TypeOf<typeof NftFormSchema>;
@@ -75,6 +76,10 @@ export default function NftCreate({ admin: isAdmin }: { admin?: true }) {
       mediaUrl: "https://picsum.photos/202/200",
     },
   });
+
+  // console.log("errors", errors);
+
+  const tiers = api.fan.member.getAllMembership.useQuery();
 
   const addAsset = api.fan.asset.createAsset.useMutation({
     onSuccess: () => {
@@ -155,6 +160,7 @@ export default function NftCreate({ admin: isAdmin }: { admin?: true }) {
       const ipfsHash = await res.text();
       const thumbnail = "https://ipfs.io/ipfs/" + ipfsHash;
       setCover(thumbnail);
+      setValue("coverImgUrl", thumbnail);
       setCid(ipfsHash);
 
       setUploading(false);
@@ -183,6 +189,31 @@ export default function NftCreate({ admin: isAdmin }: { admin?: true }) {
     }
   };
 
+  function TiersOptions() {
+    if (tiers.isLoading) return <div className="skeleton h-10 w-20"></div>;
+    if (tiers.data) {
+      return (
+        <Controller
+          name="tier"
+          control={control}
+          render={({ field }) => (
+            <select {...field} className="select select-bordered ">
+              <option selected disabled>
+                Choose Tier
+              </option>
+              {tiers.data.map((model) => (
+                <option
+                  key={model.id}
+                  value={model.id}
+                >{`${model.name} - ${model.price}`}</option>
+              ))}
+            </select>
+          )}
+        />
+      );
+    }
+  }
+
   return (
     <>
       <dialog className="modal" ref={modalRef}>
@@ -197,22 +228,27 @@ export default function NftCreate({ admin: isAdmin }: { admin?: true }) {
             </button>
           </form>
           <h3 className="text-lg font-bold">Add Asset</h3>
-          <p className="py-4">What it is</p>
           <form onSubmit={handleSubmit(onSubmit)}>
             <div className="flex flex-col gap-4">
-              <div className="rounded-md bg-base-200 p-2">
-                <ul className="menu menu-vertical rounded-box bg-base-200 lg:menu-horizontal">
-                  {Object.values(MediaType).map((media, i) => (
-                    <li key={i}>
-                      <p
-                        className={media == mediaType ? "active" : ""}
-                        onClick={() => handleMediaChange(media)}
-                      >
-                        {media}
-                      </p>
-                    </li>
-                  ))}
-                </ul>
+              <div className="bg-base-200 p-2">
+                <div className="flex justify-between">
+                  <div className="">
+                    <ul className="menu menu-vertical rounded-box bg-base-300 lg:menu-horizontal">
+                      {Object.values(MediaType).map((media, i) => (
+                        <li key={i}>
+                          <p
+                            className={media == mediaType ? "active" : ""}
+                            onClick={() => handleMediaChange(media)}
+                          >
+                            {media}
+                          </p>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  {isAdmin ? <> </> : <TiersOptions />}
+                </div>
 
                 <div className="rounded-md bg-base-200 p-2">
                   <label className="label font-bold">Media Info</label>
