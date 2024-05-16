@@ -11,7 +11,7 @@ export default function Slider({
     <Carousel display="sequential" className="rounded-box">
       {images.map((image, index) => (
         <Carousel.Item
-          className="bg-red-100"
+          className="bg-base-100"
           key={index}
           src={image}
           alt="City"

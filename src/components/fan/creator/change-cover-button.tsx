@@ -1,13 +1,19 @@
 import { useRouter } from "next/router";
+import toast from "react-hot-toast";
 import { api } from "~/utils/api";
 import { UploadButton } from "~/utils/uploadthing";
 
 export function CoverChange() {
   const router = useRouter();
   const coverChangeMutation =
-    api.fan.creator.changeCreatorCoverPicture.useMutation();
+    api.fan.creator.changeCreatorCoverPicture.useMutation({
+      onSuccess: () => {
+        toast.success("Cover Changed, Refresh the page to see the changes");
+      },
+    });
+  // coverChangeMutation.isLoading && toast.loading("Uploading Cover");
 
-  if (router.pathname == "/settings/creator")
+  if (router.pathname == "/fans/creator/settings")
     return (
       <div className="">
         <UploadButton

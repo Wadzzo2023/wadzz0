@@ -1,6 +1,7 @@
 import { Post } from "@prisma/client";
 import Link from "next/link";
 import { useRouter } from "next/router";
+import { Preview } from "~/components/preview";
 
 export function PostReadMore({ post }: { post: Post }) {
   const router = useRouter();
@@ -8,13 +9,14 @@ export function PostReadMore({ post }: { post: Post }) {
   if (isLong && router.pathname != `fans/posts/[id]`) {
     return (
       <div>
-        <p>{post.content.slice(0, 200)}</p>
+        <Preview value={post.content.slice(0, 200)} />
+
         <Link href={`posts/${post.id}`} className="text-primary underline">
           Read more
         </Link>
       </div>
     );
   } else {
-    return <p>{post.content}</p>;
+    return <Preview value={post.content} />;
   }
 }

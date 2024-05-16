@@ -21,7 +21,7 @@ export function PostCard({
   priority,
   media,
 }: {
-  creator: { name: string; id: string };
+  creator: { name: string; id: string; profileUrl: string | null };
   post: Post;
   show?: boolean;
   like: number;
@@ -57,7 +57,7 @@ export function PostCard({
         <div className="flex justify-between">
           <div className="flex gap-2">
             <div>
-              <Avater className="w-8" />
+              <Avater url={creator.profileUrl} className="w-8" />
             </div>
             <div>
               <Link href={creatorProfileUrl} className="font-bold">

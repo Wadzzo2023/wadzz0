@@ -10,6 +10,7 @@ import CommentView from "./comment";
 import { PostContextMenu } from "./post-context-menu";
 import Slider from "../../ui/carosel";
 import Loading from "~/components/wallete/loading";
+import { Preview } from "~/components/preview";
 
 export function SinglePostView({ postId }: { postId: number }) {
   const post = api.fan.post.getAPost.useQuery(postId, {
@@ -90,7 +91,8 @@ export function SinglePostView({ postId }: { postId: number }) {
                                 />
                               </div>
 
-                              <p>{post.data.content}</p>
+                              {/* <p>{post.data.content}</p> */}
+                              <Preview value={post.data.content} />
                               <p>{formatPostCreatedAt(post.data.createdAt)}</p>
                             </div>
 

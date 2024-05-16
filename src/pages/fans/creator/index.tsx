@@ -56,7 +56,7 @@ export function CreatorBack(props: { creator: Creator }) {
     <div className="w-full">
       <div className="relative h-40  w-full bg-blue-200">
         <Image
-          src={props.creator.coverUrl ?? ""}
+          src={props.creator.coverUrl ?? "/images/icons/bg.png"}
           layout="fill"
           objectFit="cover"
           alt="cover"
