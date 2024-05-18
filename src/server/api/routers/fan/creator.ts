@@ -27,6 +27,12 @@ export const creatorRouter = createTRPCRouter({
       }
     }),
 
+  getCreatorPageAsset: protectedProcedure.query(async ({ ctx }) => {
+    return ctx.db.creatorPageAsset.findFirst({
+      where: { creatorId: ctx.session.user.id },
+    });
+  }),
+
   meCreator: protectedProcedure.query(async ({ ctx }) => {
     return ctx.db.creator.findFirst({
       where: { user: { id: ctx.session.user.id } },

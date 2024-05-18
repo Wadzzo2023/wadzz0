@@ -11,10 +11,14 @@ export default function MemberShip({ creator }: { creator: Creator }) {
   const { data: subscriptions, isLoading } =
     api.fan.member.getAllMembership.useQuery();
 
+  const pageAsset = api.fan.creator.getCreatorPageAsset.useQuery();
+
+  // console.log(creator.pageAssetId, creator.pageAsset);
+
   return (
     <div className="my-7 flex flex-col items-center">
       <CreatorAssetView creator={creator} />
-      {subscriptions && subscriptions?.length < 3 && creator.pageAssetId && (
+      {subscriptions && subscriptions?.length < 3 && pageAsset.data && (
         <div className="fixed bottom-10 right-0 p-4 ">
           <AddTierModal creator={creator} />
         </div>
@@ -40,6 +44,11 @@ function CreatorAssetView({ creator }: { creator: Creator }) {
 
   const pageAsset = creatorData.data?.pageAsset;
 
-  if (pageAsset) return <p>{pageAsset.code}</p>;
+  if (pageAsset)
+    return (
+      <p className="badge badge-secondary  my-4 py-4 font-bold">
+        {pageAsset.code}
+      </p>
+    );
   else return <AddCreatorPageAssetModal creator={creator} />;
 }

@@ -27,9 +27,7 @@ export const CreatorPageAssetSchema = z.object({
         message: "Input must be a single word",
       },
     ),
-  price: z.number().min(1).nonnegative(),
   limit: z.number().min(1).nonnegative(),
-  description: z.string().min(20, { message: "Make description longer" }),
 });
 
 export default function AddCreatorPageAssetModal({
@@ -42,8 +40,6 @@ export default function AddCreatorPageAssetModal({
   const requiredToken = api.fan.trx.getPlatformTokenPriceForXLM.useQuery({
     xlm: 2,
   });
-
-  // console.log(platformAssetBalance, "....vong..", requiredToken.data);
 
   if (requiredToken.isLoading) return <Loading />;
 
@@ -65,7 +61,6 @@ export default function AddCreatorPageAssetModal({
       );
     }
   }
-  // return <p>some errro</p>;
 }
 
 function AddCreatorPageAssetModalFrom({
@@ -77,6 +72,7 @@ function AddCreatorPageAssetModalFrom({
 }) {
   const modalRef = useRef<HTMLDialogElement>(null);
   const [isModalOpen, setIsModalOpen] = React.useState(false);
+  const [tostId, setToastId] = React.useState<string>();
 
   const { pubkey, walletType, needSign } = useConnectWalletStateStore();
   const mutation = api.fan.member.createCreatePageAsset.useMutation({
@@ -85,7 +81,7 @@ function AddCreatorPageAssetModalFrom({
     },
   });
 
-  const assetAmount = api.fan.trx.getAssetNumberforXlm.useQuery();
+  // const assetAmount = api.fan.trx.getAssetNumberforXlm.useQuery();
 
   const trxMutation = api.fan.trx.createCreatorPageAsset.useMutation({
     onSuccess: async (data) => {
@@ -103,10 +99,8 @@ function AddCreatorPageAssetModalFrom({
               toast.success("popup success");
               mutation.mutate({
                 code: getValues("code"),
-                description: getValues("description") || "No description",
                 issuer: data.escrow,
                 limit: getValues("limit"),
-                price: getValues("price"),
               });
             } else {
               toast.error("Error signing transaction");
@@ -115,10 +109,13 @@ function AddCreatorPageAssetModalFrom({
           .catch((e) => console.log(e))
           .finally(() => {
             setIsModalOpen(false);
+            toast.error("Error while getting xdr", { id: tostId });
           });
       } else {
-        toast.error("Error creating tier");
+        toast.error("Error in stellar horizon", { id: tostId });
       }
+
+      toast.error("Error while getting xdr", { id: tostId });
       setIsModalOpen(false);
     },
   });
@@ -139,11 +136,14 @@ function AddCreatorPageAssetModalFrom({
   ) => {
     setIsModalOpen(true);
 
+    setToastId(toast.loading("Creating page asset"));
+
     trxMutation.mutate({
       code: getValues("code"),
       signWith: needSign(),
       limit: getValues("limit"),
     });
+
     // mutation.mutate(data);
   };
 
@@ -207,48 +207,10 @@ function AddCreatorPageAssetModalFrom({
                 )}
               </label>
 
-              <label className="form-control w-full max-w-xs">
-                <div className="label">
-                  <span className="label-text">Price</span>
-                </div>
-                <input
-                  {...register("price", { valueAsNumber: true })}
-                  className="input input-bordered w-full max-w-xs"
-                  type="number"
-                  step="1"
-                  min="1"
-                  placeholder="Price"
-                ></input>
-                {errors.price && (
-                  <div className="label">
-                    <span className="label-text-alt text-warning">
-                      {errors.price.message}
-                    </span>
-                  </div>
-                )}
-              </label>
-
-              <label className="form-control w-full max-w-xs">
-                <div className="label">
-                  <span className="label-text">Tier Features</span>
-                </div>
-                <textarea
-                  {...register("description")}
-                  className="textarea textarea-bordered h-24"
-                  placeholder="Description of your page asset"
-                ></textarea>
-                {errors.description && (
-                  <div className="label">
-                    <span className="label-text-alt text-warning">
-                      {errors.description.message}
-                    </span>
-                  </div>
-                )}
-              </label>
               <div className="max-w-xs">
                 <Alert
                   type={mutation.error ? "warning" : "noraml"}
-                  content={`To create this page token, you'll need ${requiredToken} ${PLATFROM_ASSET.code} for your Asset account. Additionally, there's a platform fee of ${PLATFROM_FEE} ${PLATFROM_ASSET.code}. Total: ${assetAmount.data ?? 1 + Number(PLATFROM_FEE)}`}
+                  content={`To create this page token, you'll need ${requiredToken} ${PLATFROM_ASSET.code} for your Asset account. Additionally, there's a platform fee of ${PLATFROM_FEE} ${PLATFROM_ASSET.code}. Total: ${requiredToken + Number(PLATFROM_FEE)}`}
                 />
               </div>
               <button
