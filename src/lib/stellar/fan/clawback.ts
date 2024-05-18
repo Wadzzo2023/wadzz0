@@ -19,7 +19,7 @@ import {
 } from "./constant";
 import { AccountType } from "./utils";
 import { SignUserType, WithSing } from "../utils";
-import { getAssetNumberForXLM } from "./get_token_price";
+import { getplatformAssetNumberForXLM } from "./get_token_price";
 
 // transection variables
 
@@ -38,7 +38,7 @@ export async function creatorPageAccCreate({
 }) {
   const server = new Server(STELLAR_URL);
 
-  const requiredAsset2refundXlm = await getAssetNumberForXLM(2);
+  const requiredAsset2refundXlm = await getplatformAssetNumberForXLM(2);
   const totalAction = requiredAsset2refundXlm + Number(PLATFROM_FEE);
 
   const storageAcc = Keypair.fromSecret(storageSecret);

@@ -93,6 +93,10 @@ function CreateCreator(props: { id: string }) {
   const { pubkey, needSign, walletType } = useConnectWalletStateStore();
   const makeCreatorMutation = api.fan.creator.makeMeCreator.useMutation();
 
+  const requiredToken = api.fan.trx.getPlatformTokenPriceForXLM.useQuery({
+    xlm: 5,
+  });
+
   const xdr = api.fan.trx.createStorageAccount.useMutation({
     onSuccess: (data) => {
       const { xdr, storage } = data;
@@ -118,11 +122,14 @@ function CreateCreator(props: { id: string }) {
     },
   });
 
+  if (requiredToken.isLoading) return <div>Checking required Action...</div>;
+
   return (
     <div className="flex h-full flex-col items-center justify-center gap-2 ">
       <p className="text-2xl font-bold">You are not a creator</p>
       <p className="alert-info">
-        {/* Your account should have minimum  to be a creator. */}
+        Your account should have minimum {requiredToken.data} Bandcoin to be a
+        creator.
       </p>
       <button
         className="btn btn-primary"

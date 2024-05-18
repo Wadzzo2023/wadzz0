@@ -14,7 +14,7 @@ import {
 import { env } from "~/env";
 import { AccountSchema, AccountType } from "./fan/utils";
 import { SignUserType, WithSing } from "./utils";
-import { getAssetNumberForXLM } from "./fan/get_token_price";
+import { getplatformAssetNumberForXLM } from "./fan/get_token_price";
 
 const log = console;
 
@@ -48,7 +48,7 @@ export async function createUniAsset({
   const asset = new Asset(code, issuerAcc.publicKey());
 
   // get total platform token
-  const requiredAsset2refundXlm = await getAssetNumberForXLM(2.5);
+  const requiredAsset2refundXlm = await getplatformAssetNumberForXLM(2.5);
   const totalAction = requiredAsset2refundXlm + Number(PLATFROM_FEE);
 
   const transactionInializer = await server.loadAccount(pubkey);

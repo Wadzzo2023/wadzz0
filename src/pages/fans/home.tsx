@@ -5,19 +5,21 @@ import { PostCard } from "~/components/fan/creator/post";
 import { api } from "~/utils/api";
 import toast from "react-hot-toast";
 import { getAssetBalanceFromBalance } from "~/lib/stellar/marketplace/test/acc";
+import { useUserStellarAcc } from "~/lib/state/wallete/userAccBalances";
 // import { useConnectWalletStateStore } from "package/connect_wallet";
 
 export default function Home() {
-  const acc = api.wallate.acc.getUserPubAssetBallances.useQuery(undefined, {
-    onSuccess: (data) => {
-      toast.success("Data fetched successfully");
-      console.log(data);
-    },
-    onError: (error) => {
-      toast.error("Failed to fetch data");
-      console.log(error);
-    },
-  });
+  // const acc = api.wallate.acc.getUserPubAssetBallances.useQuery(undefined, {
+  //   onSuccess: (data) => {
+  //     toast.success("Data fetched successfully");
+  //     useUserStellarAcc;
+  //     console.log(data);
+  //   },
+  //   onError: (error) => {
+  //     toast.error("Failed to fetch data");
+  //     console.log(error);
+  //   },
+  // });
   return (
     <>
       <Head>

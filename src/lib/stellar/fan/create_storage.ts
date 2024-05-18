@@ -15,7 +15,7 @@ import {
 import { AccountType } from "./utils";
 import { SignUserType, WithSing } from "../utils";
 import { env } from "~/env";
-import { getAssetNumberForXLM } from "./get_token_price";
+import { getplatformAssetNumberForXLM } from "./get_token_price";
 
 const log = console;
 
@@ -40,7 +40,7 @@ export async function createStorageTrx({
 
   // total platform token r
 
-  const requiredAsset2refundXlm = await getAssetNumberForXLM(5);
+  const requiredAsset2refundXlm = await getplatformAssetNumberForXLM(5);
   const totalAction = requiredAsset2refundXlm + Number(PLATFROM_FEE);
 
   const Tx1 = new TransactionBuilder(transactionInializer, {
@@ -48,14 +48,14 @@ export async function createStorageTrx({
     networkPassphrase,
   })
     // send mother required platform fee and extra
-    // .addOperation(
-    //   Operation.payment({
-    //     destination: motherAcc.publicKey(),
-    //     amount: totalAction.toString(),
-    //     asset: PLATFROM_ASSET,
-    //     source: pubkey,
-    //   }),
-    // )
+    .addOperation(
+      Operation.payment({
+        destination: motherAcc.publicKey(),
+        amount: totalAction.toString(),
+        asset: PLATFROM_ASSET,
+        source: pubkey,
+      }),
+    )
 
     // send required xlm to the user account pubkey
     .addOperation(

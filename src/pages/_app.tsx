@@ -11,6 +11,8 @@ import "~/styles/globals.css";
 import "~/styles/music.scss";
 import Layout from "~/components/layout";
 import Header from "~/components/header";
+import { useUserStellarAcc } from "~/lib/state/wallete/userAccBalances";
+import toast from "react-hot-toast";
 
 const queryClient = new QueryClient();
 
@@ -25,6 +27,19 @@ const MyApp: AppType<{ session: Session | null }> = ({
   Component,
   pageProps: { session, ...pageProps },
 }) => {
+  const { setBalance } = useUserStellarAcc();
+  const acc = api.wallate.acc.getUserPubAssetBallances.useQuery(undefined, {
+    onSuccess: (data) => {
+      console.log(data);
+      toast.success("Data fetched successfully");
+      setBalance(data);
+    },
+    onError: (error) => {
+      console.log(error);
+    },
+    refetchOnWindowFocus: false,
+  });
+
   return (
     <SessionProvider session={session}>
       <QueryClientProvider client={queryClient}>

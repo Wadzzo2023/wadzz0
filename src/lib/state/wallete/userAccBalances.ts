@@ -1,8 +1,9 @@
 import { create } from "zustand";
 import { Horizon, Server } from "stellar-sdk";
 import { accountBalances } from "~/lib/stellar/marketplace/test/acc";
+import { PLATFROM_ASSET } from "~/lib/stellar/fan/constant";
 
-type AccBalanceType =
+export type AccBalanceType =
   | Horizon.BalanceLineNative
   | Horizon.BalanceLineAsset<"credit_alphanum4">
   | Horizon.BalanceLineAsset<"credit_alphanum12">
@@ -16,17 +17,20 @@ interface Balance {
     issuer?: string;
   }) => string | undefined;
 
-  fetch: (pub: string) => Promise<void>;
+  setBalance: (balances: AccBalanceType[]) => void;
+  platformAssetBalance?: string;
+  // fetch: (pub: string) => Promise<void>;
 }
 
 export const useUserStellarAcc = create<Balance>((set, get) => ({
   balances: undefined,
-  fetch: async (pub: string) => {
-    const balances = await accountBalances({ userPub: pub });
-    set({ balances });
-    console.log("balances", balances);
+  setBalance(balances) {
+    const platformAssetBalance = get().getAssetBalance({
+      code: PLATFROM_ASSET.code,
+      issuer: PLATFROM_ASSET.issuer,
+    });
+    set({ balances, platformAssetBalance });
   },
-  userBalances: undefined,
 
   getAssetBalance: (props) => {
     const balances = get().balances;

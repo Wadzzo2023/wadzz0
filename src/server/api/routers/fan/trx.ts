@@ -4,7 +4,7 @@ import { buyAssetTrx } from "~/lib/stellar/fan/buy_asset";
 import { creatorPageAccCreate } from "~/lib/stellar/fan/clawback";
 import { createAsset } from "~/lib/stellar/fan/create_asset";
 import {
-  getAssetNumberForXLM,
+  getplatformAssetNumberForXLM,
   getPlatfromAssetPrice,
 } from "~/lib/stellar/fan/get_token_price";
 import { getClawbackAsPayment } from "~/lib/stellar/fan/subscribe";
@@ -90,7 +90,7 @@ export const trxRouter = createTRPCRouter({
       z.object({ code: z.string(), limit: z.number(), signWith: SignUser }),
     )
     .mutation(async ({ ctx, input }) => {
-      const assetAmout = await getAssetNumberForXLM();
+      const assetAmout = await getplatformAssetNumberForXLM();
 
       return await createAsset({
         actionAmount: assetAmout.toString(),
@@ -111,7 +111,7 @@ export const trxRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input: i }) => {
-      const assetAmout = await getAssetNumberForXLM();
+      const assetAmout = await getplatformAssetNumberForXLM();
       const signWith = i.signWith;
       const limit = copyToBalance(i.limit);
 
@@ -187,7 +187,7 @@ export const trxRouter = createTRPCRouter({
   getAssetNumberforXlm: publicProcedure
     .input(z.number().optional())
     .query(async ({ input }) => {
-      return await getAssetNumberForXLM(input);
+      return await getplatformAssetNumberForXLM(input);
     }),
 
   createStorageAccount: protectedProcedure
@@ -262,6 +262,12 @@ export const trxRouter = createTRPCRouter({
           price: "1",
         });
       } else throw new Error("creator has no page asset");
+    }),
+
+  getPlatformTokenPriceForXLM: publicProcedure
+    .input(z.object({ xlm: z.number() }))
+    .query(async ({ ctx, input }) => {
+      return await getplatformAssetNumberForXLM(input.xlm);
     }),
 });
 
