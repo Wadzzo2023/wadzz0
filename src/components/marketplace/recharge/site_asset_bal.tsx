@@ -18,22 +18,21 @@ export function SiteAssetBalance() {
     walletType == WalletType.google ||
     walletType == WalletType.emailPass;
 
-  if (!platformAssetBalance) return <div className="skeleton h-10 w-48"></div>;
-  if (platformAssetBalance)
-    return (
-      <Link
-        className="btn  btn-secondary border-0  bg-base-content"
-        // href={isFBorGoogle ? "/recharge" : "/"}
-        href="/recharge"
-      >
-        <div className="flex flex-col">
-          <p className="flex flex-row text-xs md:text-sm">
-            <span className="hidden md:flex">{env.NEXT_PUBLIC_SITE} :</span>{" "}
-            {platformAssetBalance}
-          </p>
-        </div>
-      </Link>
-    );
+  // if (!platformAssetBalance) return <div className="skeleton h-10 w-48"></div>;
+  return (
+    <Link
+      className="btn  btn-secondary border-0  bg-base-content"
+      // href={isFBorGoogle ? "/recharge" : "/"}
+      href="/recharge"
+    >
+      <div className="flex flex-col">
+        <p className="flex flex-row text-xs md:text-sm">
+          <span className="hidden md:flex">{env.NEXT_PUBLIC_SITE} :</span>{" "}
+          {platformAssetBalance}
+        </p>
+      </div>
+    </Link>
+  );
 }
 
 function formatNumber(input?: string): string | null {

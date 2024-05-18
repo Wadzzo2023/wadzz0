@@ -10,6 +10,7 @@ import { clientSelect } from "~/lib/stellar/fan/utils";
 import { Plus } from "lucide-react";
 import Alert from "../../ui/alert";
 import { PLATFROM_ASSET, PLATFROM_FEE } from "~/lib/stellar/fan/constant";
+import { useUserStellarAcc } from "~/lib/state/wallete/userAccBalances";
 
 export const CreatorPageAssetSchema = z.object({
   code: z
@@ -35,6 +36,42 @@ export default function AddCreatorPageAssetModal({
 }: {
   creator: Creator;
 }) {
+  const { platformAssetBalance } = useUserStellarAcc();
+
+  const requiredToken = api.fan.trx.getPlatformTokenPriceForXLM.useQuery({
+    xlm: 2,
+  });
+
+  // console.log(platformAssetBalance, "....vong..", requiredToken.data);
+
+  if (requiredToken.isLoading) return <div> Loading requiredToken</div>;
+
+  if (requiredToken.data) {
+    if (platformAssetBalance < requiredToken.data) {
+      return (
+        <div className="text-red-500">
+          You need more balance to create this page asset
+        </div>
+      );
+    } else {
+      return (
+        <AddCreatorPageAssetModalFrom
+          requiredToken={requiredToken.data}
+          creator={creator}
+        />
+      );
+    }
+  }
+  return <p>some errro</p>;
+}
+
+function AddCreatorPageAssetModalFrom({
+  creator,
+  requiredToken,
+}: {
+  creator: Creator;
+  requiredToken: number;
+}) {
   const modalRef = useRef<HTMLDialogElement>(null);
   const [isModalOpen, setIsModalOpen] = React.useState(false);
 
@@ -44,6 +81,7 @@ export default function AddCreatorPageAssetModal({
       reset();
     },
   });
+
   const assetAmount = api.fan.trx.getAssetNumberforXlm.useQuery();
 
   const trxMutation = api.fan.trx.createCreatorPageAsset.useMutation({
@@ -207,7 +245,7 @@ export default function AddCreatorPageAssetModal({
               <div className="max-w-xs">
                 <Alert
                   type={mutation.error ? "warning" : "noraml"}
-                  content={`To create this page token, you'll need ${assetAmount.data} ${PLATFROM_ASSET.code} for your Asset account. Additionally, there's a platform fee of ${PLATFROM_FEE} ${PLATFROM_ASSET.code}. Total: ${assetAmount.data ?? 1 + Number(PLATFROM_FEE)}`}
+                  content={`To create this page token, you'll need ${requiredToken} ${PLATFROM_ASSET.code} for your Asset account. Additionally, there's a platform fee of ${PLATFROM_FEE} ${PLATFROM_ASSET.code}. Total: ${assetAmount.data ?? 1 + Number(PLATFROM_FEE)}`}
                 />
               </div>
               <button

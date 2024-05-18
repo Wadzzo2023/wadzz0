@@ -10,6 +10,8 @@ import Shop from "~/components/fan/creator/shop";
 import Tabs from "~/components/fan/creator/tabs";
 import Avater from "~/components/ui/avater";
 import { CreatorMenu, useCreator } from "~/lib/state/fan/creator-menu";
+import { useUserStellarAcc } from "~/lib/state/wallete/userAccBalances";
+import { PLATFROM_FEE } from "~/lib/stellar/fan/constant";
 import { clientSelect } from "~/lib/stellar/fan/utils";
 import { api } from "~/utils/api";
 
@@ -33,7 +35,7 @@ function CreatorExist(props: { user: Session["user"] }) {
   if (creator) {
     return <CreatorPageTemplate creator={creator} />;
   } else {
-    return <CreateCreator id={props.user.id} />;
+    return <ValidCreateCreator />;
   }
 }
 
@@ -89,13 +91,29 @@ function ConditionallyRenderMenuPage({ creator }: { creator: Creator }) {
   }
 }
 
-function CreateCreator(props: { id: string }) {
-  const { pubkey, needSign, walletType } = useConnectWalletStateStore();
-  const makeCreatorMutation = api.fan.creator.makeMeCreator.useMutation();
-
+function ValidCreateCreator() {
+  const { platformAssetBalance } = useUserStellarAcc();
   const requiredToken = api.fan.trx.getPlatformTokenPriceForXLM.useQuery({
     xlm: 5,
   });
+
+  if (requiredToken.isLoading) return <div>Checking required Action...</div>;
+
+  if (!platformAssetBalance) return <div>Check your Account</div>;
+
+  if (requiredToken.data) {
+    const requiredTokenNumber = requiredToken.data + Number(PLATFROM_FEE);
+    if (Number(platformAssetBalance) >= requiredTokenNumber) {
+      <CreateCreator requiredToken={requiredTokenNumber} />;
+    } else {
+      return <div>Insufficient Token</div>;
+    }
+  }
+}
+
+function CreateCreator({ requiredToken }: { requiredToken: number }) {
+  const { pubkey, needSign, walletType } = useConnectWalletStateStore();
+  const makeCreatorMutation = api.fan.creator.makeMeCreator.useMutation();
 
   const xdr = api.fan.trx.createStorageAccount.useMutation({
     onSuccess: (data) => {
@@ -122,13 +140,13 @@ function CreateCreator(props: { id: string }) {
     },
   });
 
-  if (requiredToken.isLoading) return <div>Checking required Action...</div>;
+  // if (requiredToken.isLoading) return <div>Checking required Action...</div>;
 
   return (
     <div className="flex h-full flex-col items-center justify-center gap-2 ">
       <p className="text-2xl font-bold">You are not a creator</p>
       <p className="alert-info">
-        Your account should have minimum {requiredToken.data} Bandcoin to be a
+        Your account should have minimum {requiredToken} Bandcoin to be a
         creator.
       </p>
       <button

@@ -18,18 +18,25 @@ interface Balance {
   }) => string | undefined;
 
   setBalance: (balances: AccBalanceType[]) => void;
-  platformAssetBalance?: string;
+  platformAssetBalance: number;
+  setPlatformAssetBalance: (balances: AccBalanceType[]) => void;
   // fetch: (pub: string) => Promise<void>;
 }
 
 export const useUserStellarAcc = create<Balance>((set, get) => ({
+  platformAssetBalance: 0,
   balances: undefined,
   setBalance(balances) {
-    const platformAssetBalance = get().getAssetBalance({
-      code: PLATFROM_ASSET.code,
-      issuer: PLATFROM_ASSET.issuer,
+    set({
+      balances,
     });
-    set({ balances, platformAssetBalance });
+    get().setPlatformAssetBalance(balances);
+    console.log(
+      "...balances...",
+      balances,
+      PLATFROM_ASSET,
+      get().platformAssetBalance,
+    );
   },
 
   getAssetBalance: (props) => {
@@ -51,6 +58,20 @@ export const useUserStellarAcc = create<Balance>((set, get) => ({
     }
   },
 
+  setPlatformAssetBalance: (balances) => {
+    for (const balance of balances) {
+      if (
+        balance.asset_type == "credit_alphanum12" ||
+        balance.asset_type == "credit_alphanum4"
+      )
+        if (
+          balance.asset_code == PLATFROM_ASSET.code &&
+          balance.asset_issuer == PLATFROM_ASSET.issuer
+        ) {
+          set({ platformAssetBalance: Number(balance.balance) });
+        }
+    }
+  },
   getXLMBalance: () => {
     const balances = get().balances;
     if (balances) {
