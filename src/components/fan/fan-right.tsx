@@ -13,7 +13,7 @@ export default function RightBar() {
         <Profile />
       </div>
 
-      {(creator.data || selectedMenu == Mode.User) && <RightContainer />}
+      {(creator.data ?? selectedMenu == Mode.User) && <RightContainer />}
     </div>
   );
 }
