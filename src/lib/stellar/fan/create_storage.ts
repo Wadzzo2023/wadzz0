@@ -48,14 +48,14 @@ export async function createStorageTrx({
     networkPassphrase,
   })
     // send mother required platform fee and extra
-    .addOperation(
-      Operation.payment({
-        destination: motherAcc.publicKey(),
-        amount: totalAction.toString(),
-        asset: PLATFROM_ASSET,
-        source: pubkey,
-      }),
-    )
+    // .addOperation(
+    //   Operation.payment({
+    //     destination: motherAcc.publicKey(),
+    //     amount: totalAction.toString(),
+    //     asset: PLATFROM_ASSET,
+    //     source: pubkey,
+    //   }),
+    // )
 
     // send required xlm to the user account pubkey
     .addOperation(

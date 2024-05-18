@@ -96,6 +96,9 @@ function CreateCreator(props: { id: string }) {
   const xdr = api.fan.trx.createStorageAccount.useMutation({
     onSuccess: (data) => {
       const { xdr, storage } = data;
+      // console.log(xdr, storage);
+
+      const toastId = toast.loading("Creating account");
       clientsign({
         presignedxdr: xdr,
         pubkey,
@@ -110,7 +113,8 @@ function CreateCreator(props: { id: string }) {
             toast.error("Failed to create account");
           }
         })
-        .catch((e) => console.log(e));
+        .catch((e) => console.log(e))
+        .finally(() => toast.dismiss(toastId));
     },
   });
 

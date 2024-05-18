@@ -43,7 +43,6 @@ export default function AllTags() {
       />
       <input
         className="!btn join-item"
-        key={"tags"}
         type="radio"
         name="options"
         aria-label="Music"
@@ -55,7 +54,6 @@ export default function AllTags() {
       />
       <input
         className="!btn join-item"
-        key={"tags"}
         type="radio"
         name="options"
         aria-label="Other"

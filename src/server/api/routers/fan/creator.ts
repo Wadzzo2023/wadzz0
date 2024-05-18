@@ -1,3 +1,4 @@
+import { getAccSecret } from "package/connect_wallet";
 import { z } from "zod";
 import { CreatorAboutShema } from "~/components/fan/creator/about";
 import { AccountSchema } from "~/lib/stellar/fan/utils";
@@ -31,6 +32,21 @@ export const creatorRouter = createTRPCRouter({
       where: { user: { id: ctx.session.user.id } },
     });
   }),
+
+  getCreatorSecret: protectedProcedure
+    .input(
+      z.object({
+        uid: z.string().optional(),
+        email: z.string().email().optional(),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      const { email, uid } = input;
+      if (email && uid) {
+        const secret = await getAccSecret(uid, email);
+        return secret;
+      }
+    }),
 
   makeMeCreator: protectedProcedure
     .input(AccountSchema)

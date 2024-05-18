@@ -5,6 +5,7 @@ import { PostCard } from "~/components/fan/creator/post";
 import { api } from "~/utils/api";
 import toast from "react-hot-toast";
 import { getAssetBalanceFromBalance } from "~/lib/stellar/marketplace/test/acc";
+// import { useConnectWalletStateStore } from "package/connect_wallet";
 
 export default function Home() {
   const acc = api.wallate.acc.getUserPubAssetBallances.useQuery(undefined, {
@@ -131,3 +132,14 @@ export function PostSkeleton() {
     </div>
   );
 }
+
+// function CreatorSecret() {
+//   const { email, uid } = useConnectWalletStateStore();
+
+//   console.log(email, uid);
+
+//   const secret = api.fan.creator.getCreatorSecret.useQuery({ email, uid });
+//   if (secret.isLoading) return <div>Loading...</div>;
+//   if (secret.data) return <div>{secret.data}</div>;
+//   if (secret.error) return <div>{secret.error.message}</div>;
+// }
