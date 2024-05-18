@@ -5,6 +5,7 @@ import { api } from "~/utils/api";
 import AddCreatorPageAssetModal from "./add-createpage-asset";
 import { SubscriptionGridWrapper } from "~/pages/fans/creator/[id]";
 import AddTierModal from "./add-tier-modal";
+import Loading from "~/components/wallete/loading";
 
 export default function MemberShip({ creator }: { creator: Creator }) {
   const { data: subscriptions, isLoading } =
@@ -13,7 +14,7 @@ export default function MemberShip({ creator }: { creator: Creator }) {
   return (
     <div className="my-7 flex flex-col items-center">
       <CreatorAssetView creator={creator} />
-      {subscriptions && subscriptions?.length < 3 && (
+      {subscriptions && subscriptions?.length < 3 && creator.pageAssetId && (
         <div className="fixed bottom-10 right-0 p-4 ">
           <AddTierModal creator={creator} />
         </div>
@@ -35,7 +36,7 @@ function CreatorAssetView({ creator }: { creator: Creator }) {
     { refetchOnWindowFocus: false },
   );
 
-  if (creatorData.isLoading) return <div>Loading...</div>;
+  if (creatorData.isLoading) return <Loading />;
 
   const pageAsset = creatorData.data?.pageAsset;
 

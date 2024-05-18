@@ -11,6 +11,7 @@ import { Plus } from "lucide-react";
 import Alert from "../../ui/alert";
 import { PLATFROM_ASSET, PLATFROM_FEE } from "~/lib/stellar/fan/constant";
 import { useUserStellarAcc } from "~/lib/state/wallete/userAccBalances";
+import Loading from "~/components/wallete/loading";
 
 export const CreatorPageAssetSchema = z.object({
   code: z
@@ -44,14 +45,16 @@ export default function AddCreatorPageAssetModal({
 
   // console.log(platformAssetBalance, "....vong..", requiredToken.data);
 
-  if (requiredToken.isLoading) return <div> Loading requiredToken</div>;
+  if (requiredToken.isLoading) return <Loading />;
 
   if (requiredToken.data) {
     if (platformAssetBalance < requiredToken.data) {
       return (
-        <div className="text-red-500">
-          You need more balance to create this page asset
-        </div>
+        <Alert
+          className="max-w-lg"
+          type={"error"}
+          content={`To create this page asset, you'll need ${requiredToken.data} ${PLATFROM_ASSET.code} for your Asset account.`}
+        />
       );
     } else {
       return (
@@ -62,7 +65,7 @@ export default function AddCreatorPageAssetModal({
       );
     }
   }
-  return <p>some errro</p>;
+  // return <p>some errro</p>;
 }
 
 function AddCreatorPageAssetModalFrom({

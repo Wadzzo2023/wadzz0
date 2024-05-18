@@ -6,6 +6,7 @@ import { api } from "~/utils/api";
 import toast from "react-hot-toast";
 import { getAssetBalanceFromBalance } from "~/lib/stellar/marketplace/test/acc";
 import { useUserStellarAcc } from "~/lib/state/wallete/userAccBalances";
+import Loading from "~/components/wallete/loading";
 // import { useConnectWalletStateStore } from "package/connect_wallet";
 
 export default function Home() {
@@ -70,13 +71,13 @@ function AllRecentPost() {
 
   // if (isLoading2) return <div>Loading to fetch membership...</div>;
 
-  if (posts.isLoading)
-    return (
-      <div className="flex flex-col gap-4">
-        <PostSkeleton />
-        <PostSkeleton />
-      </div>
-    );
+  if (posts.isLoading) return <Loading />;
+  // return (
+  //   <div className="flex flex-col gap-4">
+  //     <PostSkeleton />
+  //     <PostSkeleton />
+  //   </div>
+  // );
 
   if (posts.data) {
     return (

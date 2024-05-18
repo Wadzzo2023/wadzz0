@@ -8,10 +8,12 @@ import { PostMenu } from "~/components/fan/creator/CreatPost";
 import MemberShip from "~/components/fan/creator/membership";
 import Shop from "~/components/fan/creator/shop";
 import Tabs from "~/components/fan/creator/tabs";
+import Alert from "~/components/ui/alert";
 import Avater from "~/components/ui/avater";
+import Loading from "~/components/wallete/loading";
 import { CreatorMenu, useCreator } from "~/lib/state/fan/creator-menu";
 import { useUserStellarAcc } from "~/lib/state/wallete/userAccBalances";
-import { PLATFROM_FEE } from "~/lib/stellar/fan/constant";
+import { PLATFROM_ASSET, PLATFROM_FEE } from "~/lib/stellar/fan/constant";
 import { clientSelect } from "~/lib/stellar/fan/utils";
 import { api } from "~/utils/api";
 
@@ -31,7 +33,7 @@ function CreatorExist(props: { user: Session["user"] }) {
     { refetchOnWindowFocus: false },
   );
 
-  if (isLoading) return <div>Checking..</div>;
+  if (isLoading) return <Loading />;
   if (creator) {
     return <CreatorPageTemplate creator={creator} />;
   } else {
@@ -97,16 +99,24 @@ function ValidCreateCreator() {
     xlm: 5,
   });
 
-  if (requiredToken.isLoading) return <div>Checking required Action...</div>;
+  if (requiredToken.isLoading) return <Loading />;
 
-  if (!platformAssetBalance) return <div>Check your Account</div>;
+  // if (!platformAssetBalance) return <div>Check your Account</div>;
 
   if (requiredToken.data) {
     const requiredTokenNumber = requiredToken.data + Number(PLATFROM_FEE);
-    if (Number(platformAssetBalance) >= requiredTokenNumber) {
-      <CreateCreator requiredToken={requiredTokenNumber} />;
+    if (platformAssetBalance >= requiredTokenNumber) {
+      return <CreateCreator requiredToken={requiredTokenNumber} />;
     } else {
-      return <div>Insufficient Token</div>;
+      return (
+        <div className="flex h-full w-full  items-center justify-center">
+          <Alert
+            className="max-w-xl"
+            type="error"
+            content={`To be a creator, you need minimum ${requiredToken.data} ${PLATFROM_ASSET.code} `}
+          />
+        </div>
+      );
     }
   }
 }
