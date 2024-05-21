@@ -1,4 +1,5 @@
 import { type GetServerSidePropsContext } from "next";
+
 import {
   getServerSession,
   type DefaultSession,
@@ -12,6 +13,10 @@ import { db } from "~/server/db";
 import { comparePassword } from "~/utils/hash";
 import GitHubProvider from "next-auth/providers/github";
 import { truncateString } from "~/utils/string";
+import { AuthCredentialType } from "~/types/auth";
+import { WalletType } from "package/connect_wallet";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { auth } from "package/connect_wallet/src/lib/firebase/firebase-auth";
 
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
@@ -68,8 +73,38 @@ export const authOptions: NextAuthOptions = {
           pubkey: string;
           password: string;
         };
-
         const passwordCorrect = await comparePassword(pubkey, password);
+
+        // const cred = credentials as AuthCredentialType;
+        // console.log("credentials", cred);
+
+        // console.log("credentials", credentials);
+        // console.log(cred.walletType);
+
+        // if (cred.walletType == WalletType.emailPass) {
+        //   const { email, password } = cred;
+
+        //   try {
+        //     const userCredential = await signInWithEmailAndPassword(
+        //       auth,
+        //       email,
+        //       password,
+        //     );
+        //     console.log(userCredential, "uc");
+        //     const user = userCredential.user;
+        //     if (user) {
+        //       console.log(user);
+        //       return { id: user.uid };
+        //     }
+        //   } catch (e) {
+        //     console.log(e);
+        //   }
+        // }
+
+        // if (cred.walletType == WalletType.albedo) {}
+        // const { pubkey } = cred;
+
+        // const passwordCorrect = await comparePassword(pubkey, pubkey);
 
         if (passwordCorrect) {
           const user = await db.user.findFirst({ where: { id: pubkey } });
@@ -86,6 +121,8 @@ export const authOptions: NextAuthOptions = {
         }
 
         return null;
+
+        // finally
       },
     }),
   ],
