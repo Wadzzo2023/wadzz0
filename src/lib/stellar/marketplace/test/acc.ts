@@ -73,6 +73,17 @@ export function getAssetBalanceFromBalance({
   return 0;
 }
 
+export async function getAccountInfos(pubkey: string) {
+  const balances = await accountBalances({ userPub: pubkey });
+  const platformAssetBal = getAssetBalanceFromBalance({
+    balances,
+    code: PLATFROM_ASSET.code,
+    issuer: PLATFROM_ASSET.issuer,
+  });
+  const xlm = getAssetBalanceFromBalance({ balances, native: true });
+  return { balances, xlm, platformAssetBal };
+}
+
 export async function accountDetailsWithHomeDomain({
   userPub,
 }: {
@@ -91,6 +102,13 @@ export async function accountDetailsWithHomeDomain({
         balance.asset_type === "credit_alphanum12" ||
         balance.asset_type === "credit_alphanum4"
       ) {
+        if (
+          balance.asset_code == PLATFROM_ASSET.code &&
+          balance.asset_issuer == PLATFROM_ASSET.issuer
+        ) {
+          siteAssetBalance = parseFloat(balance.balance);
+        }
+
         if (balance.is_authorized) {
           const issuerAccount = await server.loadAccount(balance.asset_issuer);
           if (issuerAccount.home_domain) {
@@ -104,12 +122,6 @@ export async function accountDetailsWithHomeDomain({
               };
             }
           }
-        }
-        if (
-          balance.asset_code == PLATFROM_ASSET.code &&
-          balance.asset_issuer == PLATFROM_ASSET.issuer
-        ) {
-          siteAssetBalance = parseFloat(balance.balance);
         }
       }
       if (balance.asset_type === "native") {
@@ -141,6 +153,7 @@ export async function accountDetailsWithHomeDomain({
   // };
 
   // filteredBalances.push(testAsset);
+  // console.log("....vong...", siteAssetBalance, xlmBalance);
 
   return { tokens: filteredBalances, xlmBalance, siteAssetBalance };
 }

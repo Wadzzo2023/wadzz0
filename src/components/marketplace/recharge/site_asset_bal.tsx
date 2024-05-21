@@ -7,9 +7,15 @@ import { api } from "~/utils/api";
 
 export function SiteAssetBalance() {
   const { isAva, pubkey, walletType } = useConnectWalletStateStore();
+  const { setBalance } = useUserStellarAcc();
 
-  // const bal = api.wallate.acc.getAccountBalance.useQuery();
-  const { platformAssetBalance } = useUserStellarAcc();
+  const bal = api.wallate.acc.getAccountBalance.useQuery(undefined, {
+    onSuccess: (data) => {
+      const { balances, platformAssetBal, xlm } = data;
+      setBalance(balances);
+    },
+  });
+  // const { platformAssetBalance } = useUserStellarAcc();
 
   // const bal = getAssetBalance();
 
@@ -18,7 +24,7 @@ export function SiteAssetBalance() {
     walletType == WalletType.google ||
     walletType == WalletType.emailPass;
 
-  // if (!platformAssetBalance) return <div className="skeleton h-10 w-48"></div>;
+  if (bal.isLoading) return <div className="skeleton h-10 w-48"></div>;
   return (
     <Link
       className="btn  btn-secondary border-0  bg-base-content"
@@ -28,7 +34,7 @@ export function SiteAssetBalance() {
       <div className="flex flex-col">
         <p className="flex flex-row text-xs md:text-sm">
           <span className="hidden md:flex">{env.NEXT_PUBLIC_SITE} :</span>{" "}
-          {platformAssetBalance}
+          {bal.data?.platformAssetBal}
         </p>
       </div>
     </Link>

@@ -2,6 +2,7 @@ import { z } from "zod";
 import {
   accountBalances,
   accountDetailsWithHomeDomain,
+  getAccountInfos,
 } from "~/lib/stellar/marketplace/test/acc";
 
 import {
@@ -41,19 +42,13 @@ export const accRouter = createTRPCRouter({
 
   getAccountBalance: protectedProcedure.query(async ({ ctx, input }) => {
     const userId = ctx.session.user.id;
-    const { siteAssetBalance, xlmBalance } = await accountDetailsWithHomeDomain(
-      {
-        userPub: userId,
-      },
-    );
-
-    return { siteAssetBalance, xlmBalance };
+    return await getAccountInfos(userId);
   }),
 
   getUserPubAssetBallances: protectedProcedure.query(async ({ ctx, input }) => {
     const pubkey = ctx.session.user.id;
 
-    return await accountBalances({ userPub: pubkey },);
+    return await accountBalances({ userPub: pubkey });
   }),
 
   getCreatorStorageInfo: protectedProcedure.query(async ({ ctx, input }) => {

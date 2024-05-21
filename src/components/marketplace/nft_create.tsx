@@ -122,24 +122,35 @@ function NftCreateForm({
       const { issuer, xdr } = data;
       console.log(xdr, "xdr");
       setValue("issuer", issuer);
-      clientsign({
-        presignedxdr: xdr,
-        pubkey,
-        walletType,
-        test: clientSelect(),
-      })
-        .then((res) => {
-          if (res) {
-            setValue("isAdmin", isAdmin);
-            const data = getValues();
-            // res && addMutation.mutate(data);
 
-            addAsset.mutate(data);
-          } else {
-            toast.error("Transaction Failed");
-          }
+      setSubmitLoading(true);
+
+      toast.promise(
+        clientsign({
+          presignedxdr: xdr,
+          pubkey,
+          walletType,
+          test: clientSelect(),
         })
-        .catch((e) => console.log(e));
+          .then((res) => {
+            if (res) {
+              setValue("isAdmin", isAdmin);
+              const data = getValues();
+              // res && addMutation.mutate(data);
+
+              addAsset.mutate(data);
+            } else {
+              toast.error("Transaction Failed");
+            }
+          })
+          .catch((e) => console.log(e))
+          .finally(() => setSubmitLoading(false)),
+        {
+          loading: "Creating NFT",
+          success: "NFT Created",
+          error: "Failed to create NFT",
+        },
+      );
     },
   });
 
@@ -495,10 +506,13 @@ function NftCreateForm({
                 disabled={
                   xdrMutation.isLoading ||
                   addAsset.isLoading ||
+                  submitLoading ||
                   requiredTokenAmount > platformAssetBalance
                 }
               >
-                {(xdrMutation.isLoading || addAsset.isLoading) && (
+                {(xdrMutation.isLoading ||
+                  addAsset.isLoading ||
+                  submitLoading) && (
                   <span className="loading loading-spinner"></span>
                 )}
                 Create Asset

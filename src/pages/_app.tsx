@@ -31,7 +31,7 @@ const MyApp: AppType<{ session: Session | null }> = ({
   const acc = api.wallate.acc.getUserPubAssetBallances.useQuery(undefined, {
     onSuccess: (data) => {
       console.log(data);
-      toast.success("Data fetched successfully");
+      // toast.success("Data fetched successfully");
       setBalance(data);
     },
     onError: (error) => {

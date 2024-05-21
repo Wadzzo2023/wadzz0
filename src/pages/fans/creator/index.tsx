@@ -3,6 +3,7 @@ import { type Session } from "next-auth";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
 import { clientsign, useConnectWalletStateStore } from "package/connect_wallet";
+import { useState } from "react";
 import toast from "react-hot-toast";
 import { PostMenu } from "~/components/fan/creator/CreatPost";
 import MemberShip from "~/components/fan/creator/membership";
@@ -124,11 +125,13 @@ function ValidCreateCreator() {
 function CreateCreator({ requiredToken }: { requiredToken: number }) {
   const { pubkey, needSign, walletType } = useConnectWalletStateStore();
   const makeCreatorMutation = api.fan.creator.makeMeCreator.useMutation();
+  const [signLoading, setSingLoading] = useState(false);
 
   const xdr = api.fan.trx.createStorageAccount.useMutation({
     onSuccess: (data) => {
       const { xdr, storage } = data;
       // console.log(xdr, storage);
+      setSingLoading(true);
 
       const toastId = toast.loading("Creating account");
       clientsign({
@@ -139,18 +142,23 @@ function CreateCreator({ requiredToken }: { requiredToken: number }) {
       })
         .then((isSucces) => {
           if (isSucces) {
-            toast.success("You are now a creator");
+            toast.success("You are now a creator", { id: toastId });
             makeCreatorMutation.mutate(storage);
           } else {
-            toast.error("Failed to create account");
+            toast.error("Failed to create account", { id: toastId });
           }
         })
         .catch((e) => console.log(e))
-        .finally(() => toast.dismiss(toastId));
+        .finally(() => {
+          toast.dismiss(toastId);
+          setSingLoading(false);
+        });
     },
   });
 
   // if (requiredToken.isLoading) return <div>Checking required Action...</div>;
+
+  const loading = xdr.isLoading || makeCreatorMutation.isLoading || signLoading;
 
   return (
     <div className="flex h-full flex-col items-center justify-center gap-2 ">
@@ -162,10 +170,9 @@ function CreateCreator({ requiredToken }: { requiredToken: number }) {
       <button
         className="btn btn-primary"
         onClick={() => xdr.mutate(needSign())}
+        disabled={loading}
       >
-        {makeCreatorMutation.isLoading && (
-          <span className="loading loading-spinner" />
-        )}
+        {loading && <span className="loading loading-spinner" />}
         Be a creator
       </button>
     </div>

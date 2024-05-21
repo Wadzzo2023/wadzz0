@@ -247,6 +247,7 @@ export const trxRouter = createTRPCRouter({
             const response = await axios.get<{ publicKey: string }>(url);
 
             const data = response.data;
+            console.log(data, "ih...");
             pubkey = data.publicKey;
           } catch (error) {
             throw new Error("email not found");

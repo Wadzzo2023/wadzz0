@@ -7,6 +7,7 @@ import toast from "react-hot-toast";
 import { getAssetBalanceFromBalance } from "~/lib/stellar/marketplace/test/acc";
 import { useUserStellarAcc } from "~/lib/state/wallete/userAccBalances";
 import Loading from "~/components/wallete/loading";
+import { useConnectWalletStateStore } from "package/connect_wallet";
 // import { useConnectWalletStateStore } from "package/connect_wallet";
 
 export default function Home() {
@@ -42,6 +43,9 @@ function AuthShowcase() {
   return (
     <div className="p-5">
       <h1 className="hidden text-2xl font-bold md:flex">Homepage</h1>
+      {/* <div className="flex flex-col items-center">
+        <CreatorSecret />
+      </div> */}
       <div className="mt-10 flex flex-col items-center">
         <AllRecentPost />
       </div>
