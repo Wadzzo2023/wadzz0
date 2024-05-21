@@ -72,7 +72,6 @@ function AddCreatorPageAssetModalFrom({
 }) {
   const modalRef = useRef<HTMLDialogElement>(null);
   const [isModalOpen, setIsModalOpen] = React.useState(false);
-  const [tostId, setToastId] = React.useState<string>();
 
   const { pubkey, walletType, needSign } = useConnectWalletStateStore();
   const mutation = api.fan.member.createCreatePageAsset.useMutation({
@@ -85,37 +84,25 @@ function AddCreatorPageAssetModalFrom({
 
   const trxMutation = api.fan.trx.createCreatorPageAsset.useMutation({
     onSuccess: async (data) => {
-      if (data) {
-        // sign the transaction for fbgoogle
-
+      // sign the transaction for fbgoogle
+      toast.promise(
         clientsign({
           walletType,
           presignedxdr: data.trx,
           pubkey,
           test: clientSelect(),
-        })
-          .then((res) => {
-            if (res) {
-              toast.success("popup success");
-              mutation.mutate({
-                code: getValues("code"),
-                issuer: data.escrow,
-                limit: getValues("limit"),
-              });
-            } else {
-              toast.error("Error signing transaction");
-            }
-          })
-          .catch((e) => console.log(e))
-          .finally(() => {
-            setIsModalOpen(false);
-            toast.error("Error while getting xdr", { id: tostId });
-          });
-      } else {
-        toast.error("Error in stellar horizon", { id: tostId });
-      }
+        }),
+        {
+          loading: "Signing transaction...",
+          success: (data) => {
+            if (data) return "Transaction signed successfully";
+            else return "Transaction failed to sign";
+          },
+          error: "Error signing transaction",
+        },
+      );
 
-      toast.error("Error while getting xdr", { id: tostId });
+      toast.error("Error while getting xdr");
       setIsModalOpen(false);
     },
   });
@@ -136,15 +123,11 @@ function AddCreatorPageAssetModalFrom({
   ) => {
     setIsModalOpen(true);
 
-    setToastId(toast.loading("Creating page asset"));
-
     trxMutation.mutate({
       code: getValues("code"),
       signWith: needSign(),
       limit: getValues("limit"),
     });
-
-    // mutation.mutate(data);
   };
 
   const handleModal = () => {
@@ -216,12 +199,12 @@ function AddCreatorPageAssetModalFrom({
               <button
                 className="btn btn-primary mt-2 w-full max-w-xs"
                 type="submit"
-                disabled={mutation.isLoading}
+                disabled={trxMutation.isLoading}
               >
-                {(mutation.isLoading || isModalOpen) && (
+                {(trxMutation.isLoading || isModalOpen) && (
                   <span className="loading loading-spinner"></span>
                 )}
-                Create Tier
+                Create Page Asset
               </button>
             </form>
           </div>
