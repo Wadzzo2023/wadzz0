@@ -13,6 +13,10 @@ import { clientsign, useConnectWalletStateStore } from "package/connect_wallet";
 import { AccountSchema, clientSelect } from "~/lib/stellar/fan/utils";
 import { PlusIcon } from "lucide-react";
 import { WalletType } from "package/connect_wallet/src/lib/enums";
+import { useUserStellarAcc } from "~/lib/state/wallete/userAccBalances";
+import Loading from "../wallete/loading";
+import { PLATFROM_ASSET, PLATFROM_FEE } from "~/lib/stellar/fan/constant";
+import Alert from "../ui/alert";
 
 export const ExtraSongInfo = z.object({
   artist: z.string(),
@@ -40,6 +44,31 @@ export const NftFormSchema = z.object({
 type NftFormType = z.TypeOf<typeof NftFormSchema>;
 
 export default function NftCreate({ admin: isAdmin }: { admin?: true }) {
+  const requiredToken = api.fan.trx.getPlatformTokenPriceForXLM.useQuery({
+    xlm: 2.5,
+  });
+
+  if (requiredToken.isLoading) return <Loading />;
+
+  if (requiredToken.data) {
+    const requiredTokenAmount = requiredToken.data + Number(PLATFROM_FEE);
+    return (
+      <NftCreateForm
+        admin={isAdmin}
+        requiredTokenAmount={requiredTokenAmount}
+      />
+    );
+  }
+}
+
+function NftCreateForm({
+  admin: isAdmin,
+  requiredTokenAmount,
+}: {
+  admin?: true;
+  requiredTokenAmount: number;
+}) {
+  const { platformAssetBalance } = useUserStellarAcc();
   // pinta upload
   const [file, setFile] = useState<File>();
   const [ipfs, setCid] = useState<string>();
@@ -454,11 +483,20 @@ export default function NftCreate({ admin: isAdmin }: { admin?: true }) {
                   </div>
                 </>
               </div>
+              <div>
+                <Alert
+                  content={`You need minimum ${requiredTokenAmount} ${PLATFROM_ASSET.code}`}
+                />
+              </div>
 
               <button
                 className="btn btn-primary"
                 type="submit"
-                disabled={xdrMutation.isLoading || addAsset.isLoading}
+                disabled={
+                  xdrMutation.isLoading ||
+                  addAsset.isLoading ||
+                  requiredTokenAmount > platformAssetBalance
+                }
               >
                 {(xdrMutation.isLoading || addAsset.isLoading) && (
                   <span className="loading loading-spinner"></span>
