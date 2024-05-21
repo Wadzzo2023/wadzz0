@@ -25,6 +25,7 @@ import { follow_creator } from "~/lib/stellar/fan/follow_creator";
 import { sendGift } from "~/lib/stellar/fan/send_gift";
 import axios from "axios";
 import { ACTION_STELLAR_ACCOUNT_URL } from "package/connect_wallet/src/lib/stellar/constant";
+import { FanGitFormSchema } from "~/pages/fans/creator/gift";
 
 export const trxRouter = createTRPCRouter({
   createCreatorPageAsset: protectedProcedure
@@ -225,7 +226,7 @@ export const trxRouter = createTRPCRouter({
     }),
 
   giftFollowerXDR: protectedProcedure // only logged creator can do that
-    .input(z.object({ pubkey: z.string().length(56).or(z.string().email()) }))
+    .input(FanGitFormSchema)
     .mutation(async ({ input, ctx }) => {
       const creatorId = ctx.session.user.id;
       let pubkey = input.pubkey;
@@ -259,7 +260,7 @@ export const trxRouter = createTRPCRouter({
           creatorPageAsset: { code, issuer },
           creatorStorageSec: storageSecret,
           creatorPub: creatorId,
-          price: "1",
+          price: input.amount,
         });
       } else throw new Error("creator has no page asset");
     }),
