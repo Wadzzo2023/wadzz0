@@ -8,7 +8,7 @@ import { useMarketRightStore } from "~/lib/state/marketplace/right";
 import { Asset, MediaType, MarketAsset } from "@prisma/client";
 import ImageVideViewer from "../wallete/Image_video_viewer";
 import BuyModal from "../music/modal/buy_modal";
-import { addrShort } from "~/lib/utils";
+import { addrShort } from "~/utils/utils";
 
 export type AssetType = Omit<Asset, "issuerPrivate">;
 

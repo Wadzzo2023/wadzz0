@@ -8,7 +8,7 @@ import MarketLayout from "./market";
 import ImageVideViewer from "./Image_video_viewer";
 import { useSearchTagStore } from "~/lib/state/wallete/search_tag";
 import { useSearchOpenStore } from "~/lib/state/wallete/searchOpen";
-import { addrShort } from "~/lib/utils";
+import { addrShort } from "~/utils/utils";
 import { api } from "~/utils/api";
 import MyError from "./my_error";
 

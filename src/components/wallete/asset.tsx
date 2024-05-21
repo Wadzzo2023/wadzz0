@@ -1,5 +1,5 @@
 import React from "react";
-import { getTailwindScreenSize } from "~/lib/clientUtils";
+import { getTailwindScreenSize } from "~/utils/clientUtils";
 import { useRightStore } from "~/lib/state/wallete/right";
 import ImageVideViewer from "./Image_video_viewer";
 import { AdminAsset } from "@prisma/client";

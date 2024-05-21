@@ -1,7 +1,7 @@
 import clsx from "clsx";
 import AssetView from "~/components/marketplace/asset/asset_view";
 import { MoreAssetsSkeleton } from "~/components/marketplace/bandcoin_nfts";
-import { getTailwindScreenSize } from "~/lib/clientUtils";
+import { getTailwindScreenSize } from "~/utils/clientUtils";
 import { useAssetRightStore } from "~/lib/state/assets_right";
 import {
   AssetMenu,

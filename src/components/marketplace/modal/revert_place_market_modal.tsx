@@ -5,7 +5,7 @@ import { clientsign } from "package/connect_wallet";
 
 import { z } from "zod";
 
-import { addrShort } from "~/lib/utils";
+import { addrShort } from "~/utils/utils";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { clientSelect } from "~/lib/stellar/fan/utils";

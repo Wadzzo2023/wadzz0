@@ -5,7 +5,7 @@ import { api } from "~/utils/api";
 import { truncateString } from "~/utils/string";
 import { PLATFROM_ASSET, PLATFROM_FEE } from "~/lib/stellar/fan/constant";
 import { clientSelect } from "~/lib/stellar/fan/utils";
-import { cn } from "~/lib/utils";
+import { cn } from "~/utils/utils";
 import { Asset } from "@prisma/client";
 
 export default function BuyItemModal({

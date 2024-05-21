@@ -9,7 +9,7 @@ import {
   SongTokenCopies,
   TokenCopies,
 } from "~/components/marketplace/market_right";
-import { addrShort } from "~/lib/utils";
+import { addrShort } from "~/utils/utils";
 
 type BuyModalProps = {
   item: AssetType;

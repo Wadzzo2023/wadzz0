@@ -3,7 +3,7 @@ import { api } from "~/utils/api";
 
 import { z } from "zod";
 
-import { addrShort } from "~/lib/utils";
+import { addrShort } from "~/utils/utils";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import toast from "react-hot-toast";

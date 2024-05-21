@@ -4,7 +4,7 @@ import { type SAPageProps } from "./interfaces";
 import DevPlate from "./Dev_plate";
 import Image from "next/image";
 import Link from "next/link";
-import { delay } from "~/lib/utils";
+import { delay } from "~/utils/utils";
 
 const SAPage = (props: SAPageProps) => {
   const [mainDev, setMainDev] = useState(false);
