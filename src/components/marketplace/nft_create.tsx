@@ -146,9 +146,9 @@ function NftCreateForm({
           .catch((e) => console.log(e))
           .finally(() => setSubmitLoading(false)),
         {
-          loading: "Creating NFT",
-          success: "NFT Created",
-          error: "Failed to create NFT",
+          loading: "Signing Transaction",
+          success: "Signed Transaction Successfully",
+          error: "Signing Transaction Failed",
         },
       );
     },
@@ -496,6 +496,11 @@ function NftCreateForm({
               </div>
               <div>
                 <Alert
+                  type={
+                    requiredTokenAmount > platformAssetBalance
+                      ? "warning"
+                      : "noraml"
+                  }
                   content={`You need minimum ${requiredTokenAmount} ${PLATFROM_ASSET.code}`}
                 />
               </div>

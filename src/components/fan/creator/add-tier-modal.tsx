@@ -38,6 +38,7 @@ export default function AddTierModal({ creator }: { creator: Creator }) {
   const { pubkey, walletType, needSign } = useConnectWalletStateStore();
   const mutation = api.fan.member.createMembership.useMutation({
     onSuccess: () => {
+      toast.success("Tier created successfully");
       reset();
     },
   });

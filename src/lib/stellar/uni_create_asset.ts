@@ -42,6 +42,7 @@ export async function createUniAsset({
 
   // accounts
   const issuerAcc = Keypair.random();
+  console.log(storageSecret, "  storageSecret");
   const asesetStorage = Keypair.fromSecret(storageSecret);
   const PLATFORM_MOTHER_ACC = Keypair.fromSecret(env.MOTHER_SECRET);
 
@@ -83,7 +84,7 @@ export async function createUniAsset({
         Operation.payment({
           destination: pubkey,
           asset: Asset.native(),
-          amount: "0.5",
+          amount: "2",
           source: PLATFORM_MOTHER_ACC.publicKey(),
         }),
       );
