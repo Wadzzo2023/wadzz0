@@ -72,10 +72,12 @@ function AddCreatorPageAssetModalFrom({
 }) {
   const modalRef = useRef<HTMLDialogElement>(null);
   const [isModalOpen, setIsModalOpen] = React.useState(false);
+  const [signLoading, setSignLoading] = React.useState(false);
 
   const { pubkey, walletType, needSign } = useConnectWalletStateStore();
   const mutation = api.fan.member.createCreatePageAsset.useMutation({
     onSuccess: () => {
+      toast.success("Page Asset Created Successfully");
       reset();
     },
   });
@@ -84,26 +86,34 @@ function AddCreatorPageAssetModalFrom({
 
   const trxMutation = api.fan.trx.createCreatorPageAsset.useMutation({
     onSuccess: async (data) => {
+      setSignLoading(true);
       // sign the transaction for fbgoogle
-      toast.promise(
-        clientsign({
-          walletType,
-          presignedxdr: data.trx,
-          pubkey,
-          test: clientSelect(),
+      const toastId = toast.loading("Signing Transaction");
+      clientsign({
+        walletType,
+        presignedxdr: data.trx,
+        pubkey,
+        test: clientSelect(),
+      })
+        .then((res) => {
+          if (res) {
+            mutation.mutate({
+              code: getValues("code"),
+              limit: getValues("limit"),
+              issuer: data.escrow,
+            });
+          } else {
+            toast.error("Transaction failed", { id: toastId });
+          }
+        })
+        .catch((e) => {
+          toast.error("Transaction failed", { id: toastId });
+        })
+        .finally(() => {
+          toast.dismiss(toastId);
+          setSignLoading(false);
         }),
-        {
-          loading: "Signing transaction...",
-          success: (data) => {
-            if (data) return "Transaction signed successfully";
-            else return "Transaction failed to sign";
-          },
-          error: "Error signing transaction",
-        },
-      );
-
-      toast.error("Error while getting xdr");
-      setIsModalOpen(false);
+        setIsModalOpen(false);
     },
   });
 
@@ -133,6 +143,9 @@ function AddCreatorPageAssetModalFrom({
   const handleModal = () => {
     modalRef.current?.showModal();
   };
+
+  const loading =
+    trxMutation.isLoading || isModalOpen || mutation.isLoading || signLoading;
 
   return (
     <>
@@ -199,11 +212,9 @@ function AddCreatorPageAssetModalFrom({
               <button
                 className="btn btn-primary mt-2 w-full max-w-xs"
                 type="submit"
-                disabled={trxMutation.isLoading}
+                disabled={loading}
               >
-                {(trxMutation.isLoading || isModalOpen) && (
-                  <span className="loading loading-spinner"></span>
-                )}
+                {loading && <span className="loading loading-spinner"></span>}
                 Create Page Asset
               </button>
             </form>
