@@ -8,6 +8,7 @@ import { getAssetBalanceFromBalance } from "~/lib/stellar/marketplace/test/acc";
 import { useUserStellarAcc } from "~/lib/state/wallete/userAccBalances";
 import Loading from "~/components/wallete/loading";
 import { useConnectWalletStateStore } from "package/connect_wallet";
+import { useSession } from "next-auth/react";
 // import { useConnectWalletStateStore } from "package/connect_wallet";
 
 export default function Home() {
@@ -40,6 +41,8 @@ export default function Home() {
 }
 
 function AuthShowcase() {
+  const { data, status } = useSession();
+  if (status == "authenticated") return <div>{data.user.id}</div>;
   return (
     <div className="p-5">
       <h1 className="hidden text-2xl font-bold md:flex">Homepage</h1>

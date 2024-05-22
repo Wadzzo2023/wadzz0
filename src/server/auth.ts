@@ -1,4 +1,5 @@
 import { type GetServerSidePropsContext } from "next";
+import { verifyMessageSignature } from "@albedo-link/signature-verification";
 
 import {
   getServerSession,
@@ -28,6 +29,8 @@ declare module "next-auth" {
   interface Session extends DefaultSession {
     user: DefaultSession["user"] & {
       id: string;
+      walletType: WalletType;
+
       // ...other properties
       // role: UserRole;
     };
@@ -69,56 +72,47 @@ export const authOptions: NextAuthOptions = {
       type: "credentials",
       credentials: {},
       async authorize(credentials) {
-        const { pubkey, password } = credentials as {
-          pubkey: string;
-          password: string;
-        };
-        const passwordCorrect = await comparePassword(pubkey, password);
+        const cred = credentials as AuthCredentialType;
 
-        // const cred = credentials as AuthCredentialType;
-        // console.log("credentials", cred);
+        if (cred.walletType == WalletType.emailPass) {
+          const { email, password } = cred;
+          const userCredential = await signInWithEmailAndPassword(
+            auth,
+            email,
+            password,
+          );
+          const user = userCredential.user;
+          if (user) {
+            // console.log(user);
+            return { id: user.uid, walletType: WalletType.emailPass };
+          }
+        }
 
-        // console.log("credentials", credentials);
-        // console.log(cred.walletType);
+        if (cred.walletType == WalletType.albedo) {
+          const { pubkey, signature, token } = cred;
 
-        // if (cred.walletType == WalletType.emailPass) {
-        //   const { email, password } = cred;
-
-        //   try {
-        //     const userCredential = await signInWithEmailAndPassword(
-        //       auth,
-        //       email,
-        //       password,
-        //     );
-        //     console.log(userCredential, "uc");
-        //     const user = userCredential.user;
-        //     if (user) {
-        //       console.log(user);
-        //       return { id: user.uid };
-        //     }
-        //   } catch (e) {
-        //     console.log(e);
-        //   }
-        // }
-
-        // if (cred.walletType == WalletType.albedo) {}
-        // const { pubkey } = cred;
+          const isValid = verifyMessageSignature(pubkey, token, signature);
+          if (isValid) {
+            return { id: pubkey, walletType: WalletType.albedo };
+          }
+          throw new Error("Invalid signature");
+        }
 
         // const passwordCorrect = await comparePassword(pubkey, pubkey);
 
-        if (passwordCorrect) {
-          const user = await db.user.findFirst({ where: { id: pubkey } });
+        // if (passwordCorrect) {
+        //   const user = await db.user.findFirst({ where: { id: pubkey } });
 
-          // if user is not created create user.
-          if (user) {
-            return user;
-          } else {
-            const data = await db.user.create({
-              data: { id: pubkey, name: truncateString(pubkey) },
-            });
-            return data;
-          }
-        }
+        //   // if user is not created create user.
+        //   if (user) {
+        //     return user;
+        //   } else {
+        //     const data = await db.user.create({
+        //       data: { id: pubkey, name: truncateString(pubkey) },
+        //     });
+        //     return data;
+        //   }
+        // }
 
         return null;
 

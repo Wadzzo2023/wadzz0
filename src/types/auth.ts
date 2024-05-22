@@ -1,9 +1,11 @@
 import { WalletType } from "package/connect_wallet";
 import { z } from "zod";
 
-const albedoSchema = z.object({
+export const albedoSchema = z.object({
   walletType: z.literal(WalletType.albedo),
   pubkey: z.string(),
+  signature: z.string(),
+  token: z.string(),
 });
 
 const emailPassSchema = z.object({
