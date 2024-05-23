@@ -239,21 +239,7 @@ export const trxRouter = createTRPCRouter({
       if (creator.pageAsset) {
         const { code, issuer } = creator.pageAsset;
 
-        if (isEmail(input.pubkey)) {
-          // send email
-
-          try {
-            const url = `${ACTION_STELLAR_ACCOUNT_URL}api/pub?email=${input.pubkey}`;
-            const response = await axios.get<{ publicKey: string }>(url);
-
-            const data = response.data;
-            console.log(data, "ih...");
-            pubkey = data.publicKey;
-          } catch (error) {
-            throw new Error("email not found");
-          }
-        }
-
+        // send email
         const { storageSecret } = creator;
 
         return await sendGift({
@@ -276,9 +262,3 @@ export const trxRouter = createTRPCRouter({
 function getPubkeyByEmail(email: string) {
   return "pubkey";
 }
-
-const isEmail = (str: string): boolean => {
-  // Use a regular expression to check if the string matches the email format
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  return emailRegex.test(str);
-};
