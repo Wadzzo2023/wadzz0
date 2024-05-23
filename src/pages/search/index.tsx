@@ -59,7 +59,7 @@ function ConditionallyRenderSearch() {
   return (
     <div className="w-full">
       {selectedMenu === SearchMenu.Post && <Posts />}
-      {selectedMenu === SearchMenu.Creator && <Creator />}
+      {selectedMenu === SearchMenu.Creator && <Creators />}
       {/* {selectedMenu === SearchMenu.Asset && <AssetsList />} */}
     </div>
   );
@@ -104,7 +104,7 @@ function Posts() {
   );
 }
 
-function Creator() {
+function Creators() {
   const { searchString } = useSearchMenu();
   const creators = api.fan.creator.search.useInfiniteQuery(
     { limit: 10, searchInput: searchString },

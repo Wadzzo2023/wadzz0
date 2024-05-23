@@ -2,6 +2,7 @@ import { getAccSecret } from "package/connect_wallet";
 import { z } from "zod";
 import { CreatorAboutShema } from "~/components/fan/creator/about";
 import { AccountSchema } from "~/lib/stellar/fan/utils";
+import { getAssetBalance } from "~/lib/stellar/marketplace/test/acc";
 
 import {
   createTRPCRouter,
@@ -185,4 +186,39 @@ export const creatorRouter = createTRPCRouter({
         nextCursor,
       };
     }),
+
+  getCreatorPageAssetBalance: protectedProcedure.query(
+    async ({ ctx, input }) => {
+      const creatorId = ctx.session.user.id;
+
+      const creator = await ctx.db.creator.findUniqueOrThrow({
+        where: { id: creatorId },
+        include: { pageAsset: true },
+      });
+
+      const creatorStoragePub = creator.storagePub;
+      const creatorPageAsset = creator.pageAsset;
+      if (creatorPageAsset) {
+        const bal = await getAssetBalance({
+          pubkey: creatorStoragePub,
+          code: creatorPageAsset.code,
+          issuer: creatorPageAsset.issuer,
+        });
+        if (bal) {
+          return bal.balance;
+        } else {
+          throw new Error("page asset not exist in storage account");
+        }
+      } else {
+        throw new Error("creator has no page asset");
+      }
+    },
+  ),
+  getFansList: protectedProcedure.query(async ({ ctx }) => {
+    const creatorId = ctx.session.user.id;
+    return ctx.db.follow.findMany({
+      where: { creatorId: creatorId },
+      include: { user: true },
+    });
+  }),
 });

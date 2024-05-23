@@ -15,6 +15,7 @@ import clsx from "clsx";
 // import { ShopItem } from "~/components/fan/creator/shop";
 import { CreatorBack } from "~/pages/fans/creator";
 import { getAssetBalanceFromBalance } from "~/lib/stellar/marketplace/test/acc";
+import { set } from "date-fns";
 
 export default function CreatorPage() {
   const router = useRouter();
@@ -124,6 +125,7 @@ function Tabs() {
 
 export function FollowButton({ creator }: { creator: Creator }) {
   const { pubkey, walletType, needSign } = useConnectWalletStateStore();
+  const [signLoading, setSingLoading] = React.useState(false);
 
   const isFollower = api.fan.member.isFollower.useQuery({
     creatorId: creator.id,
@@ -134,39 +136,48 @@ export function FollowButton({ creator }: { creator: Creator }) {
   const followXDR = api.fan.trx.followCreatorTRX.useMutation({
     onSuccess: (xdr) => {
       if (xdr) {
-        clientsign({
-          presignedxdr: xdr,
-          pubkey,
-          walletType,
-          test: clientSelect(),
-        })
-          .then((res) => {
-            if (res) {
-              if (res) {
-                follow.mutate({ creatorId: creator.id });
-              }
-            }
+        setSingLoading(true);
+        toast.promise(
+          clientsign({
+            presignedxdr: xdr,
+            pubkey,
+            walletType,
+            test: clientSelect(),
           })
-          .catch((e) => console.log(e));
+            .then((res) => {
+              if (res) {
+                if (res) {
+                  follow.mutate({ creatorId: creator.id });
+                }
+              }
+            })
+            .catch((e) => console.log(e))
+            .finally(() => setSingLoading(false)),
+          {
+            error: "Failed to follow",
+            loading: "Following...",
+            success: "Followed",
+          },
+        );
       } else {
         toast.error("XDR undefined");
       }
     },
     onError: (e) => toast.error(e.message),
   });
+  const loading = (followXDR.isLoading && signLoading) || follow.isLoading;
   if (isFollower.data) return <p>You are a follower</p>;
   else
     return (
       <div>
         <button
+          disabled={loading}
           className="btn btn-secondary"
           onClick={() =>
             followXDR.mutate({ creatorId: creator.id, signWith: needSign() })
           }
         >
-          {followXDR.isLoading && (
-            <span className="loading loading-spinner"></span>
-          )}
+          {loading && <span className="loading loading-spinner"></span>}
           Follow
         </button>
       </div>

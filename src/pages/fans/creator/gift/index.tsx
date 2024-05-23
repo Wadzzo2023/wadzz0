@@ -7,6 +7,10 @@ import { api } from "~/utils/api";
 import { DollarSign, Mail, RefreshCcw } from "lucide-react";
 import toast from "react-hot-toast";
 import { submitSignedXDRToServer } from "package/connect_wallet";
+import { fetchPubkeyfromEmail } from "~/utils/get-pubkey";
+import Loading from "~/components/wallete/loading";
+import { PLATFROM_ASSET } from "~/lib/stellar/fan/constant";
+import Avater from "~/components/ui/avater";
 
 export const FanGitFormSchema = z.object({
   pubkey: z.string().length(56),
@@ -31,8 +35,10 @@ export default function GiftPage() {
       toast.promise(submitSignedXDRToServer(xdr), {
         loading: "Sending gift...",
         success: (d) => {
-          if (d.successful) return "Gift sent successfully";
-          else return "Sorry, gift failed to send";
+          if (d.successful) {
+            reset();
+            return "Gift sent successfully";
+          } else return "Sorry, gift failed to send";
         },
         error: (e) => {
           return "Sorry, Some error in Stellar network. Please try again later.";
@@ -50,17 +56,21 @@ export default function GiftPage() {
   const pubkey = watch("pubkey");
 
   async function fetchPubKey(): Promise<void> {
-    const pub = await toast.promise(fetchPubkeyfromEmail(pubkey), {
-      error: "Email don't have a pubkey",
-      success: "Pubkey fetched successfully",
-      loading: "Fetching pubkey...",
-    });
+    try {
+      const pub = await toast.promise(fetchPubkeyfromEmail(pubkey), {
+        error: "Email don't have a pubkey",
+        success: "Pubkey fetched successfully",
+        loading: "Fetching pubkey...",
+      });
 
-    setValue("pubkey", pub, { shouldValidate: true });
+      setValue("pubkey", pub, { shouldValidate: true });
+    } catch (e) {
+      console.error(e);
+    }
   }
 
   return (
-    <div className=" flex h-full flex-col items-center justify-center">
+    <div className=" flex h-full flex-col items-center ">
       <div className="card w-full  max-w-xl bg-base-200 p-4">
         {/* <h2>Fan email / pubkey</h2> */}
         <h2 className="mb-4 text-2xl font-bold">Gift your fans</h2>
@@ -83,11 +93,13 @@ export default function GiftPage() {
                 </div>
               )}
             </div>
-            <div className="label">
-              <span className="label-text">Pubkey/Email</span>
-            </div>
+
             {pubkey && pubkey.length == 56 && (
-              <p className="text-sm">pubkey: {pubkey}</p>
+              <div className="label">
+                <span className="label-text">
+                  <p className="text-sm">pubkey: {pubkey}</p>
+                </span>
+              </div>
             )}
           </label>
 
@@ -105,16 +117,66 @@ export default function GiftPage() {
             {xdr.isLoading && <span className="loading loading-spinner" />}
             Gift
           </button>
+          <CreatorPageBal />
         </form>
+      </div>
+      <div className="card mt-4  w-full max-w-xl bg-base-200 p-4">
+        <h2 className="my-3 text-xl font-bold">Your Fans</h2>
+        <FansList />
       </div>
     </div>
   );
 }
 
-async function fetchPubkeyfromEmail(email: string): Promise<string> {
-  const response = await fetch(
-    `https://accounts.action-tokens.com/api/pub?email=${email}`,
+function CreatorPageBal() {
+  const bal = api.fan.creator.getCreatorPageAssetBalance.useQuery();
+
+  if (bal.isLoading) return <div className="skeleton h-5 w-40" />;
+
+  if (bal.data) {
+    return (
+      <p>
+        {" "}
+        You have {bal.data} {PLATFROM_ASSET.code}
+      </p>
+    );
+  }
+
+  if (bal.error) {
+    return <p>{bal.error.message}</p>;
+  }
+}
+
+function FansList() {
+  const fans = api.fan.creator.getFansList.useQuery();
+
+  if (fans.isLoading) return <Loading />;
+  if (fans.data)
+    return (
+      <div>
+        {fans.data.map((fan) => (
+          <FanAvater name={fan.user.name} pubkey={fan.user.id} />
+        ))}
+      </div>
+    );
+}
+
+export function FanAvater({
+  name,
+  pubkey,
+}: {
+  name: string | null;
+  pubkey: string;
+}) {
+  return (
+    <div className="flex items-center gap-2  p-2 px-4 hover:rounded-lg hover:bg-base-100">
+      <div>
+        <Avater url={undefined} className="w-8" />
+      </div>
+      <div>
+        {name}
+        <p className="text-sm">{pubkey?.slice(0, 30)}</p>
+      </div>
+    </div>
   );
-  const data = await response.json();
-  return data.publicKey;
 }

@@ -231,6 +231,16 @@ export const trxRouter = createTRPCRouter({
       const creatorId = ctx.session.user.id;
       let pubkey = input.pubkey;
 
+      const isFollower = await ctx.db.follow.findUnique({
+        where: {
+          userId_creatorId: {
+            creatorId: creatorId,
+            userId: pubkey,
+          },
+        },
+      });
+      if (!isFollower) throw new Error("User is not a follower");
+
       const creator = await db.creator.findUniqueOrThrow({
         where: { id: creatorId },
         include: { pageAsset: true },
