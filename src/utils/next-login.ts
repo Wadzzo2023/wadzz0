@@ -1,6 +1,10 @@
 import { signIn } from "next-auth/react";
 import { z } from "zod";
-import { AuthCredentialType, albedoSchema } from "~/types/auth";
+import {
+  AuthCredentialType,
+  albedoSchema,
+  providerAuthShema,
+} from "~/types/auth";
 import { hashPassword } from "~/utils/hash";
 
 export async function NextLogin(pubkey: string, password: string) {
@@ -23,6 +27,20 @@ export async function AlbedoNextLogin({
   const response = await signIn("credentials", {
     pubkey,
     signature,
+    token,
+    walletType,
+    redirect: false,
+  } as AuthCredentialType);
+  return response;
+}
+
+export async function ProviderNextLogin({
+  token,
+  walletType,
+  email,
+}: z.infer<typeof providerAuthShema>) {
+  const response = await signIn("credentials", {
+    email,
     token,
     walletType,
     redirect: false,

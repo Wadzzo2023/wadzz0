@@ -1,5 +1,6 @@
 import { type GetServerSidePropsContext } from "next";
 import { verifyMessageSignature } from "@albedo-link/signature-verification";
+import axios from "axios";
 
 import {
   getServerSession,
@@ -18,6 +19,11 @@ import { AuthCredentialType } from "~/types/auth";
 import { WalletType } from "package/connect_wallet";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "package/connect_wallet/src/lib/firebase/firebase-auth";
+import { verifyIdToken } from "package/connect_wallet/src/lib/firebase/admin/auth";
+import { z } from "zod";
+import { getPublicKeyAPISchema } from "package/connect_wallet/src/lib/stellar/wallet_clients/type";
+
+import { USER_ACOUNT_URL } from "package/connect_wallet/src/lib/stellar/constant";
 
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
@@ -82,10 +88,9 @@ export const authOptions: NextAuthOptions = {
             password,
           );
           const user = userCredential.user;
-          if (user) {
-            // console.log(user);
-            return { id: user.uid, walletType: WalletType.emailPass };
-          }
+          const data = await getUserPublicKey({ email: email, uid: user.uid });
+          const sessionUser = await dbUser(data.publicKey);
+          return { ...sessionUser, walletType: WalletType.emailPass };
         }
 
         if (cred.walletType == WalletType.albedo) {
@@ -93,30 +98,24 @@ export const authOptions: NextAuthOptions = {
 
           const isValid = verifyMessageSignature(pubkey, token, signature);
           if (isValid) {
-            return { id: pubkey, walletType: WalletType.albedo };
+            const sessionUser = await dbUser(pubkey);
+            return { ...sessionUser, walletType: WalletType.emailPass };
           }
           throw new Error("Invalid signature");
         }
 
-        // const passwordCorrect = await comparePassword(pubkey, pubkey);
+        if (cred.walletType == WalletType.google) {
+          const { token, email } = cred;
+          const uid = await verifyIdToken(token);
+          // console.log("..", uid);
 
-        // if (passwordCorrect) {
-        //   const user = await db.user.findFirst({ where: { id: pubkey } });
-
-        //   // if user is not created create user.
-        //   if (user) {
-        //     return user;
-        //   } else {
-        //     const data = await db.user.create({
-        //       data: { id: pubkey, name: truncateString(pubkey) },
-        //     });
-        //     return data;
-        //   }
-        // }
+          // if (!email) throw Error("Add email to you account");
+          const data = await getUserPublicKey({ uid, email });
+          const sessionUser = await dbUser(data.publicKey);
+          return { ...sessionUser, walletType: WalletType.emailPass };
+        }
 
         return null;
-
-        // finally
       },
     }),
   ],
@@ -133,3 +132,35 @@ export const getServerAuthSession = (ctx: {
 }) => {
   return getServerSession(ctx.req, ctx.res, authOptions);
 };
+
+async function dbUser(pubkey: string) {
+  const user = await db.user.findUnique({ where: { id: pubkey } });
+  // if user is not created create user.
+  if (user) {
+    return user;
+  } else {
+    const data = await db.user.create({
+      data: { id: pubkey, name: truncateString(pubkey) },
+    });
+    return data;
+  }
+}
+
+async function getUserPublicKey({
+  uid,
+  email,
+}: {
+  uid: string;
+  email: string;
+}) {
+  const res = await axios.get<z.infer<typeof getPublicKeyAPISchema>>(
+    USER_ACOUNT_URL,
+    {
+      params: {
+        uid,
+        email,
+      },
+    },
+  );
+  return res.data;
+}
