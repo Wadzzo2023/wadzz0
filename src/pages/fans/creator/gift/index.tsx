@@ -155,7 +155,7 @@ function FansList() {
     return (
       <div>
         {fans.data.map((fan) => (
-          <FanAvater name={fan.user.name} pubkey={fan.user.id} />
+          <FanAvater key={fan.id} name={fan.user.name} pubkey={fan.user.id} />
         ))}
       </div>
     );

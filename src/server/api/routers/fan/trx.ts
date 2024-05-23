@@ -229,7 +229,7 @@ export const trxRouter = createTRPCRouter({
     .input(FanGitFormSchema)
     .mutation(async ({ input, ctx }) => {
       const creatorId = ctx.session.user.id;
-      let pubkey = input.pubkey;
+      const pubkey = input.pubkey;
 
       const isFollower = await ctx.db.follow.findUnique({
         where: {

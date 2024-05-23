@@ -4,7 +4,7 @@ export async function fetchPubkeyfromEmail(email: string): Promise<string> {
   );
   if (response.ok) {
     console.log(response);
-    const data = await response.json();
+    const data = (await response.json()) as { publicKey: string };
     return data.publicKey;
   } else {
     throw new Error("Email don't have a pubkey");
