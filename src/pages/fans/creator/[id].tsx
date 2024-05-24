@@ -163,38 +163,33 @@ export function FollowButton({ creator }: { creator: Creator }) {
     onSuccess: () => toast.success("Followed"),
   });
   const followXDR = api.fan.trx.followCreatorTRX.useMutation({
-    onSuccess: (xdr) => {
+    onSuccess: async (xdr) => {
       if (xdr) {
         setSingLoading(true);
-        toast.promise(
-          clientsign({
+        try {
+          const res = await clientsign({
             presignedxdr: xdr,
             pubkey,
             walletType,
             test: clientSelect(),
-          })
-            .then((res) => {
-              if (res) {
-                if (res) {
-                  follow.mutate({ creatorId: creator.id });
-                }
-              }
-            })
-            .catch((e) => console.log(e))
-            .finally(() => setSingLoading(false)),
-          {
-            error: "Failed to follow",
-            loading: "Following...",
-            success: "Followed",
-          },
-        );
+          });
+
+          if (res) {
+            follow.mutate({ creatorId: creator.id });
+          } else toast.error("signing failed");
+        } catch (e) {
+          toast.error("Error in signing");
+          console.error(e);
+        } finally {
+          setSingLoading(false);
+        }
       } else {
         toast.error("XDR undefined");
       }
     },
     onError: (e) => toast.error(e.message),
   });
-  const loading = (followXDR.isLoading && signLoading) || follow.isLoading;
+  const loading = followXDR.isLoading || signLoading || follow.isLoading;
   if (isFollower.data) return <p>You are a follower</p>;
   else
     return (
@@ -295,6 +290,8 @@ function SubscriptionCard({
 }
 
 function TierCompleted({ subscription }: { subscription: SubscriptionType }) {
+  const { getAssetBalance } = useUserStellarAcc();
+
   const accBalances = api.wallate.acc.getUserPubAssetBallances.useQuery();
   const asset = api.fan.asset.getCreatorAsset.useQuery({
     creatorId: subscription.creatorId,
@@ -302,13 +299,12 @@ function TierCompleted({ subscription }: { subscription: SubscriptionType }) {
 
   if (accBalances.data && asset.data) {
     const { code, issuer } = asset.data;
-    const bal = getAssetBalanceFromBalance({
-      balances: accBalances.data,
-      code: code,
-      issuer: issuer,
-    });
-    if (bal > subscription.price) {
-      return <div className="btn-warning">Completed</div>;
+
+    const bal = getAssetBalance({ code, issuer });
+    if (bal) {
+      if (Number(bal) >= subscription.price) {
+        return <div className="btn btn-warning">Completed</div>;
+      }
     }
   }
 }

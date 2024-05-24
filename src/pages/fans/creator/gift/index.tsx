@@ -175,7 +175,7 @@ export function FanAvater({
       </div>
       <div>
         {name}
-        <p className="text-sm">{pubkey?.slice(0, 30)}</p>
+        <p className="text-sm">{pubkey}</p>
       </div>
     </div>
   );
