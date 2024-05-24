@@ -16,6 +16,7 @@ import clsx from "clsx";
 import { CreatorBack } from "~/pages/fans/creator";
 import { getAssetBalanceFromBalance } from "~/lib/stellar/marketplace/test/acc";
 import { set } from "date-fns";
+import { useUserStellarAcc } from "~/lib/state/wallete/userAccBalances";
 
 export default function CreatorPage() {
   const router = useRouter();
@@ -38,7 +39,16 @@ function CreatorPageView({ creatorId }: { creatorId: string }) {
         <div className="flex w-full flex-col items-center pb-48">
           <>
             <CreatorBack creator={creator} />
-            <FollowButton creator={creator} />
+            <div className="my-2">
+              <FollowButton creator={creator} />
+              {creator.pageAsset && (
+                <UserCreatorBalance
+                  code={creator.pageAsset?.code}
+                  issuer={creator.pageAsset?.issuer}
+                />
+              )}
+            </div>
+
             <ChooseMemberShip creator={creator} />
 
             <Tabs />
@@ -121,6 +131,25 @@ function Tabs() {
       })}
     </div>
   );
+}
+
+function UserCreatorBalance({
+  code,
+  issuer,
+}: {
+  code: string;
+  issuer: string;
+}) {
+  const { getAssetBalance } = useUserStellarAcc();
+
+  const bal = getAssetBalance({ code, issuer });
+
+  if (bal)
+    return (
+      <p>
+        You have {bal} {code}
+      </p>
+    );
 }
 
 export function FollowButton({ creator }: { creator: Creator }) {
