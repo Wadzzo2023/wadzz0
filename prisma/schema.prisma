@@ -179,6 +179,7 @@ model Creator {
     marketAssets  MarketAsset[]
     pageAsset     CreatorPageAsset?
     followers     Follow[]
+    Location      Location[]
 
     @@index([bio, name])
 }
@@ -239,15 +240,16 @@ model User {
     image         String?
     emailVerified DateTime?
 
-    accounts   Account[]
-    sessions   Session[]
-    creator    Creator?
-    likes      Like[]
-    comments   Comment[]
-    assets     User_Asset[]
-    Admin      Admin[]
-    songs      User_Song[]
-    followings Follow[]
+    accounts         Account[]
+    sessions         Session[]
+    creator          Creator?
+    likes            Like[]
+    comments         Comment[]
+    assets           User_Asset[]
+    Admin            Admin[]
+    songs            User_Song[]
+    followings       Follow[]
+    LocationConsumer LocationConsumer[]
 }
 
 model VerificationToken {
@@ -410,4 +412,42 @@ model Admin {
 
     user       User         @relation(fields: [id], references: [id], onDelete: Cascade)
     AdminAsset AdminAsset[]
+}
+
+// ------------------------Mapping SCHEMA-------------------------
+
+model Location {
+    id String @id @default(cuid())
+
+    latitude  Float
+    longitude Float
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    isActive Boolean
+    image    String?
+
+    creatorId String
+    creator   Creator @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+
+    description String?
+    startDate   DateTime
+    endDate     DateTime
+
+    autoCollect Boolean
+
+    approved         Boolean
+    LocationConsumer LocationConsumer[]
+}
+
+model LocationConsumer {
+    id String @id @default(cuid())
+
+    userId String
+    user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    locationId String
+    location   Location @relation(fields: [locationId], references: [id], onDelete: Cascade)
+
+    createdAt DateTime @default(now())
 }
