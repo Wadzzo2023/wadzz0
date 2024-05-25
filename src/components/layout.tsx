@@ -42,7 +42,7 @@ export default function Layout({
               </div>
             </div>
 
-            <RightSideBar />
+            {data?.user.id && <RightSideBar />}
           </div>
         </div>
         <RightDialog />

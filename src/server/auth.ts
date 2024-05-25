@@ -1,4 +1,6 @@
 import { type GetServerSidePropsContext } from "next";
+import { verifyMessageSignature } from "@albedo-link/signature-verification";
+import axios from "axios";
 
 import {
   getServerSession,
@@ -17,6 +19,12 @@ import { AuthCredentialType } from "~/types/auth";
 import { WalletType } from "package/connect_wallet";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "package/connect_wallet/src/lib/firebase/firebase-auth";
+import { verifyIdToken } from "package/connect_wallet/src/lib/firebase/admin/auth";
+import { z } from "zod";
+import { getPublicKeyAPISchema } from "package/connect_wallet/src/lib/stellar/wallet_clients/type";
+
+import { USER_ACOUNT_URL } from "package/connect_wallet/src/lib/stellar/constant";
+import { verifyXDRsSignature } from "package/connect_wallet/src/lib/stellar/trx/deummy";
 
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
@@ -28,6 +36,8 @@ declare module "next-auth" {
   interface Session extends DefaultSession {
     user: DefaultSession["user"] & {
       id: string;
+      walletType: WalletType;
+
       // ...other properties
       // role: UserRole;
     };
@@ -69,60 +79,65 @@ export const authOptions: NextAuthOptions = {
       type: "credentials",
       credentials: {},
       async authorize(credentials) {
-        const { pubkey, password } = credentials as {
-          pubkey: string;
-          password: string;
-        };
-        const passwordCorrect = await comparePassword(pubkey, password);
+        const cred = credentials as AuthCredentialType;
 
-        // const cred = credentials as AuthCredentialType;
-        // console.log("credentials", cred);
+        // email pass login
+        if (cred.walletType == WalletType.emailPass) {
+          const { email, password } = cred;
+          const userCredential = await signInWithEmailAndPassword(
+            auth,
+            email,
+            password,
+          );
+          const user = userCredential.user;
+          const data = await getUserPublicKey({ email: email, uid: user.uid });
+          const sessionUser = await dbUser(data.publicKey);
+          return { ...sessionUser, walletType: WalletType.emailPass };
+        }
 
-        // console.log("credentials", credentials);
-        // console.log(cred.walletType);
+        // wallete
 
-        // if (cred.walletType == WalletType.emailPass) {
-        //   const { email, password } = cred;
+        if (cred.walletType == WalletType.albedo) {
+          const { pubkey, signature, token } = cred;
 
-        //   try {
-        //     const userCredential = await signInWithEmailAndPassword(
-        //       auth,
-        //       email,
-        //       password,
-        //     );
-        //     console.log(userCredential, "uc");
-        //     const user = userCredential.user;
-        //     if (user) {
-        //       console.log(user);
-        //       return { id: user.uid };
-        //     }
-        //   } catch (e) {
-        //     console.log(e);
-        //   }
-        // }
-
-        // if (cred.walletType == WalletType.albedo) {}
-        // const { pubkey } = cred;
-
-        // const passwordCorrect = await comparePassword(pubkey, pubkey);
-
-        if (passwordCorrect) {
-          const user = await db.user.findFirst({ where: { id: pubkey } });
-
-          // if user is not created create user.
-          if (user) {
-            return user;
-          } else {
-            const data = await db.user.create({
-              data: { id: pubkey, name: truncateString(pubkey) },
-            });
-            return data;
+          const isValid = verifyMessageSignature(pubkey, token, signature);
+          if (isValid) {
+            const sessionUser = await dbUser(pubkey);
+            return { ...sessionUser, walletType: WalletType.emailPass };
           }
+          throw new Error("Invalid signature");
+        }
+        // wallete rabet and frieghter
+        if (
+          cred.walletType == WalletType.rabet ||
+          cred.walletType == WalletType.frieghter ||
+          cred.walletType == WalletType.walletConnect
+        ) {
+          const { pubkey, signedXDR } = cred;
+          const isValid = await verifyXDRsSignature({
+            publicKey: pubkey,
+            xdr: signedXDR,
+          });
+          if (isValid) {
+            const sessionUser = await dbUser(pubkey);
+            return { ...sessionUser, walletType: WalletType.rabet };
+          }
+          throw new Error("Invalid signature");
+        }
+
+        // provider logins
+        if (
+          cred.walletType == WalletType.google ||
+          cred.walletType == WalletType.facebook
+        ) {
+          const { token, email } = cred;
+          const uid = await verifyIdToken(token);
+          const data = await getUserPublicKey({ uid, email });
+          const sessionUser = await dbUser(data.publicKey);
+          return { ...sessionUser, walletType: cred.walletType };
         }
 
         return null;
-
-        // finally
       },
     }),
   ],
@@ -139,3 +154,35 @@ export const getServerAuthSession = (ctx: {
 }) => {
   return getServerSession(ctx.req, ctx.res, authOptions);
 };
+
+async function dbUser(pubkey: string) {
+  const user = await db.user.findUnique({ where: { id: pubkey } });
+  // if user is not created create user.
+  if (user) {
+    return user;
+  } else {
+    const data = await db.user.create({
+      data: { id: pubkey, name: truncateString(pubkey) },
+    });
+    return data;
+  }
+}
+
+async function getUserPublicKey({
+  uid,
+  email,
+}: {
+  uid: string;
+  email: string;
+}) {
+  const res = await axios.get<z.infer<typeof getPublicKeyAPISchema>>(
+    USER_ACOUNT_URL,
+    {
+      params: {
+        uid,
+        email,
+      },
+    },
+  );
+  return res.data;
+}
