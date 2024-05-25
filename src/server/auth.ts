@@ -107,8 +107,11 @@ export const authOptions: NextAuthOptions = {
           }
           throw new Error("Invalid signature");
         }
-        // wallete rabet
-        if (cred.walletType == WalletType.rabet) {
+        // wallete rabet and frieghter
+        if (
+          cred.walletType == WalletType.rabet ||
+          cred.walletType == WalletType.frieghter
+        ) {
           const { pubkey, signedXDR } = cred;
           const isValid = await verifyXDRsSignature({
             publicKey: pubkey,

@@ -14,8 +14,11 @@ const emailPassSchema = z.object({
   password: z.string(),
 });
 
-export const rabetAuthSchema = z.object({
-  walletType: z.literal(WalletType.rabet),
+export const walleteAuthSchema = z.object({
+  walletType: z.union([
+    z.literal(WalletType.frieghter),
+    z.literal(WalletType.rabet),
+  ]),
   pubkey: z.string(),
   signedXDR: z.string(),
 });
@@ -33,7 +36,7 @@ export const authCredentialSchema = z.union([
   albedoSchema,
   emailPassSchema,
   providerAuthShema,
-  rabetAuthSchema,
+  walleteAuthSchema,
 ]);
 
 export type AuthCredentialType = z.infer<typeof authCredentialSchema>;
