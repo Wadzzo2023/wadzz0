@@ -13,6 +13,9 @@ import { usePopUpState } from "~/lib/state/right-pop";
 export const AssetVariant = { ...MarketType, Other: "Other" } as const;
 
 export default function RightSideBar() {
+  const router = useRouter();
+  if (router.pathname.includes("/maps")) return undefined;
+
   return (
     <div className="hidden h-full w-80  flex-col bg-base-100/80  lg:flex">
       <RightComponent />
