@@ -4,6 +4,7 @@ import {
   AuthCredentialType,
   albedoSchema,
   providerAuthShema,
+  rabetAuthSchema,
 } from "~/types/auth";
 import { hashPassword } from "~/utils/hash";
 
@@ -31,6 +32,22 @@ export async function AlbedoNextLogin({
     walletType,
     redirect: false,
   } as AuthCredentialType);
+  return response;
+}
+
+export async function RabetNextLogin({
+  pubkey,
+  signedXDR,
+  walletType,
+}: z.infer<typeof rabetAuthSchema>) {
+  const response = await signIn("credentials", {
+    pubkey,
+    walletType,
+    signedXDR,
+    redirect: false,
+  } as AuthCredentialType);
+
+  console.log({ response });
   return response;
 }
 

@@ -24,6 +24,7 @@ import { z } from "zod";
 import { getPublicKeyAPISchema } from "package/connect_wallet/src/lib/stellar/wallet_clients/type";
 
 import { USER_ACOUNT_URL } from "package/connect_wallet/src/lib/stellar/constant";
+import { verifyXDRsSignature } from "package/connect_wallet/src/lib/stellar/trx/deummy";
 
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
@@ -80,6 +81,7 @@ export const authOptions: NextAuthOptions = {
       async authorize(credentials) {
         const cred = credentials as AuthCredentialType;
 
+        // email pass login
         if (cred.walletType == WalletType.emailPass) {
           const { email, password } = cred;
           const userCredential = await signInWithEmailAndPassword(
@@ -93,6 +95,8 @@ export const authOptions: NextAuthOptions = {
           return { ...sessionUser, walletType: WalletType.emailPass };
         }
 
+        // wallete
+
         if (cred.walletType == WalletType.albedo) {
           const { pubkey, signature, token } = cred;
 
@@ -103,16 +107,30 @@ export const authOptions: NextAuthOptions = {
           }
           throw new Error("Invalid signature");
         }
+        // wallete rabet
+        if (cred.walletType == WalletType.rabet) {
+          const { pubkey, signedXDR } = cred;
+          const isValid = await verifyXDRsSignature({
+            publicKey: pubkey,
+            xdr: signedXDR,
+          });
+          if (isValid) {
+            const sessionUser = await dbUser(pubkey);
+            return { ...sessionUser, walletType: WalletType.rabet };
+          }
+          throw new Error("Invalid signature");
+        }
 
-        if (cred.walletType == WalletType.google) {
+        // provider logins
+        if (
+          cred.walletType == WalletType.google ||
+          cred.walletType == WalletType.facebook
+        ) {
           const { token, email } = cred;
           const uid = await verifyIdToken(token);
-          // console.log("..", uid);
-
-          // if (!email) throw Error("Add email to you account");
           const data = await getUserPublicKey({ uid, email });
           const sessionUser = await dbUser(data.publicKey);
-          return { ...sessionUser, walletType: WalletType.emailPass };
+          return { ...sessionUser, walletType: cred.walletType };
         }
 
         return null;

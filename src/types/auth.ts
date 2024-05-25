@@ -14,16 +14,26 @@ const emailPassSchema = z.object({
   password: z.string(),
 });
 
+export const rabetAuthSchema = z.object({
+  walletType: z.literal(WalletType.rabet),
+  pubkey: z.string(),
+  signedXDR: z.string(),
+});
+
 export const providerAuthShema = z.object({
   email: z.string(),
   token: z.string(),
-  walletType: z.literal(WalletType.google || WalletType.facebook),
+  walletType: z.union([
+    z.literal(WalletType.google),
+    z.literal(WalletType.facebook),
+  ]),
 });
 
 export const authCredentialSchema = z.union([
   albedoSchema,
   emailPassSchema,
   providerAuthShema,
+  rabetAuthSchema,
 ]);
 
 export type AuthCredentialType = z.infer<typeof authCredentialSchema>;

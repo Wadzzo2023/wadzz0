@@ -3,6 +3,7 @@ import { fanRouter } from "./routers/fan/root";
 import { musicRouter } from "./routers/music/root";
 import { marketplaceRouter } from "./routers/marketplace/root";
 import { wallateRouter } from "./routers/wallate/root";
+import { authRouter } from "./routers/auth/root";
 
 /**
  * This is the primary router for your server.
@@ -14,6 +15,7 @@ export const appRouter = createTRPCRouter({
   music: musicRouter,
   marketplace: marketplaceRouter,
   wallate: wallateRouter,
+  auth: authRouter,
 });
 
 // export type definition of API
