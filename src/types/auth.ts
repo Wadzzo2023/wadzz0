@@ -18,6 +18,7 @@ export const walleteAuthSchema = z.object({
   walletType: z.union([
     z.literal(WalletType.frieghter),
     z.literal(WalletType.rabet),
+    z.literal(WalletType.walletConnect),
   ]),
   pubkey: z.string(),
   signedXDR: z.string(),

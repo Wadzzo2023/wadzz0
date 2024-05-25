@@ -110,7 +110,8 @@ export const authOptions: NextAuthOptions = {
         // wallete rabet and frieghter
         if (
           cred.walletType == WalletType.rabet ||
-          cred.walletType == WalletType.frieghter
+          cred.walletType == WalletType.frieghter ||
+          cred.walletType == WalletType.walletConnect
         ) {
           const { pubkey, signedXDR } = cred;
           const isValid = await verifyXDRsSignature({
