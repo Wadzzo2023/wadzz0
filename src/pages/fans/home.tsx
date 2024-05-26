@@ -1,28 +1,12 @@
-import React from "react";
 import Head from "next/head";
 import { PostCard } from "~/components/fan/creator/post";
 
-import { api } from "~/utils/api";
-import toast from "react-hot-toast";
-import { getAssetBalanceFromBalance } from "~/lib/stellar/marketplace/test/acc";
-import { useUserStellarAcc } from "~/lib/state/wallete/userAccBalances";
-import Loading from "~/components/wallete/loading";
-import { useConnectWalletStateStore } from "package/connect_wallet";
 import { useSession } from "next-auth/react";
-// import { useConnectWalletStateStore } from "package/connect_wallet";
+import Loading from "~/components/wallete/loading";
+import { getAssetBalanceFromBalance } from "~/lib/stellar/marketplace/test/acc";
+import { api } from "~/utils/api";
 
 export default function Home() {
-  // const acc = api.wallate.acc.getUserPubAssetBallances.useQuery(undefined, {
-  //   onSuccess: (data) => {
-  //     toast.success("Data fetched successfully");
-  //     useUserStellarAcc;
-  //     console.log(data);
-  //   },
-  //   onError: (error) => {
-  //     toast.error("Failed to fetch data");
-  //     console.log(error);
-  //   },
-  // });
   return (
     <>
       <Head>
@@ -42,7 +26,7 @@ export default function Home() {
 
 function AuthShowcase() {
   const { data, status } = useSession();
-  if (status == "authenticated") return <div>{data.user.id}</div>;
+  // if (status == "authenticated") return <div>{data.user.id}</div>;
   return (
     <div className="p-5">
       <h1 className="hidden text-2xl font-bold md:flex">Homepage</h1>

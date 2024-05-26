@@ -10,11 +10,25 @@ import React, { useState } from "react";
 import { Avatar, Loading } from "react-daisyui";
 import toast from "react-hot-toast";
 import CreatePinModal from "~/components/maps/modals/create-pin";
+import { useCreatorStorageAcc } from "~/lib/state/wallete/stellar-balances";
 import { api } from "~/utils/api";
 
 function App() {
   const modal = React.useRef<HTMLDialogElement>(null);
   const [clickedPos, updatePos] = useState<google.maps.LatLngLiteral>();
+  const { setBalance } = useCreatorStorageAcc();
+
+  // queries
+  const acc = api.wallate.acc.getCreatorStorageBallances.useQuery(undefined, {
+    onSuccess: (data) => {
+      console.log(data);
+      setBalance(data);
+    },
+    onError: (error) => {
+      console.log(error);
+    },
+    refetchOnWindowFocus: false,
+  });
 
   function handleMapClick(event: MapMouseEvent): void {
     const position = event.detail.latLng;
@@ -60,6 +74,7 @@ function MyPins() {
           <AdvancedMarker
             key={pin.id}
             position={{ lat: pin.latitude, lng: pin.longitude }}
+            onClick={() => toast.success(pin.title)}
           >
             {/* <span className="tree">🌳</span> */}
             <span>

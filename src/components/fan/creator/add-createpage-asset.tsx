@@ -10,7 +10,7 @@ import { clientSelect } from "~/lib/stellar/fan/utils";
 import { Plus } from "lucide-react";
 import Alert from "../../ui/alert";
 import { PLATFROM_ASSET, PLATFROM_FEE } from "~/lib/stellar/fan/constant";
-import { useUserStellarAcc } from "~/lib/state/wallete/userAccBalances";
+import { useUserStellarAcc } from "~/lib/state/wallete/stellar-balances";
 import Loading from "~/components/wallete/loading";
 
 export const CreatorPageAssetSchema = z.object({

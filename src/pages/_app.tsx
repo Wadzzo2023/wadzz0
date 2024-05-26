@@ -6,13 +6,11 @@ import { api } from "~/utils/api";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import dynamic from "next/dynamic";
-import { Titillium_Web, Arvo } from "next/font/google";
+import { Titillium_Web } from "next/font/google";
+import Layout from "~/components/layout";
+import { useUserStellarAcc } from "~/lib/state/wallete/stellar-balances";
 import "~/styles/globals.css";
 import "~/styles/music.scss";
-import Layout from "~/components/layout";
-import Header from "~/components/header";
-import { useUserStellarAcc } from "~/lib/state/wallete/userAccBalances";
-import toast from "react-hot-toast";
 
 const queryClient = new QueryClient();
 

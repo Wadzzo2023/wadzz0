@@ -10,6 +10,7 @@ import {
   protectedProcedure,
   publicProcedure,
   adminProcedure,
+  creatorProcedure,
 } from "~/server/api/trpc";
 import { AssetSelectAllProperty } from "../marketplace/marketplace";
 import { get } from "http";
@@ -49,6 +50,16 @@ export const accRouter = createTRPCRouter({
     const pubkey = ctx.session.user.id;
 
     return await accountBalances({ userPub: pubkey });
+  }),
+  getCreatorStorageBallances: creatorProcedure.query(async ({ ctx, input }) => {
+    const creator = ctx.session.user.id;
+
+    const storage = await ctx.db.creator.findUniqueOrThrow({
+      where: { id: creator },
+      select: { storagePub: true },
+    });
+
+    return await accountBalances({ userPub: storage.storagePub });
   }),
 
   getCreatorStorageInfo: protectedProcedure.query(async ({ ctx, input }) => {

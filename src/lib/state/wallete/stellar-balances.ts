@@ -85,3 +85,55 @@ export const useUserStellarAcc = create<Balance>((set, get) => ({
 
   userAssetsCodeIssuer: [],
 }));
+
+interface CreatorBalance {
+  balances: AccBalanceType[] | undefined;
+  getXLMBalance: () => string | undefined;
+  getAssetBalance: (props: { code?: string; issuer?: string }) => number;
+
+  setBalance: (balances: AccBalanceType[]) => void;
+  // fetch: (pub: string) => Promise<void>;
+}
+
+export const useCreatorStorageAcc = create<CreatorBalance>((set, get) => ({
+  platformAssetBalance: 0,
+  balances: undefined,
+  setBalance(balances) {
+    set({
+      balances,
+    });
+  },
+
+  getAssetBalance: (props) => {
+    const balances = get().balances;
+    if (balances) {
+      for (const balance of balances) {
+        if (
+          balance.asset_type == "credit_alphanum12" ||
+          balance.asset_type == "credit_alphanum4"
+        ) {
+          if (
+            balance.asset_code == props.code &&
+            balance.asset_issuer == props.issuer
+          ) {
+            return Number(balance.balance);
+          }
+        }
+      }
+    }
+    return 0;
+  },
+
+  getXLMBalance: () => {
+    const balances = get().balances;
+    if (balances) {
+      for (const bal of balances) {
+        if (bal.asset_type == "native") {
+          return bal.balance;
+        }
+      }
+    }
+  },
+
+  userAssetsCodeIssuer: [],
+}));

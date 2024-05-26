@@ -2,7 +2,7 @@ import Link from "next/link";
 import { WalletType } from "package/connect_wallet/src/lib/enums";
 import { useConnectWalletStateStore } from "package/connect_wallet/src/state/connect_wallet_state";
 import { env } from "~/env";
-import { useUserStellarAcc } from "~/lib/state/wallete/userAccBalances";
+import { useUserStellarAcc } from "~/lib/state/wallete/stellar-balances";
 import { api } from "~/utils/api";
 
 export function SiteAssetBalance() {

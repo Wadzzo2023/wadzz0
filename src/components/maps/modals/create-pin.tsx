@@ -1,10 +1,22 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Maximize } from "lucide-react";
-import React from "react";
+import React, { ChangeEvent, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { z } from "zod";
 import { api } from "~/utils/api";
+import { match } from "ts-pattern";
+import { error, empty, loading, success } from "~/utils/trcp/patterns";
+import clsx from "clsx";
+import { useCreatorStorageAcc } from "~/lib/state/wallete/stellar-balances";
+import { STROOP } from "~/lib/stellar/marketplace/constant";
+
+type AssetType = {
+  id: number;
+  code: string;
+  issuer: string;
+  thumbnail: string;
+};
 
 export const createPinFormSchema = z.object({
   lat: z.number(),
@@ -12,10 +24,15 @@ export const createPinFormSchema = z.object({
   description: z.string(),
   title: z.string().min(3),
   image: z.string().url().optional(),
-  startDate: z.date().min(new Date()),
+  startDate: z.date().min(new Date(new Date().setHours(0, 0, 0, 0))),
   endDate: z.date().min(new Date()),
   autoCollect: z.boolean(),
   limit: z.number().nonnegative().min(1),
+  token: z.number(),
+  tokenAmount: z.number().nonnegative().min(Number(STROOP)),
+  pinNumber: z.number().nonnegative().min(2),
+  radius: z.number().nonnegative().default(10),
+  pinCollectionLimit: z.number().min(0),
 });
 
 export default function CreatePinModal({
@@ -25,12 +42,19 @@ export default function CreatePinModal({
   modal: React.RefObject<HTMLDialogElement>;
   position?: google.maps.LatLngLiteral;
 }) {
+  // hooks
+  const [isSinglePin, setIsSinglePin] = useState(true);
+  const [selectedToken, setSelectedToken] = useState<
+    AssetType & { bal: number }
+  >();
+  const { getAssetBalance } = useCreatorStorageAcc();
   const {
     register,
     handleSubmit,
     setValue,
     getValues,
     reset,
+    watch,
     formState: { errors },
     control,
   } = useForm<z.infer<typeof createPinFormSchema>>({
@@ -41,12 +65,32 @@ export default function CreatePinModal({
     },
   });
 
-  function resetState() {
-    // console.log("hi");
-    reset();
-  }
+  // query
+  const assets = api.fan.asset.myAssets.useQuery(undefined, {});
+  const assetsDropdown = match(assets)
+    .with(success, () => (
+      <label className="form-control w-full max-w-xs">
+        <div className="label">
+          <span className="label-text">Choose Token</span>
+        </div>
+        <select
+          className="select select-bordered"
+          onChange={handleTokenOptionChange}
+        >
+          <option disabled>Pick one</option>
+          {assets.data?.map((asset: AssetType) => (
+            <option key={asset.id} value={asset.id}>
+              {asset.code}
+            </option>
+          ))}
+        </select>
+      </label>
+    ))
+    .with(loading, (data) => <p>Loading...</p>)
+    .with(error, (data) => <p>{data.failureReason?.message}</p>)
+    .otherwise(() => <p>Failed to fetch assets</p>);
 
-  console.log(errors, "er");
+  // mutations
 
   const addPinM = api.maps.pin.createPin.useMutation({
     onSuccess: () => {
@@ -55,6 +99,11 @@ export default function CreatePinModal({
       toast.success("Pin created successfully");
     },
   });
+
+  // functions
+  function resetState() {
+    reset();
+  }
 
   const onSubmit: SubmitHandler<z.infer<typeof createPinFormSchema>> = (
     data,
@@ -67,6 +116,22 @@ export default function CreatePinModal({
       toast.error("Please select a location on the map");
     }
   };
+
+  function handleTokenOptionChange(
+    event: ChangeEvent<HTMLSelectElement>,
+  ): void {
+    const selectedAssetId = Number(event.target.value);
+    const selectedAsset = assets.data?.find(
+      (asset) => asset.id === selectedAssetId,
+    );
+    if (selectedAsset) {
+      const bal = getAssetBalance({
+        code: selectedAsset.code,
+        issuer: selectedAsset.issuer,
+      });
+      setSelectedToken({ ...selectedAsset, bal: bal });
+    }
+  }
   return (
     <>
       <dialog className="modal" ref={modal}>
@@ -88,6 +153,13 @@ export default function CreatePinModal({
                 Longitude:{" "}
                 <span className="text-blue-500">{position?.lng}</span>
               </p>
+
+              <div className="flex justify-between">
+                {assetsDropdown}
+                {selectedToken && <TokenInStorage bal={selectedToken.bal} />}
+              </div>
+
+              <AvailableTokenField />
 
               <div className="flex flex-col space-y-2">
                 <label htmlFor="title" className="text-sm font-medium">
@@ -115,21 +187,6 @@ export default function CreatePinModal({
                 />
                 {errors.description && (
                   <p className="text-red-500">{errors.description.message}</p>
-                )}
-              </div>
-
-              <div className="flex flex-col space-y-2">
-                <label htmlFor="image" className="text-sm font-medium">
-                  Image
-                </label>
-                <input
-                  type="text"
-                  id="image"
-                  {...register("image")}
-                  className="input input-bordered"
-                />
-                {errors.image && (
-                  <p className="text-red-500">{errors.image.message}</p>
                 )}
               </div>
 
@@ -219,4 +276,126 @@ export default function CreatePinModal({
       </dialog>
     </>
   );
+
+  // components
+  function MultipinField() {
+    if (!isSinglePin)
+      return (
+        <>
+          <div className="flex flex-col space-y-2">
+            <label htmlFor="radius" className="text-sm font-medium">
+              Radius
+            </label>
+            <input
+              type="number"
+              id="radius"
+              {...register("radius", { valueAsNumber: true })}
+              className="input input-bordered"
+            />
+            {errors.radius && (
+              <p className="text-red-500">{errors.radius.message}</p>
+            )}
+          </div>
+
+          <div className="flex flex-col space-y-2">
+            <label htmlFor="pinNumber" className="text-sm font-medium">
+              Pin Number
+            </label>
+            <input
+              type="number"
+              id="pinNumber"
+              {...register("pinNumber", { valueAsNumber: true })}
+              className="input input-bordered"
+            />
+            {errors.pinNumber && (
+              <p className="text-red-500">{errors.pinNumber.message}</p>
+            )}
+          </div>
+        </>
+      );
+  }
+  function AvailableTokenField() {
+    const tokenAmount = watch("tokenAmount");
+
+    if (selectedToken && selectedToken.bal > 0) {
+      if (selectedToken.bal < tokenAmount) {
+        setValue("tokenAmount", selectedToken.bal);
+      }
+      if (tokenAmount < 0) setValue("tokenAmount", 0);
+      return (
+        <>
+          <label className="form-control w-full">
+            <div className="label">
+              <span className="label-text">
+                How many token you want to drop ?
+              </span>
+            </div>
+            <input
+              // max={selectedToken.bal}
+              step={Number(STROOP)}
+              type="number"
+              {...register("tokenAmount", {
+                valueAsNumber: true,
+                max: selectedToken.bal,
+              })}
+              placeholder="eg. 1000"
+              className="input input-bordered w-full max-w-xs"
+            />
+            {errors.tokenAmount && (
+              <div className="label">
+                <span className="label-text-alt text-red-500">
+                  {errors.tokenAmount.message}
+                </span>
+              </div>
+            )}
+          </label>
+
+          <div role="tablist" className="tabs-boxed tabs max-w-xs">
+            <a
+              role="tab"
+              className={clsx("tab", isSinglePin && "tab-active")}
+              onClick={() => setIsSinglePin(true)}
+            >
+              Single Pin
+            </a>
+            <a
+              role="tab"
+              className={clsx("tab", !isSinglePin && "tab-active")}
+              onClick={() => setIsSinglePin(false)}
+            >
+              Multipin
+            </a>
+          </div>
+
+          <MultipinField />
+
+          <label className="form-control w-full">
+            <div className="label">
+              <span className="label-text">
+                How many user can collect a pin?
+              </span>
+            </div>
+
+            <input
+              type="number"
+              id="perUserTokenAmount"
+              {...register("pinCollectionLimit", { valueAsNumber: true })}
+              className="input input-bordered"
+            />
+            {errors.pinCollectionLimit && (
+              <div className="label">
+                <span className="label-text-alt text-red-500">
+                  {errors.pinCollectionLimit.message}
+                </span>
+              </div>
+            )}
+          </label>
+        </>
+      );
+    }
+  }
+}
+
+function TokenInStorage({ bal }: { bal: number }) {
+  return <p>{bal}</p>;
 }

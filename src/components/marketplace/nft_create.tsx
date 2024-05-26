@@ -13,7 +13,7 @@ import { clientsign, useConnectWalletStateStore } from "package/connect_wallet";
 import { AccountSchema, clientSelect } from "~/lib/stellar/fan/utils";
 import { PlusIcon } from "lucide-react";
 import { WalletType } from "package/connect_wallet/src/lib/enums";
-import { useUserStellarAcc } from "~/lib/state/wallete/userAccBalances";
+import { useUserStellarAcc } from "~/lib/state/wallete/stellar-balances";
 import Loading from "../wallete/loading";
 import { PLATFROM_ASSET, PLATFROM_FEE } from "~/lib/stellar/fan/constant";
 import Alert from "../ui/alert";

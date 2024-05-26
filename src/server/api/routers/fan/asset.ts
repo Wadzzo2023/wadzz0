@@ -4,6 +4,7 @@ import { NftFormSchema } from "~/components/marketplace/nft_create";
 
 import {
   createTRPCRouter,
+  creatorProcedure,
   protectedProcedure,
   publicProcedure,
 } from "~/server/api/trpc";
@@ -181,6 +182,13 @@ export const shopRouter = createTRPCRouter({
   //     },
   //   });
   // }),
+
+  myAssets: creatorProcedure.query(async ({ ctx }) => {
+    return await ctx.db.asset.findMany({
+      where: { creatorId: ctx.session.user.id },
+      select: { code: true, issuer: true, thumbnail: true, id: true },
+    });
+  }),
 
   getCreatorAsset: protectedProcedure
     .input(z.object({ creatorId: z.string() }))

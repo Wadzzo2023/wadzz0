@@ -85,6 +85,7 @@
     "tailwind-scrollbar": "^3.1.0",
     "tailwind-scrollbar-hide": "^1.1.7",
     "tailwindcss-animate": "^1.0.7",
+    "ts-pattern": "^5.1.2",
     "uploadthing": "^6.2.0",
     "zod": "^3.22.4",
     "zustand": "^4.4.1"
