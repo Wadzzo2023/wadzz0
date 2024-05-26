@@ -1,29 +1,20 @@
 import {
   APIProvider,
+  AdvancedMarker,
   Map,
   MapMouseEvent,
   Marker,
 } from "@vis.gl/react-google-maps";
+import Image from "next/image";
 import React, { useState } from "react";
+import { Avatar, Loading } from "react-daisyui";
 import toast from "react-hot-toast";
 import CreatePinModal from "~/components/maps/modals/create-pin";
+import { api } from "~/utils/api";
 
 function App() {
   const modal = React.useRef<HTMLDialogElement>(null);
   const [clickedPos, updatePos] = useState<google.maps.LatLngLiteral>();
-  const positions = [
-    { lat: 61.2176, lng: -149.8997 },
-    // suggest random positions
-    { lat: 41.2176, lng: -14.8997 },
-    { lat: 21.2176, lng: -19.8997 },
-
-    { lat: 61.2176, lng: -19.8997 },
-    { lat: 61.2176, lng: -9.8997 },
-    { lat: 61.2176, lng: -19.8997 },
-    { lat: 61.2176, lng: -9.8997 },
-    { lat: 61.2176, lng: -19.8997 },
-    { lat: 61.2176, lng: -9.8997 },
-  ];
 
   function handleMapClick(event: MapMouseEvent): void {
     const position = event.detail.latLng;
@@ -43,19 +34,47 @@ function App() {
         onClick={handleMapClick}
         // center={position}
         // zoom={100}
+        mapId={"bf51eea910020fa25a"}
         style={{ height: "100vh" }}
         defaultCenter={{ lat: 22.54992, lng: 0 }}
         defaultZoom={3}
         gestureHandling={"greedy"}
         disableDefaultUI={true}
       >
-        {positions.map((position, index) => (
-          <Marker key={index} position={position} />
-        ))}
+        <MyPins />
       </Map>
-      <CreatePinModal modal={modal} position={clickedPos} />
+      {clickedPos && <CreatePinModal modal={modal} position={clickedPos} />}
     </APIProvider>
   );
+}
+
+function MyPins() {
+  const pins = api.maps.pin.getMyPins.useQuery();
+
+  if (pins.isLoading) return <Loading />;
+
+  if (pins.data) {
+    return (
+      <>
+        {pins.data.map((pin) => (
+          <AdvancedMarker
+            key={pin.id}
+            position={{ lat: pin.latitude, lng: pin.longitude }}
+          >
+            {/* <span className="tree">🌳</span> */}
+            <span>
+              <Image
+                src="/favicon.ico"
+                width={30}
+                height={30}
+                alt="vong cong"
+              />
+            </span>
+          </AdvancedMarker>
+        ))}
+      </>
+    );
+  }
 }
 
 export default App;

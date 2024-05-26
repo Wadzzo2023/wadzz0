@@ -427,16 +427,19 @@ model Location {
     isActive Boolean
     image    String?
 
+    limit Int
+
     creatorId String
     creator   Creator @relation(fields: [creatorId], references: [id], onDelete: Cascade)
 
+    title       String
     description String?
     startDate   DateTime
     endDate     DateTime
 
     autoCollect Boolean
 
-    approved         Boolean
+    approved         Boolean            @default(false)
     LocationConsumer LocationConsumer[]
 }
 

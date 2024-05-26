@@ -31,12 +31,12 @@ export const useUserStellarAcc = create<Balance>((set, get) => ({
       balances,
     });
     get().setPlatformAssetBalance(balances);
-    console.log(
-      "...balances...",
-      balances,
-      PLATFROM_ASSET,
-      get().platformAssetBalance,
-    );
+    // console.log(
+    //   // "...balances...",
+    //   balances,
+    //   PLATFROM_ASSET,
+    //   get().platformAssetBalance,
+    // );
   },
 
   getAssetBalance: (props) => {

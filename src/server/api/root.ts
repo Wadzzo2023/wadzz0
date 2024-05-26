@@ -4,6 +4,7 @@ import { musicRouter } from "./routers/music/root";
 import { marketplaceRouter } from "./routers/marketplace/root";
 import { wallateRouter } from "./routers/wallate/root";
 import { authRouter } from "./routers/auth/root";
+import { mapsRouter } from "./routers/maps/root";
 
 /**
  * This is the primary router for your server.
@@ -16,6 +17,7 @@ export const appRouter = createTRPCRouter({
   marketplace: marketplaceRouter,
   wallate: wallateRouter,
   auth: authRouter,
+  maps: mapsRouter,
 });
 
 // export type definition of API

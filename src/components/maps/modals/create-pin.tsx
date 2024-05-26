@@ -1,10 +1,12 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Maximize } from "lucide-react";
 import React from "react";
-import { useForm } from "react-hook-form";
+import { SubmitHandler, useForm } from "react-hook-form";
+import toast from "react-hot-toast";
 import { z } from "zod";
+import { api } from "~/utils/api";
 
-const createPinFormSchema = z.object({
+export const createPinFormSchema = z.object({
   lat: z.number(),
   lng: z.number(),
   description: z.string(),
@@ -13,6 +15,7 @@ const createPinFormSchema = z.object({
   startDate: z.date().min(new Date()),
   endDate: z.date().min(new Date()),
   autoCollect: z.boolean(),
+  limit: z.number().nonnegative().min(1),
 });
 
 export default function CreatePinModal({
@@ -39,21 +42,53 @@ export default function CreatePinModal({
   });
 
   function resetState() {
-    console.log("hi");
+    // console.log("hi");
+    reset();
   }
 
+  console.log(errors, "er");
+
+  const addPinM = api.maps.pin.createPin.useMutation({
+    onSuccess: () => {
+      reset();
+      modal.current?.close();
+      toast.success("Pin created successfully");
+    },
+  });
+
+  const onSubmit: SubmitHandler<z.infer<typeof createPinFormSchema>> = (
+    data,
+  ) => {
+    if (position) {
+      setValue("lat", position?.lat);
+      setValue("lng", position?.lng);
+      addPinM.mutate(data);
+    } else {
+      toast.error("Please select a location on the map");
+    }
+  };
   return (
     <>
       <dialog className="modal" ref={modal}>
         <div className="modal-box">
-          <form method="dialog" className="">
+          <form method="dialog">
             <button
               className="btn btn-circle btn-ghost btn-sm absolute right-2 top-2"
               onClick={() => resetState()}
             >
               ✕
             </button>
+          </form>
+          <form className="mt-5" onSubmit={handleSubmit(onSubmit)}>
+            <h2 className="mb-2 text-center text-lg font-bold">Create Pin</h2>
             <div className="flex flex-col space-y-4">
+              <p>
+                Latitude: <span className="text-blue-500">{position?.lat}</span>
+                <br></br>
+                Longitude:{" "}
+                <span className="text-blue-500">{position?.lng}</span>
+              </p>
+
               <div className="flex flex-col space-y-2">
                 <label htmlFor="title" className="text-sm font-medium">
                   Title
@@ -140,11 +175,34 @@ export default function CreatePinModal({
                 </label>
               </div>
 
+              <div className="flex flex-col space-y-2">
+                <label htmlFor="limit" className="text-sm font-medium">
+                  Limit
+                </label>
+                <input
+                  type="number"
+                  id="limit"
+                  {...register("limit", { valueAsNumber: true })}
+                  className="input input-bordered"
+                />
+                {errors.limit && (
+                  <p className="text-red-500">{errors.limit.message}</p>
+                )}
+              </div>
+
               <button
                 type="submit"
                 className="btn btn-primary"
-                onClick={handleSubmit((data) => console.log(data))}
+                disabled={addPinM.isLoading}
+                // onClick={handleSubmit((data) => console.log(data))}
               >
+                {addPinM.isLoading ? (
+                  <div className="flex justify-center">
+                    <div className="spinner"></div>
+                  </div>
+                ) : (
+                  "Submit"
+                )}
                 Submit
               </button>
             </div>
