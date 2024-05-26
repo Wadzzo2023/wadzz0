@@ -15,7 +15,7 @@ export const loading = {
 
 export const empty = {
   data: P.when(
-    // @ts-ignore
+    // @ts-expect-error - data is not defined in the type
     (data: null | undefined | []) =>
       data === null || data === undefined || data.length === 0,
   ),

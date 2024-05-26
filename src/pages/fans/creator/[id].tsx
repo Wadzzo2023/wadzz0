@@ -16,7 +16,7 @@ import clsx from "clsx";
 import { CreatorBack } from "~/pages/fans/creator";
 import { getAssetBalanceFromBalance } from "~/lib/stellar/marketplace/test/acc";
 import { set } from "date-fns";
-import { useUserStellarAcc } from "~/lib/state/wallete/userAccBalances";
+import { useUserStellarAcc } from "~/lib/state/wallete/stellar-balances";
 
 export default function CreatorPage() {
   const router = useRouter();

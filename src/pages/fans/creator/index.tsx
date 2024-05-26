@@ -13,7 +13,7 @@ import Alert from "~/components/ui/alert";
 import Avater from "~/components/ui/avater";
 import Loading from "~/components/wallete/loading";
 import { CreatorMenu, useCreator } from "~/lib/state/fan/creator-menu";
-import { useUserStellarAcc } from "~/lib/state/wallete/userAccBalances";
+import { useUserStellarAcc } from "~/lib/state/wallete/stellar-balances";
 import { PLATFROM_ASSET, PLATFROM_FEE } from "~/lib/stellar/fan/constant";
 import { clientSelect } from "~/lib/stellar/fan/utils";
 import { api } from "~/utils/api";
