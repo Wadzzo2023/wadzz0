@@ -38,7 +38,9 @@ export default function CreatePinModal({
     },
   });
 
-  function resetState() {}
+  function resetState() {
+    console.log("hi");
+  }
 
   return (
     <>

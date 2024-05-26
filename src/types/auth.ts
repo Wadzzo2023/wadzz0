@@ -30,6 +30,7 @@ export const providerAuthShema = z.object({
   walletType: z.union([
     z.literal(WalletType.google),
     z.literal(WalletType.facebook),
+    z.literal(WalletType.apple),
   ]),
 });
 
