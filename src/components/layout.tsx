@@ -19,6 +19,16 @@ export default function Layout({
   className?: string;
 }) {
   const { data } = useSession();
+  const router = useRouter();
+
+  if (router.pathname === "/maps") {
+    return (
+      <div className="flex">
+        <LeftBar className="hidden md:flex" />
+        {children}
+      </div>
+    );
+  }
 
   return (
     <>
