@@ -7,6 +7,7 @@ import {
   protectedProcedure,
   publicProcedure,
 } from "~/server/api/trpc";
+import { getLocationInLatLngRad } from "~/utils/map";
 
 export const pinRouter = createTRPCRouter({
   getSecretMessage: protectedProcedure.query(() => {
@@ -16,22 +17,68 @@ export const pinRouter = createTRPCRouter({
   createPin: creatorProcedure
     .input(createPinFormSchema)
     .mutation(async ({ ctx, input }) => {
-      const {} = input;
+      const {
+        isSinglePin,
+        radius,
+        pinNumber,
+        pinCollectionLimit,
+        tokenAmount: totalTokenAmount,
+        token: tokenId,
+      } = input;
+      const claimAmount = totalTokenAmount / pinCollectionLimit;
 
-      await ctx.db.location.create({
-        data: {
-          autoCollect: input.autoCollect,
-          limit: input.limit,
-          endDate: input.endDate,
-          latitude: input.lat,
-          longitude: input.lng,
-          title: input.title,
-          creatorId: ctx.session.user.id,
-          isActive: true,
-          startDate: input.startDate,
-          description: input.description,
-        },
-      });
+      if (isSinglePin) {
+        return await ctx.db.location.create({
+          data: {
+            claimAmount,
+            assetId: tokenId,
+
+            autoCollect: input.autoCollect,
+            limit: input.pinCollectionLimit,
+            endDate: input.endDate,
+            latitude: input.lat,
+            longitude: input.lng,
+            title: input.title,
+            creatorId: ctx.session.user.id,
+            isActive: true,
+            startDate: input.startDate,
+            description: input.description,
+          },
+        });
+      } else {
+        const amountPerPin = totalTokenAmount / pinNumber;
+        const claimAmount = amountPerPin / pinCollectionLimit;
+
+        await ctx.db.locationGroup.create({
+          data: {
+            creatorId: ctx.session.user.id,
+            locations: {
+              createMany: {
+                data: Array.from({ length: pinNumber }).map(() => {
+                  const randomLocatin = getLocationInLatLngRad(input.radius, {
+                    latitude: input.lat,
+                    longitude: input.lng,
+                  });
+                  return {
+                    claimAmount,
+                    assetId: tokenId,
+                    autoCollect: input.autoCollect,
+                    limit: input.pinCollectionLimit,
+                    endDate: input.endDate,
+                    latitude: randomLocatin.latitude,
+                    longitude: randomLocatin.longitude,
+                    title: input.title,
+                    creatorId: ctx.session.user.id,
+                    isActive: true,
+                    startDate: input.startDate,
+                    description: input.description,
+                  };
+                }),
+              },
+            },
+          },
+        });
+      }
     }),
 
   getMyPins: creatorProcedure.query(async ({ ctx }) => {

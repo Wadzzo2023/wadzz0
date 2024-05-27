@@ -92,7 +92,11 @@ export const authOptions: NextAuthOptions = {
           const user = userCredential.user;
           const data = await getUserPublicKey({ email: email, uid: user.uid });
           const sessionUser = await dbUser(data.publicKey);
-          return { ...sessionUser, walletType: WalletType.emailPass };
+          return {
+            ...sessionUser,
+            walletType: WalletType.emailPass,
+            email: email,
+          };
         }
 
         // wallete
@@ -134,7 +138,7 @@ export const authOptions: NextAuthOptions = {
           const uid = await verifyIdToken(token);
           const data = await getUserPublicKey({ uid, email });
           const sessionUser = await dbUser(data.publicKey);
-          return { ...sessionUser, walletType: cred.walletType };
+          return { ...sessionUser, walletType: cred.walletType, email: email };
         }
 
         return null;

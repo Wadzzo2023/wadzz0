@@ -2,7 +2,12 @@ import { Creator } from "@prisma/client";
 import { type Session } from "next-auth";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
-import { clientsign, useConnectWalletStateStore } from "package/connect_wallet";
+import {
+  WalletType,
+  clientsign,
+  useConnectWalletStateStore,
+} from "package/connect_wallet";
+import useNeedSign from "~/lib/hook";
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { PostMenu } from "~/components/fan/creator/CreatPost";
@@ -123,21 +128,23 @@ function ValidCreateCreator() {
 }
 
 function CreateCreator({ requiredToken }: { requiredToken: number }) {
-  const { pubkey, needSign, walletType } = useConnectWalletStateStore();
+  const { needSign } = useNeedSign();
+  const session = useSession();
   const makeCreatorMutation = api.fan.creator.makeMeCreator.useMutation();
   const [signLoading, setSingLoading] = useState(false);
 
   const xdr = api.fan.trx.createStorageAccount.useMutation({
     onSuccess: (data) => {
       const { xdr, storage } = data;
-      // console.log(xdr, storage);
+      console.log(xdr, storage);
       setSingLoading(true);
 
+      toast(xdr);
       const toastId = toast.loading("Creating account");
       clientsign({
         presignedxdr: xdr,
-        pubkey,
-        walletType,
+        pubkey: session.data?.user.id ?? "",
+        walletType: session.data?.user.walletType ?? WalletType.none,
         test: clientSelect(),
       })
         .then((isSucces) => {

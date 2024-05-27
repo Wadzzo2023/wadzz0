@@ -180,6 +180,7 @@ model Creator {
     pageAsset     CreatorPageAsset?
     followers     Follow[]
     Location      Location[]
+    LocationGroup LocationGroup[]
 
     @@index([bio, name])
 }
@@ -334,6 +335,7 @@ model Asset {
     song        Song?
     buyers      User_Asset[]
     marketItems MarketAsset[]
+    Location    Location[]
 
     @@unique([code, issuer])
     @@index([name, description])
@@ -416,6 +418,15 @@ model Admin {
 
 // ------------------------Mapping SCHEMA-------------------------
 
+model LocationGroup {
+    id String @id @default(cuid())
+
+    creatorId String
+    creator   Creator @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+
+    locations Location[]
+}
+
 model Location {
     id String @id @default(cuid())
 
@@ -424,10 +435,14 @@ model Location {
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 
+    assetId     Int
+    asset       Asset @relation(fields: [assetId], references: [id], onDelete: Cascade)
+    claimAmount Float // how much each person will claim
+
     isActive Boolean
     image    String?
 
-    limit Int
+    limit Int // how many person can clain the Location / pin
 
     creatorId String
     creator   Creator @relation(fields: [creatorId], references: [id], onDelete: Cascade)
@@ -439,7 +454,11 @@ model Location {
 
     autoCollect Boolean
 
-    approved         Boolean            @default(false)
+    approved Boolean @default(false)
+
+    locationGroupId String?
+    locationGroup   LocationGroup? @relation(fields: [locationGroupId], references: [id], onDelete: Cascade)
+
     LocationConsumer LocationConsumer[]
 }
 

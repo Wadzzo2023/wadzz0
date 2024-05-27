@@ -1,6 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Maximize } from "lucide-react";
-import React, { ChangeEvent, useState } from "react";
+import React, { ChangeEvent, useEffect, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { z } from "zod";
@@ -27,12 +27,12 @@ export const createPinFormSchema = z.object({
   startDate: z.date().min(new Date(new Date().setHours(0, 0, 0, 0))),
   endDate: z.date().min(new Date()),
   autoCollect: z.boolean(),
-  limit: z.number().nonnegative().min(1),
   token: z.number(),
-  tokenAmount: z.number().nonnegative().min(Number(STROOP)),
+  tokenAmount: z.number().nonnegative(),
   pinNumber: z.number().nonnegative().min(2),
   radius: z.number().nonnegative().default(10),
   pinCollectionLimit: z.number().min(0),
+  isSinglePin: z.boolean().default(true),
 });
 
 export default function CreatePinModal({
@@ -52,6 +52,7 @@ export default function CreatePinModal({
     register,
     handleSubmit,
     setValue,
+    setError,
     getValues,
     reset,
     watch,
@@ -63,6 +64,7 @@ export default function CreatePinModal({
       lat: position?.lat,
       lng: position?.lng,
     },
+    mode: "onTouched",
   });
 
   // query
@@ -77,7 +79,9 @@ export default function CreatePinModal({
           className="select select-bordered"
           onChange={handleTokenOptionChange}
         >
-          <option disabled>Pick one</option>
+          <option disabled defaultChecked>
+            Pick one
+          </option>
           {assets.data?.map((asset: AssetType) => (
             <option key={asset.id} value={asset.id}>
               {asset.code}
@@ -105,12 +109,16 @@ export default function CreatePinModal({
     reset();
   }
 
+  console.log("e", errors);
+
   const onSubmit: SubmitHandler<z.infer<typeof createPinFormSchema>> = (
     data,
   ) => {
+    // set other value
     if (position) {
-      setValue("lat", position?.lat);
-      setValue("lng", position?.lng);
+      setValue("isSinglePin", isSinglePin);
+      setValue("lat", position.lat);
+      setValue("lng", position.lng);
       addPinM.mutate(data);
     } else {
       toast.error("Please select a location on the map");
@@ -130,6 +138,7 @@ export default function CreatePinModal({
         issuer: selectedAsset.issuer,
       });
       setSelectedToken({ ...selectedAsset, bal: bal });
+      setValue("token", selectedAsset.id);
     }
   }
   return (
@@ -232,7 +241,7 @@ export default function CreatePinModal({
                 </label>
               </div>
 
-              <div className="flex flex-col space-y-2">
+              {/* <div className="flex flex-col space-y-2">
                 <label htmlFor="limit" className="text-sm font-medium">
                   Limit
                 </label>
@@ -245,7 +254,7 @@ export default function CreatePinModal({
                 {errors.limit && (
                   <p className="text-red-500">{errors.limit.message}</p>
                 )}
-              </div>
+              </div> */}
 
               <button
                 type="submit"
@@ -316,12 +325,7 @@ export default function CreatePinModal({
   }
   function AvailableTokenField() {
     const tokenAmount = watch("tokenAmount");
-
-    if (selectedToken && selectedToken.bal > 0) {
-      if (selectedToken.bal < tokenAmount) {
-        setValue("tokenAmount", selectedToken.bal);
-      }
-      if (tokenAmount < 0) setValue("tokenAmount", 0);
+    if (selectedToken) {
       return (
         <>
           <label className="form-control w-full">
@@ -331,12 +335,10 @@ export default function CreatePinModal({
               </span>
             </div>
             <input
-              // max={selectedToken.bal}
               step={Number(STROOP)}
               type="number"
               {...register("tokenAmount", {
                 valueAsNumber: true,
-                max: selectedToken.bal,
               })}
               placeholder="eg. 1000"
               className="input input-bordered w-full max-w-xs"
@@ -347,6 +349,11 @@ export default function CreatePinModal({
                   {errors.tokenAmount.message}
                 </span>
               </div>
+            )}
+            {tokenAmount > selectedToken.bal && (
+              <span className="label-text-alt text-red-500">
+                {"Insufficient balance"}
+              </span>
             )}
           </label>
 

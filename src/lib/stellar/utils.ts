@@ -1,10 +1,10 @@
+import { getAccSecretFromRubyApi } from "package/connect_wallet/src/lib/stellar/get-acc-secret";
 import { z } from "zod";
-import { signXdrTransaction } from "./fan/signXDR";
-import { getAccSecret } from "package/connect_wallet";
 import { env } from "~/env";
+import { signXdrTransaction } from "./fan/signXDR";
 
 export const SignUser = z
-  .object({ uid: z.string(), email: z.string() })
+  .object({ email: z.string() })
   .optional()
   .or(z.object({ isAdmin: z.boolean() }));
 export type SignUserType = z.TypeOf<typeof SignUser>;
@@ -18,7 +18,9 @@ export async function WithSing({
 }) {
   if (signWith) {
     if ("uid" in signWith && "email" in signWith) {
-      const secret = await getAccSecret(signWith.uid, signWith.email);
+      // i don't have the uid and email
+      const secret = await getAccSecretFromRubyApi(signWith.email);
+
       return signXdrTransaction(xdr, secret);
     }
     if ("isAdmin" in signWith) {
