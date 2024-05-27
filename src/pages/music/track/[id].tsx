@@ -1,6 +1,4 @@
 import { useRouter } from "next/router";
-import { useConnectWalletStateStore } from "package/connect_wallet";
-import TrackCover from "~/components/music/track/cover";
 import Alert from "~/components/ui/alert";
 import { api } from "~/utils/api";
 
@@ -19,7 +17,6 @@ export default function TrackPageWrapper() {
 }
 
 export function TrackPage({ songId }: { songId: number }) {
-  const { isAva, pubkey: pubKey } = useConnectWalletStateStore();
   const song = api.music.song.getAsong.useQuery({ songId });
 
   if (song.isLoading) return <span className="loading loading-spinner" />;

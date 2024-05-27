@@ -1,15 +1,12 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Creator } from "@prisma/client";
+import { Plus } from "lucide-react";
 import React, { useRef } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { z } from "zod";
-import { api } from "~/utils/api";
-import { clientsign, useConnectWalletStateStore } from "package/connect_wallet";
-import { Plus } from "lucide-react";
-import Alert from "../../ui/alert";
-import { PLATFROM_ASSET, PLATFROM_FEE } from "~/lib/stellar/fan/constant";
 import { Editor } from "~/components/editor";
+import { api } from "~/utils/api";
 
 export const TierSchema = z.object({
   name: z
@@ -35,7 +32,6 @@ export default function AddTierModal({ creator }: { creator: Creator }) {
   const modalRef = useRef<HTMLDialogElement>(null);
   const [isModalOpen, setIsModalOpen] = React.useState(false);
 
-  const { pubkey, walletType, needSign } = useConnectWalletStateStore();
   const mutation = api.fan.member.createMembership.useMutation({
     onSuccess: () => {
       toast.success("Tier created successfully");

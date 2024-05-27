@@ -1,14 +1,16 @@
 import { useRef } from "react";
 import { api } from "~/utils/api";
 
-import { clientsign, useConnectWalletStateStore } from "package/connect_wallet";
+import { useSession } from "next-auth/react";
+import { clientsign } from "package/connect_wallet";
 import toast from "react-hot-toast";
-import { clientSelect } from "~/lib/stellar/fan/utils";
 import {
   AssetType,
   SongTokenCopies,
   TokenCopies,
 } from "~/components/marketplace/market_right";
+import useNeedSign from "~/lib/hook";
+import { clientSelect } from "~/lib/stellar/fan/utils";
 import { addrShort } from "~/utils/utils";
 
 type BuyModalProps = {
@@ -23,7 +25,8 @@ export default function BuyModal({
   price,
   marketItemId,
 }: BuyModalProps) {
-  const { needSign, pubkey, walletType } = useConnectWalletStateStore();
+  const session = useSession();
+  const { needSign } = useNeedSign();
 
   const createAlbumModal = useRef<HTMLDialogElement>(null);
 
@@ -38,8 +41,8 @@ export default function BuyModal({
         const presignedxdr = data;
         clientsign({
           presignedxdr,
-          pubkey,
-          walletType,
+          pubkey: session.data?.user.id,
+          walletType: session.data?.user.walletType,
           test: clientSelect(),
         })
           .then((res) => {

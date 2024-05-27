@@ -1,12 +1,13 @@
-import { clientsign, useConnectWalletStateStore } from "package/connect_wallet";
+import { Asset } from "@prisma/client";
+import { useSession } from "next-auth/react";
+import { clientsign } from "package/connect_wallet";
 import React, { useRef, useState } from "react";
 import toast from "react-hot-toast";
-import { api } from "~/utils/api";
-import { truncateString } from "~/utils/string";
 import { PLATFROM_ASSET, PLATFROM_FEE } from "~/lib/stellar/fan/constant";
 import { clientSelect } from "~/lib/stellar/fan/utils";
+import { api } from "~/utils/api";
+import { truncateString } from "~/utils/string";
 import { cn } from "~/utils/utils";
-import { Asset } from "@prisma/client";
 
 export default function BuyItemModal({
   item,
@@ -53,9 +54,8 @@ export default function BuyItemModal({
 }
 
 function ModalContent({ item }: { item: Asset }) {
-  const { isAva, pubkey, walletType, uid, email } =
-    useConnectWalletStateStore();
   const [trxMsg, setTrxMsg] = useState<string>();
+  const session = useSession();
 
   // TODO: fix this default value
   const price = 10;
@@ -64,8 +64,8 @@ function ModalContent({ item }: { item: Asset }) {
     onSuccess: (data) => {
       clientsign({
         presignedxdr: data,
-        pubkey,
-        walletType,
+        pubkey: session.data?.user.id,
+        walletType: session.data?.user.walletType,
         test: clientSelect(),
       })
         .then((res) => {

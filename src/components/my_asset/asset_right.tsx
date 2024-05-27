@@ -1,28 +1,26 @@
 import { useState } from "react";
 // import ReactPlayer from "react-player";
-import { api } from "~/utils/api";
-import { useConnectWalletStateStore } from "package/connect_wallet";
-import MyError from "../wallete/my_error";
 import { Asset, MediaType } from "@prisma/client";
+import { useAssetRightStore } from "~/lib/state/assets_right";
+import {
+  AssetMenu,
+  useAssetMenu,
+} from "~/lib/state/marketplace/asset-tab-menu";
+import { api } from "~/utils/api";
+import PlaceNFT2Storage from "../marketplace/modal/place_2storage_modal";
+import EnableInMarket from "../marketplace/modal/place_market_modal";
+import NftBackModal from "../marketplace/modal/revert_place_market_modal";
 import {
   AudioViewer,
   ThumbNailView,
   VideoViewer,
 } from "../wallete/Image_video_viewer";
-import { useAssetRightStore } from "~/lib/state/assets_right";
-import PlaceNFT2Storage from "../marketplace/modal/place_2storage_modal";
-import EnableInMarket from "../marketplace/modal/place_market_modal";
-import {
-  AssetMenu,
-  useAssetMenu,
-} from "~/lib/state/marketplace/asset-tab-menu";
-import NftBackModal from "../marketplace/modal/revert_place_market_modal";
+import MyError from "../wallete/my_error";
 
 export type MarketAssetType = Omit<Asset, "issuerPrivate">;
 
 export default function AssetRight() {
   const { currentData } = useAssetRightStore();
-  const { isAva, pubkey } = useConnectWalletStateStore();
 
   if (!currentData)
     return (
@@ -80,7 +78,6 @@ export default function AssetRight() {
 
 function OtherButtons() {
   const { currentData } = useAssetRightStore();
-  const { pubkey } = useConnectWalletStateStore();
   const { selectedMenu, setSelectedMenu } = useAssetMenu();
 
   if (currentData) {

@@ -1,16 +1,12 @@
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/router";
+import { ConnectWalletButton } from "package/connect_wallet";
 import AlbumCover from "~/components/music/album/cover";
 import SongList from "~/components/music/album/table";
 import SongCreate from "~/components/music/modal/song_create";
-import { useRouter } from "next/router";
-import { useSession } from "next-auth/react";
-import { useEffect, useState } from "react";
-import {
-  ConnectWalletButton,
-  useConnectWalletStateStore,
-} from "package/connect_wallet";
+import Alert from "~/components/ui/alert";
 import log from "~/lib/logger/logger";
 import { api } from "~/utils/api";
-import Alert from "~/components/ui/alert";
 import { AlbumSkeleton } from "..";
 
 export default function AlbumPageWrapper() {

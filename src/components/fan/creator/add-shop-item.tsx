@@ -1,16 +1,17 @@
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Plus } from "lucide-react";
+import { useSession } from "next-auth/react";
+import Image from "next/image";
+import { clientsign } from "package/connect_wallet";
 import React, { useRef } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
+import toast from "react-hot-toast";
 import { z } from "zod";
+import { PLATFROM_ASSET, PLATFROM_FEE } from "~/lib/stellar/fan/constant";
+import { AccountSchema, clientSelect } from "~/lib/stellar/fan/utils";
 import { api } from "~/utils/api";
 import { UploadButton } from "~/utils/uploadthing";
-import Image from "next/image";
-import toast from "react-hot-toast";
-import { clientsign, useConnectWalletStateStore } from "package/connect_wallet";
-import { AccountSchema, clientSelect } from "~/lib/stellar/fan/utils";
-import { Plus } from "lucide-react";
 import Alert from "../../ui/alert";
-import { PLATFROM_ASSET, PLATFROM_FEE } from "~/lib/stellar/fan/constant";
 
 export const ShopItemSchema = z.object({
   name: z.string().min(4, { message: "Minimum 4 Required" }),
@@ -32,9 +33,7 @@ export default function AddItem2Shop() {
   const [medialUrl, setMediaUrl] = React.useState<string>();
   const [thumbnail, setThumbnail] = React.useState<string>();
   const [step, setStep] = React.useState(1);
-
-  const { isAva, pubkey, walletType, uid, email } =
-    useConnectWalletStateStore();
+  const session = useSession();
 
   const assetAmount = api.fan.trx.getAssetNumberforXlm.useQuery();
 
@@ -53,8 +52,8 @@ export default function AddItem2Shop() {
         if (xdr) {
           clientsign({
             presignedxdr: xdr,
-            pubkey,
-            walletType,
+            pubkey: session.data?.user.id,
+            walletType: session.data?.user.walletType,
             test: clientSelect(),
           })
             .then((res) => {

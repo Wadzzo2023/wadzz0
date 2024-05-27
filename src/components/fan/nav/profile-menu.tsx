@@ -1,6 +1,6 @@
 import { Sparkle, SwitchCamera } from "lucide-react";
+import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
-import { useConnectWalletStateStore } from "package/connect_wallet";
 import { Mode, useMode } from "~/lib/state/fan/left-side-mode";
 import { api } from "~/utils/api";
 
@@ -67,12 +67,12 @@ function CreatorAvater() {
 }
 
 export function Profile() {
-  const { isAva } = useConnectWalletStateStore();
+  const session = useSession();
   const { selectedMenu, getAnotherMenu, toggleSelectedMenu } = useMode();
 
   const creator = api.fan.creator.meCreator.useQuery();
 
-  if (isAva) {
+  if (session.status == "authenticated") {
     if (selectedMenu == Mode.User) {
       return <UserAvater />;
     } else return <CreatorAvater />;

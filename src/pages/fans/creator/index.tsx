@@ -2,12 +2,7 @@ import { Creator } from "@prisma/client";
 import { type Session } from "next-auth";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
-import {
-  WalletType,
-  clientsign,
-  useConnectWalletStateStore,
-} from "package/connect_wallet";
-import useNeedSign from "~/lib/hook";
+import { WalletType, clientsign } from "package/connect_wallet";
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { PostMenu } from "~/components/fan/creator/CreatPost";
@@ -17,6 +12,7 @@ import Tabs from "~/components/fan/creator/tabs";
 import Alert from "~/components/ui/alert";
 import Avater from "~/components/ui/avater";
 import Loading from "~/components/wallete/loading";
+import useNeedSign from "~/lib/hook";
 import { CreatorMenu, useCreator } from "~/lib/state/fan/creator-menu";
 import { useUserStellarAcc } from "~/lib/state/wallete/stellar-balances";
 import { PLATFROM_ASSET, PLATFROM_FEE } from "~/lib/stellar/fan/constant";

@@ -1,5 +1,7 @@
+import { getAccSecretFromRubyApi } from "package/connect_wallet/src/lib/stellar/get-acc-secret";
 import { Keypair } from "stellar-sdk";
 import { z } from "zod";
+import { getUserSecret } from "~/components/marketplace/recharge/utils";
 import { env } from "~/env";
 import { copyToBalance } from "~/lib/stellar/marketplace/test/acc";
 
@@ -84,28 +86,30 @@ export const stellarRouter = createTRPCRouter({
       });
     }),
 
-  convertSiteAsset: publicProcedure
+  convertSiteAsset: protectedProcedure
     .input(
       z.object({
-        pubkey: z.string(),
         xlm: z.string(),
         siteAssetAmount: z.number(),
-        uid: z.string(),
-        email: z.string().email(),
       }),
     )
-    .mutation(async ({ input }) => {
-      const { pubkey, uid, email, siteAssetAmount, xlm } = input;
+    .mutation(async ({ input, ctx }) => {
+      const { siteAssetAmount, xlm } = input;
+      const user = ctx.session.user;
 
-      const secret = getUserSecret({ uid, email });
+      if (user.email) {
+        const secret = await getAccSecretFromRubyApi(user.email);
 
-      const xdr = await covertSiteAsset2XLM({
-        pubkey,
-        xlm,
-        siteAssetAmount,
-        secret,
-      });
-      return xdr;
+        const xdr = await covertSiteAsset2XLM({
+          pubkey: user.id,
+          xlm,
+          siteAssetAmount,
+          secret,
+        });
+        return xdr;
+      } else {
+        throw new Error("No email attached to the account");
+      }
     }),
 
   hasTrust: publicProcedure
@@ -128,7 +132,3 @@ export const stellarRouter = createTRPCRouter({
     return "you can now see this secret message!";
   }),
 });
-
-function getUserSecret(arg0: { uid: string; email: string }) {
-  return "testSecret";
-}

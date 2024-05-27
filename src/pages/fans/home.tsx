@@ -128,7 +128,6 @@ export function PostSkeleton() {
 }
 
 // function CreatorSecret() {
-//   const { email, uid } = useConnectWalletStateStore();
 
 //   console.log(email, uid);
 

@@ -1,22 +1,22 @@
-import { useRouter } from "next/router";
-import React from "react";
-import { PostCard } from "~/components/fan/creator/post";
-import { api } from "~/utils/api";
 import { Creator, Subscription } from "@prisma/client";
-import MemberShipCard from "~/components/fan/creator/card";
-import { clientsign, useConnectWalletStateStore } from "package/connect_wallet";
+import clsx from "clsx";
+import { useRouter } from "next/router";
+import { clientsign } from "package/connect_wallet";
+import React from "react";
 import toast from "react-hot-toast";
-import { MyAssetType, clientSelect } from "~/lib/stellar/fan/utils";
+import MemberShipCard from "~/components/fan/creator/card";
+import { PostCard } from "~/components/fan/creator/post";
 import {
   CreatorProfileMenu,
   useCreatorProfileMenu,
 } from "~/lib/state/fan/creator-profile-menu";
-import clsx from "clsx";
+import { clientSelect } from "~/lib/stellar/fan/utils";
+import { api } from "~/utils/api";
 // import { ShopItem } from "~/components/fan/creator/shop";
-import { CreatorBack } from "~/pages/fans/creator";
-import { getAssetBalanceFromBalance } from "~/lib/stellar/marketplace/test/acc";
-import { set } from "date-fns";
+import { useSession } from "next-auth/react";
+import useNeedSign from "~/lib/hook";
 import { useUserStellarAcc } from "~/lib/state/wallete/stellar-balances";
+import { CreatorBack } from "~/pages/fans/creator";
 
 export default function CreatorPage() {
   const router = useRouter();
@@ -153,7 +153,8 @@ function UserCreatorBalance({
 }
 
 export function FollowButton({ creator }: { creator: Creator }) {
-  const { pubkey, walletType, needSign } = useConnectWalletStateStore();
+  const session = useSession();
+  const { needSign } = useNeedSign();
   const [signLoading, setSingLoading] = React.useState(false);
 
   const isFollower = api.fan.member.isFollower.useQuery({
@@ -169,8 +170,8 @@ export function FollowButton({ creator }: { creator: Creator }) {
         try {
           const res = await clientsign({
             presignedxdr: xdr,
-            pubkey,
-            walletType,
+            pubkey: session.data?.user.id,
+            walletType: session.data?.user.walletType,
             test: clientSelect(),
           });
 

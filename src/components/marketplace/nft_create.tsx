@@ -1,22 +1,24 @@
-import { SubmitHandler, useForm, Controller } from "react-hook-form";
+import { Controller, SubmitHandler, useForm } from "react-hook-form";
 // import { PinataResponse, pinFileToIPFS } from "~/lib/pinata/upload";
-import { MediaType, Song } from "@prisma/client";
-import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ChangeEvent, useRef, useState } from "react";
-import { UploadButton } from "~/utils/uploadthing";
-import Image from "next/image";
-import toast from "react-hot-toast";
+import { MediaType } from "@prisma/client";
 import clsx from "clsx";
-import { api } from "~/utils/api";
-import { clientsign, useConnectWalletStateStore } from "package/connect_wallet";
-import { AccountSchema, clientSelect } from "~/lib/stellar/fan/utils";
 import { PlusIcon } from "lucide-react";
+import { useSession } from "next-auth/react";
+import Image from "next/image";
+import { clientsign } from "package/connect_wallet";
 import { WalletType } from "package/connect_wallet/src/lib/enums";
+import { ChangeEvent, useRef, useState } from "react";
+import toast from "react-hot-toast";
+import { z } from "zod";
+import useNeedSign from "~/lib/hook";
 import { useUserStellarAcc } from "~/lib/state/wallete/stellar-balances";
-import Loading from "../wallete/loading";
 import { PLATFROM_ASSET, PLATFROM_FEE } from "~/lib/stellar/fan/constant";
+import { AccountSchema, clientSelect } from "~/lib/stellar/fan/utils";
+import { api } from "~/utils/api";
+import { UploadButton } from "~/utils/uploadthing";
 import Alert from "../ui/alert";
+import Loading from "../wallete/loading";
 
 export const ExtraSongInfo = z.object({
   artist: z.string(),
@@ -68,6 +70,7 @@ function NftCreateForm({
   admin?: true;
   requiredTokenAmount: number;
 }) {
+  const session = useSession();
   const { platformAssetBalance } = useUserStellarAcc();
   // pinta upload
   const [file, setFile] = useState<File>();
@@ -83,11 +86,9 @@ function NftCreateForm({
 
   const [mediaUrl, setMediaUrl] = useState<string>();
   const [coverUrl, setCover] = useState<string>();
-  const {
-    needSign,
-    pubkey,
-    walletType: connectedWalletType,
-  } = useConnectWalletStateStore();
+  const { needSign } = useNeedSign();
+
+  const connectedWalletType = session.data?.user.walletType ?? WalletType.none;
   const walletType = isAdmin ? WalletType.isAdmin : connectedWalletType;
 
   const {
@@ -128,7 +129,7 @@ function NftCreateForm({
       toast.promise(
         clientsign({
           presignedxdr: xdr,
-          pubkey,
+          pubkey: session.data?.user.id,
           walletType,
           test: clientSelect(),
         })
@@ -161,7 +162,7 @@ function NftCreateForm({
       xdrMutation.mutate({
         code: data.code,
         limit: data.limit,
-        signWith: needSign(walletType),
+        signWith: needSign(),
         ipfsHash: ipfs,
       });
   };

@@ -1,17 +1,19 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Creator } from "@prisma/client";
+import { Plus } from "lucide-react";
+import { useSession } from "next-auth/react";
+import { clientsign } from "package/connect_wallet";
 import React, { useRef } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { z } from "zod";
-import { api } from "~/utils/api";
-import { clientsign, useConnectWalletStateStore } from "package/connect_wallet";
-import { clientSelect } from "~/lib/stellar/fan/utils";
-import { Plus } from "lucide-react";
-import Alert from "../../ui/alert";
-import { PLATFROM_ASSET, PLATFROM_FEE } from "~/lib/stellar/fan/constant";
-import { useUserStellarAcc } from "~/lib/state/wallete/stellar-balances";
 import Loading from "~/components/wallete/loading";
+import useNeedSign from "~/lib/hook";
+import { useUserStellarAcc } from "~/lib/state/wallete/stellar-balances";
+import { PLATFROM_ASSET, PLATFROM_FEE } from "~/lib/stellar/fan/constant";
+import { clientSelect } from "~/lib/stellar/fan/utils";
+import { api } from "~/utils/api";
+import Alert from "../../ui/alert";
 
 export const CreatorPageAssetSchema = z.object({
   code: z
@@ -74,7 +76,9 @@ function AddCreatorPageAssetModalFrom({
   const [isModalOpen, setIsModalOpen] = React.useState(false);
   const [signLoading, setSignLoading] = React.useState(false);
 
-  const { pubkey, walletType, needSign } = useConnectWalletStateStore();
+  const session = useSession();
+  const { needSign } = useNeedSign();
+
   const mutation = api.fan.member.createCreatePageAsset.useMutation({
     onSuccess: () => {
       toast.success("Page Asset Created Successfully");
@@ -90,9 +94,9 @@ function AddCreatorPageAssetModalFrom({
       // sign the transaction for fbgoogle
       const toastId = toast.loading("Signing Transaction");
       clientsign({
-        walletType,
+        walletType: session.data?.user.walletType,
         presignedxdr: data.trx,
-        pubkey,
+        pubkey: session.data?.user.id,
         test: clientSelect(),
       })
         .then((res) => {

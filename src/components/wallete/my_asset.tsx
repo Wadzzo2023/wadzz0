@@ -1,14 +1,13 @@
-import { useEffect, useRef, useState } from "react";
-import { useAssetLoadingStore } from "~/lib/state/wallete/asset_loading";
+import { useSession } from "next-auth/react";
+import { useRef } from "react";
 import MyError from "./my_error";
-import { useConnectWalletStateStore } from "package/connect_wallet";
 
 export default function MyAsset() {
-  const walletState = useConnectWalletStateStore();
-  const [isWalletAva, setIsWalletAva] = useState(false);
   const divRef = useRef<HTMLDivElement>(null);
 
-  return isWalletAva ? (
+  const session = useSession();
+
+  return session.status == "authenticated" ? (
     <>
       <div
         style={{

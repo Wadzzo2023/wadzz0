@@ -1,5 +1,4 @@
 import Head from "next/head";
-import { useConnectWalletStateStore } from "package/connect_wallet";
 import AlbumSection from "~/components/music/album/section";
 import TrackSection, {
   TrackSectionSkeleton,
@@ -7,8 +6,6 @@ import TrackSection, {
 import { api } from "~/utils/api";
 
 export default function Home() {
-  const { isAva } = useConnectWalletStateStore();
-
   return (
     <>
       <Head>

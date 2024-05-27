@@ -1,15 +1,16 @@
+import { clientsign } from "package/connect_wallet/src/lib/stellar/utils";
 import { useRef } from "react";
 import { api } from "~/utils/api";
-import { useConnectWalletStateStore } from "package/connect_wallet";
-import { clientsign } from "package/connect_wallet/src/lib/stellar/utils";
 
 import { z } from "zod";
 
-import { addrShort } from "~/utils/utils";
-import { SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { clientSelect } from "~/lib/stellar/fan/utils";
+import { useSession } from "next-auth/react";
+import { SubmitHandler, useForm } from "react-hook-form";
 import toast from "react-hot-toast";
+import useNeedSign from "~/lib/hook";
+import { clientSelect } from "~/lib/stellar/fan/utils";
+import { addrShort } from "~/utils/utils";
 
 export const PlaceMarketFormSchema = z.object({
   placingCopies: z.number().nonnegative().int(),
@@ -29,7 +30,8 @@ export default function PlaceNFT2Storage({
 }) {
   const modalRef = useRef<HTMLDialogElement>(null);
 
-  const { pubkey, walletType, needSign } = useConnectWalletStateStore();
+  const session = useSession();
+  const { needSign } = useNeedSign();
 
   const {
     register,
@@ -49,8 +51,8 @@ export default function PlaceNFT2Storage({
         const xdr = data;
         clientsign({
           presignedxdr: xdr,
-          pubkey,
-          walletType,
+          pubkey: session.data?.user.id,
+          walletType: session.data?.user.walletType,
           test: clientSelect(),
         })
           .then((res) => {

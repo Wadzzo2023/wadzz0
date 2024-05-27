@@ -1,14 +1,13 @@
-import { useEffect, useState } from "react";
+import { useSession } from "next-auth/react";
+import { submitSignedXDRToServer4User } from "package/connect_wallet/src/lib/stellar/trx/payment_fb_g";
+import { useState } from "react";
 import toast from "react-hot-toast";
 import ConvertCard from "~/components/marketplace/recharge/convert_card";
 import OfferCard from "~/components/marketplace/recharge/offer_card";
 import PaymentCard from "~/components/marketplace/recharge/pay_card";
 import { Offer } from "~/components/marketplace/recharge/types";
 import { useRecharge } from "~/lib/state/recharge";
-import { submitSignedXDRToServer4User } from "package/connect_wallet/src/lib/stellar/trx/payment_fb_g";
 import { api } from "~/utils/api";
-import { checkStellarAccountActivity } from "package/connect_wallet/src/lib/stellar/utils";
-import { useConnectWalletStateStore } from "package/connect_wallet/src/state/connect_wallet_state";
 
 const offers: Offer[] = [
   { num: 10, price: 0.99, xlm: 5 },
@@ -36,7 +35,6 @@ function PayPage() {
 
 function CovertSiteAsset() {
   const [selected, setSelected] = useState(false);
-  const { pubkey, uid, email } = useConnectWalletStateStore();
   const xdrMuation = api.marketplace.steller.convertSiteAsset.useMutation({
     async onSuccess(data, variables, context) {
       if (data) {
@@ -55,9 +53,7 @@ function CovertSiteAsset() {
   });
 
   function handleCovert() {
-    if (uid && email) {
-      xdrMuation.mutate({ pubkey, uid, email, siteAssetAmount: 20, xlm: "1" });
-    }
+    xdrMuation.mutate({ siteAssetAmount: 20, xlm: "1" });
   }
 
   return (
@@ -80,32 +76,11 @@ function CovertSiteAsset() {
 }
 
 function SiteAssetBuy() {
-  const { isAva, pubkey, walletType } = useConnectWalletStateStore();
-  // const { storageBalances, userBalances, getUserSiteAssetBalance } =
-  //   useBalanceStore();
+  const session = useSession();
 
   const [isAccountActivate, setAccountActivate] = useState(false);
 
-  // const siteAssetBal = getUserSiteAssetBalance();
-  const [selectedIdx, setSelection] = useState<number>(
-    () =>
-      // siteAssetBal ? 2 : 0,
-      0,
-  );
-
-  useEffect(() => {
-    void checkStatus();
-  }, [pubkey]);
-
-  const checkStatus = async () => {
-    if (isAva) {
-      await checkAccountActivity(pubkey);
-    }
-  };
-
-  async function checkAccountActivity(publicKey: string) {
-    setAccountActivate(await checkStellarAccountActivity(publicKey));
-  }
+  const [selectedIdx, setSelection] = useState<number>(() => 0);
 
   const selectedOffer = offers[selectedIdx];
   return (
@@ -148,7 +123,12 @@ function SiteAssetBuy() {
       )}
       {selectedOffer && <SelectedOfferSummary offer={selectedOffer} />}
 
-      {selectedOffer && <PaymentCard {...{ pubkey }} offer={selectedOffer} />}
+      {session.status == "authenticated" && selectedOffer && (
+        <PaymentCard
+          {...{ pubkey: session.data.user.id }}
+          offer={selectedOffer}
+        />
+      )}
     </div>
   );
 }

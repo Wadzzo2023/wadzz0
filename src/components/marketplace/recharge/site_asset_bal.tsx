@@ -1,13 +1,13 @@
+import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { WalletType } from "package/connect_wallet/src/lib/enums";
-import { useConnectWalletStateStore } from "package/connect_wallet/src/state/connect_wallet_state";
 import { env } from "~/env";
 import { useUserStellarAcc } from "~/lib/state/wallete/stellar-balances";
 import { api } from "~/utils/api";
 
 export function SiteAssetBalance() {
-  const { isAva, pubkey, walletType } = useConnectWalletStateStore();
   const { setBalance } = useUserStellarAcc();
+  const session = useSession();
 
   const bal = api.wallate.acc.getAccountBalance.useQuery(undefined, {
     onSuccess: (data) => {
@@ -15,9 +15,8 @@ export function SiteAssetBalance() {
       setBalance(balances);
     },
   });
-  // const { platformAssetBalance } = useUserStellarAcc();
 
-  // const bal = getAssetBalance();
+  const walletType = session.data?.user.walletType ?? WalletType.none;
 
   const isFBorGoogle =
     walletType == WalletType.facebook ||

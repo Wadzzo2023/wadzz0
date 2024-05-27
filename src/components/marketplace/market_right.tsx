@@ -1,14 +1,14 @@
-import { useEffect, useState } from "react";
 import { Play, XCircle } from "lucide-react";
+import { useEffect, useState } from "react";
 // import ReactPlayer from "react-player";
-import { api } from "~/utils/api";
-import { useConnectWalletStateStore } from "package/connect_wallet";
-import MyError from "../wallete/my_error";
+import { Asset, MarketAsset, MediaType } from "@prisma/client";
+import { useSession } from "next-auth/react";
 import { useMarketRightStore } from "~/lib/state/marketplace/right";
-import { Asset, MediaType, MarketAsset } from "@prisma/client";
-import ImageVideViewer from "../wallete/Image_video_viewer";
-import BuyModal from "../music/modal/buy_modal";
+import { api } from "~/utils/api";
 import { addrShort } from "~/utils/utils";
+import BuyModal from "../music/modal/buy_modal";
+import ImageVideViewer from "../wallete/Image_video_viewer";
+import MyError from "../wallete/my_error";
 
 export type AssetType = Omit<Asset, "issuerPrivate">;
 
@@ -18,7 +18,6 @@ export type MarketAssetType = MarketAsset & {
 
 export default function MarketRight() {
   const { currentData } = useMarketRightStore();
-  const { isAva, pubkey } = useConnectWalletStateStore();
 
   if (!currentData)
     return (
@@ -133,28 +132,28 @@ export function SongTokenCopies({
 
 function OtherButtons() {
   const { currentData } = useMarketRightStore();
-  const { pubkey } = useConnectWalletStateStore();
-
-  if (currentData) {
-    if (currentData.asset.creatorId == pubkey) {
-      return (
-        <DisableFromMarketButton
-          code={currentData.asset.code}
-          issuer={currentData.asset.issuer}
-        />
-      );
-    } else
-      return (
-        <>
-          <BuyModal
-            item={currentData.asset}
-            price={currentData.price}
-            placerId={currentData.placerId}
-            marketItemId={currentData.id}
+  const session = useSession();
+  if (session.status == "authenticated")
+    if (currentData) {
+      if (currentData.asset.creatorId == session.data.user.id) {
+        return (
+          <DisableFromMarketButton
+            code={currentData.asset.code}
+            issuer={currentData.asset.issuer}
           />
-        </>
-      );
-  }
+        );
+      } else
+        return (
+          <>
+            <BuyModal
+              item={currentData.asset}
+              price={currentData.price}
+              placerId={currentData.placerId}
+              marketItemId={currentData.id}
+            />
+          </>
+        );
+    }
 }
 
 export function DisableFromMarketButton({

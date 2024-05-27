@@ -1,14 +1,11 @@
-import toast from "react-hot-toast";
-import { PaymentForm, CreditCard } from "react-square-web-payments-sdk";
-import { Offer } from "./types";
-import { api } from "~/utils/api";
 import { submitSignedXDRToServer4User } from "package/connect_wallet/src/lib/stellar/trx/payment_fb_g";
+import toast from "react-hot-toast";
+import { CreditCard, PaymentForm } from "react-square-web-payments-sdk";
+import { api } from "~/utils/api";
+import { Offer } from "./types";
 
-import log from "~/lib/logger/logger";
-import { env } from "~/env";
-import { getUserSecret } from "./utils";
 import { useState } from "react";
-import { useConnectWalletStateStore } from "package/connect_wallet";
+import { env } from "~/env";
 
 type FIRST = { xlm: number; secret: string } | undefined;
 
@@ -19,7 +16,6 @@ type PaymentCardType = {
 export default function PaymentCard({ pubkey, offer }: PaymentCardType) {
   const [loading, setLoading] = useState(false);
 
-  const { email, uid } = useConnectWalletStateStore();
   const paymentMutation = api.marketplace.pay.payment.useMutation({
     async onSuccess(data, variables, context) {
       if (data) {
@@ -45,20 +41,12 @@ export default function PaymentCard({ pubkey, offer }: PaymentCardType) {
             console.log("token:", token);
             console.log("verifiedBuyer:", verifiedBuyer);
 
-            if (uid && email) {
-              const secret = await getUserSecret({ uid, email });
-              paymentMutation.mutate({
-                sourceId: token.token,
-                amount: offer.price * 100, // payment gatway take cent input
-                siteAssetAmount: offer.num,
-                pubkey,
-                secret,
-                xlm: offer.xlm,
-              });
-            } else {
-              toast.error("Wallet should be google or facebook");
-              log.error("wallet should be google or facebook");
-            }
+            paymentMutation.mutate({
+              sourceId: token.token,
+              amount: offer.price * 100, // payment gatway take cent input
+              siteAssetAmount: offer.num,
+              xlm: offer.xlm,
+            });
             setLoading(false);
           })()
         }

@@ -1,20 +1,18 @@
 import { SubmitHandler, useForm } from "react-hook-form";
 // import { PinataResponse, pinFileToIPFS } from "~/lib/pinata/upload";
-import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useRef, useState } from "react";
-import { UploadButton } from "~/utils/uploadthing";
-import Image from "next/image";
-import toast from "react-hot-toast";
 import clsx from "clsx";
-import { api } from "~/utils/api";
-import {
-  clientsign,
-  useConnectWalletStateStore,
-  WalletType,
-} from "package/connect_wallet";
-import { AccountSchema, clientSelect } from "~/lib/stellar/fan/utils";
 import { PlusIcon } from "lucide-react";
+import { useSession } from "next-auth/react";
+import Image from "next/image";
+import { WalletType, clientsign } from "package/connect_wallet";
+import { useRef, useState } from "react";
+import toast from "react-hot-toast";
+import { z } from "zod";
+import useNeedSign from "~/lib/hook";
+import { AccountSchema } from "~/lib/stellar/fan/utils";
+import { api } from "~/utils/api";
+import { UploadButton } from "~/utils/uploadthing";
 
 export const SongFormSchema = z.object({
   name: z.string(),
@@ -45,7 +43,8 @@ export default function SongCreate({ albumId }: { albumId: number }) {
 
   const [musicUrl, setMusicUrl] = useState<string>();
   const [coverImgUrl, setCover] = useState<string>();
-  const { needSign, pubkey } = useConnectWalletStateStore();
+  const session = useSession();
+  const { needSign } = useNeedSign();
 
   const {
     register,
@@ -73,7 +72,7 @@ export default function SongCreate({ albumId }: { albumId: number }) {
       setValue("issuer", issuer);
       clientsign({
         presignedxdr: xdr,
-        pubkey,
+        pubkey: session.data?.user.id,
         walletType: WalletType.isAdmin,
       })
         .then((res) => {
