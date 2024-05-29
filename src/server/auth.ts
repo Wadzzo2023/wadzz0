@@ -32,21 +32,17 @@ import { verifyXDRsSignature } from "package/connect_wallet/src/lib/stellar/trx/
  *
  * @see https://next-auth.js.org/getting-started/typescript#module-augmentation
  */
+type User = DefaultSession["user"] & {
+  id: string;
+  walletType: WalletType;
+  // ...other properties
+  // role: UserRole;
+};
+
 declare module "next-auth" {
   interface Session extends DefaultSession {
-    user: DefaultSession["user"] & {
-      id: string;
-      walletType: WalletType;
-
-      // ...other properties
-      // role: UserRole;
-    };
+    user: User;
   }
-
-  // interface User {
-  //   // ...other properties
-  //   // role: UserRole;
-  // }
 }
 
 /**
@@ -56,13 +52,24 @@ declare module "next-auth" {
  */
 export const authOptions: NextAuthOptions = {
   callbacks: {
-    session: ({ session, token }) => ({
-      ...session,
-      user: {
-        ...session.user,
-        id: token.sub,
-      },
-    }),
+    session: ({ session, token }) => {
+      // console.log("session", session, "token", token);
+      return {
+        ...session,
+        user: {
+          ...session.user,
+          id: token.sub,
+          walletType: token.walletType,
+        },
+      };
+    },
+    jwt: ({ user, token }) => {
+      const u = user as User;
+      if (u) {
+        token.walletType = u.walletType;
+      }
+      return token;
+    },
   },
   // adapter: PrismaAdapter(db),
   session: {
@@ -70,15 +77,10 @@ export const authOptions: NextAuthOptions = {
   },
 
   providers: [
-    GitHubProvider({
-      clientId: env.DISCORD_CLIENT_ID,
-      clientSecret: env.DISCORD_CLIENT_SECRET,
-    }),
-
     CredentialsProvider({
       type: "credentials",
       credentials: {},
-      async authorize(credentials) {
+      async authorize(credentials): Promise<User | null> {
         const cred = credentials as AuthCredentialType;
 
         // email pass login
@@ -139,6 +141,7 @@ export const authOptions: NextAuthOptions = {
           const data = await getUserPublicKey({ uid, email });
           const sessionUser = await dbUser(data.publicKey);
           return { ...sessionUser, walletType: cred.walletType, email: email };
+          // return {}
         }
 
         return null;
