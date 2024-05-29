@@ -29,11 +29,13 @@ export async function creatorPageAccCreate({
   assetCode,
   signWith,
   storageSecret,
+  ipfs,
 }: {
   limit: string;
   pubkey: string;
   assetCode: string;
   signWith: SignUserType;
+  ipfs: string;
   storageSecret: string;
 }) {
   const server = new Server(STELLAR_URL);
@@ -87,6 +89,14 @@ export async function creatorPageAccCreate({
         source: issuerAcc.publicKey(),
       }),
     )
+    .addOperation(
+      Operation.manageData({
+        name: "ipfs",
+        value: ipfs,
+        source: issuerAcc.publicKey(),
+      }),
+    )
+
     // 2 storage changing trust.
     .addOperation(
       Operation.changeTrust({

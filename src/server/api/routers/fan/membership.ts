@@ -36,7 +36,7 @@ export const membershipRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       const creatorId = ctx.session.user.id;
 
-      const { code: code, issuer, limit } = input;
+      const { code: code, issuer, limit, thumbnail } = input;
 
       await ctx.db.creatorPageAsset.create({
         data: {

@@ -34,6 +34,7 @@ export const trxRouter = createTRPCRouter({
         code: z.string(),
         signWith: SignUser,
         limit: z.number().nonnegative().min(1),
+        ipfs: z.string(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
@@ -48,6 +49,7 @@ export const trxRouter = createTRPCRouter({
       const creatorStorageSec = creator.storageSecret;
 
       return await creatorPageAccCreate({
+        ipfs: input.ipfs,
         limit: limit.toString(),
         storageSecret: creatorStorageSec,
         pubkey: creatorId,
