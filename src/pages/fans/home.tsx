@@ -10,7 +10,7 @@ export default function Home() {
   return (
     <>
       <Head>
-        <title>BandFan</title>
+        <title>Bandcoin</title>
         <meta
           name="description"
           content="A subscription-based platform that connects bands & creators with their fans on Stellar Blockchain."
