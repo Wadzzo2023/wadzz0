@@ -17,7 +17,7 @@ export async function WithSing({
   signWith?: SignUserType;
 }) {
   if (signWith) {
-    if ("uid" in signWith && "email" in signWith) {
+    if ("email" in signWith) {
       // i don't have the uid and email
       const secret = await getAccSecretFromRubyApi(signWith.email);
 
