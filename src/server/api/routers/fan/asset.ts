@@ -25,6 +25,7 @@ export const shopRouter = createTRPCRouter({
         issuer,
         limit,
         tier,
+        priceUSD,
 
         isAdmin,
       } = input;
@@ -36,7 +37,7 @@ export const shopRouter = createTRPCRouter({
 
         console.log("mediaType", mediaType, mediaUrl);
 
-        const asset = await ctx.db.asset.create({
+        return await ctx.db.asset.create({
           data: {
             code,
             issuer: issuer.publicKey,
@@ -46,6 +47,7 @@ export const shopRouter = createTRPCRouter({
             marketItems: {
               create: {
                 price,
+                priceUSD,
                 placerId: creatorId,
                 type: nftType,
               },

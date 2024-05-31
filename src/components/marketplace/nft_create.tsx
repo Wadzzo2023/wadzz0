@@ -32,6 +32,7 @@ export const NftFormSchema = z.object({
   coverImgUrl: z.string(),
   mediaType: z.nativeEnum(MediaType),
   price: z.number().nonnegative(),
+  priceUSD: z.number().nonnegative(),
   limit: z.number().nonnegative().int(),
   code: z
     .string()
@@ -474,7 +475,7 @@ function NftCreateForm({
                       <label className="label">
                         <span className="label-text">Price</span>
                         <span className="label-text-alt">
-                          Default price is 2XLM
+                          Default price is 2 {PLATFROM_ASSET.code}
                         </span>
                       </label>
                       <input
@@ -488,6 +489,26 @@ function NftCreateForm({
                         <div className="label">
                           <span className="label-text-alt">
                             {errors.price.message}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                    <div className="w-full max-w-xs">
+                      <label className="label">
+                        <span className="label-text">Price in USD</span>
+                        {/* <span className="label-text-alt"></span> */}
+                      </label>
+                      <input
+                        step="0.1"
+                        type="number"
+                        {...register("priceUSD", { valueAsNumber: true })}
+                        className="input input-bordered input-sm  w-full"
+                        placeholder="Price"
+                      />
+                      {errors.priceUSD && (
+                        <div className="label">
+                          <span className="label-text-alt">
+                            {errors.priceUSD.message}
                           </span>
                         </div>
                       )}

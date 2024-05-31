@@ -353,7 +353,8 @@ enum MarketType {
 model MarketAsset {
     id Int @id @default(autoincrement())
 
-    price Float
+    price    Float
+    priceUSD Float @default(1)
 
     type MarketType @default(FAN)
 
