@@ -184,10 +184,17 @@ export const shopRouter = createTRPCRouter({
   // }),
 
   myAssets: creatorProcedure.query(async ({ ctx }) => {
-    return await ctx.db.asset.findMany({
+    const shopAsset = await ctx.db.asset.findMany({
       where: { creatorId: ctx.session.user.id },
       select: { code: true, issuer: true, thumbnail: true, id: true },
     });
+
+    const pageAsset = await ctx.db.creatorPageAsset.findUnique({
+      where: { creatorId: ctx.session.user.id },
+      select: { code: true, issuer: true, creatorId: true, thumbnail: true },
+    });
+
+    return { shopAsset, pageAsset };
   }),
 
   getCreatorAsset: protectedProcedure
