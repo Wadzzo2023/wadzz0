@@ -1,6 +1,5 @@
 import formidable from "formidable";
 import fs from "fs";
-import FormData from "form-data";
 const pinataSDK = require("@pinata/sdk");
 import type { NextApiRequest, NextApiResponse } from "next";
 import { env } from "~/env";

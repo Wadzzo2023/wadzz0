@@ -47,6 +47,7 @@ export const env = createEnv({
   client: {
     NEXT_PUBLIC_SITE: z.string(),
     NEXT_PUBLIC_DESC: z.string(),
+    NEXT_PUBLIC_URL: z.string(),
     // NEXT_PUBLIC_CLIENTVAR: z.string(),
     NEXT_PUBLIC_STELLAR_PUBNET: z
       .string()
@@ -63,6 +64,7 @@ export const env = createEnv({
     // squire
     NEXT_PUBLIC_SQUARE_APP_ID: z.string(),
     NEXT_PUBLIC_SQUARE_LOCATION: z.string(),
+    NEXT_PUBLIC_HOME_DOMAIN: z.string(),
   },
 
   /**
@@ -82,6 +84,8 @@ export const env = createEnv({
     NEXT_PUBLIC_ASSET_CODE: process.env.NEXT_PUBLIC_ASSET_CODE,
     NEXT_PUBLIC_ASSET_ISSUER: process.env.NEXT_PUBLIC_ASSET_ISSUER,
     NEXT_PUBLIC_LOG_ENABLE: process.env.NEXT_PUBLIC_LOG_ENABLE,
+    NEXT_PUBLIC_HOME_DOMAIN: process.env.NEXT_PUBLIC_HOME_DOMAIN,
+    NEXT_PUBLIC_URL: process.env.NEXT_PUBLIC_URL,
     MOTHER_SECRET: process.env.MOTHER_SECRET,
     STORAGE_SECRET: process.env.STORAGE_SECRET,
     PINATA_JWT: process.env.PINATA_JWT,

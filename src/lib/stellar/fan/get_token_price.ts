@@ -1,14 +1,15 @@
 import axios from "axios";
 import { env } from "~/env";
+import { PLATFROM_ASSET } from "./constant";
 
 interface BandcoinInfo {
   price: number;
 }
 
-export async function getBandcoinPrice(): Promise<number> {
+export async function getAssetPrice(): Promise<number> {
   try {
     const response = await axios.get<BandcoinInfo>(
-      "https://api.stellar.expert/explorer/public/asset/BANDCOIN-GCMEPWXKQ4JCBE4NRRFTPAOP22N3NXUHTHJQSWRSKRD7APA6C7T4ESLG",
+      `https://api.stellar.expert/explorer/public/asset/${PLATFROM_ASSET.code}-${PLATFROM_ASSET.issuer}`,
     );
 
     const bandcoinInfo = response.data;
@@ -16,13 +17,13 @@ export async function getBandcoinPrice(): Promise<number> {
 
     return price;
   } catch (error) {
-    console.error("Error fetching Bandcoin price:", error);
+    console.error(`Error fetching ${PLATFROM_ASSET.code}  price:`, error);
     throw error;
   }
 }
 
 export async function getPlatfromAssetPrice() {
-  if (env.NEXT_PUBLIC_STELLAR_PUBNET) return await getBandcoinPrice();
+  if (env.NEXT_PUBLIC_STELLAR_PUBNET) return await getAssetPrice();
   else return 0.5;
 }
 

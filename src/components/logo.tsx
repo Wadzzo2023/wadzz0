@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { twMerge } from "tailwind-merge";
+import { PLATFROM_ASSET } from "~/lib/stellar/fan/constant";
 export default function Logo({ className }: { className?: string }) {
   return (
     <Link
@@ -9,11 +10,7 @@ export default function Logo({ className }: { className?: string }) {
     >
       <div className="btn btn-ghost">
         <div className="relative h-12 w-11">
-          <Image
-            fill={true}
-            alt="BandCoin logo"
-            src="/images/bandcoin-logo.png"
-          />
+          <Image fill={true} alt="logo" src="/images/logo.png" />
         </div>
         <h1
           className={twMerge(
@@ -21,7 +18,7 @@ export default function Logo({ className }: { className?: string }) {
             className,
           )}
         >
-          BANDCOIN
+          {PLATFROM_ASSET.code}
           <p className="absolute right-0 top-0 -mr-4 -mt-1 text-xs">TM</p>
         </h1>
       </div>

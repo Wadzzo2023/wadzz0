@@ -145,16 +145,6 @@ export async function accountDetailsWithHomeDomain({
     },
   );
 
-  // const testAsset = {
-  //   code: "admin",
-  //   issuer: "GCKH5NOGA2JLNZTAAFUILRRJKM7RFCNXBPD65ZSS7U662U7ZLYLWKOEQ",
-  //   homeDomain: "music.bandcoin.com",
-  //   copies: 30,
-  // };
-
-  // filteredBalances.push(testAsset);
-  // console.log("....vong...", siteAssetBalance, xlmBalance);
-
   return { tokens: filteredBalances, xlmBalance, siteAssetBalance };
 }
 

@@ -9,19 +9,19 @@ export default function About() {
   return (
     <>
       <Head>
-        <title>About | BANDCOIN</title>
+        <title>About | ${env.NEXT_PUBLIC_SITE}</title>
         <meta name="description" content={env.NEXT_PUBLIC_DESC} />
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className="container mx-auto mt-5 text-base-100">
         <SAPage
           app={{
-            title: "BandCoin",
+            title: env.NEXT_PUBLIC_SITE,
             codeName: packageJson.name,
             logo: {
-              logoUrl: "/images/bandcoin-logo.png",
+              logoUrl: "/images/logo.png",
               blurDataUrl: LOGO_BLURDATA,
-              alt: "Bandcoin logo",
+              alt: "logo",
             },
             version: packageJson.version,
           }}
@@ -53,8 +53,8 @@ export default function About() {
           ]}
           reportUrl="https://github.com/Bandcoin2023/issues/issues"
           poweredBy={{
-            companyName: "bandcoin.io",
-            url: "https://www.bandcoin.io",
+            companyName: env.NEXT_PUBLIC_HOME_DOMAIN,
+            url: env.NEXT_PUBLIC_URL,
           }}
           changeLogs={changeLogJson}
         />

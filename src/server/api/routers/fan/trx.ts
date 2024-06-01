@@ -116,16 +116,15 @@ export const trxRouter = createTRPCRouter({
     .mutation(async ({ ctx, input: i }) => {
       const assetAmout = await getplatformAssetNumberForXLM();
       const signWith = i.signWith;
-      const limit = copyToBalance(i.limit);
+      const limit = i.limit.toString();
 
       // set this for admin and user
       let pubkey = ctx.session.user.id;
       let storageSecret: string;
-      let homeDomain: string;
+      const homeDomain = env.NEXT_PUBLIC_HOME_DOMAIN;
 
       if (signWith && "isAdmin" in signWith) {
         storageSecret = env.STORAGE_SECRET;
-        homeDomain = "bandcoin.io";
         pubkey = Keypair.fromSecret(env.MOTHER_SECRET).publicKey();
       } else {
         const storage = await db.creator.findFirstOrThrow({
@@ -134,7 +133,6 @@ export const trxRouter = createTRPCRouter({
         });
 
         storageSecret = storage.storageSecret;
-        homeDomain = "bandcoin.io";
       }
 
       // console.log("storageSecret", storageSecret);

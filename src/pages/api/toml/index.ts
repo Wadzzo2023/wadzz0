@@ -2,6 +2,7 @@
 
 import { Asset } from "@prisma/client";
 import type { NextApiRequest, NextApiResponse } from "next";
+import { env } from "~/env";
 import { db } from "~/server/db";
 
 export default async function handler(
@@ -46,7 +47,7 @@ export function dictinaryToTomlString(dict: Asset) {
 }
 
 const defaultTomlString = `[DOCUMENTATION]
-ORG_URL="<https://bandcoin.io/>"
+ORG_URL="<${env.NEXT_PUBLIC_URL}>"
 
 [[CURRENCIES]]
 issuer="get asset issuer"

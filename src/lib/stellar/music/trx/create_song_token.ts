@@ -74,7 +74,7 @@ export async function firstTransection({
         source: motherAcc.publicKey(),
       }),
     )
-   
+
     .addOperation(
       Operation.changeTrust({
         asset: musicAsset,
@@ -106,7 +106,7 @@ export async function firstTransection({
     //
     .addOperation(
       Operation.setOptions({
-        homeDomain: "bandcoin.io",
+        homeDomain: env.NEXT_PUBLIC_HOME_DOMAIN,
         source: issuerAcc.publicKey(),
       }),
     )

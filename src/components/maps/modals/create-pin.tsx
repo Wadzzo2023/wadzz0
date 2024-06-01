@@ -27,12 +27,12 @@ export const createPinFormSchema = z.object({
   startDate: z.date().min(new Date(new Date().setHours(0, 0, 0, 0))),
   endDate: z.date().min(new Date()),
   autoCollect: z.boolean(),
-  token: z.number(),
-  tokenAmount: z.number().nonnegative(),
+  token: z.number().optional(),
+  tokenAmount: z.number().nonnegative().optional(), // if it optional then no token selected
   pinNumber: z.number().nonnegative().min(2),
   radius: z.number().nonnegative().default(10),
   pinCollectionLimit: z.number().min(0),
-  isSinglePin: z.boolean().default(true),
+  isSinglePin: z.boolean(),
 });
 
 export default function CreatePinModal({
@@ -47,6 +47,7 @@ export default function CreatePinModal({
   const [selectedToken, setSelectedToken] = useState<
     AssetType & { bal: number }
   >();
+  const [isPageAsset, setIsPageAsset] = useState<boolean>();
   const { getAssetBalance } = useCreatorStorageAcc();
   const {
     register,
@@ -70,26 +71,36 @@ export default function CreatePinModal({
   // query
   const assets = api.fan.asset.myAssets.useQuery(undefined, {});
   const assetsDropdown = match(assets)
-    .with(success, () => (
-      <label className="form-control w-full max-w-xs">
-        <div className="label">
-          <span className="label-text">Choose Token</span>
-        </div>
-        <select
-          className="select select-bordered"
-          onChange={handleTokenOptionChange}
-        >
-          <option disabled defaultChecked>
-            Pick one
-          </option>
-          {assets.data?.map((asset: AssetType) => (
-            <option key={asset.id} value={asset.id}>
-              {asset.code}
-            </option>
-          ))}
-        </select>
-      </label>
-    ))
+    .with(success, () => {
+      const a = 0;
+      const pageAsset = assets.data?.pageAsset;
+      const shopAsset = assets.data?.shopAsset;
+
+      if (isPageAsset && pageAsset) {
+        return <p>{pageAsset.code}</p>;
+      }
+      if (isPageAsset === false && shopAsset)
+        return (
+          <label className="form-control w-full max-w-xs">
+            <div className="label">
+              <span className="label-text">Choose Token</span>
+            </div>
+            <select
+              className="select select-bordered"
+              onChange={handleTokenOptionChange}
+            >
+              <option disabled defaultChecked>
+                Pick one
+              </option>
+              {assets.data?.shopAsset.map((asset: AssetType) => (
+                <option key={asset.id} value={asset.id}>
+                  {asset.code}
+                </option>
+              ))}
+            </select>
+          </label>
+        );
+    })
     .with(loading, (data) => <p>Loading...</p>)
     .with(error, (data) => <p>{data.failureReason?.message}</p>)
     .otherwise(() => <p>Failed to fetch assets</p>);
@@ -116,9 +127,10 @@ export default function CreatePinModal({
   ) => {
     // set other value
     if (position) {
-      setValue("isSinglePin", isSinglePin);
       setValue("lat", position.lat);
       setValue("lng", position.lng);
+      console.log(data);
+      // return;
       addPinM.mutate(data);
     } else {
       toast.error("Please select a location on the map");
@@ -129,7 +141,7 @@ export default function CreatePinModal({
     event: ChangeEvent<HTMLSelectElement>,
   ): void {
     const selectedAssetId = Number(event.target.value);
-    const selectedAsset = assets.data?.find(
+    const selectedAsset = assets.data?.shopAsset.find(
       (asset) => asset.id === selectedAssetId,
     );
     if (selectedAsset) {
@@ -163,9 +175,13 @@ export default function CreatePinModal({
                 <span className="text-blue-500">{position?.lng}</span>
               </p>
 
+              <AssetTypeTab />
+
               <div className="flex justify-between">
                 {assetsDropdown}
-                {selectedToken && <TokenInStorage bal={selectedToken.bal} />}
+                {selectedToken && isPageAsset !== undefined && (
+                  <TokenInStorage bal={selectedToken.bal} />
+                )}
               </div>
 
               <AvailableTokenField />
@@ -271,6 +287,9 @@ export default function CreatePinModal({
                 )}
                 Submit
               </button>
+              {addPinM.isError && (
+                <p className="text-red-500">{addPinM.failureReason?.message}</p>
+              )}
             </div>
           </form>
 
@@ -288,7 +307,7 @@ export default function CreatePinModal({
 
   // components
   function MultipinField() {
-    if (!isSinglePin)
+    if (isSinglePin === false)
       return (
         <>
           <div className="flex flex-col space-y-2">
@@ -324,8 +343,8 @@ export default function CreatePinModal({
       );
   }
   function AvailableTokenField() {
-    const tokenAmount = watch("tokenAmount");
-    if (selectedToken) {
+    // const tokenAmount = watch("tokenAmount");
+    if (selectedToken && isPageAsset !== undefined) {
       return (
         <>
           <label className="form-control w-full">
@@ -350,25 +369,36 @@ export default function CreatePinModal({
                 </span>
               </div>
             )}
-            {tokenAmount > selectedToken.bal && (
+            {/* {tokenAmount > selectedToken.bal && (
               <span className="label-text-alt text-red-500">
                 {"Insufficient balance"}
               </span>
-            )}
+            )} */}
           </label>
-
+        </>
+      );
+    }
+    if (isPageAsset === undefined) {
+      return (
+        <>
           <div role="tablist" className="tabs-boxed tabs max-w-xs">
             <a
               role="tab"
               className={clsx("tab", isSinglePin && "tab-active")}
-              onClick={() => setIsSinglePin(true)}
+              onClick={() => {
+                setIsSinglePin(true);
+                setValue("isSinglePin", true);
+              }}
             >
               Single Pin
             </a>
             <a
               role="tab"
               className={clsx("tab", !isSinglePin && "tab-active")}
-              onClick={() => setIsSinglePin(false)}
+              onClick={() => {
+                setIsSinglePin(false);
+                setValue("isSinglePin", false);
+              }}
             >
               Multipin
             </a>
@@ -400,6 +430,69 @@ export default function CreatePinModal({
         </>
       );
     }
+  }
+
+  function AssetTypeTab() {
+    return (
+      <div role="tablist" className="tabs-boxed tabs max-w-xs">
+        <a
+          role="tab"
+          className={clsx("tab", isPageAsset && "tab-active")}
+          onClick={() => {
+            const pageAsset = assets.data?.pageAsset;
+            if (pageAsset) {
+              const bal = getAssetBalance({
+                code: pageAsset.code,
+                issuer: pageAsset.issuer,
+              });
+              setSelectedToken({
+                bal,
+                code: pageAsset.code,
+                issuer: pageAsset.issuer,
+                id: 0,
+                thumbnail: pageAsset.thumbnail ?? "",
+              });
+              setValue("token", undefined);
+            } else {
+              toast.error("No page asset found");
+            }
+
+            if (isPageAsset === false) {
+              setIsPageAsset(true);
+            }
+            if (isPageAsset === true) {
+              setSelectedToken(undefined);
+              setIsPageAsset(undefined);
+            }
+            if (isPageAsset === undefined) {
+              setIsPageAsset(true);
+            }
+          }}
+        >
+          Page Asset
+        </a>
+        <a
+          role="tab"
+          className={clsx("tab", isPageAsset === false && "tab-active")}
+          onClick={() => {
+            setSelectedToken(undefined);
+
+            if (isPageAsset === false) {
+              setIsPageAsset(undefined);
+              setSelectedToken(undefined);
+            }
+            if (isPageAsset === undefined) {
+              setIsPageAsset(false);
+            }
+            if (isPageAsset == true) {
+              setIsPageAsset(false);
+            }
+          }}
+        >
+          Shop Asset
+        </a>
+      </div>
+    );
   }
 }
 

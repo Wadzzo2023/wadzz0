@@ -167,8 +167,8 @@ function CreateCreator({ requiredToken }: { requiredToken: number }) {
     <div className="flex h-full flex-col items-center justify-center gap-2 ">
       <p className="text-2xl font-bold">You are not a creator</p>
       <p className="alert-info">
-        Your account should have minimum {requiredToken} Bandcoin to be a
-        creator.
+        Your account should have minimum {requiredToken} ${PLATFROM_ASSET.code}{" "}
+        to be a creator.
       </p>
       <button
         className="btn btn-primary"

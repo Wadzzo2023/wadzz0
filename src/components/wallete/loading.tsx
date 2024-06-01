@@ -1,6 +1,7 @@
 import { ShieldAlert } from "lucide-react";
 import Image from "next/image";
 import { twMerge } from "tailwind-merge";
+import { PLATFROM_ASSET } from "~/lib/stellar/fan/constant";
 
 interface LoadingProps {
   className?: string;
@@ -11,7 +12,7 @@ export default function Loading({ className, text }: LoadingProps) {
   return (
     <div
       className={twMerge(
-        "rounded-box flex h-full w-full animate-pulse items-center justify-center bg-base-200",
+        "flex h-full w-full animate-pulse items-center justify-center rounded-box bg-base-200",
         className,
       )}
     >
@@ -22,7 +23,12 @@ export default function Loading({ className, text }: LoadingProps) {
         </>
       ) : (
         <>
-          <Image height={80} width={80} src={"/favicon.ico"} alt="Bandcoin" />
+          <Image
+            height={80}
+            width={80}
+            src={"/favicon.ico"}
+            alt={PLATFROM_ASSET.code}
+          />
           <span className="loading" />
         </>
       )}

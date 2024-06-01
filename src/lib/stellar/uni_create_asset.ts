@@ -42,7 +42,6 @@ export async function createUniAsset({
 
   // accounts
   const issuerAcc = Keypair.random();
-  console.log(storageSecret, "  storageSecret");
   const asesetStorage = Keypair.fromSecret(storageSecret);
   const PLATFORM_MOTHER_ACC = Keypair.fromSecret(env.MOTHER_SECRET);
 
@@ -60,8 +59,10 @@ export async function createUniAsset({
   });
 
   // is admin is creating the trx
-  if (signWith && !("isAdmin" in signWith)) {
+  console.log(signWith, "signWith");
+  if (signWith === undefined || (signWith && !("isAdmin" in signWith))) {
     // first get action for required xlm. and platformFee
+    console.log("vong");
     Tx1.addOperation(
       Operation.payment({
         destination: PLATFORM_MOTHER_ACC.publicKey(),
@@ -156,6 +157,5 @@ export async function createUniAsset({
     secretKey: issuerAcc.secret(),
   };
 
-  // console.info("xdrdd", signedXDr);
   return { xdr: signedXDr, issuer };
 }
