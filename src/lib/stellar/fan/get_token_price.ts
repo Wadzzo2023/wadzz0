@@ -2,18 +2,18 @@ import axios from "axios";
 import { env } from "~/env";
 import { PLATFROM_ASSET } from "./constant";
 
-interface BandcoinInfo {
+interface PlatformAssetInfo {
   price: number;
 }
 
 export async function getAssetPrice(): Promise<number> {
   try {
-    const response = await axios.get<BandcoinInfo>(
+    const response = await axios.get<PlatformAssetInfo>(
       `https://api.stellar.expert/explorer/public/asset/${PLATFROM_ASSET.code}-${PLATFROM_ASSET.issuer}`,
     );
 
-    const bandcoinInfo = response.data;
-    const price = bandcoinInfo.price;
+    const platformAssetInfo = response.data;
+    const price = platformAssetInfo.price;
 
     return price;
   } catch (error) {

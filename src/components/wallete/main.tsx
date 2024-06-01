@@ -1,7 +1,7 @@
 import { useTagStore } from "~/lib/state/wallete/tag";
 import AllAsset from "./all_asset";
 import AllTag from "./all_tags";
-import WallateNFTs from "../marketplace/bandcoin_nfts";
+import WallateNFTs from "../marketplace/platforms_nfts";
 import MusicAssetNfts from "../marketplace/music_assets";
 import OtherAssets from "./other_assets";
 import { AssetVariant } from "../right-sidebar";

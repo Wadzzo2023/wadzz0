@@ -1,5 +1,5 @@
 import { api } from "~/utils/api";
-import { MoreAssetsSkeleton } from "./bandcoin_nfts";
+import { MoreAssetsSkeleton } from "./platforms_nfts";
 import MarketAssetComponent from "./market_asset";
 
 export default function FanAssetNfts() {

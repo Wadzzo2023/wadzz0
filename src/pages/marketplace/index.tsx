@@ -1,5 +1,5 @@
 import clsx from "clsx";
-import WallateNFTs from "~/components/marketplace/bandcoin_nfts";
+import WallateNFTs from "~/components/marketplace/platforms_nfts";
 import FanAssetNfts from "~/components/marketplace/fans_assets";
 import MusicAssetNfts from "~/components/marketplace/music_assets";
 import { useMarketRightStore } from "~/lib/state/marketplace/right";

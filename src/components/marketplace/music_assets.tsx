@@ -1,6 +1,6 @@
 import { api } from "~/utils/api";
 import MarketAssetComponent from "./market_asset";
-import { MoreAssetsSkeleton } from "./bandcoin_nfts";
+import { MoreAssetsSkeleton } from "./platforms_nfts";
 
 export default function MusicAssetNfts() {
   // first fetch from database and later validate
