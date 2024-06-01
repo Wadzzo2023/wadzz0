@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { api } from "~/utils/api";
 
 import { useSession } from "next-auth/react";
@@ -12,23 +12,27 @@ import {
 import useNeedSign from "~/lib/hook";
 import { clientSelect } from "~/lib/stellar/fan/utils";
 import { addrShort } from "~/utils/utils";
+import BuyWithSquire from "~/components/marketplace/pay/buy_with_squire";
 
 type BuyModalProps = {
   item: AssetType;
   placerId?: string | null;
   price: number;
+  priceUSD: number;
   marketItemId?: number; // undefined will mean it is song
 };
 export default function BuyModal({
   item,
   placerId,
   price,
+  priceUSD,
   marketItemId,
 }: BuyModalProps) {
   const session = useSession();
   const { needSign } = useNeedSign();
 
-  const createAlbumModal = useRef<HTMLDialogElement>(null);
+  const modal = useRef<HTMLDialogElement>(null);
+  const [xdr, setXdr] = useState<string>();
 
   // const { asset } = item;
   const { code, issuer } = item;
@@ -38,6 +42,8 @@ export default function BuyModal({
   const xdrMutaion =
     api.marketplace.steller.buyFromMarketPaymentXDR.useMutation({
       onSuccess: (data, Variable) => {
+        setXdr(data);
+        return;
         const presignedxdr = data;
         clientsign({
           presignedxdr,
@@ -50,21 +56,14 @@ export default function BuyModal({
           })
           .catch((e) => console.log(e));
       },
-      onError: () => toast.error("Payment Failed"),
+      onError: (e) => toast.error(e.message.toString()),
     });
 
   const handleModal = () => {
-    createAlbumModal.current?.showModal();
+    modal.current?.showModal();
   };
 
   async function handleXDR() {
-    // const balance = await checkAssetBalance({
-    //   storagePub: STORAGE_PUB,
-    //   assset: { code, issuer },
-    // });
-    // if (balance) {
-    //   if (Number(balance) >= Number(DEFAULT_ASSET_LIMIT)) {
-    //     {
     xdrMutaion.mutate({
       placerId,
       assetCode: code,
@@ -72,21 +71,14 @@ export default function BuyModal({
       limit: 1,
       signWith: needSign(),
     });
-    //     }
-    //   }
-    // }
   }
 
   return (
     <>
-      <dialog className="modal" ref={createAlbumModal}>
+      <dialog className="modal" ref={modal}>
         <div className="modal-box">
           <form method="dialog">
-            {/* if there is a button in form, it will close the modal */}
-            <button
-              className="btn btn-circle btn-ghost btn-sm absolute right-2 top-2"
-              // onClick={handleCloseClick}
-            >
+            <button className="btn btn-circle btn-ghost btn-sm absolute right-2 top-2">
               ✕
             </button>
           </form>
@@ -98,8 +90,9 @@ export default function BuyModal({
                 Asset Name: <span className="badge badge-primary">{code}</span>
               </p>
               <p className="text-warning">Price: {price} ACTION</p>
+              <p className="text-warning">Price in USD: {priceUSD} ACTION</p>
               <p className="text-sm text-accent">
-                Copies available:{" "}
+                Balance available:{" "}
                 {marketItemId ? (
                   <TokenCopies id={marketItemId} />
                 ) : (
@@ -110,17 +103,41 @@ export default function BuyModal({
             </div>
 
             <div className="flex flex-col items-center">
-              {xdrMutaion.isLoading ? (
-                <div>
-                  <span className="loading loading-infinity loading-lg text-success"></span>
-                </div>
+              {xdr ? (
+                <>
+                  <button
+                    className="btn btn-secondary"
+                    onClick={() => {
+                      clientsign({
+                        presignedxdr: xdr,
+                        pubkey: session.data?.user.id,
+                        walletType: session.data?.user.walletType,
+                        test: clientSelect(),
+                      })
+                        .then((res) => {
+                          if (res) toast.success("Payment Success");
+                        })
+                        .catch((e) => console.log(e));
+                    }}
+                  >
+                    Confirm Payment
+                  </button>
+                  <button>
+                    <BuyWithSquire marketId={item.id} xdr={xdr} />
+                  </button>
+                </>
               ) : (
                 <button
                   disabled={xdrMutaion.isSuccess}
-                  className="btn btn-success"
+                  className="btn btn-secondary"
                   onClick={() => handleXDR()}
                 >
-                  Checkout for {code}
+                  {xdrMutaion.isLoading && (
+                    <div>
+                      <span className="loading"></span>
+                    </div>
+                  )}
+                  Fetch XDR of {code}
                 </button>
               )}
             </div>

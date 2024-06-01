@@ -109,7 +109,7 @@ export const authOptions: NextAuthOptions = {
           const isValid = verifyMessageSignature(pubkey, token, signature);
           if (isValid) {
             const sessionUser = await dbUser(pubkey);
-            return { ...sessionUser, walletType: WalletType.emailPass };
+            return { ...sessionUser, walletType: WalletType.albedo };
           }
           throw new Error("Invalid signature");
         }
@@ -126,7 +126,7 @@ export const authOptions: NextAuthOptions = {
           });
           if (isValid) {
             const sessionUser = await dbUser(pubkey);
-            return { ...sessionUser, walletType: WalletType.rabet };
+            return { ...sessionUser, walletType: cred.walletType };
           }
           throw new Error("Invalid signature");
         }

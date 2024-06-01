@@ -146,6 +146,7 @@ function OtherButtons() {
         return (
           <>
             <BuyModal
+              priceUSD={currentData.priceUSD}
               item={currentData.asset}
               price={currentData.price}
               placerId={currentData.placerId}
