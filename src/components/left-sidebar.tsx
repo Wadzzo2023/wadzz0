@@ -12,9 +12,9 @@ export const LeftNavigation = {
   Home: { path: "/", icon: HomeIcon, text: "HOMEPAGE" },
   MyAssets: { path: "/assets", icon: Bell, text: "MY ASSETS" },
   // Search: { path: "/search", icon: Search, text: "Search" },
-  Music: { path: "/music", icon: Diamond, text: "MUSIC" },
+  // Music: { path: "/music", icon: Diamond, text: "MUSIC" },
   Marketplace: { path: "/marketplace", icon: Bell, text: "MARKETPLACE" },
-  Fan: { path: "/fans/home", icon: Bell, text: "ARTISTS" },
+  Fan: { path: "/fans/home", icon: Bell, text: "BANDS" },
   Settings: { path: "/settings", icon: Settings2, text: "SETTINGS" },
 } as const;
 

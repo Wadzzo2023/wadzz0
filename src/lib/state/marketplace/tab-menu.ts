@@ -4,7 +4,7 @@ import { PLATFROM_ASSET } from "~/lib/stellar/fan/constant";
 export enum MarketMenu {
   Wallate = "Admin",
   Music = "Music",
-  FanAsset = "Fan Asset",
+  FanAsset = "Band Asset",
 }
 
 interface MarketMenurState {
