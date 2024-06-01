@@ -2,13 +2,14 @@ import { useSession } from "next-auth/react";
 import Head from "next/head";
 import toast from "react-hot-toast";
 import Main from "~/components/wallete/main";
+import { env } from "~/env";
 import { api } from "~/utils/api";
 
 export default function Home() {
   return (
     <>
       <Head>
-        <title>Bandcoin</title>
+        <title>{env.NEXT_PUBLIC_SITE}</title>
         <meta
           name="description"
           content="A subscription-based platform that connects bands & creators with their fans on Stellar Blockchain."

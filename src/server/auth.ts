@@ -81,6 +81,7 @@ export const authOptions: NextAuthOptions = {
       type: "credentials",
       credentials: {},
       async authorize(credentials): Promise<User | null> {
+        console.log("...vong..");
         const cred = credentials as AuthCredentialType;
 
         // email pass login

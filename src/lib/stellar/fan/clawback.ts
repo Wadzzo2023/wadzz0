@@ -85,7 +85,7 @@ export async function creatorPageAccCreate({
     // 1 escrow acc setting his auth clawbackflag.
     .addOperation(
       Operation.setOptions({
-        homeDomain: "bandcoin.io",
+        homeDomain: env.NEXT_PUBLIC_HOME_DOMAIN,
         source: issuerAcc.publicKey(),
       }),
     )

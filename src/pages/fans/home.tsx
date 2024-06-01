@@ -5,12 +5,13 @@ import { useSession } from "next-auth/react";
 import Loading from "~/components/wallete/loading";
 import { getAssetBalanceFromBalance } from "~/lib/stellar/marketplace/test/acc";
 import { api } from "~/utils/api";
+import { env } from "~/env";
 
 export default function Home() {
   return (
     <>
       <Head>
-        <title>Bandcoin</title>
+        <title>Artists | {env.NEXT_PUBLIC_SITE}</title>
         <meta
           name="description"
           content="A subscription-based platform that connects bands & creators with their fans on Stellar Blockchain."

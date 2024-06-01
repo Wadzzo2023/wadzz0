@@ -121,7 +121,7 @@ export const trxRouter = createTRPCRouter({
       // set this for admin and user
       let pubkey = ctx.session.user.id;
       let storageSecret: string;
-      const homeDomain = "bandcoin.io";
+      const homeDomain = env.NEXT_PUBLIC_HOME_DOMAIN;
 
       if (signWith && "isAdmin" in signWith) {
         storageSecret = env.STORAGE_SECRET;
