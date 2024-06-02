@@ -95,7 +95,7 @@ export async function accountDetailsWithHomeDomain({
 
   let xlmBalance = 0;
   let siteAssetBalance = 0;
-
+  
   const balances = await Promise.all(
     account.balances.map(async (balance) => {
       if (

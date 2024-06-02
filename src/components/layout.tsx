@@ -10,6 +10,7 @@ import BottonPlayer from "./bottom_player";
 import { usePlayerStore } from "~/lib/state/music/track";
 import { useRouter } from "next/router";
 import { X } from "lucide-react";
+import { ThemeProvider } from "./providers/theme-provider";
 
 export default function Layout({
   children,
@@ -34,29 +35,37 @@ export default function Layout({
     <>
       <div className={clsx(" flex h-screen flex-col", className)}>
         <Header />
-
-        <div className="flex-1 overflow-auto bg-base-100/50">
-          <div className="flex h-full border-t-2">
-            <LeftBar className="hidden md:flex" />
-            <div className="flex-1 border-x-2 ">
-              <div className=" h-full overflow-y-auto bg-base-100/80 scrollbar-hide">
-                {data?.user.id ? (
-                  <>{children}</>
-                ) : (
-                  <div className="flex h-full items-center justify-center">
-                    <ConnectWalletButton />
-                  </div>
-                )}
-                <div className="h-44 " />
-                {/* <BottomNav /> */}
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <div className="flex-1 overflow-auto bg-base-100/50">
+            <div className="flex h-full border-t-2">
+              <LeftBar className="hidden md:flex" />
+              <div className="flex-1 border-x-2 ">
+                <div className=" h-full overflow-y-auto bg-base-100/80 scrollbar-hide">
+                  {data?.user.id ? (
+                    <>{children}</>
+                  ) : (
+                    <div className="flex h-full items-center justify-center">
+                      <ConnectWalletButton />
+                    </div>
+                  )}
+                  <div className="h-44 " />
+                  {/* <BottomNav /> */}
+                </div>
               </div>
-            </div>
 
-            {data?.user.id && <RightSideBar />}
+              {router.pathname !== "/walletBalance" && data?.user.id && (
+                <RightSideBar />
+              )}
+            </div>
           </div>
-        </div>
-        <RightDialog />
-        <BottomPlayerContainer />
+          <RightDialog />
+          <BottomPlayerContainer />
+        </ThemeProvider>
       </div>
     </>
   );

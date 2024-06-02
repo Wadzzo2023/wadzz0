@@ -1,5 +1,5 @@
 import { ConnectWalletButton } from "package/connect_wallet";
-import { Facebook, Instagram } from "lucide-react";
+import { Facebook, Instagram, Wallet } from "lucide-react";
 
 import Button from "./ui/button";
 import Link from "next/link";
@@ -9,7 +9,13 @@ import { cn } from "~/utils/utils";
 
 export const LeftNavigation = {
   Home: { path: "/", icon: HomeIcon, text: "HOMEPAGE" },
+  WalletBalance: {
+    path: "/walletBalance",
+    icon: Wallet,
+    text: "WALLET BALANCE",
+  },
   MyAssets: { path: "/assets", icon: Bell, text: "MY ASSETS" },
+
   // Search: { path: "/search", icon: Search, text: "Search" },
   Music: { path: "/music", icon: Diamond, text: "MUSIC" },
   Marketplace: { path: "/marketplace", icon: Bell, text: "MARKETPLACE" },

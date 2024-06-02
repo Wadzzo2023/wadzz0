@@ -114,7 +114,7 @@ function AssetTabs() {
             className={clsx(
               "tab",
               selectedMenu == key && "tab-active text-primary",
-              "font-bold",
+              " font-bold ",
             )}
           >
             {key}
