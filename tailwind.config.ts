@@ -1,18 +1,18 @@
-import type { Config } from "tailwindcss"
+import { withUt } from "uploadthing/tw";
+import type { Config } from "tailwindcss";
 
-const config = {
+const config: Config = {
   darkMode: ["class"],
   content: [
     './pages/**/*.{ts,tsx}',
     './components/**/*.{ts,tsx}',
-     './components/**/**/*.{ts,tsx}',
+    './components/**/**/*.{ts,tsx}',
     './app/**/*.{ts,tsx}',
     './src/**/*.{ts,tsx}',
     "./package/**/*.{jsx,tsx}",
     "node_modules/daisyui/dist/**/*.js",
     "node_modules/react-daisyui/dist/**/*.js",
-    
-	],
+  ],
   prefix: "",
   theme: {
     container: {
@@ -86,13 +86,6 @@ const config = {
     require("tailwind-scrollbar")({ nocompatible: true }),
     require("daisyui"),
   ],
-} satisfies Config
+};
 
-export default config
-
-
-
-
-
-
-
+export default withUt(config);
