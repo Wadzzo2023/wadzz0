@@ -48,7 +48,7 @@ export const pinRouter = createTRPCRouter({
           },
         });
       } else {
-        let claimAmount = undefined;
+        let claimAmount: number;
         if (totalTokenAmount) {
           const amountPerPin = totalTokenAmount / pinNumber;
           claimAmount = amountPerPin / pinCollectionLimit;
