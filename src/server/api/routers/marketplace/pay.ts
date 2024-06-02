@@ -32,13 +32,12 @@ export const payRouter = createTRPCRouter({
       if (user.email) {
         const secret = await getAccSecretFromRubyApi(user.email);
 
+        const client = new Client({
+          accessToken: env.SQUARE_ACCESS_TOKEN,
+          environment: env.SQUARE_ENVIRONMENT as Environment,
+        });
         if (input.sourceId) {
-          const { paymentsApi } = new Client({
-            accessToken: env.SQUARE_ACCESS_TOKEN,
-            environment: env.SQUARE_ENVIRONMENT as Environment,
-          });
-
-          const { result } = await paymentsApi.createPayment({
+          const { result } = await client.paymentsApi.createPayment({
             idempotencyKey: randomUUID(),
             sourceId: input.sourceId,
             amountMoney: {
@@ -74,7 +73,42 @@ export const payRouter = createTRPCRouter({
       }
     }),
 
-  getSecretMessage: protectedProcedure.query(() => {
-    return "you can now see this secret message!";
-  }),
+  buyAsset: protectedProcedure
+    .input(
+      z.object({
+        sourceId: z.string(),
+        assetId: z.number(),
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      const user = ctx.session.user;
+
+      const asset = await ctx.db.marketAsset.findUniqueOrThrow({
+        where: { id: input.assetId },
+      });
+
+      const priceUSD = asset.priceUSD;
+      const client = new Client({
+        accessToken: env.SQUARE_ACCESS_TOKEN,
+        environment: env.SQUARE_ENVIRONMENT as Environment,
+      });
+
+      const { result } = await client.paymentsApi.createPayment({
+        idempotencyKey: randomUUID(),
+        sourceId: input.sourceId,
+        amountMoney: {
+          currency: "USD",
+          amount: BigInt(priceUSD),
+        },
+      });
+      if (result.errors) {
+        console.log("error happend", result.errors);
+        throw new Error("Error happend while processing payment");
+      }
+      if (result.payment) {
+        log.info("payment with square was sucessfull");
+        // payment sucessfull
+        return input.assetId;
+      }
+    }),
 });

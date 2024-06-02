@@ -25,7 +25,9 @@ export const pinRouter = createTRPCRouter({
         tokenAmount: totalTokenAmount,
         token: tokenId,
       } = input;
-      const claimAmount = totalTokenAmount / pinCollectionLimit;
+      const claimAmount = totalTokenAmount
+        ? totalTokenAmount / pinCollectionLimit
+        : undefined;
 
       if (isSinglePin) {
         return await ctx.db.location.create({
@@ -46,34 +48,40 @@ export const pinRouter = createTRPCRouter({
           },
         });
       } else {
-        const amountPerPin = totalTokenAmount / pinNumber;
-        const claimAmount = amountPerPin / pinCollectionLimit;
+        let claimAmount: number;
+        if (totalTokenAmount) {
+          const amountPerPin = totalTokenAmount / pinNumber;
+          claimAmount = amountPerPin / pinCollectionLimit;
+        }
+
+        const locations = Array.from({ length: pinNumber }).map(() => {
+          const randomLocatin = getLocationInLatLngRad(input.radius, {
+            latitude: input.lat,
+            longitude: input.lng,
+          });
+          return {
+            claimAmount,
+            assetId: tokenId,
+            autoCollect: input.autoCollect,
+            limit: input.pinCollectionLimit,
+            endDate: input.endDate,
+            latitude: randomLocatin.latitude,
+            longitude: randomLocatin.longitude,
+            title: input.title,
+            creatorId: ctx.session.user.id,
+            isActive: true,
+            startDate: input.startDate,
+            description: input.description,
+          };
+        });
+        console.log(locations);
 
         await ctx.db.locationGroup.create({
           data: {
             creatorId: ctx.session.user.id,
             locations: {
               createMany: {
-                data: Array.from({ length: pinNumber }).map(() => {
-                  const randomLocatin = getLocationInLatLngRad(input.radius, {
-                    latitude: input.lat,
-                    longitude: input.lng,
-                  });
-                  return {
-                    claimAmount,
-                    assetId: tokenId,
-                    autoCollect: input.autoCollect,
-                    limit: input.pinCollectionLimit,
-                    endDate: input.endDate,
-                    latitude: randomLocatin.latitude,
-                    longitude: randomLocatin.longitude,
-                    title: input.title,
-                    creatorId: ctx.session.user.id,
-                    isActive: true,
-                    startDate: input.startDate,
-                    description: input.description,
-                  };
-                }),
+                data: locations,
               },
             },
           },

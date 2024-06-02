@@ -152,6 +152,7 @@ model CreatorPageAsset {
     code          String
     issuer        String
     issuerPrivate String?
+    thumbnail     String?
 
     limit Int
 
@@ -352,7 +353,8 @@ enum MarketType {
 model MarketAsset {
     id Int @id @default(autoincrement())
 
-    price Float
+    price    Float
+    priceUSD Float @default(1)
 
     type MarketType @default(FAN)
 
@@ -435,14 +437,15 @@ model Location {
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 
-    assetId     Int
-    asset       Asset @relation(fields: [assetId], references: [id], onDelete: Cascade)
-    claimAmount Float // how much each person will claim
+    assetId Int?
+    asset   Asset? @relation(fields: [assetId], references: [id], onDelete: Cascade)
+
+    claimAmount Float? // how much token each person will claim. if null then it is free
 
     isActive Boolean
     image    String?
 
-    limit Int // how many person can clain the Location / pin
+    limit Int // how many person can claim the Location / pin
 
     creatorId String
     creator   Creator @relation(fields: [creatorId], references: [id], onDelete: Cascade)

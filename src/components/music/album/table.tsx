@@ -93,7 +93,7 @@ function PlayOrBuy({ song }: { song: SongItemType }) {
     return (
       <>
         <div className="w-12">
-          <BuyModal item={song.asset} price={song.price} />
+          <BuyModal priceUSD={2} item={song.asset} price={song.price} />
         </div>
       </>
     );

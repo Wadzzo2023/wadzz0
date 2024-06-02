@@ -25,6 +25,7 @@ export const shopRouter = createTRPCRouter({
         issuer,
         limit,
         tier,
+        priceUSD,
 
         isAdmin,
       } = input;
@@ -36,7 +37,7 @@ export const shopRouter = createTRPCRouter({
 
         console.log("mediaType", mediaType, mediaUrl);
 
-        const asset = await ctx.db.asset.create({
+        return await ctx.db.asset.create({
           data: {
             code,
             issuer: issuer.publicKey,
@@ -46,6 +47,7 @@ export const shopRouter = createTRPCRouter({
             marketItems: {
               create: {
                 price,
+                priceUSD,
                 placerId: creatorId,
                 type: nftType,
               },
@@ -184,10 +186,17 @@ export const shopRouter = createTRPCRouter({
   // }),
 
   myAssets: creatorProcedure.query(async ({ ctx }) => {
-    return await ctx.db.asset.findMany({
+    const shopAsset = await ctx.db.asset.findMany({
       where: { creatorId: ctx.session.user.id },
       select: { code: true, issuer: true, thumbnail: true, id: true },
     });
+
+    const pageAsset = await ctx.db.creatorPageAsset.findUnique({
+      where: { creatorId: ctx.session.user.id },
+      select: { code: true, issuer: true, creatorId: true, thumbnail: true },
+    });
+
+    return { shopAsset, pageAsset };
   }),
 
   getCreatorAsset: protectedProcedure

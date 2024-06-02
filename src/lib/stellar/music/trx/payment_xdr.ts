@@ -34,16 +34,23 @@ export async function XDR4BuyAsset({
   seller: string;
 }) {
   // this asset limit only for buying more item.
-
   const asset = new Asset(code, issuerPub);
   const server = new Server(STELLAR_URL);
   const storageAcc = Keypair.fromSecret(storageSecret);
 
-  // check if the buyer has trustline
-  const creatorStorageBal = await StellarAccount.create(buyer);
-  const hasTrust = creatorStorageBal.hasTrustline(asset.code, asset.issuer);
-
   const transactionInializer = await server.loadAccount(buyer);
+
+  const balances = transactionInializer.balances;
+  const trust = balances.find((balance) => {
+    if (
+      balance.asset_type === "credit_alphanum12" ||
+      balance.asset_type === "credit_alphanum4"
+    ) {
+      if (balance.asset_code === code && balance.asset_issuer === issuerPub) {
+        return true;
+      }
+    }
+  });
 
   const Tx2 = new TransactionBuilder(transactionInializer, {
     fee: BASE_FEE,
@@ -59,7 +66,7 @@ export async function XDR4BuyAsset({
       }),
     );
 
-  if (!hasTrust) {
+  if (trust === undefined) {
     Tx2.addOperation(
       Operation.changeTrust({
         asset: asset,
@@ -94,5 +101,6 @@ export async function XDR4BuyAsset({
 
   const xdr = buildTrx.toXDR();
   const singedXdr = WithSing({ xdr, signWith });
+  console.log(singedXdr, "singedXdr");
   return singedXdr;
 }

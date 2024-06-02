@@ -6,6 +6,7 @@ import Link from "next/link";
 import { HomeIcon, Settings2, Diamond, Bell } from "lucide-react";
 import Image from "next/image";
 import { cn } from "~/utils/utils";
+import { env } from "~/env";
 
 export const LeftNavigation = {
   Home: { path: "/", icon: HomeIcon, text: "HOMEPAGE" },
@@ -17,9 +18,9 @@ export const LeftNavigation = {
   MyAssets: { path: "/assets", icon: Bell, text: "MY ASSETS" },
 
   // Search: { path: "/search", icon: Search, text: "Search" },
-  Music: { path: "/music", icon: Diamond, text: "MUSIC" },
+  // Music: { path: "/music", icon: Diamond, text: "MUSIC" },
   Marketplace: { path: "/marketplace", icon: Bell, text: "MARKETPLACE" },
-  Fan: { path: "/fans/home", icon: Bell, text: "ARTISTS" },
+  Fan: { path: "/fans/home", icon: Bell, text: "BANDS" },
   Settings: { path: "/settings", icon: Settings2, text: "SETTINGS" },
 } as const;
 
@@ -93,7 +94,7 @@ function LeftBottom() {
         </Link>
       </div>
       <div className="flex w-full flex-col text-center text-xs text-base-content">
-        <p>© 2024 bandcoin.io</p>
+        <p>© 2024 {env.NEXT_PUBLIC_HOME_DOMAIN}</p>
         <div className="flex w-full justify-center gap-2 ">
           <Link className="link-hover link" href="/about">
             About

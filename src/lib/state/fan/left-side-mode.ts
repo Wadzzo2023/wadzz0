@@ -2,7 +2,7 @@ import { create } from "zustand";
 
 export enum Mode {
   User = "User",
-  Creator = "Creator",
+  Creator = "Band",
 }
 
 interface ModeState {
