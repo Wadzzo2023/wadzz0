@@ -11,6 +11,7 @@ import { usePlayerStore } from "~/lib/state/music/track";
 import { useRouter } from "next/router";
 import { X } from "lucide-react";
 import { ThemeProvider } from "./providers/theme-provider";
+import ModalProvider from "./providers/modal-provider";
 
 export default function Layout({
   children,
@@ -47,7 +48,10 @@ export default function Layout({
               <div className="flex-1 border-x-2 ">
                 <div className=" h-full overflow-y-auto bg-base-100/80 scrollbar-hide">
                   {data?.user.id ? (
-                    <>{children}</>
+                    <>
+                      <ModalProvider />
+                      {children}
+                    </>
                   ) : (
                     <div className="flex h-full items-center justify-center">
                       <ConnectWalletButton />

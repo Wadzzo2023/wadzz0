@@ -18,4 +18,5 @@ export const WBalanceRouter = createTRPCRouter({
     const userId = ctx.session.user.id;
     return await NativeBalance({userPub: userId});
   }),
+
 });

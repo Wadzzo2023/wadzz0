@@ -31,9 +31,6 @@ export async function BalanceWithHomeDomain({
   const server = new Server(STELLAR_URL);
 
   const account = await server.loadAccount(userPub);
-
-
-  
   const balances = await Promise.all(
     account.balances.map(async (balance) => {
       if (
@@ -78,3 +75,5 @@ export async function BalanceWithHomeDomain({
   console.log(balances);
   return balances;
 }
+
+
