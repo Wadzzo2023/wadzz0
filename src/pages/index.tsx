@@ -1,11 +1,21 @@
-import { useSession } from "next-auth/react";
 import Head from "next/head";
-import toast from "react-hot-toast";
 import Main from "~/components/wallete/main";
 import { env } from "~/env";
+import { useUserStellarAcc } from "~/lib/state/wallete/stellar-balances";
 import { api } from "~/utils/api";
 
 export default function Home() {
+    const { setBalance } = useUserStellarAcc();
+  const acc = api.wallate.acc.getUserPubAssetBallances.useQuery(undefined, {
+    onSuccess: (data) => {
+      console.log(data);
+      setBalance(data);
+    },
+    onError: (error) => {
+      console.log(error);
+    },
+    refetchOnWindowFocus: false,
+  });
   return (
     <>
       <Head>

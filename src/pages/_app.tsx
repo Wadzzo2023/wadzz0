@@ -5,12 +5,11 @@ import { type AppType } from "next/app";
 import { api } from "~/utils/api";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import dynamic from "next/dynamic";
 import { Titillium_Web } from "next/font/google";
+import Layout from "~/components/layout";
 import "~/styles/globals.css";
 import "~/styles/music.scss";
-import dynamic from "next/dynamic";
-import Layout from "~/components/layout";
-import { useUserStellarAcc } from "~/lib/state/wallete/stellar-balances";
 
 const queryClient = new QueryClient();
 
@@ -26,17 +25,6 @@ const MyApp: AppType<{ session: Session | null }> = ({
   Component,
   pageProps: { session, ...pageProps },
 }) => {
-  const { setBalance } = useUserStellarAcc();
-  const acc = api.wallate.acc.getUserPubAssetBallances.useQuery(undefined, {
-    onSuccess: (data) => {
-      console.log(data);
-      setBalance(data);
-    },
-    onError: (error) => {
-      console.log(error);
-    },
-    refetchOnWindowFocus: false,
-  });
 
   return (
     <SessionProvider session={session}>
