@@ -21,16 +21,14 @@ function Header(_props: HeaderProps) {
         }
       >
         <div className="flex">
-          <div className="md:hidden">
-            <Hamburger />
-          </div>
+          <div className="md:hidden">{/* <Hamburger /> */}</div>
           <Logo className="self hidden sm:flex" />
         </div>
         <div className="self-end md:hidden">
-          <ConnectWalletButton />
+          {/* <ConnectWalletButton /> */}
         </div>
         <div className="ml-auto hidden md:flex">
-          <SiteAssetBalance />
+          {/* <SiteAssetBalance /> */}
         </div>
       </div>
     </header>

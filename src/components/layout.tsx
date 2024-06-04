@@ -2,11 +2,19 @@ import clsx from "clsx";
 import { useSession } from "next-auth/react";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/router";
-import { ConnectWalletButton } from "package/connect_wallet";
 import React from "react";
-import Header from "./header";
-import LeftBar from "./left-sidebar";
-import RightDialog from "./right_dialog";
+// import Header from "./header";
+// import RightDialog from "./right_dialog";
+
+const RightDialog = dynamic(async () => await import("./right_dialog"));
+const ConnectWalletButton = dynamic(
+  async () => await import("../components/ui/wallate_button"),
+);
+
+const Header = dynamic(async () => await import("./header"));
+
+const RightSideBar = dynamic(async () => await import("./right-sidebar"));
+const LeftBar = dynamic(async () => await import("./left-sidebar"));
 
 const BottomPlayerContainer = dynamic(() => import("./music/bottom_player"));
 
@@ -17,7 +25,7 @@ export default function Layout({
   children: React.ReactNode;
   className?: string;
 }) {
-  const { data } = useSession();
+  const session = useSession();
   const router = useRouter();
 
   if (router.pathname === "/maps") {
@@ -39,7 +47,7 @@ export default function Layout({
             <LeftBar className="hidden md:flex" />
             <div className="flex-1 border-x-2 ">
               <div className=" h-full overflow-y-auto bg-base-100/80 scrollbar-hide">
-                {data?.user.id ? (
+                {session.status == "authenticated" ? (
                   <>{children}</>
                 ) : (
                   <div className="flex h-full items-center justify-center">
@@ -51,7 +59,7 @@ export default function Layout({
               </div>
             </div>
 
-            {/* {data?.user.id && <RightSideBar />} */}
+            {session.status == "authenticated" && <RightSideBar />}
           </div>
         </div>
         <RightDialog />
