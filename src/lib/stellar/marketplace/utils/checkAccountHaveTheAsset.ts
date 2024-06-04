@@ -1,5 +1,4 @@
 import axios from "axios";
-import { Server, Asset } from "stellar-sdk";
 import log from "~/lib/logger/logger";
 import { HorizonAccount } from "./asset";
 

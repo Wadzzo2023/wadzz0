@@ -1,25 +1,20 @@
 import {
-  BASE_FEE,
-  Keypair,
-  Operation,
-  Server,
-  Networks,
-  TransactionBuilder,
   Asset,
-  AuthClawbackEnabledFlag,
-  AuthRevocableFlag,
-  AuthFlag,
-} from "stellar-sdk";
+  Keypair,
+  Horizon,
+  Operation,
+  TransactionBuilder,
+} from "@stellar/stellar-sdk";
 import { env } from "~/env";
+import { SignUserType, WithSing } from "../utils";
 import {
   PLATFROM_ASSET,
   PLATFROM_FEE,
   STELLAR_URL,
   networkPassphrase,
 } from "./constant";
-import { AccountType } from "./utils";
-import { SignUserType, WithSing } from "../utils";
 import { getplatformAssetNumberForXLM } from "./get_token_price";
+import { AccountType } from "./utils";
 
 // transection variables
 
@@ -38,7 +33,7 @@ export async function creatorPageAccCreate({
   ipfs: string;
   storageSecret: string;
 }) {
-  const server = new Server(STELLAR_URL);
+  const server = new Horizon.Server(STELLAR_URL);
 
   const requiredAsset2refundXlm = await getplatformAssetNumberForXLM(2);
   const totalAction = requiredAsset2refundXlm + Number(PLATFROM_FEE);

@@ -3,9 +3,9 @@ import {
   BASE_FEE,
   Keypair,
   Operation,
-  Server,
+  Horizon,
   TransactionBuilder,
-} from "stellar-sdk";
+} from "@stellar/stellar-sdk";
 import { STELLAR_URL } from "../constant";
 import { networkPassphrase } from "./create_song_token";
 import { SignUserType, WithSing } from "../../utils";
@@ -35,7 +35,7 @@ export async function XDR4BuyAsset({
 }) {
   // this asset limit only for buying more item.
   const asset = new Asset(code, issuerPub);
-  const server = new Server(STELLAR_URL);
+  const server = new Horizon.Server(STELLAR_URL);
   const storageAcc = Keypair.fromSecret(storageSecret);
 
   const transactionInializer = await server.loadAccount(buyer);

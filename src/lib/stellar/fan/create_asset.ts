@@ -1,10 +1,10 @@
 import {
   Keypair,
   Operation,
-  Server,
+  Horizon,
   TransactionBuilder,
   Asset,
-} from "stellar-sdk";
+} from "@stellar/stellar-sdk";
 import {
   PLATFROM_ASSET,
   PLATFROM_FEE,
@@ -41,7 +41,7 @@ export async function createAsset({
   signWith: SignUserType;
 }) {
   const limit = limitValue.toString();
-  const server = new Server(STELLAR_URL);
+  const server = new Horizon.Server(STELLAR_URL);
 
   // issuer
   const issuerAcc = Keypair.random();

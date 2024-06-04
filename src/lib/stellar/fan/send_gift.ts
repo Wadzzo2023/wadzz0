@@ -1,19 +1,13 @@
 import {
+  Asset,
+  Horizon,
   Keypair,
   Operation,
-  Server,
   TransactionBuilder,
-  Asset,
-} from "stellar-sdk";
-import {
-  PLATFROM_ASSET,
-  PLATFROM_FEE,
-  STELLAR_URL,
-  networkPassphrase,
-} from "./constant";
+} from "@stellar/stellar-sdk";
 import { env } from "~/env";
+import { STELLAR_URL, networkPassphrase } from "./constant";
 import { MyAssetType } from "./utils";
-import { STROOP } from "../marketplace/constant";
 
 const log = console;
 
@@ -30,7 +24,7 @@ export async function sendGift({
   creatorPub: string;
   creatorStorageSec: string;
 }) {
-  const server = new Server(STELLAR_URL);
+  const server = new Horizon.Server(STELLAR_URL);
   const asset = new Asset(creatorPageAsset.code, creatorPageAsset.issuer);
 
   const assetStorage = Keypair.fromSecret(creatorStorageSec);

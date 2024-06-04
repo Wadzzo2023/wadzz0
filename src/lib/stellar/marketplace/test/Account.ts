@@ -1,27 +1,27 @@
-import { Horizon, Server } from "stellar-sdk";
+import { Horizon } from "@stellar/stellar-sdk";
 import { STELLAR_URL } from "../constant";
 import { balaceToCopy } from "./acc";
 
-type Ballance = (
-  | Horizon.BalanceLineNative
-  | Horizon.BalanceLineAsset<"credit_alphanum4">
-  | Horizon.BalanceLineAsset<"credit_alphanum12">
-  | Horizon.BalanceLineLiquidityPool
+type Ballances = (
+  | Horizon.HorizonApi.BalanceLineNative
+  | Horizon.HorizonApi.BalanceLineAsset<"credit_alphanum4">
+  | Horizon.HorizonApi.BalanceLineAsset<"credit_alphanum12">
+  | Horizon.HorizonApi.BalanceLineLiquidityPool
 )[];
 
 export class StellarAccount {
-  private server: Server;
+  private server: Horizon.Server;
   private pubkey: string;
-  private balances: Ballance;
+  private balances: Ballances;
 
-  constructor(pubkey: string, balances: Ballance) {
-    this.server = new Server(STELLAR_URL);
+  constructor(pubkey: string, balances: Ballances) {
+    this.server = new Horizon.Server(STELLAR_URL);
     this.pubkey = pubkey;
     this.balances = balances;
   }
 
   static async create(pubkey: string) {
-    const server = new Server(STELLAR_URL);
+    const server = new Horizon.Server(STELLAR_URL);
     const transactionInitializer = await server.loadAccount(pubkey);
     return new StellarAccount(pubkey, transactionInitializer.balances);
   }

@@ -1,18 +1,17 @@
 import {
-  AccountResponse,
   BASE_FEE,
   Keypair,
   Operation,
-  Server,
+  Horizon,
   TransactionBuilder,
-} from "stellar-sdk";
+} from "@stellar/stellar-sdk";
 import { STROOP, STELLAR_URL } from "../constant";
 import { STORAGE_SECRET } from "../SECRET";
 import { SITE_ASSET, SITE_ASSET_OBJ } from "./constant";
 import { networkPassphrase } from "../constant";
 
 async function checkSiteAssetTrustLine(accPub: string) {
-  const server = new Server(STELLAR_URL);
+  const server = new Horizon.Server(STELLAR_URL);
   const accRes = await server.loadAccount(accPub);
   for (const bal of accRes.balances) {
     if (
@@ -40,7 +39,7 @@ export async function sendSiteAsset2pub(
   // 1. Create trustline - wadzzo
   // 2. Send X amount - wadzzo
 
-  const server = new Server(STELLAR_URL);
+  const server = new Horizon.Server(STELLAR_URL);
 
   const storageAcc = Keypair.fromSecret(STORAGE_SECRET);
   const userAcc = Keypair.fromSecret(secret);
@@ -87,7 +86,7 @@ export async function sendXLM_SiteAsset(props: {
   const { pubkey, siteAssetAmount, xlm, secret } = props;
   // change wadzooNum to 1 fo testing
 
-  const server = new Server(STELLAR_URL);
+  const server = new Horizon.Server(STELLAR_URL);
 
   const storageAcc = Keypair.fromSecret(STORAGE_SECRET);
   const pubAcc = Keypair.fromSecret(secret);

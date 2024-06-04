@@ -1,4 +1,4 @@
-import { Networks } from "stellar-sdk";
+import { Networks } from "@stellar/stellar-sdk";
 import { env } from "~/env";
 
 export const HORIZON_URL = "https://horizon.stellar.org"; // Horizon server for pubnet

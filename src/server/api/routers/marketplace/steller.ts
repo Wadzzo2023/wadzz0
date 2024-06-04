@@ -1,5 +1,5 @@
 import { getAccSecretFromRubyApi } from "package/connect_wallet/src/lib/stellar/get-acc-secret";
-import { Keypair } from "stellar-sdk";
+import { Keypair } from "@stellar/stellar-sdk";
 import { z } from "zod";
 import { getUserSecret } from "~/components/marketplace/recharge/utils";
 import { env } from "~/env";
