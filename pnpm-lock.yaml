@@ -4,9 +4,6 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
-overrides:
-  tslib: ^2.3.1
-
 importers:
 
   .:
@@ -111,8 +108,8 @@ importers:
         specifier: ^2.1.1
         version: 2.1.1
       colors-helper-tools:
-        specifier: ^1.5.7
-        version: 1.5.7
+        specifier: ^1.5.9
+        version: 1.5.9
       cookies-next:
         specifier: ^2.1.2
         version: 2.1.2
@@ -2082,9 +2079,10 @@ packages:
   colorette@2.0.20:
     resolution: {integrity: sha512-IfEDxwoWIjkeXL1eXcDiow4UbKjhLdq6/EuSVR9GMN7KVH3r9gQ83e73hsz1Nd1T3ijd5xv1wcWRYO+D6kCI2w==}
 
-  colors-helper-tools@1.5.7:
-    resolution: {integrity: sha512-qUaR0nhWrsKSQC63X81TiJ4j1XOTLA+dq8iogItw3eyXVXT2F0/nLZ6Pf+pjrfHpe6pbG8JTxlSBqkPORYkmZQ==}
+  colors-helper-tools@1.5.9:
+    resolution: {integrity: sha512-SLcL7TEaRgcRKH3oEBxaSyuKThShTX/j/AhadvGiW64fBjCXSUFEN+J6M2TpBokkoUtcsz/mWo/dUmh6ignkrA==}
     engines: {node: '>=14'}
+    hasBin: true
 
   combined-stream@1.0.8:
     resolution: {integrity: sha512-FQN4MRfuJeHf7cBbBMJFXhKSDq+2kAArBlmRBvcvFE5BB1HZKXtSFASDhdlz9zOYwxh8lDdnvmMOe/+5cdoEdg==}
@@ -2092,6 +2090,10 @@ packages:
 
   comma-separated-tokens@2.0.3:
     resolution: {integrity: sha512-Fu4hJdvzeylCfQPp9SGWidpzrMs7tTrlu6Vb8XGaRGck8QSNZJJp538Wrb60Lax4fPwR64ViY468OIUTbRlGZg==}
+
+  commander@12.1.0:
+    resolution: {integrity: sha512-Vw8qHK3bZM9y/P10u3Vib8o/DdkvA2OtPtZvD871QKjy74Wj1WSKFILMPRPSdUSx5RFK1arlJzEtA4PkFgnbuA==}
+    engines: {node: '>=18'}
 
   commander@4.1.1:
     resolution: {integrity: sha512-NOKm8xhkzAjzFx8B2v5OAHT+u5pRQc2UCa2Vq9jYL/31o2wi9mxBA7LIFs3sV5VSC49z6pEhfbMULvShKj26WA==}
@@ -2324,8 +2326,8 @@ packages:
   effect@3.2.8:
     resolution: {integrity: sha512-W9xHCXg+CKwvNb+/vEsfiBxSqyOEAyjo7mz1M7Kq5ZtxBUyefOsQxc3oGME7bTcxD4OozWcR27Sk4iYxHERoZg==}
 
-  electron-to-chromium@1.4.788:
-    resolution: {integrity: sha512-ubp5+Ev/VV8KuRoWnfP2QF2Bg+O2ZFdb49DiiNbz2VmgkIqrnyYaqIOqj8A6K/3p1xV0QcU5hBQ1+BmB6ot1OA==}
+  electron-to-chromium@1.4.789:
+    resolution: {integrity: sha512-0VbyiaXoT++Fi2vHGo2ThOeS6X3vgRCWrjPeO2FeIAWL6ItiSJ9BqlH8LfCXe3X1IdcG+S0iLoNaxQWhfZoGzQ==}
 
   emoji-regex@8.0.0:
     resolution: {integrity: sha512-MSjYzcWNOA0ewAHpz0MxpYFvwg6yjy1NG3xteoqz644VCo/RPgnr1/GGt+ic3iJTzQ8Eu3TdM14SawnVUmGE6A==}
@@ -4493,6 +4495,9 @@ packages:
   tsconfig-paths@3.15.0:
     resolution: {integrity: sha512-2Ac2RgzDe/cn48GvOe3M+o82pEFewD3UPbyoUHHdKasHwJKjds4fLXWf/Ux5kATBKN20oaFGu+jbElp1pos0mg==}
 
+  tslib@1.14.1:
+    resolution: {integrity: sha512-Xni35NKzjgMrwevysHTCArtLDpPvye8zV/0E4EyYn43P7/7qvQwPh9BGkHewbMulVntbigmcT7rdX3BNo9wRJg==}
+
   tslib@2.6.2:
     resolution: {integrity: sha512-AEYxH93jGFPn/a2iVAwW87VuUIkR1FVUKB77NwMF7nBTDkDrrT/Hpt/IrCJ0QXhW27jTBDcf5ZY7w6RiqTMw2Q==}
 
@@ -6533,12 +6538,12 @@ snapshots:
 
   '@walletconnect/environment@1.0.1':
     dependencies:
-      tslib: 2.6.2
+      tslib: 1.14.1
 
   '@walletconnect/events@1.0.1':
     dependencies:
       keyvaluestorage-interface: 1.0.0
-      tslib: 2.6.2
+      tslib: 1.14.1
 
   '@walletconnect/heartbeat@1.2.2':
     dependencies:
@@ -6561,7 +6566,7 @@ snapshots:
     dependencies:
       '@walletconnect/environment': 1.0.1
       '@walletconnect/jsonrpc-types': 1.0.4
-      tslib: 2.6.2
+      tslib: 1.14.1
 
   '@walletconnect/jsonrpc-ws-connection@1.0.14':
     dependencies:
@@ -6608,12 +6613,12 @@ snapshots:
       '@stablelib/random': 1.0.2
       '@walletconnect/safe-json': 1.0.2
       '@walletconnect/time': 1.0.2
-      tslib: 2.6.2
+      tslib: 1.14.1
       uint8arrays: 3.1.0
 
   '@walletconnect/safe-json@1.0.2':
     dependencies:
-      tslib: 2.6.2
+      tslib: 1.14.1
 
   '@walletconnect/sign-client@2.13.1(encoding@0.1.13)':
     dependencies:
@@ -6647,7 +6652,7 @@ snapshots:
 
   '@walletconnect/time@1.0.2':
     dependencies:
-      tslib: 2.6.2
+      tslib: 1.14.1
 
   '@walletconnect/types@2.13.1':
     dependencies:
@@ -6707,12 +6712,12 @@ snapshots:
 
   '@walletconnect/window-getters@1.0.1':
     dependencies:
-      tslib: 2.6.2
+      tslib: 1.14.1
 
   '@walletconnect/window-metadata@1.0.1':
     dependencies:
       '@walletconnect/window-getters': 1.0.1
-      tslib: 2.6.2
+      tslib: 1.14.1
 
   '@web3modal/core@2.0.0-beta.7(react@18.2.0)':
     dependencies:
@@ -7011,7 +7016,7 @@ snapshots:
   browserslist@4.23.0:
     dependencies:
       caniuse-lite: 1.0.30001627
-      electron-to-chromium: 1.4.788
+      electron-to-chromium: 1.4.789
       node-releases: 2.0.14
       update-browserslist-db: 1.0.16(browserslist@4.23.0)
 
@@ -7142,13 +7147,17 @@ snapshots:
 
   colorette@2.0.20: {}
 
-  colors-helper-tools@1.5.7: {}
+  colors-helper-tools@1.5.9:
+    dependencies:
+      commander: 12.1.0
 
   combined-stream@1.0.8:
     dependencies:
       delayed-stream: 1.0.0
 
   comma-separated-tokens@2.0.3: {}
+
+  commander@12.1.0: {}
 
   commander@4.1.1: {}
 
@@ -7350,7 +7359,7 @@ snapshots:
 
   effect@3.2.8: {}
 
-  electron-to-chromium@1.4.788: {}
+  electron-to-chromium@1.4.789: {}
 
   emoji-regex@8.0.0: {}
 
@@ -9996,6 +10005,8 @@ snapshots:
       json5: 1.0.2
       minimist: 1.2.8
       strip-bom: 3.0.0
+
+  tslib@1.14.1: {}
 
   tslib@2.6.2: {}
 

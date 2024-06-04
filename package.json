@@ -46,7 +46,7 @@
     "axios": "^1.7.2",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
-    "colors-helper-tools": "^1.5.7",
+    "colors-helper-tools": "^1.5.9",
     "cookies-next": "^2.1.2",
     "crypto-random-string": "^5.0.0",
     "csv-iter-parse": "^0.0.4",
@@ -116,10 +116,5 @@
   },
   "engines": {
     "node": ">=18.17.0"
-  },
-  "pnpm": {
-    "overrides": {
-      "tslib": "^2.3.1"
-    }
   }
 }
