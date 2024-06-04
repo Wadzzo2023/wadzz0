@@ -49,4 +49,5 @@ const config = {
   },
 };
 
-export default withBundleAnalyzer({});
+
+export default withBundleAnalyzer(config);

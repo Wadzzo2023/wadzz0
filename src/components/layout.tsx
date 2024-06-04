@@ -1,15 +1,14 @@
-import React, { useState } from "react";
-import LeftBar from "./left-sidebar";
-import RightSideBar from "./right-sidebar";
-import { ConnectWalletButton } from "package/connect_wallet";
-import { useSession } from "next-auth/react";
 import clsx from "clsx";
-import Header from "./header";
-import RightDialog from "./right_dialog";
-import BottonPlayer from "./bottom_player";
-import { usePlayerStore } from "~/lib/state/music/track";
+import { useSession } from "next-auth/react";
+import dynamic from "next/dynamic";
 import { useRouter } from "next/router";
-import { X } from "lucide-react";
+import { ConnectWalletButton } from "package/connect_wallet";
+import React from "react";
+import Header from "./header";
+import LeftBar from "./left-sidebar";
+import RightDialog from "./right_dialog";
+
+const BottomPlayerContainer = dynamic(() => import("./music/bottom_player"));
 
 export default function Layout({
   children,
@@ -52,7 +51,7 @@ export default function Layout({
               </div>
             </div>
 
-            {data?.user.id && <RightSideBar />}
+            {/* {data?.user.id && <RightSideBar />} */}
           </div>
         </div>
         <RightDialog />
@@ -60,45 +59,4 @@ export default function Layout({
       </div>
     </>
   );
-}
-
-function BottomPlayerContainer() {
-  const router = useRouter();
-  const { bottomVisiable, isPlaying, setNewTrack } = usePlayerStore();
-
-  const [isHovered, setIsHovered] = useState(false);
-
-  return (
-    <div
-      className={clsx("absolute bottom-0 w-full")}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-    >
-      <div className="flex items-center justify-center">
-        <div className="w-full max-w-2xl">
-          {isHovered && (
-            <button
-              className="btn btn-circle btn-secondary btn-sm -mb-8"
-              onClick={() => setNewTrack(undefined)}
-            >
-              <X />
-            </button>
-          )}
-          <BottonPlayer />
-        </div>
-      </div>
-    </div>
-  );
-  // } else {
-  // if (isPlaying)
-  //   return (
-  //     <div className="absolute bottom-0 w-full">
-  //       <div className="flex items-center justify-center">
-  //         <div className="w-full max-w-2xl">
-  //           <BottonPlayer />
-  //         </div>
-  //       </div>
-  //     </div>
-  //   );
-  // }
 }
