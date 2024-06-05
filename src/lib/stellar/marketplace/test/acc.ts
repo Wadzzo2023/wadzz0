@@ -1,6 +1,6 @@
 import { Server } from "stellar-sdk";
 import { STELLAR_URL, STROOP } from "../constant";
-import { PLATFROM_ASSET } from "../../fan/constant";
+import { PLATFROM_ASSET } from "../../constant";
 import { Horizon } from "stellar-sdk";
 
 type Balances = (

@@ -16,7 +16,7 @@ import {
   PLATFROM_FEE,
   STELLAR_URL,
   networkPassphrase,
-} from "./constant";
+} from "../constant";
 import { AccountType } from "./utils";
 import { SignUserType, WithSing } from "../utils";
 import { getplatformAssetNumberForXLM } from "./get_token_price";

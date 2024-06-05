@@ -10,7 +10,7 @@ import {
   PLATFROM_FEE,
   STELLAR_URL,
   networkPassphrase,
-} from "./constant";
+} from "../constant";
 import { env } from "~/env";
 import { MyAssetType } from "./utils";
 import { STROOP } from "../marketplace/constant";

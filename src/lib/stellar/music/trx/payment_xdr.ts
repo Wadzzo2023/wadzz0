@@ -6,12 +6,11 @@ import {
   Server,
   TransactionBuilder,
 } from "stellar-sdk";
-import { STELLAR_URL } from "../constant";
 import { networkPassphrase } from "./create_song_token";
 import { SignUserType, WithSing } from "../../utils";
 import { STROOP } from "../../marketplace/constant";
 import { StellarAccount } from "../../marketplace/test/Account";
-import { PLATFROM_ASSET, PLATFROM_FEE } from "../../fan/constant";
+import { PLATFROM_ASSET, PLATFROM_FEE, STELLAR_URL } from "../../constant";
 import { env } from "~/env";
 
 const log = console;
