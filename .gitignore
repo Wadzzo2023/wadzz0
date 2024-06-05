@@ -44,3 +44,6 @@ yarn-error.log*
 
 public/mov_bbb.mp4
 .env.development
+
+
+analyze

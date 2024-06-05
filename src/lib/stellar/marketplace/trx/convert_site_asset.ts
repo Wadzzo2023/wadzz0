@@ -1,15 +1,14 @@
 import {
   Asset,
   BASE_FEE,
+  Horizon,
   Keypair,
   Operation,
-  Server,
   TransactionBuilder,
-} from "stellar-sdk";
-import { STROOP, STELLAR_URL } from "../constant";
+} from "@stellar/stellar-sdk";
 import { STORAGE_SECRET } from "../SECRET";
+import { STELLAR_URL, STROOP, networkPassphrase } from "../constant";
 import { SITE_ASSET } from "./constant";
-import { networkPassphrase } from "../constant";
 
 export async function covertSiteAsset2XLM(props: {
   siteAssetAmount: number;
@@ -24,7 +23,7 @@ export async function covertSiteAsset2XLM(props: {
     .toFixed(7)
     .toString();
 
-  const server = new Server(STELLAR_URL);
+  const server = new Horizon.Server(STELLAR_URL);
 
   const storageAcc = Keypair.fromSecret(STORAGE_SECRET);
   const pubAcc = Keypair.fromSecret(secret);

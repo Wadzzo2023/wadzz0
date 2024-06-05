@@ -1,10 +1,10 @@
 import {
   Keypair,
   Operation,
-  Server,
+  Horizon,
   TransactionBuilder,
   Asset,
-} from "stellar-sdk";
+} from "@stellar/stellar-sdk";
 import {
   PLATFROM_ASSET,
   PLATFROM_FEE,
@@ -30,7 +30,7 @@ export async function buyAssetTrx({
   creatorId: string;
   storageSecret: string;
 }) {
-  const server = new Server(STELLAR_URL);
+  const server = new Horizon.Server(STELLAR_URL);
   const asset = new Asset(assetType.code, assetType.issuer);
 
   const assetStorage = Keypair.fromSecret(storageSecret);

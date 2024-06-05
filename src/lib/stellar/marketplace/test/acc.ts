@@ -1,17 +1,16 @@
-import { Server } from "stellar-sdk";
+import { Horizon } from "@stellar/stellar-sdk";
 import { STELLAR_URL, STROOP } from "../constant";
 import { PLATFROM_ASSET } from "../../constant";
-import { Horizon } from "stellar-sdk";
 
 type Balances = (
-  | Horizon.BalanceLineNative
-  | Horizon.BalanceLineAsset<"credit_alphanum4">
-  | Horizon.BalanceLineAsset<"credit_alphanum12">
-  | Horizon.BalanceLineLiquidityPool
+  | Horizon.HorizonApi.BalanceLineNative
+  | Horizon.HorizonApi.BalanceLineAsset<"credit_alphanum4">
+  | Horizon.HorizonApi.BalanceLineAsset<"credit_alphanum12">
+  | Horizon.HorizonApi.BalanceLineLiquidityPool
 )[];
 
 export async function accountBalances({ userPub }: { userPub: string }) {
-  const server = new Server(STELLAR_URL);
+  const server = new Horizon.Server(STELLAR_URL);
 
   const transactionInializer = await server.loadAccount(userPub);
   const balances = transactionInializer.balances;
@@ -89,7 +88,7 @@ export async function accountDetailsWithHomeDomain({
 }: {
   userPub: string;
 }) {
-  const server = new Server(STELLAR_URL);
+  const server = new Horizon.Server(STELLAR_URL);
 
   const account = await server.loadAccount(userPub);
 

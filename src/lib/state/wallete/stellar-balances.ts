@@ -1,12 +1,13 @@
-import { Horizon } from "stellar-sdk";
 import { create } from "zustand";
+import { Horizon } from "@stellar/stellar-sdk";
+import { accountBalances } from "~/lib/stellar/marketplace/test/acc";
 import { PLATFROM_ASSET } from "~/lib/stellar/constant";
 
 export type AccBalanceType =
-  | Horizon.BalanceLineNative
-  | Horizon.BalanceLineAsset<"credit_alphanum4">
-  | Horizon.BalanceLineAsset<"credit_alphanum12">
-  | Horizon.BalanceLineLiquidityPool;
+  | Horizon.HorizonApi.BalanceLineNative
+  | Horizon.HorizonApi.BalanceLineAsset<"credit_alphanum4">
+  | Horizon.HorizonApi.BalanceLineAsset<"credit_alphanum12">
+  | Horizon.HorizonApi.BalanceLineLiquidityPool;
 
 interface Balance {
   balances: AccBalanceType[] | undefined;

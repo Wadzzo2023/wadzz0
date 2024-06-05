@@ -1,10 +1,10 @@
 import {
   Asset,
+  Horizon,
   Keypair,
   Operation,
-  Server,
   TransactionBuilder,
-} from "stellar-sdk";
+} from "@stellar/stellar-sdk";
 
 import {
   PLATFROM_ASSET,
@@ -31,7 +31,7 @@ export async function createStorageTrx({
   | Create storage account and also trust storage token
   |---------------------------------------------------
   */
-  const server = new Server(STELLAR_URL);
+  const server = new Horizon.Server(STELLAR_URL);
 
   const storageAcc = Keypair.random();
   const motherAcc = Keypair.fromSecret(env.MOTHER_SECRET);

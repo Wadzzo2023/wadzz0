@@ -93,6 +93,8 @@ export const payRouter = createTRPCRouter({
         environment: env.SQUARE_ENVIRONMENT as Environment,
       });
 
+      console.log(client, "...vong..");
+
       const { result } = await client.paymentsApi.createPayment({
         idempotencyKey: randomUUID(),
         sourceId: input.sourceId,

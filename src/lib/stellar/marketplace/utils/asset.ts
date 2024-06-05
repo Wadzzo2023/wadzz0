@@ -1,6 +1,4 @@
 import axios from "axios";
-import { HORIZON_URL } from "../constant";
-import { Server, Asset } from "stellar-sdk";
 import log from "~/lib/logger/logger";
 import { concatAssetWithIssuer } from "../../music/utils";
 
