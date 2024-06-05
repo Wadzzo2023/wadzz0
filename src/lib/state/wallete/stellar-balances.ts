@@ -1,7 +1,6 @@
+import { Horizon } from "stellar-sdk";
 import { create } from "zustand";
-import { Horizon, Server } from "stellar-sdk";
-import { accountBalances } from "~/lib/stellar/marketplace/test/acc";
-import { PLATFROM_ASSET } from "~/lib/stellar/fan/constant";
+import { PLATFROM_ASSET } from "~/lib/stellar/constant";
 
 export type AccBalanceType =
   | Horizon.BalanceLineNative

@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { twMerge } from "tailwind-merge";
-import { PLATFROM_ASSET } from "~/lib/stellar/fan/constant";
+import { PLATFROM_ASSET } from "~/lib/stellar/constant";
 export default function Logo({ className }: { className?: string }) {
   return (
     <div className="flex w-full items-center justify-center">

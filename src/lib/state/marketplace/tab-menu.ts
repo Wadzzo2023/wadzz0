@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { PLATFROM_ASSET } from "~/lib/stellar/fan/constant";
+import { PLATFROM_ASSET } from "~/lib/stellar/constant";
 
 export enum MarketMenu {
   Wallate = "Admin",

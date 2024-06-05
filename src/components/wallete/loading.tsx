@@ -1,7 +1,7 @@
 import { ShieldAlert } from "lucide-react";
 import Image from "next/image";
 import { twMerge } from "tailwind-merge";
-import { PLATFROM_ASSET } from "~/lib/stellar/fan/constant";
+import { PLATFROM_ASSET } from "~/lib/stellar/constant";
 
 interface LoadingProps {
   className?: string;
