@@ -23,15 +23,17 @@ export default function BuyWithSquire({
         toast.success("xdr get");
         if (data) {
           const id = data;
-          const res = await toast.promise(submitSignedXDRToServer4User(xdr), {
-            error: "Error in steller",
-            loading: "Loading...",
-            success: "Transaction successful.",
-          });
-
-          if (res) {
-            toast.success("Transaction successful.");
-          }
+          const tostId = toast.loading("Submitting xdr");
+          submitSignedXDRToServer4User(xdr)
+            .then((data) => {
+              if (data) {
+                toast.success("Payment success");
+              }
+            })
+            .catch((e) => toast.error(e.message))
+            .finally(() => {
+              toast.dismiss(tostId);
+            });
         }
       } else {
         toast.error("Payment failed. Please try again.");

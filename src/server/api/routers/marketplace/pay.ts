@@ -100,10 +100,10 @@ export const payRouter = createTRPCRouter({
       */
 
       // calling the squire backedapi
-      const url =
-        process.env.NODE_ENV === "production"
-          ? "https://api.wadzoo.com"
-          : "http://localhost:3000/api/square";
+      const url = "https://next-actionverse.vercel.app/api/square";
+      process.env.NODE_ENV === "production"
+        ? "https://next-actionverse.vercel.app/api/square"
+        : "http://localhost:3000/api/square";
 
       const result = await fetch(url, {
         method: "POST",
