@@ -101,7 +101,7 @@ export default function BuyModal({
               </p>
               <p className="text-sm">Issuer: {addrShort(issuer, 15)}</p>
             </div>
-            <BuyWithSquire marketId={item.id} xdr={xdr ?? "xdr"} />
+            {/* <BuyWithSquire marketId={item.id} xdr={xdr ?? "xdr"} /> */}
 
             <div className="flex flex-col items-center">
               {xdr ? (

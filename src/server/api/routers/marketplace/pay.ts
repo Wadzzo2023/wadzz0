@@ -1,5 +1,4 @@
 import { z } from "zod";
-import { Client, Environment } from "square";
 
 import {
   createTRPCRouter,
@@ -29,6 +28,7 @@ export const payRouter = createTRPCRouter({
       const user = ctx.session.user;
       const pubkey = user.id;
 
+      /*
       if (user.email) {
         const secret = await getAccSecretFromRubyApi(user.email);
 
@@ -71,6 +71,7 @@ export const payRouter = createTRPCRouter({
       } else {
         throw new Error("Account has not email associate with it");
       }
+      */
     }),
 
   buyAsset: protectedProcedure
@@ -88,6 +89,8 @@ export const payRouter = createTRPCRouter({
       });
 
       const priceUSD = asset.priceUSD;
+
+      /*
       const client = new Client({
         accessToken: env.SQUARE_ACCESS_TOKEN,
         environment: env.SQUARE_ENVIRONMENT as Environment,
@@ -103,14 +106,31 @@ export const payRouter = createTRPCRouter({
           amount: BigInt(priceUSD),
         },
       });
-      if (result.errors) {
-        console.log("error happend", result.errors);
-        throw new Error("Error happend while processing payment");
-      }
-      if (result.payment) {
-        log.info("payment with square was sucessfull");
-        // payment sucessfull
-        return input.assetId;
+      */
+
+      // calling the squire backedapi
+      const url =
+        process.env.NODE_ENV === "production"
+          ? "https://api.wadzoo.com"
+          : "http://localhost:3000/api/square";
+
+      const result = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          sourceId: input.sourceId,
+          priceUSD: priceUSD,
+        }),
+      });
+
+      if (result.ok) {
+        const data = (await result.json()) as { id: string; status: string };
+
+        if (data.status === "COMPLETED") {
+          return true;
+        }
       }
     }),
 });

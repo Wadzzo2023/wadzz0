@@ -195,8 +195,8 @@ importers:
         specifier: ^1.77.4
         version: 1.77.4
       square:
-        specifier: ^36.0.0
-        version: 36.0.0
+        specifier: ^37.1.0
+        version: 37.1.0
       superjson:
         specifier: ^2.2.1
         version: 2.2.1
@@ -4284,8 +4284,8 @@ packages:
     resolution: {integrity: sha512-UcjcJOWknrNkF6PLX83qcHM6KHgVKNkV62Y8a5uYDVv9ydGQVwAHMKqHdJje1VTWpljG0WYpCDhrCdAOYH4TWg==}
     engines: {node: '>= 10.x'}
 
-  square@36.0.0:
-    resolution: {integrity: sha512-e0OoL4klD0AbgH9jix1gLrAgVaMvrY8mhgQdR1oLdSFdjzuotvC2wS8m8KVwMjGnJGjK0E0tmNDFkPkKQtr+LQ==}
+  square@37.1.0:
+    resolution: {integrity: sha512-+Ng/L2whqKm/JlJwLHDVZyh5L+JaGBlP9cpI6cOUDwkaSdLOhfP49MKmWSZEnV7f28gaGn0qu3AXFfiSZMjeow==}
     engines: {node: '>=14.17.0'}
 
   std-env@3.7.0:
@@ -9756,7 +9756,7 @@ snapshots:
 
   split2@4.2.0: {}
 
-  square@36.0.0:
+  square@37.1.0:
     dependencies:
       '@apimatic/authentication-adapters': 0.5.3
       '@apimatic/axios-client-adapter': 0.3.1
