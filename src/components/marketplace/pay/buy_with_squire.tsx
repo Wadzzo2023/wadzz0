@@ -30,7 +30,10 @@ export default function BuyWithSquire({
                 toast.success("Payment success");
               }
             })
-            .catch((e) => toast.error(e.message))
+            .catch((e) => {
+              console.log(e);
+              toast.error("Payment failed");
+            })
             .finally(() => {
               toast.dismiss(tostId);
             });
