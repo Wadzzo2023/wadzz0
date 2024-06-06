@@ -57,7 +57,7 @@ export default function AllTags() {
         className="!btn join-item"
         type="radio"
         name="options"
-        aria-label="ARTISTS"
+        aria-label="ARTIST TOKEN"
         onClick={() => {
           selectTag(AssetVariant.Other);
           setData(undefined);

@@ -149,7 +149,7 @@ export default function BuyModal({
                       <span className="loading"></span>
                     </div>
                   )}
-                  Fetch XDR of {code}
+                  Proceed to checkout
                 </button>
               )}
             </div>
