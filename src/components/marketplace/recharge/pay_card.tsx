@@ -1,5 +1,3 @@
-import { submitSignedXDRToServer4User } from "package/connect_wallet/src/lib/stellar/trx/payment_fb_g";
-import toast from "react-hot-toast";
 import { CreditCard, PaymentForm } from "react-square-web-payments-sdk";
 import { api } from "~/utils/api";
 import { Offer } from "./types";
@@ -20,13 +18,13 @@ export default function PaymentCard({ pubkey, offer }: PaymentCardType) {
     async onSuccess(data, variables, context) {
       if (data) {
         const presignedxdr = data;
-        toast.success("payment success");
-        const res = await submitSignedXDRToServer4User(presignedxdr);
-        if (res) {
-          toast.success("transection sucessfull");
-        } else {
-          toast.error("error in steller");
-        }
+        // toast.success("payment success");
+        // const res = await submitSignedXDRToServer4User(presignedxdr);
+        // if (res) {
+        // toast.success("transection sucessfull");
+        // } else {
+        // toast.error("error in steller");
+        // }
       }
     },
   });

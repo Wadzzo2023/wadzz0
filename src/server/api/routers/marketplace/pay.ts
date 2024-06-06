@@ -1,18 +1,6 @@
 import { z } from "zod";
 
-import {
-  createTRPCRouter,
-  protectedProcedure,
-  publicProcedure,
-} from "~/server/api/trpc";
-import { env } from "~/env";
-import { randomUUID } from "crypto";
-import {
-  sendSiteAsset2pub,
-  sendXLM_SiteAsset,
-} from "~/lib/stellar/marketplace/trx/site_asset_recharge";
-import log from "~/lib/logger/logger";
-import { getAccSecretFromRubyApi } from "package/connect_wallet/src/lib/stellar/get-acc-secret";
+import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 
 export const payRouter = createTRPCRouter({
   payment: protectedProcedure
@@ -71,7 +59,10 @@ export const payRouter = createTRPCRouter({
       } else {
         throw new Error("Account has not email associate with it");
       }
+
+
       */
+      return false;
     }),
 
   buyAsset: protectedProcedure
