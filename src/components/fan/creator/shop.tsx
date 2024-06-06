@@ -7,6 +7,8 @@ import { useSession } from "next-auth/react";
 import ContextMenu from "../../ui/context-menu";
 import NftCreate from "~/components/marketplace/nft_create";
 import MarketAssetComponent from "~/components/marketplace/market_asset";
+import ViewMediaModal from "../shop/asset_view_modal";
+import ShopAssetComponent from "../shop/shop_asset";
 
 export default function Shop({ creator }: { creator?: Creator }) {
   return (
@@ -42,7 +44,10 @@ function AllShopItems() {
       >
         {assets.data.pages.map((page) =>
           page.nfts.map((item, i) => (
-            <MarketAssetComponent key={i} item={item} />
+            <ViewMediaModal
+              item={item}
+              content={<ShopAssetComponent key={i} item={item} />}
+            />
           )),
         )}
         {assets.hasNextPage && (

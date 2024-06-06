@@ -26,10 +26,17 @@ export default function MarketRight() {
       </div>
     );
 
-  const color = "blue";
+  return <AssetDetails currentData={currentData} />;
   // const { name, description, type, mediaUrl } = currentData;
   // const issuer = nftAsset.issuer.pub;
+}
 
+export function AssetDetails({
+  currentData,
+}: {
+  currentData: MarketAssetType;
+}) {
+  const color = "blue";
   return (
     <div className="max-h h-full w-full">
       <div className="scrollbar-style relative h-full w-full overflow-y-auto rounded-xl bg-base-100/90">

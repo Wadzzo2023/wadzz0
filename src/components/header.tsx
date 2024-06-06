@@ -1,11 +1,7 @@
 import React from "react";
 // import Hamburger from "./hamburger";
-import { ConnectWalletButton } from "package/connect_wallet";
 
 import Logo from "./logo";
-import { Hammer } from "lucide-react";
-import { MobileHeaderAvater } from "./fan/mobile/top-nav";
-import Hamburger from "./hamburger";
 import { SiteAssetBalance } from "./marketplace/recharge/site_asset_bal";
 
 interface HeaderProps {
@@ -28,7 +24,7 @@ function Header(_props: HeaderProps) {
           {/* <ConnectWalletButton /> */}
         </div>
         <div className="ml-auto hidden md:flex">
-          {/* <SiteAssetBalance /> */}
+          <SiteAssetBalance />
         </div>
       </div>
     </header>

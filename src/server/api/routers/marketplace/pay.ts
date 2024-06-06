@@ -130,7 +130,13 @@ export const payRouter = createTRPCRouter({
 
         if (data.status === "COMPLETED") {
           return true;
+        } else {
+          throw new Error("Payment was not successful");
         }
+      }
+
+      if (result.status === 400) {
+        throw new Error("Something went wrong with the payment");
       }
     }),
 });

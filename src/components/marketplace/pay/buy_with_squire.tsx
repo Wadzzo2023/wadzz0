@@ -34,11 +34,11 @@ export default function BuyWithSquire({
           }
         }
       } else {
-        toast.error("Error in squire");
+        toast.error("Payment failed. Please try again.");
       }
     },
     onError: (e) => {
-      toast.error("...Error in squire");
+      toast.error("Something went wrong. Please try again.");
       console.log(e.message);
     },
   });
