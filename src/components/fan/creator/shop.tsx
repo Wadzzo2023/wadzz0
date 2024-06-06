@@ -45,6 +45,7 @@ function AllShopItems() {
         {assets.data.pages.map((page) =>
           page.nfts.map((item, i) => (
             <ViewMediaModal
+              key={i}
               item={item}
               content={<ShopAssetComponent key={i} item={item} />}
             />
