@@ -44,7 +44,6 @@ export default function SongCreate({ albumId }: { albumId: number }) {
   const [musicUrl, setMusicUrl] = useState<string>();
   const [coverImgUrl, setCover] = useState<string>();
   const session = useSession();
-  const { needSign } = useNeedSign();
 
   const {
     register,
@@ -182,7 +181,7 @@ export default function SongCreate({ albumId }: { albumId: number }) {
                       minLength={2}
                       required
                       {...register("name")}
-                      className="input input-bordered input-sm  w-full"
+                      className="input input-sm input-bordered  w-full"
                       placeholder="Enter Music Name"
                     />
                     {errors.name && (
@@ -198,7 +197,7 @@ export default function SongCreate({ albumId }: { albumId: number }) {
                     <label className="label">Artist</label>
                     <input
                       {...register("artist")}
-                      className="input input-bordered input-sm  w-full"
+                      className="input input-sm input-bordered  w-full"
                       placeholder="Enter Artist Name"
                     />
                   </div>
@@ -347,7 +346,7 @@ export default function SongCreate({ albumId }: { albumId: number }) {
                         <input
                           {...register("code")}
                           className={clsx(
-                            "input input-bordered input-sm  w-full",
+                            "input input-sm input-bordered  w-full",
                             errors.code && "input-warning",
                           )}
                           placeholder="Enter Asset Name"
@@ -371,7 +370,7 @@ export default function SongCreate({ albumId }: { albumId: number }) {
                           // disabled={trxdata?.successful ? true : false}
                           type="number"
                           {...register("limit", { valueAsNumber: true })}
-                          className="input input-bordered input-sm  w-full"
+                          className="input input-sm input-bordered  w-full"
                           placeholder="Enter limit of the new Asset"
                         />
                         {errors.limit && (
@@ -394,7 +393,7 @@ export default function SongCreate({ albumId }: { albumId: number }) {
                         step="0.1"
                         type="number"
                         {...register("price", { valueAsNumber: true })}
-                        className="input input-bordered input-sm  w-full"
+                        className="input input-sm input-bordered  w-full"
                         placeholder="Price"
                       />
                       {errors.price && (
@@ -410,7 +409,7 @@ export default function SongCreate({ albumId }: { albumId: number }) {
                       <label className="label">Description</label>
                       <input
                         {...register("description")}
-                        className="input input-bordered input-sm  w-full"
+                        className="input input-sm input-bordered  w-full"
                         placeholder="Write a short Description"
                       />
                       {errors.description && (

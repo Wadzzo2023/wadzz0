@@ -159,8 +159,6 @@ function CreateCreator({ requiredToken }: { requiredToken: number }) {
     },
   });
 
-  // if (requiredToken.isLoading) return <div>Checking required Action...</div>;
-
   const loading = xdr.isLoading || makeCreatorMutation.isLoading || signLoading;
 
   return (

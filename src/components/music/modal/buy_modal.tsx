@@ -18,6 +18,7 @@ import { get } from "lodash";
 import { getPlaiceholder } from "plaiceholder";
 import { getPlatfromAssetPrice } from "~/lib/stellar/fan/get_token_price";
 import clsx from "clsx";
+import { PLATFROM_ASSET } from "~/lib/stellar/fan/constant";
 
 type BuyModalProps = {
   item: AssetType;
@@ -84,10 +85,12 @@ export default function BuyModal({
               <p>
                 Asset Name: <span className="badge badge-primary">{code}</span>
               </p>
-              <p className="text-warning">Price: {price} ACTION</p>
-              <p className="text-warning">Price in USD: {priceUSD} ACTION</p>
+              <p className="font-bold">
+                Price: {price} {PLATFROM_ASSET.code}
+              </p>
+              <p className="font-bold">Price in USD: {priceUSD}$</p>
               <p className="text-sm text-accent">
-                Balance available:{" "}
+                Copies available:{" "}
                 {marketItemId ? (
                   <TokenCopies id={marketItemId} />
                 ) : (
