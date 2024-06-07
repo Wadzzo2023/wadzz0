@@ -163,7 +163,7 @@ function NftCreateForm({
       xdrMutation.mutate({
         code: data.code,
         limit: data.limit,
-        signWith: needSign(),
+        signWith: needSign(isAdmin),
         ipfsHash: ipfs,
       });
   };

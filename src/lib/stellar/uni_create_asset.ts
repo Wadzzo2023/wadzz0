@@ -51,6 +51,7 @@ export async function createUniAsset({
   const requiredAsset2refundXlm = await getplatformAssetNumberForXLM(2.5);
   const totalAction = requiredAsset2refundXlm + Number(PLATFROM_FEE);
 
+  // here pubkey should be change for admin
   const transactionInializer = await server.loadAccount(pubkey);
 
   const Tx1 = new TransactionBuilder(transactionInializer, {

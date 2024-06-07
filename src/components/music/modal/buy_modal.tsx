@@ -2,7 +2,7 @@ import { useRef, useState } from "react";
 import { api } from "~/utils/api";
 
 import { useSession } from "next-auth/react";
-import { clientsign } from "package/connect_wallet";
+import { WalletType, clientsign } from "package/connect_wallet";
 import toast from "react-hot-toast";
 import {
   AssetType,
@@ -81,7 +81,7 @@ export default function BuyModal({
           <h3 className="mb-2 text-lg font-bold">BUY</h3>
 
           <div className="flex flex-col items-center gap-y-2">
-            <div className="flex flex-col gap-2  bg-base-300 p-10">
+            <div className="flex flex-col gap-2  bg-base-200 p-10">
               <p>
                 Asset Name: <span className="badge badge-primary">{code}</span>
               </p>
@@ -178,21 +178,31 @@ function PaymentOptoins({
   isWallete: boolean;
   setIsWallet: (isWallet: boolean) => void;
 }) {
-  return (
-    <div className="my-2 flex gap-2">
-      <Optoin
-        text="Wallet"
-        onClick={() => setIsWallet(true)}
-        selected={isWallete}
-      />
-      <Optoin
-        text="Credit Card"
-        onClick={() => setIsWallet(false)}
-        selected={!isWallete}
-      />
-    </div>
-  );
+  const session = useSession();
 
+  if (session.status == "authenticated") {
+    const walletType = session.data.user.walletType;
+    const showCardOption =
+      walletType == WalletType.emailPass ||
+      walletType == WalletType.google ||
+      walletType == WalletType.facebook;
+    return (
+      <div className="my-2 flex gap-2">
+        <Optoin
+          text="Stellar"
+          onClick={() => setIsWallet(true)}
+          selected={isWallete}
+        />
+        {showCardOption && (
+          <Optoin
+            text="Credit Card"
+            onClick={() => setIsWallet(false)}
+            selected={!isWallete}
+          />
+        )}
+      </div>
+    );
+  }
   function Optoin({
     text,
     onClick,
@@ -206,7 +216,7 @@ function PaymentOptoins({
       <div
         onClick={onClick}
         className={clsx(
-          "flex h-10 w-20 items-center justify-center bg-base-300",
+          "flex h-10 items-center justify-center bg-base-300 p-4",
           selected && "border-2 border-primary",
         )}
       >

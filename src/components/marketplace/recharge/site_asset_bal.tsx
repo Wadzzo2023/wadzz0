@@ -3,6 +3,7 @@ import Link from "next/link";
 import { WalletType } from "package/connect_wallet/src/lib/enums";
 import { env } from "~/env";
 import { useUserStellarAcc } from "~/lib/state/wallete/stellar-balances";
+import { PLATFROM_ASSET } from "~/lib/stellar/fan/constant";
 import { api } from "~/utils/api";
 
 export function SiteAssetBalance() {
@@ -32,7 +33,7 @@ export function SiteAssetBalance() {
     >
       <div className="flex flex-col">
         <p className="flex flex-row text-xs md:text-sm">
-          <span className="hidden md:flex">{env.NEXT_PUBLIC_SITE} :</span>{" "}
+          <span className="hidden md:flex">{PLATFROM_ASSET.code} :</span>{" "}
           {bal.data?.platformAssetBal}
         </p>
       </div>
