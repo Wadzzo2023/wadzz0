@@ -39,12 +39,14 @@ export function AssetDetails({
   const color = "blue";
   return (
     <div className="max-h h-full w-full">
-      <div className="scrollbar-style relative h-full w-full overflow-y-auto rounded-xl bg-base-100/90">
+      <div className="scrollbar-style relative h-full w-full overflow-y-auto rounded-xl">
         <div
-          className="absolute h-full w-full opacity-10"
-          style={{
-            backgroundColor: color,
-          }}
+          className="absolute h-full w-full bg-base-200/50 "
+          style={
+            {
+              // backgroundColor: color,
+            }
+          }
         />
         <div className="flex h-full flex-col justify-between space-y-2 p-2">
           <div className="flex h-full flex-col gap-2 ">

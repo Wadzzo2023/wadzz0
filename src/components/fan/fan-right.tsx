@@ -8,8 +8,8 @@ export default function RightBar() {
   const { selectedMenu } = useMode();
 
   return (
-    <div className="div h-full bg-base-100/80">
-      <div className="my-2 flex w-full flex-row justify-center gap-1 px-4 ">
+    <div className="div h-full ">
+      <div className=" flex w-full flex-row justify-center gap-1 px-4 ">
         <Profile />
       </div>
 

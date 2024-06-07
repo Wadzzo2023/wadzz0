@@ -9,7 +9,7 @@ export default function RightContainer() {
 
   if (selectedMenu === Mode.Creator)
     return (
-      <div className="m-2 flex flex-1 flex-col gap-2 overflow-auto  rounded-lg  p-2">
+      <div className=" flex flex-1 flex-col gap-2 overflow-auto  rounded-lg  p-2">
         <CreatorNavButtons />
       </div>
     );
