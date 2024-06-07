@@ -192,7 +192,7 @@ export function FollowButton({ creator }: { creator: Creator }) {
   });
   const loading = followXDR.isLoading || signLoading || follow.isLoading;
   if (isFollower.data) return <p>You are a follower</p>;
-  else if (isFollower.isSuccess && isFollower.data === undefined)
+  else if (isFollower.isSuccess || isFollower.data === undefined)
     return (
       <div>
         <button
