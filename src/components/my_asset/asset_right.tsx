@@ -33,7 +33,7 @@ export default function AssetRight() {
 
   return (
     <div className="flex h-full flex-col gap-2 bg-base-200/50 p-2">
-      <div className=" flex-1 rounded-xl border-4 border-base-100 p-2">
+      <div className=" flex-1  rounded-xl border-4 border-base-100 p-2">
         <div className="avatar w-full">
           <MediaViewer
             type={currentData.mediaType}
@@ -116,7 +116,7 @@ function MarketButtons({
   if (inMarket.data)
     return (
       <div>
-        Item is in market
+        Item has been placed in market
         <NftBackModal copy={copy} item={{ code, issuer }} />
       </div>
     );

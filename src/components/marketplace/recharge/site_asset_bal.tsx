@@ -27,7 +27,7 @@ export function SiteAssetBalance() {
   if (bal.isLoading) return <div className="skeleton h-10 w-48"></div>;
   return (
     <div
-      className="btn btn-primary border-0 "
+      className="btn  border-0 "
       // href={isFBorGoogle ? "/recharge" : "/"}
       // href="/recharge"
     >

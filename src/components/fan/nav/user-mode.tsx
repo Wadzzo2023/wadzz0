@@ -7,6 +7,7 @@ import { Profile } from "./profile-menu";
 export function UserMode() {
   return (
     <div className="flex h-full flex-1 flex-col gap-2 overflow-auto rounded-lg  bg-base-200/50 p-2">
+      <Profile />
       <AllCreators />
       <BottonNav />
     </div>
@@ -54,7 +55,6 @@ function BottonNav() {
   return (
     <div className="flex flex-col gap-1">
       <Button path="/fans/notifications" text="NOTIFICATION" />
-      <Profile />
     </div>
   );
 }

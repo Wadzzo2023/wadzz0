@@ -60,7 +60,7 @@ function AlbumAdminActionButtons({ album }: { album: Album }) {
         <ConfirmationModal
           headerMessage="Do you realy want to delete this Album?"
           actionButton={
-            <button className="btn btn-error btn-sm w-20">Delete</button>
+            <button className="btn btn-primary btn-sm w-20">Delete</button>
           }
         >
           <button

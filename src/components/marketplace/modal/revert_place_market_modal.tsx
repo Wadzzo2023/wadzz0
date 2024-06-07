@@ -172,7 +172,7 @@ export default function NftBackModal({
         className="btn btn-primary btn-sm my-2 w-full transition duration-500 ease-in-out"
         onClick={handleModal}
       >
-        Back
+        Remove from market
       </button>
     </>
   );

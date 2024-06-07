@@ -182,7 +182,7 @@ export function DisableFromMarketButton({
 
   return (
     <button
-      className="btn btn-secondary btn-sm my-2 w-full transition duration-500 ease-in-out"
+      className="btn btn-primary btn-sm my-2 w-full transition duration-500 ease-in-out"
       onClick={() => disable.mutate({ code, issuer })}
     >
       {disable.isLoading && <span className="loading loading-spinner" />}
@@ -298,7 +298,7 @@ function DeleteAssetByAdmin({ id }: { id: number }) {
   if (admin.data)
     return (
       <button
-        className="btn btn-warning btn-sm w-full"
+        className="btn btn-primary btn-sm w-full"
         onClick={() => del.mutate(id)}
       >
         {del.isLoading && <span className="loading loading-spinner" />}Delete

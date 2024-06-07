@@ -197,7 +197,7 @@ export function FollowButton({ creator }: { creator: Creator }) {
       <div>
         <button
           disabled={loading}
-          className="btn btn-secondary"
+          className="btn btn-primary"
           onClick={() =>
             followXDR.mutate({ creatorId: creator.id, signWith: needSign() })
           }

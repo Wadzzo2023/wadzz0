@@ -125,7 +125,7 @@ export default function EnableInMarket({
         </div>
       </dialog>
       <button
-        className="btn btn-secondary btn-sm my-2 w-full transition duration-500 ease-in-out"
+        className="btn btn-primary btn-sm my-2 w-full transition duration-500 ease-in-out"
         onClick={handleModal}
       >
         Place to market

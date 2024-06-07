@@ -64,7 +64,7 @@ function CovertSiteAsset() {
       />
       {selected && (
         <button
-          className="btn btn-secondary w-full"
+          className="btn btn-primary w-full"
           onClick={() => handleCovert()}
         >
           {xdrMuation.isLoading && <span className="loading loading-spinner" />}
