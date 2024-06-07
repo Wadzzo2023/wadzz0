@@ -25,10 +25,10 @@ export function SiteAssetBalance() {
 
   if (bal.isLoading) return <div className="skeleton h-10 w-48"></div>;
   return (
-    <Link
-      className="btn  btn-secondary border-0  bg-base-content"
+    <div
+      className="btn btn-primary border-0 "
       // href={isFBorGoogle ? "/recharge" : "/"}
-      href="/recharge"
+      // href="/recharge"
     >
       <div className="flex flex-col">
         <p className="flex flex-row text-xs md:text-sm">
@@ -36,7 +36,7 @@ export function SiteAssetBalance() {
           {bal.data?.platformAssetBal}
         </p>
       </div>
-    </Link>
+    </div>
   );
 }
 

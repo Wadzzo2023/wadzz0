@@ -70,8 +70,6 @@ export function Profile() {
   const session = useSession();
   const { selectedMenu, getAnotherMenu, toggleSelectedMenu } = useMode();
 
-  const creator = api.fan.creator.meCreator.useQuery();
-
   if (session.status == "authenticated") {
     if (selectedMenu == Mode.User) {
       return <UserAvater />;

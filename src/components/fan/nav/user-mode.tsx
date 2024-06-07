@@ -1,11 +1,8 @@
-import { useRouter } from "next/router";
-import React from "react";
 import { CreatorAvater } from "~/pages/search";
 import { api } from "~/utils/api";
 
-import { Search } from "lucide-react";
-import Link from "next/link";
 import Button from "~/components/ui/button";
+import { Profile } from "./profile-menu";
 
 export function UserMode() {
   return (
@@ -54,7 +51,12 @@ export function AllCreators() {
 }
 
 function BottonNav() {
-  return <Button path="/fans/notifications" text="NOTIFICATION" />;
+  return (
+    <div className="flex flex-col gap-1">
+      <Button path="/fans/notifications" text="NOTIFICATION" />
+      <Profile />
+    </div>
+  );
 }
 
 // function PopularItems() {

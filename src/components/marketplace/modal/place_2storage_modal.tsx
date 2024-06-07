@@ -166,7 +166,7 @@ export default function PlaceNFT2Storage({
               <div className=" flex w-full max-w-sm flex-col items-center">
                 <button
                   disabled={xdrMutaion.isSuccess}
-                  className="btn btn-secondary  w-full"
+                  className="btn btn-primary  w-full"
                 >
                   {xdrMutaion.isLoading && (
                     <span className="loading loading-spinner"></span>
@@ -190,7 +190,7 @@ export default function PlaceNFT2Storage({
         </form> */}
       </dialog>
       <button
-        className="btn btn-secondary btn-sm my-2 w-full transition duration-500 ease-in-out"
+        className="btn btn-primary btn-sm my-2 w-full transition duration-500 ease-in-out"
         onClick={handleModal}
       >
         Place to storage

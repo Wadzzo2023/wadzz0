@@ -112,7 +112,7 @@ export default function BuyModal({
                     <>
                       {platformAssetBalance >= price ? (
                         <button
-                          className="btn btn-secondary"
+                          className="btn btn-primary"
                           onClick={() => {
                             clientsign({
                               presignedxdr: xdr,
@@ -141,7 +141,7 @@ export default function BuyModal({
               ) : (
                 <button
                   disabled={xdrMutaion.isSuccess}
-                  className="btn btn-secondary"
+                  className="btn btn-primary"
                   onClick={() => handleXDR()}
                 >
                   {xdrMutaion.isLoading && (
@@ -162,7 +162,7 @@ export default function BuyModal({
         </div>
       </dialog>
       <button
-        className="btn btn-secondary btn-sm my-2 w-full transition duration-500 ease-in-out"
+        className="btn btn-primary btn-sm my-2 w-full transition duration-500 ease-in-out"
         onClick={handleModal}
       >
         BUY

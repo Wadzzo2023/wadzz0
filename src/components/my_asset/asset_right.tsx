@@ -32,17 +32,19 @@ export default function AssetRight() {
   const color = "green";
 
   return (
-    <div className="flex h-full flex-col gap-2 bg-base-300 p-2">
-      <div className=" flex-1 rounded-xl border-4 border-base-100 bg-base-200/80 p-2">
-        <MediaViewer
-          type={currentData.mediaType}
-          mediaUrl={currentData.mediaUrl}
-          thumbnailUrl={currentData.thumbnail}
-          name={currentData.name}
-          color={color}
-        />
+    <div className="flex h-full flex-col gap-2 bg-base-200/50 p-2">
+      <div className=" flex-1 rounded-xl border-4 border-base-100 p-2">
+        <div className="avatar w-full">
+          <MediaViewer
+            type={currentData.mediaType}
+            mediaUrl={currentData.mediaUrl}
+            thumbnailUrl={currentData.thumbnail}
+            name={currentData.name}
+            color={color}
+          />
+        </div>
       </div>
-      <div className=" flex flex-1 flex-col rounded-xl border-4 border-base-100 bg-base-200/80 p-2">
+      <div className=" flex flex-1 flex-col rounded-xl border-4 border-base-100 p-2">
         <>
           <div className="">
             <p>
