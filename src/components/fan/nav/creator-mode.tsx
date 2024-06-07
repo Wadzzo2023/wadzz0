@@ -9,14 +9,14 @@ export const CreatorNavigation = {
   Notification: {
     path: "/fans/creator/notification",
     icon: Bell,
-    text: "Notification",
+    text: "NOTIFICATION",
   },
   Settings: {
     path: "/fans/creator/settings",
     icon: Settings2,
-    text: "Settings",
+    text: "SETTINGS",
   },
-  Gift: { path: "/fans/creator/gift", icon: Bell, text: "Gift" },
+  Gift: { path: "/fans/creator/gift", icon: Bell, text: "GIFT" },
 } as const;
 
 export function CreatorNavButtons() {

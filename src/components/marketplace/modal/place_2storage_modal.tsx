@@ -11,6 +11,7 @@ import toast from "react-hot-toast";
 import useNeedSign from "~/lib/hook";
 import { clientSelect } from "~/lib/stellar/fan/utils";
 import { addrShort } from "~/utils/utils";
+import { xdr } from "@stellar/stellar-sdk";
 
 export const PlaceMarketFormSchema = z.object({
   placingCopies: z.number().nonnegative().int(),
@@ -40,37 +41,39 @@ export default function PlaceNFT2Storage({
     getValues,
     formState: { errors },
     control,
+    reset,
   } = useForm<z.infer<typeof PlaceMarketFormSchema>>({
     resolver: zodResolver(PlaceMarketFormSchema),
-    defaultValues: { code: item.code, issuer: item.issuer },
+    defaultValues: { code: item.code, issuer: item.issuer, placingCopies: 1 },
   });
 
   const xdrMutaion = api.marketplace.market.placeNft2StorageXdr.useMutation({
     onSuccess(data, variables, context) {
-      if (true) {
-        const xdr = data;
-        clientsign({
-          presignedxdr: xdr,
-          pubkey: session.data?.user.id,
-          walletType: session.data?.user.walletType,
-          test: clientSelect(),
-        })
-          .then((res) => {
-            const data = getValues();
-            if (res) toast.success("NFT has been placed to storage");
-          })
-          .catch((e) => console.log(e));
-      }
+      const xdr = data;
+      console.log(xdr, "...");
 
-      // const formData = getValues();
-      // // res && addMutation.mutate(data);
-      // placeItem.mutate(formData);
-      // toast.success("NFT has been placed in market");
+      const tostId = toast.loading("Signing transaction...");
+      clientsign({
+        presignedxdr: xdr,
+        pubkey: session.data?.user.id,
+        walletType: session.data?.user.walletType,
+        test: clientSelect(),
+      })
+        .then((res) => {
+          const data = getValues();
+          if (res) toast.success("NFT has been placed to storage");
+        })
+        .catch((e) => {
+          console.log(e);
+          toast.error("Error signing transaction");
+        })
+        .finally(() => toast.dismiss(tostId));
     },
   });
 
   function resetState() {
-    console.log("hi");
+    reset();
+    xdrMutaion.reset();
   }
 
   const handleModal = () => {
@@ -80,12 +83,17 @@ export default function PlaceNFT2Storage({
   const onSubmit: SubmitHandler<z.infer<typeof PlaceMarketFormSchema>> = (
     data,
   ) => {
-    xdrMutaion.mutate({
-      issuer: item.issuer,
-      placingCopies: getValues("placingCopies"),
-      code: item.code,
-      signWith: needSign(),
-    });
+    const placingCopies = getValues("placingCopies");
+    if (placingCopies <= item.copies) {
+      xdrMutaion.mutate({
+        issuer: item.issuer,
+        placingCopies: getValues("placingCopies"),
+        code: item.code,
+        signWith: needSign(),
+      });
+    } else {
+      toast.error("You can't place more copies than available");
+    }
   };
 
   return (
@@ -111,9 +119,7 @@ export default function PlaceNFT2Storage({
                   <span className="badge badge-primary">{item.code}</span>
                 </p>
                 {/* <p className="">Price: {item.price} XLM</p> */}
-                <p className="text-sm text-primary">
-                  Items left: {item.copies}
-                </p>
+                <p className="text-sm text-error">Items left: {item.copies}</p>
                 <p className="text-sm">Issuer: {addrShort(item.issuer, 15)}</p>
               </div>
 
@@ -126,12 +132,22 @@ export default function PlaceNFT2Storage({
                 </label>
                 <input
                   type="number"
-                  {...register("placingCopies", { valueAsNumber: true })}
+                  {...register("placingCopies", {
+                    valueAsNumber: true,
+                    max: item.copies,
+                  })}
                   min={1}
                   step={1}
-                  className="input input-bordered input-sm  w-full"
+                  className="input input-sm input-bordered  w-full"
                   placeholder="How many copy you want to place to market?"
                 />
+                {errors.placingCopies && (
+                  <label className="label">
+                    <span className="label-text text-error">
+                      {errors.placingCopies.message}
+                    </span>
+                  </label>
+                )}
               </div>
 
               {/* <div className="w-full max-w-sm">
@@ -147,10 +163,10 @@ export default function PlaceNFT2Storage({
                 )}
               </div> */}
 
-              <div className="flex w-full max-w-sm flex-col items-center">
+              <div className=" flex w-full max-w-sm flex-col items-center">
                 <button
                   disabled={xdrMutaion.isSuccess}
-                  className="btn btn-success w-full"
+                  className="btn btn-secondary  w-full"
                 >
                   {xdrMutaion.isLoading && (
                     <span className="loading loading-spinner"></span>

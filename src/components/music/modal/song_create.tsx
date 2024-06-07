@@ -9,7 +9,7 @@ import { WalletType, clientsign } from "package/connect_wallet";
 import { useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { z } from "zod";
-import useNeedSign from "~/lib/hook";
+import { PLATFROM_ASSET } from "~/lib/stellar/fan/constant";
 import { AccountSchema } from "~/lib/stellar/fan/utils";
 import { api } from "~/utils/api";
 import { UploadButton } from "~/utils/uploadthing";
@@ -22,6 +22,7 @@ export const SongFormSchema = z.object({
   coverImgUrl: z.string(), // its last part is the ipfs hash
   albumId: z.number(),
   price: z.number().nonnegative(),
+  priceUSD: z.number().nonnegative(),
   limit: z.number().nonnegative().int(),
   code: z
     .string()
@@ -35,7 +36,7 @@ type SongFormType = z.TypeOf<typeof SongFormSchema>;
 export default function SongCreate({ albumId }: { albumId: number }) {
   // pinta upload
   const [file, setFile] = useState<File>();
-  const [ipfs, setCid] = useState<string>();
+  const [ipfs, setIpfs] = useState<string>();
   const [uploading, setUploading] = useState(false);
 
   const inputFile = useRef(null);
@@ -55,7 +56,7 @@ export default function SongCreate({ albumId }: { albumId: number }) {
     control,
   } = useForm<z.infer<typeof SongFormSchema>>({
     resolver: zodResolver(SongFormSchema),
-    defaultValues: { albumId },
+    defaultValues: { albumId, price: 2, priceUSD: 2 },
   });
 
   const addSong = api.music.song.create.useMutation({
@@ -69,6 +70,7 @@ export default function SongCreate({ albumId }: { albumId: number }) {
     onSuccess(data, variables, context) {
       const { issuer, xdr } = data;
       setValue("issuer", issuer);
+      const toastId = toast.loading("signing transaction...");
       clientsign({
         presignedxdr: xdr,
         pubkey: session.data?.user.id,
@@ -84,7 +86,11 @@ export default function SongCreate({ albumId }: { albumId: number }) {
             );
           }
         })
-        .catch((e) => console.log(e));
+        .catch((e) => {
+          console.log(e);
+          toast.error("Error in signing transaction. Please try again.");
+        })
+        .finally(() => toast.dismiss(toastId));
 
       // const { issuer, xdr } = data;
       // setValue("issuer", issuer);
@@ -101,16 +107,18 @@ export default function SongCreate({ albumId }: { albumId: number }) {
   // Function to upload the selected file to Pinata
 
   const onSubmit: SubmitHandler<z.infer<typeof SongFormSchema>> = (data) => {
-    // toast.success("form ok");
-    if (ipfs)
+    if (ipfs) {
       xdrMutation.mutate({
         code: data.code,
         limit: data.limit,
         ipfsHash: ipfs,
       });
+    } else {
+      toast.error("Please upload a thumbnail image.");
+    }
   };
 
-  // console.log("errors", errors);
+  console.log("errors", errors);
 
   const handleModal = () => {
     modalRef.current?.showModal();
@@ -129,7 +137,8 @@ export default function SongCreate({ albumId }: { albumId: number }) {
       const ipfsHash = await res.text();
       const thumbnail = "https://ipfs.io/ipfs/" + ipfsHash;
       setCover(thumbnail);
-      setCid(ipfsHash);
+      setIpfs(ipfsHash);
+      setValue("coverImgUrl", thumbnail);
 
       setUploading(false);
     } catch (e) {
@@ -161,7 +170,6 @@ export default function SongCreate({ albumId }: { albumId: number }) {
       <dialog className="modal" ref={modalRef}>
         <div className="modal-box">
           <form method="dialog">
-            {/* if there is a button in form, it will close the modal */}
             <button
               className="btn btn-circle btn-ghost btn-sm absolute right-2 top-2"
               // onClick={handleCloseClick}
@@ -214,28 +222,6 @@ export default function SongCreate({ albumId }: { albumId: number }) {
                   </label>
 
                   <div className="mt-4">
-                    {/* <UploadButton
-                      endpoint="imageUploader"
-                      content={{
-                        button: "Add Thumbnail",
-                        allowedContent: "Max (4MB)",
-                      }}
-                      onClientUploadComplete={(res) => {
-                        // Do something with the response
-                        // alert("Upload Completed");
-                        const data = res[0];
-
-                        if (data?.url) {
-                          setCover(data.url);
-                          setValue("coverImgUrl", data.url);
-                        }
-                        // updateProfileMutation.mutate(res);
-                      }}
-                      onUploadError={(error: Error) => {
-                        // Do something with the error.
-                        alert(`ERROR! ${error.message}`);
-                      }}
-                    /> */}
                     <input
                       type="file"
                       id="file"
@@ -257,18 +243,6 @@ export default function SongCreate({ albumId }: { albumId: number }) {
                         />
                       </>
                     )}
-
-                    {/* {coverImgUrl && (
-                      <>
-                        <Image
-                          className="p-2"
-                          width={120}
-                          height={120}
-                          alt="preview image"
-                          src={coverImgUrl}
-                        />
-                      </>
-                    )} */}
                   </div>
 
                   <div className="form-control w-full">
@@ -315,22 +289,8 @@ export default function SongCreate({ albumId }: { albumId: number }) {
                   </div>
                 </div>
 
-                <div className="w-full max-w-xs">
-                  {/* <label className="label">Choose Song privacy type</label> */}
-                  {/* <select
-              className="select select-bordered select-sm w-full max-w-xs"
-              onChange={onOptionChanged}
-              value={privacyState}
-            >
-              {Object.values(SongPrivacy).map((privacy) => (
-                <option key={privacy} value={privacy}>
-                  {privacy}
-                </option>
-              ))}
-            </select> */}
-                </div>
+                <div className="w-full max-w-xs"></div>
 
-                {/* {privacyState == SongPrivacy.RESTRICTED && ( */}
                 <>
                   <div className="rounded-md bg-base-200 p-2">
                     <label className="label  font-bold">NFT Info</label>
@@ -384,9 +344,11 @@ export default function SongCreate({ albumId }: { albumId: number }) {
                     </>
                     <div className="w-full max-w-xs">
                       <label className="label">
-                        <span className="label-text">Price</span>
+                        <span className="label-text">
+                          Price in {PLATFROM_ASSET.code}
+                        </span>
                         <span className="label-text-alt">
-                          Default price is 2XLM
+                          Default price is 2 {PLATFROM_ASSET.code}
                         </span>
                       </label>
                       <input
@@ -400,6 +362,29 @@ export default function SongCreate({ albumId }: { albumId: number }) {
                         <div className="label">
                           <span className="label-text-alt">
                             {errors.price.message}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="w-full max-w-xs">
+                      <label className="label">
+                        <span className="label-text">Price in USD</span>
+                        <span className="label-text-alt">
+                          Default price is 2$
+                        </span>
+                      </label>
+                      <input
+                        step="0.1"
+                        type="number"
+                        {...register("priceUSD", { valueAsNumber: true })}
+                        className="input input-sm input-bordered  w-full"
+                        placeholder="Price"
+                      />
+                      {errors.priceUSD && (
+                        <div className="label">
+                          <span className="label-text-alt">
+                            {errors.priceUSD.message}
                           </span>
                         </div>
                       )}
@@ -449,7 +434,7 @@ export default function SongCreate({ albumId }: { albumId: number }) {
           </div>
         </div>
       </dialog>
-      <button onClick={handleModal}>
+      <button className="btn btn-circle" onClick={handleModal}>
         <PlusIcon />
       </button>
     </>

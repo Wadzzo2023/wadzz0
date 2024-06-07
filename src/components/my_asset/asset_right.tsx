@@ -82,17 +82,29 @@ function OtherButtons() {
 
   if (currentData) {
     if (selectedMenu == AssetMenu.OWN) {
-      return <PlaceNFT2Storage item={{ ...currentData, copies: 20 }} />;
+      return <PlaceNFT2Storage item={{ ...currentData }} />;
     }
     if (selectedMenu == AssetMenu.STORAGE) {
       return (
-        <MarketButtons code={currentData.code} issuer={currentData.issuer} />
+        <MarketButtons
+          copy={currentData.copies}
+          code={currentData.code}
+          issuer={currentData.issuer}
+        />
       );
     }
   }
 }
 
-function MarketButtons({ code, issuer }: { code: string; issuer: string }) {
+function MarketButtons({
+  code,
+  issuer,
+  copy,
+}: {
+  code: string;
+  issuer: string;
+  copy: number;
+}) {
   const inMarket = api.wallate.acc.getAStorageAssetInMarket.useQuery({
     code,
     issuer,
@@ -103,10 +115,10 @@ function MarketButtons({ code, issuer }: { code: string; issuer: string }) {
     return (
       <div>
         Item is in market
-        <NftBackModal item={{ code, issuer }} />
+        <NftBackModal copy={copy} item={{ code, issuer }} />
       </div>
     );
-  else return <EnableInMarket item={{ code, issuer }} />;
+  else return <EnableInMarket copy={copy} item={{ code, issuer }} />;
 }
 
 function MediaViewer(props: {

@@ -54,7 +54,7 @@ export function AllCreators() {
 }
 
 function BottonNav() {
-  return <Button path="/fans/notifications" text="Notification" />;
+  return <Button path="/fans/notifications" text="NOTIFICATION" />;
 }
 
 // function PopularItems() {

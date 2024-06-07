@@ -90,8 +90,8 @@ function ConditionallyRenderMenuPage({ creator }: { creator: Creator }) {
     case CreatorMenu.Membership:
       return <MemberShip creator={creator} />;
 
-    case CreatorMenu.Shop:
-      return <Shop creator={creator} />;
+    // case CreatorMenu.Shop:
+    //   return <Shop creator={creator} />;
   }
 }
 

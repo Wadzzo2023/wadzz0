@@ -81,7 +81,7 @@ export default function BuyModal({
           <h3 className="mb-2 text-lg font-bold">BUY</h3>
 
           <div className="flex flex-col items-center gap-y-2">
-            <div className="flex flex-col  bg-base-300 p-10">
+            <div className="flex flex-col gap-2  bg-base-300 p-10">
               <p>
                 Asset Name: <span className="badge badge-primary">{code}</span>
               </p>
@@ -89,7 +89,7 @@ export default function BuyModal({
                 Price: {price} {PLATFROM_ASSET.code}
               </p>
               <p className="font-bold">Price in USD: {priceUSD}$</p>
-              <p className="text-sm text-accent">
+              <p className="text-sm">
                 Copies available:{" "}
                 {marketItemId ? (
                   <TokenCopies id={marketItemId} />
