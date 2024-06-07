@@ -45,7 +45,7 @@ export default function Layout({
         <div className="flex-1 overflow-auto bg-base-100/50">
           <div className="flex h-full border-t-2">
             <LeftBar className="hidden md:flex" />
-            <div className="flex-1 border-x-2 ">
+            <div id="ih" className="flex-1 border-x-2 ">
               <div className=" h-full overflow-y-auto bg-base-100/80 scrollbar-hide">
                 {session.status == "authenticated" ? (
                   <>{children}</>

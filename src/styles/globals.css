@@ -49,3 +49,20 @@ body {
   -o-background-size: cover;
   background-size: cover;
 }
+
+#ih {
+  background: url("/images/guitar.svg");
+  background-size: 10%;
+  animation: pan 180s linear infinite;
+}
+
+@keyframes pan {
+  0% {
+    background-position: 0% 0%;
+  }
+
+  100% {
+    background-position: 100% 0%;
+  }
+}
+
