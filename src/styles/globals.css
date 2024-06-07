@@ -53,7 +53,7 @@ body {
 #ih {
   background: url("/images/guitar.svg");
   background-size: 10%;
-  animation: pan 180s linear infinite;
+  animation: pan 135s linear infinite;
 }
 
 @keyframes pan {

@@ -558,7 +558,7 @@ function NftCreateForm({
         </div>
       </dialog>
       <button className="btn btn-primary" onClick={handleModal}>
-        <PlusIcon /> NFT
+        <PlusIcon /> Item
       </button>
     </>
   );

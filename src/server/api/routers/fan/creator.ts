@@ -205,7 +205,7 @@ export const creatorRouter = createTRPCRouter({
           issuer: creatorPageAsset.issuer,
         });
         if (bal) {
-          return bal.balance;
+          return { balance: bal.balance, asset: creatorPageAsset.code };
         } else {
           throw new Error("page asset not exist in storage account");
         }

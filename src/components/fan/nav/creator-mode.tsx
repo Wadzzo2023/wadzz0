@@ -4,7 +4,7 @@ import Button from "~/components/ui/button";
 
 export const CreatorNavigation = {
   Page: { path: "/fans/creator", icon: PenSquare, text: "PAGE" },
-  Create: { path: "/fans/creator/posts", icon: PenSquare, text: "CREATE" },
+  Create: { path: "/fans/creator/posts", icon: PenSquare, text: "POST" },
   Store: { path: "/fans/creator/store", icon: Store, text: "STORE" },
   Notification: {
     path: "/fans/creator/notification",

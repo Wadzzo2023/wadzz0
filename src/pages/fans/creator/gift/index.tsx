@@ -136,8 +136,7 @@ function CreatorPageBal() {
   if (bal.data) {
     return (
       <p>
-        {" "}
-        You have {bal.data} {PLATFROM_ASSET.code}
+        You have {bal.data.balance} {bal.data.asset}
       </p>
     );
   }
