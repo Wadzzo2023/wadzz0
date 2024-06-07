@@ -9,7 +9,6 @@ import {
   protectedProcedure,
   publicProcedure,
 } from "~/server/api/trpc";
-import { copyToBalance } from "~/lib/stellar/marketplace/test/acc";
 
 export const stellarRouter = createTRPCRouter({
   //   getPaymentXDR: protectedProcedure
@@ -62,7 +61,7 @@ export const stellarRouter = createTRPCRouter({
     )
     .mutation(async ({ input: i }) => {
       //validate input
-      const assetLimit = copyToBalance(i.limit);
+      const assetLimit = i.limit.toString();
 
       return await firstTransection({
         assetCode: i.code,

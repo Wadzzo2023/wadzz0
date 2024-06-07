@@ -23,7 +23,7 @@ export const SongFormSchema = z.object({
   albumId: z.number(),
   price: z.number().nonnegative(),
   priceUSD: z.number().nonnegative(),
-  limit: z.number().nonnegative().int(),
+  limit: z.number().nonnegative(),
   code: z
     .string()
     .min(4, { message: "Minimum 4 char" })

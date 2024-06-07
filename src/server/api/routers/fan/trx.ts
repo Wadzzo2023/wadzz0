@@ -1,31 +1,28 @@
 import { z } from "zod";
-import { SignUser, WithSing } from "~/lib/stellar/utils";
 import { buyAssetTrx } from "~/lib/stellar/fan/buy_asset";
 import { creatorPageAccCreate } from "~/lib/stellar/fan/clawback";
 import { createAsset } from "~/lib/stellar/fan/create_asset";
 import {
-  getplatformAssetNumberForXLM,
   getPlatfromAssetPrice,
+  getplatformAssetNumberForXLM,
 } from "~/lib/stellar/fan/get_token_price";
 import { getClawbackAsPayment } from "~/lib/stellar/fan/subscribe";
 import { AssetSchema } from "~/lib/stellar/fan/utils";
+import { SignUser, WithSing } from "~/lib/stellar/utils";
 
+import { Keypair } from "@stellar/stellar-sdk";
+import { env } from "~/env";
+import { createStorageTrx } from "~/lib/stellar/fan/create_storage";
+import { follow_creator } from "~/lib/stellar/fan/follow_creator";
+import { sendGift } from "~/lib/stellar/fan/send_gift";
+import { createUniAsset } from "~/lib/stellar/uni_create_asset";
+import { FanGitFormSchema } from "~/pages/fans/creator/gift";
 import {
   createTRPCRouter,
   protectedProcedure,
   publicProcedure,
 } from "~/server/api/trpc";
-import { createStorageTrx } from "~/lib/stellar/fan/create_storage";
-import { createUniAsset } from "~/lib/stellar/uni_create_asset";
 import { db } from "~/server/db";
-import { env } from "~/env";
-import { Keypair } from "@stellar/stellar-sdk";
-import { copyToBalance } from "~/lib/stellar/marketplace/test/acc";
-import { follow_creator } from "~/lib/stellar/fan/follow_creator";
-import { sendGift } from "~/lib/stellar/fan/send_gift";
-import axios from "axios";
-import { ACTION_STELLAR_ACCOUNT_URL } from "package/connect_wallet/src/lib/stellar/constant";
-import { FanGitFormSchema } from "~/pages/fans/creator/gift";
 
 export const trxRouter = createTRPCRouter({
   createCreatorPageAsset: protectedProcedure

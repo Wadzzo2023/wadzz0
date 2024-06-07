@@ -1,18 +1,16 @@
 import {
   Asset,
   BASE_FEE,
+  Horizon,
   Keypair,
   Operation,
-  Horizon,
   TransactionBuilder,
 } from "@stellar/stellar-sdk";
+import { env } from "~/env";
+import { PLATFROM_ASSET, PLATFROM_FEE } from "../../fan/constant";
+import { SignUserType, WithSing } from "../../utils";
 import { STELLAR_URL } from "../constant";
 import { networkPassphrase } from "./create_song_token";
-import { SignUserType, WithSing } from "../../utils";
-import { STROOP } from "../../marketplace/constant";
-import { StellarAccount } from "../../marketplace/test/Account";
-import { PLATFROM_ASSET, PLATFROM_FEE } from "../../fan/constant";
-import { env } from "~/env";
 
 const log = console;
 
@@ -79,7 +77,7 @@ export async function XDR4BuyAsset({
   Tx2.addOperation(
     Operation.payment({
       asset: asset,
-      amount: STROOP,
+      amount: "1",
       source: storageAcc.publicKey(),
       destination: buyer,
     }),
