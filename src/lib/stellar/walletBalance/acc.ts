@@ -1,8 +1,8 @@
-import { Server } from "stellar-sdk";
-import { STELLAR_URL, STROOP } from "./constant";
-import { PLATFROM_ASSET } from "./constant";
-import { type Horizon } from "stellar-sdk";
+import { Asset, BASE_FEE, Claimant, Keypair, Memo, Networks, Operation, Server, TransactionBuilder } from "stellar-sdk";
+import { STELLAR_URL } from "./constant";
 
+import { type Horizon } from "stellar-sdk";
+import { StellarAccount } from "../marketplace/test/Account";
 export type Balances = (
   | Horizon.BalanceLineNative
   | Horizon.BalanceLineAsset<"credit_alphanum4">
@@ -44,6 +44,7 @@ export async function BalanceWithHomeDomain({
               ...balance,
               home_domain: issuerAccount.home_domain,
               asset_code: balance.asset_code,
+              asset_issuer: balance.asset_issuer,
              }
             
             }
@@ -52,6 +53,7 @@ export async function BalanceWithHomeDomain({
               ...balance,
               home_domain: null,
               asset_code: balance.asset_code,
+              asset_issuer: balance.asset_issuer,
             }
           }
           }
@@ -60,14 +62,17 @@ export async function BalanceWithHomeDomain({
               ...balance,
               home_domain: null,
               asset_code: balance.asset_code,
+              asset_issuer: balance.asset_issuer,
             }
           }
         }
-      else{
+      else if(balance.asset_type==="native"){
         return {
           ...balance,
           home_domain: null,
-          asset_code: "",
+          asset_code: "XLM",
+          asset_issuer: "native",
+
         }
       }
       }),
@@ -77,3 +82,65 @@ export async function BalanceWithHomeDomain({
 }
 
 
+export async function SendAssets({
+  userPubKey,
+  input,
+}: {
+  userPubKey: string;
+  input: { recipientId: string; amount: number; asset_code: string; asset_type: string; asset_issuer: string };
+}) {
+  console.log('userPubKey', userPubKey);
+  const server = new Server(STELLAR_URL);
+  const account = await server.loadAccount(userPubKey);
+
+  const accBalance = account.balances.find(
+    (balance) => 
+      balance.asset_code === input.asset_code
+  );
+  if(accBalance?.balance < input.amount){
+    throw new Error("Balance is not enough to send the asset.");
+  }
+  const creatorStorageBal = await StellarAccount.create(input.recipientId);
+  const hasTrust = creatorStorageBal.hasTrustline(input.asset_code, input.asset_type);
+  const asset = input.asset_type === 'native'
+    ? Asset.native()
+    : new Asset(input.asset_code, input.asset_issuer);
+
+  const soon = Math.ceil(Date.now() / 1000 + 60);
+  const bCanClaim = Claimant.predicateBeforeRelativeTime('60');
+  const aCanReclaim = Claimant.predicateNot(Claimant.predicateBeforeAbsoluteTime(soon.toString()));
+
+  const transaction = new TransactionBuilder(account, {
+    fee: BASE_FEE.toString(),
+    networkPassphrase: Networks.TESTNET,
+  });
+
+  if (!hasTrust && input.asset_type !== 'native') {
+    const claimants: Claimant[] = [
+      new Claimant(input.recipientId, bCanClaim),
+      new Claimant(userPubKey, aCanReclaim),
+    ];
+
+    transaction.addOperation(
+      Operation.createClaimableBalance({
+        amount: input.amount.toString(),
+        asset: asset,
+        claimants: claimants,
+      })
+    );
+  } else {
+    transaction.addOperation(
+      Operation.payment({
+        destination: input.recipientId,
+        asset: asset,
+        amount: input.amount.toString(),
+      })
+    );
+  }
+
+  transaction.setTimeout(0);
+
+  const buildTrx = transaction.build();
+  const xdr = buildTrx.toXDR();
+  return { xdr: xdr, pubKey: userPubKey, test: true };
+}

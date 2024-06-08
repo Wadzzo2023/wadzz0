@@ -54,7 +54,7 @@ export default function WBRightSideBar() {
                 if (balance?.asset_type !== "native") {
                   return (
                     <div
-                      key={`${balance.asset_code}-${idx}`}
+                      key={`${balance?.asset_code}-${idx}`}
                       className="flex items-center justify-between space-x-4"
                     >
                       <div className="flex items-center space-x-4">

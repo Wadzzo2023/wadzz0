@@ -1,12 +1,9 @@
 "use client";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import qs from "query-string";
-
-import axios from "axios";
-import { useModal } from "../hooks/use-model-store";
+import toast from "react-hot-toast";
 
 import { Input } from "~/components/shadcn/ui/input";
 import {
@@ -37,6 +34,10 @@ import {
 import { Button } from "~/components/shadcn/ui/button";
 import { api } from "~/utils/api";
 import { Send } from "lucide-react";
+import { useModal } from "../hooks/use-model-store";
+import { clientsign } from "package/connect_wallet";
+import { useSession } from "next-auth/react";
+import { Toaster } from "react-hot-toast";
 
 const formSchema = z.object({
   recipientId: z.string().min(1, {
@@ -45,7 +46,7 @@ const formSchema = z.object({
   amount: z.number().positive({
     message: "Amount must be greater than zero.",
   }),
-  asset_code: z.string().min(1, {
+  selectItem: z.string().min(1, {
     message: "Asset code is required.",
   }),
 });
@@ -53,12 +54,15 @@ const formSchema = z.object({
 interface BalanceType {
   asset_code: string;
   assetBalance: number;
+  asset_type: string;
+  asset_issuer: string;
 }
 
 const SendAssets = () => {
   const { isOpen, onClose, type } = useModal();
-  const { data, isLoading } =
-    api.walletBalance.wallBalance.getWalletsBalance.useQuery();
+  const session = useSession();
+  const [loading, setLoading] = useState(false);
+  const { data } = api.walletBalance.wallBalance.getWalletsBalance.useQuery();
 
   const isModalOpen = isOpen && type === "send assets";
 
@@ -67,24 +71,94 @@ const SendAssets = () => {
     defaultValues: {
       recipientId: "",
       amount: 0,
-      asset_code: "",
+      selectItem: "",
     },
   });
 
   const assetWithBalance: BalanceType[] = (data ?? [])
     .map((balance) => {
-      if (balance.asset_code !== "") {
+      if (balance && balance.asset_code !== "") {
         return {
+          asset_issuer: balance.asset_issuer,
           asset_code: balance.asset_code,
           assetBalance: parseFloat(balance.balance),
+          asset_type: balance.asset_type,
         };
+      } else {
+        if (balance && balance.asset_type === "native") {
+          return {
+            asset_issuer: "native",
+            asset_code: "XLM",
+            assetBalance: parseFloat(balance.balance),
+            asset_type: balance.asset_type,
+          };
+        }
       }
-      return null;
     })
     .filter((balance): balance is BalanceType => balance !== null);
 
+  const SendMutation =
+    api.walletBalance.wallBalance.sendWalletAssets.useMutation({
+      onSuccess(data) {
+        clientsign({
+          walletType: session?.data?.user?.walletType,
+          presignedxdr: data.xdr,
+          pubkey: data.pubKey,
+          test: data.test,
+        })
+          .then(() => {
+            setLoading(false);
+            toast.success("Transaction successful");
+            handleClose();
+          })
+          .catch(() => {
+            setLoading(false);
+            toast.error("Transaction failed");
+          });
+      },
+      onError(error) {
+        setLoading(false);
+        toast.error(error.message);
+      },
+    });
+
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    console.log(values);
+    const selectedAsset: BalanceType = assetWithBalance.find(
+      (asset) =>
+        `${asset.asset_code}-${asset.asset_type}-${asset.asset_issuer}` ===
+        values.selectItem,
+    );
+
+    if (selectedAsset?.assetBalance < values.amount) {
+      toast.error("Insufficient balance");
+      return;
+    }
+    if (values && typeof values.selectItem === "string") {
+      const parts = values.selectItem.split("-");
+      if (parts.length === 3) {
+        const [code, type, issuer] = parts;
+        setLoading(true);
+        // Ensure that code, type, and issuer are defined and not undefined
+        if (code && type && issuer) {
+          SendMutation.mutate({
+            recipientId: values.recipientId,
+            amount: values.amount,
+            asset_code: code,
+            asset_type: type,
+            asset_issuer: issuer,
+          });
+        } else {
+          // Handle the case where any of the parts are undefined
+          console.log("The input string did not split into three valid parts.");
+        }
+      } else {
+        // Handle error: the string doesn't split into exactly three parts
+        toast.error("The input string did not split into three valid parts.");
+      }
+    } else {
+      // Handle error: selectItem is not a string
+      toast.error("selectItem is not a string.");
+    }
   };
 
   const handleClose = () => {
@@ -113,7 +187,7 @@ const SendAssets = () => {
                     </FormLabel>
                     <FormControl>
                       <Input
-                        disabled={isLoading}
+                        disabled={loading}
                         className="focus-visible:ring-0 focus-visible:ring-offset-0"
                         placeholder="Enter Recipient ID..."
                         {...field}
@@ -134,7 +208,7 @@ const SendAssets = () => {
                     <FormControl>
                       <Input
                         type="number"
-                        disabled={isLoading}
+                        disabled={loading}
                         className="focus-visible:ring-0 focus-visible:ring-offset-0"
                         placeholder="Enter Amount..."
                         {...field}
@@ -149,7 +223,7 @@ const SendAssets = () => {
               />
               <FormField
                 control={form.control}
-                name="asset_code"
+                name="selectItem"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="text-xs font-bold uppercase">
@@ -166,10 +240,10 @@ const SendAssets = () => {
                         <SelectContent>
                           <SelectGroup>
                             <SelectLabel>Wallets</SelectLabel>
-                            {assetWithBalance.map((wallet, indx) => (
+                            {assetWithBalance?.map((wallet, idx) => (
                               <SelectItem
-                                key={`${wallet.asset_code}-${indx}`}
-                                value={wallet.asset_code}
+                                key={idx}
+                                value={`${wallet?.asset_code}-${wallet?.asset_type}-${wallet?.asset_issuer}`}
                               >
                                 {wallet.asset_code}
                               </SelectItem>
@@ -184,7 +258,7 @@ const SendAssets = () => {
               />
             </div>
             <DialogFooter className="px-6 py-4">
-              <Button size="lg" variant="default" disabled={isLoading}>
+              <Button size="lg" variant="default" disabled={loading}>
                 <Send className="mr-2" size={15} /> SEND
               </Button>
             </DialogFooter>
