@@ -139,8 +139,10 @@ export async function SendAssets({
   }
 
   transaction.setTimeout(0);
-
+  
   const buildTrx = transaction.build();
   const xdr = buildTrx.toXDR();
+  console.log()
   return { xdr: xdr, pubKey: userPubKey, test: true };
+ 
 }
