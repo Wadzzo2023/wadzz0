@@ -34,10 +34,9 @@ export default async function handler(
     });
     return;
   }
-
-  const follow = await db.follow.create({
-    data: { creatorId: creator.id, userId: pubkey },
+  const unfollow = await db.follow.delete({
+    where: { userId_creatorId: { creatorId: creator.id, userId: pubkey } },
   });
 
-  res.status(200).json(follow);
+  res.status(200).json(unfollow);
 }

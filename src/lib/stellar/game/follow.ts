@@ -2,9 +2,9 @@ import {
   Asset,
   Keypair,
   Operation,
-  Server,
   TransactionBuilder,
-} from "stellar-sdk";
+  Horizon,
+} from "@stellar/stellar-sdk";
 import { SignUserType, WithSing } from "../utils";
 import { STELLAR_URL, networkPassphrase } from "../constant";
 import { MyAssetType } from "../fan/utils";
@@ -16,7 +16,7 @@ export async function follow_brand({
   creatorPageAsset: MyAssetType;
   userSecret: string;
 }) {
-  const server = new Server(STELLAR_URL);
+  const server = new Horizon.Server(STELLAR_URL);
 
   const userAcc = Keypair.fromSecret(userSecret);
   const asset = new Asset(creatorPageAsset.code, creatorPageAsset.issuer);
