@@ -9,10 +9,7 @@ interface EditorProps {
 }
 
 export const Editor = ({ onChange, value }: EditorProps) => {
-  const ReactQuill = useMemo(
-    () => dynamic(() => import("react-quill"), { ssr: false }),
-    [],
-  );
+  const ReactQuill = dynamic(() => import("react-quill"));
 
   return (
     <div className="bg-white">

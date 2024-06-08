@@ -19,7 +19,7 @@ import { createStorageTrx } from "~/lib/stellar/fan/create_storage";
 import { createUniAsset } from "~/lib/stellar/uni_create_asset";
 import { db } from "~/server/db";
 import { env } from "~/env";
-import { Keypair } from "stellar-sdk";
+import { Keypair } from "@stellar/stellar-sdk";
 import { copyToBalance } from "~/lib/stellar/marketplace/test/acc";
 import { follow_creator } from "~/lib/stellar/fan/follow_creator";
 import { sendGift } from "~/lib/stellar/fan/send_gift";

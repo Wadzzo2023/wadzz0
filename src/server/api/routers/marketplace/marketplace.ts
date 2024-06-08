@@ -1,5 +1,5 @@
 import { where } from "firebase/firestore";
-import { Keypair } from "stellar-sdk";
+import { Keypair } from "@stellar/stellar-sdk";
 import { z } from "zod";
 import { PlaceMarketFormSchema } from "~/components/marketplace/modal/place_2storage_modal";
 import { BackMarketFormSchema } from "~/components/marketplace/modal/revert_place_market_modal";

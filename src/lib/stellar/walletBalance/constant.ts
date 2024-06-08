@@ -1,4 +1,4 @@
-import { Asset, Networks } from "stellar-sdk";
+import { Asset, Networks } from "@stellar/stellar-sdk";
 import { env } from "~/env";
 
 export const STROOP = "0.0000001";

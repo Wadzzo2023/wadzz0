@@ -1,14 +1,22 @@
-import React, { useState } from "react";
-import LeftBar from "./left-sidebar";
-import RightSideBar from "./right-sidebar";
-import { ConnectWalletButton } from "package/connect_wallet";
-import { useSession } from "next-auth/react";
 import clsx from "clsx";
-import Header from "./header";
-import RightDialog from "./right_dialog";
-import BottonPlayer from "./bottom_player";
-import { usePlayerStore } from "~/lib/state/music/track";
+import { useSession } from "next-auth/react";
+import dynamic from "next/dynamic";
 import { useRouter } from "next/router";
+import React from "react";
+// import Header from "./header";
+// import RightDialog from "./right_dialog";
+
+const RightDialog = dynamic(async () => await import("./right_dialog"));
+const ConnectWalletButton = dynamic(
+  async () => await import("../components/ui/wallate_button"),
+);
+
+const Header = dynamic(async () => await import("./header"));
+
+const RightSideBar = dynamic(async () => await import("./right-sidebar"));
+const LeftBar = dynamic(async () => await import("./left-sidebar"));
+
+const BottomPlayerContainer = dynamic(() => import("./music/bottom_player"));
 import { X } from "lucide-react";
 import { ThemeProvider } from "./providers/theme-provider";
 import ModalProvider from "./providers/modal-provider";
@@ -20,7 +28,7 @@ export default function Layout({
   children: React.ReactNode;
   className?: string;
 }) {
-  const { data } = useSession();
+  const session = useSession();
   const router = useRouter();
 
   if (router.pathname === "/maps") {
@@ -47,7 +55,7 @@ export default function Layout({
               <LeftBar className="hidden lg:flex" />
               <div className="flex-1 border-x-2 ">
                 <div className=" h-full overflow-y-auto bg-base-100/80 scrollbar-hide">
-                  {data?.user.id ? (
+                  {session.status == "authenticated" ? (
                     <>
                       <ModalProvider />
                       {children}
@@ -62,9 +70,8 @@ export default function Layout({
                 </div>
               </div>
 
-              {router.pathname !== "/walletBalance" && data?.user.id && (
-                <RightSideBar />
-              )}
+              {router.pathname !== "/walletBalance" &&
+                session.status == "authenticated" && <RightSideBar />}
             </div>
           </div>
           <RightDialog />
@@ -73,45 +80,4 @@ export default function Layout({
       </div>
     </>
   );
-}
-
-function BottomPlayerContainer() {
-  const router = useRouter();
-  const { bottomVisiable, isPlaying, setNewTrack } = usePlayerStore();
-
-  const [isHovered, setIsHovered] = useState(false);
-
-  return (
-    <div
-      className={clsx("absolute bottom-0 w-full")}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-    >
-      <div className="flex items-center justify-center">
-        <div className="w-full max-w-2xl">
-          {isHovered && (
-            <button
-              className="btn btn-circle btn-secondary btn-sm -mb-8"
-              onClick={() => setNewTrack(undefined)}
-            >
-              <X />
-            </button>
-          )}
-          <BottonPlayer />
-        </div>
-      </div>
-    </div>
-  );
-  // } else {
-  // if (isPlaying)
-  //   return (
-  //     <div className="absolute bottom-0 w-full">
-  //       <div className="flex items-center justify-center">
-  //         <div className="w-full max-w-2xl">
-  //           <BottonPlayer />
-  //         </div>
-  //       </div>
-  //     </div>
-  //   );
-  // }
 }

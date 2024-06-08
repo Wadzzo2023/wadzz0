@@ -1,6 +1,6 @@
 import axios from "axios";
 import { env } from "~/env";
-import { PLATFROM_ASSET } from "./constant";
+import { PLATFROM_ASSET } from "../constant";
 
 interface PlatformAssetInfo {
   price: number;

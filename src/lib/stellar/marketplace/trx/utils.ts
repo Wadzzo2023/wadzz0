@@ -1,8 +1,8 @@
-import { AccountResponse, Server } from "stellar-sdk";
+import { Horizon } from "@stellar/stellar-sdk";
 import { SITE_ASSET_OBJ } from "./constant";
 import { STROOP, STELLAR_URL } from "../constant";
 
-export function checkSiteAssetBalance(accRes: AccountResponse) {
+export function checkSiteAssetBalance(accRes: Horizon.AccountResponse) {
   for (const balance of accRes.balances) {
     if (
       balance.asset_type === "credit_alphanum12" ||
@@ -18,7 +18,7 @@ export function checkSiteAssetBalance(accRes: AccountResponse) {
   }
 }
 
-export function checkNativeBalance(accRes: AccountResponse) {
+export function checkNativeBalance(accRes: Horizon.AccountResponse) {
   for (const balance of accRes.balances) {
     if (balance.asset_type == "native") {
       return balance.balance;
@@ -41,9 +41,9 @@ export async function alreadyHaveTrustOnNft({
 }: {
   pubkey: string;
   asset: { code: string; issuer: string };
-  accRes?: AccountResponse;
+  accRes?: Horizon.AccountResponse;
 }) {
-  const server = new Server(STELLAR_URL);
+  const server = new Horizon.Server(STELLAR_URL);
   const transactionInializer = accRes ?? (await server.loadAccount(pubkey));
 
   for (const item of transactionInializer.balances) {

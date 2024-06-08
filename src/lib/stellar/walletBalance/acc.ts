@@ -1,7 +1,7 @@
-import { Asset, BASE_FEE, Claimant, Keypair, Memo, Networks, Operation, Server, TransactionBuilder } from "stellar-sdk";
+import { Asset, BASE_FEE, Claimant, Keypair, Memo, Networks, Operation, Server, TransactionBuilder } from "@stellar/stellar-sdk";
 import { STELLAR_URL } from "./constant";
 
-import { type Horizon } from "stellar-sdk";
+import { Horizon } from "@stellar/stellar-sdk";
 import { StellarAccount } from "../marketplace/test/Account";
 export type Balances = (
   | Horizon.BalanceLineNative
@@ -11,7 +11,7 @@ export type Balances = (
 )[];
 
 export async function NativeBalance ({ userPub }: { userPub: string }) {
-  const server = new Server(STELLAR_URL);
+  const server = new Horizon.Server(STELLAR_URL);
 
   const account = await server.loadAccount(userPub);
 
@@ -28,7 +28,7 @@ export async function BalanceWithHomeDomain({
 }: {
   userPub: string;
 }) {
-  const server = new Server(STELLAR_URL);
+  const server = new Horizon.Server(STELLAR_URL);
 
   const account = await server.loadAccount(userPub);
   const balances = await Promise.all(
@@ -90,7 +90,7 @@ export async function SendAssets({
   input: { recipientId: string; amount: number; asset_code: string; asset_type: string; asset_issuer: string };
 }) {
   console.log('userPubKey', userPubKey);
-  const server = new Server(STELLAR_URL);
+  const server = new Horizon.Server(STELLAR_URL);
   const account = await server.loadAccount(userPubKey);
 
   const accBalance = account.balances.find(

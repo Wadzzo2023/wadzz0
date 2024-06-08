@@ -3,14 +3,14 @@ import {
   BASE_FEE,
   Keypair,
   Operation,
-  Server,
+  Horizon,
   TransactionBuilder,
-} from "stellar-sdk";
+} from "@stellar/stellar-sdk";
 import { STELLAR_URL } from "../constant";
 import { networkPassphrase } from "../constant";
 import { SignUserType, WithSing } from "../../utils";
 import { env } from "~/env";
-import { PLATFROM_ASSET, PLATFROM_FEE } from "../../fan/constant";
+import { PLATFROM_ASSET, PLATFROM_FEE } from "../../constant";
 
 export async function sendNft2StorageXDR({
   assetCode,
@@ -29,7 +29,7 @@ export async function sendNft2StorageXDR({
 }) {
   // const assetAmount = DEFAULT_ASSET_LIMIT
   const asset = new Asset(assetCode, issuerPub);
-  const server = new Server(STELLAR_URL);
+  const server = new Horizon.Server(STELLAR_URL);
 
   const transactionInializer = await server.loadAccount(userPub);
 
@@ -79,7 +79,7 @@ export async function sendNftback({
   const storageAcc = Keypair.fromSecret(storageSecret);
   const motherAcc = Keypair.fromSecret(env.MOTHER_SECRET);
 
-  const server = new Server(STELLAR_URL);
+  const server = new Horizon.Server(STELLAR_URL);
 
   const transactionInializer = await server.loadAccount(userPub);
 

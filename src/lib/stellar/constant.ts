@@ -1,4 +1,4 @@
-import { Asset, Networks } from "stellar-sdk";
+import { Asset, Networks } from "@stellar/stellar-sdk";
 import { env } from "~/env";
 
 export const networkPassphrase = env.NEXT_PUBLIC_STELLAR_PUBNET

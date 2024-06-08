@@ -29,7 +29,6 @@ export const adminRouter = createTRPCRouter({
     }),
 
   admins: adminProcedure.query(async ({ ctx }) => {
-    console.log("..d.fdjlkdjfs.");
     const admins = await ctx.db.admin.findMany();
     return admins;
   }),

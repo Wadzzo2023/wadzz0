@@ -1,16 +1,16 @@
 import {
   Keypair,
   Operation,
-  Server,
+  Horizon,
   TransactionBuilder,
   Asset,
-} from "stellar-sdk";
+} from "@stellar/stellar-sdk";
 import {
   PLATFROM_ASSET,
   PLATFROM_FEE,
   STELLAR_URL,
   networkPassphrase,
-} from "./fan/constant";
+} from "./constant";
 import { env } from "~/env";
 import { AccountSchema, AccountType } from "./fan/utils";
 import { SignUserType, WithSing } from "./utils";
@@ -38,7 +38,7 @@ export async function createUniAsset({
   homeDomain: string;
   ipfsHash: string;
 }) {
-  const server = new Server(STELLAR_URL);
+  const server = new Horizon.Server(STELLAR_URL);
 
   // accounts
   const issuerAcc = Keypair.random();

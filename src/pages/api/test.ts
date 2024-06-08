@@ -1,9 +1,11 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import { Client, Environment } from "square";
+// import { Client, Environment } from "square";
 import { env } from "~/env";
 import { z } from "zod";
 
 import { getSession } from "next-auth/react";
+
+export const maxDuration = 3 * 60 * 1000;
 
 // (BigInt.prototype as any).toJSON = function () {
 //   return this.toString();
@@ -27,17 +29,16 @@ export default async function handler(
       console.log("no session");
     }
 
-    const client = new Client({
-      accessToken: env.SQUARE_ACCESS_TOKEN,
-      environment: env.SQUARE_ENVIRONMENT as Environment,
-    });
+    const delay = (time: number) =>
+      new Promise((resolve) => setTimeout(resolve, time));
 
-    const pubkey = z.string().length(56).parse(req.query.pubkey);
-    const xdr = "vong";
+    await delay(2 * 60 * 1000); // Wait for 2 minutes
 
-    res.status(200).json({ xdr });
+    res.status(200).json(session);
   } catch (e) {
-    console.log(e);
-    res.status(500).json({ error: e });
+    // console.log(e);
+    res
+      .status(500)
+      .json({ error: "An error occurred while processing your request" });
   }
 }

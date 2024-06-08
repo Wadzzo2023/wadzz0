@@ -2,18 +2,18 @@ import {
   BASE_FEE,
   Keypair,
   Operation,
-  Server,
+  Horizon,
   TransactionBuilder,
   Asset,
   AuthClawbackEnabledFlag,
   AuthRevocableFlag,
-} from "stellar-sdk";
+} from "@stellar/stellar-sdk";
 import {
   PLATFROM_ASSET,
   PLATFROM_FEE,
   STELLAR_URL,
   networkPassphrase,
-} from "./constant";
+} from "../constant";
 import { MyAssetType } from "./utils";
 import { env } from "~/env";
 import { STROOP } from "../marketplace/constant";
@@ -38,7 +38,7 @@ export async function getClawbackAsPayment({
   creatorStorageSec: string;
   signWith: SignUserType;
 }) {
-  const server = new Server(STELLAR_URL);
+  const server = new Horizon.Server(STELLAR_URL);
 
   const creatorStorageAcc = Keypair.fromSecret(creatorStorageSec);
   const asset = new Asset(assetInfo.code, assetInfo.issuer);

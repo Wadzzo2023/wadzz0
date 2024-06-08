@@ -1,13 +1,13 @@
 import {
   Keypair,
   Operation,
-  Server,
+  Horizon,
   Networks,
   TransactionBuilder,
   Asset,
-} from "stellar-sdk";
+} from "@stellar/stellar-sdk";
 import { env } from "~/env";
-import { STELLAR_URL } from "../constant";
+import { STELLAR_URL } from "../../constant";
 import { AccountType } from "../../fan/utils";
 
 const log = console;
@@ -35,7 +35,7 @@ export async function firstTransection({
   limit: string; // full number
   ipfsHash: string;
 }) {
-  const server = new Server(STELLAR_URL);
+  const server = new Horizon.Server(STELLAR_URL);
   // mother acc
 
   const motherAcc = Keypair.fromSecret(env.MOTHER_SECRET);
@@ -130,7 +130,7 @@ export type BalanceType = {
   balance: string;
 };
 export const getAccBalance = async (accPub: string) => {
-  const server = new Server(STELLAR_URL);
+  const server = new Horizon.Server(STELLAR_URL);
   const account = await server.loadAccount(accPub);
   const balances: BalanceType[] = [];
 
@@ -157,7 +157,7 @@ export const checkAssetBalance = async ({
   storagePub: string;
   assset: { code: string; issuer: string };
 }) => {
-  const server = new Server(STELLAR_URL);
+  const server = new Horizon.Server(STELLAR_URL);
   const account = await server.loadAccount(storagePub);
 
   for (const balance of account.balances) {

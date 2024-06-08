@@ -1,5 +1,5 @@
-import { Keypair, TransactionBuilder } from "stellar-sdk";
-import { networkPassphrase } from "./constant";
+import { Keypair, TransactionBuilder } from "@stellar/stellar-sdk";
+import { networkPassphrase } from "../constant";
 
 export function signXdrTransaction(
   xdrTransaction: string,

@@ -8,14 +8,14 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import dynamic from "next/dynamic";
 import { Titillium_Web } from "next/font/google";
 import Layout from "~/components/layout";
-import { useUserStellarAcc } from "~/lib/state/wallete/stellar-balances";
 import "~/styles/globals.css";
 import "~/styles/music.scss";
 
 const queryClient = new QueryClient();
 
 const PopupImports = dynamic(
-  () => import("package/connect_wallet/src/components/popup_imports"),
+  async () =>
+    await import("package/connect_wallet/src/components/popup_imports"),
 );
 
 const inner = Titillium_Web({ subsets: ["latin"], weight: "400" });
@@ -25,18 +25,6 @@ const MyApp: AppType<{ session: Session | null }> = ({
   Component,
   pageProps: { session, ...pageProps },
 }) => {
-  const { setBalance } = useUserStellarAcc();
-  const acc = api.wallate.acc.getUserPubAssetBallances.useQuery(undefined, {
-    onSuccess: (data) => {
-      console.log(data);
-      // toast.success("Data fetched successfully");
-      setBalance(data);
-    },
-    onError: (error) => {
-      console.log(error);
-    },
-    refetchOnWindowFocus: false,
-  });
 
   return (
     <SessionProvider session={session}>
