@@ -107,9 +107,6 @@ importers:
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
-      colors-helper-tools:
-        specifier: ^1.5.9
-        version: 1.5.9
       cookies-next:
         specifier: ^2.1.2
         version: 2.1.2
@@ -2079,21 +2076,12 @@ packages:
   colorette@2.0.20:
     resolution: {integrity: sha512-IfEDxwoWIjkeXL1eXcDiow4UbKjhLdq6/EuSVR9GMN7KVH3r9gQ83e73hsz1Nd1T3ijd5xv1wcWRYO+D6kCI2w==}
 
-  colors-helper-tools@1.5.9:
-    resolution: {integrity: sha512-SLcL7TEaRgcRKH3oEBxaSyuKThShTX/j/AhadvGiW64fBjCXSUFEN+J6M2TpBokkoUtcsz/mWo/dUmh6ignkrA==}
-    engines: {node: '>=14'}
-    hasBin: true
-
   combined-stream@1.0.8:
     resolution: {integrity: sha512-FQN4MRfuJeHf7cBbBMJFXhKSDq+2kAArBlmRBvcvFE5BB1HZKXtSFASDhdlz9zOYwxh8lDdnvmMOe/+5cdoEdg==}
     engines: {node: '>= 0.8'}
 
   comma-separated-tokens@2.0.3:
     resolution: {integrity: sha512-Fu4hJdvzeylCfQPp9SGWidpzrMs7tTrlu6Vb8XGaRGck8QSNZJJp538Wrb60Lax4fPwR64ViY468OIUTbRlGZg==}
-
-  commander@12.1.0:
-    resolution: {integrity: sha512-Vw8qHK3bZM9y/P10u3Vib8o/DdkvA2OtPtZvD871QKjy74Wj1WSKFILMPRPSdUSx5RFK1arlJzEtA4PkFgnbuA==}
-    engines: {node: '>=18'}
 
   commander@4.1.1:
     resolution: {integrity: sha512-NOKm8xhkzAjzFx8B2v5OAHT+u5pRQc2UCa2Vq9jYL/31o2wi9mxBA7LIFs3sV5VSC49z6pEhfbMULvShKj26WA==}
@@ -7147,17 +7135,11 @@ snapshots:
 
   colorette@2.0.20: {}
 
-  colors-helper-tools@1.5.9:
-    dependencies:
-      commander: 12.1.0
-
   combined-stream@1.0.8:
     dependencies:
       delayed-stream: 1.0.0
 
   comma-separated-tokens@2.0.3: {}
-
-  commander@12.1.0: {}
 
   commander@4.1.1: {}
 
