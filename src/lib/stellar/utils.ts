@@ -6,10 +6,7 @@ import { signXdrTransaction } from "./fan/signXDR";
 export const SignUser = z
   .object({ email: z.string() })
   .optional()
-  .or(z.object({ isAdmin: z.boolean() }).optional().or(z.object({
-    isUser : z.boolean()
-  }))
-);
+  .or(z.object({ isAdmin: z.boolean() }));
 export type SignUserType = z.TypeOf<typeof SignUser>;
 
 export async function WithSing({
@@ -27,9 +24,6 @@ export async function WithSing({
       return signXdrTransaction(xdr, secret);
     }
     if ("isAdmin" in signWith) {
-      return signXdrTransaction(xdr, env.MOTHER_SECRET);
-    }
-    if ("isUser" in signWith) {
       return signXdrTransaction(xdr, env.MOTHER_SECRET);
     }
   }

@@ -35,8 +35,7 @@ export function RightComponent() {
       if (pop.type == AssetVariant.ADMIN) return <MarketRight />;
       if ((pop.type = AssetVariant.Other)) return <Right />;
     }
-  } 
-  else if (router.pathname.includes("/music")) return <MusicRightSide />;
+  } else if (router.pathname.includes("/music")) return <MusicRightSide />;
   else if (router.pathname.includes("/fans")) return <RightBar />;
   else if (router.pathname.includes("/marketplace")) {
     return <MarketRight />;

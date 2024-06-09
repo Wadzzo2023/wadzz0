@@ -43,7 +43,6 @@ const config = {
         checksVoidReturn: { attributes: false },
       },
     ],
-    
   },
 };
 

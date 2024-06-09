@@ -21,7 +21,7 @@ export const appRouter = createTRPCRouter({
   auth: authRouter,
   maps: mapsRouter,
   game: gameRouter,
-  walletBalance : wallateBalanceRouter
+   walletBalance : wallateBalanceRouter
 });
 
 // export type definition of API

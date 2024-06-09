@@ -17,6 +17,7 @@ import { Label } from "~/components/shadcn/ui/label";
 
 import { Separator } from "~/components/shadcn/ui/separator";
 import { api } from "~/utils/api";
+import AddTrustLine from "./add-trustline";
 
 export default function WBRightSideBar() {
   const { data, isLoading } =
@@ -30,22 +31,7 @@ export default function WBRightSideBar() {
           <CardTitle>Add Asset</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="flex space-x-2">
-            <Label htmlFor="search" className="sr-only">
-              Link
-            </Label>
-            <Input
-              placeholder="find assets..."
-              id="search"
-              value={""}
-              onChange={(e) => {
-                e.target.value;
-              }}
-            />
-            <Button variant="secondary" className="shrink-0">
-              Search
-            </Button>
-          </div>
+          <AddTrustLine />
           <Separator className="my-4" />
           <div className="space-y-4">
             <h4 className="text-sm font-medium">My Assets</h4>

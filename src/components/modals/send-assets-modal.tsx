@@ -34,10 +34,11 @@ import {
 import { Button } from "~/components/shadcn/ui/button";
 import { api } from "~/utils/api";
 import { Send } from "lucide-react";
-import { useModal } from "../hooks/use-model-store";
+
 import { clientsign } from "package/connect_wallet";
 import { useSession } from "next-auth/react";
 import { Toaster } from "react-hot-toast";
+import { useModal } from "../hooks/use-modal-store";
 
 const formSchema = z.object({
   recipientId: z.string().min(1, {
@@ -75,8 +76,8 @@ const SendAssets = () => {
     },
   });
 
-  const assetWithBalance: BalanceType[] = (data ?? [])
-    .map((balance) => {
+  const assetWithBalance = data
+    ?.map((balance) => {
       if (balance && balance.asset_code !== "") {
         return {
           asset_issuer: balance.asset_issuer,

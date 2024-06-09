@@ -2,14 +2,6 @@ import { Input } from "~/components/shadcn/ui/input";
 import { Button } from "~/components/shadcn/ui/button";
 
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "~/components/shadcn/ui/table";
-import {
   Card,
   CardContent,
   CardHeader,
@@ -19,10 +11,10 @@ import {
 import WBRightSideBar from "~/components/wallet-balance/wb-right-sidebar";
 import { useSession } from "next-auth/react";
 
-import { api } from "~/utils/api";
-
-import { useModal } from "~/components/hooks/use-model-store";
 import { Send } from "lucide-react";
+import { useModal } from "~/components/hooks/use-modal-store";
+import { api } from "~/utils/api";
+import TransactionHistory from "~/components/wallet-balance/transactionHistory";
 
 const Wallets = () => {
   const session = useSession();
@@ -56,40 +48,7 @@ const Wallets = () => {
                   </h1>
                 </CardContent>
               </Card>
-              <Card>
-                <CardHeader>
-                  <CardTitle>Recent Transactions</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Date</TableHead>
-                        <TableHead>Description</TableHead>
-                        <TableHead>Amount</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      <TableRow>
-                        <TableCell>Dec 7, 2023</TableCell>
-                        <TableCell>Sended Money to Sheikh Foysal</TableCell>
-                        <TableCell className="font-sm flex items-center  ">
-                          -$120.00
-                        </TableCell>
-                      </TableRow>
-                      <TableRow>
-                        <TableCell>Dec 6, 2023</TableCell>
-                        <TableCell>
-                          Received a Transaction from Zunayed
-                        </TableCell>
-                        <TableCell className="font-sm flex items-center">
-                          +$3,000.00
-                        </TableCell>
-                      </TableRow>
-                    </TableBody>
-                  </Table>
-                </CardContent>
-              </Card>
+              <TransactionHistory />
             </div>
             <div className="flex flex-col gap-6 md:col-span-2 lg:col-span-3 xl:col-span-2">
               <WBRightSideBar />

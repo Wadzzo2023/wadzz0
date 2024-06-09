@@ -1,15 +1,15 @@
-import { Asset, BASE_FEE, Claimant, Keypair, Memo, Networks, Operation, Server, TransactionBuilder } from "@stellar/stellar-sdk";
+import { Asset, BASE_FEE, Claimant,  Networks, Operation, TransactionBuilder } from "@stellar/stellar-sdk";
 import { STELLAR_URL } from "./constant";
 
 import { Horizon } from "@stellar/stellar-sdk";
 import { StellarAccount } from "../marketplace/test/Account";
-export type Balances = (
-  | Horizon.BalanceLineNative
-  | Horizon.BalanceLineAsset<"credit_alphanum4">
-  | Horizon.BalanceLineAsset<"credit_alphanum12">
-  | Horizon.BalanceLineLiquidityPool
-)[];
 
+export type Balances = (
+  | Horizon.HorizonApi.BalanceLineNative
+  | Horizon.HorizonApi.BalanceLineAsset<"credit_alphanum4">
+  | Horizon.HorizonApi.BalanceLineAsset<"credit_alphanum12">
+  | Horizon.HorizonApi.BalanceLineLiquidityPool
+)[];
 export async function NativeBalance ({ userPub }: { userPub: string }) {
   const server = new Horizon.Server(STELLAR_URL);
 
@@ -145,4 +145,54 @@ export async function SendAssets({
   console.log()
   return { xdr: xdr, pubKey: userPubKey, test: true };
  
+}
+
+export async function AddAssetTrustLine({
+  userPubKey,
+  input,
+}: {
+  userPubKey: string;
+  input: { asset_code: string; asset_issuer: string };
+}) {
+  const server = new Horizon.Server(STELLAR_URL);
+  const account = await server.loadAccount(userPubKey);
+  if(input.asset_code.toUpperCase() === "XLM")
+    {
+      throw new Error("TrustLine can't be added on XML")
+    }
+
+  const findAsset = account.balances.find(
+    (balance) => balance.asset_code === input.asset_code
+  );
+  if (findAsset) {
+    throw new Error("TrustLine already exists.");
+  }
+  const asset = new Asset(input.asset_code, input.asset_issuer);
+  const transaction = new TransactionBuilder(account, {
+    fee: BASE_FEE.toString(),
+    networkPassphrase: Networks.TESTNET,
+  })
+    .addOperation(
+      Operation.changeTrust({
+        asset: asset
+      })
+    )
+    .setTimeout(0)
+    .build();
+
+  const xdr = transaction.toXDR();
+  return { xdr: xdr, pubKey: userPubKey, test: true };
+}
+
+
+export async function RecentTransactionHistory({
+  userPubKey,
+  input,
+}: {
+  userPubKey: string;
+  input: { limit : number | null | undefined; 
+    cursor : number | null | undefined;  };
+}){
+  const server = new Horizon.Server(STELLAR_URL);
+   const account = await server.loadAccount(userPubKey);
 }
