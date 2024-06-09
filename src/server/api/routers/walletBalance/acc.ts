@@ -1,6 +1,6 @@
 import { add } from "date-fns";
 import { z } from "zod";
-import { AddAssetTrustLine, BalanceWithHomeDomain, NativeBalance, RecentTransactionHistory, SendAssets } from "~/lib/stellar/walletBalance/acc";
+import { AddAssetTrustLine, BalanceWithHomeDomain, AcceptClaimableBalance, NativeBalance, PendingAssetList, RecentTransactionHistory, SendAssets, DeclineClaimableBalance } from "~/lib/stellar/walletBalance/acc";
 
 import {
   createTRPCRouter,
@@ -66,17 +66,50 @@ export const WBalanceRouter = createTRPCRouter({
     return await AddAssetTrustLine({ userPubKey: userPubKey, input});
   }),
 
-  transactionHistory : protectedProcedure.input(
-    z.object({
-        limit: z.number().min(1).max(100).nullish(),
-        cursor: z.number().nullish(), 
-    }),
-  )
-  .query(async ({ input, ctx }) => {
+getTransactionHistory: protectedProcedure.input(
+  z.object({
+    limit: z.number().min(1).max(100).nullish().default(10),
+    cursor: z.string().nullish().default(null), // Ensure cursor is a string
+  }),
+)
+.query(async ({ input, ctx }) => {
+  const userId = ctx.session.user.id;
+  return await RecentTransactionHistory({ userPubKey: userId, input });
+}),
+
+  getPendingAssetList : protectedProcedure.query(async ({ ctx, input }) => {
     const userId = ctx.session.user.id;
-    return await RecentTransactionHistory ({ userPubKey: userId, input});
+    return await PendingAssetList({userPubKey: userId});
   }),
 
+  claimBalance :protectedProcedure.input(
+  z.object({
+      // trustLimit: z.number().positive({
+      //   message: "Trust Limit must be greater than zero.",
+      // }),
+      balanceId: z.string().min(1, {
+        message: "BalanceId is required.",
+      }),    
+    }
+  ))
+  .mutation(async ({ input, ctx }) => {
+    const userPubKey = ctx.session.user.id;
+    return await AcceptClaimableBalance({ userPubKey: userPubKey, input});
+  }),
 
+declineClaimBalance :protectedProcedure.input(
+  z.object({
+      // trustLimit: z.number().positive({
+      //   message: "Trust Limit must be greater than zero.",
+      // }),
+      balanceId: z.string().min(1, {
+        message: "BalanceId is required.",
+      }),  
+    }
+  ))
+  .mutation(async ({ input, ctx }) => {
+    const userPubKey = ctx.session.user.id;
+    return await DeclineClaimableBalance({ userPubKey: userPubKey, input});
+  }),
 
 });

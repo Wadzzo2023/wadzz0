@@ -80,6 +80,7 @@ const AddTrustLine = () => {
       return toast.error("Asset Code can't be XLM");
     } else {
       if (values) {
+        setLoading(true);
         AddTrustMutation.mutate({
           asset_code: values.asset_code,
           asset_issuer: values.issuerId,
@@ -105,6 +106,7 @@ const AddTrustLine = () => {
                   </FormLabel>
                   <FormControl>
                     <Input
+                      disabled={loading}
                       className="focus-visible:ring-0 focus-visible:ring-offset-0"
                       placeholder="Enter Recipient ID..."
                       {...field}
@@ -125,6 +127,7 @@ const AddTrustLine = () => {
                   </FormLabel>
                   <FormControl>
                     <Input
+                      disabled={loading}
                       type="text"
                       className="focus-visible:ring-0 focus-visible:ring-offset-0"
                       placeholder="Enter Issuer ID..."
@@ -136,9 +139,14 @@ const AddTrustLine = () => {
               )}
             />
             <div className="flex items-center justify-end space-y-6">
-              <Button variant="default" className="shrink-0 ">
+              <Button
+                type="submit"
+                disabled={loading}
+                variant="default"
+                className="shrink-0 font-bold "
+              >
                 <Plus className="mr-2" size={20} />
-                Add
+                ADD
               </Button>
             </div>
           </div>

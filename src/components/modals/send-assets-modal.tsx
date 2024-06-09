@@ -76,25 +76,46 @@ const SendAssets = () => {
     },
   });
 
+  interface CreditBalanceType {
+    asset_code: string;
+    assetBalance: number;
+    asset_type: "credit_alphanum4" | "credit_alphanum12";
+    asset_issuer: string;
+  }
+
+  interface NativeBalanceType {
+    asset_code: string;
+    assetBalance: number;
+    asset_type: "native";
+    asset_issuer: string;
+  }
+
+  type BalanceType = CreditBalanceType | NativeBalanceType;
+
   const assetWithBalance = data
     ?.map((balance) => {
-      if (balance && balance.asset_code !== "") {
-        return {
-          asset_issuer: balance.asset_issuer,
-          asset_code: balance.asset_code,
-          assetBalance: parseFloat(balance.balance),
-          asset_type: balance.asset_type,
-        };
-      } else {
-        if (balance && balance.asset_type === "native") {
+      if (balance) {
+        if (
+          balance.asset_code &&
+          (balance.asset_type === "credit_alphanum4" ||
+            balance.asset_type === "credit_alphanum12")
+        ) {
+          return {
+            asset_issuer: balance.asset_issuer,
+            asset_code: balance.asset_code,
+            assetBalance: parseFloat(balance.balance),
+            asset_type: balance.asset_type,
+          } as CreditBalanceType;
+        } else if (balance.asset_type === "native") {
           return {
             asset_issuer: "native",
             asset_code: "XLM",
             assetBalance: parseFloat(balance.balance),
             asset_type: balance.asset_type,
-          };
+          } as NativeBalanceType;
         }
       }
+      return null;
     })
     .filter((balance): balance is BalanceType => balance !== null);
 
@@ -107,10 +128,16 @@ const SendAssets = () => {
           pubkey: data.pubKey,
           test: data.test,
         })
-          .then(() => {
-            setLoading(false);
-            toast.success("Transaction successful");
-            handleClose();
+          .then((data) => {
+            if (data) {
+              setLoading(false);
+              toast.success("Transaction successful");
+              handleClose();
+            } else {
+              setLoading(false);
+              toast.error("Transaction failed");
+              handleClose();
+            }
           })
           .catch(() => {
             setLoading(false);
@@ -124,16 +151,17 @@ const SendAssets = () => {
     });
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    const selectedAsset: BalanceType = assetWithBalance.find(
+    const selectedAsset = assetWithBalance?.find(
       (asset) =>
-        `${asset.asset_code}-${asset.asset_type}-${asset.asset_issuer}` ===
+        `${asset?.asset_code}-${asset?.asset_type}-${asset?.asset_issuer}` ===
         values.selectItem,
     );
 
-    if (selectedAsset?.assetBalance < values.amount) {
+    if (!selectedAsset || selectedAsset?.assetBalance < values.amount) {
       toast.error("Insufficient balance");
       return;
     }
+
     if (values && typeof values.selectItem === "string") {
       const parts = values.selectItem.split("-");
       if (parts.length === 3) {
@@ -246,7 +274,7 @@ const SendAssets = () => {
                                 key={idx}
                                 value={`${wallet?.asset_code}-${wallet?.asset_type}-${wallet?.asset_issuer}`}
                               >
-                                {wallet.asset_code}
+                                {wallet?.asset_code}
                               </SelectItem>
                             ))}
                           </SelectGroup>

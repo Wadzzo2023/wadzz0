@@ -27,34 +27,41 @@ const Wallets = () => {
   }
 
   return (
-    <div className=" min-h-screen w-full overflow-hidden lg:grid-cols-[280px_1fr]">
-      <div className="flex flex-col">
-        <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-6">
-          <div className="flex items-center justify-between gap-4">
-            <h1 className="text-lg font-semibold md:text-xl">Wallet Balance</h1>
-            <Button variant="default" onClick={() => onOpen("send assets")}>
-              <Send size={15} className="mr-2" /> SEND ASSETS
-            </Button>
+    <div className=" min-h-screen w-full overflow-hidden p-4 md:p-6">
+      <div className="flex items-center justify-between gap-4">
+        <h1 className="text-lg font-semibold md:text-xl">Wallet Balance</h1>
+        <Button
+          variant="default"
+          className="m-3 p-3 font-bold"
+          onClick={() => onOpen("send assets")}
+        >
+          <Send size={15} className="mr-2 " /> SEND ASSETS
+        </Button>
+      </div>
+      <div className="grid gap-6 sm:flex sm:flex-col md:grid md:grid-cols-1 lg:grid-cols-3 lg:gap-0">
+        {/* Current Balance and Transaction History */}
+
+        <div className="p-2 lg:col-span-2">
+          <div className="md:flex md:flex-col md:gap-4">
+            {/* Current Balance */}
+
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between">
+                <CardTitle>Current Balance</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <h1 className="text-4xl font-bold">{data?.balance} XLM</h1>
+              </CardContent>
+            </Card>
+
+            {/* Transaction History */}
+            <WBRightSideBar />
           </div>
-          <div className="flex flex-col gap-6 md:grid md:grid-cols-6">
-            <div className="flex flex-col gap-6 md:col-span-4 lg:col-span-3 xl:col-span-4">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Current Balance</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <h1 className="flex items-center text-4xl font-bold">
-                    {data?.balance} XLM
-                  </h1>
-                </CardContent>
-              </Card>
-              <TransactionHistory />
-            </div>
-            <div className="flex flex-col gap-6 md:col-span-2 lg:col-span-3 xl:col-span-2">
-              <WBRightSideBar />
-            </div>
-          </div>
-        </main>
+        </div>
+        {/* WBRightSideBar */}
+        <div className="p-2  lg:col-span-1">
+          <TransactionHistory />
+        </div>
       </div>
     </div>
   );

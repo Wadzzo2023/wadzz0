@@ -1,10 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import { getServerSession } from "next-auth";
 import { getToken } from "next-auth/jwt";
-import { getSession } from "next-auth/react";
-import { getAccSecretFromRubyApi } from "package/connect_wallet/src/lib/stellar/get-acc-secret";
 import { z } from "zod";
-import { follow_brand } from "~/lib/stellar/game/follow";
 import { db } from "~/server/db";
 
 // import { getSession } from "next-auth/react";
@@ -14,6 +10,7 @@ export default async function handler(
   res: NextApiResponse,
 ) {
   const token = await getToken({ req });
+  // console.log(token, "..");
 
   // Check if the user is authenticated
   if (!token) {
@@ -24,24 +21,23 @@ export default async function handler(
   }
 
   const data = z.object({ brand_id: z.string() }).parse(req.body);
-  console.log(data);
 
   const creator = await db.creator.findUniqueOrThrow({
     where: { id: data.brand_id },
-    include: { pageAsset: true },
-  });
-  const asset = creator.pageAsset;
-
-  if (!asset) throw new Error("Creator has no asset");
-
-  if (!token.email) throw new Error("User has no email");
-
-  const secret = await getAccSecretFromRubyApi(token.email);
-
-  const xdr = await follow_brand({
-    creatorPageAsset: { code: asset.code, issuer: asset.issuer },
-    userSecret: secret,
   });
 
-  res.status(200).json(xdr);
+  const pubkey = token.sub;
+
+  if (!pubkey) {
+    res.status(404).json({
+      error: "pubkey not found",
+    });
+    return;
+  }
+
+  const follow = await db.follow.create({
+    data: { creatorId: creator.id, userId: pubkey },
+  });
+
+  res.status(200).json(follow);
 }
