@@ -2,6 +2,7 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { getSession } from "next-auth/react";
 import internal from "stream";
 import { db } from "~/server/db";
+import { Brand } from "~/types/game/brand";
 
 // import { getSession } from "next-auth/react";
 
@@ -35,13 +36,9 @@ export default async function handler(
     where: { pageAsset: {} },
   });
 
-  interface Brand {
-    id: string;
-    first_name: string;
-    last_name: string;
-    email: string;
-    logo: string;
-  }
+  const follows = await db.follow.findMany({
+    where: { userId: session.user.id },
+  });
 
   const bands: Brand[] = brands.map((brand) => {
     return {
@@ -50,26 +47,11 @@ export default async function handler(
       last_name: brand.name,
       email: "",
       logo: brand.pageAsset?.thumbnail ?? "https://picsum.photos/200/300",
+      followed_by_current_user: follows.some(
+        (follow) => follow.creatorId === brand.id,
+      ),
     };
   });
-
-  //   const users: Brand[] = db_locations.map((location) => {
-  //     return {
-  //       id: location.id,
-  //       lat: location.latitude,
-  //       lng: location.longitude,
-  //       title: "San Francisco",
-  //       description: location.description ?? "No description provided",
-  //       brand_name: "Brand A",
-  //       url: "https://picsum.photos/200/300",
-  //       image_url: "https://picsum.photos/500/500",
-  //       collected: false,
-  //       collection_limit_remaining: 3,
-  //       auto_collect: true,
-  //       brand_image_url: "https://picsum.photos/100/100",
-  //       brand_id: 1,
-  //     };
-  //   });
 
   res.status(200).json({ users: bands });
 }

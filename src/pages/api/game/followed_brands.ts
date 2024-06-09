@@ -2,6 +2,7 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { getSession } from "next-auth/react";
 import internal from "stream";
 import { db } from "~/server/db";
+import { Brand } from "~/types/game/brand";
 
 // import { getSession } from "next-auth/react";
 
@@ -33,14 +34,6 @@ export default async function handler(
     },
   });
 
-  interface Brand {
-    id: string;
-    first_name: string;
-    last_name: string;
-    email: string;
-    logo: string;
-  }
-
   const bands: Brand[] = follows.map((follow) => {
     const brand = follow.creator;
     return {
@@ -49,6 +42,7 @@ export default async function handler(
       last_name: brand.name,
       email: "",
       logo: brand.pageAsset?.thumbnail ?? "https://picsum.photos/200/300",
+      followed_by_current_user: true,
     };
   });
 

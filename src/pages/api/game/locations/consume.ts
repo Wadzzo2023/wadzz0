@@ -10,7 +10,6 @@ export default async function handler(
   res: NextApiResponse,
 ) {
   const token = await getToken({ req });
-  // console.log(token, "..");
 
   // Check if the user is authenticated
   if (!token) {
@@ -20,15 +19,25 @@ export default async function handler(
     return;
   }
 
-  const data = z.object({ brand_id: z.string() }).parse(req.body);
+  const data = z
+    .object({ location_id: z.string().transform(Number) })
+    .safeParse(req.body);
 
-  const creator = await db.creator.findUnique({
-    where: { id: data.brand_id },
+  if (!data.success) {
+    res.status(400).json({
+      error: data.error,
+    });
+    return;
+  }
+  const loc = data.data;
+
+  const location = await db.location.findUnique({
+    where: { id: loc.location_id },
   });
-
-  if (!creator) {
-    res.status(404).json({
-      error: "creator not found",
+  if (!location) {
+    res.status(422).json({
+      success: false,
+      data: "Could not find the location",
     });
     return;
   }
@@ -41,9 +50,9 @@ export default async function handler(
     });
     return;
   }
-  const unfollow = await db.follow.delete({
-    where: { userId_creatorId: { creatorId: creator.id, userId: pubkey } },
+  await db.locationConsumer.create({
+    data: { locationId: location.id, userId: pubkey },
   });
 
-  res.status(200).json(unfollow);
+  res.status(200).json({ success: true, data: "Location consumed" });
 }

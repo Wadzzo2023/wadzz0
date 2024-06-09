@@ -1,7 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { getSession } from "next-auth/react";
-import internal from "stream";
 import { db } from "~/server/db";
+import { Location } from "~/types/game/location";
 
 // import { getSession } from "next-auth/react";
 
@@ -22,25 +22,19 @@ export default async function handler(
   // Return the locations
 
   const db_locations = await db.location.findMany({
-    select: { id: true, latitude: true, longitude: true, description: true },
+    select: {
+      id: true,
+      latitude: true,
+      longitude: true,
+      description: true,
+      creatorId: true,
+      consumers: {
+        select: { userId: true },
+        where: { userId: session.user.id },
+      },
+      autoCollect: true,
+    },
   });
-
-  interface Location {
-    id: string;
-    lat: number;
-    lng: number;
-    title: string;
-    description: string;
-    brand_name: string;
-    url: string;
-    image_url: string;
-    collected: boolean;
-
-    collection_limit_remaining: number;
-    auto_collect: boolean;
-    brand_image_url: string;
-    brand_id: number;
-  }
 
   const locations: Location[] = db_locations.map((location) => {
     return {
@@ -52,11 +46,11 @@ export default async function handler(
       brand_name: "Brand A",
       url: "https://picsum.photos/200/300",
       image_url: "https://picsum.photos/500/500",
-      collected: false,
+      collected: location.consumers.length > 0,
       collection_limit_remaining: 3,
-      auto_collect: true,
+      auto_collect: location.autoCollect,
       brand_image_url: "https://picsum.photos/100/100",
-      brand_id: 1,
+      brand_id: location.creatorId,
     };
   });
 
