@@ -13,7 +13,6 @@ export default async function handler(
       // console.log(session.user);
       res.status(200).json(session.user);
     } else {
-      console.log("no session");
       res.status(401).json({ error: "Unauthorized" });
     }
   } catch (e) {

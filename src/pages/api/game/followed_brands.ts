@@ -20,36 +20,29 @@ export default async function handler(
     return;
   }
 
-  // Return the locations
-
-  //   const db_locations = await db.location.findMany({
-  //     select: { id: true, latitude: true, longitude: true, description: true },
-  //   });
-
-  const brands = await db.creator.findMany({
-    select: {
-      id: true,
-      name: true,
-      profileUrl: true,
-      pageAsset: { select: { code: true, thumbnail: true } },
-    },
-    where: { pageAsset: {} },
-  });
-
   const follows = await db.follow.findMany({
     where: { userId: session.user.id },
+    include: {
+      creator: {
+        select: {
+          id: true,
+          name: true,
+          profileUrl: true,
+          pageAsset: { select: { code: true, thumbnail: true } },
+        },
+      },
+    },
   });
 
-  const bands: Brand[] = brands.map((brand) => {
+  const bands: Brand[] = follows.map((follow) => {
+    const brand = follow.creator;
     return {
       id: brand.id,
       first_name: brand.name,
       last_name: brand.name,
       email: "",
       logo: brand.pageAsset?.thumbnail ?? "https://picsum.photos/200/300",
-      followed_by_current_user: follows.some(
-        (follow) => follow.creatorId === brand.id,
-      ),
+      followed_by_current_user: true,
     };
   });
 

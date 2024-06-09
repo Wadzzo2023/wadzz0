@@ -430,7 +430,7 @@ model LocationGroup {
 }
 
 model Location {
-    id String @id @default(cuid())
+    id Int @id @default(autoincrement())
 
     latitude  Float
     longitude Float
@@ -462,7 +462,7 @@ model Location {
     locationGroupId String?
     locationGroup   LocationGroup? @relation(fields: [locationGroupId], references: [id], onDelete: Cascade)
 
-    LocationConsumer LocationConsumer[]
+    consumers LocationConsumer[]
 }
 
 model LocationConsumer {
@@ -471,8 +471,14 @@ model LocationConsumer {
     userId String
     user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-    locationId String
+    locationId Int
     location   Location @relation(fields: [locationId], references: [id], onDelete: Cascade)
+
+    claimedAt DateTime?
+
+    viewedAt DateTime?
+
+    hidden Boolean @default(false)
 
     createdAt DateTime @default(now())
 }
