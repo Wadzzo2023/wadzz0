@@ -1,6 +1,5 @@
 import { z } from "zod";
 import { AdminAssetFormSchema } from "~/components/wallete/add_asset_form";
-import { getRandomColorHex } from "colors-helper-tools";
 
 import {
   createTRPCRouter,
@@ -72,7 +71,7 @@ export const assetRouter = createTRPCRouter({
       } = input;
 
       const tagsArr = tags.split(",");
-      const color = getRandomColorHex();
+      const color = "red";
       const blurData = await getBlurData(logoUrl);
 
       // adding all the tags

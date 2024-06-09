@@ -191,7 +191,7 @@ export function FollowButton({ creator }: { creator: Creator }) {
     onError: (e) => toast.error(e.message),
   });
   const loading = followXDR.isLoading || signLoading || follow.isLoading;
-  if (isFollower.data || follow.isSuccess) return <p>You are a follower</p>;
+  if (isFollower.data ?? follow.isSuccess) return <p>You are a follower</p>;
   else if (isFollower.isSuccess || isFollower.data === undefined)
     return (
       <div>
