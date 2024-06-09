@@ -126,6 +126,16 @@ export const creatorRouter = createTRPCRouter({
       });
     }),
 
+  changeCreatorBackgroundSVG: protectedProcedure
+    .input(z.string())
+    .mutation(async ({ ctx, input }) => {
+      const url = input;
+      await ctx.db.creator.update({
+        data: { backgroundSVG: url },
+        where: { id: ctx.session.user.id },
+      });
+    }),
+
   changeCreatorCoverPicture: protectedProcedure
     .input(z.string())
     .mutation(async ({ ctx, input }) => {

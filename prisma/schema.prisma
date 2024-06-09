@@ -167,6 +167,9 @@ model Creator {
     bio        String?
     name       String
 
+    backgroundSVG String?
+    showSVG       Boolean @default(false)
+
     storagePub    String
     storageSecret String
 
