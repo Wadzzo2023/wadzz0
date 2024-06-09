@@ -14,3 +14,8 @@ export interface Location {
   brand_image_url: string;
   brand_id: string;
 }
+
+export interface ConsumedLocation extends Location {
+  modal_url: string;
+  viewed: boolean;
+}
