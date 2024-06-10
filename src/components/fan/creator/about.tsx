@@ -32,6 +32,9 @@ function AboutForm({ creator }: { creator: Creator }) {
   const mutation = api.fan.creator.updateCreatorProfile.useMutation();
   const updateProfileMutation =
     api.fan.creator.changeCreatorProfilePicture.useMutation();
+
+  const updateSVg = api.fan.creator.changeCreatorBackgroundSVG.useMutation();
+
   const {
     register,
     handleSubmit,
@@ -78,6 +81,29 @@ function AboutForm({ creator }: { creator: Creator }) {
         />
         <CoverChange />
       </div>
+      <UploadButton
+        endpoint="imageUploader"
+        appearance={{
+          allowedContent(arg) {
+            return { display: "none" };
+          },
+        }}
+        content={{ button: "Add Background SVG" }}
+        onClientUploadComplete={(res) => {
+          // Do something with the response
+          // alert("Upload Completed");
+          const data = res[0];
+
+          if (data?.url) {
+            updateSVg.mutate(data.url);
+          }
+          // updateProfileMutation.mutate(res);
+        }}
+        onUploadError={(error: Error) => {
+          // Do something with the error.
+          alert(`ERROR! ${error.message}`);
+        }}
+      />
       <label className="form-control w-full ">
         <div className="label">
           <span className="label-text">Display Name</span>
