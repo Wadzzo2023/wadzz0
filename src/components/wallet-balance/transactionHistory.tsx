@@ -15,6 +15,7 @@ import {
 import { api } from "~/utils/api";
 import { useRef } from "react";
 import { InfiniteScroll } from "../wallete/infinite-scroll";
+import { addrShort, delay } from "~/utils/utils";
 
 const BatchLimit = 10;
 
@@ -56,23 +57,51 @@ const TransactionHistory = () => {
             loader={<div className="loading">Loading...</div>}
           >
             <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Date</TableHead>
-                  <TableHead>Description</TableHead>
-                  <TableHead>Amount</TableHead>
-                </TableRow>
-              </TableHeader>
               <TableBody>
-                {transactions.map((item, index) => (
+                {transactions?.map((item, index) => (
                   <TableRow key={index}>
                     <TableCell>
-                      {new Date(item.created_at).toLocaleDateString()}
+                      {item?.parseDetails?.createdAt
+                        ? new Date(item.parseDetails.createdAt).toLocaleString()
+                        : ""}
                     </TableCell>
-                    {/* <TableCell>{item.memo || "No Description"}</TableCell>
-                    <TableCell className="font-sm flex items-center">
-                      {item.amount}
-                    </TableCell> */}
+                    {item?.parseDetails?.type === "payment" ? (
+                      <TableCell>
+                        {item.parseDetails.source &&
+                          addrShort(item.parseDetails.source, 5)}{" "}
+                        payment {item.parseDetails.amount}{" "}
+                        {item.parseDetails.asset} to{" "}
+                        {item.parseDetails.destination &&
+                          addrShort(item.parseDetails.destination, 5)}
+                      </TableCell>
+                    ) : item?.parseDetails?.type === "createAccount" ? (
+                      <TableCell>
+                        {item.parseDetails.source &&
+                          addrShort(item.parseDetails.source, 5)}{" "}
+                        created an account with{" "}
+                        {item.parseDetails.startingBalance} XLM
+                      </TableCell>
+                    ) : item?.parseDetails?.type ===
+                      "createClaimableBalance" ? (
+                      <TableCell>
+                        {item.parseDetails.claimantOne &&
+                          addrShort(item.parseDetails.claimantOne, 5)}{" "}
+                        created a claimable balance of{" "}
+                        {item.parseDetails.amount} {item.parseDetails.code} with{" "}
+                        {item.parseDetails.claimantZero &&
+                          addrShort(item.parseDetails.claimantZero, 5)}
+                      </TableCell>
+                    ) : item?.parseDetails?.type === "claimClaimableBalance" ? (
+                      <TableCell>
+                        {item.parseDetails.source &&
+                          addrShort(item.parseDetails.source, 5)}{" "}
+                        claimed balance ID{" "}
+                        {item.parseDetails.balanceId &&
+                          addrShort(item.parseDetails.balanceId, 5)}
+                      </TableCell>
+                    ) : (
+                      <TableCell>{item?.parseDetails?.type}</TableCell>
+                    )}
                   </TableRow>
                 ))}
               </TableBody>

@@ -1,4 +1,4 @@
-import { Asset, BASE_FEE, Claimant,  Networks, Operation, TransactionBuilder } from "@stellar/stellar-sdk";
+import { Asset, BASE_FEE, Claimant,  Networks, Operation, Transaction, TransactionBuilder } from "@stellar/stellar-sdk";
 import { STELLAR_URL } from "./constant";
 
 import { Horizon } from "@stellar/stellar-sdk";
@@ -10,6 +10,19 @@ export type Balances = (
   | Horizon.HorizonApi.BalanceLineAsset<"credit_alphanum12">
   | Horizon.HorizonApi.BalanceLineLiquidityPool
 )[];
+export type ParsedTransaction = {
+  type? : string;
+  amount? : string;
+  asset? : string;
+  destination?: string;
+  source? : string;
+  startingBalance?: string;
+  claimants? : unknown[];
+  issuer? : string;
+  createdAt? : string;
+  balanceId? : string;
+  code? : string;
+};
 
 interface PendingClaimableBalance {
   id: string;
@@ -223,12 +236,79 @@ export async function RecentTransactionHistory({
   }
 
   const items = await transactionCall.call();
+  
+  const newItem = items.records.map((record) => {
+    const tx = new Transaction(record.envelope_xdr, Networks.TESTNET);
+    const operations = tx.operations;
+    console.log("Operations", operations);
+    if (operations[0]?.type === "payment") {
+      return {
+        ...record,
+        parseDetails: {
+          type: "payment",
+          amount: operations[0].amount,
+          asset: operations[0].asset.code,
+          issuer: operations[0].asset.issuer,
+          destination: operations[0].destination,
+          source: userPubKey,
+          createdAt: record.created_at,
+        },
+      };
+    } else if (operations[0]?.type === "createAccount") {
+      return {
+        ...record,
+        parseDetails: {
+          type: "createAccount",
+          startingBalance: operations[0].startingBalance,
+          source: userPubKey,
+          createdAt: record.created_at,
+        },
+      };
+    } else if (operations[0]?.type === "createClaimableBalance") {
+      return {
+        ...record,
+        parseDetails: {
+          type: "createClaimableBalance",
+          amount: operations[0].amount,
+          code: operations[0].asset.code,
+          issuer: operations[0].asset.issuer,
+          claimants: operations[0].claimants,
+          claimantZero : operations[0].claimants[0]?.destination,
+          claimantOne : operations[0].claimants[1]?.destination,
+          createdAt: record.created_at,
+        },
+      };
+    } else if (operations[0]?.type === "claimClaimableBalance") {
+      return {
+        ...record,
+        parseDetails: {
+          type: "claimClaimableBalance",
+          balanceId: operations[0].balanceId,
+
+          source: userPubKey,
+          createdAt: record.created_at,
+        },
+      };
+    }
+    else if(operations[0]?.type === "changeTrust"){
+      return {
+        ...record,
+        parseDetails: {
+          type: "changeTrust",
+          // asset: operations[0].asset.code,
+          // issuer: operations[0].asset.issuer,
+          source: userPubKey,
+          createdAt: record.created_at,
+        },
+      };
+    }
+  });
+
   return {
-    items: items.records,
-    nextCursor: items.records.length > 0 ? String(items.records[items?.records?.length - 1]?.paging_token) : null,
+    items: newItem,
+    nextCursor: items.records.length > 0 ? String(items.records[items.records.length - 1]?.paging_token) : null,
   };
 }
-
 
 
 export async function PendingAssetList({
@@ -321,3 +401,5 @@ export async function DeclineClaimableBalance({
     const xdr = transaction.toXDR();
     return { xdr: xdr, pubKey: userPubKey, test: true };
 }
+
+

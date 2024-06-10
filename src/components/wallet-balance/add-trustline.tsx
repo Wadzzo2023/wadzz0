@@ -54,10 +54,15 @@ const AddTrustLine = () => {
           pubkey: data.pubKey,
           test: data.test,
         })
-          .then(() => {
-            setLoading(false);
-            toast.success("TrustLine Added successful");
-            handleClose();
+          .then((data) => {
+            if (data) {
+              setLoading(false);
+              toast.success("TrustLine Added successful");
+              handleClose();
+            } else {
+              setLoading(false);
+              toast.error("Adding TrustLine Operation is failed");
+            }
           })
           .catch(() => {
             setLoading(false);
@@ -145,7 +150,7 @@ const AddTrustLine = () => {
                 variant="default"
                 className="shrink-0 font-bold "
               >
-                <Plus className="mr-2" size={20} />
+                <Plus className="mr-2  font-bold" size={20} />
                 ADD
               </Button>
             </div>
