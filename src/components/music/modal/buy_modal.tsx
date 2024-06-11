@@ -19,6 +19,7 @@ import { getPlaiceholder } from "plaiceholder";
 import { getPlatfromAssetPrice } from "~/lib/stellar/fan/get_token_price";
 import clsx from "clsx";
 import { PLATFROM_ASSET } from "~/lib/stellar/fan/constant";
+import Alert from "~/components/ui/alert";
 
 type BuyModalProps = {
   item: AssetType;
@@ -41,11 +42,16 @@ export default function BuyModal({
   const modal = useRef<HTMLDialogElement>(null);
   const [xdr, setXdr] = useState<string>();
   const [isWallet, setIsWallet] = useState(true);
+  const [paymentSuccess, setPaymentSuccess] = useState(false);
 
   // const { asset } = item;
   const { code, issuer } = item;
 
   // feth the copies from the storage acc.
+
+  const copy = api.marketplace.market.getMarketAssetAvailableCopy.useQuery({
+    id: marketItemId,
+  });
 
   const xdrMutaion =
     api.marketplace.steller.buyFromMarketPaymentXDR.useMutation({
@@ -55,7 +61,10 @@ export default function BuyModal({
       onError: (e) => toast.error(e.message.toString()),
     });
 
-  const handleModal = () => {
+  const handleModal = (close?: true) => {
+    if (close) {
+      return modal.current?.close();
+    }
     modal.current?.showModal();
   };
 
@@ -90,14 +99,12 @@ export default function BuyModal({
               </p>
               <p className="font-bold">Price in USD: {priceUSD}$</p>
               <p className="text-sm">
-                Copies available:{" "}
-                {marketItemId ? (
-                  <TokenCopies id={marketItemId} />
-                ) : (
-                  <SongTokenCopies issuer={issuer} code={code} />
-                )}
+                Copies available: {copy.data ?? "loading..."}
               </p>
               <p className="text-sm">Issuer: {addrShort(issuer, 15)}</p>
+              {copy.data && copy.data < 1 && (
+                <Alert type="error" content={"You have to be minimum 1 copy"} />
+              )}
             </div>
             {/* <BuyWithSquire marketId={item.id} xdr={xdr ?? "xdr"} /> */}
 
@@ -112,6 +119,7 @@ export default function BuyModal({
                     <>
                       {platformAssetBalance >= price ? (
                         <button
+                          disabled={paymentSuccess}
                           className="btn btn-primary"
                           onClick={() => {
                             clientsign({
@@ -121,7 +129,11 @@ export default function BuyModal({
                               test: clientSelect(),
                             })
                               .then((res) => {
-                                if (res) toast.success("Payment Success");
+                                if (res) {
+                                  toast.success("Payment Success");
+                                  setPaymentSuccess(true);
+                                  handleModal(true);
+                                }
                               })
                               .catch((e) => console.log(e));
                           }}
@@ -140,7 +152,9 @@ export default function BuyModal({
                 </>
               ) : (
                 <button
-                  disabled={xdrMutaion.isSuccess}
+                  disabled={
+                    xdrMutaion.isSuccess || !copy.isSuccess || copy.data < 1
+                  }
                   className="btn btn-primary"
                   onClick={() => handleXDR()}
                 >
@@ -163,7 +177,7 @@ export default function BuyModal({
       </dialog>
       <button
         className="btn btn-primary btn-sm my-2 w-full transition duration-500 ease-in-out"
-        onClick={handleModal}
+        onClick={() => handleModal()}
       >
         BUY
       </button>
