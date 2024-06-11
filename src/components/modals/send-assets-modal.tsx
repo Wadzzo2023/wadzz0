@@ -35,10 +35,11 @@ import { Button } from "~/components/shadcn/ui/button";
 import { api } from "~/utils/api";
 import { Send } from "lucide-react";
 
-import { clientsign } from "package/connect_wallet";
+import { WalletType, clientsign } from "package/connect_wallet";
 import { useSession } from "next-auth/react";
 import { Toaster } from "react-hot-toast";
 import { useModal } from "../hooks/use-modal-store";
+import useNeedSign from "~/lib/hook";
 
 const formSchema = z.object({
   recipientId: z.string().min(1, {
@@ -64,8 +65,13 @@ const SendAssets = () => {
   const session = useSession();
   const [loading, setLoading] = useState(false);
   const { data } = api.walletBalance.wallBalance.getWalletsBalance.useQuery();
-
+  const { needSign } = useNeedSign();
   const isModalOpen = isOpen && type === "send assets";
+  const connectedWalletType = session.data?.user.walletType ?? WalletType.none;
+  const walletType =
+    session.data?.user.walletType === WalletType.emailPass
+      ? WalletType.emailPass
+      : connectedWalletType;
 
   const form = useForm({
     resolver: zodResolver(formSchema),
@@ -122,9 +128,10 @@ const SendAssets = () => {
   const SendMutation =
     api.walletBalance.wallBalance.sendWalletAssets.useMutation({
       onSuccess(data) {
+        console.log("Type", session.data?.user?.walletType);
         clientsign({
-          walletType: session?.data?.user?.walletType,
           presignedxdr: data.xdr,
+          walletType: session.data?.user?.walletType,
           pubkey: data.pubKey,
           test: data.test,
         })
@@ -175,6 +182,7 @@ const SendAssets = () => {
             asset_code: code,
             asset_type: type,
             asset_issuer: issuer,
+            signWith: needSign(),
           });
         } else {
           // Handle the case where any of the parts are undefined

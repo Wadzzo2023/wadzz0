@@ -21,6 +21,7 @@ import { useSession } from "next-auth/react";
 import toast from "react-hot-toast";
 import { clientsign } from "package/connect_wallet";
 import { useState } from "react";
+import useNeedSign from "~/lib/hook";
 
 const formSchema = z.object({
   asset_code: z.string().min(1, {
@@ -37,6 +38,7 @@ const formSchema = z.object({
 const AddTrustLine = () => {
   const session = useSession();
   const [loading, setLoading] = useState(false);
+  const { needSign } = useNeedSign();
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -89,6 +91,7 @@ const AddTrustLine = () => {
         AddTrustMutation.mutate({
           asset_code: values.asset_code,
           asset_issuer: values.issuerId,
+          signWith: needSign(),
         });
       } else {
         toast.error("Please fill up the form correctly.");

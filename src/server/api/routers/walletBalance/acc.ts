@@ -1,5 +1,7 @@
+import { sign } from "crypto";
 import { add } from "date-fns";
 import { z } from "zod";
+import { SignUser, WithSing } from "~/lib/stellar/utils";
 import { AddAssetTrustLine, BalanceWithHomeDomain, AcceptClaimableBalance, NativeBalance, PendingAssetList, RecentTransactionHistory, SendAssets, DeclineClaimableBalance } from "~/lib/stellar/walletBalance/acc";
 
 import {
@@ -37,11 +39,12 @@ export const WBalanceRouter = createTRPCRouter({
        asset_issuer : z.string().min(1, {
         message: "Asset Issuer is required.",
       }),
+      signWith: SignUser,
 })
     )
     .mutation(async ({ input, ctx }) => {
       const userPubKey = ctx.session.user.id;
-
+      console.log("USER", ctx.session.user)
       return await SendAssets({ userPubKey: userPubKey, input});
      
     }),
@@ -57,7 +60,8 @@ export const WBalanceRouter = createTRPCRouter({
 
        asset_issuer : z.string().min(1, {
         message: "Asset Issuer is required.",
-      })
+      }),
+      signWith: SignUser,
     
 }
   ))
@@ -89,8 +93,10 @@ getTransactionHistory: protectedProcedure.input(
       // }),
       balanceId: z.string().min(1, {
         message: "BalanceId is required.",
-      }),    
-    }
+      }),   
+       signWith: SignUser, 
+    },
+   
   ))
   .mutation(async ({ input, ctx }) => {
     const userPubKey = ctx.session.user.id;
@@ -105,6 +111,7 @@ declineClaimBalance :protectedProcedure.input(
       balanceId: z.string().min(1, {
         message: "BalanceId is required.",
       }),  
+        signWith: SignUser, 
     }
   ))
   .mutation(async ({ input, ctx }) => {
