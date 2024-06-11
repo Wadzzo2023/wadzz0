@@ -37,7 +37,7 @@ export default function BuyModal({
 }: BuyModalProps) {
   const session = useSession();
   const { needSign } = useNeedSign();
-  const { platformAssetBalance } = useUserStellarAcc();
+  const { platformAssetBalance, active } = useUserStellarAcc();
 
   const modal = useRef<HTMLDialogElement>(null);
   const [xdr, setXdr] = useState<string>();
@@ -78,6 +78,7 @@ export default function BuyModal({
     });
   }
 
+  if (!active) return null;
   return (
     <>
       <dialog className="modal" ref={modal}>

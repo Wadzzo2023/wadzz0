@@ -1,19 +1,22 @@
 import { useSession } from "next-auth/react";
-import Link from "next/link";
 import { WalletType } from "package/connect_wallet/src/lib/enums";
-import { env } from "~/env";
 import { useUserStellarAcc } from "~/lib/state/wallete/stellar-balances";
 import { PLATFROM_ASSET } from "~/lib/stellar/fan/constant";
 import { api } from "~/utils/api";
 
 export function SiteAssetBalance() {
-  const { setBalance } = useUserStellarAcc();
+  const { setBalance, setActive, active } = useUserStellarAcc();
   const session = useSession();
 
   const bal = api.wallate.acc.getAccountBalance.useQuery(undefined, {
     onSuccess: (data) => {
       const { balances, platformAssetBal, xlm } = data;
       setBalance(balances);
+      setActive(true);
+    },
+    onError: (error) => {
+      // toast.error(error.message);
+      setActive(false);
     },
   });
 
@@ -24,7 +27,14 @@ export function SiteAssetBalance() {
     walletType == WalletType.google ||
     walletType == WalletType.emailPass;
 
+  if (walletType == WalletType.none) return null;
   if (bal.isLoading) return <div className="skeleton h-10 w-48"></div>;
+  if (!bal.isSuccess)
+    return (
+      <div className="flex h-10 w-48 items-center justify-center rounded-2xl bg-error text-white">
+        Pubkey Not Active
+      </div>
+    );
   return (
     <div
       className="btn  border-0 "
