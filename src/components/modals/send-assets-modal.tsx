@@ -67,11 +67,6 @@ const SendAssets = () => {
   const { data } = api.walletBalance.wallBalance.getWalletsBalance.useQuery();
   const { needSign } = useNeedSign();
   const isModalOpen = isOpen && type === "send assets";
-  const connectedWalletType = session.data?.user.walletType ?? WalletType.none;
-  const walletType =
-    session.data?.user.walletType === WalletType.emailPass
-      ? WalletType.emailPass
-      : connectedWalletType;
 
   const form = useForm({
     resolver: zodResolver(formSchema),

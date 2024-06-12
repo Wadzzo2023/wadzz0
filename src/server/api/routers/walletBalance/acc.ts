@@ -1,7 +1,7 @@
 import { sign } from "crypto";
 import { add } from "date-fns";
 import { z } from "zod";
-import { SignUser, WithSing } from "~/lib/stellar/utils";
+import { SignUser } from "~/lib/stellar/utils";
 import { AddAssetTrustLine, BalanceWithHomeDomain, AcceptClaimableBalance, NativeBalance, PendingAssetList, RecentTransactionHistory, SendAssets, DeclineClaimableBalance } from "~/lib/stellar/walletBalance/acc";
 
 import {
@@ -45,7 +45,15 @@ export const WBalanceRouter = createTRPCRouter({
     .mutation(async ({ input, ctx }) => {
       const userPubKey = ctx.session.user.id;
       console.log("USER", ctx.session.user)
-      return await SendAssets({ userPubKey: userPubKey, input});
+      console.log("SignWith", input.signWith)
+      return await SendAssets({ userPubKey: userPubKey, 
+        recipientId: input.recipientId,
+        amount: input.amount,
+        asset_code: input.asset_code,
+        asset_type: input.asset_type,
+        asset_issuer: input.asset_issuer,
+        signWith: input.signWith
+      });
      
     }),
 
@@ -67,7 +75,11 @@ export const WBalanceRouter = createTRPCRouter({
   ))
   .mutation(async ({ input, ctx }) => {
     const userPubKey = ctx.session.user.id;
-    return await AddAssetTrustLine({ userPubKey: userPubKey, input});
+    return await AddAssetTrustLine({ userPubKey: userPubKey,
+      asset_code: input.asset_code,
+      asset_issuer: input.asset_issuer,
+      signWith: input.signWith
+    });
   }),
 
 getTransactionHistory: protectedProcedure.input(
@@ -100,7 +112,10 @@ getTransactionHistory: protectedProcedure.input(
   ))
   .mutation(async ({ input, ctx }) => {
     const userPubKey = ctx.session.user.id;
-    return await AcceptClaimableBalance({ userPubKey: userPubKey, input});
+    return await AcceptClaimableBalance({ userPubKey: userPubKey, 
+      balanceId: input.balanceId,
+      signWith: input.signWith
+    });
   }),
 
 declineClaimBalance :protectedProcedure.input(
@@ -116,7 +131,11 @@ declineClaimBalance :protectedProcedure.input(
   ))
   .mutation(async ({ input, ctx }) => {
     const userPubKey = ctx.session.user.id;
-    return await DeclineClaimableBalance({ userPubKey: userPubKey, input});
+    return await DeclineClaimableBalance({ 
+      pubKey: userPubKey,
+      balanceId: input.balanceId,
+      signWith: input.signWith
+     });
   }),
 
 });
