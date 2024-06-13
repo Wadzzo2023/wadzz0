@@ -139,7 +139,7 @@ export async function SendAssets({
     signWith: SignUserType ;
     secretKey?: string | undefined
   }) {
-  console.log('signWith', signWith);
+
   const server = new Horizon.Server(STELLAR_URL);
   const account = await server.loadAccount(userPubKey);
 
@@ -197,12 +197,10 @@ export async function SendAssets({
   const buildTrx = transaction.build();
 
   if (signWith && 'email' in signWith && secretKey) {
-    console.log('Calling...');
-    buildTrx.sign(Keypair.fromSecret(secretKey));
     const xdr = buildTrx.toXDR();
     const signedXDr = await WithSing({
       xdr: xdr,
-      signWith: signWith && 'email' in signWith ? undefined : signWith,
+      signWith: signWith 
     });
     return { xdr: signedXDr, pubKey: userPubKey };
   }
@@ -251,13 +249,11 @@ export async function AddAssetTrustLine({
     .setTimeout(0)
   const buildTrx = transaction.build();
   if (signWith && 'email' in signWith && secretKey) {
-    console.log('Add TrustLine Calling...');
-    buildTrx.sign(Keypair.fromSecret(secretKey));
     const xdr = buildTrx.toXDR();
     
     const signedXDr = await WithSing({
       xdr: xdr,
-      signWith: signWith 
+      signWith: signWith
     });
     return { xdr: signedXDr, pubKey: userPubKey};
   }
@@ -425,7 +421,6 @@ export async function AcceptClaimableBalance({
 
     if (signWith && "email" in signWith && secretKey) {
       console.log("Calling...");
-      buildTrx.sign(Keypair.fromSecret(secretKey));
       const xdr = buildTrx.toXDR();
       const signedXDr = await WithSing({
         xdr: xdr,
@@ -472,7 +467,7 @@ export async function DeclineClaimableBalance({
   const buildTrx = transaction.build();
 
   if (signWith&& "email" in signWith && secretKey) {
-    buildTrx.sign(Keypair.fromSecret(secretKey));
+
     const xdr = buildTrx.toXDR();
     const signedXDr = await WithSing({
       xdr: xdr,

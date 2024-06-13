@@ -45,7 +45,6 @@ export const WBalanceRouter = createTRPCRouter({
     )
     .mutation(async ({ input, ctx }) => {
       const userPubKey = ctx.session.user.id;
-      const user = ctx.session.user;
       let secretKey;
      if(ctx.session.user.email && ctx.session.user.email.length > 0){
         secretKey = await getAccSecretFromRubyApi(ctx.session.user.email)
