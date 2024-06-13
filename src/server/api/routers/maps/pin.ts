@@ -7,7 +7,7 @@ import {
   protectedProcedure,
   publicProcedure,
 } from "~/server/api/trpc";
-import { getLocationInLatLngRad } from "~/utils/map";
+import { randomLocation as getLocationInLatLngRad } from "~/utils/map";
 
 export const pinRouter = createTRPCRouter({
   getSecretMessage: protectedProcedure.query(() => {
@@ -55,10 +55,11 @@ export const pinRouter = createTRPCRouter({
         }
 
         const locations = Array.from({ length: pinNumber }).map(() => {
-          const randomLocatin = getLocationInLatLngRad(input.radius, {
-            latitude: input.lat,
-            longitude: input.lng,
-          });
+          const randomLocatin = getLocationInLatLngRad(
+            input.lat,
+            input.lng,
+            input.radius,
+          );
           return {
             claimAmount,
             assetId: tokenId,
