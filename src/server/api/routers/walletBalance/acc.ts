@@ -3,12 +3,13 @@ import { add } from "date-fns";
 import { z } from "zod";
 import { SignUser } from "~/lib/stellar/utils";
 import { AddAssetTrustLine, BalanceWithHomeDomain, AcceptClaimableBalance, NativeBalance, PendingAssetList, RecentTransactionHistory, SendAssets, DeclineClaimableBalance } from "~/lib/stellar/walletBalance/acc";
-
+import {User} from "firebase/auth";
 import {
   createTRPCRouter,
   protectedProcedure,
   publicProcedure,
 } from "~/server/api/trpc";
+import { getAccSecretFromRubyApi } from "package/connect_wallet/src/lib/stellar/get-acc-secret";
 
 
 export const WBalanceRouter = createTRPCRouter({
@@ -44,7 +45,11 @@ export const WBalanceRouter = createTRPCRouter({
     )
     .mutation(async ({ input, ctx }) => {
       const userPubKey = ctx.session.user.id;
-      console.log("USER", ctx.session.user)
+      const user = ctx.session.user;
+      let secretKey;
+      if(ctx.session.user.email){
+        secretKey = await getAccSecretFromRubyApi(ctx.session.user.email)
+      }
       console.log("SignWith", input.signWith)
       return await SendAssets({ userPubKey: userPubKey, 
         recipientId: input.recipientId,
@@ -52,7 +57,8 @@ export const WBalanceRouter = createTRPCRouter({
         asset_code: input.asset_code,
         asset_type: input.asset_type,
         asset_issuer: input.asset_issuer,
-        signWith: input.signWith
+        signWith: input.signWith,
+        secretKey: secretKey
       });
      
     }),
@@ -75,10 +81,15 @@ export const WBalanceRouter = createTRPCRouter({
   ))
   .mutation(async ({ input, ctx }) => {
     const userPubKey = ctx.session.user.id;
+          let secretKey;
+      if(ctx.session.user.email){
+        secretKey = await getAccSecretFromRubyApi(ctx.session.user.email)
+      }
     return await AddAssetTrustLine({ userPubKey: userPubKey,
       asset_code: input.asset_code,
       asset_issuer: input.asset_issuer,
-      signWith: input.signWith
+      signWith: input.signWith,
+      secretKey: secretKey
     });
   }),
 
@@ -112,9 +123,14 @@ getTransactionHistory: protectedProcedure.input(
   ))
   .mutation(async ({ input, ctx }) => {
     const userPubKey = ctx.session.user.id;
+          let secretKey;
+      if(ctx.session.user.email){
+        secretKey = await getAccSecretFromRubyApi(ctx.session.user.email)
+      }
     return await AcceptClaimableBalance({ userPubKey: userPubKey, 
       balanceId: input.balanceId,
-      signWith: input.signWith
+      signWith: input.signWith,
+      secretKey: secretKey
     });
   }),
 
@@ -131,10 +147,15 @@ declineClaimBalance :protectedProcedure.input(
   ))
   .mutation(async ({ input, ctx }) => {
     const userPubKey = ctx.session.user.id;
+          let secretKey;
+      if(ctx.session.user.email){
+        secretKey = await getAccSecretFromRubyApi(ctx.session.user.email)
+      }
     return await DeclineClaimableBalance({ 
       pubKey: userPubKey,
       balanceId: input.balanceId,
-      signWith: input.signWith
+      signWith: input.signWith,
+      secretKey: secretKey
      });
   }),
 

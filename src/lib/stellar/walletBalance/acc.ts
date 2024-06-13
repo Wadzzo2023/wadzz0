@@ -127,6 +127,7 @@ export async function SendAssets({
   asset_type,
   asset_issuer,
   signWith,
+  secretKey,
 }: {
   userPubKey: string;
 
@@ -135,8 +136,8 @@ export async function SendAssets({
     asset_code: string;
     asset_type: string;
     asset_issuer: string;
-    signWith: SignUserType 
-  
+    signWith: SignUserType ;
+    secretKey?: string | undefined
   }) {
   console.log('signWith', signWith);
   const server = new Horizon.Server(STELLAR_URL);
@@ -195,9 +196,8 @@ export async function SendAssets({
 
   const buildTrx = transaction.build();
 
-  if (signWith && 'email' in signWith) {
+  if (signWith && 'email' in signWith && secretKey) {
     console.log('Calling...');
-    const secretKey = await getAccSecretFromRubyApi(signWith.email);
     buildTrx.sign(Keypair.fromSecret(secretKey));
     const xdr = buildTrx.toXDR();
     const signedXDr = await WithSing({
@@ -214,11 +214,13 @@ export async function AddAssetTrustLine({
   asset_code,
   asset_issuer,
   signWith,
+  secretKey
 }: {
     userPubKey: string;
     asset_code: string; 
     asset_issuer: string;
-    signWith: SignUserType
+    signWith: SignUserType;
+    secretKey?: string | undefined
 }) {
   const server = new Horizon.Server(STELLAR_URL);
   const account = await server.loadAccount(userPubKey);
@@ -248,9 +250,7 @@ export async function AddAssetTrustLine({
     )
     .setTimeout(0)
   const buildTrx = transaction.build();
-  if (signWith && "email" in signWith) {
-    console.log("Calling...");
-    const secretKey = await getAccSecretFromRubyApi(signWith.email);
+  if (signWith && 'email' in signWith && secretKey) {
     buildTrx.sign(Keypair.fromSecret(secretKey));
     const xdr = buildTrx.toXDR();
     
@@ -398,10 +398,12 @@ export async function AcceptClaimableBalance({
   userPubKey,
   balanceId,
   signWith,
+  secretKey
 }: {
   userPubKey: string;
   balanceId: string;
   signWith: SignUserType ;
+  secretKey?: string | undefined
 }) {
   console.log("BalanceId", balanceId)
   const server = new Horizon.Server(STELLAR_URL);
@@ -420,9 +422,8 @@ export async function AcceptClaimableBalance({
       .setTimeout(0)
     const buildTrx = transaction.build();
 
-    if (signWith && "email" in signWith) {
+    if (signWith && "email" in signWith && secretKey) {
       console.log("Calling...");
-      const secretKey = await getAccSecretFromRubyApi(signWith.email);
       buildTrx.sign(Keypair.fromSecret(secretKey));
       const xdr = buildTrx.toXDR();
       const signedXDr = await WithSing({
@@ -447,11 +448,12 @@ export async function DeclineClaimableBalance({
   pubKey,
   balanceId,
   signWith,
-  
+  secretKey
 }: {
   pubKey: string;
   balanceId: string;
   signWith: SignUserType;
+  secretKey? : string | undefined
 }) {
   const server = new Horizon.Server(STELLAR_URL);
   const account = await server.loadAccount(pubKey);
@@ -468,9 +470,7 @@ export async function DeclineClaimableBalance({
     .setTimeout(0)
   const buildTrx = transaction.build();
 
-  if (signWith&& "email" in signWith) {
-    console.log("Calling...");
-    const secretKey = await getAccSecretFromRubyApi(signWith.email);
+  if (signWith&& "email" in signWith && secretKey) {
     buildTrx.sign(Keypair.fromSecret(secretKey));
     const xdr = buildTrx.toXDR();
     const signedXDr = await WithSing({
