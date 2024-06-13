@@ -256,7 +256,7 @@ export async function AddAssetTrustLine({
     
     const signedXDr = await WithSing({
       xdr: xdr,
-      signWith: signWith && "email" in signWith ? undefined : signWith,
+      signWith: signWith 
     });
     return { xdr: signedXDr, pubKey: userPubKey};
   }
@@ -427,7 +427,7 @@ export async function AcceptClaimableBalance({
       const xdr = buildTrx.toXDR();
       const signedXDr = await WithSing({
         xdr: xdr,
-        signWith: signWith && "email" in signWith ? undefined : signWith,
+        signWith: signWith 
       });
       return { xdr: signedXDr, pubKey: userPubKey };
     }
@@ -475,7 +475,7 @@ export async function DeclineClaimableBalance({
     const xdr = buildTrx.toXDR();
     const signedXDr = await WithSing({
       xdr: xdr,
-      signWith: signWith && "email" in signWith ? undefined : signWith,
+      signWith: signWith
     });
     return { xdr: signedXDr, pubKey: pubKey };
   }
