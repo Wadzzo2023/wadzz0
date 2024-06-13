@@ -47,7 +47,7 @@ export const WBalanceRouter = createTRPCRouter({
       const userPubKey = ctx.session.user.id;
       const user = ctx.session.user;
       let secretKey;
-      if(ctx.session.user.email){
+     if(ctx.session.user.email && ctx.session.user.email.length > 0){
         secretKey = await getAccSecretFromRubyApi(ctx.session.user.email)
       }
       console.log("SignWith", input.signWith)
@@ -81,8 +81,8 @@ export const WBalanceRouter = createTRPCRouter({
   ))
   .mutation(async ({ input, ctx }) => {
     const userPubKey = ctx.session.user.id;
-          let secretKey;
-      if(ctx.session.user.email){
+      let secretKey;
+      if(ctx.session.user.email && ctx.session.user.email.length > 0){
         secretKey = await getAccSecretFromRubyApi(ctx.session.user.email)
       }
     return await AddAssetTrustLine({ userPubKey: userPubKey,
@@ -124,7 +124,7 @@ getTransactionHistory: protectedProcedure.input(
   .mutation(async ({ input, ctx }) => {
     const userPubKey = ctx.session.user.id;
           let secretKey;
-      if(ctx.session.user.email){
+      if(ctx.session.user.email && ctx.session.user.email.length > 0){
         secretKey = await getAccSecretFromRubyApi(ctx.session.user.email)
       }
     return await AcceptClaimableBalance({ userPubKey: userPubKey, 
@@ -148,7 +148,7 @@ declineClaimBalance :protectedProcedure.input(
   .mutation(async ({ input, ctx }) => {
     const userPubKey = ctx.session.user.id;
           let secretKey;
-      if(ctx.session.user.email){
+        if(ctx.session.user.email && ctx.session.user.email.length > 0){
         secretKey = await getAccSecretFromRubyApi(ctx.session.user.email)
       }
     return await DeclineClaimableBalance({ 

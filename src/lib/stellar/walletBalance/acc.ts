@@ -251,6 +251,7 @@ export async function AddAssetTrustLine({
     .setTimeout(0)
   const buildTrx = transaction.build();
   if (signWith && 'email' in signWith && secretKey) {
+    console.log('Add TrustLine Calling...');
     buildTrx.sign(Keypair.fromSecret(secretKey));
     const xdr = buildTrx.toXDR();
     
