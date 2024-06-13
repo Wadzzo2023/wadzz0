@@ -33,7 +33,7 @@ import {
 
 import { Button } from "~/components/shadcn/ui/button";
 import { api } from "~/utils/api";
-import { Send } from "lucide-react";
+import { Loader2, Send } from "lucide-react";
 
 import { WalletType, clientsign } from "package/connect_wallet";
 import { useSession } from "next-auth/react";
@@ -292,7 +292,12 @@ const SendAssets = () => {
             </div>
             <DialogFooter className="px-6 py-4">
               <Button size="lg" variant="default" disabled={loading}>
-                <Send className="mr-2" size={15} /> SEND
+                {loading ? (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" size={20} />
+                ) : (
+                  <Send className="mr-2" size={15} />
+                )}
+                {loading ? "SENDING..." : "SEND"}
               </Button>
             </DialogFooter>
           </form>

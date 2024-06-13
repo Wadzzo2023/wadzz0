@@ -16,7 +16,7 @@ import {
 } from "~/components/shadcn/ui/form";
 import { Button } from "../shadcn/ui/button";
 import { Label } from "../shadcn/ui/label";
-import { Plus, ShieldPlus } from "lucide-react";
+import { Loader2, Plus, ShieldPlus } from "lucide-react";
 import { api } from "~/utils/api";
 import { useSession } from "next-auth/react";
 import toast from "react-hot-toast";
@@ -64,12 +64,12 @@ const AddTrustLine = () => {
               handleClose();
             } else {
               setLoading(false);
-              toast.error("Adding TrustLine Operation is failed");
+              toast.error("No Data Found on TrustLine Added Operation");
             }
           })
-          .catch(() => {
+          .catch((e) => {
             setLoading(false);
-            toast.error("Adding TrustLine Operation is failed");
+            toast.error(`Error: ${e}` || "Something went wrong.");
           });
       },
 
@@ -154,8 +154,12 @@ const AddTrustLine = () => {
                 variant="default"
                 className="shrink-0 font-bold "
               >
-                <Plus className="mr-2  font-bold" size={20} />
-                ADD
+                {loading ? (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" size={20} />
+                ) : (
+                  <Plus className="mr-2  font-bold" size={20} />
+                )}
+                {loading ? "ADDING..." : "ADD"}
               </Button>
             </div>
           </div>

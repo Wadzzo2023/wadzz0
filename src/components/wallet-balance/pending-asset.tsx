@@ -16,6 +16,7 @@ import toast from "react-hot-toast";
 import { cn } from "~/utils/utils";
 import useNeedSign from "~/lib/hook";
 import { clientSelect } from "~/lib/stellar/fan/utils";
+import { Skeleton } from "../shadcn/ui/skeleton";
 
 interface PendingAssetListProps {
   user: {
@@ -124,7 +125,17 @@ const PendingAssetList = ({
     });
   };
 
-  if (isLoading) return <div>Loading...</div>;
+  if (isLoading) {
+    return (
+      <div className="flex items-center space-x-4">
+        <Skeleton className="h-12 w-12 rounded-full" />
+        <div className="space-y-2">
+          <Skeleton className="h-4 w-[250px]" />
+          <Skeleton className="h-4 w-[200px]" />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div>

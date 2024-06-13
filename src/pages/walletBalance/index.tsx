@@ -19,6 +19,8 @@ import QRCode from "react-qr-code";
 import CopyToClip from "~/components/wallete/copy_to_Clip";
 import {} from "lucide-react";
 import { ViewfinderCircleIcon } from "@heroicons/react/24/solid";
+import Loading from "~/components/wallete/loading";
+import { clientSelect } from "~/lib/stellar/fan/utils";
 const Wallets = () => {
   const session = useSession();
   const { onOpen } = useModal();
@@ -26,7 +28,18 @@ const Wallets = () => {
     api.walletBalance.wallBalance.getNativeBalance.useQuery();
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    const x = clientSelect();
+    let text = "";
+    if (x === true) {
+      text = "Fetching Data From Test Net";
+    } else {
+      text = "Fetching Data From Main Net";
+    }
+    return (
+      <div className="">
+        <Loading text={text} />
+      </div>
+    );
   }
   if (!data) {
     return <div>No Data Available To Show</div>;
