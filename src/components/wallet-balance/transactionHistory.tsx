@@ -21,7 +21,7 @@ import { Skeleton } from "../shadcn/ui/skeleton";
 const BatchLimit = 10;
 
 const TransactionHistory = () => {
-  const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } =
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
     api.walletBalance.wallBalance.getTransactionHistory.useInfiniteQuery(
       {
         limit: BatchLimit,
@@ -41,17 +41,7 @@ const TransactionHistory = () => {
   };
 
   console.log("transactions", transactions); // Verify the transactions length and data here
-  if (isLoading) {
-    return (
-      <div className="flex items-center space-x-4">
-        <Skeleton className="h-12 w-12 rounded-full" />
-        <div className="space-y-2">
-          <Skeleton className="h-4 w-[250px]" />
-          <Skeleton className="h-4 w-[200px]" />
-        </div>
-      </div>
-    );
-  }
+
   return (
     <Card>
       <CardHeader>
