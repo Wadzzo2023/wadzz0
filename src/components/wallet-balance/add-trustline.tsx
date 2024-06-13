@@ -4,6 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 
 import { Input } from "~/components/shadcn/ui/input";
+import { clientSelect } from "~/lib/stellar/fan/utils";
 
 import {
   Form,
@@ -54,7 +55,7 @@ const AddTrustLine = () => {
           walletType: session?.data?.user?.walletType,
           presignedxdr: data.xdr,
           pubkey: data.pubKey,
-          test: data.test,
+          test: clientSelect(),
         })
           .then((data) => {
             if (data) {

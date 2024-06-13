@@ -200,9 +200,9 @@ export async function SendAssets({
       xdr: xdr,
       signWith: signWith && 'email' in signWith ? undefined : signWith,
     });
-    return { xdr: signedXDr, pubKey: userPubKey, test: true };
+    return { xdr: signedXDr, pubKey: userPubKey };
   }
-  return { xdr: buildTrx.toXDR(), pubKey: userPubKey, test: true };
+  return { xdr: buildTrx.toXDR(), pubKey: userPubKey};
 }
 
 export async function AddAssetTrustLine({
@@ -253,10 +253,10 @@ export async function AddAssetTrustLine({
       xdr: xdr,
       signWith: signWith && "email" in signWith ? undefined : signWith,
     });
-    return { xdr: signedXDr, pubKey: userPubKey, test: true };
+    return { xdr: signedXDr, pubKey: userPubKey};
   }
 
-  return { xdr: buildTrx.toXDR(), pubKey: userPubKey, test: true };
+  return { xdr: buildTrx.toXDR(), pubKey: userPubKey };
 }
 
 export async function RecentTransactionHistory({
@@ -424,10 +424,10 @@ export async function AcceptClaimableBalance({
         xdr: xdr,
         signWith: signWith && "email" in signWith ? undefined : signWith,
       });
-      return { xdr: signedXDr, pubKey: userPubKey, test: true };
+      return { xdr: signedXDr, pubKey: userPubKey };
     }
 
-    return { xdr: buildTrx.toXDR(), pubKey: userPubKey, test: true };
+    return { xdr: buildTrx.toXDR(), pubKey: userPubKey };
 
   } catch (error) {
     throw new Error("Error in accepting claimable balance");
@@ -472,9 +472,9 @@ export async function DeclineClaimableBalance({
       xdr: xdr,
       signWith: signWith && "email" in signWith ? undefined : signWith,
     });
-    return { xdr: signedXDr, pubKey: pubKey, test: true };
+    return { xdr: signedXDr, pubKey: pubKey };
   }
-  return { xdr: buildTrx.toXDR(), pubKey: pubKey, test: true };
+  return { xdr: buildTrx.toXDR(), pubKey: pubKey };
 }
 
 

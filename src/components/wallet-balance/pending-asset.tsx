@@ -15,6 +15,7 @@ import { type WalletType, clientsign } from "package/connect_wallet";
 import toast from "react-hot-toast";
 import { cn } from "~/utils/utils";
 import useNeedSign from "~/lib/hook";
+import { clientSelect } from "~/lib/stellar/fan/utils";
 
 interface PendingAssetListProps {
   user: {
@@ -52,7 +53,7 @@ const PendingAssetList = ({
           walletType: user?.walletType,
           presignedxdr: data.xdr,
           pubkey: data.pubKey,
-          test: data.test,
+          test: clientSelect(),
         })
           .then((result) => {
             if (result) {
@@ -91,7 +92,7 @@ const PendingAssetList = ({
           walletType: user?.walletType,
           presignedxdr: data.xdr,
           pubkey: data.pubKey,
-          test: data.test,
+          test: clientSelect(),
         })
           .then((result) => {
             if (result) {

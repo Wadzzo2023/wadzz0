@@ -40,6 +40,7 @@ import { useSession } from "next-auth/react";
 import { Toaster } from "react-hot-toast";
 import { useModal } from "../hooks/use-modal-store";
 import useNeedSign from "~/lib/hook";
+import { clientSelect } from "~/lib/stellar/fan/utils";
 
 const formSchema = z.object({
   recipientId: z.string().min(1, {
@@ -128,7 +129,7 @@ const SendAssets = () => {
           presignedxdr: data.xdr,
           walletType: session.data?.user?.walletType,
           pubkey: data.pubKey,
-          test: data.test,
+          test: clientSelect(),
         })
           .then((data) => {
             if (data) {
