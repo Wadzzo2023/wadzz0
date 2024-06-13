@@ -48,7 +48,11 @@ export async function NativeBalance({ userPub }: { userPub: string }) {
   const account = await server.loadAccount(userPub);
 
   const nativeBalance = account.balances.find(
-    (balance) => balance.asset_type === "native",
+     (balance) => {
+      if (balance.asset_type === 'native') {
+      return balance
+    }
+     }
   );
 
   return nativeBalance;
