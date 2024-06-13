@@ -25,8 +25,11 @@ const Wallets = () => {
   const { data, isLoading } =
     api.walletBalance.wallBalance.getNativeBalance.useQuery();
 
-  if (isLoading || !data) {
+  if (isLoading) {
     return <div>Loading...</div>;
+  }
+  if (!data) {
+    return <div>No Data Available To Show</div>;
   }
   if (!session?.data?.user?.id) {
     return <div>Public Key not found</div>;

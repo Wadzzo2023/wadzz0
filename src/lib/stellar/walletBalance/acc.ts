@@ -253,6 +253,7 @@ export async function AddAssetTrustLine({
     const secretKey = await getAccSecretFromRubyApi(signWith.email);
     buildTrx.sign(Keypair.fromSecret(secretKey));
     const xdr = buildTrx.toXDR();
+    
     const signedXDr = await WithSing({
       xdr: xdr,
       signWith: signWith && "email" in signWith ? undefined : signWith,
