@@ -34,12 +34,7 @@ export default function WBRightSideBar() {
   if (!session) return null;
   return (
     <Card>
-      <CardHeader className="pb-3">
-        <CardTitle>Add Asset</CardTitle>
-      </CardHeader>
       <CardContent>
-        <AddTrustLine />
-        <Separator className="my-4" />
         <Tabs defaultValue="asset">
           <TabsList className="w-full">
             <TabsTrigger className="w-full" value="asset">

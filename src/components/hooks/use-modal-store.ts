@@ -1,7 +1,7 @@
 
 import { create } from "zustand";
 
-export type ModalType = "send assets" | "receive assets";
+export type ModalType = "send assets" | "receive assets" | "add assets";
 
 interface ModalData {
     recipientId?: string;

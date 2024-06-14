@@ -350,8 +350,8 @@ export async function RecentTransactionHistory({
         ...record,
         parseDetails: {
           type: "changeTrust",
-          // asset: operations[0].asset.code,
-          // issuer: operations[0].asset.issuer,
+          //  asset: operations[0]?.asset?.code,
+           
           source: userPubKey,
           createdAt: record.created_at,
         },

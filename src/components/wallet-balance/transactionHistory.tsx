@@ -100,8 +100,14 @@ const TransactionHistory = () => {
                         {item.parseDetails.balanceId &&
                           addrShort(item.parseDetails.balanceId, 5)}
                       </TableCell>
+                    ) : item?.parseDetails?.type === "changeTrust" ? (
+                      <TableCell>
+                        {item.parseDetails.source &&
+                          addrShort(item.parseDetails.source, 5)}{" "}
+                        changed trustline
+                      </TableCell>
                     ) : (
-                      <TableCell>{item?.parseDetails?.type}</TableCell>
+                      <TableCell>{item.parseDetails.type}</TableCell>
                     )}
                   </TableRow>
                 ))}

@@ -41,6 +41,7 @@ import { Toaster } from "react-hot-toast";
 import { useModal } from "../hooks/use-modal-store";
 import useNeedSign from "~/lib/hook";
 import { clientSelect } from "~/lib/stellar/fan/utils";
+import { useRouter } from "next/navigation";
 
 const formSchema = z.object({
   recipientId: z.string().min(1, {
@@ -68,6 +69,7 @@ const SendAssets = () => {
   const { data } = api.walletBalance.wallBalance.getWalletsBalance.useQuery();
   const { needSign } = useNeedSign();
   const isModalOpen = isOpen && type === "send assets";
+  const router = useRouter();
 
   const form = useForm({
     resolver: zodResolver(formSchema),
@@ -133,18 +135,17 @@ const SendAssets = () => {
         })
           .then((data) => {
             if (data) {
-              setLoading(false);
               toast.success("Transaction successful");
-              handleClose();
             } else {
-              setLoading(false);
               toast.error("Transaction failed");
-              handleClose();
             }
           })
           .catch(() => {
-            setLoading(false);
             toast.error("Transaction failed");
+          })
+          .finally(() => {
+            setLoading(false);
+            handleClose();
           });
       },
       onError(error) {

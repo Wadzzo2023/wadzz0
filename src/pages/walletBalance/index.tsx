@@ -11,7 +11,7 @@ import {
 import WBRightSideBar from "~/components/wallet-balance/wb-right-sidebar";
 import { useSession } from "next-auth/react";
 
-import { HandIcon, Send } from "lucide-react";
+import { HandIcon, Plus, QrCode, Send } from "lucide-react";
 import { useModal } from "~/components/hooks/use-modal-store";
 import { api } from "~/utils/api";
 import TransactionHistory from "~/components/wallet-balance/transactionHistory";
@@ -94,46 +94,45 @@ const Wallets = () => {
   }
 
   return (
-    <div className=" min-h-screen overflow-hidden p-1  ">
-      <div className="flex items-center justify-between gap-4 sm:justify-between md:justify-between lg:justify-end">
-        <Button
-          variant={"default"}
-          className="m-3 p-3 font-bold"
-          onClick={() => onOpen("receive assets")}
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth="1.5"
-            stroke="currentColor"
-            className="mr-2 h-6 w-6"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              d="M7.5 3.75H6A2.25 2.25 0 0 0 3.75 6v1.5M16.5 3.75H18A2.25 2.25 0 0 1 20.25 6v1.5m0 9V18A2.25 2.25 0 0 1 18 20.25h-1.5m-9 0H6A2.25 2.25 0 0 1 3.75 18v-1.5M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
-            />
-          </svg>
-          RECEIVE ASSET
-        </Button>
-        <Button
-          variant="default"
-          className="m-3 p-3 font-bold"
-          onClick={() => onOpen("send assets")}
-        >
-          <Send size={15} className="mr-2 " /> SEND ASSETS
-        </Button>
-      </div>
+    <div className=" min-h-screen overflow-hidden p-1">
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="lg:col-span-2">
           <div className="space-y-4">
             <Card>
               <CardContent className="m-2 p-2">
-                <div className="flex flex-col items-center justify-center md:flex-row md:items-start md:justify-between">
-                  <div className="flex flex-col items-center justify-center md:items-start">
+                <div className="flex flex-col items-center justify-center md:flex-row md:items-center md:justify-between ">
+                  <div>
                     <CardTitle>Current Balance</CardTitle>
                     <h1 className="text-4xl font-bold">{data?.balance} XLM</h1>
+                  </div>
+                  <div className="mt-2 flex items-center justify-between gap-4 md:items-end lg:justify-end">
+                    <Button
+                      variant={"default"}
+                      size="sm"
+                      className="md:m-3 md:p-3 md:font-bold"
+                      onClick={() => onOpen("receive assets")}
+                    >
+                      <QrCode size={15} className="hidden md:mr-2 md:block " />
+                      RECEIVE ASSET
+                    </Button>
+                    <Button
+                      variant="default"
+                      size="sm"
+                      className="md:m-3 md:p-3 md:font-bold"
+                      onClick={() => onOpen("send assets")}
+                    >
+                      <Send size={15} className="hidden md:mr-2 md:block " />{" "}
+                      SEND ASSETS
+                    </Button>
+                    <Button
+                      variant="default"
+                      size="sm"
+                      className="md:m-3 md:p-3 md:font-bold"
+                      onClick={() => onOpen("add assets")}
+                    >
+                      <Plus size={15} className="hidden md:mr-2 md:block " />{" "}
+                      ADD ASSETS
+                    </Button>
                   </div>
                 </div>
               </CardContent>

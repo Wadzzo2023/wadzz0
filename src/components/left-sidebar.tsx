@@ -13,13 +13,13 @@ export const LeftNavigation = {
   WalletBalance: {
     path: "/walletBalance",
     icon: Wallet,
-    text: "WALLET BALANCE",
+    text: "MY WALLET",
   },
-  MyAssets: { path: "/assets", icon: Bell, text: "MY ASSETS" },
+  MyAssets: { path: "/assets", icon: Bell, text: "ASSET BALANCE" },
   // Search: { path: "/search", icon: Search, text: "Search" },
   // Music: { path: "/music", icon: Diamond, text: "MUSIC" },
   Marketplace: { path: "/marketplace", icon: Bell, text: "MARKETPLACE" },
-  Fan: { path: "/fans/home", icon: Bell, text: "BANDS" },
+  Fan: { path: "/fans/home", icon: Bell, text: "BRANDS" },
   Settings: { path: "/settings", icon: Settings2, text: "SETTINGS" },
 } as const;
 

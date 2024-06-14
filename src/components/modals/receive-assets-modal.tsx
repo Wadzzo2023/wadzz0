@@ -43,7 +43,7 @@ const ReceiveAssetsModal = () => {
               viewBox={`0 0 256 256`}
             />
             <h6 className="p-1 text-[10px] md:text-xs ">
-              {addrShort(session?.data?.user?.id, 15)}
+              {addrShort(session?.data?.user?.id, 10)}
             </h6>
 
             <CopyToClip text={session?.data?.user?.id} collapse={5} />
