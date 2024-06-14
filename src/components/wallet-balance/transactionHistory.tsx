@@ -107,7 +107,7 @@ const TransactionHistory = () => {
                         changed trustline
                       </TableCell>
                     ) : (
-                      <TableCell>{item.parseDetails.type}</TableCell>
+                      <TableCell>{item?.parseDetails?.type}</TableCell>
                     )}
                   </TableRow>
                 ))}
