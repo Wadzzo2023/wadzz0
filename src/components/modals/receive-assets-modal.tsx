@@ -10,6 +10,7 @@ import {
   DialogTitle,
 } from "~/components/shadcn/ui/dialog";
 import { useSession } from "next-auth/react";
+import { addrShort } from "~/utils/utils";
 const ReceiveAssetsModal = () => {
   const { isOpen, onClose, type } = useModal();
   const session = useSession();
@@ -41,8 +42,8 @@ const ReceiveAssetsModal = () => {
               value={session?.data?.user?.id}
               viewBox={`0 0 256 256`}
             />
-            <h6 className="p-1 text-[10px] md:text-xs">
-              {session?.data?.user?.id}
+            <h6 className="p-1 text-[10px] md:text-xs ">
+              {addrShort(session?.data?.user?.id, 15)}
             </h6>
 
             <CopyToClip text={session?.data?.user?.id} collapse={5} />

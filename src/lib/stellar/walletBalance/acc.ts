@@ -78,6 +78,7 @@ export async function BalanceWithHomeDomain({
           if (issuerAccount.home_domain) {
             return {
               ...balance,
+              amount : balance.balance < "0.0000001" ? "0" : balance.balance,
               home_domain: issuerAccount.home_domain,
               asset_code: balance.asset_code,
               asset_issuer: balance.asset_issuer,
@@ -87,6 +88,7 @@ export async function BalanceWithHomeDomain({
           else {
             return {
               ...balance,
+              amount : balance.balance < "0.0000001" ? "0" : balance.balance,
               home_domain: null,
               asset_code: balance.asset_code,
               asset_issuer: balance.asset_issuer,
@@ -97,6 +99,7 @@ export async function BalanceWithHomeDomain({
           return {
             ...balance,
             home_domain: null,
+             amount : balance.balance < "0.0000001" ? "0" : balance.balance,
             asset_code: balance.asset_code,
             asset_issuer: balance.asset_issuer,
           }
@@ -106,6 +109,7 @@ export async function BalanceWithHomeDomain({
         return {
           ...balance,
           home_domain: null,
+           amount : balance.balance < "0.0000001" ? "0" : balance.balance,
           asset_code: "XLM",
           asset_issuer: "native",
 
