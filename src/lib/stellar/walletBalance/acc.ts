@@ -155,8 +155,8 @@ export async function SendAssets({
   if (!accBalance || parseFloat(accBalance.balance) < amount) {
     throw new Error('Balance is not enough to send the asset.');
   }
-
-  const hasTrust = account.balances.find((balance) => {
+  const receiverAccount = await server.loadAccount(recipientId);
+  const hasTrust = receiverAccount.balances.find((balance) => {
     if (balance.asset_type === 'credit_alphanum4' || balance.asset_type === 'credit_alphanum12') {
       return balance.asset_code === asset_code && balance.asset_issuer === asset_issuer;
     }
