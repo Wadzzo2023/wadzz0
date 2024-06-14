@@ -365,31 +365,37 @@ export async function PendingAssetList({
   console.log("Pending", pendingItems.records);
   const currentTime = Math.floor(Date.now() / 1000); // Current time in seconds since epoch
 
-  const parsedItems = pendingItems.records.map((record) => {
-    const isExpired = record.claimants.some((claimant) => {
-      const absBefore = claimant?.predicate?.abs_before;
-      const notAbsBefore = claimant?.predicate?.not?.abs_before;
-      if (absBefore) {
-        return currentTime >= new Date(absBefore).getTime() / 1000;
-      } else if (notAbsBefore) {
-        return currentTime < new Date(notAbsBefore).getTime() / 1000;
-      }
-      return false;
-    });
+  const parsedItems = pendingItems.records
+    .filter((record) => {
+      // Filter records to include only those with both types of claimants
+      const hasAbsBefore = record.claimants.some((claimant) => claimant?.predicate?.abs_before);
+      const hasNotAbsBefore = record.claimants.some((claimant) => claimant?.predicate?.not?.abs_before);
+      return hasAbsBefore && hasNotAbsBefore;
+    })
+    .map((record) => {
+      const isExpired = record.claimants.some((claimant) => {
+        const absBefore = claimant?.predicate?.abs_before;
+        const notAbsBefore = claimant?.predicate?.not?.abs_before;
+        if (absBefore) {
+          return currentTime >= new Date(absBefore).getTime() / 1000;
+        } else if (notAbsBefore) {
+          return currentTime < new Date(notAbsBefore).getTime() / 1000;
+        }
+        return false;
+      });
 
-    return {
-      id: record.id,
-      asset: record.asset,
-      amount: record.amount,
-      sponsor: record.sponsor ?? '', // Ensure sponsor is always a string
-      claimants: record.claimants,
-      isExpired: !!isExpired,
-    };
-  });
+      return {
+        id: record.id,
+        asset: record.asset,
+        amount: record.amount,
+        sponsor: record.sponsor ?? '', // Ensure sponsor is always a string
+        claimants: record.claimants,
+        isExpired: !!isExpired,
+      };
+    });
 
   return parsedItems;
 }
-
 
 export async function AcceptClaimableBalance({
   userPubKey,

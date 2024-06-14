@@ -6,12 +6,9 @@ import {
   AvatarImage,
 } from "~/components/shadcn/ui/avatar";
 import { Button } from "~/components/shadcn/ui/button";
-
 import { Separator } from "~/components/shadcn/ui/separator";
 import { api } from "~/utils/api";
-
 import { type WalletType, clientsign } from "package/connect_wallet";
-
 import toast from "react-hot-toast";
 import { cn } from "~/utils/utils";
 import useNeedSign from "~/lib/hook";
@@ -35,9 +32,10 @@ const PendingAssetList = ({
   setLoading,
   loading,
 }: PendingAssetListProps) => {
-  const { data, isLoading } =
+  const { data, isLoading, isError } =
     api.walletBalance.wallBalance.getPendingAssetList.useQuery();
   console.log("getPendingAssetList", data);
+
   const formatAsset = (asset: string) => {
     const parts = asset.split(":");
     if (parts.length > 1) {
@@ -46,7 +44,9 @@ const PendingAssetList = ({
     }
     return asset.toUpperCase();
   };
+
   const { needSign } = useNeedSign();
+
   const AcceptClaimMutation =
     api.walletBalance.wallBalance.claimBalance.useMutation({
       onSuccess(data) {
@@ -111,7 +111,7 @@ const PendingAssetList = ({
       },
 
       onError(error) {
-        toast.error(error.message);
+        toast.error("Decline Claim Balance failed");
         setLoading(false);
       },
     });
@@ -135,6 +135,10 @@ const PendingAssetList = ({
         </div>
       </div>
     );
+  }
+
+  if (isError) {
+    return <div>Error loading pending assets. Please try again later.</div>;
   }
 
   return (
@@ -203,7 +207,9 @@ const PendingAssetList = ({
                         onClick={() => handleDecline(balance.id)}
                         size="sm"
                         variant="link"
-                        className={cn(`${isRecipient ? "" : "hidden"}`)}
+                        className={cn(
+                          `${(isRecipient && !isExpired) || isSender ? "" : "hidden"}`,
+                        )}
                         disabled={loading}
                       >
                         Decline

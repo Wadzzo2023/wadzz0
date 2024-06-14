@@ -60,11 +60,11 @@ const AddTrustLine = () => {
           .then((data) => {
             if (data) {
               setLoading(false);
-              toast.success("TrustLine Added successful");
+              toast.success("Added trustline successfully");
               handleClose();
             } else {
               setLoading(false);
-              toast.error("No Data Found on TrustLine Added Operation");
+              toast.error("No Data Found at TrustLine Operation");
             }
           })
           .catch((e) => {
