@@ -151,8 +151,17 @@ const PendingAssetList = ({
           ) : (
             data?.map((balance, idx) => {
               const isRecipient = balance?.claimants?.some(
-                (claimant) => claimant.destination === user.id,
+                (claimant) =>
+                  claimant.destination === user.id &&
+                  !claimant?.predicate?.not?.abs_before,
               );
+              const isSender = balance?.claimants?.some(
+                (claimant) =>
+                  claimant.destination === user.id &&
+                  claimant?.predicate?.not?.abs_before,
+              );
+              const isExpired = balance?.isExpired;
+
               return (
                 <div
                   key={`${balance?.asset}-${idx}`}
@@ -187,6 +196,9 @@ const PendingAssetList = ({
                         onClick={() => handleAccept(balance.id)}
                         size="sm"
                         variant="link"
+                        className={cn(
+                          `${(isRecipient && !isExpired) || isSender ? "" : "hidden"}`,
+                        )}
                         disabled={loading}
                       >
                         Claim Tokens
@@ -195,6 +207,9 @@ const PendingAssetList = ({
                         onClick={() => handleDecline(balance.id)}
                         size="sm"
                         variant="link"
+                        className={cn(
+                          `${(isRecipient && !isExpired) || isSender ? "" : "hidden"}`,
+                        )}
                         disabled={loading}
                       >
                         Decline

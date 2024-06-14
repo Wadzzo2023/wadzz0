@@ -1,9 +1,10 @@
-import { Asset, BASE_FEE, Claimant, Keypair, Networks, Operation, Transaction, TransactionBuilder, xdr } from "@stellar/stellar-sdk";
+import { Asset, BASE_FEE, Claimant, Keypair, Networks, Operation, Transaction, TransactionBuilder } from "@stellar/stellar-sdk";
 import { STELLAR_URL } from "./constant";
+
 import { Horizon } from "@stellar/stellar-sdk";
-
-import {  type SignUserType, WithSing } from "../utils";
-
+import { StellarAccount } from "../marketplace/test/Account";
+import {  SignUserType, WithSing } from "../utils";
+import { getAccSecretFromRubyApi } from "package/connect_wallet/src/lib/stellar/get-acc-secret";
 
 export type Balances = (
   | Horizon.HorizonApi.BalanceLineNative
@@ -29,8 +30,17 @@ interface PendingClaimableBalance {
   id: string;
   asset: string;
   amount: string;
-
-  claimants: Horizon.HorizonApi.Claimant[];
+  sponsor: string;
+  claimants: Array<{
+    destination: string;
+    predicate: {
+      abs_before?: string;
+      not?: {
+        abs_before?: string;
+      };
+    };
+  }>;
+  isExpired: boolean;
 }
 export async function NativeBalance({ userPub }: { userPub: string }) {
   const server = new Horizon.Server(STELLAR_URL);
@@ -120,63 +130,59 @@ export async function SendAssets({
   secretKey,
 }: {
   userPubKey: string;
-  recipientId: string;
-  amount: number;
-  asset_code: string;
-  asset_type: string;
-  asset_issuer: string;
-  signWith: SignUserType;
-  secretKey?: string | undefined;
-}) {
-  const server = new Horizon.Server(STELLAR_URL);
 
-  // Load sender's account
+    recipientId: string;
+    amount: number;
+    asset_code: string;
+    asset_type: string;
+    asset_issuer: string;
+    signWith: SignUserType ;
+    secretKey?: string | undefined
+  }) {
+
+  const server = new Horizon.Server(STELLAR_URL);
   const account = await server.loadAccount(userPubKey);
 
-  // Check sender's balance
   const accBalance = account.balances.find((balance) => {
-    if (balance.asset_type === 'native') {
-      return balance.asset_type === asset_type;
-    } else if (balance.asset_type === 'credit_alphanum4' || balance.asset_type === 'credit_alphanum12') {
+    if (balance.asset_type === 'credit_alphanum4' || balance.asset_type === 'credit_alphanum12') {
       return balance.asset_code === asset_code;
+    } else if (balance.asset_type === 'native') {
+      return balance.asset_type === asset_type;
     }
     return false;
   });
-
+  console.log('accBalance', accBalance);
   if (!accBalance || parseFloat(accBalance.balance) < amount) {
     throw new Error('Balance is not enough to send the asset.');
   }
-
-  // Load recipient's account to check trustline
   const receiverAccount = await server.loadAccount(recipientId);
   const hasTrust = receiverAccount.balances.find((balance) => {
-    if (balance.asset_type === 'native') {
-      return balance.asset_type === asset_type;
-    } else if (balance.asset_type === 'credit_alphanum4' || balance.asset_type === 'credit_alphanum12') {
+    if (balance.asset_type === 'credit_alphanum4' || balance.asset_type === 'credit_alphanum12') {
       return balance.asset_code === asset_code && balance.asset_issuer === asset_issuer;
+    }
+    else if (balance.asset_type === 'native') {
+      return balance.asset_type === asset_type;
     }
     return false;
   });
-
-  // Define the asset
+  
   const asset = asset_type === 'native' ? Asset.native() : new Asset(asset_code, asset_issuer);
 
-  // Prepare claimants and predicate for claimable balance
-  const pred : xdr.ClaimPredicate = Claimant.predicateUnconditional();
-  const claimants: Claimant[] = [
-    new Claimant(recipientId, pred),
-    new Claimant(userPubKey, pred),
-   
-  ];
+  const soon = Math.ceil(Date.now() / 1000 + 60);
+  const bCanClaim = Claimant.predicateBeforeRelativeTime('600'); // 300 seconds (5 minutes)
+  const aCanReclaim = Claimant.predicateNot(Claimant.predicateBeforeAbsoluteTime(soon.toString()));
 
-  // Build transaction
   const transaction = new TransactionBuilder(account, {
     fee: BASE_FEE.toString(),
     networkPassphrase: Networks.TESTNET,
   });
 
-  // Add operation based on whether recipient has trustline
   if (!hasTrust && asset_type !== 'native') {
+    const claimants: Claimant[] = [
+      new Claimant(recipientId, bCanClaim),
+      new Claimant(userPubKey, aCanReclaim),
+    ];
+
     transaction.addOperation(
       Operation.createClaimableBalance({
         amount: amount.toString(),
@@ -184,7 +190,7 @@ export async function SendAssets({
         claimants: claimants,
       })
     );
-  } else {
+  } else  {
     transaction.addOperation(
       Operation.payment({
         destination: recipientId,
@@ -196,20 +202,19 @@ export async function SendAssets({
 
   transaction.setTimeout(0);
 
-  // Sign and return transaction XDR
   const buildTrx = transaction.build();
 
   if (signWith && 'email' in signWith && secretKey) {
     const xdr = buildTrx.toXDR();
     const signedXDr = await WithSing({
       xdr: xdr,
-      signWith: signWith,
+      signWith: signWith 
     });
     return { xdr: signedXDr, pubKey: userPubKey };
   }
-
-  return { xdr: buildTrx.toXDR(), pubKey: userPubKey };
+  return { xdr: buildTrx.toXDR(), pubKey: userPubKey};
 }
+
 export async function AddAssetTrustLine({
   userPubKey,
   asset_code,
@@ -366,29 +371,38 @@ export async function PendingAssetList({
 
   const pendingItems = await server.claimableBalances().claimant(userPubKey).call();
   console.log("Pending", pendingItems.records);
+  const currentTime = Math.floor(Date.now() / 1000); // Current time in seconds since epoch
 
-  const record = pendingItems.records.filter((item) => {
-    let claimantOne 
-    let claimantTwo
-    item.claimants.filter((claimant) => {
-      if (claimant.destination === userPubKey) {
-        claimantOne = claimant.destination
-      }
-      else {
-        claimantTwo = claimant.destination
-      }
-    }
-    )
-    return claimantOne && claimantTwo
-  }).map((item) => {
-    return {
-      id: item.id,
-      asset: item.asset,
-      amount: item.amount,
-      claimants: item.claimants,
-    };
-  });
-  return record
+  const parsedItems = pendingItems.records
+    .filter((record) => {
+      // Filter records to include only those with both types of claimants
+      const hasAbsBefore = record.claimants.some((claimant) => claimant?.predicate?.abs_before);
+      const hasNotAbsBefore = record.claimants.some((claimant) => claimant?.predicate?.not?.abs_before);
+      return hasAbsBefore && hasNotAbsBefore;
+    })
+    .map((record) => {
+      const isExpired = record.claimants.some((claimant) => {
+        const absBefore = claimant?.predicate?.abs_before;
+        const notAbsBefore = claimant?.predicate?.not?.abs_before;
+        if (absBefore) {
+          return currentTime >= new Date(absBefore).getTime() / 1000;
+        } else if (notAbsBefore) {
+          return currentTime < new Date(notAbsBefore).getTime() / 1000;
+        }
+        return false;
+      });
+
+      return {
+        id: record.id,
+        asset: record.asset,
+        amount: record.amount,
+        sponsor: record.sponsor ?? '', // Ensure sponsor is always a string
+        claimants: record.claimants,
+        isExpired: !!isExpired,
+      };
+    });
+
+  return parsedItems;
 }
 
 export async function AcceptClaimableBalance({
