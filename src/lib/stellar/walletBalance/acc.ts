@@ -367,15 +367,27 @@ export async function PendingAssetList({
   const pendingItems = await server.claimableBalances().claimant(userPubKey).call();
   console.log("Pending", pendingItems.records);
 
-  const record = pendingItems.records.map((record) => {
-    return {
-      id: record.id,
-      asset: record.asset,
-      amount: record.amount,
-      claimants: record.claimants,
+  const record = pendingItems.records.filter((item) => {
+    let claimantOne 
+    let claimantTwo
+    item.claimants.filter((claimant) => {
+      if (claimant.destination === userPubKey) {
+        claimantOne = claimant.destination
+      }
+      else {
+        claimantTwo = claimant.destination
+      }
     }
-  })
-
+    )
+    return claimantOne && claimantTwo
+  }).map((item) => {
+    return {
+      id: item.id,
+      asset: item.asset,
+      amount: item.amount,
+      claimants: item.claimants,
+    };
+  });
   return record
 }
 
