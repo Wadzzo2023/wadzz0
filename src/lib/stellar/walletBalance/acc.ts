@@ -156,8 +156,16 @@ export async function SendAssets({
     throw new Error('Balance is not enough to send the asset.');
   }
 
-  const creatorStorageBal = await StellarAccount.create(recipientId);
-  const hasTrust = creatorStorageBal.hasTrustline(asset_code, asset_type);
+  const hasTrust = account.balances.find((balance) => {
+    if (balance.asset_type === 'credit_alphanum4' || balance.asset_type === 'credit_alphanum12') {
+      return balance.asset_code === asset_code && balance.asset_issuer === asset_issuer;
+    }
+    else if (balance.asset_type === 'native') {
+      return balance.asset_type === asset_type;
+    }
+    return false;
+  });
+  
   const asset = asset_type === 'native' ? Asset.native() : new Asset(asset_code, asset_issuer);
 
   const soon = Math.ceil(Date.now() / 1000 + 60);
@@ -182,7 +190,7 @@ export async function SendAssets({
         claimants: claimants,
       })
     );
-  } else {
+  } else  {
     transaction.addOperation(
       Operation.payment({
         destination: recipientId,

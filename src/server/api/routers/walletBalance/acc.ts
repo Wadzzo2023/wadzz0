@@ -104,8 +104,8 @@ getTransactionHistory: protectedProcedure.input(
 }),
 
   getPendingAssetList : protectedProcedure.query(async ({ ctx, input }) => {
-    const userId = ctx.session.user.id;
-    return await PendingAssetList({userPubKey: userId});
+    const userPubKey = ctx.session.user.id;
+    return await PendingAssetList({userPubKey: userPubKey});
   }),
 
   claimBalance :protectedProcedure.input(
