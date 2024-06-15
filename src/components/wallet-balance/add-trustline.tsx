@@ -62,6 +62,10 @@ const AddTrustLine = () => {
           .then((data) => {
             if (data) {
               toast.success("Added trustline successfully");
+              api
+                .useUtils()
+                .walletBalance.wallBalance.getWalletsBalance.refetch()
+                .catch(() => console.log("Error refetching balance"));
             } else {
               toast.error("No Data Found at TrustLine Operation");
             }

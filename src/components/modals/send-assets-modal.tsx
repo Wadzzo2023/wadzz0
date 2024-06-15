@@ -136,12 +136,21 @@ const SendAssets = () => {
           .then((data) => {
             if (data) {
               toast.success("Transaction successful");
+              api
+                .useUtils()
+                .walletBalance.wallBalance.getWalletsBalance.refetch()
+                .catch(() => console.log("Error refetching balance"));
+
+              api
+                .useUtils()
+                .walletBalance.wallBalance.getNativeBalance.refetch()
+                .catch(() => console.log("Error refetching balance"));
             } else {
               toast.error("Transaction failed");
             }
           })
-          .catch(() => {
-            toast.error("Transaction failed");
+          .catch((e) => {
+            toast.error(`Error: ${e}` || "Something went wrong.");
           })
           .finally(() => {
             setLoading(false);

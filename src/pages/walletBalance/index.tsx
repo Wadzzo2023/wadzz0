@@ -31,7 +31,6 @@ const Wallets = () => {
   const { onOpen } = useModal();
   const { data, isLoading } =
     api.walletBalance.wallBalance.getNativeBalance.useQuery();
-
   if (!session.data) {
     return <div>Session not found</div>;
   }
