@@ -95,6 +95,8 @@ export const pinRouter = createTRPCRouter({
     const pins = await ctx.db.location.findMany({
       where: {
         creatorId: ctx.session.user.id,
+        endDate: { gte: new Date() },
+        approved: { equals: true },
       },
     });
 
