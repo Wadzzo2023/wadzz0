@@ -5,6 +5,7 @@ export enum AdminNavigation {
   NFT = "nft",
   ALBUM = "album",
   ADMIN = "admin",
+  PINS = "pins",
 }
 
 interface MarketMenurState {

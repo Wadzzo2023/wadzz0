@@ -2,6 +2,7 @@ import { z } from "zod";
 import { createPinFormSchema } from "~/components/maps/modals/create-pin";
 
 import {
+  adminProcedure,
   createTRPCRouter,
   creatorProcedure,
   protectedProcedure,
@@ -99,4 +100,36 @@ export const pinRouter = createTRPCRouter({
 
     return pins;
   }),
+
+  getPins: adminProcedure.query(async ({ ctx, input }) => {
+    const pins = await ctx.db.location.findMany({
+      where: { approved: { equals: undefined }, endDate: { gte: new Date() } },
+      orderBy: { createdAt: "desc" },
+    });
+
+    return pins;
+  }),
+
+  getPinsGrops: adminProcedure.query(async ({ ctx }) => {
+    const pins = await ctx.db.locationGroup.findMany({
+      include: { locations: true },
+    });
+
+    return pins;
+  }),
+
+  approvePins: adminProcedure
+    .input(z.object({ pins: z.array(z.number()), approved: z.boolean() }))
+    .mutation(async ({ ctx, input }) => {
+      await ctx.db.location.updateMany({
+        where: {
+          id: {
+            in: input.pins,
+          },
+        },
+        data: {
+          approved: input.approved,
+        },
+      });
+    }),
 });
