@@ -1,4 +1,5 @@
 import { useSession } from "next-auth/react";
+import Link from "next/link";
 import { WalletType } from "package/connect_wallet/src/lib/enums";
 import { useUserStellarAcc } from "~/lib/state/wallete/stellar-balances";
 import { PLATFROM_ASSET } from "~/lib/stellar/fan/constant";
@@ -25,20 +26,21 @@ export function SiteAssetBalance() {
   const isFBorGoogle =
     walletType == WalletType.facebook ||
     walletType == WalletType.google ||
-    walletType == WalletType.emailPass;
+    walletType == WalletType.emailPass ||
+    walletType == WalletType.apple;
 
   if (walletType == WalletType.none) return null;
   if (bal.isLoading) return <div className="skeleton h-10 w-48"></div>;
-  if (!bal.isSuccess)
-    return (
-      <div className="flex h-10 w-48 items-center justify-center rounded-2xl bg-error text-white">
-        Pubkey Not Active
-      </div>
-    );
+  // if (!bal.isSuccess)
+  //   return (
+  //     <div className="flex h-10 w-48 items-center justify-center rounded-2xl bg-error text-white">
+  //       Pubkey Not Active
+  //     </div>
+  //   );
   return (
-    <div
+    <Link
       className="btn  border-0 "
-      // href={isFBorGoogle ? "/recharge" : "/"}
+      href={isFBorGoogle ? "/recharge" : "/"}
       // href="/recharge"
     >
       <div className="flex flex-col">
@@ -47,7 +49,7 @@ export function SiteAssetBalance() {
           {bal.data?.platformAssetBal}
         </p>
       </div>
-    </div>
+    </Link>
   );
 }
 
