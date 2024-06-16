@@ -1,3 +1,4 @@
+import { Plus } from "lucide-react";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { WalletType } from "package/connect_wallet/src/lib/enums";
@@ -44,9 +45,10 @@ export function SiteAssetBalance() {
       // href="/recharge"
     >
       <div className="flex flex-col">
-        <p className="flex flex-row text-xs md:text-sm">
-          <span className="hidden md:flex">{PLATFROM_ASSET.code} :</span>{" "}
-          {bal.data?.platformAssetBal}
+        <p className="flex flex-row items-center text-xs md:text-sm">
+          <span className="hidden md:flex">{PLATFROM_ASSET.code} : </span>
+          {"  " + bal.data?.platformAssetBal}
+          {/* <Plus className="btn btn-square btn-primary btn-sm -mr-4 " /> */}
         </p>
       </div>
     </Link>
