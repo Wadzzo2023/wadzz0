@@ -53,7 +53,7 @@ export default function PinsList() {
         </thead>
         <tbody>
           {pins.data.map((pin) => (
-            <tr>
+            <tr key={pin.id}>
               <th>
                 <label>
                   <input
@@ -172,7 +172,7 @@ function AccordionList({
             </thead>
             <tbody>
               {pins.map((pin) => (
-                <tr>
+                <tr key={pin.id}>
                   <th>
                     <label>
                       <input
