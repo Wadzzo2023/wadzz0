@@ -49,7 +49,7 @@ const Wallets = () => {
     );
   }
 
-  if (!data) {
+  if (!data?.balance) {
     return (
       <div className="flex flex-col items-center justify-center  md:p-8">
         <div className="space-y-6">
