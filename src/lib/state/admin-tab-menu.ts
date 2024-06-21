@@ -6,6 +6,7 @@ export enum AdminNavigation {
   ALBUM = "album",
   ADMIN = "admin",
   PINS = "pins",
+  CREATORS = "creators",
 }
 
 interface MarketMenurState {

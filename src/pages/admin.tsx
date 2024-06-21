@@ -1,6 +1,7 @@
 import React from "react";
 import AddAdmin from "~/components/admin/add_admin";
 import AdminsList from "~/components/admin/admins";
+import CreatorPage from "~/components/admin/creator/page";
 import Pins from "~/components/admin/pins";
 import NftCreate from "~/components/marketplace/nft_create";
 import AlbumCreate from "~/components/music/modal/album_create";
@@ -27,7 +28,7 @@ function RenderTabs() {
   switch (selectedMenu) {
     case AdminNavigation.WALLET:
       return (
-        <div className="max-w-xl">
+        <div className="m-auto max-w-xl">
           <MintedItemAdd />
         </div>
       );
@@ -56,6 +57,8 @@ function RenderTabs() {
       );
     case AdminNavigation.PINS:
       return <Pins />;
+    case AdminNavigation.CREATORS:
+      return <CreatorPage />;
   }
 }
 
