@@ -134,4 +134,15 @@ export const pinRouter = createTRPCRouter({
         },
       });
     }),
+
+  getConsumedLocated: protectedProcedure.query(async ({ ctx }) => {
+    const userId = ctx.session.user.id;
+    const consumedLocations = await ctx.db.locationConsumer.findMany({
+      where: {
+        userId,
+      },
+      include: { location: true },
+    });
+    return consumedLocations;
+  }),
 });

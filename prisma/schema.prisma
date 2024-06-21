@@ -442,7 +442,7 @@ model Location {
 
     claimAmount Float? // how much token each person will claim. if null then it is free
 
-    isActive Boolean
+    isActive Boolean // just an field
     image    String?
 
     limit Int // how many person can claim the Location / pin
