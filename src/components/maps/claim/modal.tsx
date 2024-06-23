@@ -40,7 +40,7 @@ export default function ClaimPinModal({ location }: ClaimModalProps) {
     }
   }
 
-  if (location.assetId || location.claimAmount) return <p>Not Claimable</p>;
+  if (location.assetId ?? location.claimAmount) return <p>Not Claimable</p>;
 
   return (
     <>
@@ -69,8 +69,6 @@ export default function ClaimPinModal({ location }: ClaimModalProps) {
       </button>
     </>
   );
-
-  function Erros() {}
 
   function Buy() {
     return (
