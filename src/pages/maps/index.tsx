@@ -10,6 +10,7 @@ import React, { useState } from "react";
 import { Avatar, Loading } from "react-daisyui";
 import toast from "react-hot-toast";
 import CreatePinModal from "~/components/maps/modals/create-pin";
+// import { PlacesAutocomplete } from "~/components/maps/place";
 import { useCreatorStorageAcc } from "~/lib/state/wallete/stellar-balances";
 import { api } from "~/utils/api";
 
@@ -44,6 +45,7 @@ function App() {
 
   return (
     <APIProvider apiKey={"AIzaSyDoSm4IfpYtHLnCBnXsH6f47t6hLdAnyao"}>
+      {/* <PlacesAutocomplete /> */}
       <Map
         onClick={handleMapClick}
         // center={position}
