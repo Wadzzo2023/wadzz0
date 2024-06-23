@@ -77,15 +77,18 @@ function MyPins() {
             position={{ lat: pin.latitude, lng: pin.longitude }}
             onClick={() => toast.success(pin.title)}
           >
-            {/* <span className="tree">🌳</span> */}
-            <span>
-              <Image
-                src="/favicon.ico"
-                width={30}
-                height={30}
-                alt="vong cong"
-              />
-            </span>
+            {pin._count.consumers < pin.limit ? (
+              <span className="tree">🌳</span>
+            ) : (
+              <span>
+                <Image
+                  src="/favicon.ico"
+                  width={30}
+                  height={30}
+                  alt="vong cong"
+                />
+              </span>
+            )}
           </AdvancedMarker>
         ))}
       </>

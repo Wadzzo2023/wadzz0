@@ -49,6 +49,7 @@ export const pinRouter = createTRPCRouter({
           },
         });
       } else {
+        if (!pinNumber) throw new Error("Pin number is required");
         let claimAmount: number;
         if (totalTokenAmount) {
           const amountPerPin = totalTokenAmount / pinNumber;
@@ -98,6 +99,7 @@ export const pinRouter = createTRPCRouter({
         endDate: { gte: new Date() },
         approved: { equals: true },
       },
+      include: { _count: { select: { consumers: true } } },
     });
 
     return pins;
