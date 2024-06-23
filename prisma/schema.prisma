@@ -244,6 +244,8 @@ model User {
     image         String?
     emailVerified DateTime?
 
+    joinedAt DateTime? @default(now())
+
     accounts         Account[]
     sessions         Session[]
     creator          Creator?
