@@ -3,11 +3,10 @@ import {
   AdvancedMarker,
   Map,
   MapMouseEvent,
-  Marker,
 } from "@vis.gl/react-google-maps";
 import Image from "next/image";
 import React, { useState } from "react";
-import { Avatar, Loading } from "react-daisyui";
+import { Loading } from "react-daisyui";
 import toast from "react-hot-toast";
 import CreatePinModal from "~/components/maps/modals/create-pin";
 // import { PlacesAutocomplete } from "~/components/maps/place";

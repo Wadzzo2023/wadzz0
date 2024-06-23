@@ -29,10 +29,10 @@ export const createPinFormSchema = z.object({
   autoCollect: z.boolean(),
   token: z.number().optional(),
   tokenAmount: z.number().nonnegative().optional(), // if it optional then no token selected
-  pinNumber: z.number().nonnegative().min(2),
+  pinNumber: z.number().nonnegative().min(2).optional(),
   radius: z.number().nonnegative().default(10),
   pinCollectionLimit: z.number().min(0),
-  isSinglePin: z.boolean(),
+  isSinglePin: z.boolean().default(true),
 });
 
 export default function CreatePinModal({
@@ -64,6 +64,7 @@ export default function CreatePinModal({
     defaultValues: {
       lat: position?.lat,
       lng: position?.lng,
+      isSinglePin: true,
     },
     mode: "onTouched",
   });
@@ -433,6 +434,7 @@ export default function CreatePinModal({
   }
 
   function AssetTypeTab() {
+    const pageAsset = assets.data?.pageAsset;
     return (
       <div role="tablist" className="tabs-boxed tabs max-w-xs">
         <a
