@@ -81,7 +81,6 @@ export const authOptions: NextAuthOptions = {
       type: "credentials",
       credentials: {},
       async authorize(credentials): Promise<User | null> {
-        // console.log("...vong..");
         const cred = credentials as AuthCredentialType;
 
         // email pass login
@@ -135,7 +134,8 @@ export const authOptions: NextAuthOptions = {
         // provider logins
         if (
           cred.walletType == WalletType.google ||
-          cred.walletType == WalletType.facebook
+          cred.walletType == WalletType.facebook ||
+          cred.walletType == WalletType.apple
         ) {
           const { token, email } = cred;
           const uid = await verifyIdToken(token);
