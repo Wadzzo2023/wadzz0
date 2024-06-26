@@ -18,6 +18,7 @@ export default function About() {
         </div>
       </div>
     );
+  else return <p className="text-error">no user</p>;
 }
 
 export const UserAboutShema = z.object({

@@ -34,6 +34,7 @@ function MarketTabs() {
   return (
     <div role="tablist" className="tabs-boxed tabs my-5 ">
       {Object.values(MarketMenu).map((key) => {
+        if (key == MarketMenu.Music) return null; // for wadzzo
         return (
           <a
             key={key}

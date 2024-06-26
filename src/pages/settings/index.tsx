@@ -24,8 +24,8 @@ function RenderTabs() {
   switch (selectedMenu) {
     case SettingsMenu.Basic:
       return <About />;
-    case SettingsMenu.Membership:
-      return <Memberships />;
+    // case SettingsMenu.Membership:
+    //   return <Memberships />;
   }
 }
 

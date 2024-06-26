@@ -3,7 +3,7 @@ import { create } from "zustand";
 export enum MarketMenu {
   Wallate = "Bandcoin Curated",
   Music = "Music",
-  FanAsset = "Band Asset",
+  FanAsset = "Brand Asset",
 }
 
 interface MarketMenurState {
