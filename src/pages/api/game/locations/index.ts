@@ -34,6 +34,10 @@ export default async function handler(
       },
       autoCollect: true,
     },
+    where: {
+      approved: { equals: true },
+      endDate: { gte: new Date() },
+    },
   });
 
   const locations: Location[] = db_locations.map((location) => {

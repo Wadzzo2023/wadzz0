@@ -2,6 +2,7 @@ import { z } from "zod";
 import { createPinFormSchema } from "~/components/maps/modals/create-pin";
 
 import {
+  adminProcedure,
   createTRPCRouter,
   creatorProcedure,
   protectedProcedure,
@@ -48,6 +49,7 @@ export const pinRouter = createTRPCRouter({
           },
         });
       } else {
+        if (!pinNumber) throw new Error("Pin number is required");
         let claimAmount: number;
         if (totalTokenAmount) {
           const amountPerPin = totalTokenAmount / pinNumber;
@@ -94,9 +96,55 @@ export const pinRouter = createTRPCRouter({
     const pins = await ctx.db.location.findMany({
       where: {
         creatorId: ctx.session.user.id,
+        endDate: { gte: new Date() },
+        approved: { equals: true },
       },
+      include: { _count: { select: { consumers: true } } },
     });
 
     return pins;
+  }),
+
+  getPins: adminProcedure.query(async ({ ctx, input }) => {
+    const pins = await ctx.db.location.findMany({
+      where: { approved: { equals: undefined }, endDate: { gte: new Date() } },
+      orderBy: { createdAt: "desc" },
+    });
+
+    return pins;
+  }),
+
+  getPinsGrops: adminProcedure.query(async ({ ctx }) => {
+    const pins = await ctx.db.locationGroup.findMany({
+      include: { locations: true },
+    });
+
+    return pins;
+  }),
+
+  approvePins: adminProcedure
+    .input(z.object({ pins: z.array(z.number()), approved: z.boolean() }))
+    .mutation(async ({ ctx, input }) => {
+      await ctx.db.location.updateMany({
+        where: {
+          id: {
+            in: input.pins,
+          },
+        },
+        data: {
+          approved: input.approved,
+        },
+      });
+    }),
+
+  getConsumedLocated: protectedProcedure.query(async ({ ctx }) => {
+    const userId = ctx.session.user.id;
+    const consumedLocations = await ctx.db.locationConsumer.findMany({
+      where: {
+        userId,
+      },
+      include: { location: true },
+    });
+    return consumedLocations;
   }),
 });

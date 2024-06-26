@@ -100,14 +100,17 @@ const Wallets = () => {
             <Card>
               <CardContent className="m-2 p-2">
                 <div className="flex flex-col items-center justify-center md:flex-row md:items-center md:justify-between ">
-                  <div>
-                    <CardTitle>Current Balance</CardTitle>
-                    <h1 className="text-4xl font-bold">{data?.balance} XLM</h1>
+                  <div className="flex flex-col items-center justify-center">
+                    <CardTitle className="text-2xl font-bold xl:text-4xl">
+                      Current Balance
+                    </CardTitle>
+                    <h1 className="text-2xl font-bold xl:text-4xl">
+                      {data?.balance} XLM
+                    </h1>
                   </div>
                   <div className="mt-2 flex items-center justify-between gap-4 md:items-end lg:justify-end">
                     <Button
                       variant={"default"}
-                      size="sm"
                       className="md:m-3 md:p-3 md:font-bold"
                       onClick={() => onOpen("receive assets")}
                     >
@@ -116,7 +119,6 @@ const Wallets = () => {
                     </Button>
                     <Button
                       variant="default"
-                      size="sm"
                       className="md:m-3 md:p-3 md:font-bold"
                       onClick={() => onOpen("send assets")}
                     >
@@ -125,8 +127,7 @@ const Wallets = () => {
                     </Button>
                     <Button
                       variant="default"
-                      size="sm"
-                      className="md:m-3 md:p-3 md:font-bold"
+                      className="md:text-md 0 text-xs md:m-3 md:p-3 md:font-bold"
                       onClick={() => onOpen("add assets")}
                     >
                       <Plus size={15} className="hidden md:mr-2 md:block " />{" "}

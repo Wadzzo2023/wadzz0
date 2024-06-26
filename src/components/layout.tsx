@@ -31,14 +31,15 @@ export default function Layout({
   const session = useSession();
   const router = useRouter();
 
-  if (router.pathname === "/maps") {
-    return (
-      <div className="flex">
-        <LeftBar className="hidden md:flex" />
-        {children}
-      </div>
-    );
-  }
+  // if (router.pathname.includes("/maps")) {
+  //   return (
+  //     <div className="flex">
+  //       <MapLeft className="hidden md:flex" />
+  //       {/* <LeftBar className="hidden md:flex" /> */}
+  //       {children}
+  //     </div>
+  //   );
+  // }
 
   return (
     <>

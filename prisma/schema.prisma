@@ -170,6 +170,8 @@ model Creator {
     storagePub    String
     storageSecret String
 
+    approved Boolean? // if undefined than it is sended for aproval, false means banned, true means aproved
+
     // pageAsset
     pageAssetId Int?
 
@@ -241,6 +243,8 @@ model User {
     bio           String?
     image         String?
     emailVerified DateTime?
+
+    joinedAt DateTime? @default(now())
 
     accounts         Account[]
     sessions         Session[]
@@ -442,7 +446,7 @@ model Location {
 
     claimAmount Float? // how much token each person will claim. if null then it is free
 
-    isActive Boolean
+    isActive Boolean // just an field
     image    String?
 
     limit Int // how many person can claim the Location / pin
@@ -457,7 +461,7 @@ model Location {
 
     autoCollect Boolean
 
-    approved Boolean @default(false)
+    approved Boolean?
 
     locationGroupId String?
     locationGroup   LocationGroup? @relation(fields: [locationGroupId], references: [id], onDelete: Cascade)

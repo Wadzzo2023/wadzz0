@@ -95,7 +95,7 @@ function ConditionallyRenderMenuPage({ creator }: { creator: Creator }) {
   }
 }
 
-function ValidCreateCreator() {
+export function ValidCreateCreator({ message }: { message?: string }) {
   const { platformAssetBalance } = useUserStellarAcc();
   const requiredToken = api.fan.trx.getPlatformTokenPriceForXLM.useQuery({
     xlm: 5,
@@ -111,11 +111,14 @@ function ValidCreateCreator() {
       return <CreateCreator requiredToken={requiredTokenNumber} />;
     } else {
       return (
-        <div className="flex h-full w-full  items-center justify-center">
+        <div className="flex h-full w-full flex-col items-center  justify-center gap-2">
+          {message && (
+            <Alert className="max-w-xl" content={message} type="info" />
+          )}
           <Alert
             className="max-w-xl"
             type="error"
-            content={`To be a creator, you need minimum ${requiredToken.data} ${PLATFROM_ASSET.code} `}
+            content={`You don't have Sufficient Balance ,To create storage account, you need minimum ${requiredToken.data} ${PLATFROM_ASSET.code} `}
           />
         </div>
       );
@@ -145,7 +148,9 @@ function CreateCreator({ requiredToken }: { requiredToken: number }) {
       })
         .then((isSucces) => {
           if (isSucces) {
-            toast.success("You are now a creator", { id: toastId });
+            toast.success("Your storage account created successfully", {
+              id: toastId,
+            });
             makeCreatorMutation.mutate(storage);
           } else {
             toast.error("Failed to create account", { id: toastId });

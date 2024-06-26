@@ -3,13 +3,13 @@ import {
   AdvancedMarker,
   Map,
   MapMouseEvent,
-  Marker,
 } from "@vis.gl/react-google-maps";
 import Image from "next/image";
 import React, { useState } from "react";
-import { Avatar, Loading } from "react-daisyui";
+import { Loading } from "react-daisyui";
 import toast from "react-hot-toast";
 import CreatePinModal from "~/components/maps/modals/create-pin";
+// import { PlacesAutocomplete } from "~/components/maps/place";
 import { useCreatorStorageAcc } from "~/lib/state/wallete/stellar-balances";
 import { api } from "~/utils/api";
 
@@ -44,6 +44,7 @@ function App() {
 
   return (
     <APIProvider apiKey={"AIzaSyDoSm4IfpYtHLnCBnXsH6f47t6hLdAnyao"}>
+      {/* <PlacesAutocomplete /> */}
       <Map
         onClick={handleMapClick}
         // center={position}
@@ -76,15 +77,18 @@ function MyPins() {
             position={{ lat: pin.latitude, lng: pin.longitude }}
             onClick={() => toast.success(pin.title)}
           >
-            {/* <span className="tree">🌳</span> */}
-            <span>
-              <Image
-                src="/favicon.ico"
-                width={30}
-                height={30}
-                alt="vong cong"
-              />
-            </span>
+            {pin._count.consumers < pin.limit ? (
+              <span className="tree">🌳</span>
+            ) : (
+              <span>
+                <Image
+                  src="/favicon.ico"
+                  width={30}
+                  height={30}
+                  alt="vong cong"
+                />
+              </span>
+            )}
           </AdvancedMarker>
         ))}
       </>

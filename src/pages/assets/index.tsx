@@ -10,6 +10,7 @@ import {
 import { usePopUpState } from "~/lib/state/right-pop";
 
 import { api } from "~/utils/api";
+import { ValidCreateCreator } from "../fans/creator";
 
 export default function MyAssetsPage() {
   return (
@@ -58,6 +59,13 @@ function MyStorageAsset() {
             </div>
           );
         })}
+      </div>
+    );
+
+  if (acc.data === undefined)
+    return (
+      <div>
+        <ValidCreateCreator message="No storage account. Create one" />
       </div>
     );
 }
