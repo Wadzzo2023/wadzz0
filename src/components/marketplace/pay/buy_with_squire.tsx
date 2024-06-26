@@ -18,24 +18,32 @@ export default function BuyWithSquire({
 
   const paymentMutation = api.marketplace.pay.buyAsset.useMutation({
     onSuccess: async (data, variables, context) => {
+      toast.success(`${data}`);
       if (data) {
         toast.success("xdr get");
-        const id = data;
-        const res = await toast.promise(submitSignedXDRToServer4User(xdr), {
-          error: "Error in steller",
-          loading: "Loading...",
-          success: "Transaction successful.",
-        });
-
-        if (res) {
-          toast.success("Transaction successful.");
+        if (data) {
+          const id = data;
+          const tostId = toast.loading("Submitting xdr");
+          submitSignedXDRToServer4User(xdr)
+            .then((data) => {
+              if (data) {
+                toast.success("Payment success");
+              }
+            })
+            .catch((e) => {
+              console.log(e);
+              toast.error("Payment failed");
+            })
+            .finally(() => {
+              toast.dismiss(tostId);
+            });
         }
       } else {
-        toast.error("Error in squire");
+        toast.error("Payment failed. Please try again.");
       }
     },
     onError: (e) => {
-      toast.error("...Error in squire");
+      toast.error("Something went wrong. Please try again.");
       console.log(e.message);
     },
   });

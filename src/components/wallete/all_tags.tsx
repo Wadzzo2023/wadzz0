@@ -23,7 +23,7 @@ export default function AllTags() {
         key={"All"}
         type="radio"
         name="options"
-        aria-label="All: "
+        aria-label="All"
         onClick={() => {
           selectTag(undefined);
           setData(undefined);
@@ -46,7 +46,7 @@ export default function AllTags() {
         className="!btn join-item"
         type="radio"
         name="options"
-        aria-label="Music"
+        aria-label="MUSIC"
         onClick={() => {
           selectTag(AssetVariant.SONG);
           setData(undefined);
@@ -57,7 +57,7 @@ export default function AllTags() {
         className="!btn join-item"
         type="radio"
         name="options"
-        aria-label="Other"
+        aria-label="ARTIST TOKEN"
         onClick={() => {
           selectTag(AssetVariant.Other);
           setData(undefined);

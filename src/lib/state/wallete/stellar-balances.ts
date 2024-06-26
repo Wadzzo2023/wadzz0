@@ -20,10 +20,16 @@ interface Balance {
   setBalance: (balances: AccBalanceType[]) => void;
   platformAssetBalance: number;
   setPlatformAssetBalance: (balances: AccBalanceType[]) => void;
+  active: boolean;
+  setActive: (active: boolean) => void;
   // fetch: (pub: string) => Promise<void>;
 }
 
 export const useUserStellarAcc = create<Balance>((set, get) => ({
+  active: false,
+  setActive: (active) => {
+    set({ active });
+  },
   platformAssetBalance: 0,
   balances: undefined,
   setBalance(balances) {

@@ -14,8 +14,10 @@ import { ValidCreateCreator } from "../fans/creator";
 
 export default function MyAssetsPage() {
   return (
-    <div className="p-5">
-      <AssetTabs />
+    <div className="p-2">
+      <div className="flex justify-center">
+        <AssetTabs />
+      </div>
       <RenderTabs />
     </div>
   );
@@ -111,9 +113,12 @@ function AssetTabs() {
   const { selectedMenu, setSelectedMenu } = useAssetMenu();
   const { setData } = useAssetRightStore();
 
+  const creator = api.fan.creator.meCreator.useQuery();
+
   return (
-    <div role="tablist" className="tabs-boxed tabs my-5 ">
+    <div role="tablist" className="tabs-boxed tabs my-5 w-full max-w-md">
       {Object.values(AssetMenu).map((key) => {
+        if (key == AssetMenu.STORAGE && creator.data == undefined) return null;
         return (
           <a
             key={key}

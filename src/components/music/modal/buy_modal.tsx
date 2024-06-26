@@ -1,18 +1,18 @@
 import { useRef, useState } from "react";
 import { api } from "~/utils/api";
 
+import clsx from "clsx";
 import { useSession } from "next-auth/react";
-import { clientsign } from "package/connect_wallet";
+import { WalletType, clientsign } from "package/connect_wallet";
 import toast from "react-hot-toast";
-import {
-  AssetType,
-  SongTokenCopies,
-  TokenCopies,
-} from "~/components/marketplace/market_right";
+import { AssetType } from "~/components/marketplace/market_right";
+import BuyWithSquire from "~/components/marketplace/pay/buy_with_squire";
+import Alert from "~/components/ui/alert";
 import useNeedSign from "~/lib/hook";
+import { useUserStellarAcc } from "~/lib/state/wallete/stellar-balances";
+import { PLATFROM_ASSET } from "~/lib/stellar/constant";
 import { clientSelect } from "~/lib/stellar/fan/utils";
 import { addrShort } from "~/utils/utils";
-import BuyWithSquire from "~/components/marketplace/pay/buy_with_squire";
 
 type BuyModalProps = {
   item: AssetType;
@@ -30,36 +30,34 @@ export default function BuyModal({
 }: BuyModalProps) {
   const session = useSession();
   const { needSign } = useNeedSign();
+  const { platformAssetBalance, active } = useUserStellarAcc();
 
   const modal = useRef<HTMLDialogElement>(null);
   const [xdr, setXdr] = useState<string>();
+  const [isWallet, setIsWallet] = useState(true);
+  const [paymentSuccess, setPaymentSuccess] = useState(false);
 
   // const { asset } = item;
   const { code, issuer } = item;
 
   // feth the copies from the storage acc.
 
+  const copy = api.marketplace.market.getMarketAssetAvailableCopy.useQuery({
+    id: marketItemId,
+  });
+
   const xdrMutaion =
     api.marketplace.steller.buyFromMarketPaymentXDR.useMutation({
       onSuccess: (data, Variable) => {
         setXdr(data);
-        return;
-        const presignedxdr = data;
-        clientsign({
-          presignedxdr,
-          pubkey: session.data?.user.id,
-          walletType: session.data?.user.walletType,
-          test: clientSelect(),
-        })
-          .then((res) => {
-            if (res) toast.success("Payment Success");
-          })
-          .catch((e) => console.log(e));
       },
       onError: (e) => toast.error(e.message.toString()),
     });
 
-  const handleModal = () => {
+  const handleModal = (close?: true) => {
+    if (close) {
+      return modal.current?.close();
+    }
     modal.current?.showModal();
   };
 
@@ -73,6 +71,7 @@ export default function BuyModal({
     });
   }
 
+  if (!active) return null;
   return (
     <>
       <dialog className="modal" ref={modal}>
@@ -85,52 +84,72 @@ export default function BuyModal({
           <h3 className="mb-2 text-lg font-bold">BUY</h3>
 
           <div className="flex flex-col items-center gap-y-2">
-            <div className="flex flex-col  bg-base-300 p-10">
+            <div className="flex flex-col gap-2  bg-base-200 p-10">
               <p>
                 Asset Name: <span className="badge badge-primary">{code}</span>
               </p>
-              <p className="text-warning">Price: {price} ACTION</p>
-              <p className="text-warning">Price in USD: {priceUSD} ACTION</p>
-              <p className="text-sm text-accent">
-                Balance available:{" "}
-                {marketItemId ? (
-                  <TokenCopies id={marketItemId} />
-                ) : (
-                  <SongTokenCopies issuer={issuer} code={code} />
-                )}
+              <p className="font-bold">
+                Price: {price} {PLATFROM_ASSET.code}
+              </p>
+              <p className="font-bold">Price in USD: {priceUSD}$</p>
+              <p className="text-sm">
+                Copies available: {copy.data ?? "loading..."}
               </p>
               <p className="text-sm">Issuer: {addrShort(issuer, 15)}</p>
+              {copy.data && copy.data < 1 && (
+                <Alert type="error" content={"You have to be minimum 1 copy"} />
+              )}
             </div>
-            <BuyWithSquire marketId={item.id} xdr={xdr ?? "xdr"} />
+            {/* <BuyWithSquire marketId={item.id} xdr={xdr ?? "xdr"} /> */}
 
             <div className="flex flex-col items-center">
               {xdr ? (
                 <>
-                  <button
-                    className="btn btn-secondary"
-                    onClick={() => {
-                      clientsign({
-                        presignedxdr: xdr,
-                        pubkey: session.data?.user.id,
-                        walletType: session.data?.user.walletType,
-                        test: clientSelect(),
-                      })
-                        .then((res) => {
-                          if (res) toast.success("Payment Success");
-                        })
-                        .catch((e) => console.log(e));
-                    }}
-                  >
-                    Confirm Payment
-                  </button>
-                  <button>
-                    <BuyWithSquire marketId={item.id} xdr={xdr} />
-                  </button>
+                  <PaymentOptoins
+                    isWallete={isWallet}
+                    setIsWallet={setIsWallet}
+                  />
+                  {isWallet ? (
+                    <>
+                      {platformAssetBalance >= price ? (
+                        <button
+                          disabled={paymentSuccess}
+                          className="btn btn-primary"
+                          onClick={() => {
+                            clientsign({
+                              presignedxdr: xdr,
+                              pubkey: session.data?.user.id,
+                              walletType: session.data?.user.walletType,
+                              test: clientSelect(),
+                            })
+                              .then((res) => {
+                                if (res) {
+                                  toast.success("Payment Success");
+                                  setPaymentSuccess(true);
+                                  handleModal(true);
+                                }
+                              })
+                              .catch((e) => console.log(e));
+                          }}
+                        >
+                          Confirm Payment
+                        </button>
+                      ) : (
+                        <p className="text-error">Insufficient Balance</p>
+                      )}
+                    </>
+                  ) : (
+                    <button>
+                      <BuyWithSquire marketId={item.id} xdr={xdr} />
+                    </button>
+                  )}
                 </>
               ) : (
                 <button
-                  disabled={xdrMutaion.isSuccess}
-                  className="btn btn-secondary"
+                  disabled={
+                    xdrMutaion.isSuccess || !copy.isSuccess || copy.data < 1
+                  }
+                  className="btn btn-primary"
                   onClick={() => handleXDR()}
                 >
                   {xdrMutaion.isLoading && (
@@ -138,7 +157,7 @@ export default function BuyModal({
                       <span className="loading"></span>
                     </div>
                   )}
-                  Fetch XDR of {code}
+                  Proceed to checkout
                 </button>
               )}
             </div>
@@ -151,11 +170,66 @@ export default function BuyModal({
         </div>
       </dialog>
       <button
-        className="btn btn-secondary btn-sm my-2 w-full transition duration-500 ease-in-out"
-        onClick={handleModal}
+        className="btn btn-primary btn-sm my-2 w-full transition duration-500 ease-in-out"
+        onClick={() => handleModal()}
       >
         BUY
       </button>
     </>
   );
+}
+
+function PaymentOptoins({
+  isWallete,
+  setIsWallet,
+}: {
+  isWallete: boolean;
+  setIsWallet: (isWallet: boolean) => void;
+}) {
+  const session = useSession();
+
+  if (session.status == "authenticated") {
+    const walletType = session.data.user.walletType;
+    const showCardOption =
+      walletType == WalletType.emailPass ||
+      walletType == WalletType.google ||
+      walletType == WalletType.facebook;
+    return (
+      <div className="my-2 flex gap-2">
+        <Optoin
+          text="Stellar"
+          onClick={() => setIsWallet(true)}
+          selected={isWallete}
+        />
+        {showCardOption && (
+          <Optoin
+            text="Credit Card"
+            onClick={() => setIsWallet(false)}
+            selected={!isWallete}
+          />
+        )}
+      </div>
+    );
+  }
+  function Optoin({
+    text,
+    onClick,
+    selected,
+  }: {
+    text: string;
+    onClick: () => void;
+    selected?: boolean;
+  }) {
+    return (
+      <div
+        onClick={onClick}
+        className={clsx(
+          "flex h-10 items-center justify-center bg-base-300 p-4",
+          selected && "border-2 border-primary",
+        )}
+      >
+        {text}
+      </div>
+    );
+  }
 }

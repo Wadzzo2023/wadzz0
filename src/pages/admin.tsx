@@ -17,7 +17,7 @@ export default function AdminPage() {
 
 function AdminPageTemplate() {
   return (
-    <div>
+    <div className=" flex justify-center">
       <RenderTabs />
     </div>
   );
@@ -29,13 +29,13 @@ function RenderTabs() {
   switch (selectedMenu) {
     case AdminNavigation.WALLET:
       return (
-        <div className="m-auto max-w-xl">
+        <div className=" w-full max-w-xl">
           <MintedItemAdd />
         </div>
       );
     case AdminNavigation.NFT:
       return (
-        <div className="p-4">
+        <div className="min-w-xl p-4">
           <h2 className="mb-5 text-lg font-bold">Add Admin NFTs</h2>
           <p>This nfts will be created with platform mother acount</p>
           <NftCreate admin />
@@ -43,7 +43,7 @@ function RenderTabs() {
       );
     case AdminNavigation.ALBUM:
       return (
-        <div className="p-4">
+        <div className="min-w-xl p-4">
           <h2 className="mb-5 text-lg font-bold">Add Music Album</h2>
           <AlbumCreate mode={ModalMode.ADD} />
         </div>

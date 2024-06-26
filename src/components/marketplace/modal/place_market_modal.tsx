@@ -21,8 +21,10 @@ export type PlaceMarketFormType = z.TypeOf<typeof PlaceMarketFormSchema>;
 
 export default function EnableInMarket({
   item,
+  copy,
 }: {
   item: { code: string; issuer: string };
+  copy: number;
 }) {
   const modalRef = useRef<HTMLDialogElement>(null);
 
@@ -33,13 +35,14 @@ export default function EnableInMarket({
     getValues,
     formState: { errors },
     control,
+    reset,
   } = useForm<z.infer<typeof PlaceMarketFormSchema>>({
     resolver: zodResolver(PlaceMarketFormSchema),
     defaultValues: { code: item.code, issuer: item.issuer },
   });
 
   function resetState() {
-    console.log("hi");
+    reset();
   }
 
   const handleModal = () => {
@@ -94,7 +97,7 @@ export default function EnableInMarket({
                   min={1}
                   {...register("price", { valueAsNumber: true })}
                   required={true}
-                  className="input input-bordered input-sm  w-full"
+                  className="input input-sm input-bordered  w-full"
                   placeholder="Price"
                 />
               </div>
@@ -122,7 +125,7 @@ export default function EnableInMarket({
         </div>
       </dialog>
       <button
-        className="btn btn-secondary btn-sm my-2 w-full transition duration-500 ease-in-out"
+        className="btn btn-primary btn-sm my-2 w-full transition duration-500 ease-in-out"
         onClick={handleModal}
       >
         Place to market

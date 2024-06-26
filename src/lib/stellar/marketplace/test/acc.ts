@@ -147,11 +147,11 @@ export async function accountDetailsWithHomeDomain({
   return { tokens: filteredBalances, xlmBalance, siteAssetBalance };
 }
 
-export function balaceToCopy(balance: string): number {
+function balaceToCopy(balance: string): number {
   return Math.floor(Number(balance) / Number(STROOP));
 }
 
-export function copyToBalance(copy: number): string {
+function copyToBalance(copy: number): string {
   const amount = (copy * Number(STROOP)).toFixed(7);
   return amount;
 }

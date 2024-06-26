@@ -1,9 +1,9 @@
 import {
   Asset,
   BASE_FEE,
+  Horizon,
   Keypair,
   Operation,
-  Horizon,
   TransactionBuilder,
 } from "@stellar/stellar-sdk";
 import { networkPassphrase } from "./create_song_token";
@@ -77,7 +77,7 @@ export async function XDR4BuyAsset({
   Tx2.addOperation(
     Operation.payment({
       asset: asset,
-      amount: STROOP,
+      amount: "1",
       source: storageAcc.publicKey(),
       destination: buyer,
     }),

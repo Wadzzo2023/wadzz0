@@ -9,6 +9,7 @@ import { STROOP, STELLAR_URL } from "../constant";
 import { STORAGE_SECRET } from "../SECRET";
 import { SITE_ASSET, SITE_ASSET_OBJ } from "./constant";
 import { networkPassphrase } from "../constant";
+import { PLATFROM_ASSET } from "../../constant";
 
 async function checkSiteAssetTrustLine(accPub: string) {
   const server = new Horizon.Server(STELLAR_URL);
@@ -34,7 +35,7 @@ async function checkSiteAssetTrustLine(accPub: string) {
 export async function sendSiteAsset2pub(
   pubkey: string,
   siteAssetAmount: number,
-  secret: string, // have secret means that the user don't have trust
+  // secret: string, // have secret means that the user don't have trust
 ) {
   // 1. Create trustline - wadzzo
   // 2. Send X amount - wadzzo
@@ -42,13 +43,26 @@ export async function sendSiteAsset2pub(
   const server = new Horizon.Server(STELLAR_URL);
 
   const storageAcc = Keypair.fromSecret(STORAGE_SECRET);
-  const userAcc = Keypair.fromSecret(secret);
+  // const userAcc = Keypair.fromSecret(secret);
 
   const transactionInializer = await server.loadAccount(storageAcc.publicKey());
 
-  // if balance have trust
-  // const hasWadzzoTrust = await checkWadzzoTrustLine(pubkey);
-  // console.log("haswadzzo trust", hasWadzzoTrust);
+  const balances = transactionInializer.balances;
+  const trust = balances.find((balance) => {
+    if (
+      balance.asset_type === "credit_alphanum12" ||
+      balance.asset_type === "credit_alphanum4"
+    ) {
+      if (
+        balance.asset_code === PLATFROM_ASSET.code &&
+        balance.asset_issuer === PLATFROM_ASSET.issuer
+      ) {
+        return true;
+      }
+    }
+  });
+
+  if (!trust) throw new Error("No trustline for platform asset");
 
   // if (!hasWadzzoTrust) {
   const Tx = new TransactionBuilder(transactionInializer, {
@@ -72,7 +86,7 @@ export async function sendSiteAsset2pub(
     .setTimeout(0)
     .build();
 
-  Tx.sign(storageAcc, userAcc);
+  Tx.sign(storageAcc);
 
   return Tx.toXDR();
 }

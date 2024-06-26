@@ -1,6 +1,5 @@
 import { Horizon } from "@stellar/stellar-sdk";
 import { STELLAR_URL } from "../constant";
-import { balaceToCopy } from "./acc";
 
 type Ballances = (
   | Horizon.HorizonApi.BalanceLineNative
@@ -47,7 +46,7 @@ export class StellarAccount {
     });
 
     if (asset) {
-      return balaceToCopy(asset.balance);
+      return Number(asset.balance);
     } else return 0;
   }
 

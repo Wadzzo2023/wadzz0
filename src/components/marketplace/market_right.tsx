@@ -26,18 +26,27 @@ export default function MarketRight() {
       </div>
     );
 
-  const color = "blue";
+  return <AssetDetails currentData={currentData} />;
   // const { name, description, type, mediaUrl } = currentData;
   // const issuer = nftAsset.issuer.pub;
+}
 
+export function AssetDetails({
+  currentData,
+}: {
+  currentData: MarketAssetType;
+}) {
+  const color = "blue";
   return (
     <div className="max-h h-full w-full">
-      <div className="scrollbar-style relative h-full w-full overflow-y-auto rounded-xl bg-base-100/90">
+      <div className="scrollbar-style relative h-full w-full overflow-y-auto rounded-xl">
         <div
-          className="absolute h-full w-full opacity-10"
-          style={{
-            backgroundColor: color,
-          }}
+          className="absolute h-full w-full bg-base-200/50 "
+          style={
+            {
+              // backgroundColor: color,
+            }
+          }
         />
         <div className="flex h-full flex-col justify-between space-y-2 p-2">
           <div className="flex h-full flex-col gap-2 ">
@@ -173,7 +182,7 @@ export function DisableFromMarketButton({
 
   return (
     <button
-      className="btn btn-secondary btn-sm my-2 w-full transition duration-500 ease-in-out"
+      className="btn btn-primary btn-sm my-2 w-full transition duration-500 ease-in-out"
       onClick={() => disable.mutate({ code, issuer })}
     >
       {disable.isLoading && <span className="loading loading-spinner" />}
@@ -289,7 +298,7 @@ function DeleteAssetByAdmin({ id }: { id: number }) {
   if (admin.data)
     return (
       <button
-        className="btn btn-warning btn-sm w-full"
+        className="btn btn-primary btn-sm w-full"
         onClick={() => del.mutate(id)}
       >
         {del.isLoading && <span className="loading loading-spinner" />}Delete

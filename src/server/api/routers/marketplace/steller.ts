@@ -1,9 +1,7 @@
-import { getAccSecretFromRubyApi } from "package/connect_wallet/src/lib/stellar/get-acc-secret";
 import { Keypair } from "@stellar/stellar-sdk";
+import { getAccSecretFromRubyApi } from "package/connect_wallet/src/lib/stellar/get-acc-secret";
 import { z } from "zod";
-import { getUserSecret } from "~/components/marketplace/recharge/utils";
 import { env } from "~/env";
-import { copyToBalance } from "~/lib/stellar/marketplace/test/acc";
 
 // import { getUserSecret } from "~/components/recharge/utils";
 import { covertSiteAsset2XLM } from "~/lib/stellar/marketplace/trx/convert_site_asset";
@@ -73,7 +71,7 @@ export const stellarRouter = createTRPCRouter({
         sellerStorageSec = env.STORAGE_SECRET;
       }
 
-      const limit = copyToBalance(l);
+      const limit = l.toString();
 
       return await XDR4BuyAsset({
         seller: seller,

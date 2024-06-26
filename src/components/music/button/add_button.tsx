@@ -9,10 +9,7 @@ export default function ModalButton({
   children: ReactNode;
 }) {
   return (
-    <button
-      className="btn btn-neutral btn-sm w-40 rounded-3xl"
-      onClick={handleClick}
-    >
+    <button className="btn btn-sm w-40" onClick={handleClick}>
       {children}
       {content}
     </button>

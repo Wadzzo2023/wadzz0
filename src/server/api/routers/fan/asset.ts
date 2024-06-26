@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { ShopItemSchema } from "~/components/fan/creator/add-shop-item";
+import { updateAssetFormShema } from "~/components/fan/shop/asset_view_modal";
 import { NftFormSchema } from "~/components/marketplace/nft_create";
 
 import {
@@ -60,6 +61,16 @@ export const shopRouter = createTRPCRouter({
           },
         });
       }
+    }),
+
+  updateAsset: protectedProcedure
+    .input(updateAssetFormShema)
+    .mutation(async ({ ctx, input }) => {
+      const { assetId, price, priceUSD } = input;
+      return await ctx.db.marketAsset.update({
+        where: { id: assetId },
+        data: { price, priceUSD },
+      });
     }),
 
   deleteAsset: protectedProcedure // fix the logic

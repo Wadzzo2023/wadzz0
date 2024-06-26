@@ -1,8 +1,7 @@
 import { create } from "zustand";
-import { PLATFROM_ASSET } from "~/lib/stellar/constant";
 
 export enum MarketMenu {
-  Wallate = "Admin",
+  Wallate = "Bandcoin Curated",
   Music = "Music",
   FanAsset = "Band Asset",
 }

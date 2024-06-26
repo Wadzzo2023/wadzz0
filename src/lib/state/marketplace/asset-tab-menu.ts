@@ -1,7 +1,7 @@
 import { create } from "zustand";
 
 export enum AssetMenu {
-  OWN = "Own",
+  OWN = "Wallet",
   STORAGE = "Storage",
 }
 

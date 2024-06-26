@@ -3,7 +3,7 @@ import { create } from "zustand";
 export enum CreatorMenu {
   Posts = "Posts",
   Membership = "Membership",
-  Shop = "Store",
+  // Shop = "Store",
 }
 
 interface CreatorState {

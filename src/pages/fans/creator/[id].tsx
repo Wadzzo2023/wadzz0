@@ -39,7 +39,7 @@ function CreatorPageView({ creatorId }: { creatorId: string }) {
         <div className="flex w-full flex-col items-center pb-48">
           <>
             <CreatorBack creator={creator} />
-            <div className="my-2">
+            <div className="my-2 flex flex-col items-center justify-center">
               <FollowButton creator={creator} />
               {creator.pageAsset && (
                 <UserCreatorBalance
@@ -191,13 +191,13 @@ export function FollowButton({ creator }: { creator: Creator }) {
     onError: (e) => toast.error(e.message),
   });
   const loading = followXDR.isLoading || signLoading || follow.isLoading;
-  if (isFollower.data) return <p>You are a follower</p>;
-  else if (isFollower.isSuccess && isFollower.data === undefined)
+  if (isFollower.data ?? follow.isSuccess) return <p>You are a follower</p>;
+  else if (isFollower.isSuccess || isFollower.data === undefined)
     return (
       <div>
         <button
           disabled={loading}
-          className="btn btn-secondary"
+          className="btn btn-primary"
           onClick={() =>
             followXDR.mutate({ creatorId: creator.id, signWith: needSign() })
           }

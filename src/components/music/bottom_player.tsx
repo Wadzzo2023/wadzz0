@@ -7,41 +7,51 @@ import BottonPlayer from "../bottom_player";
 
 export default function BottomPlayerContainer() {
   const router = useRouter();
-  const { bottomVisiable, isPlaying, setNewTrack } = usePlayerStore();
 
-  const [isHovered, setIsHovered] = useState(false);
+  // return (
+  //   <div className={clsx("absolute bottom-0 w-full")}>
+  //     <div className="flex items-center justify-center">
+  //       <Player />
+  //     </div>
+  //   </div>
+  // );
 
   return (
     <div
-      className={clsx("absolute bottom-0 w-full")}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+      className={clsx(
+        "absolute bottom-0 flex h-0 w-full justify-center  bg-red-300",
+      )}
     >
-      <div className="flex items-center justify-center">
-        <div className="w-full max-w-2xl">
-          {isHovered && (
-            <button
-              className="btn btn-circle btn-secondary btn-sm -mb-8"
-              onClick={() => setNewTrack(undefined)}
-            >
-              <X />
-            </button>
-          )}
-          <BottonPlayer />
+      <div className="relative flex w-full justify-center bg-blue-200">
+        <div className=" absolute -top-32 w-full max-w-2xl">
+          <Player />
         </div>
       </div>
+      {/* <div className=" flex items-center justify-center"> */}
+
+      {/* </div> */}
     </div>
   );
-  // } else {
-  // if (isPlaying)
-  //   return (
-  //     <div className="absolute bottom-0 w-full">
-  //       <div className="flex items-center justify-center">
-  //         <div className="w-full max-w-2xl">
-  //           <BottonPlayer />
-  //         </div>
-  //       </div>
-  //     </div>
-  //   );
-  // }
+}
+
+function Player() {
+  const [isHovered, setIsHovered] = useState(false);
+  const { bottomVisiable, isPlaying, setNewTrack } = usePlayerStore();
+  return (
+    <div
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      className="relative w-full max-w-2xl"
+    >
+      <BottonPlayer />
+      {isHovered && (
+        <button
+          className="btn btn-circle btn-primary btn-sm absolute -top-4 right-0 -mb-8"
+          onClick={() => setNewTrack(undefined)}
+        >
+          <X />
+        </button>
+      )}
+    </div>
+  );
 }

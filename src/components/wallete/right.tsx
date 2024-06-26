@@ -167,7 +167,7 @@ function DeleteWallateAsset({ id }: { id: number }) {
   if (admin.data)
     return (
       <button
-        className="btn btn-warning btn-sm w-full"
+        className="btn btn-primary btn-sm w-full"
         onClick={() => del.mutate(id)}
       >
         {del.isLoading && <span className="loading loading-spinner" />}Delete

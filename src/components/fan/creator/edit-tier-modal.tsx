@@ -161,7 +161,7 @@ function DeleteTier({ id }: { id: number }) {
   const mutation = api.fan.member.deleteTier.useMutation();
   return (
     <button
-      className="btn btn-warning mt-2 w-full max-w-xs"
+      className="btn btn-primary mt-2 w-full max-w-xs"
       type="button"
       onClick={() => mutation.mutate({ id })}
       disabled={mutation.isLoading}
