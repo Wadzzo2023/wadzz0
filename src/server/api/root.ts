@@ -6,6 +6,7 @@ import { wallateRouter } from "./routers/wallate/root";
 import { authRouter } from "./routers/auth/root";
 import { mapsRouter } from "./routers/maps/root";
 import { gameRouter } from "./routers/game";
+import { wallateBalanceRouter } from "./routers/walletBalance/root";
 import { adminRouter } from "./routers/admin/root";
 
 /**
@@ -21,6 +22,7 @@ export const appRouter = createTRPCRouter({
   auth: authRouter,
   maps: mapsRouter,
   game: gameRouter,
+  walletBalance : wallateBalanceRouter,
   admin: adminRouter,
 });
 

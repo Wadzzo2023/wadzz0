@@ -300,7 +300,7 @@ function NftCreateForm({
                       minLength={2}
                       required
                       {...register("name")}
-                      className="input input-bordered input-sm  w-full"
+                      className="input input-sm input-bordered  w-full"
                       placeholder="Enter NFT Name"
                     />
                     {errors.name && (
@@ -316,7 +316,7 @@ function NftCreateForm({
                     <label className="label">Description</label>
                     <input
                       {...register("description")}
-                      className="input input-bordered input-sm  w-full"
+                      className="input input-sm input-bordered  w-full"
                       placeholder="Write a short Description"
                     />
                     {errors.description && (
@@ -435,7 +435,7 @@ function NftCreateForm({
                         <input
                           {...register("code")}
                           className={clsx(
-                            "input input-bordered input-sm  w-full",
+                            "input input-sm input-bordered  w-full",
                             errors.code && "input-warning",
                           )}
                           placeholder="Enter Asset Name"
@@ -459,7 +459,7 @@ function NftCreateForm({
                           // disabled={trxdata?.successful ? true : false}
                           type="number"
                           {...register("limit", { valueAsNumber: true })}
-                          className="input input-bordered input-sm  w-full"
+                          className="input input-sm input-bordered  w-full"
                           placeholder="Enter limit of the new Asset"
                         />
                         {errors.limit && (
@@ -482,7 +482,7 @@ function NftCreateForm({
                         step="0.1"
                         type="number"
                         {...register("price", { valueAsNumber: true })}
-                        className="input input-bordered input-sm  w-full"
+                        className="input input-sm input-bordered  w-full"
                         placeholder="Price"
                       />
                       {errors.price && (
@@ -502,7 +502,7 @@ function NftCreateForm({
                         step="0.1"
                         type="number"
                         {...register("priceUSD", { valueAsNumber: true })}
-                        className="input input-bordered input-sm  w-full"
+                        className="input input-sm input-bordered  w-full"
                         placeholder="Price"
                       />
                       {errors.priceUSD && (

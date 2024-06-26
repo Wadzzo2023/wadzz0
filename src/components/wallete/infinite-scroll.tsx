@@ -35,7 +35,7 @@ export type InfiniteScrollProps = {
   resetDependencies?: Array<any>; // Reset happens when these dependencies change
   disabled?: boolean;
   beforeEachLoad?: (args: InfiniteScrollRefType) => boolean | void; // Return true to stop loading the next page.
-  scrollDirection?: 'vertical' | 'horizontal'; // Added scrollDirection prop
+  scrollDirection?: "vertical" | "horizontal"; // Added scrollDirection prop
 };
 
 export type InfiniteScrollRefType = {
@@ -59,7 +59,7 @@ const InfiniteScrollComponent = (
     resetDependencies,
     disabled,
     beforeEachLoad,
-    scrollDirection = 'vertical', // Default to vertical scrolling
+    scrollDirection = "vertical", // Default to vertical scrolling
   } = props;
   const defaultThreshold = 250;
 
@@ -110,8 +110,9 @@ const InfiniteScrollComponent = (
 
     const parentElement = parentRef.current!;
 
-    if (scrollDirection === 'vertical') {
-      const scrollPosition = parentElement.scrollTop + parentElement.offsetHeight;
+    if (scrollDirection === "vertical") {
+      const scrollPosition =
+        parentElement.scrollTop + parentElement.offsetHeight;
       const scrollHeight = parentElement.scrollHeight;
 
       const thresholdExceeded =
@@ -130,8 +131,9 @@ const InfiniteScrollComponent = (
           offset: nextPageToLoad * batchSize,
         });
       }
-    } else if (scrollDirection === 'horizontal') {
-      const scrollPosition = parentElement.scrollLeft + parentElement.offsetWidth;
+    } else if (scrollDirection === "horizontal") {
+      const scrollPosition =
+        parentElement.scrollLeft + parentElement.offsetWidth;
       const scrollWidth = parentElement.scrollWidth;
 
       const thresholdExceeded =
