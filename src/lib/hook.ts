@@ -5,11 +5,11 @@ import { SignUserType } from "~/lib/stellar/utils";
 const useNeedSign = () => {
   const session = useSession();
 
-  const needSign = (): SignUserType => {
+  const needSign = (admin?: true): SignUserType => {
     if (session.data) {
       const walletType = session.data.user.walletType;
-      if (walletType === WalletType.isAdmin) {
-        return { isAdmin: true };
+      if (admin) {
+        return { isAdmin: admin };
       } else if (
         walletType === WalletType.emailPass ||
         walletType === WalletType.facebook ||

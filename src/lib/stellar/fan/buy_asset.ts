@@ -1,19 +1,18 @@
 import {
+  Asset,
+  Horizon,
   Keypair,
   Operation,
-  Horizon,
   TransactionBuilder,
-  Asset,
 } from "@stellar/stellar-sdk";
+import { env } from "~/env";
 import {
   PLATFROM_ASSET,
   PLATFROM_FEE,
   STELLAR_URL,
   networkPassphrase,
 } from "../constant";
-import { env } from "~/env";
 import { MyAssetType } from "./utils";
-import { STROOP } from "../marketplace/constant";
 
 const log = console;
 
@@ -54,7 +53,7 @@ export async function buyAssetTrx({
     .addOperation(
       Operation.payment({
         asset,
-        amount: STROOP,
+        amount: "1",
         source: assetStorage.publicKey(),
         destination: customerPubkey,
       }),

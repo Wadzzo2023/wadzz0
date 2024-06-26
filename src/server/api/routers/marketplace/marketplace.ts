@@ -5,7 +5,6 @@ import { PlaceMarketFormSchema } from "~/components/marketplace/modal/place_2sto
 import { BackMarketFormSchema } from "~/components/marketplace/modal/revert_place_market_modal";
 import { env } from "~/env";
 import { StellarAccount } from "~/lib/stellar/marketplace/test/Account";
-import { copyToBalance } from "~/lib/stellar/marketplace/test/acc";
 import {
   sendNft2StorageXDR,
   sendNftback,
@@ -50,7 +49,7 @@ export const marketRouter = createTRPCRouter({
         throw new Error("storage does not exist");
       }
 
-      const assetAmount = copyToBalance(placingCopies);
+      const assetAmount = placingCopies.toString();
 
       // stellear sdk for xdr
       return await sendNft2StorageXDR({
@@ -78,7 +77,7 @@ export const marketRouter = createTRPCRouter({
         throw new Error("storage does not exist");
       }
 
-      const assetAmount = copyToBalance(placingCopies);
+      const assetAmount = placingCopies.toString();
 
       console.log(assetAmount);
       // stellear sdk for xdr

@@ -25,8 +25,10 @@ type PlaceMarketFormType = z.TypeOf<typeof BackMarketFormSchema>;
 
 export default function NftBackModal({
   item,
+  copy,
 }: {
   item: { code: string; issuer: string };
+  copy: number;
 }) {
   const modalRef = useRef<HTMLDialogElement>(null);
 
@@ -40,6 +42,7 @@ export default function NftBackModal({
     getValues,
     formState: { errors },
     control,
+    reset,
   } = useForm<z.infer<typeof BackMarketFormSchema>>({
     resolver: zodResolver(BackMarketFormSchema),
     defaultValues: { code: item.code, issuer: item.issuer, placingCopies: 1 },
@@ -49,6 +52,7 @@ export default function NftBackModal({
   const xdrMutaion = api.marketplace.market.placeBackNftXdr.useMutation({
     onSuccess(data, variables, context) {
       const xdr = data;
+      const tostId = toast.loading("Signing transaction...");
       clientsign({
         presignedxdr: xdr,
         pubkey: session.data?.user.id,
@@ -61,14 +65,16 @@ export default function NftBackModal({
           } else {
             toast.error("Failed");
           }
-          // const data = getValues();
         })
-        .catch((e) => console.log(e));
+        .catch((e) => console.log(e))
+        .finally(() => toast.dismiss(tostId));
     },
   });
 
   function resetState() {
-    console.log("hi");
+    // console.log("hi");
+    reset();
+    xdrMutaion.reset();
   }
 
   const handleModal = () => {
@@ -78,12 +84,16 @@ export default function NftBackModal({
   const onSubmit: SubmitHandler<z.infer<typeof BackMarketFormSchema>> = (
     data,
   ) => {
-    xdrMutaion.mutate({
-      issuer: item.issuer,
-      placingCopies: getValues("placingCopies"),
-      code: item.code,
-      signWith: needSign(),
-    });
+    if (copy > getValues("placingCopies")) {
+      xdrMutaion.mutate({
+        issuer: item.issuer,
+        placingCopies: getValues("placingCopies"),
+        code: item.code,
+        signWith: needSign(),
+      });
+    } else {
+      toast.error("You can't take more than you have");
+    }
   };
 
   return (
@@ -99,7 +109,7 @@ export default function NftBackModal({
             </button>
           </form>
           <h3 className="mb-2 text-lg font-bold">
-            Take Asset Back to Main Acc
+            Take Asset Back From Storage to Main Acc
           </h3>
 
           <form onSubmit={handleSubmit(onSubmit)}>
@@ -111,9 +121,7 @@ export default function NftBackModal({
                   <span className="badge badge-primary">{item.code}</span>
                 </p>
                 {/* <p className="">Price: {item.price} XLM</p> */}
-                <p className="text-sm text-primary">
-                  Items left: {"item.copies"}
-                </p>
+                <p className="text-sm text-error">Items left: {copy}</p>
                 <p className="text-sm">Issuer: {addrShort(item.issuer, 15)}</p>
               </div>
 
@@ -129,7 +137,7 @@ export default function NftBackModal({
                   {...register("placingCopies", { valueAsNumber: true })}
                   min={1}
                   step={1}
-                  className="input input-bordered input-sm  w-full"
+                  className="input input-sm input-bordered  w-full"
                   placeholder="How many copy you want to place to market?"
                 />
               </div>
@@ -137,12 +145,12 @@ export default function NftBackModal({
               <div className="flex w-full max-w-sm flex-col items-center">
                 <button
                   disabled={xdrMutaion.isSuccess}
-                  className="btn btn-success w-full"
+                  className="btn btn-primary w-full"
                 >
                   {xdrMutaion.isLoading && (
                     <span className="loading loading-spinner"></span>
                   )}
-                  Checkout
+                  Proceced
                 </button>
               </div>
             </div>
@@ -161,10 +169,10 @@ export default function NftBackModal({
         </form> */}
       </dialog>
       <button
-        className="btn btn-secondary btn-sm my-2 w-full transition duration-500 ease-in-out"
+        className="btn btn-primary btn-sm my-2 w-full transition duration-500 ease-in-out"
         onClick={handleModal}
       >
-        Back
+        Remove from market
       </button>
     </>
   );

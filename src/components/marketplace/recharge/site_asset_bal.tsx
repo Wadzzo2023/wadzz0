@@ -1,18 +1,24 @@
+import { Plus } from "lucide-react";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { WalletType } from "package/connect_wallet/src/lib/enums";
-import { env } from "~/env";
 import { useUserStellarAcc } from "~/lib/state/wallete/stellar-balances";
+import { PLATFROM_ASSET } from "~/lib/stellar/fan/constant";
 import { api } from "~/utils/api";
 
 export function SiteAssetBalance() {
-  const { setBalance } = useUserStellarAcc();
+  const { setBalance, setActive, active } = useUserStellarAcc();
   const session = useSession();
 
   const bal = api.wallate.acc.getAccountBalance.useQuery(undefined, {
     onSuccess: (data) => {
       const { balances, platformAssetBal, xlm } = data;
       setBalance(balances);
+      setActive(true);
+    },
+    onError: (error) => {
+      // toast.error(error.message);
+      setActive(false);
     },
   });
 
@@ -21,19 +27,28 @@ export function SiteAssetBalance() {
   const isFBorGoogle =
     walletType == WalletType.facebook ||
     walletType == WalletType.google ||
-    walletType == WalletType.emailPass;
+    walletType == WalletType.emailPass ||
+    walletType == WalletType.apple;
 
+  if (walletType == WalletType.none) return null;
   if (bal.isLoading) return <div className="skeleton h-10 w-48"></div>;
+  // if (!bal.isSuccess)
+  //   return (
+  //     <div className="flex h-10 w-48 items-center justify-center rounded-2xl bg-error text-white">
+  //       Pubkey Not Active
+  //     </div>
+  //   );
   return (
     <Link
-      className="btn  btn-secondary border-0  bg-base-content"
-      // href={isFBorGoogle ? "/recharge" : "/"}
-      href="/recharge"
+      className="btn  border-0 "
+      href={isFBorGoogle ? "/recharge" : "/"}
+      // href="/recharge"
     >
       <div className="flex flex-col">
-        <p className="flex flex-row text-xs md:text-sm">
-          <span className="hidden md:flex">{env.NEXT_PUBLIC_SITE} :</span>{" "}
-          {bal.data?.platformAssetBal}
+        <p className="flex flex-row items-center text-xs md:text-sm">
+          <span className="hidden md:flex">{PLATFROM_ASSET.code} : </span>
+          {"  " + bal.data?.platformAssetBal}
+          {/* <Plus className="btn btn-square btn-primary btn-sm -mr-4 " /> */}
         </p>
       </div>
     </Link>

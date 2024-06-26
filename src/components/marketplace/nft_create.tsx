@@ -1,5 +1,3 @@
-import { Controller, SubmitHandler, useForm } from "react-hook-form";
-// import { PinataResponse, pinFileToIPFS } from "~/lib/pinata/upload";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { MediaType } from "@prisma/client";
 import clsx from "clsx";
@@ -9,6 +7,7 @@ import Image from "next/image";
 import { clientsign } from "package/connect_wallet";
 import { WalletType } from "package/connect_wallet/src/lib/enums";
 import { ChangeEvent, useRef, useState } from "react";
+import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { z } from "zod";
 import useNeedSign from "~/lib/hook";
@@ -33,7 +32,7 @@ export const NftFormSchema = z.object({
   mediaType: z.nativeEnum(MediaType),
   price: z.number().nonnegative(),
   priceUSD: z.number().nonnegative(),
-  limit: z.number().nonnegative().int(),
+  limit: z.number().nonnegative(),
   code: z
     .string()
     .min(4, { message: "Minimum 4 char" })
@@ -43,8 +42,6 @@ export const NftFormSchema = z.object({
   isAdmin: z.boolean().optional(),
   tier: z.string().optional(),
 });
-
-type NftFormType = z.TypeOf<typeof NftFormSchema>;
 
 export default function NftCreate({ admin: isAdmin }: { admin?: true }) {
   const requiredToken = api.fan.trx.getPlatformTokenPriceForXLM.useQuery({
@@ -163,7 +160,7 @@ function NftCreateForm({
       xdrMutation.mutate({
         code: data.code,
         limit: data.limit,
-        signWith: needSign(),
+        signWith: needSign(isAdmin),
         ipfsHash: ipfs,
       });
   };
@@ -560,8 +557,8 @@ function NftCreateForm({
           </div>
         </div>
       </dialog>
-      <button onClick={handleModal}>
-        <PlusIcon />
+      <button className="btn btn-primary" onClick={handleModal}>
+        <PlusIcon /> Item
       </button>
     </>
   );

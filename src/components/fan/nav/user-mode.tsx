@@ -1,15 +1,13 @@
-import { useRouter } from "next/router";
-import React from "react";
 import { CreatorAvater } from "~/pages/search";
 import { api } from "~/utils/api";
 
-import { Search } from "lucide-react";
-import Link from "next/link";
 import Button from "~/components/ui/button";
+import { Profile } from "./profile-menu";
 
 export function UserMode() {
   return (
-    <div className="m-2 flex flex-1 flex-col gap-2 overflow-auto  rounded-lg  bg-base-200 p-2">
+    <div className="flex h-full flex-1 flex-col gap-2 overflow-auto rounded-lg  bg-base-200/50 p-2">
+      <Profile />
       <AllCreators />
       <BottonNav />
     </div>
@@ -25,9 +23,9 @@ export function AllCreators() {
   );
 
   return (
-    <div className="flex w-full  flex-1 flex-col   items-start gap-4 overflow-y-auto rounded-lg border-4 border-base-100 p-2 pt-5">
-      <p className=" text-lg font-bold">All creators</p>
-      <div className="w-full flex-1 overflow-auto rounded-lg bg-base-300 p-2 scrollbar-hide">
+    <div className="flex w-full  flex-1 flex-col  items-start gap-2 overflow-y-auto rounded-lg border-4 border-base-100 pt-5">
+      <p className="pl-2 text-lg font-bold">All creators</p>
+      <div className="w-full flex-1 overflow-auto rounded-lg  p-2 scrollbar-hide">
         <ul className="">
           {creators.data?.pages.map((page) => {
             return page.items.map((creator) => {
@@ -54,7 +52,11 @@ export function AllCreators() {
 }
 
 function BottonNav() {
-  return <Button path="/fans/notifications" text="Notification" />;
+  return (
+    <div className="flex flex-col gap-1">
+      <Button path="/fans/notifications" text="NOTIFICATION" />
+    </div>
+  );
 }
 
 // function PopularItems() {

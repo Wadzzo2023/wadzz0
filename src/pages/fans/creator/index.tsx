@@ -90,8 +90,8 @@ function ConditionallyRenderMenuPage({ creator }: { creator: Creator }) {
     case CreatorMenu.Membership:
       return <MemberShip creator={creator} />;
 
-    case CreatorMenu.Shop:
-      return <Shop creator={creator} />;
+    // case CreatorMenu.Shop:
+    //   return <Shop creator={creator} />;
   }
 }
 
@@ -135,25 +135,21 @@ function CreateCreator({ requiredToken }: { requiredToken: number }) {
   const xdr = api.fan.trx.createStorageAccount.useMutation({
     onSuccess: (data) => {
       const { xdr, storage } = data;
-      console.log(xdr, storage);
       setSingLoading(true);
 
-      toast(xdr);
       const toastId = toast.loading("Creating account");
       clientsign({
         presignedxdr: xdr,
-        pubkey: session.data?.user.id ?? "",
-        walletType: session.data?.user.walletType ?? WalletType.none,
+        pubkey: session.data?.user.id,
+        walletType: session.data?.user.walletType,
         test: clientSelect(),
       })
         .then((isSucces) => {
           if (isSucces) {
-            toast.success("Your storage account created successfully", {
-              id: toastId,
-            });
+            toast.success("You are now a creator");
             makeCreatorMutation.mutate(storage);
           } else {
-            toast.error("Failed to create account", { id: toastId });
+            toast.error("Failed to create account");
           }
         })
         .catch((e) => console.log(e))
@@ -163,8 +159,6 @@ function CreateCreator({ requiredToken }: { requiredToken: number }) {
         });
     },
   });
-
-  // if (requiredToken.isLoading) return <div>Checking required Action...</div>;
 
   const loading = xdr.isLoading || makeCreatorMutation.isLoading || signLoading;
 

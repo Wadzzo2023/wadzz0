@@ -1,34 +1,64 @@
 import { z } from "zod";
-import { Client, Environment } from "square";
+import {
+  getPlatformAssetNumberForUSD,
+  getPlatformTokenNumberForUSD,
+} from "~/lib/stellar/fan/get_token_price";
+import { sendSiteAsset2pub } from "~/lib/stellar/marketplace/trx/site_asset_recharge";
 
-import {
-  createTRPCRouter,
-  protectedProcedure,
-  publicProcedure,
-} from "~/server/api/trpc";
-import { env } from "~/env";
-import { randomUUID } from "crypto";
-import {
-  sendSiteAsset2pub,
-  sendXLM_SiteAsset,
-} from "~/lib/stellar/marketplace/trx/site_asset_recharge";
-import log from "~/lib/logger/logger";
-import { getAccSecretFromRubyApi } from "package/connect_wallet/src/lib/stellar/get-acc-secret";
+import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
+
+// calling the squire backedapi
+const url = "https://next-actionverse.vercel.app/api/square";
+process.env.NODE_ENV === "production"
+  ? "https://next-actionverse.vercel.app/api/square"
+  : "http://localhost:3000/api/square";
 
 export const payRouter = createTRPCRouter({
+  getRechargeXDR: protectedProcedure
+    .input(z.object({ tokenNum: z.number(), xlm: z.number() }))
+    .mutation(async ({ ctx, input }) => {
+      const user = ctx.session.user;
+      if (user.email) {
+        return await sendSiteAsset2pub(user.id, input.tokenNum);
+      } else {
+        throw new Error("Account has not email associate with it");
+      }
+    }),
   payment: protectedProcedure
     .input(
       z.object({
         sourceId: z.string().optional(),
         amount: z.number(),
-        siteAssetAmount: z.number().int(),
-        xlm: z.number().optional(),
       }),
     )
     .mutation(async ({ input, ctx }) => {
-      const user = ctx.session.user;
-      const pubkey = user.id;
+      const { amount: priceUSD, sourceId } = input;
+      const result = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          sourceId: input.sourceId,
+          priceUSD: priceUSD,
+        }),
+      });
 
+      if (result.ok) {
+        const data = (await result.json()) as { id: string; status: string };
+
+        if (data.status === "COMPLETED") {
+          return true;
+        } else {
+          throw new Error("Payment was not successful");
+        }
+      }
+
+      if (result.status === 400) {
+        throw new Error("Something went wrong with the payment");
+      }
+
+      /*
       if (user.email) {
         const secret = await getAccSecretFromRubyApi(user.email);
 
@@ -71,6 +101,10 @@ export const payRouter = createTRPCRouter({
       } else {
         throw new Error("Account has not email associate with it");
       }
+
+
+      */
+      return false;
     }),
 
   buyAsset: protectedProcedure
@@ -88,6 +122,8 @@ export const payRouter = createTRPCRouter({
       });
 
       const priceUSD = asset.priceUSD;
+
+      /*
       const client = new Client({
         accessToken: env.SQUARE_ACCESS_TOKEN,
         environment: env.SQUARE_ENVIRONMENT as Environment,
@@ -103,14 +139,45 @@ export const payRouter = createTRPCRouter({
           amount: BigInt(priceUSD),
         },
       });
-      if (result.errors) {
-        console.log("error happend", result.errors);
-        throw new Error("Error happend while processing payment");
+      */
+
+      const result = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          sourceId: input.sourceId,
+          priceUSD: priceUSD,
+        }),
+      });
+
+      if (result.ok) {
+        const data = (await result.json()) as { id: string; status: string };
+
+        if (data.status === "COMPLETED") {
+          return true;
+        } else {
+          throw new Error("Payment was not successful");
+        }
       }
-      if (result.payment) {
-        log.info("payment with square was sucessfull");
-        // payment sucessfull
-        return input.assetId;
+
+      if (result.status === 400) {
+        throw new Error("Something went wrong with the payment");
       }
     }),
+
+  getOffers: protectedProcedure.query(async ({ ctx }) => {
+    const tokenNumber = await getPlatformTokenNumberForUSD(1);
+    // console.log(tokenNumber, "ih..");
+
+    const offers = [5, 10, 15, 20].map((price) => {
+      const num = Math.round(tokenNumber * price);
+      return {
+        price,
+        num,
+      };
+    });
+    return offers;
+  }),
 });

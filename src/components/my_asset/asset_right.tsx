@@ -32,17 +32,19 @@ export default function AssetRight() {
   const color = "green";
 
   return (
-    <div className="flex h-full flex-col gap-2 bg-base-300 p-2">
-      <div className=" flex-1 rounded-xl border-4 border-base-100 bg-base-200/80 p-2">
-        <MediaViewer
-          type={currentData.mediaType}
-          mediaUrl={currentData.mediaUrl}
-          thumbnailUrl={currentData.thumbnail}
-          name={currentData.name}
-          color={color}
-        />
+    <div className="flex h-full flex-col gap-2 bg-base-200/50 p-2">
+      <div className=" flex-1  rounded-xl border-4 border-base-100 p-2">
+        <div className="avatar w-full">
+          <MediaViewer
+            type={currentData.mediaType}
+            mediaUrl={currentData.mediaUrl}
+            thumbnailUrl={currentData.thumbnail}
+            name={currentData.name}
+            color={color}
+          />
+        </div>
       </div>
-      <div className=" flex flex-1 flex-col rounded-xl border-4 border-base-100 bg-base-200/80 p-2">
+      <div className=" flex flex-1 flex-col rounded-xl border-4 border-base-100 p-2">
         <>
           <div className="">
             <p>
@@ -82,17 +84,29 @@ function OtherButtons() {
 
   if (currentData) {
     if (selectedMenu == AssetMenu.OWN) {
-      return <PlaceNFT2Storage item={{ ...currentData, copies: 20 }} />;
+      return <PlaceNFT2Storage item={{ ...currentData }} />;
     }
     if (selectedMenu == AssetMenu.STORAGE) {
       return (
-        <MarketButtons code={currentData.code} issuer={currentData.issuer} />
+        <MarketButtons
+          copy={currentData.copies}
+          code={currentData.code}
+          issuer={currentData.issuer}
+        />
       );
     }
   }
 }
 
-function MarketButtons({ code, issuer }: { code: string; issuer: string }) {
+function MarketButtons({
+  code,
+  issuer,
+  copy,
+}: {
+  code: string;
+  issuer: string;
+  copy: number;
+}) {
   const inMarket = api.wallate.acc.getAStorageAssetInMarket.useQuery({
     code,
     issuer,
@@ -102,11 +116,11 @@ function MarketButtons({ code, issuer }: { code: string; issuer: string }) {
   if (inMarket.data)
     return (
       <div>
-        Item is in market
-        <NftBackModal item={{ code, issuer }} />
+        Item has been placed in market
+        <NftBackModal copy={copy} item={{ code, issuer }} />
       </div>
     );
-  else return <EnableInMarket item={{ code, issuer }} />;
+  else return <EnableInMarket copy={copy} item={{ code, issuer }} />;
 }
 
 function MediaViewer(props: {

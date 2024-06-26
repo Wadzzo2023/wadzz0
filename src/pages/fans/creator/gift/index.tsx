@@ -113,7 +113,7 @@ export default function GiftPage() {
             />
           </label>
 
-          <button className="btn btn-secondary my-2" type="submit">
+          <button className="btn btn-primary my-2" type="submit">
             {xdr.isLoading && <span className="loading loading-spinner" />}
             Gift
           </button>
@@ -136,8 +136,7 @@ function CreatorPageBal() {
   if (bal.data) {
     return (
       <p>
-        {" "}
-        You have {bal.data} {PLATFROM_ASSET.code}
+        You have {bal.data.balance} {bal.data.asset}
       </p>
     );
   }

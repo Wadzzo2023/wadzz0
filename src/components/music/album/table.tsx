@@ -58,7 +58,7 @@ function DeleteSongButton({ songId }: { songId: number }) {
     return (
       <td>
         <button
-          className="btn btn-warning btn-sm w-20"
+          className="btn btn-primary btn-sm w-20"
           onClick={() => deleteSongMutation.mutate({ songId })}
         >
           Delete
