@@ -27,7 +27,7 @@ const ReceiveAssetsModal = () => {
         <DialogContent className="overflow-hidden p-0">
           <DialogHeader className="px-6 pt-8">
             <DialogTitle className="text-center text-2xl font-bold">
-              Receive Assets
+              RECEIVE ASSETS
             </DialogTitle>
           </DialogHeader>
           <div className="mt-4 flex flex-col items-center justify-center md:mt-0">

@@ -100,44 +100,44 @@ const Wallets = () => {
             <Card>
               <CardContent className="m-2 p-2">
                 <div className="flex flex-col items-center justify-center md:flex-row md:items-center md:justify-between ">
-                  <div className="flex flex-col items-center justify-center">
-                    <CardTitle className="text-2xl font-bold xl:text-4xl">
+                  <div className="flex flex-col items-center justify-center md:items-start">
+                    <CardTitle className="text-2xl font-bold xl:text-3xl">
                       Current Balance
                     </CardTitle>
-                    <h1 className="text-2xl font-bold xl:text-4xl">
+                    <h1 className="text-2xl font-bold xl:text-3xl">
                       {data?.balance} XLM
                     </h1>
                   </div>
-                  <div className="mt-2 flex items-center justify-between gap-4 md:items-end lg:justify-end">
+                  <div className="mt-2 flex items-center justify-between gap-1 md:items-end lg:justify-end">
                     <Button
+                      size="sm"
                       variant={"default"}
-                      className="md:m-3 md:p-3 md:font-bold"
+                      className="md:text-md  text-xs md:m-3 md:p-3 md:font-bold"
                       onClick={() => onOpen("receive assets")}
                     >
-                      <QrCode size={15} className="hidden md:mr-2 md:block " />
+                      <QrCode size={14} className="mr-1 md:mr-2" />
                       RECEIVE ASSET
                     </Button>
                     <Button
                       variant="default"
-                      className="md:m-3 md:p-3 md:font-bold"
+                      size="sm"
+                      className="md:text-md text-xs md:m-3 md:p-3 md:font-bold"
                       onClick={() => onOpen("send assets")}
                     >
-                      <Send size={15} className="hidden md:mr-2 md:block " />{" "}
-                      SEND ASSETS
+                      <Send size={14} className="mr-1 md:mr-2 " /> SEND ASSETS
                     </Button>
                     <Button
+                      size="sm"
                       variant="default"
-                      className="md:text-md 0 text-xs md:m-3 md:p-3 md:font-bold"
+                      className=" md:text-md text-xs md:m-3 md:p-3 md:font-bold"
                       onClick={() => onOpen("add assets")}
                     >
-                      <Plus size={15} className="hidden md:mr-2 md:block " />{" "}
-                      ADD ASSETS
+                      <Plus size={14} className="mr-1 md:mr-2 " /> ADD ASSETS
                     </Button>
                   </div>
                 </div>
               </CardContent>
             </Card>
-
             <WBRightSideBar />
           </div>
         </div>

@@ -128,7 +128,7 @@ const AddAssets = () => {
       <DialogContent className="overflow-hidden p-0">
         <DialogHeader className="px-6 pt-8">
           <DialogTitle className="text-center text-2xl font-bold">
-            Send Assets
+            ADD ASSETS
           </DialogTitle>
         </DialogHeader>
         <Form {...form}>
