@@ -9,7 +9,7 @@ import { STROOP, STELLAR_URL } from "../constant";
 import { STORAGE_SECRET } from "../SECRET";
 import { SITE_ASSET, SITE_ASSET_OBJ } from "./constant";
 import { networkPassphrase } from "../constant";
-import { PLATFROM_ASSET } from "../../fan/constant";
+import { PLATFROM_ASSET } from "../../constant";
 
 async function checkSiteAssetTrustLine(accPub: string) {
   const server = new Horizon.Server(STELLAR_URL);

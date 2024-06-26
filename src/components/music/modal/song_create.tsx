@@ -9,7 +9,7 @@ import { WalletType, clientsign } from "package/connect_wallet";
 import { useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { z } from "zod";
-import { PLATFROM_ASSET } from "~/lib/stellar/fan/constant";
+import { PLATFROM_ASSET } from "~/lib/stellar/constant";
 import { AccountSchema } from "~/lib/stellar/fan/utils";
 import { api } from "~/utils/api";
 import { UploadButton } from "~/utils/uploadthing";

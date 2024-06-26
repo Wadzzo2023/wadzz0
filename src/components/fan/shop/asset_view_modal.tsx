@@ -1,16 +1,13 @@
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useSession } from "next-auth/react";
 import { ReactNode, useRef, useState } from "react";
-import { Maximize } from "lucide-react";
-import Image from "next/image";
+import { SubmitHandler, useForm } from "react-hook-form";
+import { z } from "zod";
 import {
   AssetDetails,
   MarketAssetType,
 } from "~/components/marketplace/market_right";
-import { truncateString } from "~/utils/string";
-import { useSession } from "next-auth/react";
-import { SubmitHandler, useForm } from "react-hook-form";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { PLATFROM_ASSET } from "~/lib/stellar/fan/constant";
+import { PLATFROM_ASSET } from "~/lib/stellar/constant";
 import { api } from "~/utils/api";
 
 type PlaceMarketModalProps = {

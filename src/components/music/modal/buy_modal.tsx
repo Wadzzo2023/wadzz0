@@ -1,25 +1,18 @@
 import { useRef, useState } from "react";
 import { api } from "~/utils/api";
 
+import clsx from "clsx";
 import { useSession } from "next-auth/react";
 import { WalletType, clientsign } from "package/connect_wallet";
 import toast from "react-hot-toast";
-import {
-  AssetType,
-  SongTokenCopies,
-  TokenCopies,
-} from "~/components/marketplace/market_right";
+import { AssetType } from "~/components/marketplace/market_right";
+import BuyWithSquire from "~/components/marketplace/pay/buy_with_squire";
+import Alert from "~/components/ui/alert";
 import useNeedSign from "~/lib/hook";
+import { useUserStellarAcc } from "~/lib/state/wallete/stellar-balances";
+import { PLATFROM_ASSET } from "~/lib/stellar/constant";
 import { clientSelect } from "~/lib/stellar/fan/utils";
 import { addrShort } from "~/utils/utils";
-import BuyWithSquire from "~/components/marketplace/pay/buy_with_squire";
-import { useUserStellarAcc } from "~/lib/state/wallete/stellar-balances";
-import { get } from "lodash";
-import { getPlaiceholder } from "plaiceholder";
-import { getPlatfromAssetPrice } from "~/lib/stellar/fan/get_token_price";
-import clsx from "clsx";
-import { PLATFROM_ASSET } from "~/lib/stellar/fan/constant";
-import Alert from "~/components/ui/alert";
 
 type BuyModalProps = {
   item: AssetType;
