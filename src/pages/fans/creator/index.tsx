@@ -106,7 +106,7 @@ export function ValidCreateCreator({ message }: { message?: string }) {
   // if (!platformAssetBalance) return <div>Check your Account</div>;
 
   if (requiredToken.data) {
-    const requiredTokenNumber = requiredToken.data + Number(PLATFROM_FEE);
+    const requiredTokenNumber = requiredToken.data;
     if (platformAssetBalance >= requiredTokenNumber) {
       return <CreateCreator requiredToken={requiredTokenNumber} />;
     } else {
@@ -164,10 +164,10 @@ function CreateCreator({ requiredToken }: { requiredToken: number }) {
 
   return (
     <div className="flex h-full flex-col items-center justify-center gap-2 ">
-      <p className="text-2xl font-bold">You are not a creator</p>
-      <p className="alert-info">
-        Your account should have minimum {requiredToken} ${PLATFROM_ASSET.code}{" "}
-        to be a creator.
+      <p className="text-2xl font-bold">You are not a brand</p>
+      <p className="alert alert-info max-w-xl text-center">
+        Your account should have minimum {requiredToken} {PLATFROM_ASSET.code}{" "}
+        to be a brand.
       </p>
       <button
         className="btn btn-primary"
@@ -175,7 +175,7 @@ function CreateCreator({ requiredToken }: { requiredToken: number }) {
         disabled={loading}
       >
         {loading && <span className="loading loading-spinner" />}
-        Be a creator
+        Join as a brand
       </button>
     </div>
   );

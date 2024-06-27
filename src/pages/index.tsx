@@ -5,7 +5,7 @@ import { useUserStellarAcc } from "~/lib/state/wallete/stellar-balances";
 import { api } from "~/utils/api";
 
 export default function Home() {
-    const { setBalance } = useUserStellarAcc();
+  const { setBalance } = useUserStellarAcc();
   const acc = api.wallate.acc.getUserPubAssetBallances.useQuery(undefined, {
     onSuccess: (data) => {
       console.log(data);
@@ -22,7 +22,7 @@ export default function Home() {
         <title>{env.NEXT_PUBLIC_SITE}</title>
         <meta
           name="description"
-          content="A subscription-based platform that connects bands & creators with their fans on Stellar Blockchain."
+          content="A subscription-based platform that connects brands & creators with their fans on Stellar Blockchain."
         />
         <link rel="icon" href="/favicon.ico" />
       </Head>

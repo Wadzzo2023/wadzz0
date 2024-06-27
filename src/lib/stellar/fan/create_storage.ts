@@ -41,7 +41,9 @@ export async function createStorageTrx({
   // total platform token r
 
   const requiredAsset2refundXlm = await getplatformAssetNumberForXLM(5);
-  const totalAction = requiredAsset2refundXlm + Number(PLATFROM_FEE);
+  const totalAction = (requiredAsset2refundXlm + Number(PLATFROM_FEE)).toFixed(
+    7,
+  );
 
   const Tx1 = new TransactionBuilder(transactionInializer, {
     fee: "200",

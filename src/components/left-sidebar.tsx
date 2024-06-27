@@ -7,6 +7,7 @@ import { HomeIcon, Settings2, Diamond, Bell } from "lucide-react";
 import Image from "next/image";
 import { cn } from "~/utils/utils";
 import { env } from "~/env";
+import { i } from "vitest/dist/reporters-yx5ZTtEV";
 
 export const LeftNavigation = {
   Home: { path: "/", icon: HomeIcon, text: "HOMEPAGE" },

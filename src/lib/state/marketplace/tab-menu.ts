@@ -1,7 +1,7 @@
 import { create } from "zustand";
 
 export enum MarketMenu {
-  Wallate = "Bandcoin Curated",
+  Wallate = "Wadzzo Curated",
   Music = "Music",
   FanAsset = "Brand Asset",
 }

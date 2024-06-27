@@ -202,11 +202,11 @@ export default function SongCreate({ albumId }: { albumId: number }) {
                   </div>
 
                   <div className="w-full max-w-xs">
-                    <label className="label">Artist</label>
+                    <label className="label">Brand</label>
                     <input
                       {...register("artist")}
                       className="input input-sm input-bordered  w-full"
-                      placeholder="Enter Artist Name"
+                      placeholder="Enter Brand Name"
                     />
                   </div>
                 </div>
