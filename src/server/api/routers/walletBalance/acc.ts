@@ -2,7 +2,7 @@ import { sign } from "crypto";
 import { add } from "date-fns";
 import { z } from "zod";
 import { SignUser } from "~/lib/stellar/utils";
-import { AddAssetTrustLine, BalanceWithHomeDomain, AcceptClaimableBalance, NativeBalance, PendingAssetList, RecentTransactionHistory, SendAssets, DeclineClaimableBalance } from "~/lib/stellar/walletBalance/acc";
+import { AddAssetTrustLine, BalanceWithHomeDomain, AcceptClaimableBalance, NativeBalance, PendingAssetList, RecentTransactionHistory, SendAssets, DeclineClaimableBalance, CheckHasTrustLineOnPlatformAsset, PlatformAssetBalance } from "~/lib/stellar/walletBalance/acc";
 import {User} from "firebase/auth";
 import {
   createTRPCRouter,
@@ -156,6 +156,16 @@ declineClaimBalance :protectedProcedure.input(
       signWith: input.signWith,
       secretKey: secretKey
      });
+  }),
+
+  checkingPlatformTrustLine : protectedProcedure.query(async ({ ctx, input }) => {
+    const userPubKey = ctx.session.user.id;
+    return await CheckHasTrustLineOnPlatformAsset({userPubKey: userPubKey});
+  }
+  ),
+  getPlatformAssetBalance : protectedProcedure.query(async ({ ctx, input }) => {
+    const userPubKey = ctx.session.user.id;
+    return await PlatformAssetBalance({userPubKey: userPubKey});
   }),
 
 });

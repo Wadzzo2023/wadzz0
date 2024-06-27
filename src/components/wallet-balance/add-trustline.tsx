@@ -52,34 +52,35 @@ const AddTrustLine = () => {
 
   const AddTrustMutation =
     api.walletBalance.wallBalance.addTrustLine.useMutation({
-      onSuccess(data) {
-        clientsign({
-          walletType: session?.data?.user?.walletType,
-          presignedxdr: data.xdr,
-          pubkey: data.pubKey,
-          test: clientSelect(),
-        })
-          .then((data) => {
-            if (data) {
-              toast.success("Added trustline successfully");
-              api
-                .useUtils()
-                .walletBalance.wallBalance.getWalletsBalance.refetch()
-                .catch(() => console.log("Error refetching balance"));
-            } else {
-              toast.error("No Data Found at TrustLine Operation");
-            }
-          })
-          .catch((e) => {
-            toast.error(`Error: ${e}` || "Something went wrong.");
-          })
-          .finally(() => {
-            setLoading(false);
-            handleClose();
+      onSuccess: async (data) => {
+        try {
+          const clientResponse = await clientsign({
+            walletType: session?.data?.user?.walletType,
+            presignedxdr: data.xdr,
+            pubkey: data.pubKey,
+            test: clientSelect(),
           });
-      },
 
-      onError(error) {
+          if (clientResponse) {
+            toast.success("Added trustline successfully");
+            try {
+              await api
+                .useUtils()
+                .walletBalance.wallBalance.getWalletsBalance.refetch();
+            } catch (refetchError) {
+              console.log("Error refetching balance", refetchError);
+            }
+          } else {
+            toast.error("No Data Found at TrustLine Operation");
+          }
+        } catch (error) {
+          console.log("Error", error);
+        } finally {
+          setLoading(false);
+          handleClose();
+        }
+      },
+      onError: (error) => {
         setLoading(false);
         toast.error(error.message);
       },

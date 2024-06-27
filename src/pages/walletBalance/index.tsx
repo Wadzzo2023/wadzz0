@@ -29,7 +29,6 @@ import {
 } from "package/connect_wallet/src/lib/stellar/utils";
 
 import toast from "react-hot-toast";
-import { useUserStellarAcc } from "~/lib/state/wallete/stellar-balances";
 
 const Wallets = () => {
   const session = useSession();
@@ -37,10 +36,9 @@ const Wallets = () => {
   const { needSign } = useNeedSign();
   const [isAccountActivate, setAccountActivate] = useState(false);
   const [isAccountActivateLoading, setAccountActivateLoading] = useState(false);
-  const { platformAssetBalance, hasTrustLine } = useUserStellarAcc();
 
   const [isLoading, setLoading] = useState(false);
-  console.log("platformAssetBalance", platformAssetBalance, hasTrustLine);
+
   async function checkAccountActivity(publicKey: string) {
     setAccountActivateLoading(true);
     const isActive = await checkStellarAccountActivity(publicKey);
@@ -48,6 +46,16 @@ const Wallets = () => {
     setAccountActivate(isActive);
     setAccountActivateLoading(false);
   }
+
+  const {
+    data: hasTrustLineOnPlatformAsset,
+    isLoading: checkingPlatformLoading,
+  } = api.walletBalance.wallBalance.checkingPlatformTrustLine.useQuery();
+
+  const { data: platformBalance, isLoading: getPlatformLoading } =
+    api.walletBalance.wallBalance.getPlatformAssetBalance.useQuery(undefined, {
+      enabled: hasTrustLineOnPlatformAsset,
+    });
 
   const checkStatus = useCallback(async () => {
     const user = session.data?.user;
@@ -63,38 +71,38 @@ const Wallets = () => {
 
   const AddTrustMutation =
     api.walletBalance.wallBalance.addTrustLine.useMutation({
-      onSuccess(data) {
-        clientsign({
-          walletType: session?.data?.user?.walletType,
-          presignedxdr: data.xdr,
-          pubkey: data.pubKey,
-          test: clientSelect(),
-        })
-          .then((data) => {
-            if (data) {
-              toast.success("Added trustline successfully");
-              api
-                .useUtils()
-                .walletBalance.wallBalance.getWalletsBalance.refetch()
-                .catch(() => console.log("Error refetching balance"));
-            } else {
-              toast.error("No Data Found at TrustLine Operation");
-            }
-          })
-          .catch((e) => {
-            toast.error(`Error: ${e}` || "Something went wrong.");
-          })
-          .finally(() => {
-            setLoading(false);
+      onSuccess: async (data) => {
+        try {
+          const clientResponse = await clientsign({
+            walletType: session?.data?.user?.walletType,
+            presignedxdr: data.xdr,
+            pubkey: data.pubKey,
+            test: clientSelect(),
           });
-      },
 
-      onError(error) {
+          if (clientResponse) {
+            toast.success("Added trustline successfully");
+            try {
+              await api
+                .useUtils()
+                .walletBalance.wallBalance.getWalletsBalance.refetch();
+            } catch (refetchError) {
+              console.log("Error refetching balance", refetchError);
+            }
+          } else {
+            toast.error("No Data Found at TrustLine Operation");
+          }
+        } catch (error) {
+          console.log("Error", error);
+        } finally {
+          setLoading(false);
+        }
+      },
+      onError: (error) => {
         setLoading(false);
         toast.error(error.message);
       },
     });
-
   const handleSubmit = async () => {
     setLoading(true);
     AddTrustMutation.mutate({
@@ -120,6 +128,9 @@ const Wallets = () => {
         <Loading text={text} />
       </div>
     );
+  }
+  if (checkingPlatformLoading || getPlatformLoading) {
+    return <Loading text="Fetching Data" />;
   }
 
   if (!isAccountActivate) {
@@ -164,7 +175,7 @@ const Wallets = () => {
       </div>
     );
   }
-  console.log("platformAssetBalance", platformAssetBalance);
+
   return (
     <div className=" min-h-screen overflow-hidden p-1">
       <div className="grid gap-6 lg:grid-cols-3">
@@ -174,13 +185,16 @@ const Wallets = () => {
               <CardContent className="m-2 p-2">
                 <div className="flex flex-col items-center justify-center md:flex-row md:items-center md:justify-between ">
                   <div className="flex flex-col items-center justify-center md:items-start">
-                    {hasTrustLine ? (
+                    {hasTrustLineOnPlatformAsset ? (
                       <>
                         <CardTitle className="text-xl font-bold xl:text-2xl">
                           Current Balance
                         </CardTitle>
                         <h1 className="text-xl font-bold xl:text-3xl">
-                          {platformAssetBalance} Wadzzo
+                          {platformBalance?.toString() === "0.0000000"
+                            ? "0"
+                            : platformBalance?.toString()}{" "}
+                          Wadzzo
                         </h1>
                       </>
                     ) : (

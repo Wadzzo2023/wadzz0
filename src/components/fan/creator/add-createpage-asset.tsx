@@ -253,7 +253,7 @@ function AddCreatorPageAssetModalFrom({
                   {...register("limit", { valueAsNumber: true })}
                   min={1}
                   step={1}
-                  className="input input-bordered input-sm  w-full"
+                  className="input input-sm input-bordered  w-full"
                   placeholder="You asset limit?"
                 />
                 {errors.limit && (

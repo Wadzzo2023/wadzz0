@@ -1,5 +1,5 @@
 import { Asset, BASE_FEE, Claimant, Keypair, Networks, Operation, Transaction, TransactionBuilder } from "@stellar/stellar-sdk";
-import { STELLAR_URL } from "./constant";
+import { PLATFROM_ASSET, STELLAR_URL } from "./constant";
 
 import { Horizon } from "@stellar/stellar-sdk";
 import { StellarAccount } from "../marketplace/test/Account";
@@ -495,5 +495,46 @@ export async function DeclineClaimableBalance({
   }
   return { xdr: buildTrx.toXDR(), pubKey: pubKey };
 }
+export async function CheckHasTrustLineOnPlatformAsset({
+  userPubKey,
+}: {
+  userPubKey: string;
+}) {
+  const server = new Horizon.Server(STELLAR_URL);
+  const account = await server.loadAccount(userPubKey);
+  const findAsset = account.balances.find((balance) => {
+    if (
+      (balance.asset_type === 'credit_alphanum4' || balance.asset_type === 'credit_alphanum12') &&
+      balance.asset_code === PLATFROM_ASSET.code &&
+      balance.asset_issuer === PLATFROM_ASSET.issuer
+    ) {
+      return true;
+    }
+    return false;
+  });
 
+  return !!findAsset;
+}
+
+
+export async function PlatformAssetBalance({
+  userPubKey,
+}: {
+  userPubKey: string;
+}) {
+  const server = new Horizon.Server(STELLAR_URL);
+  const account = await server.loadAccount(userPubKey);
+  const findAsset = account.balances.find((balance) => {
+    if (
+      (balance.asset_type === 'credit_alphanum4' || balance.asset_type === 'credit_alphanum12') &&
+      balance.asset_code === PLATFROM_ASSET.code &&
+      balance.asset_issuer === PLATFROM_ASSET.issuer
+    ) {
+      return balance.balance;
+    }
+    return false;
+  });
+
+  return findAsset ? findAsset.balance : 0;
+}
 
