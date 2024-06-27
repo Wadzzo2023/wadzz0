@@ -68,7 +68,7 @@ function App() {
         <MyPins />
       </Map>
       <ManualPinButton handleClick={handleManualPinClick} />
-      {(clickedPos || manual) && (
+      {(clickedPos ?? manual) && (
         <CreatePinModal modal={modal} position={clickedPos} manual={manual} />
       )}
     </APIProvider>
