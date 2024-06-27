@@ -63,7 +63,7 @@ function LeftBottom() {
       <ConnectWalletButton />
       <div className="flex justify-between space-x-2">
         <Link
-          href={"https://facebook.com/wadzzo"}
+          href={"https://facebook.com/bandcoinio"}
           className="btn flex h-16 flex-col items-center  text-xs normal-case"
           target="_blank"
         >
@@ -71,7 +71,7 @@ function LeftBottom() {
           <span>Facebook</span>
         </Link>
         <Link
-          href={"https://twitter.com/WadzzoApp"}
+          href={"https://x.com/bandcoinio"}
           className="btn flex h-16 flex-1 flex-col items-center text-xs normal-case "
           target="_blank"
         >
@@ -79,7 +79,7 @@ function LeftBottom() {
           <span>X</span>
         </Link>
         <Link
-          href={"https://instagram.com/wadzzo/"}
+          href={"https://www.instagram.com/bandcoin"}
           className="btn flex h-16 flex-col items-center text-xs normal-case"
           target="_blank"
         >
