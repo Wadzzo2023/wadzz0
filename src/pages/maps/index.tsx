@@ -4,6 +4,7 @@ import {
   Map,
   MapMouseEvent,
 } from "@vis.gl/react-google-maps";
+import { MapPin, Pin } from "lucide-react";
 import Image from "next/image";
 import React, { useState } from "react";
 import { Loading } from "react-daisyui";
@@ -16,6 +17,7 @@ import { api } from "~/utils/api";
 function App() {
   const modal = React.useRef<HTMLDialogElement>(null);
   const [clickedPos, updatePos] = useState<google.maps.LatLngLiteral>();
+  const [manual, setManual] = useState<boolean>();
   const { setBalance } = useCreatorStorageAcc();
 
   // queries
@@ -31,6 +33,7 @@ function App() {
   });
 
   function handleMapClick(event: MapMouseEvent): void {
+    setManual(false);
     const position = event.detail.latLng;
     if (position) {
       updatePos(position);
@@ -40,6 +43,12 @@ function App() {
         `Latitude: ${position.lat.toPrecision(5)}, Longitude: ${position.lng.toPrecision(5)}`,
       );
     }
+  }
+
+  function handleManualPinClick() {
+    setManual(true);
+    updatePos(undefined);
+    modal.current?.showModal();
   }
 
   return (
@@ -58,8 +67,21 @@ function App() {
       >
         <MyPins />
       </Map>
-      {clickedPos && <CreatePinModal modal={modal} position={clickedPos} />}
+      <ManualPinButton handleClick={handleManualPinClick} />
+      {(clickedPos || manual) && (
+        <CreatePinModal modal={modal} position={clickedPos} manual={manual} />
+      )}
     </APIProvider>
+  );
+}
+
+function ManualPinButton({ handleClick }: { handleClick: () => void }) {
+  return (
+    <div className="absolute bottom-2 right-2">
+      <div className="btn btn-circle" onClick={handleClick}>
+        <MapPin />
+      </div>
+    </div>
   );
 }
 

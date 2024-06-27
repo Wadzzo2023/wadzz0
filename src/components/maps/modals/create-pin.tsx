@@ -19,8 +19,8 @@ type AssetType = {
 };
 
 export const createPinFormSchema = z.object({
-  lat: z.number(),
-  lng: z.number(),
+  lat: z.number().min(-180).max(180),
+  lng: z.number().min(-180).max(180),
   description: z.string(),
   title: z.string().min(3),
   image: z.string().url().optional(),
@@ -38,9 +38,11 @@ export const createPinFormSchema = z.object({
 export default function CreatePinModal({
   modal,
   position,
+  manual,
 }: {
   modal: React.RefObject<HTMLDialogElement>;
   position?: google.maps.LatLngLiteral;
+  manual?: boolean;
 }) {
   // hooks
   const [isSinglePin, setIsSinglePin] = useState(true);
@@ -112,7 +114,7 @@ export default function CreatePinModal({
     onSuccess: () => {
       reset();
       modal.current?.close();
-      toast.success("Pin created successfully");
+      toast.success("Pin sent for approval");
     },
   });
 
@@ -130,11 +132,12 @@ export default function CreatePinModal({
     if (position) {
       setValue("lat", position.lat);
       setValue("lng", position.lng);
-      console.log(data);
+      // console.log(data);
       // return;
       addPinM.mutate(data);
     } else {
-      toast.error("Please select a location on the map");
+      // toast.error("Please select a location on the map");
+      addPinM.mutate(data);
     }
   };
 
@@ -169,24 +172,15 @@ export default function CreatePinModal({
           <form className="mt-5" onSubmit={handleSubmit(onSubmit)}>
             <h2 className="mb-2 text-center text-lg font-bold">Create Pin</h2>
             <div className="flex flex-col space-y-4">
-              <p>
-                Latitude: <span className="text-blue-500">{position?.lat}</span>
-                <br></br>
-                Longitude:{" "}
-                <span className="text-blue-500">{position?.lng}</span>
-              </p>
-
+              <ManualLatLanInputField />
               <AssetTypeTab />
-
               <div className="flex justify-between">
                 {assetsDropdown}
                 {selectedToken && isPageAsset !== undefined && (
                   <TokenInStorage bal={selectedToken.bal} />
                 )}
               </div>
-
               <AvailableTokenField />
-
               <div className="flex flex-col space-y-2">
                 <label htmlFor="title" className="text-sm font-medium">
                   Title
@@ -201,7 +195,6 @@ export default function CreatePinModal({
                   <p className="text-red-500">{errors.title.message}</p>
                 )}
               </div>
-
               <div className="flex flex-col space-y-2">
                 <label htmlFor="description" className="text-sm font-medium">
                   Description
@@ -215,7 +208,6 @@ export default function CreatePinModal({
                   <p className="text-red-500">{errors.description.message}</p>
                 )}
               </div>
-
               <div className="flex flex-col space-y-2">
                 <label htmlFor="startDate" className="text-sm font-medium">
                   Start Date
@@ -230,7 +222,6 @@ export default function CreatePinModal({
                   <p className="text-red-500">{errors.startDate.message}</p>
                 )}
               </div>
-
               <div className="flex flex-col space-y-2">
                 <label htmlFor="endDate" className="text-sm font-medium">
                   End Date
@@ -245,7 +236,6 @@ export default function CreatePinModal({
                   <p className="text-red-500">{errors.endDate.message}</p>
                 )}
               </div>
-
               <div className="flex items-center space-x-2">
                 <input
                   type="checkbox"
@@ -257,7 +247,6 @@ export default function CreatePinModal({
                   Auto Collect
                 </label>
               </div>
-
               {/* <div className="flex flex-col space-y-2">
                 <label htmlFor="limit" className="text-sm font-medium">
                   Limit
@@ -272,7 +261,6 @@ export default function CreatePinModal({
                   <p className="text-red-500">{errors.limit.message}</p>
                 )}
               </div> */}
-
               <button
                 type="submit"
                 className="btn btn-primary"
@@ -495,6 +483,40 @@ export default function CreatePinModal({
         </a>
       </div>
     );
+  }
+
+  function ManualLatLanInputField() {
+    if (manual)
+      return (
+        <div>
+          <div className="flex flex-col space-y-2">
+            <label className="text-sm font-medium">Latitude</label>
+            <input
+              type="number"
+              {...register("lat", { valueAsNumber: true })}
+              className="input input-bordered"
+            />
+            {errors.lat && <p className="text-red-500">{errors.lat.message}</p>}
+          </div>
+          <div className="flex flex-col space-y-2">
+            <label className="text-sm font-medium">Longitude</label>
+            <input
+              type="number"
+              {...register("lng", { valueAsNumber: true })}
+              className="input input-bordered"
+            />
+            {errors.lng && <p className="text-red-500">{errors.lng.message}</p>}
+          </div>
+        </div>
+      );
+    else
+      return (
+        <p>
+          Latitude: <span className="text-blue-500">{position?.lat}</span>
+          <br></br>
+          Longitude: <span className="text-blue-500">{position?.lng}</span>
+        </p>
+      );
   }
 }
 

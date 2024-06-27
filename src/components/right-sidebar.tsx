@@ -14,6 +14,8 @@ import Drawer from "./drawer";
 export const AssetVariant = { ...MarketType, Other: "Other" } as const;
 
 export default function RightSideBar() {
+  const router = useRouter();
+  if (router.pathname.includes("/maps")) return undefined;
   return (
     <div>
       <div className="absolute bottom-0 right-0 lg:hidden">
