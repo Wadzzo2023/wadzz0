@@ -199,7 +199,7 @@ const Wallets = () => {
                           {platformBalance?.toString() === "0.0000000"
                             ? "0"
                             : platformBalance?.toString()}{" "}
-                          Wadzzo
+                          <span className="text-lg">Wadzzo</span>
                         </h1>
                       </>
                     ) : (
