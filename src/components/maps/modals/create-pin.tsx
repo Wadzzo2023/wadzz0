@@ -494,7 +494,7 @@ export default function CreatePinModal({
             <label className="text-sm font-medium">Latitude</label>
             <input
               type="number"
-              step={0.0000000000000001}
+              step={0.0000000000000000001}
               {...register("lat", { valueAsNumber: true })}
               className="input input-bordered"
             />
@@ -503,7 +503,7 @@ export default function CreatePinModal({
           <div className="flex flex-col space-y-2">
             <label className="text-sm font-medium">Longitude</label>
             <input
-              step={0.00000000000000001}
+              step={0.0000000000000000001}
               type="number"
               {...register("lng", { valueAsNumber: true })}
               className="input input-bordered"
