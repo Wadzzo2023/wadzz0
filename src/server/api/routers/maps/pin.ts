@@ -107,7 +107,7 @@ export const pinRouter = createTRPCRouter({
 
   getPins: adminProcedure.query(async ({ ctx, input }) => {
     const pins = await ctx.db.location.findMany({
-      where: { approved: { equals: undefined }, endDate: { gte: new Date() } },
+      where: { approved: { equals: null }, endDate: { gte: new Date() } },
       orderBy: { createdAt: "desc" },
     });
 
