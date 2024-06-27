@@ -74,6 +74,11 @@ const AddTrustLine = () => {
             toast.error("No Data Found at TrustLine Operation");
           }
         } catch (error) {
+          if (error instanceof Error) {
+            toast.error(`Error: ${error.message}`);
+          } else {
+            toast.error("An unknown error occurred.");
+          }
           console.log("Error", error);
         } finally {
           setLoading(false);

@@ -122,42 +122,53 @@ const SendAssets = () => {
       return null;
     })
     .filter((balance): balance is BalanceType => balance !== null);
-
   const SendMutation =
     api.walletBalance.wallBalance.sendWalletAssets.useMutation({
-      onSuccess(data) {
-        console.log("Type", session.data?.user?.walletType);
-        clientsign({
-          presignedxdr: data.xdr,
-          walletType: session.data?.user?.walletType,
-          pubkey: data.pubKey,
-          test: clientSelect(),
-        })
-          .then((data) => {
-            if (data) {
-              toast.success("Transaction successful");
-              api
-                .useUtils()
-                .walletBalance.wallBalance.getWalletsBalance.refetch()
-                .catch(() => console.log("Error refetching balance"));
-
-              api
-                .useUtils()
-                .walletBalance.wallBalance.getNativeBalance.refetch()
-                .catch(() => console.log("Error refetching balance"));
-            } else {
-              toast.error("Transaction failed");
-            }
-          })
-          .catch((e) => {
-            toast.error(`Error: ${e}` || "Something went wrong.");
-          })
-          .finally(() => {
-            setLoading(false);
-            handleClose();
+      onSuccess: async (data) => {
+        try {
+          console.log("Type", session.data?.user?.walletType);
+          const clientResponse = await clientsign({
+            presignedxdr: data.xdr,
+            walletType: session.data?.user?.walletType,
+            pubkey: data.pubKey,
+            test: clientSelect(),
           });
+
+          if (clientResponse) {
+            toast.success("Transaction successful");
+            try {
+              await api
+                .useUtils()
+                .walletBalance.wallBalance.getWalletsBalance.refetch();
+            } catch (balanceError) {
+              console.log("Error refetching wallets balance", balanceError);
+            }
+
+            try {
+              await api
+                .useUtils()
+                .walletBalance.wallBalance.getNativeBalance.refetch();
+            } catch (nativeBalanceError) {
+              console.log(
+                "Error refetching native balance",
+                nativeBalanceError,
+              );
+            }
+          } else {
+            toast.error("Transaction failed");
+          }
+        } catch (signError) {
+          if (signError instanceof Error) {
+            toast.error(`Error: ${signError.message}`);
+          } else {
+            toast.error("Something went wrong.");
+          }
+        } finally {
+          setLoading(false);
+          handleClose();
+        }
       },
-      onError(error) {
+      onError: (error) => {
         setLoading(false);
         toast.error(error.message);
       },
