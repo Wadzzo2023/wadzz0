@@ -109,7 +109,6 @@ export default function CreatePinModal({
     .otherwise(() => <p>Failed to fetch assets</p>);
 
   // mutations
-
   const addPinM = api.maps.pin.createPin.useMutation({
     onSuccess: () => {
       reset();
@@ -181,6 +180,7 @@ export default function CreatePinModal({
                 )}
               </div>
               <AvailableTokenField />
+              <PinTypeField />
               <div className="flex flex-col space-y-2">
                 <label htmlFor="title" className="text-sm font-medium">
                   Title
@@ -301,7 +301,7 @@ export default function CreatePinModal({
         <>
           <div className="flex flex-col space-y-2">
             <label htmlFor="radius" className="text-sm font-medium">
-              Radius
+              Radius (meters)
             </label>
             <input
               type="number"
@@ -316,7 +316,7 @@ export default function CreatePinModal({
 
           <div className="flex flex-col space-y-2">
             <label htmlFor="pinNumber" className="text-sm font-medium">
-              Pin Number
+              Number of pins
             </label>
             <input
               type="number"
@@ -367,58 +367,57 @@ export default function CreatePinModal({
         </>
       );
     }
-    if (isPageAsset === undefined) {
-      return (
-        <>
-          <div role="tablist" className="tabs-boxed tabs max-w-xs">
-            <a
-              role="tab"
-              className={clsx("tab", isSinglePin && "tab-active")}
-              onClick={() => {
-                setIsSinglePin(true);
-                setValue("isSinglePin", true);
-              }}
-            >
-              Single Pin
-            </a>
-            <a
-              role="tab"
-              className={clsx("tab", !isSinglePin && "tab-active")}
-              onClick={() => {
-                setIsSinglePin(false);
-                setValue("isSinglePin", false);
-              }}
-            >
-              Multipin
-            </a>
+  }
+
+  function PinTypeField() {
+    return (
+      <>
+        <div role="tablist" className="tabs-boxed tabs max-w-xs">
+          <a
+            role="tab"
+            className={clsx("tab", isSinglePin && "tab-active")}
+            onClick={() => {
+              setIsSinglePin(true);
+              setValue("isSinglePin", true);
+            }}
+          >
+            Single Pin
+          </a>
+          <a
+            role="tab"
+            className={clsx("tab", !isSinglePin && "tab-active")}
+            onClick={() => {
+              setIsSinglePin(false);
+              setValue("isSinglePin", false);
+            }}
+          >
+            Multipin
+          </a>
+        </div>
+
+        <MultipinField />
+
+        <label className="form-control w-full">
+          <div className="label">
+            <span className="label-text">How many user can collect a pin?</span>
           </div>
 
-          <MultipinField />
-
-          <label className="form-control w-full">
+          <input
+            type="number"
+            id="perUserTokenAmount"
+            {...register("pinCollectionLimit", { valueAsNumber: true })}
+            className="input input-bordered"
+          />
+          {errors.pinCollectionLimit && (
             <div className="label">
-              <span className="label-text">
-                How many user can collect a pin?
+              <span className="label-text-alt text-red-500">
+                {errors.pinCollectionLimit.message}
               </span>
             </div>
-
-            <input
-              type="number"
-              id="perUserTokenAmount"
-              {...register("pinCollectionLimit", { valueAsNumber: true })}
-              className="input input-bordered"
-            />
-            {errors.pinCollectionLimit && (
-              <div className="label">
-                <span className="label-text-alt text-red-500">
-                  {errors.pinCollectionLimit.message}
-                </span>
-              </div>
-            )}
-          </label>
-        </>
-      );
-    }
+          )}
+        </label>
+      </>
+    );
   }
 
   function AssetTypeTab() {
@@ -445,6 +444,8 @@ export default function CreatePinModal({
               setValue("token", undefined);
             } else {
               toast.error("No page asset found");
+              // setSelectedToken(undefined);
+              // setIsPageAsset(undefined);
             }
 
             if (isPageAsset === false) {
@@ -493,6 +494,7 @@ export default function CreatePinModal({
             <label className="text-sm font-medium">Latitude</label>
             <input
               type="number"
+              step={0.0000000000000000001}
               {...register("lat", { valueAsNumber: true })}
               className="input input-bordered"
             />
@@ -501,6 +503,7 @@ export default function CreatePinModal({
           <div className="flex flex-col space-y-2">
             <label className="text-sm font-medium">Longitude</label>
             <input
+              step={0.0000000000000000001}
               type="number"
               {...register("lng", { valueAsNumber: true })}
               className="input input-bordered"
