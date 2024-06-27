@@ -1,6 +1,6 @@
 import { Input } from "~/components/shadcn/ui/input";
 import { Button } from "~/components/shadcn/ui/button";
-
+import { PLATFROM_ASSET } from "~/lib/stellar/constant";
 import {
   Card,
   CardContent,
@@ -21,20 +21,93 @@ import {} from "lucide-react";
 import { ViewfinderCircleIcon } from "@heroicons/react/24/solid";
 import Loading from "~/components/wallete/loading";
 import { clientSelect } from "~/lib/stellar/fan/utils";
+import useNeedSign from "~/lib/hook";
+import { useCallback, useEffect, useState } from "react";
 import {
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "~/components/shadcn/ui/dialog";
+  checkStellarAccountActivity,
+  clientsign,
+} from "package/connect_wallet/src/lib/stellar/utils";
+
+import toast from "react-hot-toast";
+import { useUserStellarAcc } from "~/lib/state/wallete/stellar-balances";
+
 const Wallets = () => {
   const session = useSession();
   const { onOpen } = useModal();
-  const { data, isLoading } =
-    api.walletBalance.wallBalance.getNativeBalance.useQuery();
+  const { needSign } = useNeedSign();
+  const [isAccountActivate, setAccountActivate] = useState(false);
+  const [isAccountActivateLoading, setAccountActivateLoading] = useState(false);
+  const { platformAssetBalance, hasTrustLine } = useUserStellarAcc();
+
+  const [isLoading, setLoading] = useState(false);
+  console.log("platformAssetBalance", platformAssetBalance, hasTrustLine);
+  async function checkAccountActivity(publicKey: string) {
+    setAccountActivateLoading(true);
+    const isActive = await checkStellarAccountActivity(publicKey);
+    console.log("isActive", isActive);
+    setAccountActivate(isActive);
+    setAccountActivateLoading(false);
+  }
+
+  const checkStatus = useCallback(async () => {
+    const user = session.data?.user;
+    if (user) {
+      console.log("user", user);
+      await checkAccountActivity(user.id);
+    }
+  }, [session]);
+
+  useEffect(() => {
+    void checkStatus();
+  }, [checkStatus, session]);
+
+  const AddTrustMutation =
+    api.walletBalance.wallBalance.addTrustLine.useMutation({
+      onSuccess(data) {
+        clientsign({
+          walletType: session?.data?.user?.walletType,
+          presignedxdr: data.xdr,
+          pubkey: data.pubKey,
+          test: clientSelect(),
+        })
+          .then((data) => {
+            if (data) {
+              toast.success("Added trustline successfully");
+              api
+                .useUtils()
+                .walletBalance.wallBalance.getWalletsBalance.refetch()
+                .catch(() => console.log("Error refetching balance"));
+            } else {
+              toast.error("No Data Found at TrustLine Operation");
+            }
+          })
+          .catch((e) => {
+            toast.error(`Error: ${e}` || "Something went wrong.");
+          })
+          .finally(() => {
+            setLoading(false);
+          });
+      },
+
+      onError(error) {
+        setLoading(false);
+        toast.error(error.message);
+      },
+    });
+
+  const handleSubmit = async () => {
+    setLoading(true);
+    AddTrustMutation.mutate({
+      asset_code: PLATFROM_ASSET.code,
+      asset_issuer: PLATFROM_ASSET.issuer,
+      signWith: needSign(),
+    });
+  };
+
   if (!session.data) {
     return <div>Session not found</div>;
   }
-  if (isLoading) {
+  if (isAccountActivateLoading) {
     const x = clientSelect();
     let text = "";
     if (x === true) {
@@ -49,7 +122,7 @@ const Wallets = () => {
     );
   }
 
-  if (!data?.balance) {
+  if (!isAccountActivate) {
     return (
       <div className="flex flex-col items-center justify-center  md:p-8">
         <div className="space-y-6">
@@ -91,7 +164,7 @@ const Wallets = () => {
       </div>
     );
   }
-
+  console.log("platformAssetBalance", platformAssetBalance);
   return (
     <div className=" min-h-screen overflow-hidden p-1">
       <div className="grid gap-6 lg:grid-cols-3">
@@ -101,12 +174,29 @@ const Wallets = () => {
               <CardContent className="m-2 p-2">
                 <div className="flex flex-col items-center justify-center md:flex-row md:items-center md:justify-between ">
                   <div className="flex flex-col items-center justify-center md:items-start">
-                    <CardTitle className="text-2xl font-bold xl:text-3xl">
-                      Current Balance
-                    </CardTitle>
-                    <h1 className="text-2xl font-bold xl:text-3xl">
-                      {data?.balance} XLM
-                    </h1>
+                    {hasTrustLine ? (
+                      <>
+                        <CardTitle className="text-xl font-bold xl:text-2xl">
+                          Current Balance
+                        </CardTitle>
+                        <h1 className="text-xl font-bold xl:text-3xl">
+                          {platformAssetBalance} Wadzzo
+                        </h1>
+                      </>
+                    ) : (
+                      <>
+                        <h1 className="text-xl text-red-500 ">
+                          You haven{"'"}t trust to Wadzzo yet !
+                          <br />
+                          <button
+                            onClick={handleSubmit}
+                            className="text-sm underline"
+                          >
+                            CLICK HERE TO TRUST
+                          </button>
+                        </h1>
+                      </>
+                    )}
                   </div>
                   <div className="mt-2 flex items-center justify-between gap-1 md:items-end lg:justify-end">
                     <Button

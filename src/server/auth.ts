@@ -35,6 +35,7 @@ import { verifyXDRsSignature } from "package/connect_wallet/src/lib/stellar/trx/
 type User = DefaultSession["user"] & {
   id: string;
   walletType: WalletType;
+  emailVerified : boolean;
   // ...other properties
   // role: UserRole;
 };
@@ -60,6 +61,7 @@ export const authOptions: NextAuthOptions = {
           ...session.user,
           id: token.sub,
           walletType: token.walletType,
+          emailVerified: token.emailVerified
         },
       };
     },
@@ -67,6 +69,7 @@ export const authOptions: NextAuthOptions = {
       const u = user as User;
       if (u) {
         token.walletType = u.walletType;
+        token.emailVerified = u.emailVerified;
       }
       return token;
     },
@@ -98,6 +101,7 @@ export const authOptions: NextAuthOptions = {
             ...sessionUser,
             walletType: WalletType.emailPass,
             email: email,
+            emailVerified: user.emailVerified,
           };
         }
 
@@ -109,7 +113,9 @@ export const authOptions: NextAuthOptions = {
           const isValid = verifyMessageSignature(pubkey, token, signature);
           if (isValid) {
             const sessionUser = await dbUser(pubkey);
-            return { ...sessionUser, walletType: WalletType.albedo };
+            return { ...sessionUser, walletType: WalletType.albedo,
+              emailVerified: true
+             };
           }
           throw new Error("Invalid signature");
         }
@@ -126,7 +132,8 @@ export const authOptions: NextAuthOptions = {
           });
           if (isValid) {
             const sessionUser = await dbUser(pubkey);
-            return { ...sessionUser, walletType: cred.walletType };
+            return { ...sessionUser, walletType: cred.walletType ,
+              emailVerified: true };
           }
           throw new Error("Invalid signature");
         }
@@ -141,7 +148,8 @@ export const authOptions: NextAuthOptions = {
           const uid = await verifyIdToken(token);
           const data = await getUserPublicKey({ uid, email });
           const sessionUser = await dbUser(data.publicKey);
-          return { ...sessionUser, walletType: cred.walletType, email: email };
+          return { ...sessionUser, walletType: cred.walletType, email: email,
+              emailVerified: true };
           // return {}
         }
 

@@ -10,19 +10,15 @@ export type AccBalanceType =
   | Horizon.HorizonApi.BalanceLineLiquidityPool;
 
 interface Balance {
-  balances: AccBalanceType[] | undefined;
-  getXLMBalance: () => string | undefined;
-  getAssetBalance: (props: {
-    code?: string;
-    issuer?: string;
-  }) => string | undefined;
-
+ balances: AccBalanceType[] | undefined;
+  getAssetBalance: (props: { code?: string; issuer?: string }) => string | undefined;
   setBalance: (balances: AccBalanceType[]) => void;
-  platformAssetBalance: number;
+  platformAssetBalance: number ;
   setPlatformAssetBalance: (balances: AccBalanceType[]) => void;
   active: boolean;
   setActive: (active: boolean) => void;
-  // fetch: (pub: string) => Promise<void>;
+  hasTrustLine: boolean;
+  setHasTrustLine: (balances: AccBalanceType[]) => void;
 }
 
 export const useUserStellarAcc = create<Balance>((set, get) => ({
@@ -45,6 +41,29 @@ export const useUserStellarAcc = create<Balance>((set, get) => ({
     // );
   },
 
+  hasTrustLine: false,
+
+  setHasTrustLine: (balances) => {
+    const findAsset = balances.find((balance) => {
+      console.log('Checking balance:', balance);
+      if (
+        (balance.asset_type === 'credit_alphanum4' || balance.asset_type === 'credit_alphanum12') &&
+        balance.asset_code === PLATFROM_ASSET.code &&
+        balance.asset_issuer === PLATFROM_ASSET.issuer
+      ) {
+        return true;
+      }
+      return false;
+    });
+
+    if (findAsset) {
+      set({ hasTrustLine: true });
+      console.log('Trustline found:', findAsset);
+    } else {
+      set({ hasTrustLine: false });
+      console.log('Trustline not found');
+    }
+  },
   getAssetBalance: (props) => {
     const balances = get().balances;
     if (balances) {
