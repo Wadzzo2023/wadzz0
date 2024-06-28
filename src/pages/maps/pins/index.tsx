@@ -6,7 +6,6 @@ import { api } from "~/utils/api";
 export default function Page() {
   return (
     <div>
-      hover
       <ConsumedPins />
     </div>
   );
@@ -19,13 +18,32 @@ function ConsumedPins() {
 
   return (
     <div>
-      <ul>
-        {consumedPins.data.map((pin) => {
-          return (
-            <ClaimConsumedPin key={pin.id} pin={pin} location={pin.location} />
-          );
-        })}
-      </ul>
+      <div>
+        <div className="overflow-x-auto">
+          <table className="table table-zebra">
+            {/* head */}
+            <thead>
+              <tr>
+                <th></th>
+                <th>Pubkey</th>
+                <th>Joined At</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {consumedPins.data.map((pin) => {
+                return (
+                  <ClaimConsumedPin
+                    key={pin.id}
+                    pin={pin}
+                    location={pin.location}
+                  />
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   );
 }
@@ -39,13 +57,17 @@ function ClaimConsumedPin({
   location: Location;
 }) {
   return (
-    <li>
-      {pin.id}
-      {location.assetId && location.claimAmount ? (
-        <ClaimPinModal location={location} />
-      ) : (
-        <p>Not claimable</p>
-      )}
-    </li>
+    <tr key={pin.id}>
+      <th>{pin.id}</th>
+      <td>
+        {location.assetId && location.claimAmount ? (
+          <ClaimPinModal location={location} />
+        ) : (
+          <p>Not claimable</p>
+        )}
+      </td>
+      <td>{pin.userId}</td>
+      <td></td>
+    </tr>
   );
 }
