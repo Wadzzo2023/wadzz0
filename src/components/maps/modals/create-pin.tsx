@@ -24,7 +24,7 @@ export const createPinFormSchema = z.object({
   description: z.string(),
   title: z.string().min(3),
   image: z.string().url().optional(),
-  startDate: z.date().min(new Date(new Date().setHours(0, 0, 0, 0))),
+  startDate: z.date(),
   endDate: z.date().min(new Date()),
   autoCollect: z.boolean(),
   token: z.number().optional(),
@@ -67,8 +67,9 @@ export default function CreatePinModal({
       lat: position?.lat,
       lng: position?.lng,
       isSinglePin: true,
+      pinNumber: 0,
     },
-    mode: "onTouched",
+    // mode: "onTouched",
   });
 
   // query
@@ -127,16 +128,15 @@ export default function CreatePinModal({
   const onSubmit: SubmitHandler<z.infer<typeof createPinFormSchema>> = (
     data,
   ) => {
-    // set other value
     if (position) {
       setValue("lat", position.lat);
       setValue("lng", position.lng);
       // console.log(data);
       // return;
-      addPinM.mutate(data);
+      addPinM.mutate({ ...data, pageAsset: isPageAsset });
     } else {
       // toast.error("Please select a location on the map");
-      addPinM.mutate(data);
+      addPinM.mutate({ ...data, pageAsset: isPageAsset });
     }
   };
 
@@ -274,7 +274,6 @@ export default function CreatePinModal({
                 ) : (
                   "Submit"
                 )}
-                Submit
               </button>
               {addPinM.isError && (
                 <p className="text-red-500">{addPinM.failureReason?.message}</p>
@@ -343,7 +342,7 @@ export default function CreatePinModal({
               </span>
             </div>
             <input
-              step={Number(STROOP)}
+              step={1}
               type="number"
               {...register("tokenAmount", {
                 valueAsNumber: true,
@@ -441,7 +440,7 @@ export default function CreatePinModal({
                 id: 0,
                 thumbnail: pageAsset.thumbnail ?? "",
               });
-              setValue("token", undefined);
+              // setValue("token", pageAsset);
             } else {
               toast.error("No page asset found");
               // setSelectedToken(undefined);
