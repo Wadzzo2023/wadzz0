@@ -12,7 +12,7 @@ export default function ClaimPage() {
   return (
     <div>
       Claim
-      {pins.data?.map((pin) => <p>{pin.id}</p>)}
+      {/* {pins.data?.map((pin) => <p key={pin.}>{pin.id}</p>)} */}
       <div>
         <div className="overflow-x-auto">
           <table className="table table-zebra">
