@@ -26,6 +26,7 @@ export const pinRouter = createTRPCRouter({
         tokenAmount: totalTokenAmount,
         token: tokenId,
         pageAsset,
+        image,
       } = input;
 
       console.log("pageAsset", pageAsset);
@@ -46,6 +47,7 @@ export const pinRouter = createTRPCRouter({
             latitude: input.lat,
             longitude: input.lng,
             title: input.title,
+            image,
             creatorId: ctx.session.user.id,
             isActive: true,
             startDate: input.startDate,
@@ -70,6 +72,7 @@ export const pinRouter = createTRPCRouter({
             claimAmount,
             assetId: tokenId,
             pageAsset: pageAsset,
+            image,
             autoCollect: input.autoCollect,
             limit: input.pinCollectionLimit,
             endDate: input.endDate,
@@ -152,4 +155,13 @@ export const pinRouter = createTRPCRouter({
     });
     return consumedLocations;
   }),
+  disableAutoCollect: protectedProcedure
+    .input(z.object({ id: z.number() }))
+    .mutation(({ ctx, input }) => {
+      const { id } = input;
+      ctx.db.location.update({
+        data: { autoCollect: false },
+        where: { id: id },
+      });
+    }),
 });

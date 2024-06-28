@@ -37,11 +37,13 @@ export default async function handler(
         consumption.location.description ?? "No description provided",
       brand_name: consumption.location.creator.name,
       url: "https://picsum.photos/200/300",
-      image_url: "https://picsum.photos/500/500",
+      image_url: consumption.location.image ?? "https://picsum.photos/500/500",
       collected: false,
       collection_limit_remaining: 3,
       auto_collect: true,
-      brand_image_url: "https://picsum.photos/100/100",
+      brand_image_url:
+        consumption.location.creator.profileUrl ??
+        "https://picsum.photos/100/100",
       brand_id: consumption.location.creator.id,
       modal_url: "https://vong.cong/",
       viewed: consumption.viewedAt != null,

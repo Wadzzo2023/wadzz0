@@ -10,6 +10,8 @@ import { error, empty, loading, success } from "~/utils/trcp/patterns";
 import clsx from "clsx";
 import { useCreatorStorageAcc } from "~/lib/state/wallete/stellar-balances";
 import { STROOP } from "~/lib/stellar/marketplace/constant";
+import Image from "next/image";
+import { UploadButton } from "~/utils/uploadthing";
 
 type AssetType = {
   id: number;
@@ -45,6 +47,7 @@ export default function CreatePinModal({
   manual?: boolean;
 }) {
   // hooks
+  const [coverUrl, setCover] = useState<string>();
   const [isSinglePin, setIsSinglePin] = useState(true);
   const [selectedToken, setSelectedToken] = useState<
     AssetType & { bal: number }
@@ -67,7 +70,6 @@ export default function CreatePinModal({
       lat: position?.lat,
       lng: position?.lng,
       isSinglePin: true,
-      pinNumber: 0,
     },
     // mode: "onTouched",
   });
@@ -195,6 +197,45 @@ export default function CreatePinModal({
                   <p className="text-red-500">{errors.title.message}</p>
                 )}
               </div>
+
+              <div className="mt ">
+                <UploadButton
+                  endpoint="imageUploader"
+                  content={{
+                    button: "Add Cover",
+                    allowedContent: "Max (4MB)",
+                  }}
+                  onClientUploadComplete={(res) => {
+                    // Do something with the response
+                    // alert("Upload Completed");
+                    const data = res[0];
+
+                    if (data?.url) {
+                      setCover(data.url);
+                      setValue("image", data.url);
+                    }
+                    // updateProfileMutation.mutate(res);
+                  }}
+                  onUploadError={(error: Error) => {
+                    // Do something with the error.
+                    alert(`ERROR! ${error.message}`);
+                  }}
+                />
+
+                {/* {uploading && <progress className="progress w-56"></progress>} */}
+                {coverUrl && (
+                  <>
+                    <Image
+                      className="p-2"
+                      width={120}
+                      height={120}
+                      alt="preview image"
+                      src={coverUrl}
+                    />
+                  </>
+                )}
+              </div>
+
               <div className="flex flex-col space-y-2">
                 <label htmlFor="description" className="text-sm font-medium">
                   Description
