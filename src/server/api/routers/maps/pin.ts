@@ -16,7 +16,7 @@ export const pinRouter = createTRPCRouter({
   }),
 
   createPin: creatorProcedure
-    .input(createPinFormSchema)
+    .input(createPinFormSchema.extend({ pageAsset: z.boolean().optional() }))
     .mutation(async ({ ctx, input }) => {
       const {
         isSinglePin,
@@ -25,7 +25,12 @@ export const pinRouter = createTRPCRouter({
         pinCollectionLimit,
         tokenAmount: totalTokenAmount,
         token: tokenId,
+        pageAsset,
+        image,
       } = input;
+
+      console.log("pageAsset", pageAsset);
+
       const claimAmount = totalTokenAmount
         ? totalTokenAmount / pinCollectionLimit
         : undefined;
@@ -35,13 +40,14 @@ export const pinRouter = createTRPCRouter({
           data: {
             claimAmount,
             assetId: tokenId,
-
+            pageAsset: pageAsset,
             autoCollect: input.autoCollect,
             limit: input.pinCollectionLimit,
             endDate: input.endDate,
             latitude: input.lat,
             longitude: input.lng,
             title: input.title,
+            image,
             creatorId: ctx.session.user.id,
             isActive: true,
             startDate: input.startDate,
@@ -65,6 +71,8 @@ export const pinRouter = createTRPCRouter({
           return {
             claimAmount,
             assetId: tokenId,
+            pageAsset: pageAsset,
+            image,
             autoCollect: input.autoCollect,
             limit: input.pinCollectionLimit,
             endDate: input.endDate,

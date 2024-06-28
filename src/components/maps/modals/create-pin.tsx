@@ -10,6 +10,8 @@ import { error, empty, loading, success } from "~/utils/trcp/patterns";
 import clsx from "clsx";
 import { useCreatorStorageAcc } from "~/lib/state/wallete/stellar-balances";
 import { STROOP } from "~/lib/stellar/marketplace/constant";
+import Image from "next/image";
+import { UploadButton } from "~/utils/uploadthing";
 
 type AssetType = {
   id: number;
@@ -24,7 +26,7 @@ export const createPinFormSchema = z.object({
   description: z.string(),
   title: z.string().min(3),
   image: z.string().url().optional(),
-  startDate: z.date().min(new Date(new Date().setHours(0, 0, 0, 0))),
+  startDate: z.date(),
   endDate: z.date().min(new Date()),
   autoCollect: z.boolean(),
   token: z.number().optional(),
@@ -45,6 +47,7 @@ export default function CreatePinModal({
   manual?: boolean;
 }) {
   // hooks
+  const [coverUrl, setCover] = useState<string>();
   const [isSinglePin, setIsSinglePin] = useState(true);
   const [selectedToken, setSelectedToken] = useState<
     AssetType & { bal: number }
@@ -68,7 +71,7 @@ export default function CreatePinModal({
       lng: position?.lng,
       isSinglePin: true,
     },
-    mode: "onTouched",
+    // mode: "onTouched",
   });
 
   // query
@@ -127,16 +130,15 @@ export default function CreatePinModal({
   const onSubmit: SubmitHandler<z.infer<typeof createPinFormSchema>> = (
     data,
   ) => {
-    // set other value
     if (position) {
       setValue("lat", position.lat);
       setValue("lng", position.lng);
       // console.log(data);
       // return;
-      addPinM.mutate(data);
+      addPinM.mutate({ ...data, pageAsset: isPageAsset });
     } else {
       // toast.error("Please select a location on the map");
-      addPinM.mutate(data);
+      addPinM.mutate({ ...data, pageAsset: isPageAsset });
     }
   };
 
@@ -195,6 +197,45 @@ export default function CreatePinModal({
                   <p className="text-red-500">{errors.title.message}</p>
                 )}
               </div>
+
+              <div className="mt ">
+                <UploadButton
+                  endpoint="imageUploader"
+                  content={{
+                    button: "Add Cover",
+                    allowedContent: "Max (4MB)",
+                  }}
+                  onClientUploadComplete={(res) => {
+                    // Do something with the response
+                    // alert("Upload Completed");
+                    const data = res[0];
+
+                    if (data?.url) {
+                      setCover(data.url);
+                      setValue("image", data.url);
+                    }
+                    // updateProfileMutation.mutate(res);
+                  }}
+                  onUploadError={(error: Error) => {
+                    // Do something with the error.
+                    alert(`ERROR! ${error.message}`);
+                  }}
+                />
+
+                {/* {uploading && <progress className="progress w-56"></progress>} */}
+                {coverUrl && (
+                  <>
+                    <Image
+                      className="p-2"
+                      width={120}
+                      height={120}
+                      alt="preview image"
+                      src={coverUrl}
+                    />
+                  </>
+                )}
+              </div>
+
               <div className="flex flex-col space-y-2">
                 <label htmlFor="description" className="text-sm font-medium">
                   Description
@@ -274,7 +315,6 @@ export default function CreatePinModal({
                 ) : (
                   "Submit"
                 )}
-                Submit
               </button>
               {addPinM.isError && (
                 <p className="text-red-500">{addPinM.failureReason?.message}</p>
@@ -343,7 +383,7 @@ export default function CreatePinModal({
               </span>
             </div>
             <input
-              step={Number(STROOP)}
+              step={1}
               type="number"
               {...register("tokenAmount", {
                 valueAsNumber: true,
@@ -441,7 +481,7 @@ export default function CreatePinModal({
                 id: 0,
                 thumbnail: pageAsset.thumbnail ?? "",
               });
-              setValue("token", undefined);
+              // setValue("token", pageAsset);
             } else {
               toast.error("No page asset found");
               // setSelectedToken(undefined);

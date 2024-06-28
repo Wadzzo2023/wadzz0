@@ -58,7 +58,7 @@ export async function getPlatfromAssetPrice() {
 }
 
 export async function getplatformAssetNumberForXLM(xlm = 1.5) {
-  if (PLATFROM_ASSET.code === "Wadzzo") return xlm * 7.69;
+  if (PLATFROM_ASSET.code === "Wadzzo") return Math.ceil(xlm * 7.69);
   const price = await getPlatfromAssetPrice();
   return Math.ceil((xlm * 0.12) / price);
 }

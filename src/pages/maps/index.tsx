@@ -25,7 +25,7 @@ function App() {
   // queries
   const acc = api.wallate.acc.getCreatorStorageBallances.useQuery(undefined, {
     onSuccess: (data) => {
-      console.log(data);
+      // console.log(data);
       setBalance(data);
     },
     onError: (error) => {

@@ -28,11 +28,14 @@ export default async function handler(
       longitude: true,
       description: true,
       creatorId: true,
+      title: true,
       consumers: {
         select: { userId: true },
         where: { userId: session.user.id },
       },
+      image: true,
       autoCollect: true,
+      creator: true,
     },
     where: {
       approved: { equals: true },
@@ -45,15 +48,16 @@ export default async function handler(
       id: location.id,
       lat: location.latitude,
       lng: location.longitude,
-      title: "San Francisco",
+      title: location.title,
       description: location.description ?? "No description provided",
-      brand_name: "Brand A",
+      brand_name: location.creator.name,
       url: "https://picsum.photos/200/300",
-      image_url: "https://picsum.photos/500/500",
+      image_url: location.image ?? "https://picsum.photos/500/500",
       collected: location.consumers.length > 0,
       collection_limit_remaining: 3,
       auto_collect: location.autoCollect,
-      brand_image_url: "https://picsum.photos/100/100",
+      brand_image_url:
+        location.creator.profileUrl ?? "https://picsum.photos/100/100",
       brand_id: location.creatorId,
     };
   });
