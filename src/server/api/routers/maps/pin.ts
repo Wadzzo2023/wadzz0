@@ -147,4 +147,50 @@ export const pinRouter = createTRPCRouter({
     });
     return consumedLocations;
   }),
+  disableAutoCollect: protectedProcedure.input(z.object({ id: z.number() })).mutation(
+    async ({ ctx, input }) => {
+      await ctx.db.location.update({
+        where: { id: input.id },
+        data: { autoCollect: false },
+      });
+    },
+  ),
+
+  paste: publicProcedure
+    .input(z.object({ id: z.number(), lat: z.number(), long: z.number() }))
+    .mutation(async ({ ctx, input }) => {
+      const location = await ctx.db.location.findUnique({
+        where: { id: input.id },
+      });
+      if (!location) throw new Error("Location not found");
+     
+      const { lat, long } = input;
+
+      await ctx.db.location.create({
+        data: {
+          claimAmount: location.claimAmount,
+          assetId: location.assetId,
+          autoCollect: location.autoCollect,
+          limit: location.limit,
+          endDate: location.endDate,
+          latitude: lat,
+          longitude: long,
+          title: location.title,
+          creatorId: location.creatorId,
+          isActive: true,
+          startDate: location.startDate,
+          description: location.description,
+        },
+      });
+
+      return {
+        id: location.id,
+        lat,
+        long,
+      };
+
+      }
+    ),
+
+
 });
