@@ -1,5 +1,9 @@
 import { z } from "zod";
-import { createPinFormSchema } from "~/components/maps/modals/create-pin";
+import {
+  NO_ASSET,
+  PAGE_ASSET_NUM,
+  createPinFormSchema,
+} from "~/components/maps/modals/create-pin";
 
 import {
   adminProcedure,
@@ -16,88 +20,65 @@ export const pinRouter = createTRPCRouter({
   }),
 
   createPin: creatorProcedure
-    .input(createPinFormSchema.extend({ pageAsset: z.boolean().optional() }))
+    .input(createPinFormSchema)
     .mutation(async ({ ctx, input }) => {
       const {
-        isSinglePin,
         radius,
         pinNumber,
         pinCollectionLimit,
         tokenAmount: totalTokenAmount,
         token: tokenId,
-        pageAsset,
         image,
       } = input;
 
-      console.log("pageAsset", pageAsset);
+      let assetId = tokenId;
+      let pageAsset: boolean;
 
-      const claimAmount = totalTokenAmount
-        ? totalTokenAmount / pinCollectionLimit
-        : undefined;
+      if (tokenId == PAGE_ASSET_NUM) {
+        assetId = undefined;
+        pageAsset = true;
+      }
 
-      if (isSinglePin) {
-        return await ctx.db.location.create({
-          data: {
-            claimAmount,
-            assetId: tokenId,
-            pageAsset: pageAsset,
-            autoCollect: input.autoCollect,
-            limit: input.pinCollectionLimit,
-            endDate: input.endDate,
-            latitude: input.lat,
-            longitude: input.lng,
-            title: input.title,
-            image,
-            creatorId: ctx.session.user.id,
-            isActive: true,
-            startDate: input.startDate,
-            description: input.description,
-          },
-        });
-      } else {
-        if (!pinNumber) throw new Error("Pin number is required");
-        let claimAmount: number;
-        if (totalTokenAmount) {
-          const amountPerPin = totalTokenAmount / pinNumber;
-          claimAmount = amountPerPin / pinCollectionLimit;
-        }
+      let claimAmount: number | undefined = undefined;
+      if (totalTokenAmount) {
+        const amountPerPin = totalTokenAmount / pinNumber;
+        claimAmount = amountPerPin / pinCollectionLimit;
+      }
 
-        const locations = Array.from({ length: pinNumber }).map(() => {
-          const randomLocatin = getLocationInLatLngRad(
-            input.lat,
-            input.lng,
-            input.radius,
-          );
-          return {
-            claimAmount,
-            assetId: tokenId,
-            pageAsset: pageAsset,
-            image,
-            autoCollect: input.autoCollect,
-            limit: input.pinCollectionLimit,
-            endDate: input.endDate,
-            latitude: randomLocatin.latitude,
-            longitude: randomLocatin.longitude,
-            title: input.title,
-            creatorId: ctx.session.user.id,
-            isActive: true,
-            startDate: input.startDate,
-            description: input.description,
-          };
-        });
-        console.log(locations);
+      const locations = Array.from({ length: pinNumber }).map(() => {
+        const randomLocatin = getLocationInLatLngRad(
+          input.lat,
+          input.lng,
+          input.radius,
+        );
+        return {
+          claimAmount,
+          assetId,
+          pageAsset: pageAsset,
+          image,
+          autoCollect: input.autoCollect,
+          limit: input.pinCollectionLimit,
+          endDate: input.endDate,
+          latitude: randomLocatin.latitude,
+          longitude: randomLocatin.longitude,
+          title: input.title,
+          creatorId: ctx.session.user.id,
+          isActive: true,
+          startDate: input.startDate,
+          description: input.description,
+        };
+      });
 
-        await ctx.db.locationGroup.create({
-          data: {
-            creatorId: ctx.session.user.id,
-            locations: {
-              createMany: {
-                data: locations,
-              },
+      await ctx.db.locationGroup.create({
+        data: {
+          creatorId: ctx.session.user.id,
+          locations: {
+            createMany: {
+              data: locations,
             },
           },
-        });
-      }
+        },
+      });
     }),
 
   getMyPins: creatorProcedure.query(async ({ ctx }) => {
@@ -163,8 +144,7 @@ export const pinRouter = createTRPCRouter({
         where: { id: input.id },
         data: { autoCollect: input.isAutoCollect },
       });
-    },
-  ),
+    }),
 
   paste: publicProcedure
     .input(z.object({ id: z.number(), lat: z.number(), long: z.number() }))
@@ -173,7 +153,7 @@ export const pinRouter = createTRPCRouter({
         where: { id: input.id },
       });
       if (!location) throw new Error("Location not found");
-     
+
       const { lat, long } = input;
 
       await ctx.db.location.create({

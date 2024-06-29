@@ -17,6 +17,7 @@ export function randomLocation(
   lng: number,
   radius: number,
 ): Location {
+  if (radius <= 0) return { latitude: lat, longitude: lng };
   const [dx, dy] = randomPointInDisk(radius);
 
   const randomLat = lat + dy / OneDegree;
