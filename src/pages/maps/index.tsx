@@ -20,8 +20,14 @@ function App() {
   const [clickedPos, updatePos] = useState<google.maps.LatLngLiteral>();
   const [manual, setManual] = useState<boolean>();
   const { setBalance } = useCreatorStorageAcc();
-  const { onOpen, isPinCopied, data, isAutoCollect, setIsAutoCollect } =
-    useModal();
+  const {
+    onOpen,
+    isPinCopied,
+    data,
+    isAutoCollect,
+    isPinCut,
+    setIsAutoCollect,
+  } = useModal();
 
   // queries
   const acc = api.wallate.acc.getCreatorStorageBallances.useQuery(undefined, {
@@ -40,9 +46,9 @@ function App() {
     const position = event.detail.latLng;
     if (position) {
       updatePos(position);
-      if (!isPinCopied) {
+      if (!isPinCopied && !isPinCut) {
         modal.current?.showModal();
-      } else {
+      } else if (isPinCopied || isPinCut) {
         onOpen("copied", {
           long: position.lng,
           lat: position.lat,
@@ -106,6 +112,10 @@ function App() {
               onClick={() => {
                 onOpen("map", {
                   pinId: pin.id,
+                  long: pin.longitude,
+                  lat: pin.latitude,
+                  mapTitle: pin.title,
+                  mapDescription: pin?.description,
                 });
                 setIsAutoCollect(pin.autoCollect); // Set isAutoCollect to true when a pin is clicked
               }}

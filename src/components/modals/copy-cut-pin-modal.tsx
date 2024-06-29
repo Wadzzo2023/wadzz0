@@ -26,9 +26,19 @@ import {
   X,
 } from "lucide-react";
 
-const CopyPinModal = () => {
-  const { isOpen, onClose, type, data, setIsPinCopied } = useModal();
+const CopyCutPinModal = () => {
+  const {
+    isOpen,
+    onClose,
+    type,
+    data,
+    isPinCopied,
+    setIsPinCut,
+    isPinCut,
+    setIsPinCopied,
+  } = useModal();
   const session = useSession();
+  console.log("Cut", isPinCut);
 
   const PastePin = api.maps.pin.paste.useMutation({
     onSuccess: async (data) => {
@@ -56,8 +66,8 @@ const CopyPinModal = () => {
         id: data?.pinId,
         long: data?.long,
         lat: data?.lat,
+        isCut: isPinCut,
       });
-      setIsPinCopied(false);
     } else {
       toast.error("Pin Id not found");
     }
@@ -65,6 +75,7 @@ const CopyPinModal = () => {
 
   const handleCancel = () => {
     setIsPinCopied(false);
+    setIsPinCut(false);
     handleClose();
   };
 
@@ -102,4 +113,4 @@ const CopyPinModal = () => {
   );
 };
 
-export default CopyPinModal;
+export default CopyCutPinModal;

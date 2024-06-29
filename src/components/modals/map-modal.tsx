@@ -17,9 +17,12 @@ import {
   CircleOff,
   Copy,
   LayersIcon,
+  Scissors,
+  ScissorsSquare,
   ShieldBan,
   ShieldCheck,
   ShieldMinus,
+  Trash2,
 } from "lucide-react";
 import { ExclamationTriangleIcon } from "@heroicons/react/24/solid";
 import { useState } from "react";
@@ -33,17 +36,15 @@ const MapModal = () => {
     data,
     isPinCopied,
     setIsPinCopied,
-    setIsAutoCollect,
     isAutoCollect,
+    setIsPinCut,
   } = useModal();
-
+  console.log(data.long, data.lat, data.pinId);
   const session = useSession();
   const isModalOpen = isOpen && type === "map";
   const handleClose = () => {
     onClose();
   };
-
-  console.log("isPinCopied", isPinCopied);
 
   const ToggleAutoCollectMutation = api.maps.pin.toggleAutoCollect.useMutation({
     onSuccess: (data) => {
@@ -110,6 +111,17 @@ const MapModal = () => {
       toast.error("Pin Id not found");
     }
   };
+
+  const handleCutPin = () => {
+    if (data?.pinId) {
+      console.log("handleCutPin", data?.pinId);
+      toast.success("Pin Id copied to clipboard");
+      setIsPinCut(true);
+    } else {
+      toast.error("Pin Id not found");
+    }
+  };
+
   if (!session?.data?.user?.id) {
     return <div>Public Key not found</div>;
   }
@@ -119,19 +131,29 @@ const MapModal = () => {
         <DialogContent className="overflow-hidden p-0">
           <DialogHeader className="px-6 pt-8">
             <DialogTitle className="text-center text-2xl font-bold">
-              MAP ACTION MENU
+              {data?.mapTitle}
+              <div className="text-sm">
+                {data.mapDescription && (
+                  <div className="text-xs">{data.mapDescription}</div>
+                )}
+                <div>Long: {data?.long}</div>
+                <div>Lat: {data?.lat}</div>
+              </div>
             </DialogTitle>
           </DialogHeader>
           <div className="mt-4 flex flex-col items-center justify-center md:mt-0">
+            <Button className="m-1 w-1/2 " onClick={handleCutPin}>
+              <Scissors size={15} className="mr-2" /> Cut Pin
+            </Button>
             <Button className="m-1 w-1/2 " onClick={handleCopyPin}>
-              <Copy size={15} className="mr-1" /> Copy Pin
+              <Copy size={15} className="mr-2" /> Copy Pin
             </Button>
             {isAutoCollect ? (
               <Button
                 className="m-1 w-1/2 "
                 onClick={() => handleToggleAutoCollect(data.pinId)}
               >
-                <ShieldCheck size={15} className="mr-1" /> Disable Auto Collect
+                <ShieldCheck size={15} className="mr-2" /> Disable Auto Collect
               </Button>
             ) : (
               <Button
@@ -142,7 +164,7 @@ const MapModal = () => {
               </Button>
             )}
             <Button className="m-1 w-1/2 " onClick={handleDelete}>
-              <ShieldMinus size={15} className="mr-1" /> Delete Pin
+              <Trash2 size={15} className="mr-2" /> Delete Pin
             </Button>
           </div>
           <DialogFooter className=" px-6 py-4"></DialogFooter>

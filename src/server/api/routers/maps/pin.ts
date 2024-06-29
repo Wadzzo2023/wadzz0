@@ -147,7 +147,7 @@ export const pinRouter = createTRPCRouter({
     }),
 
   paste: publicProcedure
-    .input(z.object({ id: z.number(), lat: z.number(), long: z.number() }))
+    .input(z.object({ id: z.number(), lat: z.number(), long: z.number(), isCut: z.boolean() }))
     .mutation(async ({ ctx, input }) => {
       const location = await ctx.db.location.findUnique({
         where: { id: input.id },
@@ -155,28 +155,40 @@ export const pinRouter = createTRPCRouter({
       if (!location) throw new Error("Location not found");
 
       const { lat, long } = input;
-
-      await ctx.db.location.create({
-        data: {
-          claimAmount: location.claimAmount,
-          assetId: location.assetId,
-          autoCollect: location.autoCollect,
-          limit: location.limit,
-          endDate: location.endDate,
-          latitude: lat,
-          longitude: long,
-          title: location.title,
-          creatorId: location.creatorId,
-          isActive: true,
-          startDate: location.startDate,
-          description: location.description,
-        },
-      });
+      if(ctx.session?.user.id != location.creatorId) throw new Error("You are not the creator of this pin"
+      );
+      if (input.isCut) {
+        await ctx.db.location.update({
+          where: { id: input.id },
+          data: { latitude: lat, longitude: long },
+        });
+      }
+      else
+      {
+        await ctx.db.location.create({
+          data: {
+            claimAmount: location.claimAmount,
+            assetId: location.assetId,
+            pageAsset: location.pageAsset,
+            image: location.image,
+            autoCollect: location.autoCollect,
+            limit: location.limit,
+            endDate: location.endDate,
+            latitude: lat,
+            longitude: long,
+            title: location.title,
+            creatorId: ctx.session?.user.id,
+            isActive: true,
+            startDate: location.startDate,
+            description: location.description,
+          },
+        });
+      }
 
       return {
         id: location.id,
         lat,
-        long,
+        long, 
       };
 
       }

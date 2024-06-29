@@ -31,16 +31,16 @@ export default function LeftBar({ className }: { className?: string }) {
   return (
     <div
       className={cn(
-        "flex w-80 flex-col items-center justify-between overflow-auto bg-base-100/80 px-4 pb-4 pt-10 scrollbar-hide",
+        "flex h-full max-h-screen w-80 flex-col items-center justify-between overflow-auto bg-base-100/80 px-4 pb-4 pt-10 scrollbar-hide",
         className,
       )}
     >
-      <div className="flex w-full flex-1 flex-col items-center gap-2  py-2">
-        <div className="mt-7 w-full flex-1">
+      <div className="flex h-full w-full flex-1 flex-col items-center justify-between gap-2">
+        <div className="mt-7  w-full flex-1">
           <NavigationButtons />
         </div>
       </div>
-      <div className="flex w-full flex-col items-center py-4">
+      <div className="flex w-full flex-col items-center">
         <LeftBottom />
       </div>
     </div>
@@ -49,8 +49,8 @@ export default function LeftBar({ className }: { className?: string }) {
 
 function NavigationButtons() {
   return (
-    <div className="flex h-full w-full flex-col justify-between gap-2">
-      <div className="flex  flex-col items-start gap-2">
+    <div className="flex h-full min-h-full flex-col justify-between gap-2">
+      <div className="flex  flex-col  gap-2">
         {Object.entries(LeftNavigation).map(
           ([key, { path, icon: Icon, text }]) => (
             <Link href={path} className="w-full" key={key}>
@@ -63,7 +63,7 @@ function NavigationButtons() {
           ),
         )}
       </div>
-      <div className="flex  flex-col items-start gap-2">
+      <div className="flex  flex-col  gap-2">
         {Object.entries(BottomNavigation).map(
           ([key, { path, icon: Icon, text }]) => (
             <Link href={path} className="w-full " key={key}>

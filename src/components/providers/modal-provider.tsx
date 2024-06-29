@@ -4,7 +4,7 @@ import SendAssets from "../modals/send-assets-modal";
 import ReceiveAssetsModal from "../modals/receive-assets-modal";
 import AddAssets from "../modals/add-asset-modal";
 import MapModal from "../modals/map-modal";
-import CopyPinModal from "../modals/copy-pin-modal";
+import CopyCutPinModal from "../modals/copy-cut-pin-modal";
 
 const ModalProvider = () => {
   const [isMounted, setIsMounted] = useState(false);
@@ -21,7 +21,7 @@ const ModalProvider = () => {
       <ReceiveAssetsModal />
       <AddAssets />
       <MapModal />
-      <CopyPinModal />
+      <CopyCutPinModal />
     </>
   );
 };

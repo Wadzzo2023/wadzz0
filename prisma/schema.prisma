@@ -447,7 +447,7 @@ model Location {
     assetId Int?
     asset   Asset? @relation(fields: [assetId], references: [id], onDelete: Cascade)
 
-    pageAsset Boolean?
+    pageAsset Boolean? @default(false)
 
     claimAmount Float? // how much token each person will claim. if null then it is free
 
