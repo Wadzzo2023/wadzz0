@@ -16,9 +16,11 @@ interface ModalStore {
   data: ModalData;
   isOpen: boolean;
   isPinCopied: boolean;
+  isAutoCollect: boolean;
   onOpen: (type: ModalType, data?: ModalData) => void;
   onClose: () => void;
   setIsPinCopied: (isPinCopied: boolean) => void;
+  setIsAutoCollect: (isAutoCollect: boolean) => void;
 }
 
 export const useModal = create<ModalStore>((set) => ({
@@ -26,7 +28,9 @@ export const useModal = create<ModalStore>((set) => ({
   data: {},
   isOpen: false,
   isPinCopied: false,
+  isAutoCollect: false,
   onOpen: (type, data = {}) => set({ isOpen: true, type, data }),
   onClose: () => set({ type: null, isOpen: false }),
   setIsPinCopied: (isPinCopied) => set({ isPinCopied }),
+  setIsAutoCollect: (isAutoCollect) => set({ isAutoCollect }),
 }));

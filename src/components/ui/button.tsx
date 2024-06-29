@@ -7,15 +7,17 @@ export default function Button({
   icon: Icon,
   text,
   path,
+  className,
 }: {
   text: string;
   icon?: React.ReactNode;
   path: string;
+  className?: string;
 }) {
   const router = useRouter();
 
   return (
-    <button className={clsx("btn w-full", router.pathname == path)}>
+    <button className={clsx("btn w-full", router.pathname == path, className)}>
       {/* {Icon} */}
       <p className="">{text}</p>
     </button>
