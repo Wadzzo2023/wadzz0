@@ -111,8 +111,6 @@ function App() {
               }}
             >
               {pin._count.consumers < pin.limit ? (
-                <span className="tree">(🌳)</span>
-              ) : (
                 <span>
                   <Image
                     src={pin.creator.profileUrl ?? "/favicon.ico"}
@@ -121,6 +119,8 @@ function App() {
                     alt="vong cong"
                   />
                 </span>
+              ) : (
+                <span className="tree">(🌳)</span>
               )}
             </AdvancedMarker>
           ))}
