@@ -23,6 +23,9 @@ export const LeftNavigation = {
   Fan: { path: "/fans/home", icon: Bell, text: "BRANDS" },
   Settings: { path: "/settings", icon: Settings2, text: "SETTINGS" },
 } as const;
+export const BottomNavigation = {
+  Home: { path: "maps/pins", icon: HomeIcon, text: "CLAIM" },
+} as const;
 
 export default function LeftBar({ className }: { className?: string }) {
   return (
@@ -46,19 +49,34 @@ export default function LeftBar({ className }: { className?: string }) {
 
 function NavigationButtons() {
   return (
-    <div className="flex h-full w-full flex-col items-start gap-2 ">
-      {Object.entries(LeftNavigation).map(
-        ([key, { path, icon: Icon, text }]) => (
-          <Link href={path} className="w-full" key={key}>
-            <Button
-              path={path}
-              icon={<Icon className="h-5 w-5" />}
-              text={text}
-            />
-          </Link>
-        ),
-      )}
-      {/* <Profile /> */}
+    <div className="flex h-full w-full flex-col justify-between gap-2">
+      <div className="flex  flex-col items-start gap-2">
+        {Object.entries(LeftNavigation).map(
+          ([key, { path, icon: Icon, text }]) => (
+            <Link href={path} className="w-full" key={key}>
+              <Button
+                path={path}
+                icon={<Icon className="h-5 w-5" />}
+                text={text}
+              />
+            </Link>
+          ),
+        )}
+      </div>
+      <div className="flex  flex-col items-start gap-2">
+        {Object.entries(BottomNavigation).map(
+          ([key, { path, icon: Icon, text }]) => (
+            <Link href={path} className="w-full " key={key}>
+              <Button
+                className="mb-2 me-2 rounded-lg bg-gradient-to-r from-purple-500 to-pink-500 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-gradient-to-l focus:outline-none focus:ring-4 focus:ring-purple-200 dark:focus:ring-purple-800"
+                path={path}
+                icon={<Icon className="h-5 w-5" />}
+                text={text}
+              />
+            </Link>
+          ),
+        )}
+      </div>
     </div>
   );
 }

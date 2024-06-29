@@ -20,7 +20,8 @@ function App() {
   const [clickedPos, updatePos] = useState<google.maps.LatLngLiteral>();
   const [manual, setManual] = useState<boolean>();
   const { setBalance } = useCreatorStorageAcc();
-  const { onOpen, isPinCopied, data } = useModal();
+  const { onOpen, isPinCopied, data, isAutoCollect, setIsAutoCollect } =
+    useModal();
 
   // queries
   const acc = api.wallate.acc.getCreatorStorageBallances.useQuery(undefined, {
@@ -102,7 +103,12 @@ function App() {
             <AdvancedMarker
               key={pin.id}
               position={{ lat: pin.latitude, lng: pin.longitude }}
-              onClick={() => onOpen("map", { pinId: pin.id })}
+              onClick={() => {
+                onOpen("map", {
+                  pinId: pin.id,
+                });
+                setIsAutoCollect(pin.autoCollect); // Set isAutoCollect to true when a pin is clicked
+              }}
             >
               {pin._count.consumers < pin.limit ? (
                 <span className="tree">(🌳)</span>

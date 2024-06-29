@@ -13,14 +13,29 @@ import { useSession } from "next-auth/react";
 import { addrShort } from "~/utils/utils";
 import { api } from "~/utils/api";
 import toast from "react-hot-toast";
-import { CircleOff, Copy, LayersIcon } from "lucide-react";
+import {
+  CircleOff,
+  Copy,
+  LayersIcon,
+  ShieldBan,
+  ShieldCheck,
+  ShieldMinus,
+} from "lucide-react";
 import { ExclamationTriangleIcon } from "@heroicons/react/24/solid";
 import { useState } from "react";
 import { set } from "date-fns";
 
 const MapModal = () => {
-  const { isOpen, onClose, type, data, isPinCopied, setIsPinCopied } =
-    useModal();
+  const {
+    isOpen,
+    onClose,
+    type,
+    data,
+    isPinCopied,
+    setIsPinCopied,
+    setIsAutoCollect,
+    isAutoCollect,
+  } = useModal();
 
   const session = useSession();
   const isModalOpen = isOpen && type === "map";
@@ -30,22 +45,30 @@ const MapModal = () => {
 
   console.log("isPinCopied", isPinCopied);
 
-  const DisableAutoCollectMutation =
-    api.maps.pin.disableAutoCollect.useMutation({
-      onSuccess: (data) => {
-        toast.success("Auto collect disabled successfully");
-        handleClose();
-      },
-      onError: (error) => {
-        toast.error(error.message);
-      },
-    });
+  const ToggleAutoCollectMutation = api.maps.pin.toggleAutoCollect.useMutation({
+    onSuccess: (data) => {
+      toast.success("Auto collect disabled successfully");
+      handleClose();
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    },
+  });
 
-  const handleDisableAutoCollect = async (pinId: number | undefined) => {
+  const handleToggleAutoCollect = async (pinId: number | undefined) => {
     if (pinId) {
-      DisableAutoCollectMutation.mutate({
-        id: pinId,
-      });
+      console.log(pinId);
+      if (isAutoCollect) {
+        ToggleAutoCollectMutation.mutate({
+          id: pinId,
+          isAutoCollect: false,
+        });
+      } else {
+        ToggleAutoCollectMutation.mutate({
+          id: pinId,
+          isAutoCollect: true,
+        });
+      }
     } else {
       toast.error("Pin Id not found");
     }
@@ -56,6 +79,33 @@ const MapModal = () => {
       console.log("handleCopyPin", data?.pinId);
       toast.success("Pin Id copied to clipboard");
       setIsPinCopied(true);
+    } else {
+      toast.error("Pin Id not found");
+    }
+  };
+
+  const DeletePin = api.maps.pin.deletePin.useMutation({
+    onSuccess: (data) => {
+      if (data.item) {
+        toast.success("Pin deleted successfully");
+        handleClose();
+      } else {
+        toast.error(
+          "Pin not found or You are not authorized to delete this pin",
+        );
+      }
+    },
+    onError: (error) => {
+      toast.error(error.message);
+      console.log(error);
+    },
+  });
+  const handleDelete = () => {
+    if (data?.pinId) {
+      DeletePin.mutate({ id: data?.pinId });
+      console.log("handleDelete", data?.pinId);
+      toast.success("Pin deleted successfully");
+      handleClose();
     } else {
       toast.error("Pin Id not found");
     }
@@ -76,11 +126,23 @@ const MapModal = () => {
             <Button className="m-1 w-1/2 " onClick={handleCopyPin}>
               <Copy size={15} className="mr-1" /> Copy Pin
             </Button>
-            <Button
-              className="m-1 w-1/2 "
-              onClick={() => handleDisableAutoCollect(data.pinId)}
-            >
-              <CircleOff size={15} className="mr-1" /> Disable Auto Collect
+            {isAutoCollect ? (
+              <Button
+                className="m-1 w-1/2 "
+                onClick={() => handleToggleAutoCollect(data.pinId)}
+              >
+                <ShieldCheck size={15} className="mr-1" /> Disable Auto Collect
+              </Button>
+            ) : (
+              <Button
+                className="m-1 w-1/2 "
+                onClick={() => handleToggleAutoCollect(data.pinId)}
+              >
+                <ShieldBan size={15} className="mr-1" /> Enable Auto Collect
+              </Button>
+            )}
+            <Button className="m-1 w-1/2 " onClick={handleDelete}>
+              <ShieldMinus size={15} className="mr-1" /> Delete Pin
             </Button>
           </div>
           <DialogFooter className=" px-6 py-4"></DialogFooter>

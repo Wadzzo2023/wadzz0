@@ -155,11 +155,13 @@ export const pinRouter = createTRPCRouter({
     });
     return consumedLocations;
   }),
-  disableAutoCollect: protectedProcedure.input(z.object({ id: z.number() })).mutation(
+  toggleAutoCollect: protectedProcedure.input(z.object({ id: z.number(), 
+    isAutoCollect : z.boolean() 
+  })).mutation(
     async ({ ctx, input }) => {
       await ctx.db.location.update({
         where: { id: input.id },
-        data: { autoCollect: false },
+        data: { autoCollect: input.isAutoCollect },
       });
     },
   ),
@@ -200,5 +202,16 @@ export const pinRouter = createTRPCRouter({
       }
     ),
 
+  deletePin: protectedProcedure.input(z.object({ id: z.number() })).mutation(
+    async ({ ctx, input }) => {
+      const items = await ctx.db.location.delete({ where: { id: input.id, creatorId: ctx.session.user.id} });
+      return {
+        item : items.id
+      }
+    },
+    
+ 
+  ),
+  
 
 });
