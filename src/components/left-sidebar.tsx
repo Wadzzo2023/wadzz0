@@ -63,12 +63,12 @@ function NavigationButtons() {
           ),
         )}
       </div>
-      <div className="flex  flex-col  gap-2">
+      <div className="flex   flex-col  gap-2">
         {Object.entries(BottomNavigation).map(
           ([key, { path, icon: Icon, text }]) => (
             <Link href={path} className="w-full " key={key}>
               <Button
-                className="transform-gpu rounded-full bg-gradient-to-r from-blue-500 to-purple-500 px-8 py-4 font-bold text-white transition-transform hover:-translate-y-1 hover:shadow-lg"
+                className="mb-2  rounded-lg bg-gradient-to-br from-green-400 to-blue-600  text-center text-sm font-medium text-white hover:bg-gradient-to-bl focus:outline-none focus:ring-4 focus:ring-green-200 dark:focus:ring-green-800"
                 path={path}
                 icon={<Icon className="h-5 w-5" />}
                 text={text}
