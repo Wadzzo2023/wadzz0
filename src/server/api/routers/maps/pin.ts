@@ -88,7 +88,10 @@ export const pinRouter = createTRPCRouter({
         endDate: { gte: new Date() },
         approved: { equals: true },
       },
-      include: { _count: { select: { consumers: true } } },
+      include: {
+        _count: { select: { consumers: true } },
+        creator: { select: { profileUrl: true } },
+      },
     });
 
     return pins;

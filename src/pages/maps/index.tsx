@@ -109,7 +109,7 @@ function App() {
               ) : (
                 <span>
                   <Image
-                    src="/favicon.ico"
+                    src={pin.creator.profileUrl ?? "/favicon.ico"}
                     width={30}
                     height={30}
                     alt="vong cong"
