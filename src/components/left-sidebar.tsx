@@ -24,7 +24,7 @@ export const LeftNavigation = {
   Settings: { path: "/settings", icon: Settings2, text: "SETTINGS" },
 } as const;
 export const BottomNavigation = {
-  Home: { path: "maps/pins", icon: HomeIcon, text: "CLAIM" },
+  Home: { path: "/maps/pins", icon: HomeIcon, text: "CLAIM" },
 } as const;
 
 export default function LeftBar({ className }: { className?: string }) {
@@ -68,7 +68,7 @@ function NavigationButtons() {
           ([key, { path, icon: Icon, text }]) => (
             <Link href={path} className="w-full " key={key}>
               <Button
-                className="mb-2 me-2 rounded-lg bg-gradient-to-r from-purple-500 to-pink-500 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-gradient-to-l focus:outline-none focus:ring-4 focus:ring-purple-200 dark:focus:ring-purple-800"
+                className="transform-gpu rounded-full bg-gradient-to-r from-blue-500 to-purple-500 px-8 py-4 font-bold text-white transition-transform hover:-translate-y-1 hover:shadow-lg"
                 path={path}
                 icon={<Icon className="h-5 w-5" />}
                 text={text}
