@@ -28,7 +28,7 @@ export const createPinFormSchema = z.object({
   title: z.string().min(3),
   image: z.string().url().optional(),
   startDate: z.date(),
-  endDate: z.date().min(new Date()),
+  endDate: z.date().min(new Date(new Date().setHours(0, 0, 0, 0))),
   autoCollect: z.boolean(),
   token: z.number().optional(),
   tokenAmount: z.number().nonnegative().optional(), // if it optional then no token selected
@@ -209,9 +209,7 @@ export default function CreatePinModal({
               {/* <AssetTypeTab /> */}
               <div className="flex justify-between">
                 {assetsDropdown}
-                {selectedToken && isPageAsset !== undefined && (
-                  <TokenInStorage bal={selectedToken.bal} />
-                )}
+                {selectedToken && <TokenInStorage bal={selectedToken.bal} />}
               </div>
               <AvailableTokenField />
 
