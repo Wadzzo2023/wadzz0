@@ -24,7 +24,7 @@ export const LeftNavigation = {
   Settings: { path: "/settings", icon: Settings2, text: "SETTINGS" },
 } as const;
 export const BottomNavigation = {
-  Home: { path: "maps/pins", icon: HomeIcon, text: "CLAIM" },
+  Home: { path: "/maps/pins", icon: HomeIcon, text: "CLAIM" },
 } as const;
 
 export default function LeftBar({ className }: { className?: string }) {
@@ -63,12 +63,12 @@ function NavigationButtons() {
           ),
         )}
       </div>
-      <div className="flex  flex-col  gap-2">
+      <div className="flex   flex-col  gap-2">
         {Object.entries(BottomNavigation).map(
           ([key, { path, icon: Icon, text }]) => (
             <Link href={path} className="w-full " key={key}>
               <Button
-                className="mb-2 me-2 rounded-lg bg-gradient-to-r from-purple-500 to-pink-500 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-gradient-to-l focus:outline-none focus:ring-4 focus:ring-purple-200 dark:focus:ring-purple-800"
+                className="mb-2  rounded-lg bg-gradient-to-br from-green-400 to-blue-600  text-center text-sm font-medium text-white hover:bg-gradient-to-bl focus:outline-none focus:ring-4 focus:ring-green-200 dark:focus:ring-green-800"
                 path={path}
                 icon={<Icon className="h-5 w-5" />}
                 text={text}
