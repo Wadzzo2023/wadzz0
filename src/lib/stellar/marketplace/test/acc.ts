@@ -16,7 +16,6 @@ export async function accountBalances({ userPub }: { userPub: string }) {
   const balances = transactionInializer.balances;
 
   return balances;
-  // console.log("acc", transactionInializer);
 }
 
 export async function getAssetBalance({

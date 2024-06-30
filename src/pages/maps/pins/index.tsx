@@ -25,9 +25,9 @@ function ConsumedPins() {
             <thead>
               <tr>
                 <th></th>
-                <th>Pubkey</th>
-                <th>Joined At</th>
-                <th>Action</th>
+                <th>Collected At</th>
+                <th>Pin title</th>
+                <th>Status</th>
               </tr>
             </thead>
             <tbody>
@@ -56,18 +56,29 @@ function ClaimConsumedPin({
   pin: LocationConsumer;
   location: Location;
 }) {
+  console.log(location);
   return (
     <tr key={pin.id}>
-      <th>{pin.id}</th>
+      <th>{}</th>
+      <td>{pin.createdAt.toDateString()}</td>
+      <td>{location.title}</td>
       <td>
-        {location.assetId && location.claimAmount ? (
-          <ClaimPinModal location={location} />
-        ) : (
-          <p>Not claimable</p>
-        )}
+        <Button />
       </td>
-      <td>{pin.userId}</td>
-      <td></td>
     </tr>
   );
+
+  function Button() {
+    if (pin.claimedAt) {
+      return (
+        <button className="btn btn-disabled btn-sm" disabled>
+          Claimed
+        </button>
+      );
+    } else if (location.assetId || location.pageAsset) {
+      return <ClaimPinModal consume={pin} location={location} />;
+    } else {
+      return <p>Not claimable</p>;
+    }
+  }
 }

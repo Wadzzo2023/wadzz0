@@ -21,24 +21,40 @@ export const trxRouter = createTRPCRouter({
       // db verify
       const location = await ctx.db.location.findUniqueOrThrow({
         where: { id: input.locationId },
-        include: { creator: true, asset: true },
+        include: { creator: { include: { pageAsset: true } }, asset: true },
       });
 
-      if (!location.asset || !location.claimAmount)
-        throw new Error("Not Claimable");
+      if (!location.claimAmount) throw new Error("No claimant ammount");
 
-      const code = location.asset.code;
-      const issuer = location.asset.issuer;
-      const amount = location.claimAmount.toString();
+      if (!location.asset && !location.pageAsset)
+        throw new Error("Not claimable");
+
+      let code: string | undefined = undefined;
+      let issuer: string | undefined = undefined;
+
+      if (location.pageAsset) {
+        if (!location.creator.pageAsset)
+          throw new Error("No page Asset, found!");
+
+        code = location.creator.pageAsset.code;
+        issuer = location.creator.pageAsset.issuer;
+      } else if (location.asset) {
+        code = location.asset.code;
+        issuer = location.asset.issuer;
+      }
+
+      const amount = location.claimAmount.toFixed(7);
 
       const storageSecret = location.creator.storageSecret;
 
-      return await ClaimXDR({
-        amount,
-        asset: { code, issuer },
-        receiver: userId,
-        signWith: input.signWith,
-        storageSecret: storageSecret,
-      });
+      if (code && issuer)
+        return await ClaimXDR({
+          amount,
+          asset: { code, issuer },
+          receiver: userId,
+          signWith: input.signWith,
+          storageSecret: storageSecret,
+        });
+      else throw new Error("Code and Issue not found");
     }),
 });

@@ -136,13 +136,31 @@ export const pinRouter = createTRPCRouter({
         userId,
       },
       include: { location: true },
+      orderBy: { createdAt: "desc" },
     });
     return consumedLocations;
   }),
-  toggleAutoCollect: protectedProcedure.input(z.object({ id: z.number(), 
-    isAutoCollect : z.boolean() 
-  })).mutation(
-    async ({ ctx, input }) => {
+
+  claimAPin: protectedProcedure
+    .input(z.object({ id: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      const { id } = input;
+
+      const locationConsumer = await ctx.db.locationConsumer.findUniqueOrThrow({
+        where: { id },
+      });
+
+      if (locationConsumer.userId != ctx.session.user.id)
+        throw new Error("You are not authorized");
+
+      return await ctx.db.locationConsumer.update({
+        data: { claimedAt: new Date() },
+        where: { id },
+      });
+    }),
+  toggleAutoCollect: protectedProcedure
+    .input(z.object({ id: z.number(), isAutoCollect: z.boolean() }))
+    .mutation(async ({ ctx, input }) => {
       await ctx.db.location.update({
         where: { id: input.id },
         data: { autoCollect: input.isAutoCollect },
@@ -150,7 +168,14 @@ export const pinRouter = createTRPCRouter({
     }),
 
   paste: publicProcedure
-    .input(z.object({ id: z.number(), lat: z.number(), long: z.number(), isCut: z.boolean() }))
+    .input(
+      z.object({
+        id: z.number(),
+        lat: z.number(),
+        long: z.number(),
+        isCut: z.boolean(),
+      }),
+    )
     .mutation(async ({ ctx, input }) => {
       const location = await ctx.db.location.findUnique({
         where: { id: input.id },
@@ -158,16 +183,14 @@ export const pinRouter = createTRPCRouter({
       if (!location) throw new Error("Location not found");
 
       const { lat, long } = input;
-      if(ctx.session?.user.id != location.creatorId) throw new Error("You are not the creator of this pin"
-      );
+      if (ctx.session?.user.id != location.creatorId)
+        throw new Error("You are not the creator of this pin");
       if (input.isCut) {
         await ctx.db.location.update({
           where: { id: input.id },
           data: { latitude: lat, longitude: long },
         });
-      }
-      else
-      {
+      } else {
         await ctx.db.location.create({
           data: {
             claimAmount: location.claimAmount,
@@ -191,22 +214,18 @@ export const pinRouter = createTRPCRouter({
       return {
         id: location.id,
         lat,
-        long, 
+        long,
       };
+    }),
 
-      }
-    ),
-
-  deletePin: protectedProcedure.input(z.object({ id: z.number() })).mutation(
-    async ({ ctx, input }) => {
-      const items = await ctx.db.location.delete({ where: { id: input.id, creatorId: ctx.session.user.id} });
+  deletePin: protectedProcedure
+    .input(z.object({ id: z.number() }))
+    .mutation(async ({ ctx, input }) => {
+      const items = await ctx.db.location.delete({
+        where: { id: input.id, creatorId: ctx.session.user.id },
+      });
       return {
-        item : items.id
-      }
-    },
-    
- 
-  ),
-  
-
+        item: items.id,
+      };
+    }),
 });
