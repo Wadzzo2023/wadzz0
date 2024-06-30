@@ -75,7 +75,7 @@ function ClaimConsumedPin({
           Claimed
         </button>
       );
-    } else if (location.assetId || location.pageAsset) {
+    } else if (location.assetId ?? location.pageAsset) {
       return <ClaimPinModal consume={pin} location={location} />;
     } else {
       return <p>Not claimable</p>;
