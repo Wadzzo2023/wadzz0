@@ -16,14 +16,11 @@ export const trxRouter = createTRPCRouter({
     )
     .mutation(async ({ ctx, input }) => {
       const userId = ctx.session.user.id;
-      // validate and parse
-
-      // db verify
       const location = await ctx.db.location.findUniqueOrThrow({
         where: { id: input.locationId },
         include: { creator: { include: { pageAsset: true } }, asset: true },
       });
-
+      
       if (!location.claimAmount) throw new Error("No claimant ammount");
 
       if (!location.asset && !location.pageAsset)
@@ -48,13 +45,22 @@ export const trxRouter = createTRPCRouter({
       const storageSecret = location.creator.storageSecret;
 
       if (code && issuer)
-        return await ClaimXDR({
+      {
+        try {
+          const xdr:string  = await ClaimXDR({
           amount,
           asset: { code, issuer },
           receiver: userId,
           signWith: input.signWith,
           storageSecret: storageSecret,
-        });
+          });
+
+          return xdr;
+        }
+        catch (error) {
+          console.error(error);
+        }
+      }
       else throw new Error("Code and Issue not found");
     }),
 });

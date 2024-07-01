@@ -142,7 +142,7 @@ export const pinRouter = createTRPCRouter({
   }),
 
   claimAPin: protectedProcedure
-    .input(z.object({ id: z.string() }))
+    .input(z.object({ id: z.string()  }))
     .mutation(async ({ ctx, input }) => {
       const { id } = input;
 
