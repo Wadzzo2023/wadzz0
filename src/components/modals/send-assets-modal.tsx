@@ -33,7 +33,7 @@ import {
 
 import { Button } from "~/components/shadcn/ui/button";
 import { api } from "~/utils/api";
-import { Loader2, Send } from "lucide-react";
+import { Loader2, RefreshCcw, RotateCw, Send } from "lucide-react";
 
 import { WalletType, clientsign } from "package/connect_wallet";
 import { useSession } from "next-auth/react";
@@ -42,10 +42,11 @@ import { useModal } from "../hooks/use-modal-store";
 import useNeedSign from "~/lib/hook";
 import { clientSelect } from "~/lib/stellar/fan/utils";
 import { useRouter } from "next/router";
+import { fetchPubkeyfromEmail } from "~/utils/get-pubkey";
 
 const formSchema = z.object({
-  recipientId: z.string().min(1, {
-    message: "Recipient Id is required.",
+  recipientId: z.string().length(56, {
+    message: "Recipient Id is must be 56 characters long.",
   }),
   amount: z.number().positive({
     message: "Amount must be greater than zero.",
@@ -217,11 +218,27 @@ const SendAssets = () => {
       toast.error("selectItem is not a string.");
     }
   };
+  const pubkey = form.watch("recipientId");
+
   useEffect(() => {
     if (router.query.id) {
       form.setValue("recipientId", router.query.id as string);
     }
   }, [router.query.id, form]);
+
+  async function fetchPubKey(): Promise<void> {
+    try {
+      const pub = await toast.promise(fetchPubkeyfromEmail(pubkey), {
+        error: "Email don't have a pubkey",
+        success: "Pubkey fetched successfully",
+        loading: "Fetching pubkey...",
+      });
+
+      form.setValue("recipientId", pub, { shouldValidate: true });
+    } catch (e) {
+      console.error(e);
+    }
+  }
   const handleClose = async () => {
     form.reset();
 
@@ -266,16 +283,29 @@ const SendAssets = () => {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="text-xs font-bold uppercase">
-                      Recipient ID
+                      Public Key or Email
                     </FormLabel>
                     <FormControl>
                       <Input
                         disabled={loading}
                         className="focus-visible:ring-0 focus-visible:ring-offset-0"
-                        placeholder="e.g. GABCD...XDBK"
+                        placeholder="e.g. GABCD...XDBK or wz@domain.com"
                         {...field}
                       />
                     </FormControl>
+                    {z.string().email().safeParse(pubkey).success && (
+                      <div className="tooltip" data-tip="Fetch Pubkey">
+                        <Button
+                          type="button"
+                          variant="link"
+                          className="m-0  p-0 text-xs font-bold text-blue-500 underline"
+                          onClick={fetchPubKey}
+                          disabled={loading}
+                        >
+                          <RotateCw size={12} className="mr-1" /> GET PUBLIC KEY
+                        </Button>
+                      </div>
+                    )}
                     <FormMessage />
                   </FormItem>
                 )}
