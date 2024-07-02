@@ -143,6 +143,7 @@ const Wallets = () => {
   if (checkingPlatformLoading || getPlatformLoading) {
     return <Loading text="Fetching Data" />;
   }
+  const url = `https://app.wadzzo.com${router.pathname}?id=${session?.data?.user?.id}`;
 
   if (!isAccountActivate) {
     return (
@@ -163,7 +164,7 @@ const Wallets = () => {
                 style={{
                   borderRadius: "10px",
                 }}
-                value={session?.data?.user?.id}
+                value={url}
                 viewBox={`0 0 256 256`}
               />
             </div>
