@@ -41,7 +41,7 @@ import { Toaster } from "react-hot-toast";
 import { useModal } from "../hooks/use-modal-store";
 import useNeedSign from "~/lib/hook";
 import { clientSelect } from "~/lib/stellar/fan/utils";
-import { useRouter } from "next/navigation";
+import { useRouter } from "next/router";
 
 const formSchema = z.object({
   recipientId: z.string().min(1, {
@@ -165,7 +165,7 @@ const SendAssets = () => {
           }
         } finally {
           setLoading(false);
-          handleClose();
+          await handleClose();
         }
       },
       onError: (error) => {
@@ -214,9 +214,35 @@ const SendAssets = () => {
       toast.error("selectItem is not a string.");
     }
   };
-
-  const handleClose = () => {
+  useEffect(() => {
+    if (router.query.id) {
+      form.setValue("recipientId", router.query.id as string);
+    }
+  }, [router.query.id, form]);
+  const handleClose = async () => {
     form.reset();
+
+    // Remove the id from the URL query parameters
+    const { id, ...rest } = router.query;
+
+    // Transform the remaining query parameters to a format accepted by URLSearchParams
+    const newQueryString = new URLSearchParams(
+      Object.entries(rest).reduce(
+        (acc, [key, value]) => {
+          if (typeof value === "string") {
+            acc[key] = value;
+          } else if (Array.isArray(value)) {
+            acc[key] = value.join(",");
+          }
+          return acc;
+        },
+        {} as Record<string, string>,
+      ),
+    ).toString();
+
+    const newPath = `${router.pathname}${newQueryString ? `?${newQueryString}` : ""}`;
+
+    await router.push(newPath, undefined, { shallow: true });
     onClose();
   };
 
@@ -243,7 +269,7 @@ const SendAssets = () => {
                       <Input
                         disabled={loading}
                         className="focus-visible:ring-0 focus-visible:ring-offset-0"
-                        placeholder="Enter Recipient ID..."
+                        placeholder="e.g. GABCD...XDBK"
                         {...field}
                       />
                     </FormControl>

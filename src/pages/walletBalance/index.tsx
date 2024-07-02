@@ -29,6 +29,7 @@ import {
 } from "package/connect_wallet/src/lib/stellar/utils";
 
 import toast from "react-hot-toast";
+import { useRouter } from "next/router";
 
 const Wallets = () => {
   const session = useSession();
@@ -36,7 +37,7 @@ const Wallets = () => {
   const { needSign } = useNeedSign();
   const [isAccountActivate, setAccountActivate] = useState(false);
   const [isAccountActivateLoading, setAccountActivateLoading] = useState(false);
-
+  const router = useRouter();
   const [isLoading, setLoading] = useState(false);
 
   async function checkAccountActivity(publicKey: string) {
@@ -56,6 +57,11 @@ const Wallets = () => {
     api.walletBalance.wallBalance.getPlatformAssetBalance.useQuery(undefined, {
       enabled: hasTrustLineOnPlatformAsset,
     });
+  useEffect(() => {
+    if (router.query.id) {
+      onOpen("send assets"); // Update state when id is available
+    }
+  }, [router.query.id, onOpen]);
 
   const checkStatus = useCallback(async () => {
     const user = session.data?.user;
