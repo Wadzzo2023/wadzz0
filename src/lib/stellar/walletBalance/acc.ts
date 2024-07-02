@@ -3,7 +3,7 @@ import { PLATFROM_ASSET, STELLAR_URL } from "./constant";
 
 import { Horizon } from "@stellar/stellar-sdk";
 import { StellarAccount } from "../marketplace/test/Account";
-import {  SignUserType, WithSing } from "../utils";
+import { SignUserType, WithSing } from "../utils";
 import { getAccSecretFromRubyApi } from "package/connect_wallet/src/lib/stellar/get-acc-secret";
 
 export type Balances = (
@@ -48,11 +48,11 @@ export async function NativeBalance({ userPub }: { userPub: string }) {
   const account = await server.loadAccount(userPub);
 
   const nativeBalance = account.balances.find(
-     (balance) => {
+    (balance) => {
       if (balance.asset_type === 'native') {
-      return balance
+        return balance
+      }
     }
-     }
   );
 
   return nativeBalance;
@@ -78,7 +78,7 @@ export async function BalanceWithHomeDomain({
           if (issuerAccount.home_domain) {
             return {
               ...balance,
-              amount : balance.balance < "0.0000001" ? "0" : balance.balance,
+              amount: balance.balance < "0.0000001" ? "0" : balance.balance,
               home_domain: issuerAccount.home_domain,
               asset_code: balance.asset_code,
               asset_issuer: balance.asset_issuer,
@@ -88,7 +88,7 @@ export async function BalanceWithHomeDomain({
           else {
             return {
               ...balance,
-              amount : balance.balance < "0.0000001" ? "0" : balance.balance,
+              amount: balance.balance < "0.0000001" ? "0" : balance.balance,
               home_domain: null,
               asset_code: balance.asset_code,
               asset_issuer: balance.asset_issuer,
@@ -99,7 +99,7 @@ export async function BalanceWithHomeDomain({
           return {
             ...balance,
             home_domain: null,
-             amount : balance.balance < "0.0000001" ? "0" : balance.balance,
+            amount: balance.balance < "0.0000001" ? "0" : balance.balance,
             asset_code: balance.asset_code,
             asset_issuer: balance.asset_issuer,
           }
@@ -109,7 +109,7 @@ export async function BalanceWithHomeDomain({
         return {
           ...balance,
           home_domain: null,
-           amount : balance.balance < "0.0000001" ? "0" : balance.balance,
+          amount: balance.balance < "0.0000001" ? "0" : balance.balance,
           asset_code: "XLM",
           asset_issuer: "native",
 
@@ -135,14 +135,14 @@ export async function SendAssets({
 }: {
   userPubKey: string;
 
-    recipientId: string;
-    amount: number;
-    asset_code: string;
-    asset_type: string;
-    asset_issuer: string;
-    signWith: SignUserType ;
-    secretKey?: string | undefined
-  }) {
+  recipientId: string;
+  amount: number;
+  asset_code: string;
+  asset_type: string;
+  asset_issuer: string;
+  signWith: SignUserType;
+  secretKey?: string | undefined
+}) {
 
   const server = new Horizon.Server(STELLAR_URL);
   const account = await server.loadAccount(userPubKey);
@@ -159,6 +159,9 @@ export async function SendAssets({
   if (!accBalance || parseFloat(accBalance.balance) < amount) {
     throw new Error('Balance is not enough to send the asset.');
   }
+  if (userPubKey === recipientId) {
+    throw new Error("You can't send asset to yourself");
+  }
   const receiverAccount = await server.loadAccount(recipientId);
   const hasTrust = receiverAccount.balances.find((balance) => {
     if (balance.asset_type === 'credit_alphanum4' || balance.asset_type === 'credit_alphanum12') {
@@ -169,7 +172,7 @@ export async function SendAssets({
     }
     return false;
   });
-  
+
   const asset = asset_type === 'native' ? Asset.native() : new Asset(asset_code, asset_issuer);
 
   const soon = Math.ceil(Date.now() / 1000 + 60);
@@ -194,7 +197,7 @@ export async function SendAssets({
         claimants: claimants,
       })
     );
-  } else  {
+  } else {
     transaction.addOperation(
       Operation.payment({
         destination: recipientId,
@@ -212,11 +215,11 @@ export async function SendAssets({
     const xdr = buildTrx.toXDR();
     const signedXDr = await WithSing({
       xdr: xdr,
-      signWith: signWith 
+      signWith: signWith
     });
     return { xdr: signedXDr, pubKey: userPubKey };
   }
-  return { xdr: buildTrx.toXDR(), pubKey: userPubKey};
+  return { xdr: buildTrx.toXDR(), pubKey: userPubKey };
 }
 
 export async function AddAssetTrustLine({
@@ -226,11 +229,11 @@ export async function AddAssetTrustLine({
   signWith,
   secretKey
 }: {
-    userPubKey: string;
-    asset_code: string; 
-    asset_issuer: string;
-    signWith: SignUserType;
-    secretKey?: string | undefined
+  userPubKey: string;
+  asset_code: string;
+  asset_issuer: string;
+  signWith: SignUserType;
+  secretKey?: string | undefined
 }) {
   const server = new Horizon.Server(STELLAR_URL);
   const account = await server.loadAccount(userPubKey);
@@ -262,12 +265,12 @@ export async function AddAssetTrustLine({
   const buildTrx = transaction.build();
   if (signWith && 'email' in signWith && secretKey) {
     const xdr = buildTrx.toXDR();
-    
+
     const signedXDr = await WithSing({
       xdr: xdr,
       signWith: signWith
     });
-    return { xdr: signedXDr, pubKey: userPubKey};
+    return { xdr: signedXDr, pubKey: userPubKey };
   }
 
   return { xdr: buildTrx.toXDR(), pubKey: userPubKey };
@@ -351,7 +354,7 @@ export async function RecentTransactionHistory({
         parseDetails: {
           type: "changeTrust",
           //  asset: operations[0]?.asset?.code,
-           
+
           source: userPubKey,
           createdAt: record.created_at,
         },
@@ -417,7 +420,7 @@ export async function AcceptClaimableBalance({
 }: {
   userPubKey: string;
   balanceId: string;
-  signWith: SignUserType ;
+  signWith: SignUserType;
   secretKey?: string | undefined
 }) {
   console.log("BalanceId", balanceId)
@@ -442,7 +445,7 @@ export async function AcceptClaimableBalance({
       const xdr = buildTrx.toXDR();
       const signedXDr = await WithSing({
         xdr: xdr,
-        signWith: signWith 
+        signWith: signWith
       });
       return { xdr: signedXDr, pubKey: userPubKey };
     }
@@ -467,7 +470,7 @@ export async function DeclineClaimableBalance({
   pubKey: string;
   balanceId: string;
   signWith: SignUserType;
-  secretKey? : string | undefined
+  secretKey?: string | undefined
 }) {
   const server = new Horizon.Server(STELLAR_URL);
   const account = await server.loadAccount(pubKey);
@@ -484,7 +487,7 @@ export async function DeclineClaimableBalance({
     .setTimeout(0)
   const buildTrx = transaction.build();
 
-  if (signWith&& "email" in signWith && secretKey) {
+  if (signWith && "email" in signWith && secretKey) {
 
     const xdr = buildTrx.toXDR();
     const signedXDr = await WithSing({

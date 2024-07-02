@@ -126,7 +126,7 @@ const SendAssets = () => {
     api.walletBalance.wallBalance.sendWalletAssets.useMutation({
       onSuccess: async (data) => {
         try {
-          console.log("Type", session.data?.user?.walletType);
+          if (data) console.log("Type", session.data?.user?.walletType);
           const clientResponse = await clientsign({
             presignedxdr: data.xdr,
             walletType: session.data?.user?.walletType,
@@ -185,7 +185,10 @@ const SendAssets = () => {
       toast.error("Insufficient balance");
       return;
     }
-
+    if (session.data?.user?.id === values.recipientId) {
+      toast.error("You can't send asset to yourself.");
+      return;
+    }
     if (values && typeof values.selectItem === "string") {
       const parts = values.selectItem.split("-");
       if (parts.length === 3) {
