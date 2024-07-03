@@ -1,6 +1,8 @@
 import { Location, LocationConsumer } from "@prisma/client";
 import React from "react";
+import { useModal } from "~/components/hooks/use-modal-store";
 import ClaimPinModal from "~/components/maps/claim/modal";
+import { Button } from "~/components/shadcn/ui/button";
 import { api } from "~/utils/api";
 
 export default function Page() {
@@ -56,27 +58,40 @@ function ClaimConsumedPin({
   pin: LocationConsumer;
   location: Location;
 }) {
-  console.log(location);
+  const { onOpen } = useModal();
   return (
     <tr key={pin.id}>
       <th>{}</th>
       <td>{pin.createdAt.toDateString()}</td>
       <td>{location.title}</td>
       <td>
-        <Button />
+        <ClaimButton />
       </td>
     </tr>
   );
 
-  function Button() {
+  function ClaimButton() {
     if (pin.claimedAt) {
       return (
-        <button className="btn btn-disabled btn-sm" disabled>
+        <Button className=" md:w-1/4" disabled>
           Claimed
-        </button>
+        </Button>
       );
     } else if (location.assetId ?? location.pageAsset) {
-      return <ClaimPinModal consume={pin} location={location} />;
+      return (
+        <Button
+          variant="destructive"
+          className="px-6 font-bold md:w-1/4"
+          onClick={() =>
+            onOpen("claim pin", {
+              location: location,
+              locationConsumer: pin,
+            })
+          }
+        >
+          Claim
+        </Button>
+      );
     } else {
       return <p>Not claimable</p>;
     }

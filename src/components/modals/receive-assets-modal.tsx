@@ -11,16 +11,20 @@ import {
 } from "~/components/shadcn/ui/dialog";
 import { useSession } from "next-auth/react";
 import { addrShort } from "~/utils/utils";
+import { useRouter } from "next/router";
 const ReceiveAssetsModal = () => {
   const { isOpen, onClose, type } = useModal();
   const session = useSession();
   const isModalOpen = isOpen && type === "receive assets";
+  const router = useRouter();
   const handleClose = () => {
     onClose();
   };
   if (!session?.data?.user?.id) {
     return <div>Public Key not found</div>;
   }
+  console.log(router.pathname);
+  const url = `https://app.wadzzo.com${router.pathname}?id=${session?.data?.user?.id}`;
   return (
     <>
       <Dialog open={isModalOpen} onOpenChange={handleClose}>
@@ -39,7 +43,8 @@ const ReceiveAssetsModal = () => {
                 height: "150px",
                 width: "150px",
               }}
-              value={session?.data?.user?.id}
+              value={url}
+              // value={`https://localhost:3000${router.pathname}?id=${session?.data?.user?.id}`}
               viewBox={`0 0 256 256`}
             />
             <h6 className="p-1 text-[10px] md:text-xs ">

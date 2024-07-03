@@ -33,7 +33,7 @@ import {
 
 import { Button } from "~/components/shadcn/ui/button";
 import { api } from "~/utils/api";
-import { Loader2, Send } from "lucide-react";
+import { Loader2, RefreshCcw, RotateCw, Send } from "lucide-react";
 
 import { WalletType, clientsign } from "package/connect_wallet";
 import { useSession } from "next-auth/react";
@@ -41,11 +41,12 @@ import { Toaster } from "react-hot-toast";
 import { useModal } from "../hooks/use-modal-store";
 import useNeedSign from "~/lib/hook";
 import { clientSelect } from "~/lib/stellar/fan/utils";
-import { useRouter } from "next/navigation";
+import { useRouter } from "next/router";
+import { fetchPubkeyfromEmail } from "~/utils/get-pubkey";
 
 const formSchema = z.object({
-  recipientId: z.string().min(1, {
-    message: "Recipient Id is required.",
+  recipientId: z.string().length(56, {
+    message: "Recipient Id is must be 56 characters long.",
   }),
   amount: z.number().positive({
     message: "Amount must be greater than zero.",
@@ -126,7 +127,7 @@ const SendAssets = () => {
     api.walletBalance.wallBalance.sendWalletAssets.useMutation({
       onSuccess: async (data) => {
         try {
-          console.log("Type", session.data?.user?.walletType);
+          if (data) console.log("Type", session.data?.user?.walletType);
           const clientResponse = await clientsign({
             presignedxdr: data.xdr,
             walletType: session.data?.user?.walletType,
@@ -165,7 +166,7 @@ const SendAssets = () => {
           }
         } finally {
           setLoading(false);
-          handleClose();
+          await handleClose();
         }
       },
       onError: (error) => {
@@ -185,7 +186,10 @@ const SendAssets = () => {
       toast.error("Insufficient balance");
       return;
     }
-
+    if (session.data?.user?.id === values.recipientId) {
+      toast.error("You can't send asset to yourself.");
+      return;
+    }
     if (values && typeof values.selectItem === "string") {
       const parts = values.selectItem.split("-");
       if (parts.length === 3) {
@@ -214,9 +218,51 @@ const SendAssets = () => {
       toast.error("selectItem is not a string.");
     }
   };
+  const pubkey = form.watch("recipientId");
 
-  const handleClose = () => {
+  useEffect(() => {
+    if (router.query.id) {
+      form.setValue("recipientId", router.query.id as string);
+    }
+  }, [router.query.id, form]);
+
+  async function fetchPubKey(): Promise<void> {
+    try {
+      const pub = await toast.promise(fetchPubkeyfromEmail(pubkey), {
+        error: "Email don't have a pubkey",
+        success: "Pubkey fetched successfully",
+        loading: "Fetching pubkey...",
+      });
+
+      form.setValue("recipientId", pub, { shouldValidate: true });
+    } catch (e) {
+      console.error(e);
+    }
+  }
+  const handleClose = async () => {
     form.reset();
+
+    // Remove the id from the URL query parameters
+    const { id, ...rest } = router.query;
+
+    // Transform the remaining query parameters to a format accepted by URLSearchParams
+    const newQueryString = new URLSearchParams(
+      Object.entries(rest).reduce(
+        (acc, [key, value]) => {
+          if (typeof value === "string") {
+            acc[key] = value;
+          } else if (Array.isArray(value)) {
+            acc[key] = value.join(",");
+          }
+          return acc;
+        },
+        {} as Record<string, string>,
+      ),
+    ).toString();
+
+    const newPath = `${router.pathname}${newQueryString ? `?${newQueryString}` : ""}`;
+
+    await router.push(newPath, undefined, { shallow: true });
     onClose();
   };
 
@@ -237,16 +283,29 @@ const SendAssets = () => {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="text-xs font-bold uppercase">
-                      Recipient ID
+                      Public Key or Email
                     </FormLabel>
                     <FormControl>
                       <Input
                         disabled={loading}
                         className="focus-visible:ring-0 focus-visible:ring-offset-0"
-                        placeholder="Enter Recipient ID..."
+                        placeholder="e.g. GABCD...XDBK or wz@domain.com"
                         {...field}
                       />
                     </FormControl>
+                    {z.string().email().safeParse(pubkey).success && (
+                      <div className="tooltip" data-tip="Fetch Pubkey">
+                        <Button
+                          type="button"
+                          variant="link"
+                          className="m-0  p-0 text-xs font-bold text-blue-500 underline"
+                          onClick={fetchPubKey}
+                          disabled={loading}
+                        >
+                          <RotateCw size={12} className="mr-1" /> GET PUBLIC KEY
+                        </Button>
+                      </div>
+                    )}
                     <FormMessage />
                   </FormItem>
                 )}

@@ -129,7 +129,7 @@ const AddTrustLine = () => {
                     <Input
                       disabled={loading}
                       className="focus-visible:ring-0 focus-visible:ring-offset-0"
-                      placeholder="Enter Recipient ID..."
+                      placeholder="Enter Asset Code..."
                       {...field}
                     />
                   </FormControl>
