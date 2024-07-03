@@ -23,6 +23,7 @@ import {
   publicProcedure,
 } from "~/server/api/trpc";
 import { db } from "~/server/db";
+import { trustCustomPageAsset } from "~/lib/stellar/fan/trust_custom_page_asset";
 
 export const trxRouter = createTRPCRouter({
   createCreatorPageAsset: protectedProcedure
@@ -264,8 +265,30 @@ export const trxRouter = createTRPCRouter({
     .query(async ({ ctx, input }) => {
       return await getplatformAssetNumberForXLM(input.xlm);
     }),
-});
 
-function getPubkeyByEmail(email: string) {
-  return "pubkey";
-}
+  trustCustomPageAssetXDR: protectedProcedure
+    .input(
+      z.object({
+        code: z.string(),
+        issuer: z.string(),
+        signWith: SignUser,
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { code, issuer, signWith } = input;
+
+      const creator = await ctx.db.creator.findUniqueOrThrow({
+        where: { id: ctx.session.user.id },
+      });
+      const requiredPlatformAsset = await getplatformAssetNumberForXLM(0.5);
+
+      return await trustCustomPageAsset({
+        signWith,
+        code,
+        issuer,
+        creator: ctx.session.user.id,
+        storageSecret: creator.storageSecret,
+        requiredPlatformAsset: requiredPlatformAsset.toString(),
+      });
+    }),
+});

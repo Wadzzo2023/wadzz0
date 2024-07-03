@@ -33,6 +33,8 @@ export default function MemberShip({ creator }: { creator: Creator }) {
 }
 
 function CreatorAssetView({ creator }: { creator: Creator }) {
+  return <AddCreatorPageAssetModal creator={creator} />;
+
   const creatorData = api.fan.creator.getCreator.useQuery(
     {
       id: creator.id,

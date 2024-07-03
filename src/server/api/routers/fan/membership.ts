@@ -1,7 +1,7 @@
 import { NotificationType } from "@prisma/client";
 import { z } from "zod";
 import { CreatorAboutShema } from "~/components/fan/creator/about";
-import { CreatorPageAssetSchema } from "~/components/fan/creator/add-createpage-asset";
+import { CreatorPageAssetSchema } from "~/components/fan/creator/page_asset/new";
 import { TierSchema } from "~/components/fan/creator/add-tier-modal";
 import { EditTierSchema } from "~/components/fan/creator/edit-tier-modal";
 import { AccountSchema } from "~/lib/stellar/fan/utils";
@@ -47,6 +47,21 @@ export const membershipRouter = createTRPCRouter({
           issuerPrivate: issuer.secretKey,
         },
       });
+    }),
+
+  createCustomPageAsset: protectedProcedure
+    .input(z.object({ code: z.string(), issuer: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      const creatorId = ctx.session.user.id;
+      const { code, issuer } = input;
+      const assetIssuer = `${code}-${issuer}`;
+
+      const creator = await ctx.db.creator.update({
+        data: { customPageAssetCodeIssuer: assetIssuer },
+        where: { id: creatorId },
+      });
+
+      return creator;
     }),
 
   editTierModal: protectedProcedure
