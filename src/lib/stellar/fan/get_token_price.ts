@@ -1,6 +1,6 @@
 import axios from "axios";
 import { env } from "~/env";
-import { PLATFROM_ASSET } from "./constant";
+import { PLATFROM_ASSET } from "../constant";
 
 interface PlatformAssetInfo {
   price: number;
@@ -58,6 +58,7 @@ export async function getPlatfromAssetPrice() {
 }
 
 export async function getplatformAssetNumberForXLM(xlm = 1.5) {
+  if (PLATFROM_ASSET.code === "Wadzzo") return Math.ceil(xlm * 7.69);
   const price = await getPlatfromAssetPrice();
   return Math.ceil((xlm * 0.12) / price);
 }
@@ -69,25 +70,3 @@ export async function getPlatformTokenNumberForUSD(
   const platformTokenNumber = usd / platformAssetPrice;
   return platformTokenNumber;
 }
-
-// later found from albedo
-// export async function getSwapValueOfATokenForXLM({
-//   amount,
-//   assetCode,
-//   issuer,
-// }: {
-//   assetCode: string;
-//   issuer: string;
-//   amount: number;
-// }) {
-//   const url = `https://horizon.stellar.org/paths/strict-send?source_asset_type=native&source_amount=${amount}&destination_assets=${assetCode}%3A${issuer}`;
-//   try {
-//     const response = await axios.get(url);
-//     const assetNumber = response.data.destination_amount as number;
-
-//     return assetNumber;
-//   } catch (error) {
-//     console.error(`Error fetching asset number for ${assetCode}:`, error);
-//     throw error;
-//   }
-// }

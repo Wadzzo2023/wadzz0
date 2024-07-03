@@ -2,10 +2,9 @@ import { z } from "zod";
 import { AdminAssetFormSchema } from "~/components/wallete/add_asset_form";
 
 import {
+  adminProcedure,
   createTRPCRouter,
   protectedProcedure,
-  publicProcedure,
-  adminProcedure,
 } from "~/server/api/trpc";
 import { getBlurData } from "~/utils/serverUtils";
 

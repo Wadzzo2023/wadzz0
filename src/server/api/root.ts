@@ -5,6 +5,9 @@ import { marketplaceRouter } from "./routers/marketplace/root";
 import { wallateRouter } from "./routers/wallate/root";
 import { authRouter } from "./routers/auth/root";
 import { mapsRouter } from "./routers/maps/root";
+import { gameRouter } from "./routers/game";
+import { wallateBalanceRouter } from "./routers/walletBalance/root";
+import { adminRouter } from "./routers/admin/root";
 
 /**
  * This is the primary router for your server.
@@ -18,6 +21,9 @@ export const appRouter = createTRPCRouter({
   wallate: wallateRouter,
   auth: authRouter,
   maps: mapsRouter,
+  game: gameRouter,
+  walletBalance : wallateBalanceRouter,
+  admin: adminRouter,
 });
 
 // export type definition of API

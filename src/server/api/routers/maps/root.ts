@@ -1,5 +1,6 @@
 import { createTRPCRouter } from "~/server/api/trpc";
 import { pinRouter } from "./pin";
+import { trxRouter } from "./trx";
 
 /**
  * This is the primary router for your server.
@@ -8,6 +9,7 @@ import { pinRouter } from "./pin";
  */
 export const mapsRouter = createTRPCRouter({
   pin: pinRouter,
+  trx: trxRouter,
 });
 
 // export type definition of API

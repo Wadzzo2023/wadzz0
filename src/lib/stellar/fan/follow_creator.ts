@@ -5,7 +5,7 @@ import {
   TransactionBuilder,
 } from "@stellar/stellar-sdk";
 import { SignUserType, WithSing } from "../utils";
-import { STELLAR_URL, networkPassphrase } from "./constant";
+import { STELLAR_URL, networkPassphrase } from "../constant";
 import { MyAssetType } from "./utils";
 
 export async function follow_creator({

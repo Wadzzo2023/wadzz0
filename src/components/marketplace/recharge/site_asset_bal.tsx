@@ -3,7 +3,7 @@ import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { WalletType } from "package/connect_wallet/src/lib/enums";
 import { useUserStellarAcc } from "~/lib/state/wallete/stellar-balances";
-import { PLATFROM_ASSET } from "~/lib/stellar/fan/constant";
+import { PLATFROM_ASSET } from "~/lib/stellar/constant";
 import { api } from "~/utils/api";
 
 export function SiteAssetBalance() {

@@ -1,6 +1,6 @@
 import { Horizon } from "@stellar/stellar-sdk";
 import { STELLAR_URL, STROOP } from "../constant";
-import { PLATFROM_ASSET } from "../../fan/constant";
+import { PLATFROM_ASSET } from "../../constant";
 
 type Balances = (
   | Horizon.HorizonApi.BalanceLineNative
@@ -16,7 +16,6 @@ export async function accountBalances({ userPub }: { userPub: string }) {
   const balances = transactionInializer.balances;
 
   return balances;
-  // console.log("acc", transactionInializer);
 }
 
 export async function getAssetBalance({

@@ -173,6 +173,8 @@ model Creator {
     storagePub    String
     storageSecret String
 
+    approved Boolean? // if undefined than it is sended for aproval, false means banned, true means aproved
+
     // pageAsset
     pageAssetId Int?
 
@@ -246,6 +248,8 @@ model User {
     bio           String?
     image         String?
     emailVerified DateTime?
+
+    joinedAt DateTime? @default(now())
 
     accounts         Account[]
     sessions         Session[]
@@ -435,7 +439,7 @@ model LocationGroup {
 }
 
 model Location {
-    id String @id @default(cuid())
+    id Int @id @default(autoincrement())
 
     latitude  Float
     longitude Float
@@ -445,9 +449,11 @@ model Location {
     assetId Int?
     asset   Asset? @relation(fields: [assetId], references: [id], onDelete: Cascade)
 
+    pageAsset Boolean? @default(false)
+
     claimAmount Float? // how much token each person will claim. if null then it is free
 
-    isActive Boolean
+    isActive Boolean // just an field
     image    String?
 
     limit Int // how many person can claim the Location / pin
@@ -462,12 +468,12 @@ model Location {
 
     autoCollect Boolean
 
-    approved Boolean @default(false)
+    approved Boolean?
 
     locationGroupId String?
     locationGroup   LocationGroup? @relation(fields: [locationGroupId], references: [id], onDelete: Cascade)
 
-    LocationConsumer LocationConsumer[]
+    consumers LocationConsumer[]
 }
 
 model LocationConsumer {
@@ -476,8 +482,14 @@ model LocationConsumer {
     userId String
     user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-    locationId String
+    locationId Int
     location   Location @relation(fields: [locationId], references: [id], onDelete: Cascade)
+
+    claimedAt DateTime?
+
+    viewedAt DateTime?
+
+    hidden Boolean @default(false)
 
     createdAt DateTime @default(now())
 }

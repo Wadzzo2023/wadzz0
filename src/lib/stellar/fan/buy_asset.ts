@@ -11,7 +11,7 @@ import {
   PLATFROM_FEE,
   STELLAR_URL,
   networkPassphrase,
-} from "./constant";
+} from "../constant";
 import { MyAssetType } from "./utils";
 
 const log = console;

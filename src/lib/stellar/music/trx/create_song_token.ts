@@ -7,7 +7,7 @@ import {
   Asset,
 } from "@stellar/stellar-sdk";
 import { env } from "~/env";
-import { STELLAR_URL } from "../constant";
+import { STELLAR_URL } from "../../constant";
 import { AccountType } from "../../fan/utils";
 
 const log = console;

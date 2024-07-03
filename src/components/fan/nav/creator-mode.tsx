@@ -17,6 +17,7 @@ export const CreatorNavigation = {
     text: "SETTINGS",
   },
   Gift: { path: "/fans/creator/gift", icon: Bell, text: "GIFT" },
+  Map: { path: "/maps", icon: Bell, text: "MAP" },
 } as const;
 
 export function CreatorNavButtons() {

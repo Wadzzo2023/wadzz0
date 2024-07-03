@@ -2,30 +2,29 @@ interface Location {
   latitude: number;
   longitude: number;
 }
-export function getLocationInLatLngRad(
-  radiusInMeters: number,
-  currentLocation: Location,
+
+const EarthRadius = 6371; // Earth's radius in kilometers
+const OneDegree = ((EarthRadius * 2 * Math.PI) / 360) * 1000; // One degree in meters
+
+function randomPointInDisk(radius: number): [number, number] {
+  const r = radius * Math.sqrt(Math.random());
+  const theta = Math.random() * 2 * Math.PI;
+  return [r * Math.cos(theta), r * Math.sin(theta)];
+}
+
+export function randomLocation(
+  lat: number,
+  lng: number,
+  radius: number,
 ): Location {
-  const x0 = currentLocation.longitude;
-  const y0 = currentLocation.latitude;
+  if (radius <= 0) return { latitude: lat, longitude: lng };
+  const [dx, dy] = randomPointInDisk(radius);
 
-  const radiusInDegrees = radiusInMeters / 111320;
-
-  const u = Math.random();
-  const v = Math.random();
-  const w = radiusInDegrees * Math.sqrt(u);
-  const t = 2 * Math.PI * v;
-
-  const x = w * Math.cos(t);
-  const y = w * Math.sin(t);
-
-  const new_x = x / Math.cos((y0 * Math.PI) / 180);
-
-  const foundLatitude = y0 + y;
-  const foundLongitude = x0 + new_x;
+  const randomLat = lat + dy / OneDegree;
+  const randomLng = lng + dx / (OneDegree * Math.cos((lat * Math.PI) / 180));
 
   return {
-    latitude: foundLatitude,
-    longitude: foundLongitude,
+    latitude: randomLat,
+    longitude: randomLng,
   };
 }

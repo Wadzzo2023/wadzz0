@@ -6,7 +6,7 @@ import {
   TransactionBuilder,
 } from "@stellar/stellar-sdk";
 import { env } from "~/env";
-import { STELLAR_URL, networkPassphrase } from "./constant";
+import { STELLAR_URL, networkPassphrase } from "../constant";
 import { MyAssetType } from "./utils";
 
 const log = console;

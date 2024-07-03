@@ -66,6 +66,7 @@ export const creatorRouter = createTRPCRouter({
           user: { connect: { id: id } },
           storagePub: i.publicKey,
           storageSecret: i.secretKey,
+          approved: false,
         },
       });
     }),

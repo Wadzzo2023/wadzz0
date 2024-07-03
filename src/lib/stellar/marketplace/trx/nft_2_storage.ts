@@ -10,7 +10,7 @@ import { STELLAR_URL } from "../constant";
 import { networkPassphrase } from "../constant";
 import { SignUserType, WithSing } from "../../utils";
 import { env } from "~/env";
-import { PLATFROM_ASSET, PLATFROM_FEE } from "../../fan/constant";
+import { PLATFROM_ASSET, PLATFROM_FEE } from "../../constant";
 
 export async function sendNft2StorageXDR({
   assetCode,

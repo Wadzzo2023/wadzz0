@@ -9,10 +9,23 @@ import AdminRightSide from "./admin/admin_right";
 import { useTagStore } from "~/lib/state/wallete/tag";
 import { MarketType } from "@prisma/client";
 import { usePopUpState } from "~/lib/state/right-pop";
+import Drawer from "./drawer";
 
 export const AssetVariant = { ...MarketType, Other: "Other" } as const;
 
 export default function RightSideBar() {
+  const router = useRouter();
+  if (router.pathname.includes("/maps")) return undefined;
+  return (
+    <div>
+      <div className="absolute bottom-0 right-0 lg:hidden">
+        <Drawer />
+      </div>
+      <RightSideBarComponent />
+    </div>
+  );
+}
+function RightSideBarComponent() {
   const router = useRouter();
   if (router.pathname.includes("/maps")) return undefined;
 

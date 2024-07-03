@@ -15,7 +15,7 @@ import Loading from "~/components/wallete/loading";
 import useNeedSign from "~/lib/hook";
 import { CreatorMenu, useCreator } from "~/lib/state/fan/creator-menu";
 import { useUserStellarAcc } from "~/lib/state/wallete/stellar-balances";
-import { PLATFROM_ASSET, PLATFROM_FEE } from "~/lib/stellar/fan/constant";
+import { PLATFROM_ASSET, PLATFROM_FEE } from "~/lib/stellar/constant";
 import { clientSelect } from "~/lib/stellar/fan/utils";
 import { api } from "~/utils/api";
 
@@ -95,7 +95,7 @@ function ConditionallyRenderMenuPage({ creator }: { creator: Creator }) {
   }
 }
 
-function ValidCreateCreator() {
+export function ValidCreateCreator({ message }: { message?: string }) {
   const { platformAssetBalance } = useUserStellarAcc();
   const requiredToken = api.fan.trx.getPlatformTokenPriceForXLM.useQuery({
     xlm: 5,
@@ -106,16 +106,19 @@ function ValidCreateCreator() {
   // if (!platformAssetBalance) return <div>Check your Account</div>;
 
   if (requiredToken.data) {
-    const requiredTokenNumber = requiredToken.data + Number(PLATFROM_FEE);
+    const requiredTokenNumber = requiredToken.data;
     if (platformAssetBalance >= requiredTokenNumber) {
       return <CreateCreator requiredToken={requiredTokenNumber} />;
     } else {
       return (
-        <div className="flex h-full w-full  items-center justify-center">
+        <div className="flex h-full w-full flex-col items-center  justify-center gap-2">
+          {message && (
+            <Alert className="max-w-xl" content={message} type="info" />
+          )}
           <Alert
             className="max-w-xl"
             type="error"
-            content={`To be a creator, you need minimum ${requiredToken.data} ${PLATFROM_ASSET.code} `}
+            content={`You don't have Sufficient Balance ,To create storage account, you need minimum ${requiredToken.data} ${PLATFROM_ASSET.code} `}
           />
         </div>
       );
@@ -161,10 +164,10 @@ function CreateCreator({ requiredToken }: { requiredToken: number }) {
 
   return (
     <div className="flex h-full flex-col items-center justify-center gap-2 ">
-      <p className="text-2xl font-bold">You are not a creator</p>
-      <p className="alert-info">
-        Your account should have minimum {requiredToken} ${PLATFROM_ASSET.code}{" "}
-        to be a creator.
+      <p className="text-2xl font-bold">You are not a brand</p>
+      <p className="alert alert-info max-w-xl text-center">
+        Your account should have minimum {requiredToken} {PLATFROM_ASSET.code}{" "}
+        to be a brand.
       </p>
       <button
         className="btn btn-primary"
@@ -172,7 +175,7 @@ function CreateCreator({ requiredToken }: { requiredToken: number }) {
         disabled={loading}
       >
         {loading && <span className="loading loading-spinner" />}
-        Be a creator
+        Join as a brand
       </button>
     </div>
   );

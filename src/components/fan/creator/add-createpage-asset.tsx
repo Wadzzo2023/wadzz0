@@ -4,12 +4,12 @@ import { useRef, useState } from "react";
 import { z } from "zod";
 import Loading from "~/components/wallete/loading";
 import { useUserStellarAcc } from "~/lib/state/wallete/stellar-balances";
-import { PLATFROM_ASSET } from "~/lib/stellar/fan/constant";
 import { api } from "~/utils/api";
 import Alert from "../../ui/alert";
 import NewPageAssetFrom from "./page_asset/new";
 import CustomPageAssetFrom from "./page_asset/custom";
 import clsx from "clsx";
+import { PLATFROM_ASSET } from "~/lib/stellar/constant";
 
 export default function AddCreatorPageAssetModal({
   creator,

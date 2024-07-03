@@ -1,6 +1,9 @@
 import React from "react";
 import AddAdmin from "~/components/admin/add_admin";
 import AdminsList from "~/components/admin/admins";
+import CreatorPage from "~/components/admin/creator/page";
+import Pins from "~/components/admin/pins";
+import UserList from "~/components/admin/users";
 import NftCreate from "~/components/marketplace/nft_create";
 import AlbumCreate from "~/components/music/modal/album_create";
 import { ModalMode } from "~/components/music/modal/modal_template";
@@ -53,6 +56,13 @@ function RenderTabs() {
           <AdminsList />
         </div>
       );
+    case AdminNavigation.PINS:
+      return <Pins />;
+    case AdminNavigation.CREATORS:
+      return <CreatorPage />;
+
+    case AdminNavigation.USERS:
+      return <UserList />;
   }
 }
 

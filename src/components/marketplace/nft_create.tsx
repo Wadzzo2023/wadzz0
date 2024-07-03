@@ -12,7 +12,7 @@ import toast from "react-hot-toast";
 import { z } from "zod";
 import useNeedSign from "~/lib/hook";
 import { useUserStellarAcc } from "~/lib/state/wallete/stellar-balances";
-import { PLATFROM_ASSET, PLATFROM_FEE } from "~/lib/stellar/fan/constant";
+import { PLATFROM_ASSET, PLATFROM_FEE } from "~/lib/stellar/constant";
 import { AccountSchema, clientSelect } from "~/lib/stellar/fan/utils";
 import { api } from "~/utils/api";
 import { UploadButton } from "~/utils/uploadthing";

@@ -3,7 +3,7 @@ import { useSession } from "next-auth/react";
 import { clientsign } from "package/connect_wallet";
 import React, { useRef, useState } from "react";
 import toast from "react-hot-toast";
-import { PLATFROM_ASSET, PLATFROM_FEE } from "~/lib/stellar/fan/constant";
+import { PLATFROM_ASSET, PLATFROM_FEE } from "~/lib/stellar/constant";
 import { clientSelect } from "~/lib/stellar/fan/utils";
 import { api } from "~/utils/api";
 import { truncateString } from "~/utils/string";

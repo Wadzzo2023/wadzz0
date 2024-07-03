@@ -10,7 +10,7 @@ import {
   PLATFROM_FEE,
   STELLAR_URL,
   networkPassphrase,
-} from "./constant";
+} from "../constant";
 import { env } from "~/env";
 import { AccountSchema, AccountType } from "./utils";
 import { SignUserType, WithSing } from "../utils";

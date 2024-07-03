@@ -12,7 +12,7 @@ import {
   PLATFROM_FEE,
   STELLAR_URL,
   networkPassphrase,
-} from "./constant";
+} from "../constant";
 import { getplatformAssetNumberForXLM } from "./get_token_price";
 import { AccountType } from "./utils";
 

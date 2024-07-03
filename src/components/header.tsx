@@ -1,13 +1,11 @@
 import React from "react";
 
-import dynamic from "next/dynamic";
 import Hamburger from "./hamburger";
 import Logo from "./logo";
 import { SiteAssetBalance } from "./marketplace/recharge/site_asset_bal";
 
-const ConnectWalletButton = dynamic(
-  async () => await import("../components/ui/wallate_button"),
-);
+import Image from "next/image";
+import { ConnectWalletButton } from "package/connect_wallet";
 
 interface HeaderProps {
   key?: React.Key;

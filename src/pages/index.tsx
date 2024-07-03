@@ -5,10 +5,9 @@ import { useUserStellarAcc } from "~/lib/state/wallete/stellar-balances";
 import { api } from "~/utils/api";
 
 export default function Home() {
-    const { setBalance } = useUserStellarAcc();
+  const { setBalance } = useUserStellarAcc();
   const acc = api.wallate.acc.getUserPubAssetBallances.useQuery(undefined, {
     onSuccess: (data) => {
-      console.log(data);
       setBalance(data);
     },
     onError: (error) => {

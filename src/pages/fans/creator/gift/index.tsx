@@ -9,7 +9,7 @@ import toast from "react-hot-toast";
 import { submitSignedXDRToServer } from "package/connect_wallet";
 import { fetchPubkeyfromEmail } from "~/utils/get-pubkey";
 import Loading from "~/components/wallete/loading";
-import { PLATFROM_ASSET } from "~/lib/stellar/fan/constant";
+import { PLATFROM_ASSET } from "~/lib/stellar/constant";
 import Avater from "~/components/ui/avater";
 
 export const FanGitFormSchema = z.object({

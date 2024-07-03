@@ -1,6 +1,7 @@
 import { Asset, Networks } from "@stellar/stellar-sdk";
 import { env } from "~/env";
 
+export const STROOP = "0.0000001";
 export const networkPassphrase = env.NEXT_PUBLIC_STELLAR_PUBNET
   ? Networks.PUBLIC
   : Networks.TESTNET;

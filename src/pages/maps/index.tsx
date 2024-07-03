@@ -3,25 +3,36 @@ import {
   AdvancedMarker,
   Map,
   MapMouseEvent,
-  Marker,
 } from "@vis.gl/react-google-maps";
+import { MapPin, Pin } from "lucide-react";
 import Image from "next/image";
 import React, { useState } from "react";
-import { Avatar, Loading } from "react-daisyui";
+import { Loading } from "react-daisyui";
 import toast from "react-hot-toast";
+import { useModal } from "~/components/hooks/use-modal-store";
 import CreatePinModal from "~/components/maps/modals/create-pin";
+// import { PlacesAutocomplete } from "~/components/maps/place";
 import { useCreatorStorageAcc } from "~/lib/state/wallete/stellar-balances";
 import { api } from "~/utils/api";
 
 function App() {
   const modal = React.useRef<HTMLDialogElement>(null);
   const [clickedPos, updatePos] = useState<google.maps.LatLngLiteral>();
+  const [manual, setManual] = useState<boolean>();
   const { setBalance } = useCreatorStorageAcc();
+  const {
+    onOpen,
+    isPinCopied,
+    data,
+    isAutoCollect,
+    isPinCut,
+    setIsAutoCollect,
+  } = useModal();
 
   // queries
   const acc = api.wallate.acc.getCreatorStorageBallances.useQuery(undefined, {
     onSuccess: (data) => {
-      console.log(data);
+      // console.log(data);
       setBalance(data);
     },
     onError: (error) => {
@@ -31,19 +42,31 @@ function App() {
   });
 
   function handleMapClick(event: MapMouseEvent): void {
+    setManual(false);
     const position = event.detail.latLng;
     if (position) {
       updatePos(position);
-      modal.current?.showModal();
-      const lat = position.lat.toPrecision(3);
-      toast.success(
-        `Latitude: ${position.lat.toPrecision(5)}, Longitude: ${position.lng.toPrecision(5)}`,
-      );
+      if (!isPinCopied && !isPinCut) {
+        modal.current?.showModal();
+      } else if (isPinCopied || isPinCut) {
+        onOpen("copied", {
+          long: position.lng,
+          lat: position.lat,
+          pinId: data.pinId,
+        });
+      }
     }
+  }
+
+  function handleManualPinClick() {
+    setManual(true);
+    updatePos(undefined);
+    modal.current?.showModal();
   }
 
   return (
     <APIProvider apiKey={"AIzaSyDoSm4IfpYtHLnCBnXsH6f47t6hLdAnyao"}>
+      {/* <PlacesAutocomplete /> */}
       <Map
         onClick={handleMapClick}
         // center={position}
@@ -57,39 +80,63 @@ function App() {
       >
         <MyPins />
       </Map>
-      {clickedPos && <CreatePinModal modal={modal} position={clickedPos} />}
+      <ManualPinButton handleClick={handleManualPinClick} />
+      {(clickedPos ?? manual) && (
+        <CreatePinModal modal={modal} position={clickedPos} manual={manual} />
+      )}
     </APIProvider>
   );
-}
 
-function MyPins() {
-  const pins = api.maps.pin.getMyPins.useQuery();
-
-  if (pins.isLoading) return <Loading />;
-
-  if (pins.data) {
+  function ManualPinButton({ handleClick }: { handleClick: () => void }) {
     return (
-      <>
-        {pins.data.map((pin) => (
-          <AdvancedMarker
-            key={pin.id}
-            position={{ lat: pin.latitude, lng: pin.longitude }}
-            onClick={() => toast.success(pin.title)}
-          >
-            {/* <span className="tree">🌳</span> */}
-            <span>
-              <Image
-                src="/favicon.ico"
-                width={30}
-                height={30}
-                alt="vong cong"
-              />
-            </span>
-          </AdvancedMarker>
-        ))}
-      </>
+      <div className="absolute bottom-2 right-2">
+        <div className="btn btn-circle" onClick={handleClick}>
+          <MapPin />
+        </div>
+      </div>
     );
   }
-}
 
+  function MyPins() {
+    const pins = api.maps.pin.getMyPins.useQuery();
+
+    if (pins.isLoading) return <Loading />;
+
+    if (pins.data) {
+      return (
+        <>
+          {pins.data.map((pin) => (
+            <AdvancedMarker
+              key={pin.id}
+              position={{ lat: pin.latitude, lng: pin.longitude }}
+              onClick={() => {
+                onOpen("map", {
+                  pinId: pin.id,
+                  long: pin.longitude,
+                  lat: pin.latitude,
+                  mapTitle: pin.title,
+                  mapDescription: pin?.description,
+                });
+                setIsAutoCollect(pin.autoCollect); // Set isAutoCollect to true when a pin is clicked
+              }}
+            >
+              {pin._count.consumers < pin.limit ? (
+                <span>
+                  <Image
+                    src={pin.creator.profileUrl ?? "/favicon.ico"}
+                    width={30}
+                    height={30}
+                    alt="vong cong"
+                  />
+                </span>
+              ) : (
+                <span className="tree">(🌳)</span>
+              )}
+            </AdvancedMarker>
+          ))}
+        </>
+      );
+    }
+  }
+}
 export default App;
