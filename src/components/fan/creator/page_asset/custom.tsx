@@ -52,7 +52,7 @@ function CustomPageAssetFrom({ requiredToken }: { requiredToken: number }) {
       reset();
     },
     onError: (error) => {
-      toast.error(`error ${error}`);
+      toast.error(`error ${error.message}`);
     },
   });
 
@@ -61,7 +61,7 @@ function CustomPageAssetFrom({ requiredToken }: { requiredToken: number }) {
       setXDR(data);
     },
     onError: (error) => {
-      toast.error(`error ${error}`);
+      toast.error(`error ${error.message}`);
     },
   });
 
