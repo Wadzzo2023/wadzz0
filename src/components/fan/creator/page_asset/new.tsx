@@ -8,7 +8,7 @@ import toast from "react-hot-toast";
 import { z } from "zod";
 import Alert from "~/components/ui/alert";
 import useNeedSign from "~/lib/hook";
-import { PLATFROM_ASSET, PLATFROM_FEE } from "~/lib/stellar/fan/constant";
+import { PLATFROM_ASSET, PLATFROM_FEE } from "~/lib/stellar/constant";
 import { clientSelect } from "~/lib/stellar/fan/utils";
 import { api } from "~/utils/api";
 
