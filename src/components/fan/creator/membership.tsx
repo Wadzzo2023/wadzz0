@@ -44,6 +44,14 @@ function CreatorAssetView({ creator }: { creator: Creator }) {
 
   const pageAsset = creatorData.data?.pageAsset;
 
+  if (creatorData.data?.customPageAssetCodeIssuer) {
+    return (
+      <p className="badge badge-secondary  my-4 py-4 font-bold">
+        {creatorData.data?.customPageAssetCodeIssuer}
+      </p>
+    );
+  }
+
   if (pageAsset)
     return (
       <p className="badge badge-secondary  my-4 py-4 font-bold">

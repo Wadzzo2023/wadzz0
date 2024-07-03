@@ -63,7 +63,6 @@ export async function createUniAsset({
   console.log(signWith, "signWith");
   if (signWith === undefined || (signWith && !("isAdmin" in signWith))) {
     // first get action for required xlm. and platformFee
-    console.log("vong");
     Tx1.addOperation(
       Operation.payment({
         destination: PLATFORM_MOTHER_ACC.publicKey(),
