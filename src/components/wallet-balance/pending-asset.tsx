@@ -192,6 +192,11 @@ const PendingAssetList = ({
                   <div className="">
                     <h1 className="shrink-0 text-center">{balance?.amount}</h1>
                     <div className="flex items-center justify-between ">
+                      {isRecipient && isExpired && (
+                        <p className="text-sm text-muted-foreground">
+                          Claim Expired
+                        </p>
+                      )}
                       <Button
                         onClick={() => handleAccept(balance.id)}
                         size="sm"
@@ -202,17 +207,6 @@ const PendingAssetList = ({
                         disabled={loading}
                       >
                         Claim Tokens
-                      </Button>
-                      <Button
-                        onClick={() => handleDecline(balance.id)}
-                        size="sm"
-                        variant="link"
-                        className={cn(
-                          `${(isRecipient && !isExpired) || isSender ? "" : "hidden"}`,
-                        )}
-                        disabled={loading}
-                      >
-                        Decline
                       </Button>
                     </div>
                   </div>

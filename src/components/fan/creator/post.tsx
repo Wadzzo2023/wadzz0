@@ -11,6 +11,7 @@ import { PostContextMenu } from "../post/post-context-menu";
 import { PostReadMore } from "../post/post-read-more";
 import Avater from "../../ui/avater";
 import { getBageStyle } from "./card";
+import { Card, CardHeader, CardContent } from "~/components/shadcn/ui/card";
 
 export function PostCard({
   post,
@@ -33,6 +34,7 @@ export function PostCard({
   const deleteLike = api.fan.post.unLike.useMutation();
   // const { data: likes, isLoading } = api.post.getLikes.useQuery(post.id);
   const { data: liked } = api.fan.post.isLiked.useQuery(post.id);
+  console.log("media", media);
 
   const creatorProfileUrl = `/fans/creator/${post.creatorId}`;
   const postUrl = `/fans/posts/${post.id}`;
@@ -40,10 +42,10 @@ export function PostCard({
   return (
     <div
       key={post.id}
-      className="card card-compact w-96  bg-base-300  shadow-xl"
+      className="card card-compact w-full bg-base-100  shadow-xl  md:w-[60%]"
     >
       {media && (
-        <figure className="relative h-40  w-full">
+        <figure className="relative h-60  w-full">
           <Image
             className={clsx(!show && "blur-sm")}
             src={media.url}
@@ -93,7 +95,7 @@ export function PostCard({
           <>
             <PostReadMore post={post} />
 
-            <div className="flex gap-4 p-2 ">
+            <div className="mt-4 flex items-center justify-start gap-2 border-t border-gray-600  px-10">
               <div className="flex items-center justify-center gap-1">
                 {deleteLike.isLoading || likeMutation.isLoading ? (
                   <span className="loading loading-spinner"></span>

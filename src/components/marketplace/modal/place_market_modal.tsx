@@ -11,10 +11,15 @@ import toast from "react-hot-toast";
 export const PlaceMarketFormSchema = z.object({
   code: z
     .string()
-    .min(4, { message: "Minimum 4 char" })
-    .max(12, { message: "Maximum 12 char" }),
+    .min(4, { message: "Must be a minimum of 4 characters" })
+    .max(12, { message: "Must be a maximum of 12 characters" }),
   issuer: z.string().min(56, { message: "Invalid issuer" }),
-  price: z.number().nonnegative(),
+  price: z
+    .number({
+      required_error: "Limit must be entered as a number",
+      invalid_type_error: "Limit must be entered as a number",
+    })
+    .nonnegative(),
 });
 
 export type PlaceMarketFormType = z.TypeOf<typeof PlaceMarketFormSchema>;

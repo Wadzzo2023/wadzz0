@@ -50,7 +50,7 @@ function CreatorPageTemplate(props: { creator: Creator }) {
       <div className=" mb-6 w-3/4  p-2">
         <Tabs />
       </div>
-      <div className="pb-32">
+      <div className="w-full">
         <ConditionallyRenderMenuPage creator={props.creator} />
       </div>
     </div>
@@ -69,8 +69,11 @@ export function CreatorBack(props: { creator: Creator }) {
         />
       </div>
       <div className="mb-5 flex flex-col items-center justify-center">
-        <div className="bg-whit z-50 -mt-16 flex h-36 w-36 items-center justify-center rounded-full">
-          <Avater url={props.creator.profileUrl} className="w-28" />
+        <div className="z-50 -mt-16 flex h-40 w-40 items-center justify-center rounded-full bg-white">
+          <Avater
+            url={props.creator.profileUrl}
+            className="h-full w-full rounded-full object-cover"
+          />
         </div>
 
         <div className="flex max-w-md flex-col items-center ">

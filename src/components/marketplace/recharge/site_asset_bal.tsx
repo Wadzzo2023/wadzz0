@@ -40,14 +40,17 @@ export function SiteAssetBalance() {
   //   );
   return (
     <Link
-      className="btn  border-0 "
+      className="btn  "
       href={isFBorGoogle ? "/recharge" : "/"}
       // href="/recharge"
     >
-      <div className="flex flex-col">
-        <p className="flex flex-row items-center text-xs md:text-sm">
-          <span className="hidden md:flex">{PLATFROM_ASSET.code} : </span>
-          {"  " + bal.data?.platformAssetBal}
+      <div className="flex  flex-col">
+        <p className="flex  flex-col items-center text-xs md:flex-row md:text-sm">
+          <span className=" flex pr-1 uppercase">
+            {PLATFROM_ASSET.code + " "}
+            <span className="ml-1 hidden uppercase md:block"> Balance :</span>
+          </span>
+          {" " + bal.data?.platformAssetBal}
           {/* <Plus className="btn btn-square btn-primary btn-sm -mr-4 " /> */}
         </p>
       </div>

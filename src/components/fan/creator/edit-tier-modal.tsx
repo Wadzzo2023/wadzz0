@@ -11,8 +11,8 @@ import { api } from "~/utils/api";
 export const EditTierSchema = z.object({
   name: z
     .string()
-    .min(4, { message: "Minimum 4 charecter" })
-    .max(12, { message: "Maximum 12 charecter" })
+    .min(4, { message: "Must be a minimum of 4 characters" })
+    .max(12, { message: "Must be a maximum of 12 characters" })
     .refine(
       (value) => {
         // Check if the input is a single word
@@ -23,7 +23,14 @@ export const EditTierSchema = z.object({
       },
     ),
 
-  price: z.number().min(1),
+  price: z
+    .number({
+      required_error: "Price must be entered as a number",
+      invalid_type_error: "Price must be entered as a number",
+    })
+    .min(1, {
+      message: "Price must be greater than 0",
+    }),
   featureDescription: z
     .string()
     .min(20, { message: "Make description longer" }),
