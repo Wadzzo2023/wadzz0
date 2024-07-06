@@ -28,13 +28,12 @@ export function PostCard({
   like: number;
   comments: number;
   priority?: number;
-  media?: Media[];
+  media?: Media;
 }) {
   const likeMutation = api.fan.post.likeApost.useMutation();
   const deleteLike = api.fan.post.unLike.useMutation();
   // const { data: likes, isLoading } = api.post.getLikes.useQuery(post.id);
   const { data: liked } = api.fan.post.isLiked.useQuery(post.id);
-  console.log("media", media);
 
   const creatorProfileUrl = `/fans/creator/${post.creatorId}`;
   const postUrl = `/fans/posts/${post.id}`;
