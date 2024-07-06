@@ -59,7 +59,16 @@ export default function PaymentCard({ pubkey, offer, xdr }: PaymentCardType) {
         }
         locationId={env.NEXT_PUBLIC_SQUARE_LOCATION}
       >
-        <CreditCard />
+        <CreditCard
+          style={{
+            ".message-text": {
+              color: "green",
+            },
+            ".message-icon": {
+              color: "green",
+            },
+          }}
+        />
       </PaymentForm>
       {loading && <p>Loading...</p>}
     </div>

@@ -16,8 +16,8 @@ export const BackMarketFormSchema = z.object({
   placingCopies: z.number().nonnegative().int(),
   code: z
     .string()
-    .min(4, { message: "Minimum 4 char" })
-    .max(12, { message: "Maximum 12 char" }),
+    .min(4, { message: "Must be a minimum of 4 characters" })
+    .max(12, { message: "Must be a maximum of 12 characters" }),
   issuer: z.string(),
 });
 

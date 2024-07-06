@@ -64,6 +64,10 @@ export function SinglePostView({ postId }: { postId: number }) {
                               >
                                 {post.data.creator.name}
                               </Link>
+                              <p className="text-xs">
+                                Posted on{" "}
+                                {formatPostCreatedAt(post.data.createdAt)}
+                              </p>
                               {/* <p>
                                 {post.data.subscription && (
                                   <span className="badge badge-secondary mr-1">
@@ -93,7 +97,6 @@ export function SinglePostView({ postId }: { postId: number }) {
 
                               {/* <p>{post.data.content}</p> */}
                               <Preview value={post.data.content} />
-                              <p>{formatPostCreatedAt(post.data.createdAt)}</p>
                             </div>
 
                             {comments.data && comments.data.length > 0 && (
@@ -114,7 +117,7 @@ export function SinglePostView({ postId }: { postId: number }) {
 
                       {/* Bottom section */}
                       <div className="w-full self-baseline ">
-                        <div className="mt-15 w-full max-w-lg  pt-2">
+                        <div className="mt-15 w-full   pt-2">
                           <AddComment postId={post.data.id} />
                         </div>
 

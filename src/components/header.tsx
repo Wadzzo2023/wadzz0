@@ -13,7 +13,7 @@ interface HeaderProps {
 
 function Header(_props: HeaderProps) {
   return (
-    <header className="h-20 bg-base-100/20 px-2 py-4">
+    <header className="h-20 bg-base-100/20 px-2 py-4 md:px-6">
       <div className="flex w-full items-start justify-between xl:hidden">
         <div className={"flex items-center gap-2"}>
           <Hamburger />
@@ -28,7 +28,7 @@ function Header(_props: HeaderProps) {
           height={100}
           width={100}
           src={"/images/waddzo.gif"}
-          alt={"Wadzzo"}
+          alt={process.env.NEXT_PUBLIC_ASSET_CODE?.toString() ?? ""}
         />
 
         <Logo />

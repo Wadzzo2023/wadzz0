@@ -15,8 +15,8 @@ import { api } from "~/utils/api";
 export const CreatorPageAssetSchema = z.object({
   code: z
     .string()
-    .min(4, { message: "Minimum 4 charecter" })
-    .max(12, { message: "Maximum 12 charecter" })
+    .min(4, { message: "Must be a minimum of 4 characters" })
+    .max(12, { message: "Must be a maximum of 12 characters" })
     .refine(
       (value) => {
         // Check if the input is a single word
@@ -26,7 +26,13 @@ export const CreatorPageAssetSchema = z.object({
         message: "Input must be a single word",
       },
     ),
-  limit: z.number().min(1).nonnegative(),
+  limit: z
+    .number({
+      required_error: "Limit must be entered as a number",
+      invalid_type_error: "Limit must be entered as a number",
+    })
+    .min(1, { message: "Limit must be greater than 0" })
+    .nonnegative(),
   thumbnail: z.string(),
 });
 

@@ -253,7 +253,7 @@ export function PostList(props: { id: string }) {
   if (posts.isLoading) return <div>Loading...</div>;
   if (posts.data) {
     return (
-      <div className=" flex flex-col gap-2">
+      <div className=" flex  flex-col items-center justify-center   gap-4">
         {posts.data?.pages.map((page) =>
           page.posts.map((post) => (
             <PostCard
@@ -262,6 +262,7 @@ export function PostList(props: { id: string }) {
               key={post.id}
               post={post}
               like={post._count.likes}
+              media={post.medias.length > 0 ? post.medias[0] : undefined}
               show
             />
           )),
@@ -282,7 +283,7 @@ export function PostList(props: { id: string }) {
 
 export function PostMenu(props: { id: string }) {
   return (
-    <div className="my-7">
+    <div className="my-4 ">
       {/* <CreatPost /> */}
       <PostList id={props.id} />
     </div>
