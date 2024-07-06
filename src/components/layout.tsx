@@ -44,12 +44,11 @@ export default function Layout({
   return (
     <>
       <ThemeProvider
-        attribute="class"
-        defaultTheme="system"
+        defaultTheme="light"
         enableSystem
         disableTransitionOnChange
       >
-        <div className={clsx(" flex h-screen flex-col", className)}>
+        <div className={clsx(" flex h-screen w-full flex-col", className)}>
           <Header />
 
           <div className="flex-1 overflow-auto bg-base-100/50">

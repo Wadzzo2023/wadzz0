@@ -4,13 +4,18 @@ import { SettingsMenu, useSettingsMenu } from "~/lib/state/fan/settings-menu";
 import { useSession } from "next-auth/react";
 import About from "~/components/fan/me/user-profile";
 import Memberships from "~/components/fan/me/memberships";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "~/components/shadcn/ui/tabs";
 
 export default function Settings() {
   const { data } = useSession();
   if (data?.user)
     return (
-      <div className="p-4">
-        <h1 className="text-center text-2xl font-bold">Settings</h1>
+      <div className="py-4">
         <div className="flex flex-col items-center gap-4 pb-20">
           <SettingsTabs />
           <RenderTabs />
@@ -20,7 +25,7 @@ export default function Settings() {
 }
 
 function RenderTabs() {
-  const { selectedMenu, setSelectedMenu } = useSettingsMenu();
+  const { selectedMenu } = useSettingsMenu();
   switch (selectedMenu) {
     case SettingsMenu.Basic:
       return <About />;
@@ -31,24 +36,28 @@ function RenderTabs() {
 
 function SettingsTabs() {
   const { selectedMenu, setSelectedMenu } = useSettingsMenu();
+  const menuItems = Object.values(SettingsMenu);
+  const gridColsClass = menuItems.length === 1 ? "grid-cols-1" : "grid-cols-2";
+
   return (
-    <div role="tablist" className="tabs-boxed tabs mt-10">
-      {Object.values(SettingsMenu).map((key) => {
-        return (
-          <a
+    <Tabs defaultValue={menuItems[0]} className="">
+      <TabsList className={clsx("grid w-full", gridColsClass)}>
+        {menuItems.map((key) => (
+          <TabsTrigger
+            value={key}
             key={key}
             onClick={() => setSelectedMenu(key)}
             role="tab"
             className={clsx(
               "tab",
-              selectedMenu == key && "tab-active text-primary",
+              selectedMenu === key && "tab-active text-primary",
               "font-bold",
             )}
           >
             {key}
-          </a>
-        );
-      })}
-    </div>
+          </TabsTrigger>
+        ))}
+      </TabsList>
+    </Tabs>
   );
 }

@@ -3,6 +3,12 @@ import React from "react";
 import { CreatPost, PostList } from "~/components/fan/creator/CreatPost";
 import { CreateMenu, useCreateMenu } from "~/lib/state/fan/create-menu";
 import { api } from "~/utils/api";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "~/components/shadcn/ui/tabs";
 
 export default function CreatorsPost() {
   const creator = api.fan.creator.meCreator.useQuery();
@@ -27,7 +33,11 @@ function RenderTabs() {
     case CreateMenu.Home:
       return <CreatPost />;
     case CreateMenu.Posts:
-      return <Posts />;
+      return (
+        <div className="w-full">
+          <Posts />
+        </div>
+      );
   }
 }
 
@@ -39,25 +49,32 @@ function Posts() {
 }
 
 function CreateTabs() {
-  const { setSelectedMenu, selectedMenu } = useCreateMenu();
+  const { selectedMenu, setSelectedMenu } = useCreateMenu();
+  const menuItems = Object.values(CreateMenu);
+  const gridColsClass = menuItems.length === 1 ? "grid-cols-1" : "grid-cols-2";
+
   return (
-    <div role="tablist" className="tabs-boxed tabs">
-      {Object.values(CreateMenu).map((key) => {
-        return (
-          <a
+    <Tabs
+      defaultValue={selectedMenu ? selectedMenu : menuItems[0]}
+      className=""
+    >
+      <TabsList className={clsx("grid w-full", gridColsClass)}>
+        {menuItems.map((key) => (
+          <TabsTrigger
+            value={key}
             key={key}
             onClick={() => setSelectedMenu(key)}
             role="tab"
             className={clsx(
               "tab",
-              selectedMenu == key && "tab-active text-primary",
-              "text-xl",
+              selectedMenu === key && "tab-active text-primary",
+              "font-bold",
             )}
           >
             {key}
-          </a>
-        );
-      })}
-    </div>
+          </TabsTrigger>
+        ))}
+      </TabsList>
+    </Tabs>
   );
 }

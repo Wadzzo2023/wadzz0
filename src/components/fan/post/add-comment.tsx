@@ -1,11 +1,12 @@
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Send } from "lucide-react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { z } from "zod";
 import { api } from "~/utils/api";
 
 export const CommentSchema = z.object({
   postId: z.number(),
-  content: z.string().min(5, { message: "Minimum 20 is reguired" }),
+  content: z.string().min(5, { message: "Minimum 5 character is required!" }),
 });
 
 export function AddComment({ postId }: { postId: number }) {
@@ -33,17 +34,16 @@ export function AddComment({ postId }: { postId: number }) {
     <div className="flex w-full flex-col">
       <form onSubmit={handleSubmit(onSubmit)}>
         <label className="form-control w-full ">
-          <div className="flex gap-2">
-            <input
-              type="text"
+          <div className="flex  items-center gap-2">
+            <textarea
               {...register("content")}
-              className="input input-bordered w-full max-w-xs"
+              className=" textarea textarea-bordered w-full"
             />
             <button className="btn" type="submit">
               {commentM.isLoading && (
                 <span className="loading loading-spinner" />
               )}
-              Comment
+              <Send size={14} /> Comment
             </button>
           </div>
           {errors.content && (

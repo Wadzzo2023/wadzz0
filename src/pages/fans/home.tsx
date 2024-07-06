@@ -30,7 +30,9 @@ function AuthShowcase() {
   // if (status == "authenticated") return <div>{data.user.id}</div>;
   return (
     <div className="p-5">
-      <h1 className="hidden text-2xl font-bold md:flex">Homepage</h1>
+      <h1 className="flex items-center justify-center rounded-md  bg-base-200 py-3 text-center text-2xl font-bold shadow-md">
+        News Feed
+      </h1>
       {/* <div className="flex flex-col items-center">
         <CreatorSecret />
       </div> */}
@@ -73,7 +75,7 @@ function AllRecentPost() {
 
   if (posts.data) {
     return (
-      <div className="flex flex-col gap-4">
+      <div className="flex w-full flex-col items-center gap-6">
         {posts.data.pages.map((page) => (
           <>
             {page.posts.map((post) => (

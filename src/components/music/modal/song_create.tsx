@@ -21,13 +21,23 @@ export const SongFormSchema = z.object({
   description: z.string(),
   coverImgUrl: z.string(), // its last part is the ipfs hash
   albumId: z.number(),
-  price: z.number().nonnegative(),
+  price: z
+    .number({
+      required_error: "Limit must be entered as a number",
+      invalid_type_error: "Limit must be entered as a number",
+    })
+    .nonnegative(),
   priceUSD: z.number().nonnegative(),
-  limit: z.number().nonnegative(),
+  limit: z
+    .number({
+      required_error: "Limit must be entered as a number",
+      invalid_type_error: "Limit must be entered as a number",
+    })
+    .nonnegative(),
   code: z
     .string()
-    .min(4, { message: "Minimum 4 char" })
-    .max(12, { message: "Maximum 12 char" }),
+    .min(4, { message: "Must be a minimum of 4 characters" })
+    .max(12, { message: "Must be a maximum of 12 characters" }),
   issuer: AccountSchema.optional(),
 });
 

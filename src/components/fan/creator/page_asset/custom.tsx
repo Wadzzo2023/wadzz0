@@ -13,8 +13,8 @@ import { api } from "~/utils/api";
 export const CreatorCustomPageAssetSchema = z.object({
   code: z
     .string()
-    .min(4, { message: "Minimum 4 charecter" })
-    .max(12, { message: "Maximum 12 charecter" })
+    .min(4, { message: "Must be a minimum of 4 characters" })
+    .max(12, { message: "Must be a maximum of 12 characters" })
     .refine(
       (value) => {
         return /^\w+$/.test(value);

@@ -6,6 +6,7 @@ import ConvertCard from "~/components/marketplace/recharge/convert_card";
 import OfferCard from "~/components/marketplace/recharge/offer_card";
 import PaymentCard from "~/components/marketplace/recharge/pay_card";
 import { Offer } from "~/components/marketplace/recharge/types";
+import { Button } from "~/components/shadcn/ui/button";
 import { useRecharge } from "~/lib/state/recharge";
 import { api } from "~/utils/api";
 
@@ -125,8 +126,10 @@ function SiteAssetBuy() {
                 offer={selectedOffer}
               />
             ) : (
-              <button
-                className="btn btn-primary"
+              <Button
+                variant="default"
+                className="w-1/2"
+                disabled={xdrMutation.isLoading}
                 onClick={() =>
                   xdrMutation.mutate({
                     tokenNum: selectedOffer.num,
@@ -134,8 +137,11 @@ function SiteAssetBuy() {
                   })
                 }
               >
-                Procced
-              </button>
+                {xdrMutation.isLoading && (
+                  <span className="loading loading-spinner mr-2" />
+                )}
+                {xdrMutation.isLoading ? "Fetching XDR..." : "Buy Now"}
+              </Button>
             )}
           </>
         )}
@@ -152,7 +158,8 @@ function SelectedOfferSummary({ offer }: ISelectedOfferSummary) {
     return (
       <div>
         <p>
-          Buy {offer.num} Wadzzo for $ {offer.price}
+          Buy {offer.num} {process.env.NEXT_PUBLIC_ASSET_CODE} for ${" "}
+          {offer.price}
         </p>
       </div>
     );
