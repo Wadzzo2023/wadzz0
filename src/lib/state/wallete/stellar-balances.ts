@@ -10,14 +10,16 @@ export type AccBalanceType =
   | Horizon.HorizonApi.BalanceLineLiquidityPool;
 
 interface Balance {
- balances: AccBalanceType[] | undefined;
-  getAssetBalance: (props: { code?: string; issuer?: string }) => string | undefined;
+  balances: AccBalanceType[] | undefined;
+  getAssetBalance: (props: {
+    code?: string;
+    issuer?: string;
+  }) => string | undefined;
   setBalance: (balances: AccBalanceType[]) => void;
-  platformAssetBalance: number ;
+  platformAssetBalance: number;
   setPlatformAssetBalance: (balances: AccBalanceType[]) => void;
   active: boolean;
   setActive: (active: boolean) => void;
-
 }
 
 export const useUserStellarAcc = create<Balance>((set, get) => ({
@@ -32,14 +34,7 @@ export const useUserStellarAcc = create<Balance>((set, get) => ({
       balances,
     });
     get().setPlatformAssetBalance(balances);
-    // console.log(
-    //   // "...balances...",
-    //   balances,
-    //   PLATFROM_ASSET,
-    //   get().platformAssetBalance,
-    // );
   },
-
 
   getAssetBalance: (props) => {
     const balances = get().balances;

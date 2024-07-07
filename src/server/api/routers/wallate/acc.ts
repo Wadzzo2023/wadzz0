@@ -22,6 +22,8 @@ export const accRouter = createTRPCRouter({
       userPub: userId,
     });
 
+    console.log(assets, "i");
+
     const dbAssets = await ctx.db.asset.findMany({
       where: {
         OR: assets.map((asset) => ({
@@ -38,7 +40,7 @@ export const accRouter = createTRPCRouter({
       });
     });
 
-    return { dbAssets, accAssets };
+    return { dbAssets, accAssets, assets };
   }),
 
   getAccountBalance: protectedProcedure.query(async ({ ctx, input }) => {
@@ -92,7 +94,7 @@ export const accRouter = createTRPCRouter({
       });
     });
 
-    return { dbAssets, accAssets };
+    return { dbAssets, accAssets, assets };
   }),
 
   getAStorageAssetInMarket: protectedProcedure
