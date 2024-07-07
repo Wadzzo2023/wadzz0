@@ -3,6 +3,7 @@ import CreateTrade from "./create-trade";
 import { api } from "~/utils/api";
 import { match } from "ts-pattern";
 import { loading, empty, error, success } from "~/utils/trcp/patterns";
+import BuyOfferDialog from "./buy-offer-dialog";
 
 export default function TradeMarket() {
   const offers = api.marketplace.trade.getOffers.useQuery();
@@ -11,7 +12,15 @@ export default function TradeMarket() {
     .with(error, () => <div>Error</div>)
     .with(empty, () => <div>No offers</div>)
     .with(success, (data) => {
-      return <ul>{data.data?.records.map((el) => el.id)}</ul>;
+      return (
+        <ul>
+          {data.data?.records.map((el) => (
+            <li>
+              {el.id} <BuyOfferDialog offerId={el.id} />
+            </li>
+          ))}
+        </ul>
+      );
     })
     .otherwise(() => null);
   return (

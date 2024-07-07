@@ -2,7 +2,10 @@ import { Asset, Horizon } from "@stellar/stellar-sdk";
 import { z } from "zod";
 import { tradeFormSchema } from "~/components/marketplace/trade/create-trade";
 import { STELLAR_URL } from "~/lib/stellar/constant";
-import { tradeAssetXDR } from "~/lib/stellar/marketplace/trx/trade";
+import {
+  buyOfferXDR,
+  tradeAssetXDR,
+} from "~/lib/stellar/marketplace/trx/trade";
 import { SignUser } from "~/lib/stellar/utils";
 
 import {
@@ -39,13 +42,63 @@ export const tradeRouter = createTRPCRouter({
       });
     }),
 
+  offerBuyXDR: protectedProcedure
+    .input(z.object({ offerId: z.string() }).extend({ signWith: SignUser }))
+    .mutation(async ({ ctx, input }) => {
+      const uid = ctx.session.user.id;
+      const { offerId, signWith } = input;
+
+      const server = new Horizon.Server(STELLAR_URL);
+      const offer = await server.offers().offer(offerId).call();
+
+      if (
+        !offer.buying.asset_code ||
+        !offer.buying.asset_issuer ||
+        !offer.selling.asset_code ||
+        !offer.selling.asset_issuer
+      )
+        throw new Error("Invalid asset");
+
+      const buyingAsset = new Asset(
+        offer.buying.asset_code,
+        offer.buying.asset_issuer,
+      );
+
+      const sellingAsset = new Asset(
+        offer.selling.asset_code,
+        offer.selling.asset_issuer,
+      );
+
+      //
+      const xdr = await buyOfferXDR({
+        amount: offer.amount,
+        buyingAsset,
+        sellingAsset,
+        price: "1",
+        pubkey: uid,
+        signWith,
+      });
+      return xdr;
+    }),
+
   getOffers: protectedProcedure.query(async ({ ctx, input }) => {
     const id = ctx.session.user.id;
     const server = new Horizon.Server(STELLAR_URL);
-    const offers = await server.offers().forAccount(id).call();
+    const offers = await server
+      .offers()
+      .forAccount("GD5UILGTWNRIWERORCB7YBLDRITMVP47QZ25UPYBJHHHHSM5AFE73HHB")
+      .call();
 
     return offers;
   }),
+
+  getOffer: protectedProcedure
+    .input(z.string())
+    .query(async ({ ctx, input }) => {
+      const server = new Horizon.Server(STELLAR_URL);
+      const offer = await server.offers().offer(input).call();
+      return offer;
+    }),
 });
 
 function assetFromInput(input: string) {
