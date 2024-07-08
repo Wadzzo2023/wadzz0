@@ -83,7 +83,7 @@ export default function PinsList() {
             disabled={selectedPins.length === 0 || aproveM.isLoading}
           >
             <Check />
-            Aprove
+            Approve
           </button>
           <button
             onClick={() =>
@@ -166,8 +166,8 @@ function AccordionList({
                 </th>
                 <th></th>
                 <th>Name</th>
-                <th>Job</th>
-                <th>Favorite Color</th>
+                <th>Brand</th>
+                <th>Pin Description</th>
               </tr>
             </thead>
             <tbody>

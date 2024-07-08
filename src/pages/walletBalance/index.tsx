@@ -127,16 +127,9 @@ const Wallets = () => {
     return <div>Session not found</div>;
   }
   if (isAccountActivateLoading) {
-    const x = clientSelect();
-    let text = "";
-    if (x === true) {
-      text = "Fetching Data From Test Net";
-    } else {
-      text = "Fetching Data From Main Net";
-    }
     return (
       <div className="">
-        <Loading text={text} />
+        <Loading />
       </div>
     );
   }

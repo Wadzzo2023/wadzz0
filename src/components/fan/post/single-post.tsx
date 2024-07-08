@@ -11,6 +11,8 @@ import { PostContextMenu } from "./post-context-menu";
 import Slider from "../../ui/carosel";
 import Loading from "~/components/wallete/loading";
 import { Preview } from "~/components/preview";
+import { Separator } from "~/components/shadcn/ui/separator";
+import Image from "next/image";
 
 export function SinglePostView({ postId }: { postId: number }) {
   const post = api.fan.post.getAPost.useQuery(postId, {
@@ -31,16 +33,19 @@ export function SinglePostView({ postId }: { postId: number }) {
     const creatorProfileUrl = `/fans/creator/${post.data.creatorId}`;
     const postUrl = `/fans/posts/${post.data.id}`;
     return (
-      <div className="flex h-full  flex-1 flex-col items-center  p-5">
+      <div className="flex h-full  flex-1 flex-col items-center  md:p-5">
         <h2 className="mb-5 text-center text-2xl font-bold">
           Post by {post.data.creator.name}
         </h2>
         <div className=" w-full  flex-1  overflow-auto rounded-box ">
           <div className="h-full overflow-auto">
-            <div className="flex h-full w-full flex-col overflow-auto  lg:flex-row">
+            <div className="flex  w-full flex-col items-center justify-between overflow-auto  lg:flex-row">
               {post.data.medias.length > 0 && (
-                <div className="hidden h-full  flex-1 lg:flex">
-                  <Slider images={post.data.medias.map((el) => el.url)} />
+                <div className="hidden  h-full flex-1   lg:flex">
+                  <Slider
+                    className="max-h-[400px] min-h-[400px]"
+                    images={post.data.medias.map((el) => el.url)}
+                  />
                 </div>
               )}
 
@@ -50,12 +55,18 @@ export function SinglePostView({ postId }: { postId: number }) {
                     key={post.data.id}
                     className="h-full  overflow-auto  rounded-none   shadow-xl scrollbar-hide"
                   >
-                    <div className="flex h-full flex-col overflow-auto px-6 pt-6">
+                    <div className="flex h-full flex-col overflow-auto pt-6 md:px-6">
                       <div>
                         <div className="flex justify-between">
                           <div className="flex gap-2">
-                            <div>
-                              <Avater className="w-8" />
+                            <div className="h-auto w-auto rounded-full">
+                              <Image
+                                height={100}
+                                width={100}
+                                className="h-12 w-12 cursor-pointer rounded-full object-cover shadow"
+                                alt="User avatar"
+                                src={post.data.creator.profileUrl ?? ""}
+                              />
                             </div>
                             <div>
                               <Link
@@ -82,31 +93,36 @@ export function SinglePostView({ postId }: { postId: number }) {
                             postId={post.data.id}
                           />
                         </div>
-                        <h2 className="card-title">{post.data.heading}</h2>
                       </div>
 
-                      <div className="flex-1 overflow-auto rounded-lg bg-base-200 px-2 py-4 scrollbar-hide">
-                        <div className="h-full">
-                          <div className="flex h-full flex-col justify-between">
+                      <div className=" mt-3 w-full rounded-lg border border-gray-200 bg-white py-4 shadow scrollbar-hide dark:border-gray-700 dark:bg-gray-800">
+                        <div className="h-full ">
+                          <div className="flex h-full flex-col justify-between ">
                             <div>
                               <div className=" flex flex-col rounded-lg  lg:hidden">
                                 <Slider
+                                  className="aspect-square max-h-[400px] min-h-[400px]"
                                   images={post.data.medias.map((el) => el.url)}
                                 />
                               </div>
-
+                              <h2 className="card-title px-4 py-4 md:py-0">
+                                {post.data.heading}
+                              </h2>
                               {/* <p>{post.data.content}</p> */}
                               <Preview value={post.data.content} />
                             </div>
 
                             {comments.data && comments.data.length > 0 && (
                               <div className="mt-10 flex flex-col gap-4 border-t-2 border-t-base-100">
-                                <div className="flex flex-col gap-4 rounded-lg bg-base-200 py-4 pl-4">
+                                <div className="flex flex-col gap-4 rounded-lg  py-4 pl-4">
                                   {comments.data?.map((comment) => (
-                                    <CommentView
-                                      key={comment.id}
-                                      comment={comment}
-                                    />
+                                    <>
+                                      <CommentView
+                                        key={comment.id}
+                                        comment={comment}
+                                      />
+                                      <Separator />
+                                    </>
                                   ))}
                                 </div>
                               </div>

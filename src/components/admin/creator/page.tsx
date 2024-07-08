@@ -75,10 +75,10 @@ function ActionButton({
   if (status === false)
     return (
       <button
-        className="btn btn-success btn-sm"
+        className="btn btn-primary btn-sm"
         onClick={() => handleClick(true)}
       >
-        Un Ban
+        Unban
       </button>
     );
   if (status === true)

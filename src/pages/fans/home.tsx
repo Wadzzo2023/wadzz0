@@ -29,7 +29,7 @@ function AuthShowcase() {
   const { data, status } = useSession();
   // if (status == "authenticated") return <div>{data.user.id}</div>;
   return (
-    <div className="p-5">
+    <div className="md:p-5">
       <h1 className="flex items-center justify-center rounded-md  bg-base-200 py-3 text-center text-2xl font-bold shadow-md">
         News Feed
       </h1>
@@ -75,7 +75,7 @@ function AllRecentPost() {
 
   if (posts.data) {
     return (
-      <div className="flex w-full flex-col items-center gap-6">
+      <div className="flex w-full flex-col items-center gap-6 md:w-[80%]">
         {posts.data.pages.map((page) => (
           <>
             {page.posts.map((post) => (
@@ -100,7 +100,7 @@ function AllRecentPost() {
                     return false;
                   } else return true;
                 })()}
-                media={post.medias.length > 0 ? post.medias[0] : undefined}
+                media={post.medias ? post.medias : []}
               />
             ))}
           </>

@@ -12,26 +12,27 @@ export default function Loading({ className, text }: LoadingProps) {
   return (
     <div
       className={twMerge(
-        "flex h-full w-full animate-pulse items-center justify-center rounded-box bg-base-200",
+        "flex h-screen items-center justify-center ",
         className,
       )}
     >
-      {text ? <div className="text-xs tracking-wider">{text}</div> : <></>}
-      {text && text.toLowerCase() === "empty" ? (
-        <>
+      <div className="flex items-center  justify-center">
+        {text && <div className="mb-2 text-xs tracking-wider">{text}</div>}
+        {text && text.toLowerCase() === "empty" ? (
           <ShieldAlert className="mx-2" />
-        </>
-      ) : (
-        <>
-          <Image
-            height={80}
-            width={80}
-            src={"/favicon.ico"}
-            alt={PLATFROM_ASSET.code}
-          />
-          <span className="loading" />
-        </>
-      )}
+        ) : (
+          <>
+            <Image
+              className="h-20 w-20"
+              height={100}
+              width={100}
+              src={"/favicon.ico"}
+              alt={PLATFROM_ASSET.code}
+            />
+            <span className="loading" />
+          </>
+        )}
+      </div>
     </div>
   );
 }

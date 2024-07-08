@@ -5,6 +5,7 @@ import React from "react";
 import { useSession } from "next-auth/react";
 import ContextMenu from "../../ui/context-menu";
 import { api } from "~/utils/api";
+import Image from "next/image";
 
 export default function CommentView({
   comment,
@@ -19,8 +20,14 @@ export default function CommentView({
   return (
     <div className="flex justify-between ">
       <div className="flex gap-2">
-        <div>
-          <Avater className="w-8" url={comment.user.image} />
+        <div className="h-auto w-auto rounded-full">
+          <Image
+            height={100}
+            width={100}
+            className="h-10 w-10 cursor-pointer rounded-full object-cover shadow"
+            alt="User avatar"
+            src={comment.user.image ?? ""}
+          />
         </div>
         <div className="flex-1">
           <h2 className="font-bold">{comment.user.name}</h2>

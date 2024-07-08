@@ -36,7 +36,7 @@ function CreatorPageView({ creatorId }: { creatorId: string }) {
   if (creator)
     return (
       <div className="flex w-full flex-col gap-4 overflow-y-auto">
-        <div className="flex w-full flex-col items-center pb-48">
+        <div className="flex w-full flex-col items-center ">
           <>
             <CreatorBack creator={creator} />
             <div className="my-2 flex flex-col items-center justify-center">
@@ -70,10 +70,10 @@ function CreatorPosts({ creatorId }: { creatorId: string }) {
 
   if (error) return <div>{error.message}</div>;
   if (isLoading) return <div>Loading...</div>;
-
+  if (!data) return <div>No data</div>;
   if (data.pages.length > 0) {
     return (
-      <div className="flex flex-col gap-2">
+      <div className="w-full md:w-[80%]">
         {data.pages.map((page) =>
           page.posts.map((el) => (
             <PostCard
@@ -89,6 +89,7 @@ function CreatorPosts({ creatorId }: { creatorId: string }) {
                   return el.subscription.price <= 10;
                 }
               })()}
+              media={el.medias ? el.medias : []}
             />
           )),
         )}
@@ -112,7 +113,7 @@ function RenderTabs({ creatorId }: { creatorId: string }) {
 function Tabs() {
   const { selectedMenu, setSelectedMenu } = useCreatorProfileMenu();
   return (
-    <div role="tablist" className="tabs-boxed tabs my-5 ">
+    <div role="tablist" className="tabs-boxed tabs my-5 w-1/2 ">
       {Object.values(CreatorProfileMenu).map((key) => {
         return (
           <a
@@ -191,6 +192,8 @@ export function FollowButton({ creator }: { creator: Creator }) {
     onError: (e) => toast.error(e.message),
   });
   const loading = followXDR.isLoading || signLoading || follow.isLoading;
+  console.log("Session User, Creator", session.data?.user.id, creator.id);
+  if (session.data?.user.id === creator.id) return <p>Creator</p>;
   if (isFollower.data ?? follow.isSuccess) return <p>You are a follower</p>;
   else if (isFollower.isSuccess || isFollower.data === undefined)
     return (

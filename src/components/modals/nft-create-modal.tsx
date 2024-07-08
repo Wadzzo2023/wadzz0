@@ -24,8 +24,8 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "~/components/shadcn/ui/dialog";
+import { useModal } from "../hooks/use-modal-store";
 
 export const ExtraSongInfo = z.object({
   artist: z.string(),
@@ -76,10 +76,12 @@ export default function NftCreate({ admin: isAdmin }: { admin?: true }) {
   if (requiredToken.data) {
     const requiredTokenAmount = requiredToken.data + Number(PLATFROM_FEE);
     return (
-      <NftCreateForm
-        admin={isAdmin}
-        requiredTokenAmount={requiredTokenAmount}
-      />
+      <div className="">
+        <NftCreateForm
+          admin={isAdmin}
+          requiredTokenAmount={requiredTokenAmount}
+        />
+      </div>
     );
   }
 }
@@ -92,12 +94,13 @@ function NftCreateForm({
   requiredTokenAmount: number;
 }) {
   const session = useSession();
+  const { isOpen, onClose, type } = useModal();
   const { platformAssetBalance } = useUserStellarAcc();
   // pinta upload
   const [file, setFile] = useState<File>();
   const [ipfs, setCid] = useState<string>();
   const [uploading, setUploading] = useState(false);
-
+  const isModalOpen = isOpen && type === "nft create";
   const inputFile = useRef(null);
   // other
   const modalRef = useRef<HTMLDialogElement>(null);
@@ -137,6 +140,13 @@ function NftCreateForm({
       toast.success("NFT Created", {
         position: "top-center",
         duration: 4000,
+        style: {
+          backgroundColor: "green",
+          color: "white",
+          width: "100%",
+          padding: "0.5rem 1rem",
+          margin: "1rem 1rem",
+        },
       });
       reset();
     },
@@ -208,6 +218,9 @@ function NftCreateForm({
     setValue("mediaType", media);
     setMediaUrl(undefined);
   }
+  const handleModal = () => {
+    modalRef.current?.showModal();
+  };
 
   const uploadFile = async (fileToUpload: File) => {
     try {
@@ -276,27 +289,32 @@ function NftCreateForm({
       );
     }
   }
-  console.log("CoverURL", coverUrl);
-  const handleLoL = () => {
-    toast.success("NFT Created", {
-      position: "top-center",
-      duration: 4000,
-    });
+  //   function lolClick() {
+  //     toast.success("NFT Created", {
+  //       position: "top-center",
+  //       duration: 4000,
+  //       style: {
+  //         backgroundColor: "green",
+  //         color: "white",
+  //         width: "100%",
+  //         padding: "0.5rem 1rem",
+  //         margin: "1rem 1rem",
+  //       },
+  //     });
+  //   }
+  const handleClose = () => {
+    reset();
+    onClose();
   };
   return (
     <>
-      <Dialog>
-        <DialogTrigger asChild>
-          <button className="btn btn-primary">
-            <PlusIcon /> Item
-          </button>
-        </DialogTrigger>
-        <DialogContent className=" h-[80%] overflow-auto p-3">
-          <DialogHeader className="text-lg font-bold">Add Asset</DialogHeader>
-          {/* <button onClick={handleLoL}> LOL</button> */}
+      <Dialog open={isModalOpen} onOpenChange={handleClose}>
+        <DialogContent className="  ">
+          <h3 className="text-lg font-bold">Add Asset</h3>
+
           <form onSubmit={handleSubmit(onSubmit)}>
-            <div className="flex flex-col gap-4 ">
-              <div className="rounded-lg bg-base-200  p-2">
+            <div className="flex flex-col gap-4">
+              <div className="bg-base-200 p-2">
                 <div className="flex justify-between">
                   <div className="">
                     <ul className="menu menu-vertical rounded-box bg-base-300 lg:menu-horizontal">
@@ -361,7 +379,7 @@ function NftCreateForm({
                       </span>
                     </label>
 
-                    <div className="">
+                    <div className="mt  ">
                       {/* <UploadButton
                         endpoint="imageUploader"
                         content={{
@@ -400,8 +418,8 @@ function NftCreateForm({
                         <>
                           <Image
                             className="p-2"
-                            width={100}
-                            height={100}
+                            width={120}
+                            height={120}
                             alt="preview image"
                             src={coverUrl}
                           />
@@ -579,19 +597,11 @@ function NftCreateForm({
               {/* <input className="btn btn-primary btn-sm mt-4" type="submit" /> */}
             </div>
           </form>
-
-          <div className="modal-action">
-            <form method="dialog">
-              <button
-                className="btn"
-                // onClick={handleCloseClick}
-              >
-                Close
-              </button>
-            </form>
-          </div>
         </DialogContent>
       </Dialog>
+      <button className="btn btn-primary" onClick={handleModal}>
+        <PlusIcon /> Item
+      </button>
     </>
   );
 }

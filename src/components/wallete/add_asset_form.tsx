@@ -58,7 +58,7 @@ const MintedItemAdd: React.FC = () => {
         className="container mt-2 space-y-2 rounded-box bg-base-300 p-4"
         onSubmit={handleSubmit(onSubmit)}
       >
-        <h2 className="text-lg font-bold">Add Wallate Asset</h2>
+        <h2 className="text-lg font-bold">Create Wallet Asset</h2>
         <div className="form-control">
           <label htmlFor="logo">Logo Image Link</label>
           <input

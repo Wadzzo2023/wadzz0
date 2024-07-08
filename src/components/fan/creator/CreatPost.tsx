@@ -262,7 +262,7 @@ export function PostList(props: { id: string }) {
               key={post.id}
               post={post}
               like={post._count.likes}
-              media={post.medias.length > 0 ? post.medias[0] : undefined}
+              media={post.medias ? post.medias : []}
               show
             />
           )),

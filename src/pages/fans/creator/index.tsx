@@ -69,7 +69,7 @@ export function CreatorBack(props: { creator: Creator }) {
         />
       </div>
       <div className="mb-5 flex flex-col items-center justify-center">
-        <div className="z-50 -mt-16 flex h-40 w-40 items-center justify-center rounded-full bg-white">
+        <div className=" -mt-16 flex h-40 w-40 items-center justify-center rounded-full bg-white">
           <Avater
             url={props.creator.profileUrl}
             className="h-full w-full rounded-full object-cover"
@@ -78,7 +78,7 @@ export function CreatorBack(props: { creator: Creator }) {
 
         <div className="flex max-w-md flex-col items-center ">
           <h1 className="text-2xl font-bold">{props.creator.name}</h1>
-          <p className="text-center leading-snug">{props.creator.bio}</p>
+          {/* <p className="text-center leading-snug">{props.creator.bio}</p> */}
         </div>
       </div>
     </div>

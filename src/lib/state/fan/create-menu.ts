@@ -2,7 +2,7 @@ import { create } from "zustand";
 
 export enum CreateMenu {
   Home = "Create",
-  Posts = "Contents",
+  Posts = "Content",
 }
 
 interface CreateState {
