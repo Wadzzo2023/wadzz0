@@ -73,7 +73,7 @@ function CreatorPosts({ creatorId }: { creatorId: string }) {
   if (!data) return <div>No data</div>;
   if (data.pages.length > 0) {
     return (
-      <div className="w-full md:w-[80%]">
+      <div className="w-full ">
         {data.pages.map((page) =>
           page.posts.map((el) => (
             <PostCard
@@ -192,7 +192,7 @@ export function FollowButton({ creator }: { creator: Creator }) {
     onError: (e) => toast.error(e.message),
   });
   const loading = followXDR.isLoading || signLoading || follow.isLoading;
-  console.log("Session User, Creator", session.data?.user.id, creator.id);
+  // console.log("Session User, Creator", session.data?.user.id, creator.id);
   if (session.data?.user.id === creator.id) return <p>Creator</p>;
   if (isFollower.data ?? follow.isSuccess) return <p>You are a follower</p>;
   else if (isFollower.isSuccess || isFollower.data === undefined)

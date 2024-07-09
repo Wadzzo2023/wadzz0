@@ -155,7 +155,7 @@ function NftCreateForm({
   const xdrMutation = api.fan.trx.createUniAssetTrx.useMutation({
     onSuccess(data, variables, context) {
       const { issuer, xdr } = data;
-      console.log(xdr, "xdr");
+      // console.log(xdr, "xdr");
       setValue("issuer", issuer);
 
       setSubmitLoading(true);
@@ -227,7 +227,7 @@ function NftCreateForm({
       setUploading(true);
       const formData = new FormData();
       formData.append("file", fileToUpload, fileToUpload.name);
-      console.log("formData", fileToUpload);
+      // console.log("formData", fileToUpload);
       const res = await fetch("/api/file", {
         method: "POST",
         body: formData,

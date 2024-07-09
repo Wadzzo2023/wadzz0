@@ -64,7 +64,7 @@ const MyAssetList = () => {
   const { data, isLoading } =
     api.walletBalance.wallBalance.getWalletsBalance.useQuery();
   if (isLoading) return <div>Loading...</div>;
-  console.log("data", data);
+  // console.log("data", data);
   return (
     <>
       <Separator className="my-4" />

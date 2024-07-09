@@ -139,7 +139,7 @@ export default function SongCreate({ albumId }: { albumId: number }) {
       setUploading(true);
       const formData = new FormData();
       formData.append("file", fileToUpload, fileToUpload.name);
-      console.log("formData", fileToUpload);
+      // console.log("formData", fileToUpload);
       const res = await fetch("/api/file", {
         method: "POST",
         body: formData,

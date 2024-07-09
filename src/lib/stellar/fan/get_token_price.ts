@@ -40,7 +40,7 @@ export async function getAssetPrice(): Promise<number> {
     const response = await axios.get<PlatformAssetInfo>(
       `https://api.stellar.expert/explorer/${env.NEXT_PUBLIC_STELLAR_PUBNET ? "public" : "testnet"}/asset/${PLATFROM_ASSET.code}-${PLATFROM_ASSET.issuer}`,
     );
-    console.log(response.data);
+    // console.log(response.data);
 
     const platformAssetInfo = response.data;
     const price = platformAssetInfo.price;

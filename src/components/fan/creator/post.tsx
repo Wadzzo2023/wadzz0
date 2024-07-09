@@ -13,6 +13,8 @@ import Avater from "../../ui/avater";
 import { getBageStyle } from "./card";
 import { Card, CardHeader, CardContent } from "~/components/shadcn/ui/card";
 import { Button } from "~/components/shadcn/ui/button";
+import { AddComment } from "../post/add-comment";
+import { useState } from "react";
 
 export function PostCard({
   post,
@@ -32,10 +34,11 @@ export function PostCard({
   media?: Media[];
 }) {
   const likeMutation = api.fan.post.likeApost.useMutation();
+  const [showCommentBox, setShowCommentBox] = useState(false);
   const deleteLike = api.fan.post.unLike.useMutation();
   // const { data: likes, isLoading } = api.post.getLikes.useQuery(post.id);
   const { data: liked } = api.fan.post.isLiked.useQuery(post.id);
-  console.log("media", media);
+  // console.log("media", media);
 
   const creatorProfileUrl = `/fans/creator/${post.creatorId}`;
   const postUrl = `/fans/posts/${post.id}`;
@@ -130,17 +133,17 @@ export function PostCard({
     //   </div>
     // </div>
 
-    <div className="w-2xl container my-5  px-1 md:px-20">
+    <div className="w-2xl container my-5  px-1 md:px-10">
       <div className="">
         <div className=" rounded-lg  bg-white shadow-lg">
           <div className="mx-3 flex flex-row px-2 py-3">
             <div className="h-auto w-auto rounded-full">
               <Image
-                height={100}
-                width={100}
+                height={1000}
+                width={1000}
                 className="h-12 w-12 cursor-pointer rounded-full object-cover shadow"
                 alt="User avatar"
-                src={creator.profileUrl ?? ""}
+                src={creator.profileUrl ?? "/images/icons/avatar-icon.png"}
               />
             </div>
             <div className="mb-2 ml-4 mt-1 flex flex-col">
@@ -193,7 +196,7 @@ export function PostCard({
                   )}
                 >
                   {media && media?.length == 1 ? (
-                    <div className="relative col-span-1 max-h-[550px] min-h-[550px] overflow-hidden rounded-xl">
+                    <div className="relative col-span-1 max-h-[250px] min-h-[250px] overflow-hidden rounded-xl md:max-h-[550px] md:min-h-[550px]">
                       <Image
                         height={1000}
                         width={1000}
@@ -274,19 +277,23 @@ export function PostCard({
                   )}
                 </div>
 
-                <Link
-                  href={postUrl}
+                <Button
+                  variant="outline"
+                  onClick={() => setShowCommentBox(!showCommentBox)}
                   className="flex w-full items-center justify-center gap-1"
                 >
-                  <Button variant="outline" className="w-full gap-1">
-                    <MessageCircle />
-                    <p className="font-bold">{comments}</p>
-                    comment
-                  </Button>
-                </Link>
+                  <MessageCircle />
+                  <p className="font-bold">{comments}</p>
+                  comment
+                </Button>
 
                 {/* <Share2 size={20} /> */}
               </div>
+              {showCommentBox && (
+                <div className="mt-15 w-full   p-5">
+                  <AddComment postId={post.id} />
+                </div>
+              )}
             </>
           )}
         </div>

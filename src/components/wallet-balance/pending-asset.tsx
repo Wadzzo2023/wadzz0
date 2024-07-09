@@ -34,7 +34,7 @@ const PendingAssetList = ({
 }: PendingAssetListProps) => {
   const { data, isLoading, isError } =
     api.walletBalance.wallBalance.getPendingAssetList.useQuery();
-  console.log("getPendingAssetList", data);
+  // console.log("getPendingAssetList", data);
 
   const formatAsset = (asset: string) => {
     const parts = asset.split(":");
@@ -78,7 +78,7 @@ const PendingAssetList = ({
     });
 
   const handleAccept = (balanceId: string) => {
-    console.log("balanceId", balanceId);
+    // console.log("balanceId", balanceId);
     setLoading(true);
     AcceptClaimMutation.mutate({
       balanceId: balanceId,
@@ -117,7 +117,7 @@ const PendingAssetList = ({
     });
 
   const handleDecline = (balanceId: string) => {
-    console.log("balanceId", balanceId);
+    // console.log("balanceId", balanceId);
     setLoading(true);
     DeclineClaimMutation.mutate({
       balanceId: balanceId,

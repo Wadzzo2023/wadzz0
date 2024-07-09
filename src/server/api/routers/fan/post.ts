@@ -2,6 +2,7 @@ import { NotificationType } from "@prisma/client";
 import { z } from "zod";
 import { PostSchema } from "~/components/fan/creator/CreatPost";
 import { CommentSchema } from "~/components/fan/post/add-comment";
+
 import NotificationPage from "~/pages/fans/notifications";
 
 import {
@@ -17,7 +18,7 @@ export const postRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       // simulate a slow db call
 
-      console.log("media", input.medias);
+      // console.log("media", input.medias);
 
       const post = await ctx.db.post.create({
         data: {
@@ -270,21 +271,46 @@ export const postRouter = createTRPCRouter({
     .input(z.number())
     .query(async ({ input: postId, ctx }) => {
       return await ctx.db.comment.findMany({
-        where: { postId },
-        include: { user: { select: { name: true, image: true } } },
+        where: {
+          postId,
+          parentCommentID: null, // Fetch only top-level comments (not replies)
+        },
+        include: {
+          user: { select: { name: true, image: true } }, // Include user details
+          childComments: {
+            include: {
+              user: { select: { name: true, image: true } }, // Include user details for child comments
+            },
+            orderBy: { createdAt: 'asc' }, // Order child comments by createdAt in ascending order
+          },
+        },
+        orderBy: { createdAt: 'desc' }, // Order top-level comments by createdAt in descending order
       });
     }),
 
   createComment: protectedProcedure
     .input(CommentSchema)
     .mutation(async ({ ctx, input }) => {
-      const comment = await ctx.db.comment.create({
-        data: {
-          content: input.content,
-          postId: input.postId,
-          userId: ctx.session.user.id,
-        },
-      });
+      let comment;
+      if (input.parentId) {
+        comment = await ctx.db.comment.create({
+          data: {
+            content: input.content,
+            postId: input.postId,
+            userId: ctx.session.user.id,
+            parentCommentID: input.parentId
+          },
+        });
+      }
+      else {
+        comment = await ctx.db.comment.create({
+          data: {
+            content: input.content,
+            postId: input.postId,
+            userId: ctx.session.user.id,
+          },
+        });
+      }
       // create notification
       void ctx.db.post
         .findUnique({
@@ -307,6 +333,8 @@ export const postRouter = createTRPCRouter({
         .catch(console.error);
       return comment;
     }),
+
+
 
   deleteComment: protectedProcedure
     .input(z.number())

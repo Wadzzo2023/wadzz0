@@ -43,7 +43,7 @@ const Wallets = () => {
   async function checkAccountActivity(publicKey: string) {
     setAccountActivateLoading(true);
     const isActive = await checkStellarAccountActivity(publicKey);
-    console.log("isActive", isActive);
+    // console.log("isActive", isActive);
     setAccountActivate(isActive);
     setAccountActivateLoading(false);
   }
@@ -66,7 +66,7 @@ const Wallets = () => {
   const checkStatus = useCallback(async () => {
     const user = session.data?.user;
     if (user) {
-      console.log("user", user);
+      // console.log("user", user);
       await checkAccountActivity(user.id);
     }
   }, [session]);

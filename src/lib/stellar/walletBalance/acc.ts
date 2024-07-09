@@ -117,7 +117,7 @@ export async function BalanceWithHomeDomain({
       }
     }),
   );
-  console.log(balances);
+  // console.log(balances);
   return balances;
 }
 
@@ -155,7 +155,7 @@ export async function SendAssets({
     }
     return false;
   });
-  console.log('accBalance', accBalance);
+  // console.log('accBalance', accBalance);
   if (!accBalance || parseFloat(accBalance.balance) < amount) {
     throw new Error('Balance is not enough to send the asset.');
   }
@@ -298,7 +298,7 @@ export async function RecentTransactionHistory({
   const newItem = items.records.map((record) => {
     const tx = new Transaction(record.envelope_xdr, Networks.TESTNET);
     const operations = tx.operations;
-    console.log("Operations", operations);
+    // console.log("Operations", operations);
     if (operations[0]?.type === "payment") {
       return {
         ...record,
@@ -377,7 +377,7 @@ export async function PendingAssetList({
   const server = new Horizon.Server(STELLAR_URL);
 
   const pendingItems = await server.claimableBalances().claimant(userPubKey).call();
-  console.log("Pending", pendingItems.records);
+  // console.log("Pending", pendingItems.records);
   const currentTime = Math.floor(Date.now() / 1000); // Current time in seconds since epoch
 
   const parsedItems = pendingItems.records
@@ -423,7 +423,7 @@ export async function AcceptClaimableBalance({
   signWith: SignUserType;
   secretKey?: string | undefined
 }) {
-  console.log("BalanceId", balanceId)
+  // console.log("BalanceId", balanceId)
   const server = new Horizon.Server(STELLAR_URL);
   const account = await server.loadAccount(userPubKey);
   try {
@@ -441,7 +441,7 @@ export async function AcceptClaimableBalance({
     const buildTrx = transaction.build();
 
     if (signWith && "email" in signWith && secretKey) {
-      console.log("Calling...");
+      // console.log("Calling...");
       const xdr = buildTrx.toXDR();
       const signedXDr = await WithSing({
         xdr: xdr,

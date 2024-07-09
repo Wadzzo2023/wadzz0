@@ -50,7 +50,7 @@ export default function PlaceNFT2Storage({
   const xdrMutaion = api.marketplace.market.placeNft2StorageXdr.useMutation({
     onSuccess(data, variables, context) {
       const xdr = data;
-      console.log(xdr, "...");
+      // console.log(xdr, "...");
 
       const tostId = toast.loading("Signing transaction...");
       clientsign({

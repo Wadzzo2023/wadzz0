@@ -3,16 +3,18 @@ import { Send } from "lucide-react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { z } from "zod";
 import { api } from "~/utils/api";
+import { CommentSchema } from "./add-comment";
 
-export const CommentSchema = z.object({
-  postId: z.number(),
-  parentId: z.number().optional(),
-  content: z.string().min(5, { message: "Minimum 5 character is required!" }),
-});
-
-export function AddComment({ postId }: { postId: number }) {
+export function AddReplyComment({
+  parentId,
+  postId,
+}: {
+  parentId: number;
+  postId: number;
+}) {
   const commentM = api.fan.post.createComment.useMutation({
-    onSuccess: () => {
+    onSuccess: (data) => {
+      // console.log(data);
       reset();
     },
   });
@@ -24,7 +26,7 @@ export function AddComment({ postId }: { postId: number }) {
     formState: { errors },
   } = useForm<z.infer<typeof CommentSchema>>({
     resolver: zodResolver(CommentSchema),
-    defaultValues: { postId: postId },
+    defaultValues: { parentId: parentId, postId: postId, content: "" },
   });
 
   const onSubmit: SubmitHandler<z.infer<typeof CommentSchema>> = (data) => {
@@ -35,18 +37,16 @@ export function AddComment({ postId }: { postId: number }) {
     <div className="flex w-full flex-col">
       <form onSubmit={handleSubmit(onSubmit)}>
         <label className="form-control w-full ">
-          <div className="flex  items-center gap-2">
+          <div className="flex w-full  items-center gap-2">
             <textarea
               {...register("content")}
               className=" textarea textarea-bordered w-full"
             />
             <button className="btn" type="submit">
-              {commentM.isLoading ? (
-                <span className="loading loading-spinner h-5 w-5" />
-              ) : (
-                <Send size={14} />
+              {commentM.isLoading && (
+                <span className="loading loading-spinner" />
               )}
-              Comment
+              <Send size={14} /> Reply
             </button>
           </div>
           {errors.content && (

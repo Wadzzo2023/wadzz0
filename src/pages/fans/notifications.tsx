@@ -147,8 +147,8 @@ export default function CreatorNotofication() {
     //     )}
     //   </div>
     // </div>
-    <div className="h-full bg-base-200">
-      <div className="flex  h-full flex-row items-start justify-center">
+    <div className="">
+      <div className="flex  flex-row items-start justify-center">
         <Notifications />
       </div>
     </div>
@@ -194,65 +194,67 @@ const Notifications = () => {
       { getNextPageParam: (lastPage) => lastPage.nextCursor },
     );
   return (
-    <div className=" w-full rounded-lg bg-white shadow-sm lg:w-[715px]">
+    <div className=" w-full rounded-lg bg-white shadow-sm lg:w-[715px] ">
       <div className="p-6">
         <div className="mb-6 flex flex-row gap-x-6">
-          <h1 className="text-2xl font-bold">User{"'s"} Notifications</h1>
+          <h1 className="text-2xl font-bold">Creator{"'s"} Notifications</h1>
           {/* <a className="my-auto rounded-lg bg-[#0a3279] px-3 font-bold text-white">
             {newNotificationCount()}
           </a> */}
         </div>
 
-        {/* Mark Webber */}
-        {notifications.data?.pages.map((page) => {
-          return page.items.map((el) => {
-            const { message, url } = getNotificationMessage(el);
-            return (
-              // <div key={el.id} className="flex flex-col hover:bg-neutral">
-              //   <Link
-              //     href={url}
-              //     className="p-4 hover:bg-base-100 hover:underline"
-              //   >
-              //     {message} {formatPostCreatedAt(el.createdAt)}
-              //   </Link>
-              // </div>
-              <>
-                <div key={el.id} className="flex flex-col gap-x-3 gap-y-2 p-2">
-                  <Link href={url}>
-                    <Image
-                      width={30}
-                      height={30}
-                      className="person-icon"
-                      src={"/images/icons/avatar-icon.png"}
-                      alt="user icon"
-                    />
-                    <div className="ml-4 w-full">
-                      <a>
-                        <span className="message-describe ml-2">{message}</span>
-                      </a>
-                      <div className="">
-                        <p className="message-duration">
-                          {formatPostCreatedAt(el.createdAt)}
-                        </p>
+        <div className="max-h-[500px] overflow-auto">
+          {/* Mark Webber */}
+          {notifications.data?.pages.map((page) => {
+            return page.items.map((el) => {
+              const { message, url } = getNotificationMessage(el);
+              return (
+                // <div key={el.id} className="flex flex-col hover:bg-neutral">
+                //   <Link
+                //     href={url}
+                //     className="p-4 hover:bg-base-100 hover:underline"
+                //   >
+                //     {message} {formatPostCreatedAt(el.createdAt)}
+                //   </Link>
+                // </div>
+                <>
+                  <div key={el.id} className="flex  gap-x-3  p-2">
+                    <Link href={url} className="flex">
+                      <Image
+                        width={1000}
+                        height={1000}
+                        className="h-10 w-10"
+                        src={"/images/icons/avatar-icon.png"}
+                        alt="user icon"
+                      />
+                      <div className="ml-4 flex w-full flex-col">
+                        <a>
+                          <span className="message-describe ">{message}</span>
+                        </a>
+                        <div className="">
+                          <p className="message-duration text-gray-500">
+                            {formatPostCreatedAt(el.createdAt)}
+                          </p>
+                        </div>
                       </div>
-                    </div>
-                  </Link>
-                </div>
+                    </Link>
+                  </div>
 
-                <Separator />
-              </>
-            );
-          });
-        })}
+                  <Separator />
+                </>
+              );
+            });
+          })}
 
-        {notifications.hasNextPage && (
-          <button
-            className="btn"
-            onClick={() => void notifications.fetchNextPage()}
-          >
-            Load More
-          </button>
-        )}
+          {notifications.hasNextPage && (
+            <button
+              className="btn"
+              onClick={() => void notifications.fetchNextPage()}
+            >
+              Load More
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );

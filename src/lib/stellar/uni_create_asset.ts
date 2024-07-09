@@ -60,7 +60,7 @@ export async function createUniAsset({
   });
 
   // is admin is creating the trx
-  console.log(signWith, "signWith");
+  // console.log(signWith, "signWith");
   if (signWith === undefined || (signWith && !("isAdmin" in signWith))) {
     // first get action for required xlm. and platformFee
     Tx1.addOperation(

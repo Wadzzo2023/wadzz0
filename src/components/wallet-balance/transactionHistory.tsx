@@ -40,7 +40,7 @@ const TransactionHistory = () => {
     }
   };
 
-  console.log("transactions", transactions); // Verify the transactions length and data here
+  // console.log("transactions", transactions); // Verify the transactions length and data here
 
   return (
     <Card>

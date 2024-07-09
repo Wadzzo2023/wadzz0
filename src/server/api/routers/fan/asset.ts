@@ -36,7 +36,7 @@ export const shopRouter = createTRPCRouter({
         const creatorId = isAdmin ? undefined : userId; // for admin creator and placer id is undefined
         const nftType = isAdmin ? "ADMIN" : "FAN";
 
-        console.log("mediaType", mediaType, mediaUrl);
+        // console.log("mediaType", mediaType, mediaUrl);
 
         return await ctx.db.asset.create({
           data: {

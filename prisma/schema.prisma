@@ -98,18 +98,20 @@ model Like {
 
 model Comment {
     id              Int    @id @default(autoincrement())
-    parentCommentID Int?
-    postId          Int
+    parentCommentID Int? // Optional field to reference parent comment (for nested comments)
+    postId          Int // Foreign key referencing Post model
     post            Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
-    userId          String
+    userId          String // Foreign key referencing User model
     user            User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-    content         String
+    content         String // Content of the comment
 
-    parentComment Comment? @relation("ParentComment", fields: [parentCommentID], references: [id])
-    createdAt     DateTime @default(now())
+    // Optional relationship: a comment can have a parent comment
+    parentComment Comment? @relation("ChildComments", fields: [parentCommentID], references: [id])
 
-    commentId Int?
-    Comment   Comment[] @relation("ParentComment")
+    createdAt DateTime @default(now()) // Timestamp when the comment was created
+
+    // Optional field: allows for a comment to have child comments (replies)
+    childComments Comment[] @relation("ChildComments") // Collection of child comments (replies)
 }
 
 model User_Asset {

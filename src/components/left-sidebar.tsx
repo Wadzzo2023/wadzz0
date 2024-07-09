@@ -31,7 +31,7 @@ export default function LeftBar({ className }: { className?: string }) {
   return (
     <div
       className={cn(
-        "flex h-full max-h-screen w-80 flex-col items-center justify-between overflow-auto bg-base-100/80 px-4 pb-4 pt-10 scrollbar-hide",
+        "flex h-full max-h-screen w-80 flex-col items-center justify-between overflow-auto bg-base-100/80 px-4 pb-4 scrollbar-hide lg:pt-5",
         className,
       )}
     >

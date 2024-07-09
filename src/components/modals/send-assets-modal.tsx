@@ -127,7 +127,7 @@ const SendAssets = () => {
     api.walletBalance.wallBalance.sendWalletAssets.useMutation({
       onSuccess: async (data) => {
         try {
-          if (data) console.log("Type", session.data?.user?.walletType);
+          if (data) console.log("Type");
           const clientResponse = await clientsign({
             presignedxdr: data.xdr,
             walletType: session.data?.user?.walletType,
