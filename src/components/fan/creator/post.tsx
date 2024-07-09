@@ -210,7 +210,7 @@ export function PostCard({
                       i === 0 ? (
                         <div
                           key={i}
-                          className="relative col-span-1 max-h-[350px] min-h-[350px] overflow-hidden rounded-xl"
+                          className="relative col-span-1 max-h-[250px] min-h-[250px] overflow-hidden rounded-xl md:max-h-[350px] md:min-h-[350px]"
                         >
                           <Image
                             height={1000}
@@ -223,7 +223,7 @@ export function PostCard({
                       ) : (
                         <div
                           key={i}
-                          className="relative col-span-1 max-h-[350px] min-h-[350px] overflow-hidden rounded-xl"
+                          className="relative col-span-1 max-h-[250px] min-h-[250px] overflow-hidden rounded-xl md:max-h-[350px] md:min-h-[350px]"
                         >
                           <div className=" absolute inset-0 flex items-center  justify-center bg-slate-900/80 text-xl text-white">
                             +{media.length - 1}
