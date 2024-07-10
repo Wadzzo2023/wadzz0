@@ -150,18 +150,6 @@ const PendingAssetList = ({
             <h1>No Pending Assets Available</h1>
           ) : (
             data?.map((balance, idx) => {
-              const isRecipient = balance?.claimants?.some(
-                (claimant) =>
-                  claimant.destination === user.id &&
-                  !claimant?.predicate?.not?.abs_before,
-              );
-              const isSender = balance?.claimants?.some(
-                (claimant) =>
-                  claimant.destination === user.id &&
-                  claimant?.predicate?.not?.abs_before,
-              );
-              const isExpired = balance?.isExpired;
-
               return (
                 <div
                   key={`${balance?.asset}-${idx}`}
@@ -192,18 +180,11 @@ const PendingAssetList = ({
                   <div className="">
                     <h1 className="shrink-0 text-center">{balance?.amount}</h1>
                     <div className="flex items-center justify-between ">
-                      {isRecipient && isExpired && (
-                        <p className="text-sm text-muted-foreground">
-                          Claim Expired
-                        </p>
-                      )}
                       <Button
                         onClick={() => handleAccept(balance.id)}
                         size="sm"
                         variant="link"
-                        className={cn(
-                          `${(isRecipient && !isExpired) || isSender ? "" : "hidden"}`,
-                        )}
+                        className=""
                         disabled={loading}
                       >
                         Claim Tokens

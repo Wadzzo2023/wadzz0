@@ -25,7 +25,13 @@ export type ParsedTransaction = {
   balanceId?: string;
   code?: string;
 };
-
+interface Predicate {
+  and?: Predicate[];
+  or?: Predicate[];
+  not?: Predicate;
+  abs_before?: string;
+  rel_before?: string;
+}
 interface PendingClaimableBalance {
   id: string;
   asset: string;
@@ -33,14 +39,9 @@ interface PendingClaimableBalance {
   sponsor: string;
   claimants: Array<{
     destination: string;
-    predicate: {
-      abs_before?: string;
-      not?: {
-        abs_before?: string;
-      };
-    };
+    predicate: Predicate
   }>;
-  isExpired: boolean;
+
 }
 export async function NativeBalance({ userPub }: { userPub: string }) {
   const server = new Horizon.Server(STELLAR_URL);
@@ -175,10 +176,6 @@ export async function SendAssets({
 
   const asset = asset_type === 'native' ? Asset.native() : new Asset(asset_code, asset_issuer);
 
-  const soon = Math.ceil(Date.now() / 1000 + 60);
-  const bCanClaim = Claimant.predicateBeforeRelativeTime('600'); // 300 seconds (5 minutes)
-  const aCanReclaim = Claimant.predicateNot(Claimant.predicateBeforeAbsoluteTime(soon.toString()));
-
   const transaction = new TransactionBuilder(account, {
     fee: BASE_FEE.toString(),
     networkPassphrase: Networks.TESTNET,
@@ -186,8 +183,8 @@ export async function SendAssets({
 
   if (!hasTrust && asset_type !== 'native') {
     const claimants: Claimant[] = [
-      new Claimant(recipientId, bCanClaim),
-      new Claimant(userPubKey, aCanReclaim),
+      new Claimant(recipientId, Claimant.predicateUnconditional()),
+
     ];
 
     transaction.addOperation(
@@ -376,38 +373,18 @@ export async function PendingAssetList({
 }): Promise<PendingClaimableBalance[]> {
   const server = new Horizon.Server(STELLAR_URL);
 
-  const pendingItems = await server.claimableBalances().claimant(userPubKey).call();
-  // console.log("Pending", pendingItems.records);
-  const currentTime = Math.floor(Date.now() / 1000); // Current time in seconds since epoch
+  const pendingItems = await server.claimableBalances().claimant(userPubKey).limit(20).order("desc").call();
+  console.log("Pending", pendingItems.records);
 
-  const parsedItems = pendingItems.records
-    .filter((record) => {
-      // Filter records to include only those with both types of claimants
-      const hasAbsBefore = record.claimants.some((claimant) => claimant?.predicate?.abs_before);
-      const hasNotAbsBefore = record.claimants.some((claimant) => claimant?.predicate?.not?.abs_before);
-      return hasAbsBefore && hasNotAbsBefore;
-    })
-    .map((record) => {
-      const isExpired = record.claimants.some((claimant) => {
-        const absBefore = claimant?.predicate?.abs_before;
-        const notAbsBefore = claimant?.predicate?.not?.abs_before;
-        if (absBefore) {
-          return currentTime >= new Date(absBefore).getTime() / 1000;
-        } else if (notAbsBefore) {
-          return currentTime < new Date(notAbsBefore).getTime() / 1000;
-        }
-        return false;
-      });
-
-      return {
-        id: record.id,
-        asset: record.asset,
-        amount: record.amount,
-        sponsor: record.sponsor ?? '', // Ensure sponsor is always a string
-        claimants: record.claimants,
-        isExpired: !!isExpired,
-      };
-    });
+  const parsedItems = pendingItems.records.map((record) => {
+    return {
+      id: record.id,
+      asset: record.asset,
+      amount: record.amount,
+      sponsor: record.sponsor ?? '',
+      claimants: record.claimants,
+    }
+  });
 
   return parsedItems;
 }

@@ -199,13 +199,13 @@ const Wallets = () => {
                           {platformBalance?.toString() === "0.0000000"
                             ? "0"
                             : platformBalance?.toString()}{" "}
-                          <span className="text-lg">Wadzzo</span>
+                          <span className="text-lg">{PLATFROM_ASSET.code}</span>
                         </h1>
                       </>
                     ) : (
                       <>
                         <h1 className="text-xl text-red-500 ">
-                          You haven{"'"}t trust to Wadzzo yet !
+                          `You haven{"'"}t trust to {PLATFROM_ASSET.code} yet !`
                           <br />
                           <button
                             onClick={handleSubmit}
