@@ -72,6 +72,7 @@ export default function Layout({
               </div>
 
               {router.pathname !== "/walletBalance" &&
+                router.pathname !== "/settings" &&
                 session.status == "authenticated" && <RightSideBar />}
             </div>
           </div>

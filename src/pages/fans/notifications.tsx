@@ -1,56 +1,56 @@
-import clsx from "clsx";
-import Link from "next/link";
-import React from "react";
-import {
-  NotificationMenu,
-  useNotificationMenu,
-} from "~/lib/state/fan/notification-menu";
-import { api } from "~/utils/api";
-import { formatPostCreatedAt } from "~/utils/format-date";
-import { getNotificationMessage } from "~/utils/notificationConfig";
+// import clsx from "clsx";
+// import Link from "next/link";
+// import React from "react";
+// import {
+//   NotificationMenu,
+//   useNotificationMenu,
+// } from "~/lib/state/fan/notification-menu";
+// import { api } from "~/utils/api";
+// import { formatPostCreatedAt } from "~/utils/format-date";
+// import { getNotificationMessage } from "~/utils/notificationConfig";
 
-export default function NotificationPage() {
-  const notifications =
-    api.fan.notification.getUserNotification.useInfiniteQuery(
-      {
-        limit: 10,
-      },
-      { getNextPageParam: (lastPage) => lastPage.nextCursor },
-    );
+// export default function NotificationPage() {
+//   const notifications =
+//     api.fan.notification.getUserNotification.useInfiniteQuery(
+//       {
+//         limit: 10,
+//       },
+//       { getNextPageParam: (lastPage) => lastPage.nextCursor },
+//     );
 
-  return (
-    <div className="p-5">
-      <h1 className="text-center text-2xl font-bold">Notifications</h1>
-      <div className="flex flex-col items-center p-4">
-        <div className="max-w-sm bg-base-300 p-2">
-          {notifications.data?.pages?.map((page) => {
-            return page.items.map((el) => {
-              const { message, url } = getNotificationMessage(el);
-              return (
-                <div key={el.id} className="flex flex-col hover:bg-base-100">
-                  <Link
-                    href={url}
-                    className="p-4 hover:text-primary hover:underline"
-                  >
-                    {message} {formatPostCreatedAt(el.createdAt)}
-                  </Link>
-                </div>
-              );
-            });
-          })}
-          {notifications.hasNextPage && (
-            <button
-              className="btn"
-              onClick={() => void notifications.fetchNextPage()}
-            >
-              Load More
-            </button>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-}
+//   return (
+//     <div className="p-5">
+//       <h1 className="text-center text-2xl font-bold">Notifications</h1>
+//       <div className="flex flex-col items-center p-4">
+//         <div className="max-w-sm bg-base-300 p-2">
+//           {notifications.data?.pages?.map((page) => {
+//             return page.items.map((el) => {
+//               const { message, url } = getNotificationMessage(el);
+//               return (
+//                 <div key={el.id} className="flex flex-col hover:bg-base-100">
+//                   <Link
+//                     href={url}
+//                     className="p-4 hover:text-primary hover:underline"
+//                   >
+//                     {message} {formatPostCreatedAt(el.createdAt)}
+//                   </Link>
+//                 </div>
+//               );
+//             });
+//           })}
+//           {notifications.hasNextPage && (
+//             <button
+//               className="btn"
+//               onClick={() => void notifications.fetchNextPage()}
+//             >
+//               Load More
+//             </button>
+//           )}
+//         </div>
+//       </div>
+//     </div>
+//   );
+// }
 
 // function RenderTabs() {
 //   const { selectedMenu, setSelectedMenu } = useNotificationMenu();
@@ -105,3 +105,134 @@ export default function NotificationPage() {
 //     </div>
 //   );
 // }
+
+import Image from "next/image";
+import Link from "next/link";
+import React, { useState } from "react";
+import { Separator } from "~/components/shadcn/ui/separator";
+import { api } from "~/utils/api";
+import { formatPostCreatedAt } from "~/utils/format-date";
+import { getNotificationMessage } from "~/utils/notificationConfig";
+
+export default function UserNotification() {
+  return (
+    // <div className="flex flex-col items-center gap-4 p-5 ">
+    //   <h2 className="text-2xl font-bold">Notifications</h2>
+    //   <div className="bg-base-200 p-4">
+    //     {notifications.data?.pages.map((page) => {
+    //       return page.items.map((el) => {
+    //         const { message, url } = getNotificationMessage(
+    //           el.notificationObject,
+    //         );
+    //         return (
+    //           <div key={el.id} className="flex flex-col hover:bg-neutral">
+    //             <Link
+    //               href={url}
+    //               className="p-4 hover:bg-base-100 hover:underline"
+    //             >
+    //               {message} {formatPostCreatedAt(el.createdAt)}
+    //             </Link>
+    //           </div>
+    //         );
+    //       });
+    //     })}
+
+    //     {notifications.hasNextPage && (
+    //       <button
+    //         className="btn"
+    //         onClick={() => void notifications.fetchNextPage()}
+    //       >
+    //         Load More
+    //       </button>
+    //     )}
+    //   </div>
+    // </div>
+    <div className="">
+      <div className="flex  flex-row items-start justify-center">
+        <Notifications />
+      </div>
+    </div>
+  );
+}
+const Notifications = () => {
+  const notifications =
+    api.fan.notification.getUserNotification.useInfiniteQuery(
+      {
+        limit: 10,
+      },
+      { getNextPageParam: (lastPage) => lastPage.nextCursor },
+    );
+  console.log(notifications);
+  return (
+    <div className=" w-full rounded-lg bg-white shadow-sm lg:w-[715px] ">
+      <div className="p-6">
+        <div className="mb-6 flex flex-row gap-x-6">
+          <h1 className="text-2xl font-bold">User{"'s"} Notifications</h1>
+          {/* <a className="my-auto rounded-lg bg-[#0a3279] px-3 font-bold text-white">
+            {newNotificationCount()}
+          </a> */}
+        </div>
+
+        <div className="max-h-[500px] overflow-auto">
+          {/* Mark Webber */}
+          {notifications.data?.pages.map((page) => {
+            return page.posts.map((el) => {
+              return (
+                // <div key={el.id} className="flex flex-col hover:bg-neutral">
+                //   <Link
+                //     href={url}
+                //     className="p-4 hover:bg-base-100 hover:underline"
+                //   >
+                //     {message} {formatPostCreatedAt(el.createdAt)}
+                //   </Link>
+                // </div>
+                <>
+                  <div key={el.id} className="flex  gap-x-3  p-2">
+                    <Link href={`/fans/posts/${el.id}`} className="flex">
+                      <Image
+                        width={1000}
+                        height={1000}
+                        className="h-10 w-10 rounded-full"
+                        src={
+                          el.creator.profileUrl ??
+                          "/images/icons/avatar-icon.png"
+                        }
+                        alt="user icon"
+                      />
+                      <div className="ml-4 flex w-full flex-col">
+                        <div className="flex gap-2">
+                          <h1>{el.creator.name} </h1>
+                          <a>
+                            <span className="message-describe ">
+                              create a post
+                            </span>
+                          </a>
+                        </div>
+                        <div className="">
+                          <p className="message-duration text-gray-500">
+                            {formatPostCreatedAt(el.createdAt)}
+                          </p>
+                        </div>
+                      </div>
+                    </Link>
+                  </div>
+
+                  <Separator />
+                </>
+              );
+            });
+          })}
+
+          {notifications.hasNextPage && (
+            <button
+              className="btn"
+              onClick={() => void notifications.fetchNextPage()}
+            >
+              Load More
+            </button>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};

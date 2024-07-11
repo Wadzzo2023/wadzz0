@@ -1,13 +1,18 @@
 import { formatPostCreatedAt } from "~/utils/format-date";
 import Avater from "../../ui/avater";
 import { Comment } from "@prisma/client";
-import React from "react";
+import React, { useState } from "react";
 import { useSession } from "next-auth/react";
 import ContextMenu from "../../ui/context-menu";
 import { api } from "~/utils/api";
+import Image from "next/image";
+import { Button } from "~/components/shadcn/ui/button";
+import { AddReplyComment } from "./add-reply";
+import ReplyCommentView from "./reply";
 
 export default function CommentView({
   comment,
+  childrenComments,
 }: {
   comment: Comment & {
     user: {
@@ -15,14 +20,28 @@ export default function CommentView({
       image: string | null;
     };
   };
+  childrenComments: ({
+    user: {
+      name: string | null;
+      image: string | null;
+    };
+  } & Comment)[];
 }) {
+  const [replyBox, setReplyBox] = useState<boolean>(false);
+
   return (
-    <div className="flex justify-between ">
-      <div className="flex gap-2">
-        <div>
-          <Avater className="w-8" url={comment.user.image} />
+    <div className="flex w-full items-start justify-between ">
+      <div className="flex w-full gap-2">
+        <div className="h-auto w-auto rounded-full">
+          <Image
+            height={100}
+            width={100}
+            className="h-10 w-10 cursor-pointer rounded-full object-cover shadow"
+            alt="User avatar"
+            src={comment.user.image ?? "/images/icons/avatar-icon.png"}
+          />
         </div>
-        <div className="flex-1">
+        <div className="flex w-full flex-col items-start">
           <h2 className="font-bold">{comment.user.name}</h2>
           {/* <p>{comment.content}</p> */}
           {comment.content.length > 50 ? (
@@ -31,9 +50,33 @@ export default function CommentView({
             <p>{comment.content}</p>
           )}
 
-          <p className="">{formatPostCreatedAt(comment.createdAt)}</p>
+          <p className="text-gray-400">
+            {formatPostCreatedAt(comment.createdAt)}
+          </p>
 
-          <p></p>
+          <Button
+            onClick={() => setReplyBox((prev) => !prev)}
+            variant="link"
+            className="m-0 p-0"
+          >
+            Reply
+          </Button>
+          {
+            <div className="flex w-full flex-col">
+              {replyBox && (
+                <AddReplyComment
+                  parentId={comment.id}
+                  postId={comment.postId}
+                />
+              )}
+            </div>
+          }
+          <div className="mt-2 w-full">
+            {childrenComments.length > 0 &&
+              childrenComments.map((comment) => (
+                <ReplyCommentView key={comment.id} comment={comment} />
+              ))}
+          </div>
         </div>
       </div>
       <div className="flex gap-2">

@@ -8,7 +8,7 @@ export function PostReadMore({ post }: { post: Post }) {
   const isLong = post.content.length > 200;
   if (isLong && router.pathname != `fans/posts/[id]`) {
     return (
-      <div>
+      <div className="px-2">
         <Preview value={post.content.slice(0, 200)} />
 
         <Link href={`posts/${post.id}`} className="text-primary underline">
@@ -17,6 +17,10 @@ export function PostReadMore({ post }: { post: Post }) {
       </div>
     );
   } else {
-    return <Preview value={post.content} />;
+    return (
+      <div className="px-2">
+        <Preview value={post.content} />
+      </div>
+    );
   }
 }

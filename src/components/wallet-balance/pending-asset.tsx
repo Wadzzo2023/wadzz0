@@ -14,6 +14,8 @@ import { cn } from "~/utils/utils";
 import useNeedSign from "~/lib/hook";
 import { clientSelect } from "~/lib/stellar/fan/utils";
 import { Skeleton } from "../shadcn/ui/skeleton";
+import { useState } from "react";
+import { Loader2 } from "lucide-react";
 
 interface PendingAssetListProps {
   user: {
@@ -32,9 +34,10 @@ const PendingAssetList = ({
   setLoading,
   loading,
 }: PendingAssetListProps) => {
+  const [buttonIdx, setButtonIdx] = useState<number>();
   const { data, isLoading, isError } =
     api.walletBalance.wallBalance.getPendingAssetList.useQuery();
-  console.log("getPendingAssetList", data);
+  // console.log("getPendingAssetList", data);
 
   const formatAsset = (asset: string) => {
     const parts = asset.split(":");
@@ -77,9 +80,11 @@ const PendingAssetList = ({
       },
     });
 
-  const handleAccept = (balanceId: string) => {
-    console.log("balanceId", balanceId);
+  const handleAccept = (balanceId: string, idx: number) => {
+    // console.log("balanceId", balanceId);
     setLoading(true);
+
+    setButtonIdx(idx);
     AcceptClaimMutation.mutate({
       balanceId: balanceId,
       signWith: needSign(),
@@ -117,7 +122,7 @@ const PendingAssetList = ({
     });
 
   const handleDecline = (balanceId: string) => {
-    console.log("balanceId", balanceId);
+    // console.log("balanceId", balanceId);
     setLoading(true);
     DeclineClaimMutation.mutate({
       balanceId: balanceId,
@@ -150,18 +155,6 @@ const PendingAssetList = ({
             <h1>No Pending Assets Available</h1>
           ) : (
             data?.map((balance, idx) => {
-              const isRecipient = balance?.claimants?.some(
-                (claimant) =>
-                  claimant.destination === user.id &&
-                  !claimant?.predicate?.not?.abs_before,
-              );
-              const isSender = balance?.claimants?.some(
-                (claimant) =>
-                  claimant.destination === user.id &&
-                  claimant?.predicate?.not?.abs_before,
-              );
-              const isExpired = balance?.isExpired;
-
               return (
                 <div
                   key={`${balance?.asset}-${idx}`}
@@ -192,21 +185,21 @@ const PendingAssetList = ({
                   <div className="">
                     <h1 className="shrink-0 text-center">{balance?.amount}</h1>
                     <div className="flex items-center justify-between ">
-                      {isRecipient && isExpired && (
-                        <p className="text-sm text-muted-foreground">
-                          Claim Expired
-                        </p>
-                      )}
                       <Button
-                        onClick={() => handleAccept(balance.id)}
+                        onClick={() => handleAccept(balance.id, idx)}
                         size="sm"
                         variant="link"
-                        className={cn(
-                          `${(isRecipient && !isExpired) || isSender ? "" : "hidden"}`,
-                        )}
-                        disabled={loading}
+                        className=""
+                        disabled={loading && idx === buttonIdx}
                       >
-                        Claim Tokens
+                        {loading && idx === buttonIdx ? (
+                          <>
+                            <p> CLAIMING</p>
+                            <span className="loading loading-spinner loading-xs ml-1"></span>
+                          </>
+                        ) : (
+                          "CLAIM TOKENS"
+                        )}
                       </Button>
                     </div>
                   </div>

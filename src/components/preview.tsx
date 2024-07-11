@@ -9,5 +9,7 @@ interface PreviewProps {
 export const Preview = ({ value }: PreviewProps) => {
   const ReactQuill = dynamic(() => import("react-quill"));
 
-  return <ReactQuill theme="bubble" value={value} readOnly />;
+  return (
+    <ReactQuill className="   text-xl" theme="bubble" value={value} readOnly />
+  );
 };

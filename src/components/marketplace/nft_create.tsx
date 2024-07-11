@@ -18,6 +18,16 @@ import { api } from "~/utils/api";
 import { UploadButton } from "~/utils/uploadthing";
 import Alert from "../ui/alert";
 import Loading from "../wallete/loading";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "~/components/shadcn/ui/dialog";
+import { set } from "date-fns";
+import axios from "axios";
 
 export const ExtraSongInfo = z.object({
   artist: z.string(),
@@ -89,12 +99,12 @@ function NftCreateForm({
   const [file, setFile] = useState<File>();
   const [ipfs, setCid] = useState<string>();
   const [uploading, setUploading] = useState(false);
-
+  const [mediaUpload, setMediaUpload] = useState(false);
   const inputFile = useRef(null);
   // other
   const modalRef = useRef<HTMLDialogElement>(null);
   const [submitLoading, setSubmitLoading] = useState(false);
-
+  const [mediaUploadSuccess, setMediaUploadSuccess] = useState(false);
   const [mediaType, setMediaType] = useState<MediaType>(MediaType.IMAGE);
 
   const [mediaUrl, setMediaUrl] = useState<string>();
@@ -103,6 +113,7 @@ function NftCreateForm({
 
   const connectedWalletType = session.data?.user.walletType ?? WalletType.none;
   const walletType = isAdmin ? WalletType.isAdmin : connectedWalletType;
+  const [uploadProgress, setUploadProgress] = useState<number>(0);
 
   const {
     register,
@@ -126,7 +137,10 @@ function NftCreateForm({
 
   const addAsset = api.fan.asset.createAsset.useMutation({
     onSuccess: () => {
-      toast.success("NFT Created");
+      toast.success("NFT Created", {
+        position: "top-center",
+        duration: 4000,
+      });
       reset();
     },
   });
@@ -134,7 +148,7 @@ function NftCreateForm({
   const xdrMutation = api.fan.trx.createUniAssetTrx.useMutation({
     onSuccess(data, variables, context) {
       const { issuer, xdr } = data;
-      console.log(xdr, "xdr");
+      // console.log(xdr, "xdr");
       setValue("issuer", issuer);
 
       setSubmitLoading(true);
@@ -197,16 +211,13 @@ function NftCreateForm({
     setValue("mediaType", media);
     setMediaUrl(undefined);
   }
-  const handleModal = () => {
-    modalRef.current?.showModal();
-  };
 
   const uploadFile = async (fileToUpload: File) => {
     try {
       setUploading(true);
       const formData = new FormData();
       formData.append("file", fileToUpload, fileToUpload.name);
-      console.log("formData", fileToUpload);
+      // console.log("formData", fileToUpload);
       const res = await fetch("/api/file", {
         method: "POST",
         body: formData,
@@ -216,15 +227,15 @@ function NftCreateForm({
       setCover(thumbnail);
       setValue("coverImgUrl", thumbnail);
       setCid(ipfsHash);
+      toast.success("Thumbnail uploaded successfully");
 
       setUploading(false);
     } catch (e) {
       console.log(e);
       setUploading(false);
-      alert("Trouble uploading file");
+      toast.error("Failed to upload file");
     }
   };
-
   const handleChange = async (e: ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
 
@@ -270,24 +281,27 @@ function NftCreateForm({
       );
     }
   }
-
+  console.log("CoverURL", coverUrl);
+  const handleLoL = () => {
+    toast.success("NFT Created", {
+      position: "top-center",
+      duration: 4000,
+    });
+  };
   return (
     <>
-      <dialog className="modal" ref={modalRef}>
-        <div className="modal-box">
-          <form method="dialog">
-            {/* if there is a button in form, it will close the modal */}
-            <button
-              className="btn btn-circle btn-ghost btn-sm absolute right-2 top-2"
-              // onClick={handleCloseClick}
-            >
-              ✕
-            </button>
-          </form>
-          <h3 className="text-lg font-bold">Add Asset</h3>
+      <Dialog>
+        <DialogTrigger asChild>
+          <button className="btn btn-primary">
+            <PlusIcon /> Item
+          </button>
+        </DialogTrigger>
+        <DialogContent className=" h-[80%] overflow-auto p-3">
+          <DialogHeader className="text-lg font-bold">Add Asset</DialogHeader>
+          {/* <button onClick={handleLoL}> LOL</button> */}
           <form onSubmit={handleSubmit(onSubmit)}>
-            <div className="flex flex-col gap-4">
-              <div className="bg-base-200 p-2">
+            <div className="flex flex-col gap-4 ">
+              <div className="rounded-lg bg-base-200  p-2">
                 <div className="flex justify-between">
                   <div className="">
                     <ul className="menu menu-vertical rounded-box bg-base-300 lg:menu-horizontal">
@@ -344,14 +358,15 @@ function NftCreateForm({
                   </div>
 
                   <label className="label font-bold">Upload Files</label>
-                  <div className="form-control w-full max-w-xs">
+                  <div className="form-control w-full max-w-xs py-2">
                     <label className="label">
                       <span className="label-text">
-                        Choose a thumbnail. (this will be used as NFT Image)
+                        Choose a thumbnail Max 1MB (this will be used as NFT
+                        Image)
                       </span>
                     </label>
 
-                    <div className="mt  ">
+                    <div className="my-2">
                       {/* <UploadButton
                         endpoint="imageUploader"
                         content={{
@@ -378,9 +393,10 @@ function NftCreateForm({
                       <input
                         type="file"
                         id="file"
-                        accept=".jpg, .png"
+                        accept=".jpg, .png , .jpeg "
                         ref={inputFile}
                         onChange={handleChange}
+                        className=""
                       />
                       {uploading && (
                         <progress className="progress w-56"></progress>
@@ -389,8 +405,8 @@ function NftCreateForm({
                         <>
                           <Image
                             className="p-2"
-                            width={120}
-                            height={120}
+                            width={100}
+                            height={100}
                             alt="preview image"
                             src={coverUrl}
                           />
@@ -399,16 +415,34 @@ function NftCreateForm({
                     </div>
 
                     <div className="form-control w-full max-w-xs">
-                      <label className="label">
-                        <span className="label-text">
-                          Choose your media (required)
-                        </span>
-                      </label>
+                      <div className="label-text flex items-center justify-between py-2">
+                        <span>Choose your media (required)</span>
+                        {mediaUpload && <p>{uploadProgress}%</p>}
+                      </div>
 
                       <UploadButton
                         endpoint={getEndpoint(mediaType)}
+                        onUploadBegin={() => {
+                          setMediaUpload(true);
+                        }}
+                        disabled={mediaUpload}
+                        onUploadProgress={(progress) => {
+                          setUploadProgress(progress);
+                        }}
+                        appearance={{
+                          button:
+                            " w-full text-white bg-gradient-to-r from-cyan-400 via-cyan-500 to-cyan-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-cyan-300 dark:focus:ring-cyan-800 font-medium  text-sm  text-center ",
+                          container:
+                            " w-full flex-row rounded-md border-cyan-300 bg-slate-800",
+                          allowedContent:
+                            "flex h-8 flex-col items-center justify-center px-2 text-white",
+                        }}
                         content={{
-                          button: "Add media",
+                          button: mediaUpload
+                            ? `UPLOADING TO ${process.env.NEXT_PUBLIC_SITE}`
+                            : mediaUploadSuccess
+                              ? "FILE UPLOAD SUCCESS"
+                              : "UPLOAD MEDIA",
                         }}
                         onClientUploadComplete={(res) => {
                           // Do something with the response
@@ -418,6 +452,8 @@ function NftCreateForm({
                           if (data?.url) {
                             setMediaUrl(data.url);
                             setValue("mediaUrl", data.url);
+                            setMediaUpload(false);
+                            setMediaUploadSuccess(true);
                           }
                           // updateProfileMutation.mutate(res);
                         }}
@@ -427,10 +463,12 @@ function NftCreateForm({
                         }}
                       />
 
-                      <PlayableMedia
-                        mediaType={mediaType}
-                        mediaUrl={mediaUrl}
-                      />
+                      <div className="flex items-center justify-center py-2">
+                        <PlayableMedia
+                          mediaType={mediaType}
+                          mediaUrl={mediaUrl}
+                        />
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -573,11 +611,8 @@ function NftCreateForm({
               </button>
             </form>
           </div>
-        </div>
-      </dialog>
-      <button className="btn btn-primary" onClick={handleModal}>
-        <PlusIcon /> Item
-      </button>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }

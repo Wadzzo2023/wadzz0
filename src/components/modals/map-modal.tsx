@@ -39,7 +39,7 @@ const MapModal = () => {
     isAutoCollect,
     setIsPinCut,
   } = useModal();
-  console.log(data.long, data.lat, data.pinId);
+  // console.log(data.long, data.lat, data.pinId);
   const session = useSession();
   const isModalOpen = isOpen && type === "map";
   const handleClose = () => {
@@ -58,7 +58,7 @@ const MapModal = () => {
 
   const handleToggleAutoCollect = async (pinId: number | undefined) => {
     if (pinId) {
-      console.log(pinId);
+      // console.log(pinId);
       if (isAutoCollect) {
         ToggleAutoCollectMutation.mutate({
           id: pinId,
@@ -77,7 +77,7 @@ const MapModal = () => {
 
   const handleCopyPin = () => {
     if (data?.pinId) {
-      console.log("handleCopyPin", data?.pinId);
+      // console.log("handleCopyPin", data?.pinId);
       toast.success("Pin Id copied to clipboard");
       setIsPinCopied(true);
     } else {
@@ -104,7 +104,7 @@ const MapModal = () => {
   const handleDelete = () => {
     if (data?.pinId) {
       DeletePin.mutate({ id: data?.pinId });
-      console.log("handleDelete", data?.pinId);
+      // console.log("handleDelete", data?.pinId);
       toast.success("Pin deleted successfully");
       handleClose();
     } else {
@@ -114,7 +114,7 @@ const MapModal = () => {
 
   const handleCutPin = () => {
     if (data?.pinId) {
-      console.log("handleCutPin", data?.pinId);
+      // console.log("handleCutPin", data?.pinId);
       toast.success("Pin Id copied to clipboard");
       setIsPinCut(true);
     } else {

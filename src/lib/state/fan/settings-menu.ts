@@ -2,7 +2,7 @@ import { create } from "zustand";
 
 export enum SettingsMenu {
   Basic = "About",
-  Membership = "Memberships",
+  // Membership = "Memberships",
 }
 
 interface SettingsMenuState {

@@ -160,8 +160,8 @@ function AccordionList({
                 </th>
                 <th></th>
                 <th>Name</th>
-                <th>Job</th>
-                <th>Favorite Color</th>
+                <th>Brand</th>
+                <th>Pin Description</th>
               </tr>
             </thead>
             <tbody>

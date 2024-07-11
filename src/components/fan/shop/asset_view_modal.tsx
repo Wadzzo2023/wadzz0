@@ -133,7 +133,7 @@ function EditForm({ item }: { item: MarketAssetType }) {
     update.mutate(data);
   };
 
-  console.log(item);
+  // console.log(item);
 
   return (
     <div className="flex justify-center">

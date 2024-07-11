@@ -55,8 +55,8 @@ export default function BuyWithSquire({
         cardTokenizeResponseReceived={(token, verifiedBuyer) =>
           void (async () => {
             setLoading(true);
-            console.log("token:", token);
-            console.log("verifiedBuyer:", verifiedBuyer);
+            // console.log("token:", token);
+            // console.log("verifiedBuyer:", verifiedBuyer);
 
             if (token.token) {
               paymentMutation.mutate({

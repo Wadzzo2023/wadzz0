@@ -38,7 +38,7 @@ const CopyCutPinModal = () => {
     setIsPinCopied,
   } = useModal();
   const session = useSession();
-  console.log("Cut", isPinCut);
+  // console.log("Cut", isPinCut);
 
   const PastePin = api.maps.pin.paste.useMutation({
     onSuccess: async (data) => {
@@ -59,9 +59,9 @@ const CopyCutPinModal = () => {
   };
 
   const handlePastePin = () => {
-    console.log("handlePastePin", data?.pinId, data?.long, data?.lat);
+    // console.log("handlePastePin", data?.pinId, data?.long, data?.lat);
     if (data?.pinId && data?.long && data?.lat) {
-      console.log("handlePastePin", data?.pinId, data?.long, data?.lat);
+      // console.log("handlePastePin", data?.pinId, data?.long, data?.lat);
       PastePin.mutate({
         id: data?.pinId,
         long: data?.long,

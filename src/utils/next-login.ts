@@ -16,7 +16,7 @@ export async function NextLogin(pubkey: string, password: string) {
     redirect: false,
   });
 
-  console.log({ response });
+  // console.log({ response });
 }
 
 export async function AlbedoNextLogin({
@@ -47,7 +47,7 @@ export async function WalleteNextLogin({
     redirect: false,
   } as AuthCredentialType);
 
-  console.log({ response });
+  // console.log({ response });
   return response;
 }
 

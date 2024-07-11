@@ -99,6 +99,6 @@ export async function XDR4BuyAsset({
 
   const xdr = buildTrx.toXDR();
   const singedXdr = WithSing({ xdr, signWith });
-  console.log(singedXdr, "singedXdr");
+  // console.log(singedXdr, "singedXdr");
   return singedXdr;
 }

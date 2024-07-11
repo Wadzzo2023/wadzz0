@@ -1,6 +1,6 @@
-import { type GetServerSidePropsContext } from "next";
 import { verifyMessageSignature } from "@albedo-link/signature-verification";
 import axios from "axios";
+import { type GetServerSidePropsContext } from "next";
 
 import {
   getServerSession,
@@ -10,18 +10,15 @@ import {
 
 import CredentialsProvider from "next-auth/providers/credentials";
 
-import { env } from "~/env";
-import { db } from "~/server/db";
-import { comparePassword } from "~/utils/hash";
-import GitHubProvider from "next-auth/providers/github";
-import { truncateString } from "~/utils/string";
-import { AuthCredentialType } from "~/types/auth";
-import { WalletType } from "package/connect_wallet";
 import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth } from "package/connect_wallet/src/lib/firebase/firebase-auth";
+import { WalletType } from "package/connect_wallet";
 import { verifyIdToken } from "package/connect_wallet/src/lib/firebase/admin/auth";
-import { z } from "zod";
+import { auth } from "package/connect_wallet/src/lib/firebase/firebase-auth";
 import { getPublicKeyAPISchema } from "package/connect_wallet/src/lib/stellar/wallet_clients/type";
+import { z } from "zod";
+import { db } from "~/server/db";
+import { AuthCredentialType } from "~/types/auth";
+import { truncateString } from "~/utils/string";
 
 import { USER_ACOUNT_URL } from "package/connect_wallet/src/lib/stellar/constant";
 import { verifyXDRsSignature } from "package/connect_wallet/src/lib/stellar/trx/deummy";
@@ -35,7 +32,7 @@ import { verifyXDRsSignature } from "package/connect_wallet/src/lib/stellar/trx/
 type User = DefaultSession["user"] & {
   id: string;
   walletType: WalletType;
-  emailVerified : boolean;
+  emailVerified: boolean;
   // ...other properties
   // role: UserRole;
 };
@@ -54,14 +51,13 @@ declare module "next-auth" {
 export const authOptions: NextAuthOptions = {
   callbacks: {
     session: ({ session, token }) => {
-      // console.log("session", session, "token", token);
       return {
         ...session,
         user: {
           ...session.user,
           id: token.sub,
           walletType: token.walletType,
-          emailVerified: token.emailVerified
+          emailVerified: token.emailVerified,
         },
       };
     },
@@ -113,9 +109,11 @@ export const authOptions: NextAuthOptions = {
           const isValid = verifyMessageSignature(pubkey, token, signature);
           if (isValid) {
             const sessionUser = await dbUser(pubkey);
-            return { ...sessionUser, walletType: WalletType.albedo,
-              emailVerified: true
-             };
+            return {
+              ...sessionUser,
+              walletType: WalletType.albedo,
+              emailVerified: true,
+            };
           }
           throw new Error("Invalid signature");
         }
@@ -132,8 +130,11 @@ export const authOptions: NextAuthOptions = {
           });
           if (isValid) {
             const sessionUser = await dbUser(pubkey);
-            return { ...sessionUser, walletType: cred.walletType ,
-              emailVerified: true };
+            return {
+              ...sessionUser,
+              walletType: cred.walletType,
+              emailVerified: true,
+            };
           }
           throw new Error("Invalid signature");
         }
@@ -148,8 +149,12 @@ export const authOptions: NextAuthOptions = {
           const uid = await verifyIdToken(token);
           const data = await getUserPublicKey({ uid, email });
           const sessionUser = await dbUser(data.publicKey);
-          return { ...sessionUser, walletType: cred.walletType, email: email,
-              emailVerified: true };
+          return {
+            ...sessionUser,
+            walletType: cred.walletType,
+            email: email,
+            emailVerified: true,
+          };
           // return {}
         }
 

@@ -205,7 +205,9 @@ export const membershipRouter = createTRPCRouter({
     .input(z.object({ creatorId: z.string() }))
     .mutation(async ({ ctx, input }) => {
       const userId = ctx.session.user.id;
-
+      if (userId === input.creatorId) {
+        throw new Error("You can't follow yourself");
+      }
       return await ctx.db.follow.create({
         data: { creatorId: input.creatorId, userId },
       });

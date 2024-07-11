@@ -3,6 +3,8 @@ import { z } from "zod";
 import { PostSchema } from "~/components/fan/creator/CreatPost";
 import { CommentSchema } from "~/components/fan/post/add-comment";
 
+import NotificationPage from "~/pages/fans/notifications";
+
 import {
   createTRPCRouter,
   protectedProcedure,
@@ -13,6 +15,10 @@ export const postRouter = createTRPCRouter({
   create: protectedProcedure
     .input(PostSchema)
     .mutation(async ({ ctx, input }) => {
+      // simulate a slow db call
+
+      // console.log("media", input.medias);
+
       const post = await ctx.db.post.create({
         data: {
           heading: input.heading,
@@ -149,7 +155,7 @@ export const postRouter = createTRPCRouter({
         where: { id: input },
         include: {
           _count: { select: { likes: true, comments: true } },
-          creator: { select: { name: true, id: true } },
+          creator: { select: { name: true, id: true, profileUrl: true } },
           subscription: { select: { price: true } },
           medias: true,
         },
@@ -264,21 +270,45 @@ export const postRouter = createTRPCRouter({
     .input(z.number())
     .query(async ({ input: postId, ctx }) => {
       return await ctx.db.comment.findMany({
-        where: { postId },
-        include: { user: { select: { name: true, image: true } } },
+        where: {
+          postId,
+          parentCommentID: null, // Fetch only top-level comments (not replies)
+        },
+        include: {
+          user: { select: { name: true, image: true } }, // Include user details
+          childComments: {
+            include: {
+              user: { select: { name: true, image: true } }, // Include user details for child comments
+            },
+            orderBy: { createdAt: "asc" }, // Order child comments by createdAt in ascending order
+          },
+        },
+        orderBy: { createdAt: "desc" }, // Order top-level comments by createdAt in descending order
       });
     }),
 
   createComment: protectedProcedure
     .input(CommentSchema)
     .mutation(async ({ ctx, input }) => {
-      const comment = await ctx.db.comment.create({
-        data: {
-          content: input.content,
-          postId: input.postId,
-          userId: ctx.session.user.id,
-        },
-      });
+      let comment;
+      if (input.parentId) {
+        comment = await ctx.db.comment.create({
+          data: {
+            content: input.content,
+            postId: input.postId,
+            userId: ctx.session.user.id,
+            parentCommentID: input.parentId,
+          },
+        });
+      } else {
+        comment = await ctx.db.comment.create({
+          data: {
+            content: input.content,
+            postId: input.postId,
+            userId: ctx.session.user.id,
+          },
+        });
+      }
       // create notification
       void ctx.db.post
         .findUnique({

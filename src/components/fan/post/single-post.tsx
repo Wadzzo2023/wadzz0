@@ -11,6 +11,11 @@ import { PostContextMenu } from "./post-context-menu";
 import Slider from "../../ui/carosel";
 import Loading from "~/components/wallete/loading";
 import { Preview } from "~/components/preview";
+import { Separator } from "~/components/shadcn/ui/separator";
+import Image from "next/image";
+import { Button } from "~/components/shadcn/ui/button";
+import { useState } from "react";
+import ReplyCommentView from "./reply";
 
 export function SinglePostView({ postId }: { postId: number }) {
   const post = api.fan.post.getAPost.useQuery(postId, {
@@ -23,24 +28,28 @@ export function SinglePostView({ postId }: { postId: number }) {
   // const { data: likes, isLoading } = api.post.getLikes.useQuery(post.id);
   const { data: liked } = api.fan.post.isLiked.useQuery(postId);
   const comments = api.fan.post.getComments.useQuery(postId);
-
+  const [commentBox, setCommentBox] = useState(false);
   if (post.isLoading) return <Loading />;
-
+  // console.log("COMEMMNET", comments.data);
   if (post.isError) return <div>Post not found</div>;
   if (post.data) {
     const creatorProfileUrl = `/fans/creator/${post.data.creatorId}`;
     const postUrl = `/fans/posts/${post.data.id}`;
+    // console.log("COMMNETSS", comments.data);
     return (
-      <div className="flex h-full  flex-1 flex-col items-center  p-5">
+      <div className="flex h-full    flex-col items-center  md:p-5">
         <h2 className="mb-5 text-center text-2xl font-bold">
           Post by {post.data.creator.name}
         </h2>
-        <div className=" w-full  flex-1  overflow-auto rounded-box ">
-          <div className="h-full overflow-auto">
-            <div className="flex h-full w-full flex-col overflow-auto  lg:flex-row">
+        <div className=" w-full  rounded-box ">
+          <div className=" ">
+            <div className="flex  w-full flex-col items-center justify-between ">
               {post.data.medias.length > 0 && (
-                <div className="hidden h-full  flex-1 lg:flex">
-                  <Slider images={post.data.medias.map((el) => el.url)} />
+                <div className="  flex h-full">
+                  <Slider
+                    className="max-h-[400px] min-h-[400px] w-full  md:max-h-[500px]  md:min-h-[500px]"
+                    images={post.data.medias.map((el) => el.url)}
+                  />
                 </div>
               )}
 
@@ -48,14 +57,23 @@ export function SinglePostView({ postId }: { postId: number }) {
                 <div className="h-full w-full  overflow-auto">
                   <div
                     key={post.data.id}
-                    className="h-full  overflow-auto  rounded-none   shadow-xl scrollbar-hide"
+                    className="h-full  w-full  overflow-auto  rounded-none   shadow-xl scrollbar-hide"
                   >
-                    <div className="flex h-full flex-col overflow-auto px-6 pt-6">
+                    <div className="flex h-full w-full flex-col overflow-auto pt-6  md:px-6">
                       <div>
                         <div className="flex justify-between">
                           <div className="flex gap-2">
-                            <div>
-                              <Avater className="w-8" />
+                            <div className="h-auto w-auto rounded-full">
+                              <Image
+                                height={100}
+                                width={100}
+                                className="h-12 w-12 cursor-pointer rounded-full object-cover shadow"
+                                alt="User avatar"
+                                src={
+                                  post.data.creator.profileUrl ??
+                                  "/images/icons/avatar-icon.png"
+                                }
+                              />
                             </div>
                             <div>
                               <Link
@@ -82,79 +100,79 @@ export function SinglePostView({ postId }: { postId: number }) {
                             postId={post.data.id}
                           />
                         </div>
-                        <h2 className="card-title">{post.data.heading}</h2>
                       </div>
-
-                      <div className="flex-1 overflow-auto rounded-lg bg-base-200 px-2 py-4 scrollbar-hide">
-                        <div className="h-full">
-                          <div className="flex h-full flex-col justify-between">
-                            <div>
-                              <div className=" flex flex-col rounded-lg  lg:hidden">
-                                <Slider
-                                  images={post.data.medias.map((el) => el.url)}
-                                />
-                              </div>
-
-                              {/* <p>{post.data.content}</p> */}
-                              <Preview value={post.data.content} />
-                            </div>
-
-                            {comments.data && comments.data.length > 0 && (
-                              <div className="mt-10 flex flex-col gap-4 border-t-2 border-t-base-100">
-                                <div className="flex flex-col gap-4 rounded-lg bg-base-200 py-4 pl-4">
-                                  {comments.data?.map((comment) => (
-                                    <CommentView
-                                      key={comment.id}
-                                      comment={comment}
-                                    />
-                                  ))}
-                                </div>
-                              </div>
-                            )}
-                          </div>
-                        </div>
+                      <div className="mt-2">
+                        <p className="ml-4 font-bold">{post.data.heading}</p>
+                        <Preview value={post.data.content} />
                       </div>
-
-                      {/* Bottom section */}
-                      <div className="w-full self-baseline ">
-                        <div className="mt-15 w-full   pt-2">
-                          <AddComment postId={post.data.id} />
-                        </div>
-
-                        <div className="flex gap-4 p-2 ">
-                          <div className="flex items-center justify-center gap-1">
-                            {deleteLike.isLoading || likeMutation.isLoading ? (
-                              <span className="loading loading-spinner"></span>
-                            ) : (
-                              <div className="btn btn-circle btn-ghost btn-sm">
-                                <Heart
-                                  onClick={() =>
-                                    liked
-                                      ? deleteLike.mutate(postId)
-                                      : likeMutation.mutate(postId)
-                                  }
-                                  className={clsx(
-                                    liked && "fill-primary text-primary ",
-                                  )}
-                                />
-                              </div>
-                            )}
-                            <p className="font-bold">
-                              {post.data._count.likes}
-                            </p>
-                          </div>
-
-                          <Link className="" href={postUrl}>
-                            <div className="flex items-center justify-center gap-1">
-                              <div className="btn btn-circle btn-ghost btn-sm">
-                                <MessageCircle />
-                              </div>{" "}
+                      <div className=" flex items-start justify-center gap-2  py-2 ">
+                        <div className=" flex w-full items-center justify-center gap-2 p-0">
+                          {deleteLike.isLoading || likeMutation.isLoading ? (
+                            <span className="loading loading-spinner"></span>
+                          ) : (
+                            <Button
+                              variant="outline"
+                              className="w-full gap-1"
+                              onClick={() =>
+                                liked
+                                  ? deleteLike.mutate(postId)
+                                  : likeMutation.mutate(postId)
+                              }
+                            >
+                              <Heart
+                                className={clsx(
+                                  liked && "fill-primary text-primary ",
+                                )}
+                              />
                               <p className="font-bold">
-                                {comments.data?.length ?? 0}
-                              </p>
-                            </div>
-                          </Link>
+                                {post.data._count.likes}
+                              </p>{" "}
+                            </Button>
+                          )}
                         </div>
+
+                        <Link
+                          href={postUrl}
+                          className="flex w-full items-center justify-center gap-1"
+                        >
+                          <Button
+                            variant="outline"
+                            className="w-full gap-1"
+                            onClick={() => setCommentBox(true)}
+                          >
+                            <MessageCircle />
+                            <p className="font-bold">
+                              {post.data._count.comments}
+                            </p>
+                            comment
+                          </Button>
+                        </Link>
+
+                        {/* <Share2 size={20} /> */}
+                      </div>
+                      {/* Bottom section */}
+                      <div className="w-full ">
+                        {commentBox && (
+                          <div className="mt-15 w-full   pt-2">
+                            <AddComment postId={post.data.id} />
+                          </div>
+                        )}
+                        {comments.data && comments.data.length > 0 && (
+                          <div className=" flex flex-col gap-4 border-2 border-base-200">
+                            <div className="mt-1 flex flex-col gap-4  rounded-lg p-2">
+                              {comments.data?.map((comment) => (
+                                <>
+                                  <CommentView
+                                    key={comment.id}
+                                    comment={comment}
+                                    childrenComments={comment.childComments}
+                                  />
+                                  <Separator />
+                                </>
+                              ))}
+                            </div>
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>

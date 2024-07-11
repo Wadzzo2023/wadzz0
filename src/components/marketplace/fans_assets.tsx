@@ -11,16 +11,19 @@ export default function FanAssetNfts() {
     },
   );
 
-  if (assets.isLoading) return <MoreAssetsSkeleton />;
+  if (assets.isLoading)
+    return (
+      <MoreAssetsSkeleton className="grid grid-cols-2 gap-2 md:grid-cols-4 lg:grid-cols-5" />
+    );
 
   if (assets.data) {
     return (
-      <>
+      <div className="p-2">
         <div
           style={{
             scrollbarGutter: "stable",
           }}
-          className="main-asset-area"
+          className="grid grid-cols-2 gap-2 md:grid-cols-4 lg:grid-cols-5"
         >
           {assets.data.pages.map((page) =>
             page.nfts.map((item, i) => (
@@ -38,7 +41,7 @@ export default function FanAssetNfts() {
             </button>
           )}
         </div>
-      </>
+      </div>
     );
   }
 }

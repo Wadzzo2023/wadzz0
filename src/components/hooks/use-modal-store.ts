@@ -1,19 +1,19 @@
 import { create } from "zustand";
-import { type Location,type LocationConsumer } from "@prisma/client";
+import { type Location, type LocationConsumer } from "@prisma/client";
 
 export type ModalType = "send assets" | "receive assets" | "add assets" | "map" | "copied" | "claim pin";
 
 interface ModalData {
-    pinId?: number;
-    recipientId?: string;
-    amount?: string;
-    asset_code?: string;
-    long?: number;
-    lat?: number;
-    mapTitle?: string;
-    mapDescription?: string | null;
-    location?: Location;
-    locationConsumer?: LocationConsumer
+  pinId?: number;
+  recipientId?: string;
+  amount?: string;
+  asset_code?: string;
+  long?: number;
+  lat?: number;
+  mapTitle?: string;
+  mapDescription?: string | null;
+  location?: Location;
+  locationConsumer?: LocationConsumer
 }
 
 interface ModalStore {

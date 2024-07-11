@@ -15,7 +15,7 @@ export default function About({ creator }: { creator: Creator }) {
       <h2 className="w-full rounded-full bg-base-200 text-center text-2xl font-bold">
         About
       </h2>
-      <div className="my-5 w-96 rounded-box bg-base-200">
+      <div className="my-5   w-96  rounded-box bg-base-200">
         <AboutForm creator={creator} />
       </div>
     </div>
@@ -67,7 +67,7 @@ function AboutForm({ creator }: { creator: Creator }) {
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
-      className="flex flex-col gap-2 p-5 "
+      className="flex  flex-col gap-2  p-5"
     >
       <div className="flex flex-col items-center  gap-2">
         <div className="text-center ">

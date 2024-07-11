@@ -79,7 +79,7 @@ export const marketRouter = createTRPCRouter({
 
       const assetAmount = placingCopies.toString();
 
-      console.log(assetAmount);
+      // console.log(assetAmount);
       // stellear sdk for xdr
       return await sendNftback({
         assetAmount,

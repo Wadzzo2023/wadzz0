@@ -1,8 +1,9 @@
 import { CreatorAvater } from "~/pages/search";
 import { api } from "~/utils/api";
 
-import Button from "~/components/ui/button";
 import { Profile } from "./profile-menu";
+import { Button } from "~/components/shadcn/ui/button";
+import Link from "next/link";
 
 export function UserMode() {
   return (
@@ -54,7 +55,9 @@ export function AllCreators() {
 function BottonNav() {
   return (
     <div className="flex flex-col gap-1">
-      <Button path="/fans/notifications" text="NOTIFICATION" />
+      <Button variant="default">
+        <Link href="/fans/notifications"> Notification</Link>
+      </Button>
     </div>
   );
 }

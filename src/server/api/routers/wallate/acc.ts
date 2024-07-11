@@ -38,7 +38,7 @@ export const accRouter = createTRPCRouter({
       });
     });
 
-    return { dbAssets, accAssets };
+    return { dbAssets, accAssets, assets };
   }),
 
   getAccountBalance: protectedProcedure.query(async ({ ctx, input }) => {
@@ -92,7 +92,7 @@ export const accRouter = createTRPCRouter({
       });
     });
 
-    return { dbAssets, accAssets };
+    return { dbAssets, accAssets, assets };
   }),
 
   getAStorageAssetInMarket: protectedProcedure
