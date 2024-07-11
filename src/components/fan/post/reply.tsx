@@ -7,6 +7,7 @@ import ContextMenu from "../../ui/context-menu";
 import { api } from "~/utils/api";
 import Image from "next/image";
 import { Button } from "~/components/shadcn/ui/button";
+import Link from "next/link";
 
 export default function ReplyCommentView({
   comment,
@@ -33,7 +34,9 @@ export default function ReplyCommentView({
           />
         </div>
         <div className="flex flex-col items-start">
-          <h2 className="font-bold">{comment.user.name}</h2>
+          <Link href={`/fans/creator/${comment.userId}`} className="font-bold">
+            {comment.user.name}
+          </Link>
           {/* <p>{comment.content}</p> */}
           {comment.content.length > 50 ? (
             <ShowMore content={comment.content} />

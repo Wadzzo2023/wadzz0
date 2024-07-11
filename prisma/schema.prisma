@@ -36,9 +36,27 @@ enum NotificationType {
     SUBSCRIPTION
     POST
     SHOP_ASSET
+    FOLLOW
+    REPLY
 }
 
 // it is kinda notification actor and the entity that is being acted upon
+model Notification {
+    id Int @id @default(autoincrement())
+
+    notificationObjectId Int
+    notificationObject   NotificationObject @relation(fields: [notificationObjectId], references: [id])
+
+    seen      DateTime?
+    createdAt DateTime  @default(now())
+
+    notifierId String
+    isCreator  Boolean @default(true) // is for creator
+
+    creatorName  String
+    creatorImage String?
+}
+
 model NotificationObject {
     id         Int              @id @default(autoincrement())
     entityType NotificationType
@@ -50,20 +68,6 @@ model NotificationObject {
 
     actorId String
     isUser  Boolean @default(true)
-}
-
-// it is the entity that is for who the notification is for
-model Notification {
-    id Int @id @default(autoincrement())
-
-    nofitifactionObjectId Int
-    notificationObject    NotificationObject @relation(fields: [nofitifactionObjectId], references: [id])
-
-    seen      DateTime?
-    createdAt DateTime  @default(now())
-
-    notifierId String
-    isCreator  Boolean @default(true) // is for creator
 }
 
 // ------------------------FAN SCHEMA-------------------------

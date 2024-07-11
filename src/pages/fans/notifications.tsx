@@ -114,7 +114,7 @@ import { api } from "~/utils/api";
 import { formatPostCreatedAt } from "~/utils/format-date";
 import { getNotificationMessage } from "~/utils/notificationConfig";
 
-export default function CreatorNotofication() {
+export default function UserNotification() {
   return (
     // <div className="flex flex-col items-center gap-4 p-5 ">
     //   <h2 className="text-2xl font-bold">Notifications</h2>
@@ -155,37 +155,6 @@ export default function CreatorNotofication() {
   );
 }
 const Notifications = () => {
-  const [newNotifications, setNewNotifications] = useState([0, 1, 2]);
-
-  function newNotificationCount() {
-    return newNotifications.length;
-  }
-
-  function isNew(id: number) {
-    return newNotifications.includes(id);
-  }
-
-  function markAllAsRead() {
-    setNewNotifications([]);
-  }
-
-  function addNewNotification(id: number) {
-    setNewNotifications([...newNotifications, id]);
-  }
-
-  function toggleNotification(id: number) {
-    if (newNotifications.includes(id)) {
-      removeNewNotification(id);
-    } else {
-      addNewNotification(id);
-    }
-  }
-
-  function removeNewNotification(id: number) {
-    setNewNotifications(
-      newNotifications.filter((notification) => notification !== id),
-    );
-  }
   const notifications =
     api.fan.notification.getUserNotification.useInfiniteQuery(
       {
@@ -193,6 +162,7 @@ const Notifications = () => {
       },
       { getNextPageParam: (lastPage) => lastPage.nextCursor },
     );
+  console.log(notifications);
   return (
     <div className=" w-full rounded-lg bg-white shadow-sm lg:w-[715px] ">
       <div className="p-6">
@@ -206,8 +176,7 @@ const Notifications = () => {
         <div className="max-h-[500px] overflow-auto">
           {/* Mark Webber */}
           {notifications.data?.pages.map((page) => {
-            return page.items.map((el) => {
-              const { message, url } = getNotificationMessage(el);
+            return page.posts.map((el) => {
               return (
                 // <div key={el.id} className="flex flex-col hover:bg-neutral">
                 //   <Link
@@ -219,18 +188,26 @@ const Notifications = () => {
                 // </div>
                 <>
                   <div key={el.id} className="flex  gap-x-3  p-2">
-                    <Link href={url} className="flex">
+                    <Link href={`/fans/posts/${el.id}`} className="flex">
                       <Image
                         width={1000}
                         height={1000}
-                        className="h-10 w-10"
-                        src={"/images/icons/avatar-icon.png"}
+                        className="h-10 w-10 rounded-full"
+                        src={
+                          el.creator.profileUrl ??
+                          "/images/icons/avatar-icon.png"
+                        }
                         alt="user icon"
                       />
                       <div className="ml-4 flex w-full flex-col">
-                        <a>
-                          <span className="message-describe ">{message}</span>
-                        </a>
+                        <div className="flex gap-2">
+                          <h1>{el.creator.name} </h1>
+                          <a>
+                            <span className="message-describe ">
+                              create a post
+                            </span>
+                          </a>
+                        </div>
                         <div className="">
                           <p className="message-duration text-gray-500">
                             {formatPostCreatedAt(el.createdAt)}

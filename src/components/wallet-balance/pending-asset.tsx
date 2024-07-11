@@ -14,6 +14,8 @@ import { cn } from "~/utils/utils";
 import useNeedSign from "~/lib/hook";
 import { clientSelect } from "~/lib/stellar/fan/utils";
 import { Skeleton } from "../shadcn/ui/skeleton";
+import { useState } from "react";
+import { Loader2 } from "lucide-react";
 
 interface PendingAssetListProps {
   user: {
@@ -32,6 +34,7 @@ const PendingAssetList = ({
   setLoading,
   loading,
 }: PendingAssetListProps) => {
+  const [buttonIdx, setButtonIdx] = useState<number>();
   const { data, isLoading, isError } =
     api.walletBalance.wallBalance.getPendingAssetList.useQuery();
   // console.log("getPendingAssetList", data);
@@ -77,9 +80,11 @@ const PendingAssetList = ({
       },
     });
 
-  const handleAccept = (balanceId: string) => {
+  const handleAccept = (balanceId: string, idx: number) => {
     // console.log("balanceId", balanceId);
     setLoading(true);
+
+    setButtonIdx(idx);
     AcceptClaimMutation.mutate({
       balanceId: balanceId,
       signWith: needSign(),
@@ -181,13 +186,20 @@ const PendingAssetList = ({
                     <h1 className="shrink-0 text-center">{balance?.amount}</h1>
                     <div className="flex items-center justify-between ">
                       <Button
-                        onClick={() => handleAccept(balance.id)}
+                        onClick={() => handleAccept(balance.id, idx)}
                         size="sm"
                         variant="link"
                         className=""
-                        disabled={loading}
+                        disabled={loading && idx === buttonIdx}
                       >
-                        Claim Tokens
+                        {loading && idx === buttonIdx ? (
+                          <>
+                            <p> CLAIMING</p>
+                            <span className="loading loading-spinner loading-xs ml-1"></span>
+                          </>
+                        ) : (
+                          "CLAIM TOKENS"
+                        )}
                       </Button>
                     </div>
                   </div>

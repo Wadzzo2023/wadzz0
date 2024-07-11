@@ -171,7 +171,9 @@ export function PostCard({
           </div>
 
           {!show ? (
-            <h2 className="card-title px-6">{post.heading}</h2>
+            <Link href={postUrl}>
+              <h2 className="card-title px-6">{post.heading}</h2>
+            </Link>
           ) : (
             <Link href={postUrl}>
               <h2 className="card-title px-6">{post.heading}</h2>
@@ -185,62 +187,63 @@ export function PostCard({
             </Link>
           ) : (
             <>
-              <PostReadMore post={post} />
-              <div className="border-b border-gray-200"></div>
-              <div className="mx-3 mb-7 mt-6 px-2 text-sm font-medium text-gray-400">
-                <div
-                  className={clsx(
-                    media?.length == 1
-                      ? " grid grid-cols-1  gap-2  "
-                      : " grid grid-cols-2  gap-2  ",
-                  )}
-                >
-                  {media && media?.length == 1 ? (
-                    <div className="relative col-span-1 max-h-[250px] min-h-[250px] overflow-hidden rounded-xl md:max-h-[550px] md:min-h-[550px]">
-                      <Image
-                        height={1000}
-                        width={1000}
-                        className="h-full w-full object-fill "
-                        src={media[0]?.url ?? ""}
-                        alt=""
-                      />
-                    </div>
-                  ) : (
-                    media?.map((el, i) =>
-                      i === 0 ? (
-                        <div
-                          key={i}
-                          className="relative col-span-1 max-h-[250px] min-h-[250px] overflow-hidden rounded-xl md:max-h-[350px] md:min-h-[350px]"
-                        >
-                          <Image
-                            height={1000}
-                            width={1000}
-                            className="h-full w-full object-cover "
-                            src={media[0]?.url ?? ""}
-                            alt=""
-                          />
-                        </div>
-                      ) : (
-                        <div
-                          key={i}
-                          className="relative col-span-1 max-h-[250px] min-h-[250px] overflow-hidden rounded-xl md:max-h-[350px] md:min-h-[350px]"
-                        >
-                          <div className=" absolute inset-0 flex items-center  justify-center bg-slate-900/80 text-xl text-white">
-                            +{media.length - 1}
+              <Link href={postUrl}>
+                <PostReadMore post={post} />
+                <div className="border-b border-gray-200 "></div>
+                <div className="mx-3 mb-7 mt-6 w-full px-2 text-sm font-medium text-gray-400">
+                  <div
+                    className={clsx(
+                      media?.length == 1
+                        ? " grid   grid-cols-1  gap-2"
+                        : " grid   grid-cols-2  gap-2",
+                    )}
+                  >
+                    {media && media?.length == 1 ? (
+                      <div className="relative col-span-1 max-h-[250px] min-h-[250px] overflow-hidden rounded-xl md:max-h-[550px] md:min-h-[550px]">
+                        <Image
+                          height={1000}
+                          width={1000}
+                          className="h-full w-full object-fill "
+                          src={media[0]?.url ?? ""}
+                          alt=""
+                        />
+                      </div>
+                    ) : (
+                      media?.map((el, i) =>
+                        i === 0 ? (
+                          <div
+                            key={i}
+                            className="relative col-span-1 max-h-[250px] min-h-[250px] overflow-hidden rounded-xl md:max-h-[350px] md:min-h-[350px]"
+                          >
+                            <Image
+                              height={1000}
+                              width={1000}
+                              className="h-full w-full object-cover "
+                              src={media[0]?.url ?? ""}
+                              alt=""
+                            />
                           </div>
-                          <Image
-                            height={1000}
-                            width={1000}
-                            className="h-full w-full object-cover  "
-                            src={media[1]?.url ?? ""}
-                            alt=""
-                          />
-                        </div>
-                      ),
-                    )
-                  )}
+                        ) : (
+                          <div
+                            key={i}
+                            className="relative col-span-1 max-h-[250px] min-h-[250px] overflow-hidden rounded-xl md:max-h-[350px] md:min-h-[350px]"
+                          >
+                            <div className=" absolute inset-0 flex items-center  justify-center bg-slate-900/80 text-xl text-white">
+                              +{media.length - 1}
+                            </div>
+                            <Image
+                              height={1000}
+                              width={1000}
+                              className="h-full w-full object-cover  "
+                              src={media[1]?.url ?? ""}
+                              alt=""
+                            />
+                          </div>
+                        ),
+                      )
+                    )}
 
-                  {/* <div className="relative col-span-2 max-h-[10rem] overflow-hidden rounded-xl">
+                    {/* <div className="relative col-span-2 max-h-[10rem] overflow-hidden rounded-xl">
                     <div className="absolute inset-0 flex items-center  justify-center bg-slate-900/80 text-xl text-white">
                       + 23
                     </div>
@@ -252,8 +255,9 @@ export function PostCard({
                       alt=""
                     />
                   </div> */}
+                  </div>
                 </div>
-              </div>
+              </Link>
               <div className=" border-gray-200gap-2 flex justify-start border-t  "></div>
               <div className=" flex items-start justify-center gap-2   ">
                 <div className=" flex w-full items-center justify-center gap-2 p-0">
@@ -272,7 +276,7 @@ export function PostCard({
                       <Heart
                         className={clsx(liked && "fill-primary text-primary ")}
                       />
-                      <p className="font-bold">{like}</p> Love
+                      <p className="font-bold">{like}</p>
                     </Button>
                   )}
                 </div>

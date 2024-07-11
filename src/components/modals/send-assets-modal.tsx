@@ -127,7 +127,6 @@ const SendAssets = () => {
     api.walletBalance.wallBalance.sendWalletAssets.useMutation({
       onSuccess: async (data) => {
         try {
-          if (data) console.log("Type");
           const clientResponse = await clientsign({
             presignedxdr: data.xdr,
             walletType: session.data?.user?.walletType,
@@ -170,6 +169,9 @@ const SendAssets = () => {
         }
       },
       onError: (error) => {
+        if (error.data?.httpStatus === 400) {
+          toast.error("Low XLM resource to perform transaction");
+        }
         setLoading(false);
         toast.error(error.message);
       },

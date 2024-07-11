@@ -24,8 +24,8 @@ export default function Loading({ className, text }: LoadingProps) {
           <>
             <Image
               className="h-20 w-20"
-              height={100}
-              width={100}
+              height={1000}
+              width={1000}
               src={"/favicon.ico"}
               alt={PLATFROM_ASSET.code}
             />

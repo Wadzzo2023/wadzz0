@@ -23,12 +23,13 @@ export function AddReplyComment({
     handleSubmit,
     reset,
     control,
+    watch,
     formState: { errors },
   } = useForm<z.infer<typeof CommentSchema>>({
     resolver: zodResolver(CommentSchema),
     defaultValues: { parentId: parentId, postId: postId, content: "" },
   });
-
+  const contentValue = watch("content");
   const onSubmit: SubmitHandler<z.infer<typeof CommentSchema>> = (data) => {
     commentM.mutate(data);
   };
@@ -42,7 +43,11 @@ export function AddReplyComment({
               {...register("content")}
               className=" textarea textarea-bordered w-full"
             />
-            <button className="btn" type="submit">
+            <button
+              disabled={commentM.isLoading || !contentValue?.trim()}
+              className="btn"
+              type="submit"
+            >
               {commentM.isLoading && (
                 <span className="loading loading-spinner" />
               )}

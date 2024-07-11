@@ -19,7 +19,7 @@ function AssetView({ code, thumbnail }: { code: string; thumbnail?: string }) {
               blurData={logoBlueData}
               code={code}
               url={thumbnail ?? "https://picsum.photos/100"}
-              sizes="100px"
+              sizes="100%"
             />
           </div>
         </div>

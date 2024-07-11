@@ -148,6 +148,9 @@ export async function SendAssets({
   const server = new Horizon.Server(STELLAR_URL);
   const account = await server.loadAccount(userPubKey);
 
+  if (userPubKey === recipientId) {
+    throw new Error("You can't send asset to yourself");
+  }
   const accBalance = account.balances.find((balance) => {
     if (balance.asset_type === 'credit_alphanum4' || balance.asset_type === 'credit_alphanum12') {
       return balance.asset_code === asset_code;
@@ -160,9 +163,7 @@ export async function SendAssets({
   if (!accBalance || parseFloat(accBalance.balance) < amount) {
     throw new Error('Balance is not enough to send the asset.');
   }
-  if (userPubKey === recipientId) {
-    throw new Error("You can't send asset to yourself");
-  }
+
   const receiverAccount = await server.loadAccount(recipientId);
   const hasTrust = receiverAccount.balances.find((balance) => {
     if (balance.asset_type === 'credit_alphanum4' || balance.asset_type === 'credit_alphanum12') {

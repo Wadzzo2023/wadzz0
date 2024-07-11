@@ -37,11 +37,11 @@ export function SinglePostView({ postId }: { postId: number }) {
     const postUrl = `/fans/posts/${post.data.id}`;
     // console.log("COMMNETSS", comments.data);
     return (
-      <div className="flex h-full   flex-col items-center  md:p-5">
+      <div className="flex h-full    flex-col items-center  md:p-5">
         <h2 className="mb-5 text-center text-2xl font-bold">
           Post by {post.data.creator.name}
         </h2>
-        <div className=" flex  w-full   rounded-box ">
+        <div className=" w-full  rounded-box ">
           <div className=" ">
             <div className="flex  w-full flex-col items-center justify-between ">
               {post.data.medias.length > 0 && (
@@ -57,9 +57,9 @@ export function SinglePostView({ postId }: { postId: number }) {
                 <div className="h-full w-full  overflow-auto">
                   <div
                     key={post.data.id}
-                    className="h-full  overflow-auto  rounded-none   shadow-xl scrollbar-hide"
+                    className="h-full  w-full  overflow-auto  rounded-none   shadow-xl scrollbar-hide"
                   >
-                    <div className="flex h-full flex-col overflow-auto pt-6 md:px-6">
+                    <div className="flex h-full w-full flex-col overflow-auto pt-6  md:px-6">
                       <div>
                         <div className="flex justify-between">
                           <div className="flex gap-2">
@@ -69,7 +69,10 @@ export function SinglePostView({ postId }: { postId: number }) {
                                 width={100}
                                 className="h-12 w-12 cursor-pointer rounded-full object-cover shadow"
                                 alt="User avatar"
-                                src={post.data.creator.profileUrl ?? ""}
+                                src={
+                                  post.data.creator.profileUrl ??
+                                  "/images/icons/avatar-icon.png"
+                                }
                               />
                             </div>
                             <div>
@@ -124,7 +127,6 @@ export function SinglePostView({ postId }: { postId: number }) {
                               <p className="font-bold">
                                 {post.data._count.likes}
                               </p>{" "}
-                              Loves
                             </Button>
                           )}
                         </div>
