@@ -77,8 +77,9 @@ model Subscription {
     creatorId String
     creator   Creator @relation(fields: [creatorId], references: [id])
 
-    posts  Post[]
-    assets Asset[]
+    posts    Post[]
+    assets   Asset[]
+    Location Location[]
 
     @@unique([name, creatorId])
 }
@@ -448,6 +449,9 @@ model Location {
 
     assetId Int?
     asset   Asset? @relation(fields: [assetId], references: [id], onDelete: Cascade)
+
+    tierId Int?
+    tier   Subscription? @relation(fields: [tierId], references: [id], onDelete: SetNull)
 
     pageAsset Boolean? @default(false)
 

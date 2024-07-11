@@ -2,7 +2,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import clsx from "clsx";
 import Image from "next/image";
 import React, { ChangeEvent, useState } from "react";
-import { SubmitHandler, useForm } from "react-hook-form";
+import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { match } from "ts-pattern";
 import { z } from "zod";
@@ -35,6 +35,7 @@ export const createPinFormSchema = z.object({
   pinNumber: z.number().nonnegative().min(1),
   radius: z.number().nonnegative(),
   pinCollectionLimit: z.number().min(0),
+  tier: z.string().optional(),
 });
 
 export default function CreatePinModal({
@@ -76,6 +77,8 @@ export default function CreatePinModal({
 
   // query
   const assets = api.fan.asset.myAssets.useQuery(undefined, {});
+  const tiers = api.fan.member.getAllMembership.useQuery();
+
   const assetsDropdown = match(assets)
     .with(success, () => {
       const pageAsset = assets.data?.pageAsset;
@@ -111,6 +114,34 @@ export default function CreatePinModal({
     .with(loading, (data) => <p>Loading...</p>)
     .with(error, (data) => <p>{data.failureReason?.message}</p>)
     .otherwise(() => <p>Failed to fetch assets</p>);
+
+  function TiersOptions() {
+    if (tiers.isLoading) return <div className="skeleton h-10 w-20"></div>;
+    if (tiers.data) {
+      return (
+        <Controller
+          name="tier"
+          control={control}
+          render={({ field }) => (
+            <select {...field} className="select select-bordered ">
+              <option selected disabled>
+                Choose Tier
+              </option>
+              <option selected disabled>
+                Public
+              </option>
+              {tiers.data.map((model) => (
+                <option
+                  key={model.id}
+                  value={model.id}
+                >{`${model.name} - ${model.price}`}</option>
+              ))}
+            </select>
+          )}
+        />
+      );
+    }
+  }
 
   // mutations
   const addPinM = api.maps.pin.createPin.useMutation({
@@ -207,6 +238,7 @@ export default function CreatePinModal({
             <div className="flex flex-col space-y-4">
               <ManualLatLanInputField />
               {/* <AssetTypeTab /> */}
+              <TiersOptions />
               <div className="flex justify-between">
                 {assetsDropdown}
                 {selectedToken && <TokenInStorage bal={selectedToken.bal} />}

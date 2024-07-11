@@ -255,6 +255,9 @@ function NftCreateForm({
               <option selected disabled>
                 Choose Tier
               </option>
+              <option selected disabled>
+                Public
+              </option>
               {tiers.data.map((model) => (
                 <option
                   key={model.id}
