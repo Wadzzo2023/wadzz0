@@ -6,6 +6,9 @@ import { loading, empty, error, success } from "~/utils/trcp/patterns";
 import BuyOfferDialog from "./buy-offer-dialog";
 
 export default function TradeMarket() {
+  return (
+    <div className="flex h-full items-center justify-center"> Coming Soon</div>
+  );
   const offers = api.marketplace.trade.getOffers.useQuery();
   const offerC = match(offers)
     .with(loading, () => <div>Loading...</div>)
