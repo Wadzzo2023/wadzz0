@@ -4,6 +4,7 @@ export enum MarketMenu {
   Wallate = "Bandcoin Curated",
   Music = "Music",
   FanAsset = "Fan Asset",
+  Trade = "Trade",
 }
 
 interface MarketMenurState {

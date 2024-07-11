@@ -1,7 +1,14 @@
 import { create } from "zustand";
 import { type Location, type LocationConsumer } from "@prisma/client";
 
-export type ModalType = "send assets" | "receive assets" | "add assets" | "map" | "copied" | "claim pin";
+export type ModalType =
+  | "send assets"
+  | "receive assets"
+  | "add assets"
+  | "map"
+  | "copied"
+  | "claim pin"
+  | "nft create";
 
 interface ModalData {
   pinId?: number;
@@ -13,7 +20,7 @@ interface ModalData {
   mapTitle?: string;
   mapDescription?: string | null;
   location?: Location;
-  locationConsumer?: LocationConsumer
+  locationConsumer?: LocationConsumer;
 }
 
 interface ModalStore {
