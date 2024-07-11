@@ -73,7 +73,10 @@ export default function CreateTrade() {
               asset.asset_type == "credit_alphanum12"
             ) {
               return (
-                <SelectItem value={`${asset.asset_code}-${asset.asset_issuer}`}>
+                <SelectItem
+                  key={`${asset.asset_code}-${asset.asset_issuer}`}
+                  value={`${asset.asset_code}-${asset.asset_issuer}`}
+                >
                   {asset.asset_code}
                 </SelectItem>
               );

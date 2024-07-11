@@ -15,7 +15,7 @@ export default function TradeMarket() {
       return (
         <ul>
           {data.data?.records.map((el) => (
-            <li>
+            <li key={el.id}>
               {el.id} <BuyOfferDialog offerId={el.id} />
             </li>
           ))}
