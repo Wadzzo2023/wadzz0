@@ -32,4 +32,9 @@ export const adminRouter = createTRPCRouter({
     const admins = await ctx.db.admin.findMany();
     return admins;
   }),
+  deleteAdmin: adminProcedure
+    .input(z.string().length(56))
+    .mutation(async ({ input, ctx }) => {
+      return await ctx.db.admin.delete({ where: { id: input } });
+    }),
 });
