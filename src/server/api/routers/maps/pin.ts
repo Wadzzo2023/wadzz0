@@ -29,7 +29,10 @@ export const pinRouter = createTRPCRouter({
         tokenAmount: totalTokenAmount,
         token: tokenId,
         image,
+        tier,
       } = input;
+
+      const tierId = tier ? Number(tier) : undefined;
 
       let assetId = tokenId;
       let pageAsset: boolean;
@@ -142,7 +145,7 @@ export const pinRouter = createTRPCRouter({
   }),
 
   claimAPin: protectedProcedure
-    .input(z.object({ id: z.string()  }))
+    .input(z.object({ id: z.string() }))
     .mutation(async ({ ctx, input }) => {
       const { id } = input;
 

@@ -32,23 +32,15 @@ export default function PinsList() {
   if (pins.error) return <div>Error: {pins.error.message}</div>;
 
   return (
-    <div className="overflow-x-auto">
+    <div className="overflow-x-auto bg-base-100">
       <table className="table table-zebra">
         <thead>
           <tr>
-            <th>
-              {/* <label>
-                    <input
-                      type="checkbox"
-                      className="checkbox"
-                      onChange={handleClickChange}
-                    />
-                  </label> */}
-            </th>
             <th></th>
-            <th>Name</th>
-            <th>Job</th>
-            <th>Favorite Color</th>
+            <th>ID</th>
+            <th>title</th>
+            <th>CreatorId</th>
+            <th>Description</th>
           </tr>
         </thead>
         <tbody>
@@ -72,31 +64,33 @@ export default function PinsList() {
           ))}
         </tbody>
       </table>
-      <div className="flex w-full py-4">
-        <div className="flex w-full items-end justify-end gap-4">
-          <button
-            className="btn btn-primary"
-            onClick={() => {
-              aproveM.mutate({ pins: selectedPins, approved: true });
-              toast("Selected Pins: " + selectedPins.join(", "));
-            }}
-            disabled={selectedPins.length === 0 || aproveM.isLoading}
-          >
-            <Check />
-            Aprove
-          </button>
-          <button
-            onClick={() =>
-              aproveM.mutate({ pins: selectedPins, approved: false })
-            }
-            className="btn btn-error"
-            disabled={selectedPins.length === 0 || aproveM.isLoading}
-          >
-            <X />
-            Reject
-          </button>
+      {pins.data.length > 0 && (
+        <div className="flex w-full py-4">
+          <div className="flex w-full items-end justify-end gap-4">
+            <button
+              className="btn btn-primary"
+              onClick={() => {
+                aproveM.mutate({ pins: selectedPins, approved: true });
+                toast("Selected Pins: " + selectedPins.join(", "));
+              }}
+              disabled={selectedPins.length === 0 || aproveM.isLoading}
+            >
+              <Check />
+              Aprove
+            </button>
+            <button
+              onClick={() =>
+                aproveM.mutate({ pins: selectedPins, approved: false })
+              }
+              className="btn btn-error"
+              disabled={selectedPins.length === 0 || aproveM.isLoading}
+            >
+              <X />
+              Reject
+            </button>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

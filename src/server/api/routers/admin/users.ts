@@ -14,4 +14,11 @@ export const userRouter = createTRPCRouter({
   getSecretMessage: protectedProcedure.query(() => {
     return "you can now see this secret message!";
   }),
+  deleteUser: adminProcedure.input(z.string()).mutation(({ ctx, input }) => {
+    return ctx.db.user.delete({ where: { id: input } });
+  }),
+
+  deleteAPost: adminProcedure.input(z.number()).mutation(({ ctx, input }) => {
+    return ctx.db.post.delete({ where: { id: input } });
+  }),
 });

@@ -1,4 +1,3 @@
-import { MarketType } from "@prisma/client";
 import { useMarketRightStore } from "~/lib/state/marketplace/right";
 import { useRightStore } from "~/lib/state/wallete/right";
 import { useTagStore } from "~/lib/state/wallete/tag";

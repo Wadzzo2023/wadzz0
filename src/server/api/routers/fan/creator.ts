@@ -218,10 +218,27 @@ export const creatorRouter = createTRPCRouter({
         if (bal) {
           return { balance: bal.balance, asset: creatorPageAsset.code };
         } else {
-          throw new Error("page asset not exist in storage account");
+          return { balance: 0, asset: creatorPageAsset.code };
         }
       } else {
-        throw new Error("creator has no page asset");
+        if (creator.customPageAssetCodeIssuer) {
+          const [code, issuer] = creator.customPageAssetCodeIssuer.split("-");
+          const assetCode = z.string().max(12).min(1).parse(code);
+          const assetIssuer = z.string().length(56).safeParse(issuer);
+          if (assetIssuer.success === false) throw new Error("invalid issuer");
+
+          const bal = await getAssetBalance({
+            pubkey: creatorStoragePub,
+            code: assetCode,
+            issuer: assetIssuer.data,
+          });
+
+          if (bal) {
+            return { balance: bal.balance, asset: assetCode };
+          } else {
+            throw new Error("Invalid asset code or issuer");
+          }
+        } else throw new Error("creator has no page asset");
       }
     },
   ),

@@ -80,6 +80,9 @@ const config: Config = {
       },
     },
   },
+  daisyui: {
+    themes: ["light"],
+  },
   plugins: [
     require("tailwindcss-animate"),
     require("tailwind-scrollbar-hide"),

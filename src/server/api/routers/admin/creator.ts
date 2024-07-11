@@ -11,6 +11,12 @@ export const creatorRouter = createTRPCRouter({
     return creators;
   }),
 
+  deleteCreator: adminProcedure
+    .input(z.string())
+    .mutation(async ({ ctx, input }) => {
+      return ctx.db.creator.delete({ where: { id: input } });
+    }),
+
   creatorAction: adminProcedure
     .input(z.object({ status: z.boolean().nullable(), creatorId: z.string() }))
     .mutation(async ({ ctx, input }) => {

@@ -1,5 +1,7 @@
 import React from "react";
+import toast from "react-hot-toast";
 import { api } from "~/utils/api";
+import { Button } from "../shadcn/ui/button";
 
 export default function UserList() {
   const users = api.admin.user.getUsers.useQuery();
@@ -9,7 +11,7 @@ export default function UserList() {
 
   return (
     <div>
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto bg-base-100">
         <table className="table table-zebra">
           {/* head */}
           <thead>
@@ -28,10 +30,7 @@ export default function UserList() {
                   <td>{u.id}</td>
                   <td>{u.bio}</td>
                   <td>
-                    {/* <ActionButton
-                      creatorId={u.id}
-                      status={u.approved}
-                    /> */}
+                    <DeleteUserButton user={u.id} />
                   </td>
                 </tr>
               );
@@ -40,5 +39,23 @@ export default function UserList() {
         </table>
       </div>
     </div>
+  );
+}
+
+function DeleteUserButton({ user }: { user: string }) {
+  const deleteUser = api.admin.user.deleteUser.useMutation({
+    onSuccess: () => toast.success("User deleted"),
+  });
+  return (
+    <Button
+      onClick={() => {
+        deleteUser.mutate(user);
+      }}
+    >
+      {deleteUser.isLoading && (
+        <span className="loading loading-spinner"></span>
+      )}
+      Delete
+    </Button>
   );
 }

@@ -96,6 +96,7 @@ export function CreatPost() {
               <option selected disabled>
                 Choose Subscription Model
               </option>
+              <option>Public</option>
               {tiers.data.map((model) => (
                 <option
                   key={model.id}

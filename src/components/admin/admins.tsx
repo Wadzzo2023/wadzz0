@@ -1,5 +1,7 @@
 import React from "react";
 import { api } from "~/utils/api";
+import { Button } from "../shadcn/ui/button";
+import toast from "react-hot-toast";
 
 export default function AdminsList() {
   const admins = api.wallate.admin.admins.useQuery();
@@ -14,12 +16,16 @@ export default function AdminsList() {
               <th></th>
               <th>PUBKEY</th>
               <th>Created At</th>
+              <th>Action</th>
             </tr>
             {admins.data.map((admin, i) => (
               <tr key={i}>
                 <td>{i + 1}</td>
                 <td>{admin.id}</td>
                 <td>{admin.joinedAt.getFullYear()}</td>
+                <td>
+                  <DeleteAdminButton admin={admin.id} />
+                </td>
               </tr>
             ))}
           </thead>
@@ -27,4 +33,22 @@ export default function AdminsList() {
         </table>
       </div>
     );
+}
+
+function DeleteAdminButton({ admin }: { admin: string }) {
+  const deleteAdmin = api.wallate.admin.deleteAdmin.useMutation({
+    onSuccess: () => toast.success("Admin deleted"),
+  });
+  return (
+    <Button
+      onClick={() => {
+        deleteAdmin.mutate(admin);
+      }}
+    >
+      {deleteAdmin.isLoading && (
+        <span className="loading loading-spinner"></span>
+      )}
+      Delete
+    </Button>
+  );
 }
