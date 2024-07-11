@@ -2,23 +2,17 @@ import { NotificationType } from "@prisma/client";
 import { z } from "zod";
 import { PostSchema } from "~/components/fan/creator/CreatPost";
 import { CommentSchema } from "~/components/fan/post/add-comment";
-import NotificationPage from "~/pages/fans/notifications";
 
 import {
   createTRPCRouter,
   protectedProcedure,
   publicProcedure,
 } from "~/server/api/trpc";
-import { NotificationEntity } from "~/utils/notificationConfig";
 
 export const postRouter = createTRPCRouter({
   create: protectedProcedure
     .input(PostSchema)
     .mutation(async ({ ctx, input }) => {
-      // simulate a slow db call
-
-      console.log("media", input.medias);
-
       const post = await ctx.db.post.create({
         data: {
           heading: input.heading,
@@ -29,10 +23,10 @@ export const postRouter = createTRPCRouter({
             : null,
           medias: input.medias
             ? {
-              createMany: {
-                data: input.medias,
-              },
-            }
+                createMany: {
+                  data: input.medias,
+                },
+              }
             : undefined,
         },
       });
