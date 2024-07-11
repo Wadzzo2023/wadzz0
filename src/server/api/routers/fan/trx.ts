@@ -219,6 +219,20 @@ export const trxRouter = createTRPCRouter({
         });
         return xdr;
       } else {
+        if (creator.customPageAssetCodeIssuer) {
+          const [code, issuer] = creator.customPageAssetCodeIssuer.split("-");
+          const issuerVal = z.string().length(56).safeParse(issuer);
+          if (issuerVal.success && code) {
+            const xdr = await follow_creator({
+              creatorPageAsset: { code, issuer: issuerVal.data },
+              userPubkey: userId,
+              signWith,
+            });
+            return xdr;
+          } else {
+            throw new Error("Issuer is invalid");
+          }
+        }
         throw new Error("creator has no page asset");
       }
     }),
