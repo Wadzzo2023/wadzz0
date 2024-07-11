@@ -57,6 +57,7 @@ export async function trustCustomPageAsset({
     .addOperation(
       Operation.changeTrust({
         asset,
+        source: creatorStorageAcc.publicKey(),
       }),
     )
     .setTimeout(0);
