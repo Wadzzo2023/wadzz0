@@ -2,12 +2,14 @@ import React from "react";
 import toast from "react-hot-toast";
 import { Button } from "~/components/shadcn/ui/button";
 import { api } from "~/utils/api";
+import PostDeleteComponent from "../post";
 
 export default function CreatorPage() {
   return (
     <div>
       <h2 className="text-lg font-bold">Creators</h2>
       <Creators />
+      <PostDeleteComponent />
     </div>
   );
 }
