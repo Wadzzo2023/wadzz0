@@ -9,6 +9,7 @@ import NftCreate from "~/components/marketplace/nft_create";
 import MarketAssetComponent from "~/components/marketplace/market_asset";
 import ViewMediaModal from "../shop/asset_view_modal";
 import ShopAssetComponent from "../shop/shop_asset";
+import { MoreAssetsSkeleton } from "~/components/marketplace/platforms_nfts";
 
 export default function Shop({ creator }: { creator?: Creator }) {
   return (
@@ -23,7 +24,7 @@ export default function Shop({ creator }: { creator?: Creator }) {
 
 function AllShopItems() {
   const assets = api.marketplace.market.getACreatorNfts.useInfiniteQuery(
-    { limit: 4 },
+    { limit: 10 },
     {
       getNextPageParam: (lastPage) => lastPage.nextCursor,
     },
@@ -32,25 +33,30 @@ function AllShopItems() {
   // const toggleVisibility =
   //   api.marketplace.market.toggleVisibilityMarketNft.useMutation();
 
-  if (assets.isLoading) return <span className="loading loading-spinner" />;
+  if (assets.isLoading)
+    return (
+      <MoreAssetsSkeleton className="grid grid-cols-2 gap-2 md:grid-cols-4 lg:grid-cols-5" />
+    );
 
   if (assets.data) {
     return (
-      <div
-        style={{
-          scrollbarGutter: "stable",
-        }}
-        className="main-asset-area"
-      >
-        {assets.data.pages.map((page) =>
-          page.nfts.map((item, i) => (
-            <ViewMediaModal
-              key={i}
-              item={item}
-              content={<ShopAssetComponent key={i} item={item} />}
-            />
-          )),
-        )}
+      <div className="p-2">
+        <div
+          style={{
+            scrollbarGutter: "stable",
+          }}
+          className="grid grid-cols-2 gap-2 md:grid-cols-4 lg:grid-cols-5"
+        >
+          {assets.data.pages.map((page) =>
+            page.nfts.map((item, i) => (
+              <ViewMediaModal
+                key={i}
+                item={item}
+                content={<ShopAssetComponent key={i} item={item} />}
+              />
+            )),
+          )}
+        </div>
         {assets.hasNextPage && (
           <button
             className="btn btn-outline btn-primary"

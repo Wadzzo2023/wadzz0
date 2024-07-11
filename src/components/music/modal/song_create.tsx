@@ -139,7 +139,7 @@ export default function SongCreate({ albumId }: { albumId: number }) {
       setUploading(true);
       const formData = new FormData();
       formData.append("file", fileToUpload, fileToUpload.name);
-      console.log("formData", fileToUpload);
+      // console.log("formData", fileToUpload);
       const res = await fetch("/api/file", {
         method: "POST",
         body: formData,
@@ -381,7 +381,7 @@ export default function SongCreate({ albumId }: { albumId: number }) {
                       <label className="label">
                         <span className="label-text">Price in USD</span>
                         <span className="label-text-alt">
-                          Default price is 2$
+                          Default price is $2
                         </span>
                       </label>
                       <input

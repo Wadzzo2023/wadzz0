@@ -91,7 +91,7 @@ export default function BuyModal({
               <p className="font-bold">
                 Price: {price} {PLATFROM_ASSET.code}
               </p>
-              <p className="font-bold">Price in USD: {priceUSD}$</p>
+              <p className="font-bold">Price in USD : ${priceUSD}</p>
               <p className="text-sm">
                 Copies available: {copy.data ?? "loading..."}
               </p>

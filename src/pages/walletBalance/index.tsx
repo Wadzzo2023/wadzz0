@@ -43,7 +43,7 @@ const Wallets = () => {
   async function checkAccountActivity(publicKey: string) {
     setAccountActivateLoading(true);
     const isActive = await checkStellarAccountActivity(publicKey);
-    console.log("isActive", isActive);
+    // console.log("isActive", isActive);
     setAccountActivate(isActive);
     setAccountActivateLoading(false);
   }
@@ -66,7 +66,7 @@ const Wallets = () => {
   const checkStatus = useCallback(async () => {
     const user = session.data?.user;
     if (user) {
-      console.log("user", user);
+      // console.log("user", user);
       await checkAccountActivity(user.id);
     }
   }, [session]);
@@ -127,16 +127,9 @@ const Wallets = () => {
     return <div>Session not found</div>;
   }
   if (isAccountActivateLoading) {
-    const x = clientSelect();
-    let text = "";
-    if (x === true) {
-      text = "Fetching Data From Test Net";
-    } else {
-      text = "Fetching Data From Main Net";
-    }
     return (
       <div className="">
-        <Loading text={text} />
+        <Loading />
       </div>
     );
   }
@@ -206,13 +199,13 @@ const Wallets = () => {
                           {platformBalance?.toString() === "0.0000000"
                             ? "0"
                             : platformBalance?.toString()}{" "}
-                          <span className="text-lg">Wadzzo</span>
+                          <span className="text-lg">{PLATFROM_ASSET.code}</span>
                         </h1>
                       </>
                     ) : (
                       <>
                         <h1 className="text-xl text-red-500 ">
-                          You haven{"'"}t trust to Wadzzo yet !
+                          `You haven{"'"}t trust to {PLATFROM_ASSET.code} yet !`
                           <br />
                           <button
                             onClick={handleSubmit}

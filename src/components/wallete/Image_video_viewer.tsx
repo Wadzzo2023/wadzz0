@@ -50,11 +50,14 @@ export default function ImageVideViewer({
     <Image
       // fill
       // sizes={sizes ?? "100"}
-      height={100}
-      width={100}
+      height={1000}
+      width={1000}
       alt={code}
       style={{
         backgroundColor: color ?? undefined,
+        height: "100%",
+
+        width: "100%",
       }}
       className={twMerge("rounded-full p-2", className)}
       src={url}
@@ -73,8 +76,8 @@ export function ThumbNailView(props: { thumbnailUrl: string }) {
       <Image
         // fill
         // sizes={sizes ?? "100"}
-        height={100}
-        width={100}
+        height={1000}
+        width={1000}
         alt={code}
         style={{
           backgroundColor: color ?? undefined,

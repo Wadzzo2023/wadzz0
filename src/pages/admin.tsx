@@ -37,7 +37,10 @@ function RenderTabs() {
       return (
         <div className="min-w-xl p-4">
           <h2 className="mb-5 text-lg font-bold">Add Admin NFTs</h2>
-          <p>This nfts will be created with platform mother acount</p>
+          <p>
+            These NFTs will be created with the Bandcoin (or wadzzo) Admin
+            account
+          </p>
           <NftCreate admin />
         </div>
       );

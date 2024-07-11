@@ -21,7 +21,7 @@ export const gameRouter = createTRPCRouter({
         token: sessionToken,
         secret: env.NEXTAUTH_SECRET ?? "",
       });
-      console.log(decoded);
+      // console.log(decoded);
       return decoded;
     }),
 });

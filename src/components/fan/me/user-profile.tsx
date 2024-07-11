@@ -45,7 +45,7 @@ export default function About() {
     return (
       <div className="flex  flex-col items-center ">
         {/* <h2 className="text-2xl font-bold">About</h2> */}
-        <div className="my-5 w-96 rounded-box bg-base-200">
+        <div className="my-5  w-96 rounded-box  bg-base-200">
           <AboutForm user={user.data} />
         </div>
       </div>
@@ -185,7 +185,7 @@ function AboutForm({ user }: { user: User }) {
                 <Pen size={14} className="mr-2" /> Edit profile
               </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-md">
+            <DialogContent className="max-h-full overflow-auto sm:max-w-md">
               <DialogHeader>
                 <DialogTitle>Edit Profile</DialogTitle>
                 <DialogDescription>

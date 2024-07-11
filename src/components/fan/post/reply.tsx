@@ -7,12 +7,10 @@ import ContextMenu from "../../ui/context-menu";
 import { api } from "~/utils/api";
 import Image from "next/image";
 import { Button } from "~/components/shadcn/ui/button";
-import { AddReplyComment } from "./add-reply";
-import ReplyCommentView from "./reply";
+import Link from "next/link";
 
-export default function CommentView({
+export default function ReplyCommentView({
   comment,
-  childrenComments,
 }: {
   comment: Comment & {
     user: {
@@ -20,18 +18,12 @@ export default function CommentView({
       image: string | null;
     };
   };
-  childrenComments: ({
-    user: {
-      name: string | null;
-      image: string | null;
-    };
-  } & Comment)[];
 }) {
-  const [replyBox, setReplyBox] = useState<boolean>(false);
+  console.log("REPLY COMMENT", comment);
 
   return (
-    <div className="flex w-full items-start justify-between ">
-      <div className="flex w-full gap-2">
+    <div className="flex justify-between ">
+      <div className="flex gap-2">
         <div className="h-auto w-auto rounded-full">
           <Image
             height={100}
@@ -41,8 +33,10 @@ export default function CommentView({
             src={comment.user.image ?? "/images/icons/avatar-icon.png"}
           />
         </div>
-        <div className="flex w-full flex-col items-start">
-          <h2 className="font-bold">{comment.user.name}</h2>
+        <div className="flex flex-col items-start">
+          <Link href={`/fans/creator/${comment.userId}`} className="font-bold">
+            {comment.user.name}
+          </Link>
           {/* <p>{comment.content}</p> */}
           {comment.content.length > 50 ? (
             <ShowMore content={comment.content} />
@@ -50,33 +44,7 @@ export default function CommentView({
             <p>{comment.content}</p>
           )}
 
-          <p className="text-gray-400">
-            {formatPostCreatedAt(comment.createdAt)}
-          </p>
-
-          <Button
-            onClick={() => setReplyBox((prev) => !prev)}
-            variant="link"
-            className="m-0 p-0"
-          >
-            Reply
-          </Button>
-          {
-            <div className="flex w-full flex-col">
-              {replyBox && (
-                <AddReplyComment
-                  parentId={comment.id}
-                  postId={comment.postId}
-                />
-              )}
-            </div>
-          }
-          <div className="mt-2 w-full">
-            {childrenComments.length > 0 &&
-              childrenComments.map((comment) => (
-                <ReplyCommentView key={comment.id} comment={comment} />
-              ))}
-          </div>
+          <p className="">{formatPostCreatedAt(comment.createdAt)}</p>
         </div>
       </div>
       <div className="flex gap-2">

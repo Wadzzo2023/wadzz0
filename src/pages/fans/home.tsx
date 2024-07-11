@@ -29,14 +29,14 @@ function AuthShowcase() {
   const { data, status } = useSession();
   // if (status == "authenticated") return <div>{data.user.id}</div>;
   return (
-    <div className="p-5">
-      <h1 className="flex items-center justify-center rounded-md  bg-base-200 py-3 text-center text-2xl font-bold shadow-md">
+    <div className="w-full">
+      <h1 className="bg-base-150 flex items-center justify-center  rounded-md py-3 text-center text-2xl font-bold shadow-md">
         News Feed
       </h1>
       {/* <div className="flex flex-col items-center">
         <CreatorSecret />
       </div> */}
-      <div className="mt-10 flex flex-col items-center">
+      <div className="mt-10 flex w-full flex-col items-center">
         <AllRecentPost />
       </div>
     </div>
@@ -100,7 +100,7 @@ function AllRecentPost() {
                     return false;
                   } else return true;
                 })()}
-                media={post.medias.length > 0 ? post.medias[0] : undefined}
+                media={post.medias ? post.medias : []}
               />
             ))}
           </>

@@ -23,11 +23,7 @@ export default async function handler(
   try {
     const session = await getSession({ req });
 
-    if (session) {
-      console.log(session.user);
-    } else {
-      console.log("no session");
-    }
+
 
     const delay = (time: number) =>
       new Promise((resolve) => setTimeout(resolve, time));

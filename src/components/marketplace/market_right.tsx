@@ -273,6 +273,8 @@ function ThumbNailView(props: { name: string; thumbnailUrl: string }) {
   return (
     <div className="relative m-8 w-full">
       <ImageVideViewer
+        sizes="100%"
+        className="h-full w-full"
         code={name}
         color={"blue"}
         url={thumbnailUrl}

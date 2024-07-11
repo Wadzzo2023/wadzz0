@@ -36,14 +36,14 @@ function MyStorageAsset() {
   const { setData } = useAssetRightStore();
   const acc = api.wallate.acc.getCreatorStorageInfo.useQuery();
 
-  if (acc.isLoading) return <MoreAssetsSkeleton />;
+  if (acc.isLoading) return <MoreAssetsSkeleton className="flex gap-2" />;
   if (acc.data)
     return (
       <div
         style={{
           scrollbarGutter: "stable",
         }}
-        className="main-asset-area"
+        className="main-asset-area flex gap-2"
       >
         {acc.data.dbAssets.map((asset, i) => {
           return (
@@ -77,14 +77,14 @@ function MyAssets() {
   const { setData } = useAssetRightStore();
   const pop = usePopUpState();
 
-  if (acc.isLoading) return <MoreAssetsSkeleton />;
+  if (acc.isLoading) return <MoreAssetsSkeleton className="flex gap-2" />;
   if (acc.data)
     return (
       <div
         style={{
           scrollbarGutter: "stable",
         }}
-        className="main-asset-area"
+        className="main-asset-area flex gap-2"
       >
         {acc.data.dbAssets.map((asset, i) => {
           // if (asset.copies > 0)

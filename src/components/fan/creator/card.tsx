@@ -19,28 +19,61 @@ export default function MemberShipCard({
   priority?: number;
 }) {
   return (
-    <div className={clsx("card w-48 bg-base-100  pb-10 shadow-xl", className)}>
-      <div className={clsx("h-20  ", getCardStyle(priority))}>
-        <EditTierModal item={subscription} />
-      </div>
-      <div className="card-body p-2">
-        <div className="card-title">
-          <div className="flex w-full justify-between">
-            <h2 className="text-2xl font-bold">
+    <div className=" m-4 flex    flex-col justify-between rounded border bg-white p-2 shadow-sm">
+      <div className="mb-6">
+        <div className="mb-6 flex items-center justify-between border-b pb-2">
+          <div>
+            <p className="text-sm font-bold uppercase tracking-wider">
+              Price : {subscription.price}
+            </p>
+            <p className="text-3xl font-extrabold">
               {subscription.name.toLocaleUpperCase()}
-            </h2>
+            </p>
+          </div>
+          <div className="bg-blue-gray-50 flex h-24 w-24 items-center justify-center rounded-full">
             <div
               className={clsx("badge  text-center", getBageStyle(priority))}
             ></div>
           </div>
         </div>
-        <h2 className=" text-2xl">{subscription.price}</h2>
         <div className="">{children}</div>
-        <div className="py-4">
-          <h4 className="text-lg font-bold">Include</h4>
-          {/* <p>{subscription.features}</p> */}
-          <Preview value={subscription.features} />
+        <div>
+          <p className="mb-2 font-bold tracking-wide">Features</p>
+          <ul className="space-y-2">
+            <li className="flex items-center">
+              <div className="">
+                <svg
+                  className="h-4 w-4 text-purple-600"
+                  viewBox="0 0 24 24"
+                  stroke-linecap="round"
+                  strokeWidth="2"
+                >
+                  <polyline
+                    fill="none"
+                    stroke="currentColor"
+                    points="6,12 10,16 18,8"
+                  ></polyline>
+                  <circle
+                    cx="12"
+                    cy="12"
+                    fill="none"
+                    r="11"
+                    stroke="currentColor"
+                  ></circle>
+                </svg>
+              </div>
+              <p className="font-medium text-gray-800">
+                <Preview value={subscription.features} />
+              </p>
+              <EditTierModal item={subscription} />
+            </li>
+          </ul>
         </div>
+      </div>
+      <div>
+        <p className="text-sm text-gray-600">
+          Forever free plan. Feature availablity subject to change.
+        </p>
       </div>
     </div>
   );
@@ -60,8 +93,8 @@ export function getBageStyle(priority?: number) {
   if (priority === 3) return "badge-accent";
 }
 export function getColor(priority?: number) {
-  if (!priority) return "primary";
-  if (priority === 1) return "primary";
-  if (priority === 2) return "secondary";
-  if (priority === 3) return "accent";
+  if (!priority) return "bg-primary";
+  if (priority === 1) return "bg-primary";
+  if (priority === 2) return "bg-secondary";
+  if (priority === 3) return "bg-accent";
 }

@@ -14,10 +14,10 @@ export default function CreatorsPost() {
   const creator = api.fan.creator.meCreator.useQuery();
   if (creator.data)
     return (
-      <div className="h-screen p-5">
+      <div className="h-screen p-0 md:p-5">
         <h2 className="mb-5 text-center text-2xl font-bold">Contents</h2>
 
-        <div className=" flex flex-col items-center justify-center">
+        <div className=" flex w-full flex-col items-center justify-center">
           <CreateTabs />
           <div className="mb-20 mt-10 flex w-full items-center">
             <RenderTabs />
@@ -56,7 +56,7 @@ function CreateTabs() {
   return (
     <Tabs
       defaultValue={selectedMenu ? selectedMenu : menuItems[0]}
-      className=""
+      className="w-full px-2  md:w-1/2"
     >
       <TabsList className={clsx("grid w-full", gridColsClass)}>
         {menuItems.map((key) => (

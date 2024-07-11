@@ -23,7 +23,7 @@ const ReceiveAssetsModal = () => {
   if (!session?.data?.user?.id) {
     return <div>Public Key not found</div>;
   }
-  console.log(router.pathname);
+  // console.log(router.pathname);
   const url = `https://app.wadzzo.com${router.pathname}?id=${session?.data?.user?.id}`;
   return (
     <>
