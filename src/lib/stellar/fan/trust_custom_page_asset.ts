@@ -29,7 +29,7 @@ export async function trustCustomPageAsset({
   const asset = new Asset(code, issuer);
 
   // const motherAccount = Keypair.fromSecret(env.MOTHER_SECRET);
-  const distributorAcc = Keypair.fromSecret(env.STORAGE_SECRET);
+  const motherAcc = Keypair.fromSecret(env.MOTHER_SECRET);
   const creatorStorageAcc = Keypair.fromSecret(storageSecret);
 
   const transactionInializer = await server.loadAccount(creator);
@@ -42,7 +42,7 @@ export async function trustCustomPageAsset({
   Tx1.addOperation(
     Operation.payment({
       amount: requiredPlatformAsset,
-      destination: distributorAcc.publicKey(),
+      destination: motherAcc.publicKey(),
       asset: PLATFROM_ASSET,
     }),
   )
@@ -51,7 +51,7 @@ export async function trustCustomPageAsset({
         amount: "0.5",
         asset: Asset.native(),
         destination: creatorStorageAcc.publicKey(),
-        source: distributorAcc.publicKey(),
+        source: motherAcc.publicKey(),
       }),
     )
     .addOperation(
@@ -63,7 +63,7 @@ export async function trustCustomPageAsset({
     .setTimeout(0);
 
   const buildTrx = Tx1.build();
-  buildTrx.sign(creatorStorageAcc, distributorAcc);
+  buildTrx.sign(creatorStorageAcc, motherAcc);
 
   const xdr = buildTrx.toXDR();
 

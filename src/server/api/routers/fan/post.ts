@@ -217,23 +217,23 @@ export const postRouter = createTRPCRouter({
           data: { userId, postId },
         });
         // create notification
-        void ctx.db.post
-          .findUnique({ where: { id: postId }, select: { creatorId: true } })
-          .then(async (creator) => {
-            if (creator) {
-              await ctx.db.notificationObject.create({
-                data: {
-                  actorId: userId,
-                  entityId: postId,
-                  entityType: NotificationType.LIKE,
-                  Notification: {
-                    create: [{ notifierId: creator.creatorId }],
-                  },
-                },
-              });
-            }
-          })
-          .catch(console.error);
+        // void ctx.db.post
+        //   .findUnique({ where: { id: postId }, select: { creatorId: true } })
+        //   .then(async (creator) => {
+        //     if (creator) {
+        //       await ctx.db.notificationObject.create({
+        //         data: {
+        //           actorId: userId,
+        //           entityId: postId,
+        //           entityType: NotificationType.LIKE,
+        //           Notification: {
+        //             create: [{ notifierId: creator.creatorId }],
+        //           },
+        //         },
+        //       });
+        //     }
+        //   })
+        //   .catch(console.error);
 
         return like;
       }
@@ -310,25 +310,25 @@ export const postRouter = createTRPCRouter({
         });
       }
       // create notification
-      void ctx.db.post
-        .findUnique({
-          where: { id: input.postId },
-          select: { creatorId: true },
-        })
-        .then(async (creator) => {
-          creator &&
-            (await ctx.db.notificationObject.create({
-              data: {
-                actorId: ctx.session.user.id,
-                entityId: input.postId,
-                entityType: NotificationType.COMMENT,
-                Notification: {
-                  create: [{ notifierId: creator.creatorId }],
-                },
-              },
-            }));
-        })
-        .catch(console.error);
+      // void ctx.db.post
+      //   .findUnique({
+      //     where: { id: input.postId },
+      //     select: { creatorId: true },
+      //   })
+      //   .then(async (creator) => {
+      //     creator &&
+      //       (await ctx.db.notificationObject.create({
+      //         data: {
+      //           actorId: ctx.session.user.id,
+      //           entityId: input.postId,
+      //           entityType: NotificationType.COMMENT,
+      //           Notification: {
+      //             create: [{ notifierId: creator.creatorId }],
+      //           },
+      //         },
+      //       }));
+      //   })
+      //   .catch(console.error);
       return comment;
     }),
 
