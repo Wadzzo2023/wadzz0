@@ -86,7 +86,7 @@ function CreatorAssetView({ creator }: { creator: Creator }) {
         </div>
       );
     else {
-      return <p>"Issuer is invalid"</p>;
+      return <p>Issuer is invalid</p>;
     }
   }
 
