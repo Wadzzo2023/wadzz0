@@ -79,7 +79,7 @@ model Subscription {
     price    Float // here price is the copy of creator page asset
 
     creatorId String
-    creator   Creator @relation(fields: [creatorId], references: [id])
+    creator   Creator @relation(fields: [creatorId], references: [id], onDelete: Cascade)
 
     posts    Post[]
     assets   Asset[]
@@ -111,7 +111,7 @@ model Comment {
     content         String // Content of the comment
 
     // Optional relationship: a comment can have a parent comment
-    parentComment Comment? @relation("ChildComments", fields: [parentCommentID], references: [id])
+    parentComment Comment? @relation("ChildComments", fields: [parentCommentID], references: [id], onDelete: Cascade)
 
     createdAt DateTime @default(now()) // Timestamp when the comment was created
 
@@ -209,7 +209,7 @@ model Post {
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 
-    creator   Creator @relation(fields: [creatorId], references: [id])
+    creator   Creator @relation(fields: [creatorId], references: [id], onDelete: Cascade)
     creatorId String
 
     subscription   Subscription? @relation(fields: [subscriptionId], references: [id])
