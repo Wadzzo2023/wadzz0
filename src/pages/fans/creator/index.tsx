@@ -169,8 +169,8 @@ function CreateCreator({ requiredToken }: { requiredToken: number }) {
     <div className="flex h-full flex-col items-center justify-center gap-2 ">
       <p className="text-2xl font-bold">You are not a brand</p>
       <p className="alert alert-info max-w-xl text-center">
-        Your account should have minimum {requiredToken} {PLATFROM_ASSET.code}{" "}
-        to be a brand.
+        Your account will be charged {requiredToken} {PLATFROM_ASSET.code} to be
+        a brand.
       </p>
       <button
         className="btn btn-primary"

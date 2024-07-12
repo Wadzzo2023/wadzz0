@@ -333,7 +333,7 @@ function AboutForm({ user }: { user: User }) {
           <div className="text-lg font-semibold">BIO</div>
           <div className="text-sm text-muted-foreground">
             {user.bio === "" || user.bio === null
-              ? "You haven't set your bio!"
+              ? `You haven't set your bio!`
               : user.bio}
           </div>
         </CardContent>

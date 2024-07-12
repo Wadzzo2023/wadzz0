@@ -9,6 +9,7 @@ import AlbumCreate from "~/components/music/modal/album_create";
 import { ModalMode } from "~/components/music/modal/modal_template";
 import MintedItemAdd from "~/components/wallete/add_asset_form";
 import { AdminNavigation, useAdminMenu } from "~/lib/state/admin-tab-menu";
+import { PLATFROM_ASSET } from "~/lib/stellar/constant";
 import { api } from "~/utils/api";
 
 export default function AdminPage() {
@@ -37,8 +38,8 @@ function RenderTabs() {
       return (
         <div className="min-w-xl p-4">
           <h2 className="mb-5 text-lg font-bold">Add Admin NFTs</h2>
-          <p>
-            These NFTs will be created with the Bandcoin (or wadzzo) Admin
+          <p className="text-center">
+            These NFTs will be created with the {PLATFROM_ASSET.code} Admin
             account
           </p>
           <NftCreate admin />
