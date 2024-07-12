@@ -11,10 +11,10 @@ export default function Home() {
   return (
     <>
       <Head>
-        <title>Brands | {env.NEXT_PUBLIC_SITE}</title>
+        <title>Creators | {env.NEXT_PUBLIC_SITE}</title>
         <meta
           name="description"
-          content="A subscription-based platform that connects brands & creators with their fans on Stellar Blockchain."
+          content="A subscription-based platform that connects creators with their fans on Stellar Blockchain."
         />
         <link rel="icon" href="/favicon.ico" />
       </Head>
