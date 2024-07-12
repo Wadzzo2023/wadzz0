@@ -15,7 +15,7 @@ export const LeftNavigation = {
     icon: Wallet,
     text: "MY WALLET",
   },
-  MyAssets: { path: "/assets", icon: Bell, text: "ASSET BALANCE" },
+  MyAssets: { path: "/assets", icon: Bell, text: "MY COLLECTION" },
   // Search: { path: "/search", icon: Search, text: "Search" },
   Music: { path: "/music", icon: Diamond, text: "MUSIC" },
   Marketplace: { path: "/marketplace", icon: Bell, text: "MARKETPLACE" },
