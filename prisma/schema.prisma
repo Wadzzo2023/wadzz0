@@ -41,33 +41,29 @@ enum NotificationType {
 }
 
 // it is kinda notification actor and the entity that is being acted upon
+// Notification model to track notifications for both users and creators
 model Notification {
     id Int @id @default(autoincrement())
 
     notificationObjectId Int
-    notificationObject   NotificationObject @relation(fields: [notificationObjectId], references: [id])
+    notificationObject   NotificationObject @relation(fields: [notificationObjectId], references: [id], onDelete: Cascade)
 
     seen      DateTime?
     createdAt DateTime  @default(now())
 
     notifierId String
-    isCreator  Boolean @default(true) // is for creator
-
-    creatorName  String
-    creatorImage String?
+    isCreator  Boolean @default(false) // Notification for creators if true, for users if false
 }
 
 model NotificationObject {
-    id         Int              @id @default(autoincrement())
-    entityType NotificationType
-    entityId   Int
-
-    createdAt DateTime @default(now())
-
+    id           Int              @id @default(autoincrement())
+    entityType   NotificationType
+    entityId     Int
+    createdAt    DateTime         @default(now())
     Notification Notification[]
-
-    actorId String
-    isUser  Boolean @default(true)
+    actorId      String
+    actor        User             @relation(fields: [actorId], references: [id], onDelete: Cascade)
+    isUser       Boolean          @default(true)
 }
 
 // ------------------------FAN SCHEMA-------------------------
@@ -268,6 +264,8 @@ model User {
     songs            User_Song[]
     followings       Follow[]
     LocationConsumer LocationConsumer[]
+
+    actorNotificationObjects NotificationObject[]
 }
 
 model VerificationToken {

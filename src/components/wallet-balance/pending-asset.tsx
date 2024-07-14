@@ -60,13 +60,15 @@ const PendingAssetList = ({
           test: clientSelect(),
         })
           .then((result) => {
+            console.log("result", result);
             if (result) {
               toast.success("Claim Balance successful");
             } else {
               toast.error("Claim Balance failed");
             }
           })
-          .catch(() => {
+          .catch((e) => {
+            console.log("error", e);
             toast.error("Adding Claim Balance Operation failed");
           })
           .finally(() => {
@@ -75,7 +77,7 @@ const PendingAssetList = ({
       },
 
       onError(error) {
-        toast.error(error.message);
+        console.log("error", error);
         setLoading(false);
       },
     });

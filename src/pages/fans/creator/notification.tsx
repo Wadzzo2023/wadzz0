@@ -1,3 +1,4 @@
+import { NotificationType } from "@prisma/client";
 import Image from "next/image";
 import Link from "next/link";
 import React, { useState } from "react";
@@ -46,6 +47,16 @@ export default function CreatorNotofication() {
     </div>
   );
 }
+
+interface NotificationObject {
+  entityType: NotificationType;
+  actor: {
+    id: string;
+    name: string;
+    image: string;
+  };
+}
+
 const Notifications = () => {
   const [newNotifications, setNewNotifications] = useState([0, 1, 2]);
 
@@ -83,6 +94,8 @@ const Notifications = () => {
       { limit: 10 },
       { getNextPageParam: (lastPage) => lastPage.nextCursor },
     );
+
+  console.log("creator", notifications);
   return (
     <div className=" w-full rounded-lg bg-white shadow-sm lg:w-[715px] ">
       <div className="p-6">
@@ -97,9 +110,27 @@ const Notifications = () => {
           {/* Mark Webber */}
           {notifications.data?.pages.map((page) => {
             return page.items.map((el) => {
-              const { message, url } = getNotificationMessage(
-                el.notificationObject,
-              );
+              let message = "";
+              let url = "";
+
+              switch (el.notificationObject.entityType) {
+                case NotificationType.LIKE:
+                  message = `${el.notificationObject.actor.name} liked your post`;
+                  url = `/fans/posts/${el.notificationObject.entityId}`;
+                  break;
+                case NotificationType.COMMENT:
+                  message = `${el.notificationObject.actor.name} commented on your post`;
+                  url = `/fans/posts/${el.notificationObject.entityId}`;
+                  break;
+                case NotificationType.FOLLOW:
+                  message = `${el.notificationObject.actor.name} followed you`;
+                  url = `/fans/creator/${el.notificationObject.actor.id}`;
+                  break;
+                default:
+                  message = "";
+                  url = "";
+              }
+
               return (
                 // <div key={el.id} className="flex flex-col hover:bg-neutral">
                 //   <Link
@@ -116,12 +147,16 @@ const Notifications = () => {
                         width={1000}
                         height={1000}
                         className="h-10 w-10"
-                        src={"/images/icons/avatar-icon.png"}
-                        alt="user icon"
+                        src={
+                          el.notificationObject.actor.image
+                            ? el.notificationObject.actor.image
+                            : "/images/icons/avatar-icon.png"
+                        }
+                        alt=""
                       />
                       <div className="ml-4 flex w-full flex-col">
                         <a>
-                          <span className="message-describe ">{message}</span>
+                          <span className="message-describe"> {message}</span>
                         </a>
                         <div className="">
                           <p className="message-duration text-gray-500">
