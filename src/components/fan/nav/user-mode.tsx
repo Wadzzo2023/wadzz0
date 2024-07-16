@@ -10,7 +10,7 @@ export function UserMode() {
     <div className="flex h-full flex-1 flex-col gap-2 overflow-auto rounded-lg  bg-base-200/50 p-2">
       <Profile />
       <AllCreators />
-      <BottonNav />
+      {/* <BottonNav /> */}
     </div>
   );
 }

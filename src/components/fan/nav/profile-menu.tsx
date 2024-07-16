@@ -1,4 +1,4 @@
-import { Sparkle, SwitchCamera } from "lucide-react";
+import { Bell, Sparkle, SwitchCamera } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import { Mode, useMode } from "~/lib/state/fan/left-side-mode";
@@ -15,14 +15,27 @@ function ProfileComponent({
   name: string | null;
   mode: Mode;
 }) {
+  const router = useRouter();
   return (
-    <div
-      className="btn btn-ghost btn-active w-full  items-center  gap-x-4 "
-      onClick={handleModeChange}
-    >
-      <SwitchCamera />
-      <p className="">Switch to {mode}</p>
-      <Sparkle />
+    <div className="flex w-full items-center justify-center gap-x-2">
+      <div
+        className="btn btn-ghost btn-active   items-center  gap-x-4 "
+        onClick={handleModeChange}
+      >
+        <SwitchCamera />
+        <p className="">Switch to {mode}</p>
+        <Sparkle />
+      </div>
+      <div
+        className=" btn btn-ghost btn-active"
+        onClick={() => {
+          mode == Mode.User
+            ? router.push("/fans/creator/notification")
+            : router.push("/fans/notifications");
+        }}
+      >
+        <Bell />
+      </div>
     </div>
   );
 }

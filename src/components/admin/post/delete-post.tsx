@@ -1,5 +1,7 @@
 import React from "react";
 import toast from "react-hot-toast";
+import { Button } from "~/components/shadcn/ui/button";
+import { Input } from "~/components/shadcn/ui/input";
 import { api } from "~/utils/api";
 
 export default function DeletePost() {
@@ -9,17 +11,16 @@ export default function DeletePost() {
     onError: (e) => toast.error(e.message),
   });
   return (
-    <div>
-      <input
+    <div className="flex gap-2 py-2">
+      <Input
         onChange={(e) => {
           setId(Number(e.target.value));
         }}
         type="number"
-        className="input input-bordered"
         placeholder="Enter Post ID"
       />
-      <button
-        className="btn"
+      <Button
+        disabled={deletePost.isLoading}
         onClick={() => {
           if (id) {
             deletePost.mutate(id);
@@ -28,9 +29,11 @@ export default function DeletePost() {
           }
         }}
       >
-        {deletePost.isLoading && <span className="loading loading-spinner" />}
         Delete
-      </button>
+        {deletePost.isLoading && (
+          <span className="loading loading-spinner ml-1 h-4 w-4" />
+        )}
+      </Button>
     </div>
   );
 }
