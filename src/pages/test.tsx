@@ -1,5 +1,5 @@
 import { match } from "ts-pattern";
-import ClaimPinModal from "~/components/maps/claim/modal";
+import MapApp from "~/components/maps/search/app";
 import { api } from "~/utils/api";
 import { error, loading, success } from "~/utils/trcp/patterns";
 
@@ -12,9 +12,7 @@ export default function TestPage() {
     .otherwise(() => null);
   return (
     <div>
-      TestPage
-      {offersComponent}
-      {/* <ClaimPinModal location={undefined} /> */}
+      TestPage <MapApp />
     </div>
   );
 }
