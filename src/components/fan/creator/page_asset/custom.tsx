@@ -106,7 +106,7 @@ function CustomPageAssetFrom({ requiredToken }: { requiredToken: number }) {
         <input
           {...register("issuer")}
           className="input input-bordered  w-full"
-          placeholder="You asset limit?"
+          placeholder="Issuer Address"
         />
         {errors.issuer && (
           <div className="label">

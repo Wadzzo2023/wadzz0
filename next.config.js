@@ -16,8 +16,9 @@ const config = {
     remotePatterns: [
       {
         hostname: "utfs.io",
-
       },
+      {hostname: "raw.githubusercontent.com"},
+      {hostname: "avatars.githubusercontent.com"},
       { hostname: "ipfs.io" },
       { hostname: "daisyui.com" }, { hostname: "picsum.photos" }
     ]
