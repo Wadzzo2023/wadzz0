@@ -20,7 +20,9 @@ export const songRouter = createTRPCRouter({
 
   getCreatorSongs: protectedProcedure.query(async ({ ctx }) => {
     const assets = await ctx.db.asset.findMany({
-      where: { mediaType: "MUSIC" },
+      where: { mediaType: "MUSIC", tier: { is: null } },
+
+      select: AssetSelectAllProperty,
     });
 
     return assets;

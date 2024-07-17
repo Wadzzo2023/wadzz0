@@ -5,6 +5,7 @@ import TrackSection, {
   TrackSectionSkeleton,
 } from "~/components/music/track/section";
 import { api } from "~/utils/api";
+import { getAssetBalanceFromBalance } from "~/lib/stellar/marketplace/test/acc";
 
 export default function Home() {
   return (
@@ -21,10 +22,7 @@ export default function Home() {
         <AllSongs />
         <MySongs />
 
-        <CreatorSongs />
-
-        {/* <BottonPlayer /> */}
-        {/* <div className="h-60"></div> */}
+        <CreatorPublicSongs />
       </div>
     </>
   );
@@ -68,10 +66,11 @@ function MySongs() {
   }
 }
 
-function CreatorSongs() {
+function CreatorPublicSongs() {
   const creatorSongs = api.music.song.getCreatorSongs.useQuery();
+  const accBalances = api.wallate.acc.getUserPubAssetBallances.useQuery();
 
-  const header = "Your songs";
+  const header = "Creators Public song";
 
   if (creatorSongs.isLoading) return <TrackSectionSkeleton header={header} />;
 
@@ -79,14 +78,41 @@ function CreatorSongs() {
     return (
       <div className="py-4">
         {/* <TrackSection songs={creatorSongs.data} header={header} playable /> */}
-        {creatorSongs.data.map((song) => (
-          <CreatorTrack
-            key={song.id}
-            artist="artis"
-            code={song.code}
-            thumbnail={song.thumbnail}
-          />
-        ))}
+        <h3 className="py-2 text-2xl font-bold">{header}</h3>
+        {creatorSongs.data.map((song) => {
+          if (!song.tier)
+            return (
+              <CreatorTrack
+                key={song.id}
+                // choose first 4 characters of the creator
+                everyone={true}
+                item={{
+                  ...song,
+                  artist: song.creatorId?.substring(0, 4) ?? "creator",
+                }}
+              />
+            );
+          if (song.tier) {
+            const bal = getAssetBalanceFromBalance({
+              balances: accBalances.data,
+              code: song.code,
+              issuer: song.issuer,
+            });
+            if (song.tier.price <= bal) {
+              return (
+                <CreatorTrack
+                  key={song.id}
+                  // choose first 4 characters of the creator
+
+                  item={{
+                    ...song,
+                    artist: song.creatorId?.substring(0, 4) ?? "creator",
+                  }}
+                />
+              );
+            }
+          }
+        })}
       </div>
     );
   }

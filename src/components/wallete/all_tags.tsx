@@ -56,9 +56,20 @@ export default function AllTags() {
         className="!btn join-item"
         type="radio"
         name="options"
+        aria-label="ARTISTS"
+        onClick={() => {
+          selectTag(AssetVariant.Artists);
+          setData(undefined);
+          setMarektData(undefined);
+        }}
+      />
+      <input
+        className="!btn join-item"
+        type="radio"
+        name="options"
         aria-label="ARTIST TOKEN"
         onClick={() => {
-          selectTag(AssetVariant.Other);
+          selectTag(AssetVariant.FAN);
           setData(undefined);
           setMarektData(undefined);
         }}

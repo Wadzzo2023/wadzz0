@@ -84,7 +84,13 @@ function PlayOrBuy({ song }: { song: SongItemType }) {
           // className={clsx(song.id == activeRow && "text-primary")}
           onClick={() => {
             // setActiveRow(song.id);
-            trackUrlStore.setNewTrack(song);
+            trackUrlStore.setNewTrack({
+              artist: song.artist,
+              mediaUrl: song.asset.mediaUrl,
+              thumbnail: song.asset.thumbnail,
+              code: song.asset.code,
+              name: song.asset.name,
+            });
           }}
         />
       </>
@@ -93,7 +99,11 @@ function PlayOrBuy({ song }: { song: SongItemType }) {
     return (
       <>
         <div className="w-12">
-          <BuyModal priceUSD={2} item={song.asset} price={song.price} />
+          <BuyModal
+            priceUSD={song.price}
+            item={song.asset}
+            price={song.price}
+          />
         </div>
       </>
     );

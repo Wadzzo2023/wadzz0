@@ -21,7 +21,14 @@ export default function MusicItem({
   const trackUrlStore = usePlayerStore();
 
   function playSong() {
-    if (playable) trackUrlStore.setNewTrack(item);
+    if (playable)
+      trackUrlStore.setNewTrack({
+        artist: item.artist,
+        code: item.asset.code,
+        thumbnail: item.asset.thumbnail,
+        mediaUrl: item.asset.mediaUrl,
+        name: item.asset.name,
+      });
   }
 
   return (
@@ -39,9 +46,7 @@ export default function MusicItem({
           />
         </div>
         <div className="">
-          <Link href={`/music/track/${item.id}`}>
-            <p className={clsx(" text-base font-bold")}>{item.asset.code}</p>
-          </Link>
+          <p className={clsx(" text-base font-bold")}>{item.asset.code}</p>
           <p className={clsx("text-sm")}>{item.artist}</p>
         </div>
       </div>

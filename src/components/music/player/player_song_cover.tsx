@@ -6,7 +6,7 @@ export function PlayerSongCover({
   song,
   small = false,
 }: {
-  song?: SongItemType;
+  song?: { thumbnail: string; artist: string; name: string; code: string };
   small?: boolean;
 }) {
   if (song) {
@@ -14,7 +14,7 @@ export function PlayerSongCover({
       return (
         <div className="mr-10 flex h-10 flex-row gap-2 ">
           <Image
-            src={song.asset.thumbnail}
+            src={song.thumbnail}
             width={40}
             height={40}
             className=" overflow-clip"
@@ -22,12 +22,21 @@ export function PlayerSongCover({
           />
 
           <div className="w-20">
-            <p className="truncate text-base">{song.asset.name}</p>
+            <p className="truncate text-base">{song.name}</p>
             <p className="truncate text-sm">{song.artist}</p>
           </div>
         </div>
       );
-    } else return <PlayerTrackCover item={song} albumId={song.albumId} />;
+    } else
+      return (
+        <PlayerTrackCover
+          item={{
+            artist: song.artist,
+            code: song.code,
+            thumbnail: song.thumbnail,
+          }}
+        />
+      );
   } else
     return (
       <div className="flex flex-1 items-center justify-center">

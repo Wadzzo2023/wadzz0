@@ -167,6 +167,7 @@ function NftCreateForm({
           .then((res) => {
             if (res) {
               setValue("isAdmin", isAdmin);
+              setValue("tier", tier);
               const data = getValues();
               // res && addMutation.mutate(data);
 

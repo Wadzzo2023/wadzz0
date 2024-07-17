@@ -13,13 +13,14 @@ export default function TrackSection({ header, playable }: TrackSectionProp) {
 
   if (songs.isLoading) return <span className="loading loading-spinner" />;
 
-  if (songs.data)
+  if (songs.data && songs.data.length > 0)
     return (
       <div>
         <h3 className="py-2 text-2xl font-bold">{header}</h3>
-        {songs.data.map((song) => (
-          <MusicItem key={song.id} item={song} playable={playable} />
-        ))}
+        {songs.data &&
+          songs.data.map((song) => (
+            <MusicItem key={song.id} item={song} playable={playable} />
+          ))}
 
         <div className="flex flex-col gap-2"></div>
       </div>
