@@ -7,9 +7,15 @@ import Image from "next/image";
 import { clientsign } from "package/connect_wallet";
 import { WalletType } from "package/connect_wallet/src/lib/enums";
 import { ChangeEvent, useRef, useState } from "react";
-import { Controller, SubmitHandler, useForm } from "react-hook-form";
+import { SubmitHandler, useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { z } from "zod";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTrigger,
+} from "~/components/shadcn/ui/dialog";
 import useNeedSign from "~/lib/hook";
 import { useUserStellarAcc } from "~/lib/state/wallete/stellar-balances";
 import { PLATFROM_ASSET, PLATFROM_FEE } from "~/lib/stellar/constant";
@@ -18,16 +24,6 @@ import { api } from "~/utils/api";
 import { UploadButton } from "~/utils/uploadthing";
 import Alert from "../ui/alert";
 import Loading from "../wallete/loading";
-import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "~/components/shadcn/ui/dialog";
-import { set } from "date-fns";
-import axios from "axios";
 
 export const ExtraSongInfo = z.object({
   artist: z.string(),
@@ -45,13 +41,15 @@ export const NftFormSchema = z.object({
       required_error: "Price must be entered as a number",
       invalid_type_error: "Price must be entered as a number",
     })
-    .nonnegative(),
+    .nonnegative()
+    .default(2),
   priceUSD: z
     .number({
       required_error: "Limit must be entered as a number",
       invalid_type_error: "Limit must be entered as a number",
     })
-    .nonnegative(),
+    .nonnegative()
+    .default(1),
   limit: z
     .number({
       required_error: "Limit must be entered as a number",
@@ -101,6 +99,10 @@ function NftCreateForm({
   const [uploading, setUploading] = useState(false);
   const [mediaUpload, setMediaUpload] = useState(false);
   const inputFile = useRef(null);
+
+  // tier options
+  const [tier, setTier] = useState<string>();
+
   // other
   const modalRef = useRef<HTMLDialogElement>(null);
   const [submitLoading, setSubmitLoading] = useState(false);
@@ -128,6 +130,8 @@ function NftCreateForm({
     defaultValues: {
       mediaType: MediaType.IMAGE,
       mediaUrl: "https://picsum.photos/202/200",
+      price: 2,
+      priceUSD: 1,
     },
   });
 
@@ -254,34 +258,29 @@ function NftCreateForm({
     }
   };
 
+  function onChangeHandler(event: ChangeEvent<HTMLSelectElement>): void {
+    // toast.success(`${event.currentTarget.value}`);
+    setTier(event.currentTarget.value);
+  }
+
   function TiersOptions() {
     if (tiers.isLoading) return <div className="skeleton h-10 w-20"></div>;
     if (tiers.data) {
       return (
-        <Controller
-          name="tier"
-          control={control}
-          render={({ field }) => (
-            <select {...field} className="select select-bordered ">
-              <option selected disabled>
-                Choose Tier
-              </option>
-              <option selected disabled>
-                Public
-              </option>
-              {tiers.data.map((model) => (
-                <option
-                  key={model.id}
-                  value={model.id}
-                >{`${model.name} - ${model.price}`}</option>
-              ))}
-            </select>
-          )}
-        />
+        <select className="select select-bordered" onChange={onChangeHandler}>
+          <option disabled>Choose Tier</option>
+          <option value="public">Public</option>
+          {tiers.data.map((model) => (
+            <option
+              key={model.id}
+              value={model.id}
+            >{`${model.name} - ${model.price}`}</option>
+          ))}
+        </select>
       );
     }
   }
-  console.log("CoverURL", coverUrl);
+  // console.log("CoverURL", getValues("tier"));
   const handleLoL = () => {
     toast.success("NFT Created", {
       position: "top-center",
@@ -296,7 +295,12 @@ function NftCreateForm({
             <PlusIcon /> Item
           </button>
         </DialogTrigger>
-        <DialogContent className=" h-[80%] overflow-auto p-3">
+        <DialogContent
+          onInteractOutside={(e) => {
+            e.preventDefault();
+          }}
+          className=" h-[80%] overflow-auto p-3"
+        >
           <DialogHeader className="text-lg font-bold">Add Asset</DialogHeader>
           {/* <button onClick={handleLoL}> LOL</button> */}
           <form onSubmit={handleSubmit(onSubmit)}>
@@ -524,48 +528,53 @@ function NftCreateForm({
                         )}
                       </div>
                     </>
-                    <div className="w-full max-w-xs">
-                      <label className="label">
-                        <span className="label-text">Price</span>
-                        <span className="label-text-alt">
-                          Default price is 2 {PLATFROM_ASSET.code}
-                        </span>
-                      </label>
-                      <input
-                        step="0.1"
-                        type="number"
-                        {...register("price", { valueAsNumber: true })}
-                        className="input input-sm input-bordered  w-full"
-                        placeholder="Price"
-                      />
-                      {errors.price && (
-                        <div className="label">
-                          <span className="label-text-alt">
-                            {errors.price.message}
-                          </span>
-                        </div>
-                      )}
-                    </div>
-                    <div className="w-full max-w-xs">
-                      <label className="label">
-                        <span className="label-text">Price in USD</span>
-                        {/* <span className="label-text-alt"></span> */}
-                      </label>
-                      <input
-                        step="0.1"
-                        type="number"
-                        {...register("priceUSD", { valueAsNumber: true })}
-                        className="input input-sm input-bordered  w-full"
-                        placeholder="Price"
-                      />
-                      {errors.priceUSD && (
-                        <div className="label">
-                          <span className="label-text-alt">
-                            {errors.priceUSD.message}
-                          </span>
-                        </div>
-                      )}
-                    </div>
+                    {!tier ||
+                      (tier != "public" && (
+                        <>
+                          <div className="w-full max-w-xs">
+                            <label className="label">
+                              <span className="label-text">Price</span>
+                              <span className="label-text-alt">
+                                Default price is 2 {PLATFROM_ASSET.code}
+                              </span>
+                            </label>
+                            <input
+                              step="0.1"
+                              type="number"
+                              {...register("price", { valueAsNumber: true })}
+                              className="input input-sm input-bordered  w-full"
+                              placeholder="Price"
+                            />
+                            {errors.price && (
+                              <div className="label">
+                                <span className="label-text-alt">
+                                  {errors.price.message}
+                                </span>
+                              </div>
+                            )}
+                          </div>
+                          <div className="w-full max-w-xs">
+                            <label className="label">
+                              <span className="label-text">Price in USD</span>
+                              {/* <span className="label-text-alt"></span> */}
+                            </label>
+                            <input
+                              step="0.1"
+                              type="number"
+                              {...register("priceUSD", { valueAsNumber: true })}
+                              className="input input-sm input-bordered  w-full"
+                              placeholder="Price"
+                            />
+                            {errors.priceUSD && (
+                              <div className="label">
+                                <span className="label-text-alt">
+                                  {errors.priceUSD.message}
+                                </span>
+                              </div>
+                            )}
+                          </div>
+                        </>
+                      ))}
                   </div>
                 </>
               </div>
@@ -601,16 +610,13 @@ function NftCreateForm({
             </div>
           </form>
 
-          <div className="modal-action">
+          {/* <div className="modal-action">
             <form method="dialog">
-              <button
-                className="btn"
-                // onClick={handleCloseClick}
-              >
+              <button className="btn" onClick={handleCloseClick}>
                 Close
               </button>
             </form>
-          </div>
+          </div> */}
         </DialogContent>
       </Dialog>
     </>

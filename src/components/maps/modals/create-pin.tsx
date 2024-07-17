@@ -124,12 +124,8 @@ export default function CreatePinModal({
           control={control}
           render={({ field }) => (
             <select {...field} className="select select-bordered ">
-              <option selected disabled>
-                Choose Tier
-              </option>
-              <option selected disabled>
-                Public
-              </option>
+              <option disabled>Choose Tier</option>
+              <option>Public</option>
               {tiers.data.map((model) => (
                 <option
                   key={model.id}

@@ -18,19 +18,21 @@ export default function WallateNFTs() {
 
   if (assets.data) {
     return (
-
       <div className="p-2">
-      <div
-        style={{
-          scrollbarGutter: "stable",
-        }}
-        className="grid grid-cols-2 gap-2 md:grid-cols-4 lg:grid-cols-5"
-      >
-        {assets.data.pages.map((page) =>
-          page.nfts.map((item, i) => (
-            <MarketAssetComponent key={i} item={item} />
-          )),
+        {assets.data.pages[0]?.nfts.length === 0 && (
+          <p className="w-full text-center">There is no curated asset yet</p>
         )}
+        <div
+          style={{
+            scrollbarGutter: "stable",
+          }}
+          className="grid grid-cols-2 gap-2 md:grid-cols-4 lg:grid-cols-5"
+        >
+          {assets.data.pages.map((page) =>
+            page.nfts.map((item, i) => (
+              <MarketAssetComponent key={i} item={item} />
+            )),
+          )}
         </div>
         {assets.hasNextPage && (
           <button

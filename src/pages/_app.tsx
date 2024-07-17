@@ -10,6 +10,7 @@ import { Titillium_Web } from "next/font/google";
 import Layout from "~/components/layout";
 import "~/styles/globals.css";
 import "~/styles/music.scss";
+import ProgressProvider from "~/components/progress-bar";
 
 const queryClient = new QueryClient();
 
@@ -28,10 +29,12 @@ const MyApp: AppType<{ session: Session | null }> = ({
   return (
     <SessionProvider session={session}>
       <QueryClientProvider client={queryClient}>
-        <Layout className={inner.className}>
-          <Component {...pageProps} />
-        </Layout>
-        <PopupImports className={inner.className} />
+        <ProgressProvider>
+          <Layout className={inner.className}>
+            <Component {...pageProps} />
+          </Layout>
+          <PopupImports className={inner.className} />
+        </ProgressProvider>
       </QueryClientProvider>
     </SessionProvider>
   );

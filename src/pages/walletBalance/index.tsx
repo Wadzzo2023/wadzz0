@@ -134,7 +134,7 @@ const Wallets = () => {
     );
   }
   if (checkingPlatformLoading || getPlatformLoading) {
-    return <Loading text="Fetching Data" />;
+    return <Loading />;
   }
   const url = `https://app.wadzzo.com${router.pathname}?id=${session?.data?.user?.id}`;
 
