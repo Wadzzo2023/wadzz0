@@ -72,30 +72,43 @@ function ActionButton({
   }
   if (status === null)
     return (
-      <button
-        className="btn btn-success btn-sm"
+      <Button
+        disabled={actionM.isLoading}
+        className=""
         onClick={() => handleClick(true)}
       >
         Approve
-      </button>
+        {actionM.isLoading && (
+          <span className="loading loading-spinner ml-1 h-4 w-4"></span>
+        )}
+      </Button>
     );
   if (status === false)
     return (
-      <button
-        className="btn btn-primary btn-sm"
+      <Button
+        className=""
+        disabled={actionM.isLoading}
         onClick={() => handleClick(true)}
       >
         Unban
-      </button>
+        {actionM.isLoading && (
+          <span className="loading loading-spinner ml-1 h-4 w-4"></span>
+        )}
+      </Button>
     );
   if (status === true)
     return (
-      <button
-        className="btn btn-error btn-sm"
+      <Button
+        className=""
+        variant="destructive"
+        disabled={actionM.isLoading}
         onClick={() => handleClick(false)}
       >
         Ban
-      </button>
+        {actionM.isLoading && (
+          <span className="loading loading-spinner ml-1 h-4 w-4"></span>
+        )}
+      </Button>
     );
 }
 
@@ -107,14 +120,15 @@ function DeleteCreatorButton({ creatorId }: { creatorId: string }) {
   });
   return (
     <Button
+      variant="outline"
       onClick={() => {
         deleteCreator.mutate(creatorId);
       }}
     >
-      {deleteCreator.isLoading && (
-        <span className="loading loading-spinner"></span>
-      )}
       Delete
+      {deleteCreator.isLoading && (
+        <span className="loading loading-spinner ml-1 h-4 w-4"></span>
+      )}
     </Button>
   );
 }

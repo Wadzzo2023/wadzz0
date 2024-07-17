@@ -36,16 +36,6 @@ export const postRouter = createTRPCRouter({
             : undefined,
         },
       });
-
-      await ctx.db.notificationObject.create({
-        data: {
-          actorId: ctx.session.user.id,
-          entityType: NotificationType.POST,
-          entityId: post.id,
-          isUser: false,
-        },
-      });
-
       return post;
     }),
 
@@ -201,6 +191,13 @@ export const postRouter = createTRPCRouter({
 
       const oldLike = await ctx.db.like.findUnique({
         where: { postId_userId: { postId, userId } },
+        include: {
+          post: {
+            select: {
+              creatorId: true,
+            },
+          },
+        },
       });
 
       if (oldLike) {
@@ -215,6 +212,30 @@ export const postRouter = createTRPCRouter({
         // first time.
         const like = await ctx.db.like.create({
           data: { userId, postId },
+          include: {
+            post: {
+              select: {
+                creatorId: true,
+              },
+            },
+          },
+        });
+        if (like.post.creatorId === userId) return like;
+        await ctx.db.notificationObject.create({
+          data: {
+            actorId: ctx.session.user.id,
+            entityType: NotificationType.LIKE,
+            entityId: postId,
+            isUser: false,
+            Notification: {
+              create: [
+                {
+                  notifierId: like.post.creatorId,
+                  isCreator: true, // Notification for the creator
+                },
+              ],
+            },
+          },
         });
         // create notification
         // void ctx.db.post
@@ -291,6 +312,7 @@ export const postRouter = createTRPCRouter({
     .input(CommentSchema)
     .mutation(async ({ ctx, input }) => {
       let comment;
+
       if (input.parentId) {
         comment = await ctx.db.comment.create({
           data: {
@@ -309,26 +331,51 @@ export const postRouter = createTRPCRouter({
           },
         });
       }
-      // create notification
-      // void ctx.db.post
-      //   .findUnique({
-      //     where: { id: input.postId },
-      //     select: { creatorId: true },
-      //   })
-      //   .then(async (creator) => {
-      //     creator &&
-      //       (await ctx.db.notificationObject.create({
-      //         data: {
-      //           actorId: ctx.session.user.id,
-      //           entityId: input.postId,
-      //           entityType: NotificationType.COMMENT,
-      //           Notification: {
-      //             create: [{ notifierId: creator.creatorId }],
-      //           },
+
+      // await ctx.db.notificationObject.create({
+      //   data: {
+      //     actorId: ctx.session.user.id,
+      //     entityType: NotificationType.COMMENT,
+      //     entityId: input.postId,
+      //     isUser: false,
+      //     Notification: {
+      //       create: [
+      //         {
+      //           notifierId: creator?.creatorId,
+      //           isCreator: true, // Notification for the creator
       //         },
-      //       }));
-      //   })
-      //   .catch(console.error);
+      //       ],
+      //     },
+      //   },
+      // });
+      // create notification
+
+      void ctx.db.post
+        .findUnique({
+          where: { id: input.postId },
+          select: { creatorId: true },
+        })
+        .then(async (creator) => {
+          creator &&
+            creator?.creatorId !== ctx.session.user.id &&
+            (await ctx.db.notificationObject.create({
+              data: {
+                actorId: ctx.session.user.id,
+                entityType: NotificationType.COMMENT,
+                entityId: input.postId,
+                isUser: false,
+                Notification: {
+                  create: [
+                    {
+                      notifierId: creator.creatorId,
+                      isCreator: true, // Notification for the creator
+                    },
+                  ],
+                },
+              },
+            }));
+        })
+        .catch(console.error);
       return comment;
     }),
 

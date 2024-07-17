@@ -1,13 +1,12 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import React from "react";
-import { SubmitHandler, useForm } from "react-hook-form";
-import { z } from "zod";
-import Avater from "../../ui/avater";
 import { Creator } from "@prisma/client";
+import { SubmitHandler, useForm } from "react-hook-form";
+import toast from "react-hot-toast";
+import { z } from "zod";
 import { api } from "~/utils/api";
 import { UploadButton } from "~/utils/uploadthing";
 import { CoverChange } from "./change-cover-button";
-import toast from "react-hot-toast";
+import PadSVG from "./profile/convert-svg";
 
 export default function About({ creator }: { creator: Creator }) {
   return (
@@ -42,12 +41,6 @@ function AboutForm({ creator }: { creator: Creator }) {
         toast.success("Profile changes successfully");
       },
     });
-
-  const updateSVg = api.fan.creator.changeCreatorBackgroundSVG.useMutation({
-    onSuccess: () => {
-      toast.success("SVG changes successfully");
-    },
-  });
 
   const {
     register,
@@ -102,36 +95,7 @@ function AboutForm({ creator }: { creator: Creator }) {
         </div>
 
         <CoverChange />
-        <div className="text-center">
-          <span className="text-xs">SVG Dimension 200 x 200 pixels</span>
-          <UploadButton
-            className="w-full "
-            endpoint="imageUploader"
-            appearance={{
-              button:
-                " text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center ",
-              container:
-                "p-1 w-max flex-row rounded-md border-cyan-300 bg-slate-800",
-              allowedContent:
-                "flex h-8 flex-col items-center justify-center px-2 text-white",
-            }}
-            content={{ button: "Change SVG" }}
-            onClientUploadComplete={(res) => {
-              // Do something with the response
-              // alert("Upload Completed");
-              const data = res[0];
-
-              if (data?.url) {
-                updateSVg.mutate(data.url);
-              }
-              // updateProfileMutation.mutate(res);
-            }}
-            onUploadError={(error: Error) => {
-              // Do something with the error.
-              alert(`ERROR! ${error.message}`);
-            }}
-          />
-        </div>
+        <PadSVG />
       </div>
 
       <label className="form-control w-full ">
@@ -145,7 +109,7 @@ function AboutForm({ creator }: { creator: Creator }) {
           className="input input-bordered w-full "
         />
         <span className="text-xs">
-          * Hint : Name contains 3 to 21 characters
+          * Hint : Name must be between 3 to 21 characters
         </span>
         {errors.name && (
           <div className="label">
@@ -164,7 +128,9 @@ function AboutForm({ creator }: { creator: Creator }) {
           className="textarea textarea-bordered h-28"
           placeholder="Description ..."
         ></textarea>
-        <span className="text-xs">* Hint : Bio contains 101 characters </span>
+        <span className="text-xs">
+          * Hint : Bio can be up to 101 characters
+        </span>
         {errors.description && (
           <div className="label">
             <span className="label-text-alt text-warning">

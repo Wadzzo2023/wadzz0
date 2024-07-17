@@ -37,9 +37,21 @@ export const notificationRouter = createTRPCRouter({
           ],
         },
         include: {
+          notificationObject: {
+            select: {
+              entityType: true,
+              entityId: true,
+              createdAt: true,
 
-          notificationObject: true,
-
+              actor: {
+                select: {
+                  id: true,
+                  name: true,
+                  image: true,
+                },
+              },
+            },
+          },
         },
         orderBy: { createdAt: "desc" },
       });

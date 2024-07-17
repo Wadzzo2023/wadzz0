@@ -162,7 +162,7 @@ const Notifications = () => {
       },
       { getNextPageParam: (lastPage) => lastPage.nextCursor },
     );
-  console.log(notifications);
+  // console.log(notifications);
   return (
     <div className=" w-full rounded-lg bg-white shadow-sm lg:w-[715px] ">
       <div className="p-6">

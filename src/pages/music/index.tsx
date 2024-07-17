@@ -1,5 +1,6 @@
 import Head from "next/head";
 import AlbumSection from "~/components/music/album/section";
+import CreatorTrack from "~/components/music/creator/track";
 import TrackSection, {
   TrackSectionSkeleton,
 } from "~/components/music/track/section";
@@ -19,6 +20,8 @@ export default function Home() {
 
         <AllSongs />
         <MySongs />
+
+        <CreatorSongs />
 
         {/* <BottonPlayer /> */}
         {/* <div className="h-60"></div> */}
@@ -60,6 +63,30 @@ function MySongs() {
     return (
       <div className="py-4">
         <TrackSection songs={mySongs.data} header={header} playable />
+      </div>
+    );
+  }
+}
+
+function CreatorSongs() {
+  const creatorSongs = api.music.song.getCreatorSongs.useQuery();
+
+  const header = "Your songs";
+
+  if (creatorSongs.isLoading) return <TrackSectionSkeleton header={header} />;
+
+  if (creatorSongs.data && creatorSongs.data.length > 0) {
+    return (
+      <div className="py-4">
+        {/* <TrackSection songs={creatorSongs.data} header={header} playable /> */}
+        {creatorSongs.data.map((song) => (
+          <CreatorTrack
+            key={song.id}
+            artist="artis"
+            code={song.code}
+            thumbnail={song.thumbnail}
+          />
+        ))}
       </div>
     );
   }

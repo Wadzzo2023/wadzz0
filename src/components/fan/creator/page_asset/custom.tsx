@@ -86,7 +86,7 @@ function CustomPageAssetFrom({ requiredToken }: { requiredToken: number }) {
         </div>
         <input
           type="text"
-          placeholder="Enter Page Asset Code"
+          placeholder="Enter page asset code"
           {...register("code")}
           className="input input-bordered w-full max-w-xs"
         />
@@ -106,7 +106,7 @@ function CustomPageAssetFrom({ requiredToken }: { requiredToken: number }) {
         <input
           {...register("issuer")}
           className="input input-bordered  w-full"
-          placeholder="You asset limit?"
+          placeholder="Enter issuer address"
         />
         {errors.issuer && (
           <div className="label">

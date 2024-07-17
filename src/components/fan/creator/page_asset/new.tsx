@@ -200,7 +200,7 @@ function NewPageAssetFrom({ requiredToken }: { requiredToken: number }) {
           min={1}
           step={1}
           className="input input-sm input-bordered  w-full"
-          placeholder="You asset limit?"
+          placeholder="Asset Limit"
         />
         {errors.limit && (
           <div className="label">

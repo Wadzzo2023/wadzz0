@@ -26,7 +26,7 @@ export default function Loading({ className, text }: LoadingProps) {
               className="h-20 w-20"
               height={1000}
               width={1000}
-              src={"/favicon.ico"}
+              src={"/images/loading.png"}
               alt={PLATFROM_ASSET.code}
             />
             <span className="loading" />

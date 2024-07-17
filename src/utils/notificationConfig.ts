@@ -1,12 +1,6 @@
 import { NotificationObject, NotificationType } from "@prisma/client";
 import { truncateString } from "./string";
 
-export const NotificationEntity = {
-  Post: 1,
-  Like: 2,
-  Comment: 3,
-  Subscribe: 4,
-} as const;
 
 export function getNotificationMessage(
   notificationObject: NotificationObject,
@@ -14,14 +8,10 @@ export function getNotificationMessage(
   const actoId = truncateString(notificationObject.actorId);
 
   switch (notificationObject.entityType) {
-    case NotificationType.POST:
-      return {
-        message: `${actoId}  created post `,
-        url: `/fans/posts/${notificationObject.entityId}`,
-      };
+
     case NotificationType.LIKE:
       return {
-        message: `${actoId} liked your post ${notificationObject.entityId}`,
+        message: `${actoId} liked your post`,
         url: `/fans/posts/${notificationObject.entityId}`,
       };
     case NotificationType.COMMENT:
@@ -29,9 +19,9 @@ export function getNotificationMessage(
         message: `${actoId} commented on your post ${notificationObject.entityId}`,
         url: `/fans/posts/${notificationObject.entityId}`,
       };
-    case NotificationType.SUBSCRIPTION:
+    case NotificationType.FOLLOW:
       return {
-        message: `${actoId} subscribed to you`,
+        message: `${actoId} follow to you`,
         url: `/fans/creator/${notificationObject.entityId}`,
       };
     default:

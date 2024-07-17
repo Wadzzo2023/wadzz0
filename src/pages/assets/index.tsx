@@ -45,6 +45,9 @@ function MyStorageAsset() {
         }}
         className="main-asset-area flex gap-2"
       >
+        {acc.data.accAssets.length === 0 && (
+          <p className="w-full text-center">You have no asset</p>
+        )}
         {acc.data.dbAssets.map((asset, i) => {
           return (
             <div key={i}>
@@ -86,6 +89,9 @@ function MyAssets() {
         }}
         className="main-asset-area flex gap-2"
       >
+        {acc.data.accAssets.length === 0 && (
+          <p className="w-full text-center">You have no asset</p>
+        )}
         {acc.data.dbAssets.map((asset, i) => {
           // if (asset.copies > 0)
           return (

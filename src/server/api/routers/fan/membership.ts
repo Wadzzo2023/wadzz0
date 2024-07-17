@@ -208,8 +208,28 @@ export const membershipRouter = createTRPCRouter({
       if (userId === input.creatorId) {
         throw new Error("You can't follow yourself");
       }
-      return await ctx.db.follow.create({
+      const fol = await ctx.db.follow.create({
         data: { creatorId: input.creatorId, userId },
       });
+
+
+      await ctx.db.notificationObject.create({
+        data: {
+          actorId: ctx.session.user.id,
+          entityType: NotificationType.FOLLOW,
+          entityId: fol.id,
+          isUser: false,
+          Notification: {
+            create: [
+              {
+                notifierId: input.creatorId,
+                isCreator: true, // Notification for the creator
+              },
+            ],
+          },
+        },
+      });
+
+
     }),
 });

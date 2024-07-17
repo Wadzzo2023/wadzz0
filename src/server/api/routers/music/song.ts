@@ -18,6 +18,14 @@ export const songRouter = createTRPCRouter({
     });
   }),
 
+  getCreatorSongs: protectedProcedure.query(async ({ ctx }) => {
+    const assets = await ctx.db.asset.findMany({
+      where: { mediaType: "MUSIC" },
+    });
+
+    return assets;
+  }),
+
   getAllSongMarketAssets: protectedProcedure
     .input(
       z.object({

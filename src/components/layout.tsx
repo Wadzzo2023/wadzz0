@@ -4,8 +4,9 @@ import { useSession } from "next-auth/react";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/router";
 import React from "react";
-import { ThemeProvider } from "./providers/theme-provider";
+import { api } from "~/utils/api";
 import ModalProvider from "./providers/modal-provider";
+import { ThemeProvider } from "./providers/theme-provider";
 // import Header from "./header";
 // import RightDialog from "./right_dialog";
 
@@ -41,6 +42,8 @@ export default function Layout({
   //   );
   // }
 
+  const creator = api.fan.creator.meCreator.useQuery();
+
   return (
     <>
       <ThemeProvider
@@ -55,25 +58,45 @@ export default function Layout({
             <div className="flex h-full border-t-2">
               <LeftBar className="hidden md:flex" />
               <div id="ih" className="flex-1 border-x-2 ">
-                <div className=" h-full overflow-y-auto bg-base-100/80 scrollbar-hide">
-                  {session.status == "authenticated" ? (
-                    <>
-                      <ModalProvider />
-                      {children}
-                    </>
-                  ) : (
-                    <div className="flex h-full items-center justify-center">
-                      <ConnectWalletButton />
-                    </div>
-                  )}
-                  <div className="h-44 " />
-                  {/* <BottomNav /> */}
+                <LeftBar className="hidden xl:flex" />
+                <div
+                  id="ih"
+                  className="flex-1 border-x-2"
+                  style={
+                    router.pathname.includes("/fans/creator") && creator.data
+                      ? {
+                          background: `url("${creator.data.backgroundSVG}")`,
+                          backgroundSize: "10%",
+                          animation: "pan 135s linear infinite",
+                        }
+                      : {
+                          background: `url("images/guitar.svg")`,
+                          backgroundSize: "10%",
+                          animation: "pan 135s linear infinite",
+                        }
+                  }
+                >
+                  <div className=" h-full overflow-y-auto bg-base-100/80 scrollbar-hide">
+                    {session.status == "authenticated" ? (
+                      <>
+                        <ModalProvider />
+                        {children}
+                      </>
+                    ) : (
+                      <div className="flex h-full items-center justify-center">
+                        <ConnectWalletButton />
+                      </div>
+                    )}
+                    <div className="h-44 " />
+                  </div>
                 </div>
-              </div>
 
-              {router.pathname !== "/walletBalance" &&
-                router.pathname !== "/settings" &&
-                session.status == "authenticated" && <RightSideBar />}
+                {router.pathname !== "/walletBalance" &&
+                  router.pathname !== "/settings" &&
+                  router.pathname !== "/about" &&
+                  router.pathname !== "/privacy" &&
+                  session.status == "authenticated" && <RightSideBar />}
+              </div>
             </div>
           </div>
           <RightDialog />

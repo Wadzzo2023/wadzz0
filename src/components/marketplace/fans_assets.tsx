@@ -19,6 +19,9 @@ export default function FanAssetNfts() {
   if (assets.data) {
     return (
       <div className="p-2">
+        {assets.data.pages[0]?.nfts.length === 0 && (
+          <p className="w-full text-center">There is no market asset yet</p>
+        )}
         <div
           style={{
             scrollbarGutter: "stable",
