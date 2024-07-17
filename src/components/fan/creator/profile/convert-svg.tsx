@@ -16,7 +16,7 @@ export default function PadSVG() {
     if (svgElement) {
       // Original viewBox
       const originalViewBox =
-        svgElement.getAttribute("viewBox") || "0 0 100 100";
+        svgElement.getAttribute("viewBox") ?? "0 0 100 100";
       const [minX, minY, width, height] = originalViewBox
         .split(" ")
         .map(parseFloat);

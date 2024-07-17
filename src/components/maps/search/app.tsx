@@ -4,7 +4,7 @@ import { APIProvider, ControlPosition, Map } from "@vis.gl/react-google-maps";
 import { CustomMapControl } from "./map-control";
 import MapHandler from "./map-handler";
 
-const API_KEY = process.env.GOOGLE_MAPS_API_KEY as string;
+const API_KEY = "vong cong";
 
 export type AutocompleteMode = { id: string; label: string };
 
