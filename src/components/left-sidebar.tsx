@@ -119,6 +119,9 @@ function LeftBottom() {
           <Link className="link-hover link" href="/privacy">
             Privacy
           </Link>
+          <Link className="link-hover link" href="/support">
+            Support
+          </Link>
         </div>
         <p>v{1.1}</p>
       </div>
