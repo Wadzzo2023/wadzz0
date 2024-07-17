@@ -6,15 +6,14 @@ import { SongItemType } from "../track/music_item";
 export default function PlayerTrackCover({
   item,
 }: {
-  item: SongItemType;
-  albumId: number;
+  item: { thumbnail: string; code: string; artist: string; id?: string };
 }) {
   return (
     <div className="flex flex-row items-center  py-2 ">
       {/* <img src="" alt="" /> */}
       <div className="bg-neutral-focus mr-4 h-20 w-20">
         <Image
-          src={item.asset.thumbnail}
+          src={item.thumbnail}
           width={80}
           height={80}
           className="flex-shrink-0 overflow-clip"
@@ -23,7 +22,7 @@ export default function PlayerTrackCover({
       </div>
       <div className="w-40">
         <Link href={`/track/${item.id}`}>
-          <p className="truncate text-base">{item.asset.code}</p>
+          <p className="truncate text-base">{item.code}</p>
         </Link>
         <p className="truncate text-sm">{item.artist}</p>
       </div>

@@ -21,7 +21,14 @@ export default function MusicItem({
   const trackUrlStore = usePlayerStore();
 
   function playSong() {
-    if (playable) trackUrlStore.setNewTrack(item);
+    if (playable)
+      trackUrlStore.setNewTrack({
+        artist: item.artist,
+        code: item.asset.code,
+        thumbnail: item.asset.thumbnail,
+        mediaUrl: item.asset.mediaUrl,
+        name: item.asset.name,
+      });
   }
 
   return (

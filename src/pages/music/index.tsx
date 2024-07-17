@@ -22,9 +22,6 @@ export default function Home() {
         <MySongs />
 
         <CreatorSongs />
-
-        {/* <BottonPlayer /> */}
-        {/* <div className="h-60"></div> */}
       </div>
     </>
   );
@@ -82,9 +79,13 @@ function CreatorSongs() {
         {creatorSongs.data.map((song) => (
           <CreatorTrack
             key={song.id}
-            artist="artis"
-            code={song.code}
-            thumbnail={song.thumbnail}
+            // choose first 4 characters of the creator
+
+            item={{
+              ...song,
+              artist: song.creatorId?.substring(0, 4) ?? "creator",
+            }}
+            everyone={!song.tierId}
           />
         ))}
       </div>
