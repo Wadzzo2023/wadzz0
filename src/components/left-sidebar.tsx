@@ -17,7 +17,7 @@ export const LeftNavigation = {
   },
   MyAssets: { path: "/assets", icon: Bell, text: "MY COLLECTION" },
   // Search: { path: "/search", icon: Search, text: "Search" },
-  // Music: { path: "/music", icon: Diamond, text: "MUSIC" },
+  Music: { path: "/music", icon: Diamond, text: "MUSIC" },
   Marketplace: { path: "/marketplace", icon: Bell, text: "MARKETPLACE" },
   Fan: { path: "/fans/home", icon: Bell, text: "BRANDS" },
   Settings: { path: "/settings", icon: Settings2, text: "SETTINGS" },

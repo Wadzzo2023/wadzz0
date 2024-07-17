@@ -36,6 +36,12 @@ export const shopRouter = createTRPCRouter({
         const creatorId = isAdmin ? undefined : userId; // for admin creator and placer id is undefined
         const nftType = isAdmin ? "ADMIN" : "FAN";
 
+        let tierId: number | undefined;
+
+        if (tier != "public") {
+          tierId = Number(tier);
+        }
+
         // console.log("mediaType", mediaType, mediaUrl);
 
         return await ctx.db.asset.create({
@@ -57,7 +63,7 @@ export const shopRouter = createTRPCRouter({
             thumbnail: coverImgUrl,
             creatorId,
             limit,
-            tierId: tier ? Number(tier) : undefined,
+            tierId,
           },
         });
       }
