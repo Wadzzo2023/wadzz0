@@ -109,7 +109,7 @@ function AboutForm({ creator }: { creator: Creator }) {
           className="input input-bordered w-full "
         />
         <span className="text-xs">
-          * Hint : Name contains 3 to 21 characters
+          * Hint : Name must be between 3 to 21 characters
         </span>
         {errors.name && (
           <div className="label">
@@ -128,7 +128,9 @@ function AboutForm({ creator }: { creator: Creator }) {
           className="textarea textarea-bordered h-28"
           placeholder="Description ..."
         ></textarea>
-        <span className="text-xs">* Hint : Bio contains 101 characters </span>
+        <span className="text-xs">
+          * Hint : Bio can be up to 101 characters
+        </span>
         {errors.description && (
           <div className="label">
             <span className="label-text-alt text-warning">
