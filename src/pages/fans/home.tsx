@@ -78,6 +78,7 @@ function AllRecentPost() {
       <div className="flex w-full flex-col items-center gap-6">
         {posts.data.pages.map((page) => (
           <>
+            {page.posts.length === 0 && <p>There are no post yet</p>}
             {page.posts.map((post) => (
               <PostCard
                 priority={1}
