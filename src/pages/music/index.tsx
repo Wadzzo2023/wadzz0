@@ -6,6 +6,7 @@ import TrackSection, {
 } from "~/components/music/track/section";
 import { api } from "~/utils/api";
 import { getAssetBalanceFromBalance } from "~/lib/stellar/marketplace/test/acc";
+import BuyModal from "~/components/music/modal/buy_modal";
 
 export default function Home() {
   return (
@@ -18,11 +19,10 @@ export default function Home() {
 
       <div className="flex flex-col gap-5 p-4">
         <AlbumsContainer />
-
         <AllSongs />
         <MySongs />
-
         <CreatorPublicSongs />
+        <CreatorMarketSongs />
       </div>
     </>
   );
@@ -67,10 +67,9 @@ function MySongs() {
 }
 
 function CreatorPublicSongs() {
-  const creatorSongs = api.music.song.getCreatorSongs.useQuery();
-  const accBalances = api.wallate.acc.getUserPubAssetBallances.useQuery();
+  const creatorSongs = api.music.song.getCreatorPublicSong.useQuery();
 
-  const header = "Creators Public song";
+  const header = "Creators Public Songs";
 
   if (creatorSongs.isLoading) return <TrackSectionSkeleton header={header} />;
 
@@ -80,34 +79,73 @@ function CreatorPublicSongs() {
         {/* <TrackSection songs={creatorSongs.data} header={header} playable /> */}
         <h3 className="py-2 text-2xl font-bold">{header}</h3>
         {creatorSongs.data.map((song) => {
-          if (!song.tier)
-            return (
-              <CreatorTrack
-                key={song.id}
-                // choose first 4 characters of the creator
-                everyone={true}
-                item={{
-                  ...song,
-                  artist: song.creatorId?.substring(0, 4) ?? "creator",
-                }}
-              />
-            );
-          if (song.tier) {
+          return (
+            <CreatorTrack
+              key={song.id}
+              // choose first 4 characters of the creator
+              playable={true}
+              item={{
+                ...song,
+                artist: song.creatorId?.substring(0, 4) ?? "creator",
+              }}
+            />
+          );
+        })}
+      </div>
+    );
+  }
+}
+
+function CreatorMarketSongs() {
+  const creatorSongs = api.music.song.getCreatorMarketSong.useQuery();
+  const accBalances = api.wallate.acc.getUserPubAssetBallances.useQuery();
+
+  const header = "Creators Market Songs";
+
+  if (creatorSongs.isLoading) return <TrackSectionSkeleton header={header} />;
+
+  if (creatorSongs.data && creatorSongs.data.length > 0) {
+    return (
+      <div className="py-4">
+        {/* <TrackSection songs={creatorSongs.data} header={header} playable /> */}
+        <h3 className="py-2 text-2xl font-bold">{header}</h3>
+        {creatorSongs.data.map((marketItem) => {
+          if (marketItem.asset.tier) {
             const bal = getAssetBalanceFromBalance({
               balances: accBalances.data,
-              code: song.code,
-              issuer: song.issuer,
+              code: marketItem.asset.code,
+              issuer: marketItem.asset.issuer,
             });
-            if (song.tier.price <= bal) {
+            if (marketItem.asset.tier.price <= bal) {
               return (
                 <CreatorTrack
-                  key={song.id}
-                  // choose first 4 characters of the creator
-
+                  key={marketItem.id}
+                  playable={true}
                   item={{
-                    ...song,
-                    artist: song.creatorId?.substring(0, 4) ?? "creator",
+                    ...marketItem.asset,
+                    artist:
+                      marketItem.asset.creatorId?.substring(0, 4) ?? "creator",
                   }}
+                />
+              );
+            } else {
+              return (
+                <CreatorTrack
+                  key={marketItem.id}
+                  item={{
+                    ...marketItem.asset,
+                    artist:
+                      marketItem.asset.creatorId?.substring(0, 4) ?? "creator",
+                  }}
+                  buyModal={
+                    <BuyModal
+                      item={marketItem.asset}
+                      price={marketItem.price}
+                      priceUSD={marketItem.priceUSD}
+                      marketItemId={marketItem.id}
+                      placerId={marketItem.placerId}
+                    />
+                  }
                 />
               );
             }

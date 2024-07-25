@@ -1,20 +1,26 @@
-import Image from "next/image";
 import clsx from "clsx";
-import { AssetBadge } from "../track/asset_badge";
-import { TrackItemType, usePlayerStore } from "~/lib/state/music/track";
+import Image from "next/image";
 import { Button } from "~/components/shadcn/ui/button";
+import { TrackItemType, usePlayerStore } from "~/lib/state/music/track";
+import BuyModal from "../modal/buy_modal";
+import { AssetType } from "~/components/marketplace/market_right";
+import { ReactNode } from "react";
 
 function CreatorTrack({
   item,
-  everyone,
+  assetItem,
+  playable,
+  buyModal,
 }: {
   item: TrackItemType;
-  everyone?: boolean;
+  assetItem?: AssetType;
+  playable?: boolean;
+  buyModal?: ReactNode;
 }) {
   const trackUrlStore = usePlayerStore();
 
   function playSong() {
-    if (everyone) trackUrlStore.setNewTrack(item);
+    if (playable) trackUrlStore.setNewTrack(item);
   }
   return (
     <div
@@ -37,9 +43,13 @@ function CreatorTrack({
         </div>
       </div>
       <div>
-        <Button onClick={playSong}>Play</Button>
+        {playable ? (
+          <Button onClick={playSong}>Play</Button>
+        ) : (
+          // <Button>Buy</Button>
 
-        {/* <AssetBadge asset={{ code: "vong", issuer: "cong" }} /> */}
+          <>{buyModal}</>
+        )}
       </div>
     </div>
   );

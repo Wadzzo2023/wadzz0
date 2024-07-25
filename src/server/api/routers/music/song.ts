@@ -9,6 +9,7 @@ import {
 import { SongFormSchema } from "~/components/music/modal/song_create";
 import { AssetSelectAllProperty } from "../marketplace/marketplace";
 import { accountDetailsWithHomeDomain } from "~/lib/stellar/marketplace/test/acc";
+import { where } from "firebase/firestore";
 
 export const songRouter = createTRPCRouter({
   getAllSong: publicProcedure.query(async ({ ctx }) => {
@@ -18,7 +19,7 @@ export const songRouter = createTRPCRouter({
     });
   }),
 
-  getCreatorSongs: protectedProcedure.query(async ({ ctx }) => {
+  getCreatorPublicSong: protectedProcedure.query(async ({ ctx }) => {
     const assets = await ctx.db.asset.findMany({
       where: { mediaType: "MUSIC", tier: { is: null } },
 
@@ -26,6 +27,20 @@ export const songRouter = createTRPCRouter({
     });
 
     return assets;
+  }),
+
+  getCreatorMarketSong: protectedProcedure.query(async ({ ctx }) => {
+    const songs = await ctx.db.marketAsset.findMany({
+      include: { asset: { select: AssetSelectAllProperty } },
+      where: {
+        type: { equals: "FAN" },
+        asset: { mediaType: { equals: "MUSIC" }, tier: { isNot: null } },
+      },
+    });
+
+    console.log(".................." + songs.length);
+
+    return songs;
   }),
 
   getAllSongMarketAssets: protectedProcedure
