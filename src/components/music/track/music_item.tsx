@@ -1,14 +1,10 @@
-import Image from "next/image";
-import Link from "next/link";
-import { AssetBadge } from "./asset_badge";
-import { PlayCircle } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
-import { usePlayerStore } from "~/lib/state/music/track";
-import clsx from "clsx";
 import { Song } from "@prisma/client";
-import toast from "react-hot-toast";
+import clsx from "clsx";
+import Image from "next/image";
 import { AssetType } from "~/components/marketplace/market_right";
+import { usePlayerStore } from "~/lib/state/music/track";
 import { PlayOrBuy } from "../album/table";
+import { AssetBadge } from "./asset_badge";
 
 export type SongItemType = Song & { asset: AssetType };
 
@@ -51,7 +47,7 @@ export default function MusicItem({
           <p className={clsx("text-sm")}>{item.artist}</p>
         </div>
       </div>
-      <div>
+      <div className="flex gap-2">
         <PlayOrBuy song={item} />
         <AssetBadge
           asset={{ code: item.asset.code, issuer: item.asset.issuer }}

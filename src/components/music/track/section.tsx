@@ -13,10 +13,6 @@ export default function TrackSection({
   playable,
   songs,
 }: TrackSectionProp) {
-  // const songs = api.music.song.getUserBuyedSongs.useQuery();
-
-  // if (songs.isLoading) return <span className="loading loading-spinner" />;
-
   if (songs && songs.length > 0)
     return (
       <div>
