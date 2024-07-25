@@ -78,9 +78,9 @@ function CreatorPosts({ creatorId }: { creatorId: string }) {
           page.posts.map((el) => (
             <PostCard
               priority={1}
-              comments={el._count.comments}
+              commentCount={el._count.comments}
               creator={el.creator}
-              like={el._count.likes}
+              likeCount={el._count.likes}
               key={el.id}
               post={el}
               show={(() => {

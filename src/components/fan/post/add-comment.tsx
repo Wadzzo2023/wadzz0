@@ -1,8 +1,10 @@
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Comment } from "@prisma/client";
 import { Send } from "lucide-react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { z } from "zod";
 import { api } from "~/utils/api";
+import CommentView from "./comment";
 
 export const CommentSchema = z.object({
   postId: z.number(),
@@ -37,13 +39,13 @@ export function AddComment({ postId }: { postId: number }) {
   };
 
   return (
-    <div className="flex w-full flex-col">
+    <div className="px-4 py-2">
       <form onSubmit={handleSubmit(onSubmit)}>
-        <label className="form-control w-full ">
-          <div className="flex  items-center gap-2">
+        <label className="form-control ">
+          <div className="flex items-center  gap-2">
             <textarea
               {...register("content")}
-              className=" textarea textarea-bordered w-full"
+              className="textarea textarea-bordered w-full"
             />
             <button
               disabled={commentM.isLoading || !contentValue?.trim()}

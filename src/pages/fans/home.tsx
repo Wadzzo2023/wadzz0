@@ -72,6 +72,7 @@ function AllRecentPost() {
   //     <PostSkeleton />
   //   </div>
   // );
+  console.log("POST", posts.data);
 
   if (posts.data) {
     return (
@@ -82,11 +83,11 @@ function AllRecentPost() {
             {page.posts.map((post) => (
               <PostCard
                 priority={1}
-                comments={post._count.comments}
+                commentCount={post._count.comments}
                 creator={post.creator}
                 key={post.id}
                 post={post}
-                like={post._count.likes}
+                likeCount={post._count.likes}
                 show={(() => {
                   if (post.subscription) {
                     const bal = getAssetBalanceFromBalance({

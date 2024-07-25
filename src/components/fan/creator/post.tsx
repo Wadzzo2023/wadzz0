@@ -5,7 +5,7 @@ import Link from "next/link";
 import { api } from "~/utils/api";
 import { formatPostCreatedAt } from "~/utils/format-date";
 
-import { Media, Post } from "@prisma/client";
+import { Comment, Media, Post } from "@prisma/client";
 
 import { PostContextMenu } from "../post/post-context-menu";
 import { PostReadMore } from "../post/post-read-more";
@@ -15,12 +15,14 @@ import { Card, CardHeader, CardContent } from "~/components/shadcn/ui/card";
 import { Button } from "~/components/shadcn/ui/button";
 import { AddComment } from "../post/add-comment";
 import { useState } from "react";
+import CommentView from "../post/comment";
+import { Separator } from "~/components/shadcn/ui/separator";
 
 export function PostCard({
   post,
   show = false,
-  like,
-  comments,
+  likeCount,
+  commentCount,
   creator,
   priority,
   media,
@@ -28,8 +30,8 @@ export function PostCard({
   creator: { name: string; id: string; profileUrl: string | null };
   post: Post;
   show?: boolean;
-  like: number;
-  comments: number;
+  likeCount: number;
+  commentCount: number;
   priority?: number;
   media?: Media[];
 }) {
@@ -39,6 +41,10 @@ export function PostCard({
   // const { data: likes, isLoading } = api.post.getLikes.useQuery(post.id);
   const { data: liked } = api.fan.post.isLiked.useQuery(post.id);
   // console.log("media", media);
+  const comments = api.fan.post.getComments.useQuery({
+    postId: post.id,
+    limit: 1,
+  });
 
   const creatorProfileUrl = `/fans/creator/${post.creatorId}`;
   const postUrl = `/fans/posts/${post.id}`;
@@ -133,8 +139,8 @@ export function PostCard({
     //   </div>
     // </div>
 
-    <div className="w-2xl container my-5  px-1 md:px-10">
-      <div className="">
+    <div className="my-5 w-full rounded-lg px-1 md:px-10">
+      <div className=" ">
         <div className=" rounded-lg  bg-white shadow-lg">
           <div className="mx-3 flex flex-row px-2 py-3">
             <div className="h-auto w-auto rounded-full">
@@ -189,61 +195,63 @@ export function PostCard({
             <>
               <Link href={postUrl}>
                 <PostReadMore post={post} />
-                <div className="border-b border-gray-200 "></div>
-                <div className="mx-3 mb-7 mt-6 w-full px-2 text-sm font-medium text-gray-400">
-                  <div
-                    className={clsx(
-                      media?.length == 1
-                        ? " grid   grid-cols-1  gap-2"
-                        : " grid   grid-cols-2  gap-2",
-                    )}
-                  >
-                    {media && media?.length == 1 ? (
-                      <div className="relative col-span-1 max-h-[250px] min-h-[250px] overflow-hidden rounded-xl md:max-h-[550px] md:min-h-[550px]">
-                        <Image
-                          height={1000}
-                          width={1000}
-                          className="h-full w-full object-fill "
-                          src={media[0]?.url ?? ""}
-                          alt=""
-                        />
-                      </div>
-                    ) : (
-                      media?.map((el, i) =>
-                        i === 0 ? (
-                          <div
-                            key={i}
-                            className="relative col-span-1 max-h-[250px] min-h-[250px] overflow-hidden rounded-xl md:max-h-[350px] md:min-h-[350px]"
-                          >
+                {media && media?.length > 0 && (
+                  <>
+                    <div className="border-b border-gray-200 "></div>
+                    <div className="mx-3 mb-7 mt-6 w-full px-2 text-sm font-medium text-gray-400">
+                      <div
+                        className={clsx(
+                          media?.length == 1
+                            ? " grid   grid-cols-1  gap-2"
+                            : " grid   grid-cols-2  gap-2",
+                        )}
+                      >
+                        {media && media?.length == 1 ? (
+                          <div className="relative col-span-1 max-h-[250px] min-h-[250px] overflow-hidden rounded-xl md:max-h-[550px] md:min-h-[550px]">
                             <Image
                               height={1000}
                               width={1000}
-                              className="h-full w-full object-cover "
+                              className="h-full w-full object-fill "
                               src={media[0]?.url ?? ""}
                               alt=""
                             />
                           </div>
                         ) : (
-                          <div
-                            key={i}
-                            className="relative col-span-1 max-h-[250px] min-h-[250px] overflow-hidden rounded-xl md:max-h-[350px] md:min-h-[350px]"
-                          >
-                            <div className=" absolute inset-0 flex items-center  justify-center bg-slate-900/80 text-xl text-white">
-                              +{media.length - 1}
-                            </div>
-                            <Image
-                              height={1000}
-                              width={1000}
-                              className="h-full w-full object-cover  "
-                              src={media[1]?.url ?? ""}
-                              alt=""
-                            />
-                          </div>
-                        ),
-                      )
-                    )}
+                          media?.map((el, i) =>
+                            i === 0 ? (
+                              <div
+                                key={i}
+                                className="relative col-span-1 max-h-[250px] min-h-[250px] overflow-hidden rounded-xl md:max-h-[350px] md:min-h-[350px]"
+                              >
+                                <Image
+                                  height={1000}
+                                  width={1000}
+                                  className="h-full w-full object-cover "
+                                  src={media[0]?.url ?? ""}
+                                  alt=""
+                                />
+                              </div>
+                            ) : (
+                              <div
+                                key={i}
+                                className="relative col-span-1 max-h-[250px] min-h-[250px] overflow-hidden rounded-xl md:max-h-[350px] md:min-h-[350px]"
+                              >
+                                <div className=" absolute inset-0 flex items-center  justify-center bg-slate-900/80 text-xl text-white">
+                                  +{media.length - 1}
+                                </div>
+                                <Image
+                                  height={1000}
+                                  width={1000}
+                                  className="h-full w-full object-cover  "
+                                  src={media[1]?.url ?? ""}
+                                  alt=""
+                                />
+                              </div>
+                            ),
+                          )
+                        )}
 
-                    {/* <div className="relative col-span-2 max-h-[10rem] overflow-hidden rounded-xl">
+                        {/* <div className="relative col-span-2 max-h-[10rem] overflow-hidden rounded-xl">
                     <div className="absolute inset-0 flex items-center  justify-center bg-slate-900/80 text-xl text-white">
                       + 23
                     </div>
@@ -255,11 +263,13 @@ export function PostCard({
                       alt=""
                     />
                   </div> */}
-                  </div>
-                </div>
+                      </div>
+                    </div>
+                  </>
+                )}
               </Link>
-              <div className=" border-gray-200gap-2 flex justify-start border-t  "></div>
-              <div className=" flex items-start justify-center gap-2   ">
+
+              <div className=" flex items-start justify-center gap-2  p-4 ">
                 <div className=" flex w-full items-center justify-center gap-2 p-0">
                   {deleteLike.isLoading || likeMutation.isLoading ? (
                     <span className="loading loading-spinner"></span>
@@ -274,9 +284,10 @@ export function PostCard({
                       }
                     >
                       <Heart
-                        className={clsx(liked && "fill-primary text-primary ")}
+                        color={liked ? "red" : "black"}
+                        className={clsx(liked && "text-red fill-red-500 ")}
                       />
-                      <p className="font-bold">{like}</p>
+                      <p className="font-bold">{likeCount}</p>
                     </Button>
                   )}
                 </div>
@@ -287,15 +298,36 @@ export function PostCard({
                   className="flex w-full items-center justify-center gap-1"
                 >
                   <MessageCircle />
-                  <p className="font-bold">{comments}</p>
+                  <p className="font-bold">{commentCount}</p>
                   comment
                 </Button>
 
                 {/* <Share2 size={20} /> */}
               </div>
-              {showCommentBox && (
+              {/* {showCommentBox && (
                 <div className="mt-15 w-full   p-5">
                   <AddComment postId={post.id} />
+                </div>
+              )} */}
+
+              <AddComment postId={post.id} />
+              <Link href={postUrl} className="px-5 underline">
+                View All Comments
+              </Link>
+              {comments.data && comments.data.length > 0 && (
+                <div className="mt-1 flex flex-col  border-2 border-base-200">
+                  <div className=" flex flex-col   px-4 py-2">
+                    {comments.data?.map((comment) => (
+                      <>
+                        <CommentView
+                          key={comment.id}
+                          comment={comment}
+                          childrenComments={comment.childComments}
+                        />
+                        <Separator />
+                      </>
+                    ))}
+                  </div>
                 </div>
               )}
             </>

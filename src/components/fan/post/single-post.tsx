@@ -27,7 +27,9 @@ export function SinglePostView({ postId }: { postId: number }) {
   const deleteLike = api.fan.post.unLike.useMutation();
   // const { data: likes, isLoading } = api.post.getLikes.useQuery(post.id);
   const { data: liked } = api.fan.post.isLiked.useQuery(postId);
-  const comments = api.fan.post.getComments.useQuery(postId);
+  const comments = api.fan.post.getComments.useQuery({
+    postId,
+  });
   const [commentBox, setCommentBox] = useState(false);
   if (post.isLoading) return <Loading />;
   // console.log("COMEMMNET", comments.data);
@@ -37,11 +39,11 @@ export function SinglePostView({ postId }: { postId: number }) {
     const postUrl = `/fans/posts/${post.data.id}`;
     // console.log("COMMNETSS", comments.data);
     return (
-      <div className="flex h-full    flex-col items-center  md:p-5">
+      <div className=" flex h-full flex-col  items-center  md:p-5">
         <h2 className="mb-5 text-center text-2xl font-bold">
           Post by {post.data.creator.name}
         </h2>
-        <div className=" w-full  rounded-box ">
+        <div className="  w-full">
           <div className=" ">
             <div className="flex  w-full flex-col items-center justify-between ">
               {post.data.medias.length > 0 && (
@@ -120,8 +122,9 @@ export function SinglePostView({ postId }: { postId: number }) {
                               }
                             >
                               <Heart
+                                color={liked ? "red" : "black"}
                                 className={clsx(
-                                  liked && "fill-primary text-primary ",
+                                  liked && "text-red fill-red-500 ",
                                 )}
                               />
                               <p className="font-bold">
@@ -152,13 +155,14 @@ export function SinglePostView({ postId }: { postId: number }) {
                       </div>
                       {/* Bottom section */}
                       <div className="w-full ">
-                        {commentBox && (
+                        {/* {commentBox && (
                           <div className="mt-15 w-full   pt-2">
                             <AddComment postId={post.data.id} />
                           </div>
-                        )}
+                        )} */}
+                        <AddComment postId={post.data.id} />
                         {comments.data && comments.data.length > 0 && (
-                          <div className=" flex flex-col gap-4 border-2 border-base-200">
+                          <div className=" flex flex-col gap-4 rounded-lg border-2 border-base-200">
                             <div className="mt-1 flex flex-col gap-4  rounded-lg p-2">
                               {comments.data?.map((comment) => (
                                 <>
