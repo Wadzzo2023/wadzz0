@@ -3,6 +3,7 @@ import AudioPlayer from "react-h5-audio-player";
 import TrackSection from "./track/section";
 import { usePlayerStore } from "~/lib/state/music/track";
 import { api } from "~/utils/api";
+import RightTrackSection from "./track/right_track";
 
 export function MusicRightSide() {
   const { song, isPlaying, setisPlaying } = usePlayerStore();
@@ -53,7 +54,11 @@ function RightSongs() {
   if (songs.data)
     return (
       <div className=" flex-1 rounded-xl border-4 border-base-100  p-2">
-        <TrackSection songs={songs.data} header="Playable songs" playable />
+        <RightTrackSection
+          songs={songs.data}
+          header="Playable songs"
+          playable
+        />
       </div>
     );
 }
