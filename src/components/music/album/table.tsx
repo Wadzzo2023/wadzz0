@@ -100,7 +100,7 @@ function PlayOrBuy({ song }: { song: SongItemType }) {
       <>
         <div className="w-12">
           <BuyModal
-            priceUSD={song.price}
+            priceUSD={song.priceUSD}
             item={song.asset}
             price={song.price}
           />

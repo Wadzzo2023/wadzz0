@@ -21,7 +21,7 @@ export const songRouter = createTRPCRouter({
 
   getCreatorPublicSong: protectedProcedure.query(async ({ ctx }) => {
     const assets = await ctx.db.asset.findMany({
-      where: { mediaType: "MUSIC", tier: { is: null } },
+      where: { mediaType: "MUSIC", tier: { is: null }, song: { is: null } },
 
       select: AssetSelectAllProperty,
     });
@@ -37,8 +37,6 @@ export const songRouter = createTRPCRouter({
         asset: { mediaType: { equals: "MUSIC" }, tier: { isNot: null } },
       },
     });
-
-    console.log(".................." + songs.length);
 
     return songs;
   }),
@@ -160,6 +158,7 @@ export const songRouter = createTRPCRouter({
         albumId,
         musicUrl,
         description,
+        priceUSD,
         price,
         limit,
         name,
@@ -179,11 +178,13 @@ export const songRouter = createTRPCRouter({
                 artist,
                 price,
                 albumId,
+                priceUSD,
               },
             },
             marketItems: { create: { price, type: "SONG" } },
             mediaType: "MUSIC",
             name,
+
             mediaUrl: musicUrl,
             thumbnail: coverImgUrl,
             description: description,
