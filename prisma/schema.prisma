@@ -297,7 +297,7 @@ model Song {
     asset   Asset @relation(fields: [assetId], references: [id])
 
     price    Float
-    priceUSD Float @default(1)
+    priceUSD Float
 
     albumId Int
     album   Album @relation(fields: [albumId], references: [id], onDelete: Cascade)
