@@ -15,7 +15,7 @@ export const songRouter = createTRPCRouter({
   getAllSong: publicProcedure.query(async ({ ctx }) => {
     return await ctx.db.song.findMany({
       include: { asset: { select: AssetSelectAllProperty } },
-      take: 10,
+      // take: 10,
     });
   }),
 

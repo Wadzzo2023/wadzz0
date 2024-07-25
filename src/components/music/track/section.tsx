@@ -8,16 +8,20 @@ type TrackSectionProp = {
   playable?: boolean;
 };
 
-export default function TrackSection({ header, playable }: TrackSectionProp) {
-  const songs = api.music.song.getUserBuyedSongs.useQuery();
+export default function TrackSection({
+  header,
+  playable,
+  songs,
+}: TrackSectionProp) {
+  // const songs = api.music.song.getUserBuyedSongs.useQuery();
 
-  if (songs.isLoading) return <span className="loading loading-spinner" />;
+  // if (songs.isLoading) return <span className="loading loading-spinner" />;
 
-  if (songs.data && songs.data.length > 0)
+  if (songs && songs.length > 0)
     return (
       <div>
         <h3 className="py-2 text-2xl font-bold">{header}</h3>
-        {songs.data.map((song) => (
+        {songs.map((song) => (
           <MusicItem key={song.id} item={song} playable={playable} />
         ))}
 
