@@ -47,7 +47,7 @@ export default function MusicItem({
           <p className={clsx("text-sm")}>{item.artist}</p>
         </div>
       </div>
-      <div className="flex gap-2">
+      <div className="flex items-center gap-2">
         <PlayOrBuy song={item} />
         <AssetBadge
           asset={{ code: item.asset.code, issuer: item.asset.issuer }}
