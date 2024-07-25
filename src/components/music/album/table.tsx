@@ -67,7 +67,7 @@ function DeleteSongButton({ songId }: { songId: number }) {
     );
 }
 
-function PlayOrBuy({ song }: { song: SongItemType }) {
+export function PlayOrBuy({ song }: { song: SongItemType }) {
   const trackUrlStore = usePlayerStore();
   const userAssets = api.wallate.acc.getAccountInfo.useQuery();
 

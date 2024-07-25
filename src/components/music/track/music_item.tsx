@@ -8,6 +8,7 @@ import clsx from "clsx";
 import { Song } from "@prisma/client";
 import toast from "react-hot-toast";
 import { AssetType } from "~/components/marketplace/market_right";
+import { PlayOrBuy } from "../album/table";
 
 export type SongItemType = Song & { asset: AssetType };
 
@@ -51,7 +52,10 @@ export default function MusicItem({
         </div>
       </div>
       <div>
-        <AssetBadge asset={{ code: "vong", issuer: "cong" }} />
+        <PlayOrBuy song={item} />
+        <AssetBadge
+          asset={{ code: item.asset.code, issuer: item.asset.issuer }}
+        />
       </div>
     </div>
   );
