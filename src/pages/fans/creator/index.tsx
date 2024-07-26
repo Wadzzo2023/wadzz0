@@ -70,7 +70,7 @@ export function CreatorBack(props: { creator: Creator }) {
       </div>
       <div className="mb-5 flex flex-col items-center justify-center">
         <div className=" -mt-16 flex h-40 w-40 items-center justify-center rounded-full ">
-          <Avater url={props.creator.profileUrl} className="" />
+          <Avater url={props.creator.profileUrl} className=" h-40 w-40" />
         </div>
 
         <div className="flex max-w-md flex-col items-center ">

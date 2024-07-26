@@ -19,15 +19,15 @@ function PageAssetRight() {
   const color = "red";
 
   return (
-    <div className="h-full ">
-      <div className="scrollbar-style relative h-full w-full  rounded-xl bg-base-100/90">
+    <div className="h-full">
+      <div className="scrollbar-style  relative h-full w-full  rounded-xl bg-base-100/90">
         <div
           className="absolute h-full w-full opacity-10"
           style={{
             backgroundColor: color,
           }}
         />
-        <div className="flex h-full flex-col justify-between space-y-2 p-2">
+        <div className="flex h-full flex-col justify-start space-y-2 p-2">
           <div className="avatar relative w-full rounded-xl border-4 border-base-100 ">
             <div className="relative m-8 w-full ">
               <ImageVideViewer
@@ -42,7 +42,7 @@ function PageAssetRight() {
             </p>
           </div>
 
-          <div className="relative space-y-2 overflow-y-auto rounded-box border-4 border-base-100 p-4 text-sm tracking-wider scrollbar-hide">
+          <div className="relative  space-y-2 overflow-y-auto rounded-box border-4 border-base-100 p-4 text-sm tracking-wider scrollbar-hide">
             <div className="space-y-1 ">
               <div className="flex items-center justify-between gap-1">
                 <p>
