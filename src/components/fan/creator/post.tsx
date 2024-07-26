@@ -135,7 +135,7 @@ export function PostCard({
     //   </div>
     // </div>
 
-    <div className="my-5 w-full rounded-lg px-1 md:px-10">
+    <div className="m-1 w-full rounded-lg px-1 md:px-10">
       <div className=" ">
         <div className=" rounded-lg  bg-white shadow-lg">
           <div className="mx-3 flex flex-row px-2 py-3">
