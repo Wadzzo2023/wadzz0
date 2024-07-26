@@ -8,7 +8,8 @@ export type ModalType =
   | "map"
   | "copied"
   | "claim pin"
-  | "nft create";
+  | "nft create"
+  | "share"
 
 interface ModalData {
   pinId?: number;
@@ -21,6 +22,7 @@ interface ModalData {
   mapDescription?: string | null;
   location?: Location;
   locationConsumer?: LocationConsumer;
+  postUrl?: string | null;
 }
 
 interface ModalStore {
@@ -35,6 +37,7 @@ interface ModalStore {
   setIsPinCopied: (isPinCopied: boolean) => void;
   setIsPinCut: (isPinCut: boolean) => void;
   setIsAutoCollect: (isAutoCollect: boolean) => void;
+
 }
 
 export const useModal = create<ModalStore>((set) => ({
@@ -49,4 +52,5 @@ export const useModal = create<ModalStore>((set) => ({
   setIsPinCopied: (isPinCopied) => set({ isPinCopied }),
   setIsPinCut: (isPinCut) => set({ isPinCut }),
   setIsAutoCollect: (isAutoCollect) => set({ isAutoCollect }),
+
 }));

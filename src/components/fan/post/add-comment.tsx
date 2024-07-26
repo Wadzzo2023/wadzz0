@@ -39,13 +39,13 @@ export function AddComment({ postId }: { postId: number }) {
   };
 
   return (
-    <div className="px-4 py-2">
+    <div className=" px-4 pb-2 ">
       <form onSubmit={handleSubmit(onSubmit)}>
         <label className="form-control ">
           <div className="flex items-center  gap-2">
             <textarea
               {...register("content")}
-              className="textarea textarea-bordered w-full"
+              className="textarea textarea-bordered h-10 w-full"
             />
             <button
               disabled={commentM.isLoading || !contentValue?.trim()}

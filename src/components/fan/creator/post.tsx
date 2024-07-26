@@ -1,5 +1,5 @@
 import clsx from "clsx";
-import { Heart, Lock, MessageCircle } from "lucide-react";
+import { Heart, Lock, MessageCircle, ShareIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { api } from "~/utils/api";
@@ -17,7 +17,8 @@ import { AddComment } from "../post/add-comment";
 import { useState } from "react";
 import CommentView from "../post/comment";
 import { Separator } from "~/components/shadcn/ui/separator";
-
+import { FacebookShareButton, FacebookIcon } from "next-share";
+import { useModal } from "~/components/hooks/use-modal-store";
 export function PostCard({
   post,
   show = false,
@@ -40,15 +41,10 @@ export function PostCard({
   const deleteLike = api.fan.post.unLike.useMutation();
   // const { data: likes, isLoading } = api.post.getLikes.useQuery(post.id);
   const { data: liked } = api.fan.post.isLiked.useQuery(post.id);
-  // console.log("media", media);
-  const comments = api.fan.post.getComments.useQuery({
-    postId: post.id,
-    limit: 1,
-  });
 
   const creatorProfileUrl = `/fans/creator/${post.creatorId}`;
   const postUrl = `/fans/posts/${post.id}`;
-
+  const { onOpen } = useModal();
   return (
     // <div
     //   key={post.id}
@@ -270,38 +266,53 @@ export function PostCard({
               </Link>
 
               <div className=" flex items-start justify-center gap-2  p-4 ">
-                <div className=" flex w-full items-center justify-center gap-2 p-0">
-                  {deleteLike.isLoading || likeMutation.isLoading ? (
-                    <span className="loading loading-spinner"></span>
-                  ) : (
-                    <Button
-                      variant="outline"
-                      className="w-full gap-1"
-                      onClick={() =>
-                        liked
-                          ? deleteLike.mutate(post.id)
-                          : likeMutation.mutate(post.id)
-                      }
-                    >
-                      <Heart
-                        color={liked ? "red" : "black"}
-                        className={clsx(liked && "text-red fill-red-500 ")}
-                      />
-                      <p className="font-bold">{likeCount}</p>
-                    </Button>
-                  )}
+                <div className=" flex w-1/3 items-center justify-center gap-2 p-0">
+                  <Button
+                    variant="outline"
+                    className="w-full gap-1"
+                    disabled={deleteLike.isLoading || likeMutation.isLoading}
+                    onClick={() =>
+                      liked
+                        ? deleteLike.mutate(post.id)
+                        : likeMutation.mutate(post.id)
+                    }
+                  >
+                    <Heart
+                      size={14}
+                      color={liked ? "red" : "black"}
+                      className={clsx(liked && "text-red fill-red-500 ")}
+                    />
+                    <p className="font-bold">{likeCount}</p>
+                    {deleteLike.isLoading || likeMutation.isLoading ? (
+                      <span className="loading loading-spinner loading-xs"></span>
+                    ) : (
+                      ""
+                    )}
+                  </Button>
                 </div>
 
-                <Button
-                  variant="outline"
-                  onClick={() => setShowCommentBox(!showCommentBox)}
-                  className="flex w-full items-center justify-center gap-1"
+                <Link
+                  href={postUrl}
+                  className="flex w-1/3 items-center justify-center gap-1"
                 >
-                  <MessageCircle />
-                  <p className="font-bold">{commentCount}</p>
-                  comment
-                </Button>
+                  <Button variant="outline" className="w-full gap-1">
+                    <MessageCircle size={14} className="" />
 
+                    {commentCount > 0 ? (
+                      <span> {commentCount} Comments</span>
+                    ) : (
+                      <span> 0 Comment</span>
+                    )}
+                  </Button>
+                </Link>
+
+                <Button
+                  onClick={() => onOpen("share", { postUrl: postUrl })}
+                  variant="outline"
+                  className="w-1/3 gap-1"
+                >
+                  <ShareIcon size={14} /> Share
+                </Button>
                 {/* <Share2 size={20} /> */}
               </div>
               {/* {showCommentBox && (
@@ -311,10 +322,8 @@ export function PostCard({
               )} */}
 
               <AddComment postId={post.id} />
-              <Link href={postUrl} className="px-5 underline">
-                View All Comments
-              </Link>
-              {comments.data && comments.data.length > 0 && (
+
+              {/* {comments.data && comments.data.length > 0 && (
                 <div className="mt-1 flex flex-col  border-2 border-base-200">
                   <div className=" flex flex-col   px-4 py-2">
                     {comments.data?.map((comment) => (
@@ -329,7 +338,7 @@ export function PostCard({
                     ))}
                   </div>
                 </div>
-              )}
+              )} */}
             </>
           )}
         </div>
