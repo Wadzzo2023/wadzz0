@@ -73,7 +73,7 @@ function CreatorPosts({ creatorId }: { creatorId: string }) {
   if (!data) return <div>No data</div>;
   if (data.pages.length > 0) {
     return (
-      <div className="w-full ">
+      <div className="flex  w-full flex-col items-center  justify-center ">
         {data.pages.map((page) =>
           page.posts.map((el) => (
             <PostCard
