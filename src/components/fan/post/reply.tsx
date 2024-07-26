@@ -22,8 +22,8 @@ export default function ReplyCommentView({
   console.log("REPLY COMMENT", comment);
 
   return (
-    <div className="flex justify-between ">
-      <div className="flex gap-2">
+    <div className="flex h-full w-full items-start justify-between text-sm ">
+      <div className="flex w-full gap-2">
         <div className="h-auto w-auto rounded-full">
           <Image
             height={100}
