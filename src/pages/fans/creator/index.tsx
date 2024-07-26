@@ -8,7 +8,7 @@ import toast from "react-hot-toast";
 import { PostMenu } from "~/components/fan/creator/CreatPost";
 import MemberShip from "~/components/fan/creator/membership";
 import Shop from "~/components/fan/creator/shop";
-import Tabs from "~/components/fan/creator/tabs";
+import CreatorsTabs from "~/components/fan/creator/tabs";
 import Alert from "~/components/ui/alert";
 import Avater from "~/components/ui/avater";
 import Loading from "~/components/wallete/loading";
@@ -47,8 +47,8 @@ function CreatorPageTemplate(props: { creator: Creator }) {
   return (
     <div className="flex h-screen flex-col items-center">
       <CreatorBack creator={props.creator} />
-      <div className=" mb-6 w-3/4  p-2">
-        <Tabs />
+      <div className="w-1/2">
+        <CreatorsTabs />
       </div>
       <div className="w-full">
         <ConditionallyRenderMenuPage creator={props.creator} />

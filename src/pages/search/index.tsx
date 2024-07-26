@@ -144,8 +144,10 @@ export function CreatorAvater({ creator }: { creator: Creator }) {
       <div>
         <Link href={`/fans/creator/${creator.id}`} className="font-bold">
           {creator.name}
+          <p className="text-xs text-slate-600">
+            {creator.bio?.slice(0, 22)}....
+          </p>
         </Link>
-        <p className="text-sm">{creator.bio?.slice(0, 30)}</p>
       </div>
     </div>
   );

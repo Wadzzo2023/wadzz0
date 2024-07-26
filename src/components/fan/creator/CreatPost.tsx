@@ -258,11 +258,11 @@ export function PostList(props: { id: string }) {
         {posts.data?.pages.map((page) =>
           page.posts.map((post) => (
             <PostCard
-              comments={post._count.comments}
+              commentCount={post._count.comments}
               creator={post.creator}
               key={post.id}
               post={post}
-              like={post._count.likes}
+              likeCount={post._count.likes}
               media={post.medias ? post.medias : []}
               show
             />

@@ -29,10 +29,10 @@ export const postRouter = createTRPCRouter({
             : null,
           medias: input.medias
             ? {
-                createMany: {
-                  data: input.medias,
-                },
-              }
+              createMany: {
+                data: input.medias,
+              },
+            }
             : undefined,
         },
       });
@@ -111,6 +111,9 @@ export const postRouter = createTRPCRouter({
           _count: {
             select: { likes: true, comments: true },
           },
+
+
+
           creator: {
             select: {
               name: true,
@@ -120,6 +123,7 @@ export const postRouter = createTRPCRouter({
             },
           },
           medias: true,
+
         },
       });
 
@@ -288,24 +292,50 @@ export const postRouter = createTRPCRouter({
     }),
 
   getComments: publicProcedure
-    .input(z.number())
-    .query(async ({ input: postId, ctx }) => {
-      return await ctx.db.comment.findMany({
-        where: {
-          postId,
-          parentCommentID: null, // Fetch only top-level comments (not replies)
-        },
-        include: {
-          user: { select: { name: true, image: true } }, // Include user details
-          childComments: {
-            include: {
-              user: { select: { name: true, image: true } }, // Include user details for child comments
-            },
-            orderBy: { createdAt: "asc" }, // Order child comments by createdAt in ascending order
+    .input(z.object({ postId: z.number(), limit: z.number().optional() }))
+    .query(async ({ input, ctx }) => {
+      if (input.limit) {
+        return await ctx.db.comment.findMany({
+          where: {
+            postId: input.postId,
+            parentCommentID: null, // Fetch only top-level comments (not replies)
           },
-        },
-        orderBy: { createdAt: "desc" }, // Order top-level comments by createdAt in descending order
-      });
+
+          include: {
+            user: { select: { name: true, image: true } }, // Include user details
+            childComments: {
+              include: {
+                user: { select: { name: true, image: true } }, // Include user details for child comments
+              },
+              orderBy: { createdAt: "asc" }, // Order child comments by createdAt in ascending order
+            },
+
+          },
+          take: input.limit, // Limit the number of comments
+          orderBy: { createdAt: "desc" }, // Order top-level comments by createdAt in descending order
+        });
+      }
+      else {
+        return await ctx.db.comment.findMany({
+          where: {
+            postId: input.postId,
+            parentCommentID: null, // Fetch only top-level comments (not replies)
+          },
+
+          include: {
+            user: { select: { name: true, image: true } }, // Include user details
+            childComments: {
+              include: {
+                user: { select: { name: true, image: true } }, // Include user details for child comments
+              },
+              orderBy: { createdAt: "asc" }, // Order child comments by createdAt in ascending order
+            },
+
+          },
+
+          orderBy: { createdAt: "desc" }, // Order top-level comments by createdAt in descending order
+        });
+      }
     }),
 
   createComment: protectedProcedure

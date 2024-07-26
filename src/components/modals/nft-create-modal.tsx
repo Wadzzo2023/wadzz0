@@ -571,7 +571,7 @@ function NftCreateForm({
                   type={
                     requiredTokenAmount > platformAssetBalance
                       ? "warning"
-                      : "noraml"
+                      : "normal"
                   }
                   content={`You need minimum ${requiredTokenAmount} ${PLATFROM_ASSET.code}`}
                 />
