@@ -30,7 +30,7 @@ export default function CommentView({
   const [replyBox, setReplyBox] = useState<boolean>(false);
 
   return (
-    <div className="flex w-full items-start justify-between ">
+    <div className="flex h-full w-full items-start justify-between text-sm ">
       <div className="flex w-full gap-2">
         <div className="h-auto w-auto rounded-full">
           <Image
