@@ -9,7 +9,7 @@ export default function Alert({
 }: {
   className?: string;
   content: string;
-  type?: "noraml" | "warning" | "error" | "success" | "info";
+  type?: "normal" | "warning" | "error" | "success" | "info";
 }) {
   return (
     <div

@@ -4,6 +4,7 @@ import MyError from "./my_error";
 import { api } from "~/utils/api";
 import { useTagStore } from "~/lib/state/wallete/tag";
 import MarketAssetComponent from "../marketplace/market_asset";
+import { MoreAssetsSkeleton } from "../marketplace/platforms_nfts";
 
 export default function AllAsset() {
   const assets = api.wallate.asset.getBancoinAssets.useInfiniteQuery(
@@ -29,7 +30,9 @@ export default function AllAsset() {
     );
 
   if (assets.isLoading && musicAssets.isLoading && adminAssets.isLoading)
-    return <Loading />;
+    return (
+      <MoreAssetsSkeleton className="grid grid-cols-2 gap-2 md:grid-cols-4 lg:grid-cols-5" />
+    );
 
   // if (assets.isError)
   //   return <MyError text="Error catch. Please reload this page." />;
@@ -39,7 +42,7 @@ export default function AllAsset() {
       style={{
         scrollbarGutter: "stable",
       }}
-      className="main-asset-area"
+      className="grid grid-cols-2 gap-2 md:grid-cols-4 lg:grid-cols-5"
     >
       {assets.data?.pages.map((page) =>
         page.assets.map((item, i) => <Asset key={i} asset={item} />),
