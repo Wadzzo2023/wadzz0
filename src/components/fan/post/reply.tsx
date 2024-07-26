@@ -19,19 +19,11 @@ export default function ReplyCommentView({
     };
   };
 }) {
-  console.log("REPLY COMMENT", comment);
-
   return (
     <div className="flex h-full w-full items-start justify-between text-sm ">
       <div className="flex w-full gap-2">
         <div className="h-auto w-auto rounded-full">
-          <Image
-            height={100}
-            width={100}
-            className="h-10 w-10 cursor-pointer rounded-full object-cover shadow"
-            alt="User avatar"
-            src={comment.user.image ?? "/images/icons/avatar-icon.png"}
-          />
+          <Avater className="h-12 w-12" url={comment.user.image} />
         </div>
         <div className="flex flex-col items-start">
           <Link href={`/fans/creator/${comment.userId}`} className="font-bold">
