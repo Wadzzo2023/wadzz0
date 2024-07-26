@@ -67,15 +67,9 @@ export function SinglePostView({ postId }: { postId: number }) {
                         <div className="flex justify-between">
                           <div className="flex gap-2">
                             <div className="h-auto w-auto rounded-full">
-                              <Image
-                                height={100}
-                                width={100}
-                                className="h-12 w-12 cursor-pointer rounded-full object-cover shadow"
-                                alt="User avatar"
-                                src={
-                                  post.data.creator.profileUrl ??
-                                  "/images/icons/avatar-icon.png"
-                                }
+                              <Avater
+                                className="h-12 w-12"
+                                url={post.data.creator.profileUrl}
                               />
                             </div>
                             <div>
@@ -152,7 +146,7 @@ export function SinglePostView({ postId }: { postId: number }) {
                             {post.data._count.comments > 0 ? (
                               <span> {post.data._count.comments} Comments</span>
                             ) : (
-                              <span> View 0 Comment</span>
+                              <span> 0 Comment</span>
                             )}
                           </Button>
                         </Link>
