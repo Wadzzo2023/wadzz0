@@ -12,6 +12,7 @@ export default function Avater(props: {
         {/* <div className=" rounded-full ring ring-primary ring-offset-2 ring-offset-base-100"> */}
         <div className={clsx("mask mask-hexagon-2", props.className)}>
           <Image
+            className="object-contain"
             src={props.url ?? "/images/icons/avatar-icon.png"}
             height={1000}
             width={1000}
