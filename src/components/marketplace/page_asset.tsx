@@ -9,6 +9,7 @@ import { usePageAssetRightStore } from "~/lib/state/wallete/page_asset_right";
 function PageAssetComponent({ item }: { item: CreatorPageAsset }) {
   const urs = usePageAssetRightStore();
   const pop = usePopUpState();
+  console.log(item);
   return (
     <div>
       <button

@@ -16,16 +16,18 @@ function PageAssetRight() {
       </div>
     );
   const { issuer, code } = currentData;
-  const color = "red";
+  const color = "blue";
 
   return (
-    <div className="h-full">
-      <div className="scrollbar-style  relative h-full w-full  rounded-xl bg-base-100/90">
+    <div className=" h-full w-full">
+      <div className="scrollbar-style relative h-full w-full overflow-y-auto rounded-xl ">
         <div
-          className="absolute h-full w-full opacity-10"
-          style={{
-            backgroundColor: color,
-          }}
+          className="absolute h-full w-full bg-base-200/50"
+          style={
+            {
+              // backgroundColor: color,
+            }
+          }
         />
         <div className="flex h-full flex-col justify-start space-y-2 p-2">
           <div className="avatar relative w-full rounded-xl border-4 border-base-100 ">
