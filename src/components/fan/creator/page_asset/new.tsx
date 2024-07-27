@@ -84,6 +84,7 @@ function NewPageAssetFrom({ requiredToken }: { requiredToken: number }) {
       })
         .then((res) => {
           if (res) {
+            console.log(getValues("thumbnail"));
             mutation.mutate({
               code: getValues("code"),
               limit: getValues("limit"),

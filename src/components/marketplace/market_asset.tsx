@@ -10,6 +10,7 @@ function MarketAssetComponent({ item }: { item: MarketAssetType }) {
 
   const urs = useMarketRightStore();
   const pop = usePopUpState();
+  console.log(asset);
   return (
     <div>
       <button

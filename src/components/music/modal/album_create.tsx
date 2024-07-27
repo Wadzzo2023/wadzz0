@@ -21,8 +21,8 @@ export const AlbumFormShema = z.object({
   id: z.number().optional(),
   name: z
     .string()
-    .max(20, { message: "Maximum 20 char" })
-    .min(3, { message: "Minimum 3 char" }),
+    .max(20, { message: "Album name must be between 3 to 20 characters" })
+    .min(3, { message: "Album name must be between 3 to 20 characters" }),
   description: z.string(),
   coverImgUrl: z.string(),
 });
@@ -84,14 +84,14 @@ export default function AlbumCreate({ mode, album }: AlbumCreate) {
                 type="text"
                 required
                 placeholder="Album Name"
-                className="input input-bordered input-sm  w-full"
+                className="input input-sm input-bordered  w-full"
               />
               <input
                 {...register("description")}
                 type="text"
                 required
                 placeholder="Description"
-                className="input input-bordered input-sm w-full"
+                className="input input-sm input-bordered w-full"
               />
               <UploadButton
                 endpoint="imageUploader"
