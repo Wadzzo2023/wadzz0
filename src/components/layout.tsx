@@ -58,21 +58,21 @@ export default function Layout({
             <div className="flex h-full border-t-2">
               <LeftBar className="hidden xl:flex" />
               <div
-                id="ih"
+                // id="ih"
                 className="flex-1 border-x-2"
-                style={
-                  router.pathname.includes("/fans/creator") && creator.data
-                    ? {
-                        background: `url("${creator.data.backgroundSVG}")`,
-                        backgroundSize: "10%",
-                        animation: "pan 135s linear infinite",
-                      }
-                    : {
-                        background: `url("images/guitar.svg")`,
-                        backgroundSize: "10%",
-                        animation: "pan 135s linear infinite",
-                      }
-                }
+                // style={
+                //   router.pathname.includes("/fans/creator") && creator.data
+                //     ? {
+                //         background: `url("${creator.data.backgroundSVG}")`,
+                //         backgroundSize: "10%",
+                //         animation: "pan 135s linear infinite",
+                //       }
+                //     : {
+                //         background: `url("images/guitar.svg")`,
+                //         backgroundSize: "10%",
+                //         animation: "pan 135s linear infinite",
+                //       }
+                // }
               >
                 <div className=" h-full overflow-y-auto bg-base-100/80 scrollbar-hide">
                   {session.status == "authenticated" ? (
