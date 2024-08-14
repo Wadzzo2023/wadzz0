@@ -2,6 +2,7 @@ import Loading from "./loading";
 import Asset from "./asset";
 import MyError from "./my_error";
 import { api } from "~/utils/api";
+import { MoreAssetsSkeleton } from "../marketplace/platforms_nfts";
 
 export default function OtherAssets() {
   const assets = api.wallate.asset.getBancoinAssets.useInfiniteQuery(
@@ -11,7 +12,10 @@ export default function OtherAssets() {
     },
   );
 
-  if (assets.isLoading) return <Loading />;
+  if (assets.isLoading)
+    return (
+      <MoreAssetsSkeleton className="grid grid-cols-2 gap-2 md:grid-cols-4 lg:grid-cols-5" />
+    );
   if (assets.isError)
     return <MyError text="Error catch. Please reload this page." />;
 
@@ -21,7 +25,7 @@ export default function OtherAssets() {
         style={{
           scrollbarGutter: "stable",
         }}
-        className="main-asset-area"
+        className="grid grid-cols-2 gap-2 md:grid-cols-4 lg:grid-cols-5"
       >
         {assets.data.pages.map((page) =>
           page.assets.map((item, i) => <Asset key={i} asset={item} />),

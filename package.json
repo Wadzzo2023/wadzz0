@@ -73,6 +73,7 @@
     "next": "^14.2.5",
     "next-auth": "^4.24.7",
     "next-nprogress-bar": "^2.3.13",
+    "next-share": "^0.27.0",
     "next-themes": "^0.3.0",
     "nextjs-cors": "^2.2.0",
     "pino": "^8.21.0",

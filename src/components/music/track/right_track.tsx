@@ -8,12 +8,12 @@ type TrackSectionProp = {
   playable?: boolean;
 };
 
-export default function TrackSection({
+export default function RightTrackSection({
   header,
   playable,
   songs,
 }: TrackSectionProp) {
-  if (songs && songs.length > 0)
+  if (songs)
     return (
       <div>
         <h3 className="py-2 text-2xl font-bold">{header}</h3>

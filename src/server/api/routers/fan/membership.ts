@@ -38,15 +38,31 @@ export const membershipRouter = createTRPCRouter({
 
       const { code: code, issuer, limit, thumbnail } = input;
 
-      await ctx.db.creatorPageAsset.create({
-        data: {
-          creatorId,
-          limit: limit,
-          code,
-          issuer: issuer.publicKey,
-          issuerPrivate: issuer.secretKey,
-        },
-      });
+      if (thumbnail) {
+        await ctx.db.creatorPageAsset.create({
+          data: {
+            creatorId,
+            limit: limit,
+            code,
+            thumbnail: thumbnail,
+            issuer: issuer.publicKey,
+            issuerPrivate: issuer.secretKey,
+          },
+        });
+      }
+      else {
+        await ctx.db.creatorPageAsset.create({
+          data: {
+            creatorId,
+            limit: limit,
+            code,
+            issuer: issuer.publicKey,
+            issuerPrivate: issuer.secretKey,
+          },
+        });
+      }
+
+
     }),
 
   createCustomPageAsset: protectedProcedure

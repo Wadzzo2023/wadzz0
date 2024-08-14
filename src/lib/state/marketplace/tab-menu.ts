@@ -1,9 +1,9 @@
 import { create } from "zustand";
 
 export enum MarketMenu {
-  Wallate = "Wadzzo Curated",
+  Wallate = "Bandcoin Curated",
   Music = "Music",
-  FanAsset = "Brand Asset",
+  FanAsset = "Artist Tokens",
   Trade = "Trade",
 }
 

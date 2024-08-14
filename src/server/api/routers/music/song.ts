@@ -9,21 +9,36 @@ import {
 import { SongFormSchema } from "~/components/music/modal/song_create";
 import { AssetSelectAllProperty } from "../marketplace/marketplace";
 import { accountDetailsWithHomeDomain } from "~/lib/stellar/marketplace/test/acc";
+import { where } from "firebase/firestore";
 
 export const songRouter = createTRPCRouter({
   getAllSong: publicProcedure.query(async ({ ctx }) => {
     return await ctx.db.song.findMany({
       include: { asset: { select: AssetSelectAllProperty } },
-      take: 10,
+      // take: 10,
     });
   }),
 
-  getCreatorSongs: protectedProcedure.query(async ({ ctx }) => {
+  getCreatorPublicSong: protectedProcedure.query(async ({ ctx }) => {
     const assets = await ctx.db.asset.findMany({
-      where: { mediaType: "MUSIC" },
+      where: { mediaType: "MUSIC", tier: { is: null }, song: { is: null } },
+
+      select: AssetSelectAllProperty,
     });
 
     return assets;
+  }),
+
+  getCreatorMarketSong: protectedProcedure.query(async ({ ctx }) => {
+    const songs = await ctx.db.marketAsset.findMany({
+      include: { asset: { select: AssetSelectAllProperty } },
+      where: {
+        type: { equals: "FAN" },
+        asset: { mediaType: { equals: "MUSIC" }, tier: { isNot: null } },
+      },
+    });
+
+    return songs;
   }),
 
   getAllSongMarketAssets: protectedProcedure
@@ -143,6 +158,7 @@ export const songRouter = createTRPCRouter({
         albumId,
         musicUrl,
         description,
+        priceUSD,
         price,
         limit,
         name,
@@ -162,11 +178,13 @@ export const songRouter = createTRPCRouter({
                 artist,
                 price,
                 albumId,
+                priceUSD,
               },
             },
             marketItems: { create: { price, type: "SONG" } },
             mediaType: "MUSIC",
             name,
+
             mediaUrl: musicUrl,
             thumbnail: coverImgUrl,
             description: description,

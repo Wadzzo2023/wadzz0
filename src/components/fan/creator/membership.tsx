@@ -30,7 +30,7 @@ export default function MemberShip({ creator }: { creator: Creator }) {
     <div className="my-7 flex flex-col items-center">
       <AssetViewCart creator={creator} />
       {subscriptions && subscriptions?.length < 3 && pageAsset.data && (
-        <div className="fixed bottom-10 right-0 p-4">
+        <div className="fixed bottom-10 right-0 p-4 lg:bottom-0 lg:right-80">
           <AddTierModal creator={creator} />
         </div>
       )}
@@ -45,7 +45,7 @@ export default function MemberShip({ creator }: { creator: Creator }) {
 
 function AssetViewCart({ creator }: { creator: Creator }) {
   return (
-    <Card className="w-[350px]">
+    <Card className="w-[350px] text-center">
       <CardHeader>
         <CardTitle>Your Page Asset</CardTitle>
         {/* <CardDescription></CardDescription> */}

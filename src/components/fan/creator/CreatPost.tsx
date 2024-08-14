@@ -254,15 +254,15 @@ export function PostList(props: { id: string }) {
   if (posts.isLoading) return <div>Loading...</div>;
   if (posts.data) {
     return (
-      <div className=" flex  flex-col items-center justify-center   gap-4">
+      <div className=" flex  flex-col items-center justify-center  ">
         {posts.data?.pages.map((page) =>
           page.posts.map((post) => (
             <PostCard
-              comments={post._count.comments}
+              commentCount={post._count.comments}
               creator={post.creator}
               key={post.id}
               post={post}
-              like={post._count.likes}
+              likeCount={post._count.likes}
               media={post.medias ? post.medias : []}
               show
             />

@@ -73,14 +73,14 @@ function CreatorPosts({ creatorId }: { creatorId: string }) {
   if (!data) return <div>No data</div>;
   if (data.pages.length > 0) {
     return (
-      <div className="w-full ">
+      <div className="flex  w-full flex-col items-center  justify-center ">
         {data.pages.map((page) =>
           page.posts.map((el) => (
             <PostCard
               priority={1}
-              comments={el._count.comments}
+              commentCount={el._count.comments}
               creator={el.creator}
-              like={el._count.likes}
+              likeCount={el._count.likes}
               key={el.id}
               post={el}
               show={(() => {

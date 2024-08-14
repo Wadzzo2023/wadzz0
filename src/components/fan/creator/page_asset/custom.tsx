@@ -10,6 +10,8 @@ import useNeedSign from "~/lib/hook";
 import { clientSelect } from "~/lib/stellar/fan/utils";
 import { api } from "~/utils/api";
 
+import { Button } from "~/components/shadcn/ui/button";
+
 export const CreatorCustomPageAssetSchema = z.object({
   code: z
     .string()
@@ -78,9 +80,9 @@ function CustomPageAssetFrom({ requiredToken }: { requiredToken: number }) {
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
-      className="flex flex-col items-center  gap-2 rounded-md bg-base-300 py-8"
+      className="mb-2 mt-2 flex flex-col items-center  gap-2 rounded-md bg-base-300 p-2"
     >
-      <label className="form-control w-full max-w-xs">
+      <label className="form-control w-full px-2">
         <div className="label">
           <span className="label-text">Page Asset Code</span>
         </div>
@@ -88,7 +90,7 @@ function CustomPageAssetFrom({ requiredToken }: { requiredToken: number }) {
           type="text"
           placeholder="Enter page asset code"
           {...register("code")}
-          className="input input-bordered w-full max-w-xs"
+          className="input input-bordered w-full"
         />
         {errors.code && (
           <div className="label">
@@ -99,13 +101,13 @@ function CustomPageAssetFrom({ requiredToken }: { requiredToken: number }) {
         )}
       </label>
 
-      <label className="form-control w-full max-w-xs">
+      <label className="form-control w-full px-2">
         <div className="label">
           <span className="label-text">Issuer</span>
         </div>
         <input
           {...register("issuer")}
-          className="input input-bordered  w-full"
+          className="input input-bordered w-full"
           placeholder="Enter issuer address"
         />
         {errors.issuer && (
@@ -117,9 +119,9 @@ function CustomPageAssetFrom({ requiredToken }: { requiredToken: number }) {
         )}
       </label>
 
-      <div className="max-w-xs">
+      <div className="px-2 text-sm">
         <Alert
-          type={mutation.error ? "warning" : "noraml"}
+          type={mutation.error ? "warning" : "normal"}
           //   content={`To create this page token, you'll need ${requiredToken} ${PLATFROM_ASSET.code} for your Asset account. Additionally, there's a platform fee of ${PLATFROM_FEE} ${PLATFROM_ASSET.code}. Total: ${requiredToken + Number(PLATFROM_FEE)}`}
           content={`You might not be able to change your page asset in future. Please enter the information very carefully`}
         />
@@ -160,13 +162,13 @@ function CustomPageAssetFrom({ requiredToken }: { requiredToken: number }) {
       );
     } else {
       return (
-        <button
-          className="btn btn-primary mt-2 w-full max-w-xs"
+        <Button
+          className="w-full"
           type="submit"
           disabled={xdrMutation.isLoading || loading}
         >
           Proceed
-        </button>
+        </Button>
       );
     }
   }

@@ -139,13 +139,15 @@ export function CreatorAvater({ creator }: { creator: Creator }) {
   return (
     <div className="flex items-center gap-2  p-2 px-4 hover:rounded-lg hover:bg-base-100">
       <div>
-        <Avater url={creator.profileUrl} className="w-8" />
+        <Avater url={creator.profileUrl} className="h-10 w-10" />
       </div>
       <div>
         <Link href={`/fans/creator/${creator.id}`} className="font-bold">
           {creator.name}
+          <p className="text-xs text-slate-600">
+            {creator.bio?.slice(0, 22)}....
+          </p>
         </Link>
-        <p className="text-sm">{creator.bio?.slice(0, 30)}</p>
       </div>
     </div>
   );

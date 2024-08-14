@@ -53,7 +53,7 @@ export default function TrackCover({
             Album: {song.albumId}
           </p>
         </Link>
-        <p className="text-sm">Brand: {song.artist}</p>
+        <p className="text-sm">Artist: {song.artist}</p>
         <div>
           <div>
             Asset: <AssetBadge asset={song.asset} />{" "}

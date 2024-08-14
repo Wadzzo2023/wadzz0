@@ -212,11 +212,11 @@ export default function SongCreate({ albumId }: { albumId: number }) {
                   </div>
 
                   <div className="w-full max-w-xs">
-                    <label className="label">Brand</label>
+                    <label className="label">Artist</label>
                     <input
                       {...register("artist")}
                       className="input input-sm input-bordered  w-full"
-                      placeholder="Enter Brand Name"
+                      placeholder="Enter Artist Name"
                     />
                   </div>
                 </div>
@@ -381,7 +381,7 @@ export default function SongCreate({ albumId }: { albumId: number }) {
                       <label className="label">
                         <span className="label-text">Price in USD</span>
                         <span className="label-text-alt">
-                          Default price is $2
+                          Default price is 2$
                         </span>
                       </label>
                       <input

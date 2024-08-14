@@ -41,7 +41,7 @@ export default function AllTags() {
           setMarektData(undefined);
         }}
       />
-      {/* <input
+      <input
         className="!btn join-item"
         type="radio"
         name="options"
@@ -51,14 +51,25 @@ export default function AllTags() {
           setData(undefined);
           setMarektData(undefined);
         }}
-      /> */}
+      />
       <input
         className="!btn join-item"
         type="radio"
         name="options"
-        aria-label="BRAND TOKEN"
+        aria-label="ARTISTS"
         onClick={() => {
-          selectTag(AssetVariant.Other);
+          selectTag(AssetVariant.Artists);
+          setData(undefined);
+          setMarektData(undefined);
+        }}
+      />
+      <input
+        className="!btn join-item"
+        type="radio"
+        name="options"
+        aria-label="ARTIST TOKEN"
+        onClick={() => {
+          selectTag(AssetVariant.FAN);
           setData(undefined);
           setMarektData(undefined);
         }}
