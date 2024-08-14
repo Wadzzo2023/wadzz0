@@ -24,6 +24,7 @@ import { api } from "~/utils/api";
 import { UploadButton } from "~/utils/uploadthing";
 import Alert from "../ui/alert";
 import Loading from "../wallete/loading";
+import { Button } from "../shadcn/ui/button";
 
 export const ExtraSongInfo = z.object({
   artist: z.string(),
@@ -167,6 +168,7 @@ function NftCreateForm({
           .then((res) => {
             if (res) {
               setValue("isAdmin", isAdmin);
+              setValue("tier", tier);
               const data = getValues();
               // res && addMutation.mutate(data);
 
@@ -291,9 +293,9 @@ function NftCreateForm({
     <>
       <Dialog>
         <DialogTrigger asChild>
-          <button className="btn btn-primary">
-            <PlusIcon /> Item
-          </button>
+          <Button variant="destructive">
+            <PlusIcon size={16} /> Item
+          </Button>
         </DialogTrigger>
         <DialogContent
           onInteractOutside={(e) => {
@@ -583,7 +585,7 @@ function NftCreateForm({
                   type={
                     requiredTokenAmount > platformAssetBalance
                       ? "warning"
-                      : "noraml"
+                      : "normal"
                   }
                   content={`You need minimum ${requiredTokenAmount} ${PLATFROM_ASSET.code}`}
                 />

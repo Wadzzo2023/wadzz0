@@ -8,7 +8,8 @@ export type ModalType =
   | "map"
   | "copied"
   | "claim pin"
-  | "nft create";
+  | "nft create"
+  | "share";
 
 interface ModalData {
   pinId?: number;
@@ -21,6 +22,7 @@ interface ModalData {
   mapDescription?: string | null;
   location?: Location;
   locationConsumer?: LocationConsumer;
+  postUrl?: string | null;
 }
 
 interface ModalStore {

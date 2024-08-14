@@ -1,13 +1,10 @@
-import Image from "next/image";
-import Link from "next/link";
-import { AssetBadge } from "./asset_badge";
-import { PlayCircle } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
-import { usePlayerStore } from "~/lib/state/music/track";
-import clsx from "clsx";
 import { Song } from "@prisma/client";
-import toast from "react-hot-toast";
+import clsx from "clsx";
+import Image from "next/image";
 import { AssetType } from "~/components/marketplace/market_right";
+import { usePlayerStore } from "~/lib/state/music/track";
+import { PlayOrBuy } from "../album/table";
+import { AssetBadge } from "./asset_badge";
 
 export type SongItemType = Song & { asset: AssetType };
 
@@ -21,7 +18,14 @@ export default function MusicItem({
   const trackUrlStore = usePlayerStore();
 
   function playSong() {
-    if (playable) trackUrlStore.setNewTrack(item);
+    if (playable)
+      trackUrlStore.setNewTrack({
+        artist: item.artist,
+        code: item.asset.code,
+        thumbnail: item.asset.thumbnail,
+        mediaUrl: item.asset.mediaUrl,
+        name: item.asset.name,
+      });
   }
 
   return (
@@ -39,14 +43,15 @@ export default function MusicItem({
           />
         </div>
         <div className="">
-          <Link href={`/music/track/${item.id}`}>
-            <p className={clsx(" text-base font-bold")}>{item.asset.code}</p>
-          </Link>
+          <p className={clsx(" text-base font-bold")}>{item.asset.code}</p>
           <p className={clsx("text-sm")}>{item.artist}</p>
         </div>
       </div>
-      <div>
-        <AssetBadge asset={{ code: "vong", issuer: "cong" }} />
+      <div className="flex items-center gap-2">
+        <PlayOrBuy song={item} />
+        <AssetBadge
+          asset={{ code: item.asset.code, issuer: item.asset.issuer }}
+        />
       </div>
     </div>
   );

@@ -1,6 +1,12 @@
 import ImageVideViewer from "~/components/wallete/Image_video_viewer";
 
-function AssetView({ code, thumbnail }: { code: string; thumbnail?: string }) {
+function AssetView({
+  code,
+  thumbnail,
+}: {
+  code: string;
+  thumbnail?: string | null;
+}) {
   const color = "blue";
   const logoBlueData = "logoBlueData";
 

@@ -16,7 +16,7 @@ export default function BottonPlayer() {
             <AudioPlayer
               defaultCurrentTime="00:01:00"
               autoPlay={true}
-              src={song.asset.mediaUrl}
+              src={song.mediaUrl}
               volume={0.3}
             />
           </div>

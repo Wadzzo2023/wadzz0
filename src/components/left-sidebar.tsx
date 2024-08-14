@@ -17,9 +17,9 @@ export const LeftNavigation = {
   },
   MyAssets: { path: "/assets", icon: Bell, text: "MY COLLECTION" },
   // Search: { path: "/search", icon: Search, text: "Search" },
-  // Music: { path: "/music", icon: Diamond, text: "MUSIC" },
+  Music: { path: "/music", icon: Diamond, text: "MUSIC" },
   Marketplace: { path: "/marketplace", icon: Bell, text: "MARKETPLACE" },
-  Fan: { path: "/fans/home", icon: Bell, text: "BRANDS" },
+  Fan: { path: "/fans/home", icon: Bell, text: "ARTISTS" },
   Settings: { path: "/settings", icon: Settings2, text: "SETTINGS" },
 } as const;
 export const BottomNavigation = {
@@ -62,7 +62,7 @@ function NavigationButtons() {
           ),
         )}
       </div>
-      <div className="flex   flex-col  gap-2">
+      {/* <div className="flex   flex-col  gap-2">
         {Object.entries(BottomNavigation).map(
           ([key, { path, icon: Icon, text }]) => (
             <Link href={path} className="w-full " key={key}>
@@ -75,7 +75,7 @@ function NavigationButtons() {
             </Link>
           ),
         )}
-      </div>
+      </div> */}
     </div>
   );
 }
@@ -86,7 +86,7 @@ function LeftBottom() {
       <ConnectWalletButton />
       <div className="flex justify-between space-x-2">
         <Link
-          href={"https://facebook.com/wadzzo"}
+          href={"https://facebook.com/bandcoinio"}
           className="btn flex h-16 flex-col items-center  text-xs normal-case"
           target="_blank"
         >
@@ -94,7 +94,7 @@ function LeftBottom() {
           <span>Facebook</span>
         </Link>
         <Link
-          href={"https://twitter.com/WadzzoApp"}
+          href={"https://x.com/bandcoinio"}
           className="btn flex h-16 flex-1 flex-col items-center text-xs normal-case "
           target="_blank"
         >
@@ -102,7 +102,7 @@ function LeftBottom() {
           <span>X</span>
         </Link>
         <Link
-          href={"https://instagram.com/wadzzo/"}
+          href={"https://www.instagram.com/bandcoin"}
           className="btn flex h-16 flex-col items-center text-xs normal-case"
           target="_blank"
         >
@@ -118,6 +118,9 @@ function LeftBottom() {
           </Link>
           <Link className="link-hover link" href="/privacy">
             Privacy
+          </Link>
+          <Link className="link-hover link" href="/support">
+            Support
           </Link>
         </div>
         <p>v{1.1}</p>

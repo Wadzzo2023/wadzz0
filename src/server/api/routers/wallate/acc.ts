@@ -22,8 +22,6 @@ export const accRouter = createTRPCRouter({
       userPub: userId,
     });
 
-    console.log(assets, "i");
-
     const dbAssets = await ctx.db.asset.findMany({
       where: {
         OR: assets.map((asset) => ({

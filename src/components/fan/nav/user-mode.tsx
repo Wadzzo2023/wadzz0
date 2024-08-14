@@ -24,16 +24,21 @@ export function AllCreators() {
   );
 
   return (
-    <div className="flex w-full  flex-1 flex-col  items-start gap-2 overflow-y-auto rounded-lg border-4 border-base-100 pt-5">
+    <div className="flex w-full  flex-1 flex-col  items-start gap-2 overflow-y-auto rounded-lg border-4 border-base-100  pt-5">
       <p className="pl-2 text-lg font-bold">All creators</p>
-      <div className="w-full flex-1 overflow-auto rounded-lg  p-2 scrollbar-hide">
-        <ul className="">
+      <div className="w-full flex-1 overflow-auto rounded-lg  p-2 scrollbar-hide ">
+        <ul className=" ">
           {creators.data?.pages.map((page) => {
             return page.items.map((creator) => {
               return (
-                <li key={creator.id}>
-                  <CreatorAvater creator={creator} />
-                </li>
+                <div
+                  className="mb-1 border-b-2 border-black border-opacity-10"
+                  key={creator.id}
+                >
+                  <li>
+                    <CreatorAvater creator={creator} />
+                  </li>
+                </div>
               );
             });
           })}

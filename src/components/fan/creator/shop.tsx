@@ -14,7 +14,7 @@ import { MoreAssetsSkeleton } from "~/components/marketplace/platforms_nfts";
 export default function Shop({ creator }: { creator?: Creator }) {
   return (
     <div className="my-7">
-      <div className="fixed bottom-0 right-0 z-50 p-4">
+      <div className="fixed bottom-10 right-0 p-4 lg:bottom-0 lg:right-80">
         <NftCreate />
       </div>
       <AllShopItems />

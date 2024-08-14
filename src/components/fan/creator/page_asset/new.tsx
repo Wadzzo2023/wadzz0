@@ -6,6 +6,7 @@ import React, { useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { z } from "zod";
+import { Button } from "~/components/shadcn/ui/button";
 import Alert from "~/components/ui/alert";
 import useNeedSign from "~/lib/hook";
 import { PLATFROM_ASSET, PLATFROM_FEE } from "~/lib/stellar/constant";
@@ -83,6 +84,7 @@ function NewPageAssetFrom({ requiredToken }: { requiredToken: number }) {
       })
         .then((res) => {
           if (res) {
+            console.log(getValues("thumbnail"));
             mutation.mutate({
               code: getValues("code"),
               limit: getValues("limit"),
@@ -169,9 +171,9 @@ function NewPageAssetFrom({ requiredToken }: { requiredToken: number }) {
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
-      className="flex flex-col items-center  gap-2 rounded-md bg-base-300 py-8"
+      className="mb-2 mt-2 flex flex-col items-center  gap-2 rounded-md bg-base-300 p-2"
     >
-      <label className="form-control w-full max-w-xs">
+      <label className="form-control w-full px-2">
         <div className="label">
           <span className="label-text">Page Asset Name</span>
         </div>
@@ -179,7 +181,7 @@ function NewPageAssetFrom({ requiredToken }: { requiredToken: number }) {
           type="text"
           placeholder="Enter Page Asset Code"
           {...register("code")}
-          className="input input-bordered w-full max-w-xs"
+          className="input input-bordered w-full "
         />
         {errors.code && (
           <div className="label">
@@ -190,7 +192,7 @@ function NewPageAssetFrom({ requiredToken }: { requiredToken: number }) {
         )}
       </label>
 
-      <label className="form-control w-full max-w-xs">
+      <label className="form-control w-full px-2">
         <div className="label">
           <span className="label-text">Limit</span>
         </div>
@@ -199,7 +201,7 @@ function NewPageAssetFrom({ requiredToken }: { requiredToken: number }) {
           {...register("limit", { valueAsNumber: true })}
           min={1}
           step={1}
-          className="input input-sm input-bordered  w-full"
+          className="input input-bordered w-full"
           placeholder="Asset Limit"
         />
         {errors.limit && (
@@ -211,14 +213,16 @@ function NewPageAssetFrom({ requiredToken }: { requiredToken: number }) {
         )}
       </label>
 
-      <label className="form-control w-full max-w-xs">
+      <label className="form-control w-full px-2">
         <input
           type="file"
           id="file"
           accept=".jpg, .png"
           onChange={handleChange}
         />
-        {uploading && <progress className="progress w-56"></progress>}
+        {uploading && (
+          <progress className="progress mt-2 w-full px-2"></progress>
+        )}
         {coverUrl && (
           <>
             <Image
@@ -232,20 +236,17 @@ function NewPageAssetFrom({ requiredToken }: { requiredToken: number }) {
         )}
       </label>
 
-      <div className="max-w-xs">
+      <div className="px-2 text-sm">
         <Alert
-          type={mutation.error ? "warning" : "noraml"}
+          className=""
+          type={mutation.error ? "warning" : "normal"}
           content={`To create this page token, you'll need ${requiredToken} ${PLATFROM_ASSET.code} for your Asset account. Additionally, there's a platform fee of ${PLATFROM_FEE} ${PLATFROM_ASSET.code}. Total: ${requiredToken + Number(PLATFROM_FEE)}`}
         />
       </div>
-      <button
-        className="btn btn-primary mt-2 w-full max-w-xs"
-        type="submit"
-        disabled={loading}
-      >
+      <Button className="w-full" type="submit" disabled={loading}>
         {loading && <span className="loading loading-spinner"></span>}
         Create Page Asset
-      </button>
+      </Button>
     </form>
   );
 }

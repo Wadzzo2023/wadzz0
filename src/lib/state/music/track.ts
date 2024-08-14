@@ -1,10 +1,17 @@
 import { create } from "zustand";
-import { SongItemType } from "~/components/music/track/music_item";
+
+export type TrackItemType = {
+  thumbnail: string;
+  artist: string;
+  name: string;
+  mediaUrl: string;
+  code: string;
+};
 
 interface Track {
   isPlaying: boolean;
-  song?: SongItemType;
-  setNewTrack: (song?: SongItemType) => void;
+  song?: TrackItemType;
+  setNewTrack: (song?: TrackItemType) => void;
   bottomVisiable: boolean;
   setBottomVisiable: (value: boolean) => void;
   setisPlaying: (value: boolean) => void;
@@ -14,7 +21,7 @@ export const usePlayerStore = create<Track>((set) => ({
   // song: themeSong,
   bottomVisiable: false,
   isPlaying: false,
-  setNewTrack: (song?: SongItemType) => set({ song: song }),
+  setNewTrack: (song?: TrackItemType) => set({ song: song }),
   setBottomVisiable(value) {
     set({ bottomVisiable: value });
   },

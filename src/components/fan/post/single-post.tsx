@@ -1,5 +1,5 @@
 import clsx from "clsx";
-import { Heart, MessageCircle } from "lucide-react";
+import { Heart, MessageCircle, ShareIcon } from "lucide-react";
 import Link from "next/link";
 import { api } from "~/utils/api";
 import { formatPostCreatedAt } from "~/utils/format-date";
@@ -16,18 +16,21 @@ import Image from "next/image";
 import { Button } from "~/components/shadcn/ui/button";
 import { useState } from "react";
 import ReplyCommentView from "./reply";
+import { useModal } from "~/components/hooks/use-modal-store";
 
 export function SinglePostView({ postId }: { postId: number }) {
   const post = api.fan.post.getAPost.useQuery(postId, {
     refetchOnWindowFocus: false,
   });
-
+  const { onOpen } = useModal();
   // return <div></div>;
   const likeMutation = api.fan.post.likeApost.useMutation();
   const deleteLike = api.fan.post.unLike.useMutation();
   // const { data: likes, isLoading } = api.post.getLikes.useQuery(post.id);
   const { data: liked } = api.fan.post.isLiked.useQuery(postId);
-  const comments = api.fan.post.getComments.useQuery(postId);
+  const comments = api.fan.post.getComments.useQuery({
+    postId,
+  });
   const [commentBox, setCommentBox] = useState(false);
   if (post.isLoading) return <Loading />;
   // console.log("COMEMMNET", comments.data);
@@ -37,11 +40,11 @@ export function SinglePostView({ postId }: { postId: number }) {
     const postUrl = `/fans/posts/${post.data.id}`;
     // console.log("COMMNETSS", comments.data);
     return (
-      <div className="flex h-full    flex-col items-center  md:p-5">
+      <div className=" flex h-full flex-col  items-center  md:p-5 ">
         <h2 className="mb-5 text-center text-2xl font-bold">
           Post by {post.data.creator.name}
         </h2>
-        <div className=" w-full  rounded-box ">
+        <div className="w-full ">
           <div className=" ">
             <div className="flex  w-full flex-col items-center justify-between ">
               {post.data.medias.length > 0 && (
@@ -64,15 +67,9 @@ export function SinglePostView({ postId }: { postId: number }) {
                         <div className="flex justify-between">
                           <div className="flex gap-2">
                             <div className="h-auto w-auto rounded-full">
-                              <Image
-                                height={100}
-                                width={100}
-                                className="h-12 w-12 cursor-pointer rounded-full object-cover shadow"
-                                alt="User avatar"
-                                src={
-                                  post.data.creator.profileUrl ??
-                                  "/images/icons/avatar-icon.png"
-                                }
+                              <Avater
+                                className="h-12 w-12"
+                                url={post.data.creator.profileUrl}
                               />
                             </div>
                             <div>
@@ -105,71 +102,86 @@ export function SinglePostView({ postId }: { postId: number }) {
                         <p className="ml-4 font-bold">{post.data.heading}</p>
                         <Preview value={post.data.content} />
                       </div>
-                      <div className=" flex items-start justify-center gap-2  py-2 ">
-                        <div className=" flex w-full items-center justify-center gap-2 p-0">
-                          {deleteLike.isLoading || likeMutation.isLoading ? (
-                            <span className="loading loading-spinner"></span>
-                          ) : (
-                            <Button
-                              variant="outline"
-                              className="w-full gap-1"
-                              onClick={() =>
-                                liked
-                                  ? deleteLike.mutate(postId)
-                                  : likeMutation.mutate(postId)
-                              }
-                            >
-                              <Heart
-                                className={clsx(
-                                  liked && "fill-primary text-primary ",
-                                )}
-                              />
-                              <p className="font-bold">
-                                {post.data._count.likes}
-                              </p>{" "}
-                            </Button>
-                          )}
+                      <div className=" flex items-start justify-center gap-2  p-4 ">
+                        <div className=" flex w-1/3 items-center justify-center gap-2 p-0">
+                          <Button
+                            variant="outline"
+                            className="w-full gap-1"
+                            disabled={
+                              deleteLike.isLoading || likeMutation.isLoading
+                            }
+                            onClick={() =>
+                              liked
+                                ? deleteLike.mutate(postId)
+                                : likeMutation.mutate(postId)
+                            }
+                          >
+                            <Heart
+                              size={14}
+                              color={liked ? "red" : "black"}
+                              className={clsx(
+                                liked && "text-red fill-red-500 ",
+                              )}
+                            />
+                            <p className="font-bold">
+                              {post.data._count.likes}
+                            </p>
+                            {deleteLike.isLoading || likeMutation.isLoading ? (
+                              <span className="loading loading-spinner loading-xs"></span>
+                            ) : (
+                              ""
+                            )}
+                          </Button>
                         </div>
-
                         <Link
                           href={postUrl}
-                          className="flex w-full items-center justify-center gap-1"
+                          className="flex w-1/3 items-center justify-center gap-1"
                         >
                           <Button
                             variant="outline"
                             className="w-full gap-1"
                             onClick={() => setCommentBox(true)}
                           >
-                            <MessageCircle />
-                            <p className="font-bold">
-                              {post.data._count.comments}
-                            </p>
-                            comment
+                            <MessageCircle size={14} />
+                            {post.data._count.comments > 0 ? (
+                              <span> {post.data._count.comments} Comments</span>
+                            ) : (
+                              <span> 0 Comment</span>
+                            )}
                           </Button>
                         </Link>
-
+                        <Button
+                          onClick={() => onOpen("share", { postUrl: postUrl })}
+                          variant="outline"
+                          className="w-1/3 gap-1"
+                        >
+                          <ShareIcon size={14} /> Share
+                        </Button>
                         {/* <Share2 size={20} /> */}
                       </div>
                       {/* Bottom section */}
                       <div className="w-full ">
-                        {commentBox && (
+                        {/* {commentBox && (
                           <div className="mt-15 w-full   pt-2">
                             <AddComment postId={post.data.id} />
                           </div>
-                        )}
+                        )} */}
+                        <AddComment postId={post.data.id} />
                         {comments.data && comments.data.length > 0 && (
-                          <div className=" flex flex-col gap-4 border-2 border-base-200">
-                            <div className="mt-1 flex flex-col gap-4  rounded-lg p-2">
-                              {comments.data?.map((comment) => (
-                                <>
-                                  <CommentView
-                                    key={comment.id}
-                                    comment={comment}
-                                    childrenComments={comment.childComments}
-                                  />
-                                  <Separator />
-                                </>
-                              ))}
+                          <div className="mb-10 px-4">
+                            <div className=" flex flex-col gap-4 rounded-lg border-2 border-base-200 ">
+                              <div className=" mt-1 flex flex-col gap-4  rounded-lg p-2">
+                                {comments.data?.map((comment) => (
+                                  <>
+                                    <CommentView
+                                      key={comment.id}
+                                      comment={comment}
+                                      childrenComments={comment.childComments}
+                                    />
+                                    <Separator />
+                                  </>
+                                ))}
+                              </div>
                             </div>
                           </div>
                         )}

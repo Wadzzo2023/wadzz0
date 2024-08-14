@@ -1,9 +1,5 @@
-import Link from "next/link";
-import React from "react";
-import Button from "../ui/button";
-import { AdminNavigation, useAdminMenu } from "~/lib/state/admin-tab-menu";
 import clsx from "clsx";
-import toast from "react-hot-toast";
+import { AdminNavigation, useAdminMenu } from "~/lib/state/admin-tab-menu";
 
 function AdminRightSide() {
   const color = "gray";

@@ -11,10 +11,10 @@ export default function Home() {
   return (
     <>
       <Head>
-        <title>Brands | {env.NEXT_PUBLIC_SITE}</title>
+        <title>Creators | {env.NEXT_PUBLIC_SITE}</title>
         <meta
           name="description"
-          content="A subscription-based platform that connects brands & creators with their fans on Stellar Blockchain."
+          content="A subscription-based platform that connects creators with their fans on Stellar Blockchain."
         />
         <link rel="icon" href="/favicon.ico" />
       </Head>
@@ -72,21 +72,22 @@ function AllRecentPost() {
   //     <PostSkeleton />
   //   </div>
   // );
+  console.log("POST", posts.data);
 
   if (posts.data) {
     return (
-      <div className="flex w-full flex-col items-center gap-6">
+      <div className="flex w-full flex-col items-center">
         {posts.data.pages.map((page) => (
           <>
             {page.posts.length === 0 && <p>There are no post yet</p>}
             {page.posts.map((post) => (
               <PostCard
                 priority={1}
-                comments={post._count.comments}
+                commentCount={post._count.comments}
                 creator={post.creator}
                 key={post.id}
                 post={post}
-                like={post._count.likes}
+                likeCount={post._count.likes}
                 show={(() => {
                   if (post.subscription) {
                     const bal = getAssetBalanceFromBalance({

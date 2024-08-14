@@ -10,6 +10,23 @@ import NewPageAssetFrom from "./page_asset/new";
 import CustomPageAssetFrom from "./page_asset/custom";
 import clsx from "clsx";
 import { PLATFROM_ASSET } from "~/lib/stellar/constant";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "~/components/shadcn/ui/dialog";
+import { Button } from "~/components/shadcn/ui/button";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "~/components/shadcn/ui/tabs";
 
 export default function AddCreatorPageAssetModal({
   creator,
@@ -22,7 +39,13 @@ export default function AddCreatorPageAssetModal({
     xlm: 2,
   });
 
-  if (requiredToken.isLoading) return <Loading />;
+  if (requiredToken.isLoading)
+    return (
+      <div className="flex items-center justify-center gap-2">
+        <span> Fetching your page asset</span>
+        <span className="loading loading-dots loading-sm"></span>
+      </div>
+    );
 
   if (requiredToken.data) {
     if (platformAssetBalance < requiredToken.data) {
@@ -58,52 +81,85 @@ function AddCreatorPageAssetModalFrom({
   const [isNew, setNetAsset] = useState(true);
 
   return (
-    <>
-      <button className="btn  btn-primary" onClick={handleModal}>
-        <Plus />
-        Add Page Asset
-      </button>
-      <dialog className="modal" ref={modalRef}>
-        <div className="modal-box">
+    <Dialog>
+      <DialogTrigger asChild>
+        <Button>
+          <Plus /> Add Page Asset
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="max-h-[700px] overflow-y-auto">
+        <div className="">
           <h3 className="mb-4 text-center text-lg font-bold">
             Create Page Asset
           </h3>
-          <PageAssetTab />
+          <Tabs defaultValue="new">
+            <TabsList className="w-full">
+              <TabsTrigger className="w-full" value="new">
+                New
+              </TabsTrigger>
+              <TabsTrigger className="w-full" value="custom">
+                Custom
+              </TabsTrigger>
+            </TabsList>
 
-          <div className="w-full">
-            {isNew ? (
+            <TabsContent value="new">
               <NewPageAssetFrom requiredToken={requiredToken} />
-            ) : (
+            </TabsContent>
+            <TabsContent value="custom">
               <CustomPageAssetFrom requiredToken={requiredToken} />
-            )}
-          </div>
-          <div className="modal-action">
-            <form method="dialog">
-              <button className="btn">Close</button>
-            </form>
-          </div>
+            </TabsContent>
+          </Tabs>
+          <DialogFooter className="flex w-full">
+            <DialogClose asChild>
+              <Button className="" variant="secondary">
+                Close
+              </Button>
+            </DialogClose>
+          </DialogFooter>
         </div>
-      </dialog>
-    </>
+      </DialogContent>
+    </Dialog>
   );
+  // function PageAssetTab() {
+  //   return (
+  //     <div role="tablist" className="tabs-boxed tabs">
+  //       <a
+  //         role="tab"
+  //         onClick={() => setNetAsset(true)}
+  //         className={clsx("tab", isNew && "tab-active")}
+  //       >
+  //         New
+  //       </a>
+  //       <a
+  //         role="tab"
+  //         onClick={() => setNetAsset(false)}
+  //         className={clsx("tab", !isNew && "tab-active")}
+  //       >
+  //         Custom
+  //       </a>
+  //     </div>
+  //   );
+  // }
   function PageAssetTab() {
     return (
-      <div role="tablist" className="tabs-boxed tabs">
-        <a
-          role="tab"
-          onClick={() => setNetAsset(true)}
-          className={clsx("tab", isNew && "tab-active")}
-        >
-          New
-        </a>
-        <a
-          role="tab"
-          onClick={() => setNetAsset(false)}
-          className={clsx("tab", !isNew && "tab-active")}
-        >
-          Custom
-        </a>
-      </div>
+      <Tabs defaultValue="asset">
+        <TabsList className="w-full">
+          <TabsTrigger
+            onClick={() => setNetAsset(true)}
+            className="w-full"
+            value="asset"
+          >
+            New
+          </TabsTrigger>
+          <TabsTrigger
+            onClick={() => setNetAsset(false)}
+            className="w-full"
+            value="pending"
+          >
+            Custom
+          </TabsTrigger>
+        </TabsList>
+      </Tabs>
     );
   }
 }

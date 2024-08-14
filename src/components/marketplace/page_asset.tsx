@@ -3,20 +3,19 @@ import { MarketAssetType } from "./market_right";
 import { useMarketRightStore } from "~/lib/state/marketplace/right";
 import AssetView from "./asset/asset_view";
 import { usePopUpState } from "~/lib/state/right-pop";
-import { MarketType } from "@prisma/client";
+import { MarketType, CreatorPageAsset } from "@prisma/client";
+import { usePageAssetRightStore } from "~/lib/state/wallete/page_asset_right";
 
-function MarketAssetComponent({ item }: { item: MarketAssetType }) {
-  const { asset } = item;
-
-  const urs = useMarketRightStore();
+function PageAssetComponent({ item }: { item: CreatorPageAsset }) {
+  const urs = usePageAssetRightStore();
   const pop = usePopUpState();
-  console.log(asset);
+  console.log(item);
   return (
     <div>
       <button
         onClick={() => {
           urs.setData(item);
-          pop.setType(MarketType.ADMIN);
+          pop.setType("Assets");
 
           if (!getTailwindScreenSize().includes("xl")) {
             pop.setOpen(true);
@@ -24,10 +23,10 @@ function MarketAssetComponent({ item }: { item: MarketAssetType }) {
         }}
         className="btn relative h-fit w-full overflow-hidden  py-4 "
       >
-        <AssetView code={asset.name} thumbnail={asset.thumbnail} />
+        <AssetView code={item.code} thumbnail={item.thumbnail} />
       </button>
     </div>
   );
 }
 
-export default MarketAssetComponent;
+export default PageAssetComponent;

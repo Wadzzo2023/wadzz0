@@ -38,10 +38,10 @@ export function AssetDetails({
 }) {
   const color = "blue";
   return (
-    <div className="max-h h-full w-full">
+    <div className=" h-full w-full">
       <div className="scrollbar-style relative h-full w-full overflow-y-auto rounded-xl">
         <div
-          className="absolute h-full w-full bg-base-200/50 "
+          className="absolute h-full w-full bg-base-200/50"
           style={
             {
               // backgroundColor: color,
