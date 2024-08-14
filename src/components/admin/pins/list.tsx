@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import toast from "react-hot-toast";
 import { api } from "~/utils/api";
 import { Check, X } from "lucide-react";
+import { CREATOR_TERM } from "~/utils/term";
 
 export default function PinsList() {
   const [selectedPins, setSelectedPin] = useState<number[]>([]);
@@ -160,7 +161,7 @@ function AccordionList({
                 </th>
                 <th></th>
                 <th>Name</th>
-                <th>Brand</th>
+                <th>{CREATOR_TERM}</th>
                 <th>Pin Description</th>
               </tr>
             </thead>

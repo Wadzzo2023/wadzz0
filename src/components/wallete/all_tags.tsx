@@ -4,6 +4,7 @@ import { useTagStore } from "~/lib/state/wallete/tag";
 import { api } from "~/utils/api";
 import { AssetVariant } from "../right-sidebar";
 import { PLATFROM_ASSET } from "~/lib/stellar/constant";
+import { CREATOR_PLURAL_TERM, CREATOR_TERM } from "~/utils/term";
 
 export default function AllTags() {
   const { selectTag, selectedTag } = useTagStore();
@@ -15,7 +16,7 @@ export default function AllTags() {
       style={{
         scrollbarGutter: "stable",
       }}
-      className="scrollbar-style join flex w-full space-x-2 overflow-x-auto py-1"
+      className="scrollbar-style join flex w-full gap-2 space-x-2 overflow-x-auto py-1"
     >
       <input
         className="!btn join-item"
@@ -41,7 +42,7 @@ export default function AllTags() {
           setMarektData(undefined);
         }}
       />
-      <input
+      {/* <input
         className="!btn join-item"
         type="radio"
         name="options"
@@ -51,12 +52,12 @@ export default function AllTags() {
           setData(undefined);
           setMarektData(undefined);
         }}
-      />
+      /> */}
       <input
         className="!btn join-item"
         type="radio"
         name="options"
-        aria-label="ARTISTS"
+        aria-label={CREATOR_PLURAL_TERM}
         onClick={() => {
           selectTag(AssetVariant.Artists);
           setData(undefined);
@@ -67,7 +68,7 @@ export default function AllTags() {
         className="!btn join-item"
         type="radio"
         name="options"
-        aria-label="ARTIST TOKEN"
+        aria-label={`${CREATOR_TERM.toUpperCase()} TOKEN`}
         onClick={() => {
           selectTag(AssetVariant.FAN);
           setData(undefined);

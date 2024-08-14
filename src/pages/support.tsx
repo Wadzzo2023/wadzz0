@@ -1,6 +1,7 @@
 import { SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import Link from "next/link";
 export const TierSchema = z.object({
   name: z
     .string()
@@ -124,7 +125,7 @@ const Support = () => {
                   </div>
                   <div className="ml-6 grow">
                     <p className="mb-2 font-bold">Technical support</p>
-                    <p className="text-neutral-500 ">support@bandcoin.com</p>
+                    <p className="text-neutral-500 ">support@wadzzo.com</p>
                     {/* <p className="text-neutral-500 ">+1 234-567-89</p> */}
                   </div>
                 </div>
@@ -151,7 +152,7 @@ const Support = () => {
                   </div>
                   <div className="ml-6 grow">
                     <p className="mb-2 font-bold ">Sales questions</p>
-                    <p className="text-neutral-500 ">sales@bandcoin.com</p>
+                    <p className="text-neutral-500 ">support@wadzzo.com</p>
                     {/* <p className="text-neutral-500 ">+1 234-567-89</p> */}
                   </div>
                 </div>
@@ -178,7 +179,7 @@ const Support = () => {
                   </div>
                   <div className="ml-6 grow">
                     <p className="mb-2 font-bold ">Press</p>
-                    <p className="text-neutral-500 ">press@bandcoin.com</p>
+                    <p className="text-neutral-500 ">support@wadzzo.com</p>
                     {/* <p className="text-neutral-500 ">+1 234-567-89</p> */}
                   </div>
                 </div>
@@ -205,7 +206,11 @@ const Support = () => {
                   </div>
                   <div className="ml-6 grow">
                     <p className="mb-2 font-bold">Bug report</p>
-                    <p className="text-neutral-500 ">bugs@bandcoin.com</p>
+                    <p className="text-neutral-500 ">
+                      <Link href={"https://github.com/Wadzzo2023/wadzzo_bugs"}>
+                        Wadzzo Bugs
+                      </Link>
+                    </p>
                     {/* <p className="text-neutral-500">+1 234-567-89</p> */}
                   </div>
                 </div>

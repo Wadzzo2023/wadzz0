@@ -18,6 +18,7 @@ import { useUserStellarAcc } from "~/lib/state/wallete/stellar-balances";
 import { PLATFROM_ASSET, PLATFROM_FEE } from "~/lib/stellar/constant";
 import { clientSelect } from "~/lib/stellar/fan/utils";
 import { api } from "~/utils/api";
+import { CREATOR_TERM } from "~/utils/term";
 
 export default function CreatorProfile() {
   const { data: session } = useSession();
@@ -164,10 +165,10 @@ function CreateCreator({ requiredToken }: { requiredToken: number }) {
 
   return (
     <div className="flex h-full flex-col items-center justify-center gap-2 ">
-      <p className="text-2xl font-bold">You are not a brand</p>
+      <p className="text-2xl font-bold">You are not a {CREATOR_TERM}</p>
       <p className="alert alert-info max-w-xl text-center">
         Your account will be charged {requiredToken} {PLATFROM_ASSET.code} to be
-        a brand.
+        a {CREATOR_TERM.toLowerCase()}.
       </p>
       <button
         className="btn btn-primary"
@@ -175,7 +176,7 @@ function CreateCreator({ requiredToken }: { requiredToken: number }) {
         disabled={loading}
       >
         {loading && <span className="loading loading-spinner" />}
-        Join as a brand
+        Join as a {CREATOR_TERM.toLocaleLowerCase()}
       </button>
     </div>
   );

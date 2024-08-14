@@ -1,18 +1,22 @@
 import { create } from "zustand";
+import { env } from "~/env";
+import { CREATOR_TERM } from "~/utils/term";
 
-export enum MarketMenu {
-  Wallate = "Bandcoin Curated",
-  Music = "Music",
-  FanAsset = "Artist Tokens",
-  Trade = "Trade",
+export const MarketMenu = {
+  Wallet: `${env.NEXT_PUBLIC_ASSET_CODE} Curated`,
+  Music: "Music",
+  FanAsset: `${CREATOR_TERM} Tokens`,
+  Trade: "Trade",
+} as const;
+
+type MarketMenuKeys = keyof typeof MarketMenu;
+
+interface MarketMenuState {
+  selectedMenu: MarketMenuKeys;
+  setSelectedMenu: (menu: MarketMenuKeys) => void;
 }
 
-interface MarketMenurState {
-  selectedMenu: MarketMenu;
-  setSelectedMenu: (menu: MarketMenu) => void;
-}
-
-export const useMarketMenu = create<MarketMenurState>((set) => ({
-  selectedMenu: MarketMenu.Wallate,
+export const useMarketMenu = create<MarketMenuState>((set) => ({
+  selectedMenu: "Wallet",
   setSelectedMenu: (menu) => set({ selectedMenu: menu }),
 }));

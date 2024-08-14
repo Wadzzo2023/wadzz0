@@ -48,6 +48,7 @@ export const env = createEnv({
     NEXT_PUBLIC_SITE: z.string(),
     NEXT_PUBLIC_DESC: z.string(),
     NEXT_PUBLIC_URL: z.string(),
+    NEXT_PUBLIC_PLATFORM_CREATOR_TERM: z.string(),
     // NEXT_PUBLIC_CLIENTVAR: z.string(),
     NEXT_PUBLIC_STELLAR_PUBNET: z
       .string()
@@ -73,6 +74,7 @@ export const env = createEnv({
    */
   runtimeEnv: {
     NEXT_PUBLIC_SITE: process.env.NEXT_PUBLIC_SITE,
+    NEXT_PUBLIC_PLATFORM_CREATOR_TERM: process.env.NEXT_PUBLIC_PLATFORM_CREATOR_TERM,
     NEXT_PUBLIC_DESC: process.env.NEXT_PUBLIC_DESC,
     DATABASE_URL: process.env.DATABASE_URL,
     NODE_ENV: process.env.NODE_ENV,
