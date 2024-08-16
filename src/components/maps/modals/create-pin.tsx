@@ -29,6 +29,7 @@ export const createPinFormSchema = z.object({
   image: z.string().url().optional(),
   startDate: z.date(),
   endDate: z.date().min(new Date(new Date().setHours(0, 0, 0, 0))),
+  url: z.string().url().optional(),
   autoCollect: z.boolean(),
   token: z.number().optional(),
   tokenAmount: z.number().nonnegative().optional(), // if it optional then no token selected
@@ -360,6 +361,21 @@ export default function CreatePinModal({
                   <p className="text-red-500">{errors.description.message}</p>
                 )}
               </div>
+
+              <div className="flex flex-col space-y-2">
+                <label htmlFor="description" className="text-sm font-medium">
+                  URL / LINK
+                </label>
+                <input
+                  id="url"
+                  {...register("url")}
+                  className="input input-bordered"
+                />
+                {errors.url && (
+                  <p className="text-red-500">{errors.url.message}</p>
+                )}
+              </div>
+
               <div className="flex flex-col space-y-2">
                 <label htmlFor="startDate" className="text-sm font-medium">
                   Start Date

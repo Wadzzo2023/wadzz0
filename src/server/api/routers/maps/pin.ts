@@ -29,6 +29,7 @@ export const pinRouter = createTRPCRouter({
         tokenAmount: totalTokenAmount,
         token: tokenId,
         image,
+        url,
         tier,
       } = input;
 
@@ -69,6 +70,7 @@ export const pinRouter = createTRPCRouter({
           isActive: true,
           startDate: input.startDate,
           description: input.description,
+          link: url,
         };
       });
 
