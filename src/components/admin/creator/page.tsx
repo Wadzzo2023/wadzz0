@@ -3,10 +3,11 @@ import toast from "react-hot-toast";
 import { Button } from "~/components/shadcn/ui/button";
 import { api } from "~/utils/api";
 import PostDeleteComponent from "../post";
+import { addrShort } from "~/utils/utils";
 
 export default function CreatorPage() {
   return (
-    <div>
+    <div className="p-4">
       <h2 className="text-lg font-bold">Creators</h2>
       <Creators />
       <PostDeleteComponent />
@@ -27,6 +28,7 @@ function Creators() {
           <thead>
             <tr>
               <th></th>
+              <th>Name</th>
               <th>Pubkey</th>
               <th>Jointed At</th>
               <th>Action</th>
@@ -37,7 +39,8 @@ function Creators() {
               return (
                 <tr key={creator.id}>
                   <th>{i + 1}</th>
-                  <td>{creator.id}</td>
+                  <th>{creator.name}</th>
+                  <td>{addrShort(creator.id, 10)}</td>
                   <td>{creator.joinedAt.toLocaleDateString()}</td>
                   <td>
                     <ActionButton

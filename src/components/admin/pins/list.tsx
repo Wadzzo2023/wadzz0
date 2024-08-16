@@ -1,13 +1,55 @@
 import { Location, LocationGroup } from "@prisma/client";
-import React, { useState } from "react";
+import React, { ReactNode, useState } from "react";
 import toast from "react-hot-toast";
 import { api } from "~/utils/api";
-import { Check, X } from "lucide-react";
+import { ArrowDown, Check, ChevronDown, ChevronUp, X } from "lucide-react";
 import { CREATOR_TERM } from "~/utils/term";
+import { Button } from "~/components/shadcn/ui/button";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "~/components/shadcn/ui/collapsible";
+import { addrShort } from "~/utils/utils";
 
-export default function PinsList() {
-  const [selectedPins, setSelectedPin] = useState<number[]>([]);
+export default function Pins() {
   const pins = api.maps.pin.getPins.useQuery();
+
+  if (pins.isLoading) return <div>Loading...</div>;
+  if (pins.error) return <div>Error: {pins.error.message}</div>;
+
+  if (pins.data) {
+    return <GroupPins pins={pins.data} />;
+  }
+}
+
+type Group = { [key: string]: Location[] };
+
+function GroupPins({ pins }: { pins: Location[] }) {
+  let groups: Group = {};
+
+  const groupPins = pins.map((pin) => {
+    const locationGroupId = pin.locationGroupId;
+    if (locationGroupId) {
+      if (groups[locationGroupId]) {
+        groups[locationGroupId].push(pin);
+      } else {
+        groups[locationGroupId] = [pin];
+      }
+    }
+  });
+  return (
+    <div className="">
+      <h2 className="text-lg font-bold">Pins</h2>
+      <PinsList groups={groups} />
+    </div>
+  );
+}
+
+function PinsList({ groups }: { groups: Group }) {
+  const [selectedPins, setSelectedPin] = useState<number[]>([]);
+  const [isOpen, setIsOpen] = React.useState(false);
+
   const aproveM = api.maps.pin.approvePins.useMutation({
     onSuccess: (data, variable) => {
       if (variable.approved) toast.success("Pins Approved Successfully!");
@@ -29,70 +71,168 @@ export default function PinsList() {
     });
   }
 
-  if (pins.isLoading) return <div>Loading...</div>;
-  if (pins.error) return <div>Error: {pins.error.message}</div>;
+  function handleClickChange(
+    event: React.ChangeEvent<HTMLInputElement>,
+    pinId: number,
+  ): void {
+    handlePinSelection(pinId);
+  }
+
+  function handleGroupSelection(groupId: string) {
+    const groupPins = groups[groupId];
+    if (groupPins) {
+      const groupPinsIds = groupPins.map((pin) => pin.id);
+      // if all pins are selected, then deselect all
+      if (
+        groupPinsIds.every((pinId) => selectedPins.includes(pinId)) &&
+        selectedPins.length > 0
+      ) {
+        setSelectedPin((prev) =>
+          prev.filter((id) => !groupPinsIds.includes(id)),
+        );
+      } else {
+        setSelectedPin((prev) => [...prev, ...groupPinsIds]);
+      }
+    }
+  }
 
   return (
-    <div className="overflow-x-auto bg-base-100">
-      <table className="table table-zebra">
-        <thead>
-          <tr>
-            <th></th>
-            <th>ID</th>
-            <th>title</th>
-            <th>CreatorId</th>
-            <th>Description</th>
-          </tr>
-        </thead>
-        <tbody>
-          {pins.data.map((pin) => (
-            <tr key={pin.id}>
-              <th>
+    <div className="min-w-lg bg-base-100  p-10">
+      {Object.entries(groups).map(([key, pins]) => {
+        return (
+          <CollapsibleDemo
+            key={key}
+            header={
+              <div className="flex items-center gap-2">
                 <label>
                   <input
                     type="checkbox"
                     className="checkbox"
-                    checked={selectedPins.includes(pin.id)}
-                    onChange={(e) => handlePinSelection(pin.id)}
+                    onChange={(e) => handleGroupSelection(key)}
                   />
                 </label>
-              </th>
-              <th>{pin.id}</th>
-              <td>{pin.title}</td>
-              <td>{pin.creatorId}</td>
-              <td>{pin.description}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-      {pins.data.length > 0 && (
-        <div className="flex w-full py-4">
-          <div className="flex w-full items-end justify-end gap-4">
-            <button
-              className="btn btn-primary"
-              onClick={() => {
-                aproveM.mutate({ pins: selectedPins, approved: true });
-                toast("Selected Pins: " + selectedPins.join(", "));
-              }}
-              disabled={selectedPins.length === 0 || aproveM.isLoading}
-            >
-              <Check />
-              Aprove
-            </button>
-            <button
-              onClick={() =>
-                aproveM.mutate({ pins: selectedPins, approved: false })
-              }
-              className="btn btn-error"
-              disabled={selectedPins.length === 0 || aproveM.isLoading}
-            >
-              <X />
-              Reject
-            </button>
-          </div>
+                Pin Groups {key}
+              </div>
+            }
+            content={
+              <table className="table table-zebra ml-5">
+                <thead>
+                  <tr>
+                    <th></th>
+                    <th>ID</th>
+                    <th>title</th>
+                    <th>CreatorId</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {pins.map((pin) => (
+                    <tr key={pin.id}>
+                      <th>
+                        <label>
+                          <input
+                            type="checkbox"
+                            className="checkbox"
+                            checked={selectedPins.includes(pin.id)}
+                            onChange={(e) => handlePinSelection(pin.id)}
+                          />
+                        </label>
+                      </th>
+                      <th>{pin.id}</th>
+                      <td>{pin.title}</td>
+                      <td>{addrShort(pin.creatorId, 10)}</td>
+                      <td>{pin.description}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            }
+          />
+
+          // <div className="collapse bg-base-200">
+          //   <input type="checkbox" />
+          //   <label>
+          //     <input
+          //       type="checkbox"
+          //       className="checkbox"
+          //       // checked={selectedPins.includes(pin.id)}
+          //       // onChange={(e) => handlePinSelection(pin.id)}
+          //     />
+          //   </label>
+          //   <div className="collapse-title text-xl font-medium">
+
+          //   </div>
+
+          // </div>
+        );
+      })}
+
+      <div className="flex w-full py-4">
+        <div className="flex w-full items-end justify-end gap-4">
+          <button
+            className="btn btn-primary"
+            onClick={() => {
+              aproveM.mutate({ pins: selectedPins, approved: true });
+              toast("Selected Pins: " + selectedPins.join(", "));
+            }}
+            disabled={selectedPins.length === 0 || aproveM.isLoading}
+          >
+            <Check />
+            Aprove
+          </button>
+          <button
+            onClick={() =>
+              aproveM.mutate({ pins: selectedPins, approved: false })
+            }
+            className="btn btn-error"
+            disabled={selectedPins.length === 0 || aproveM.isLoading}
+          >
+            <X />
+            Reject
+          </button>
         </div>
-      )}
+      </div>
     </div>
+  );
+}
+
+export function CollapsibleDemo({
+  content,
+  header,
+}: {
+  header: ReactNode;
+  content: ReactNode;
+}) {
+  const [isOpen, setIsOpen] = React.useState(false);
+
+  return (
+    <Collapsible
+      open={isOpen}
+      onOpenChange={setIsOpen}
+      className="min-w-lg space-y-2"
+    >
+      <div className="flex items-center justify-between space-x-4 px-4">
+        <h4 className="text-sm font-semibold">
+          {/* @peduarte starred 3 repositories */}
+          {header}
+        </h4>
+        <CollapsibleTrigger asChild>
+          <Button variant="ghost" size="sm">
+            {isOpen ? <ChevronUp /> : <ChevronDown />}
+            <span className="sr-only">Toggle</span>
+          </Button>
+        </CollapsibleTrigger>
+      </div>
+      <CollapsibleContent className="space-y-2">
+        {content}
+        {/* <div className="rounded-md border px-4 py-2 font-mono text-sm shadow-sm">
+          @radix-ui/colors
+        </div>
+        <div className="rounded-md border px-4 py-2 font-mono text-sm shadow-sm">
+          @stitches/react
+        </div> */}
+      </CollapsibleContent>
+    </Collapsible>
   );
 }
 
