@@ -2,6 +2,7 @@ import React from "react";
 import { api } from "~/utils/api";
 import { Button } from "../shadcn/ui/button";
 import toast from "react-hot-toast";
+import { addrShort } from "~/utils/utils";
 
 export default function AdminsList() {
   const admins = api.wallate.admin.admins.useQuery();
@@ -14,14 +15,16 @@ export default function AdminsList() {
           <thead>
             <tr>
               <th></th>
-              <th>PUBKEY</th>
+              <th>Name</th>
+              <th>Pubkey</th>
               <th>Created At</th>
               <th>Action</th>
             </tr>
             {admins.data.map((admin, i) => (
               <tr key={i}>
                 <td>{i + 1}</td>
-                <td>{admin.id}</td>
+                <td>{admin.name}</td>
+                <td>{addrShort(admin.id, 10)}</td>
                 <td>{admin.joinedAt.getFullYear()}</td>
                 <td>
                   <DeleteAdminButton admin={admin.id} />
