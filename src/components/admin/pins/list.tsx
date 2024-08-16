@@ -23,7 +23,7 @@ export default function Pins() {
   }
 }
 
-type Group = { [key: string]: Location[] };
+type Group = Record<string, Location[]>;
 
 function GroupPins({ pins }: { pins: Location[] }) {
   let groups: Group = {};
