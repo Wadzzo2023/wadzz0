@@ -1,6 +1,6 @@
 import { Horizon } from "@stellar/stellar-sdk";
 import { STELLAR_URL, STROOP } from "../constant";
-import { PLATFROM_ASSET } from "../../constant";
+import { PLATFORM_ASSET } from "../../constant";
 
 type Balances = (
   | Horizon.HorizonApi.BalanceLineNative
@@ -75,8 +75,8 @@ export async function getAccountInfos(pubkey: string) {
   const allBallances = await accountBalances({ userPub: pubkey });
   const platformAssetBal = getAssetBalanceFromBalance({
     balances: allBallances,
-    code: PLATFROM_ASSET.code,
-    issuer: PLATFROM_ASSET.issuer,
+    code: PLATFORM_ASSET.code,
+    issuer: PLATFORM_ASSET.issuer,
   });
   const xlm = getAssetBalanceFromBalance({
     balances: allBallances,
@@ -104,8 +104,8 @@ export async function accountDetailsWithHomeDomain({
         balance.asset_type === "credit_alphanum4"
       ) {
         if (
-          balance.asset_code == PLATFROM_ASSET.code &&
-          balance.asset_issuer == PLATFROM_ASSET.issuer
+          balance.asset_code == PLATFORM_ASSET.code &&
+          balance.asset_issuer == PLATFORM_ASSET.issuer
         ) {
           siteAssetBalance = parseFloat(balance.balance);
         }
@@ -113,7 +113,7 @@ export async function accountDetailsWithHomeDomain({
         if (balance.is_authorized) {
           const issuerAccount = await server.loadAccount(balance.asset_issuer);
           if (issuerAccount.home_domain) {
-            const copies = balaceToCopy(balance.balance);
+            const copies = balanceToCopy(balance.balance);
             if (copies > 0) {
               return {
                 code: balance.asset_code,
@@ -149,8 +149,11 @@ export async function accountDetailsWithHomeDomain({
   return { tokens: filteredBalances, xlmBalance, siteAssetBalance };
 }
 
-function balaceToCopy(balance: string): number {
-  return Math.floor(Number(balance) / Number(STROOP));
+function balanceToCopy(balance: string): number {
+  // prev implementation stroop = copy
+  // return Math.floor(Number(balance) / Number(STROOP));
+  // now 1 xlm = 1 copy
+  return Number(balance);
 }
 
 function copyToBalance(copy: number): string {

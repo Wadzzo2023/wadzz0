@@ -3,7 +3,7 @@ import { useSession } from "next-auth/react";
 import { clientsign } from "package/connect_wallet";
 import React, { useRef, useState } from "react";
 import toast from "react-hot-toast";
-import { PLATFROM_ASSET, PLATFROM_FEE } from "~/lib/stellar/constant";
+import { PLATFORM_ASSET, PLATFORM_FEE } from "~/lib/stellar/constant";
 import { clientSelect } from "~/lib/stellar/fan/utils";
 import { api } from "~/utils/api";
 import { truncateString } from "~/utils/string";
@@ -109,9 +109,9 @@ function ModalContent({ item }: { item: Asset }) {
           {/* {xdr && <p>issuer: {truncateString(xdr.data, 10, 5)}</p>} */}
           <p>Issuer: {truncateString(item.issuer)}</p>
           <p>
-            Price: {price} {PLATFROM_ASSET.code}
+            Price: {price} {PLATFORM_ASSET.code}
             <br />
-            Platform Fee: {PLATFROM_FEE} {PLATFROM_ASSET.code}
+            Platform Fee: {PLATFORM_FEE} {PLATFORM_ASSET.code}
           </p>
 
           {trxMsg && <p className="text-error">{trxMsg}</p>}

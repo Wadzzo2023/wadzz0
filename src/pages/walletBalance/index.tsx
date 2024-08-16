@@ -1,6 +1,6 @@
 import { Input } from "~/components/shadcn/ui/input";
 import { Button } from "~/components/shadcn/ui/button";
-import { PLATFROM_ASSET } from "~/lib/stellar/constant";
+import { PLATFORM_ASSET } from "~/lib/stellar/constant";
 import {
   Card,
   CardContent,
@@ -117,8 +117,8 @@ const Wallets = () => {
   const handleSubmit = async () => {
     setLoading(true);
     AddTrustMutation.mutate({
-      asset_code: PLATFROM_ASSET.code,
-      asset_issuer: PLATFROM_ASSET.issuer,
+      asset_code: PLATFORM_ASSET.code,
+      asset_issuer: PLATFORM_ASSET.issuer,
       signWith: needSign(),
     });
   };
@@ -199,13 +199,13 @@ const Wallets = () => {
                           {platformBalance?.toString() === "0.0000000"
                             ? "0"
                             : platformBalance?.toString()}{" "}
-                          <span className="text-lg">{PLATFROM_ASSET.code}</span>
+                          <span className="text-lg">{PLATFORM_ASSET.code}</span>
                         </h1>
                       </>
                     ) : (
                       <>
                         <h1 className="text-xl text-red-500 ">
-                          `You haven{"'"}t trust to {PLATFROM_ASSET.code} yet !`
+                          `You haven{"'"}t trust to {PLATFORM_ASSET.code} yet !`
                           <br />
                           <button
                             onClick={handleSubmit}

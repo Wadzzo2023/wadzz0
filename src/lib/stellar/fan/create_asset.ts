@@ -6,8 +6,8 @@ import {
   Asset,
 } from "@stellar/stellar-sdk";
 import {
-  PLATFROM_ASSET,
-  PLATFROM_FEE,
+  PLATFORM_ASSET,
+  PLATFORM_FEE,
   STELLAR_URL,
   networkPassphrase,
 } from "../constant";
@@ -59,7 +59,7 @@ export async function createAsset({
     .addOperation(
       Operation.payment({
         destination: distributorAcc.publicKey(),
-        asset: PLATFROM_ASSET,
+        asset: PLATFORM_ASSET,
         amount: actionAmount,
       }),
     )
@@ -114,8 +114,8 @@ export async function createAsset({
     // sending platform fee.
     .addOperation(
       Operation.payment({
-        amount: PLATFROM_FEE,
-        asset: PLATFROM_ASSET,
+        amount: PLATFORM_FEE,
+        asset: PLATFORM_ASSET,
         destination: distributorAcc.publicKey(),
       }),
     )

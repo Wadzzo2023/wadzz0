@@ -9,7 +9,7 @@ import { z } from "zod";
 import { Button } from "~/components/shadcn/ui/button";
 import Alert from "~/components/ui/alert";
 import useNeedSign from "~/lib/hook";
-import { PLATFROM_ASSET, PLATFROM_FEE } from "~/lib/stellar/constant";
+import { PLATFORM_ASSET, PLATFORM_FEE } from "~/lib/stellar/constant";
 import { clientSelect } from "~/lib/stellar/fan/utils";
 import { api } from "~/utils/api";
 
@@ -240,7 +240,7 @@ function NewPageAssetFrom({ requiredToken }: { requiredToken: number }) {
         <Alert
           className=""
           type={mutation.error ? "warning" : "normal"}
-          content={`To create this page token, you'll need ${requiredToken} ${PLATFROM_ASSET.code} for your Asset account. Additionally, there's a platform fee of ${PLATFROM_FEE} ${PLATFROM_ASSET.code}. Total: ${requiredToken + Number(PLATFROM_FEE)}`}
+          content={`To create this page token, you'll need ${requiredToken} ${PLATFORM_ASSET.code} for your Asset account. Additionally, there's a platform fee of ${PLATFORM_FEE} ${PLATFORM_ASSET.code}. Total: ${requiredToken + Number(PLATFORM_FEE)}`}
         />
       </div>
       <Button className="w-full" type="submit" disabled={loading}>

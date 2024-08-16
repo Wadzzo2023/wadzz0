@@ -15,7 +15,7 @@ import Loading from "~/components/wallete/loading";
 import useNeedSign from "~/lib/hook";
 import { CreatorMenu, useCreator } from "~/lib/state/fan/creator-menu";
 import { useUserStellarAcc } from "~/lib/state/wallete/stellar-balances";
-import { PLATFROM_ASSET, PLATFROM_FEE } from "~/lib/stellar/constant";
+import { PLATFORM_ASSET, PLATFORM_FEE } from "~/lib/stellar/constant";
 import { clientSelect } from "~/lib/stellar/fan/utils";
 import { api } from "~/utils/api";
 import { CREATOR_TERM } from "~/utils/term";
@@ -119,7 +119,7 @@ export function ValidCreateCreator({ message }: { message?: string }) {
           <Alert
             className="max-w-xl"
             type="error"
-            content={`You don't have Sufficient Balance ,To create storage account, you need minimum ${requiredToken.data} ${PLATFROM_ASSET.code} `}
+            content={`You don't have Sufficient Balance ,To create storage account, you need minimum ${requiredToken.data} ${PLATFORM_ASSET.code} `}
           />
         </div>
       );
@@ -167,7 +167,7 @@ function CreateCreator({ requiredToken }: { requiredToken: number }) {
     <div className="flex h-full flex-col items-center justify-center gap-2 ">
       <p className="text-2xl font-bold">You are not a {CREATOR_TERM}</p>
       <p className="alert alert-info max-w-xl text-center">
-        Your account will be charged {requiredToken} {PLATFROM_ASSET.code} to be
+        Your account will be charged {requiredToken} {PLATFORM_ASSET.code} to be
         a {CREATOR_TERM.toLowerCase()}.
       </p>
       <button

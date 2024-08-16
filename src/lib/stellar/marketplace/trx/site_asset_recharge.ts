@@ -9,7 +9,7 @@ import { STROOP, STELLAR_URL } from "../constant";
 import { STORAGE_SECRET } from "../SECRET";
 import { SITE_ASSET, SITE_ASSET_OBJ } from "./constant";
 import { networkPassphrase } from "../constant";
-import { PLATFROM_ASSET } from "../../constant";
+import { PLATFORM_ASSET } from "../../constant";
 
 async function checkSiteAssetTrustLine(accPub: string) {
   const server = new Horizon.Server(STELLAR_URL);
@@ -54,8 +54,8 @@ export async function sendSiteAsset2pub(
       balance.asset_type === "credit_alphanum4"
     ) {
       if (
-        balance.asset_code === PLATFROM_ASSET.code &&
-        balance.asset_issuer === PLATFROM_ASSET.issuer
+        balance.asset_code === PLATFORM_ASSET.code &&
+        balance.asset_issuer === PLATFORM_ASSET.issuer
       ) {
         return true;
       }

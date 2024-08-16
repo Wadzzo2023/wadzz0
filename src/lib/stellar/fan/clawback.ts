@@ -8,8 +8,8 @@ import {
 import { env } from "~/env";
 import { SignUserType, WithSing } from "../utils";
 import {
-  PLATFROM_ASSET,
-  PLATFROM_FEE,
+  PLATFORM_ASSET,
+  PLATFORM_FEE,
   STELLAR_URL,
   networkPassphrase,
 } from "../constant";
@@ -36,7 +36,7 @@ export async function creatorPageAccCreate({
   const server = new Horizon.Server(STELLAR_URL);
 
   const requiredAsset2refundXlm = await getplatformAssetNumberForXLM(2);
-  const totalAction = requiredAsset2refundXlm + Number(PLATFROM_FEE);
+  const totalAction = requiredAsset2refundXlm + Number(PLATFORM_FEE);
 
   const storageAcc = Keypair.fromSecret(storageSecret);
   const PLATFORM_MOTHER_ACC = Keypair.fromSecret(env.MOTHER_SECRET);
@@ -54,7 +54,7 @@ export async function creatorPageAccCreate({
     .addOperation(
       Operation.payment({
         destination: PLATFORM_MOTHER_ACC.publicKey(),
-        asset: PLATFROM_ASSET,
+        asset: PLATFORM_ASSET,
         amount: totalAction.toString(),
       }),
     )

@@ -18,7 +18,7 @@ import {
 } from "~/components/shadcn/ui/dialog";
 import useNeedSign from "~/lib/hook";
 import { useUserStellarAcc } from "~/lib/state/wallete/stellar-balances";
-import { PLATFROM_ASSET, PLATFROM_FEE } from "~/lib/stellar/constant";
+import { PLATFORM_ASSET, PLATFORM_FEE } from "~/lib/stellar/constant";
 import { AccountSchema, clientSelect } from "~/lib/stellar/fan/utils";
 import { api } from "~/utils/api";
 import { UploadButton } from "~/utils/uploadthing";
@@ -75,7 +75,7 @@ export default function NftCreate({ admin: isAdmin }: { admin?: true }) {
   if (requiredToken.isLoading) return <Loading />;
 
   if (requiredToken.data) {
-    const requiredTokenAmount = requiredToken.data + Number(PLATFROM_FEE);
+    const requiredTokenAmount = requiredToken.data + Number(PLATFORM_FEE);
     return (
       <NftCreateForm
         admin={isAdmin}
@@ -537,7 +537,7 @@ function NftCreateForm({
                             <label className="label">
                               <span className="label-text">Price</span>
                               <span className="label-text-alt">
-                                Default price is 2 {PLATFROM_ASSET.code}
+                                Default price is 2 {PLATFORM_ASSET.code}
                               </span>
                             </label>
                             <input
@@ -587,7 +587,7 @@ function NftCreateForm({
                       ? "warning"
                       : "normal"
                   }
-                  content={`You need minimum ${requiredTokenAmount} ${PLATFROM_ASSET.code}`}
+                  content={`You need minimum ${requiredTokenAmount} ${PLATFORM_ASSET.code}`}
                 />
               </div>
 

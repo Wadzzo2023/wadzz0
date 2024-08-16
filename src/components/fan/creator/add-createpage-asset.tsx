@@ -9,7 +9,7 @@ import Alert from "../../ui/alert";
 import NewPageAssetFrom from "./page_asset/new";
 import CustomPageAssetFrom from "./page_asset/custom";
 import clsx from "clsx";
-import { PLATFROM_ASSET } from "~/lib/stellar/constant";
+import { PLATFORM_ASSET } from "~/lib/stellar/constant";
 import {
   Dialog,
   DialogClose,
@@ -53,7 +53,7 @@ export default function AddCreatorPageAssetModal({
         <Alert
           className="max-w-lg"
           type={"error"}
-          content={`To create this page asset, you'll need ${requiredToken.data} ${PLATFROM_ASSET.code} for your Asset account.`}
+          content={`To create this page asset, you'll need ${requiredToken.data} ${PLATFORM_ASSET.code} for your Asset account.`}
         />
       );
     } else {

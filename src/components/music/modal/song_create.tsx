@@ -9,7 +9,7 @@ import { WalletType, clientsign } from "package/connect_wallet";
 import { useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { z } from "zod";
-import { PLATFROM_ASSET } from "~/lib/stellar/constant";
+import { PLATFORM_ASSET } from "~/lib/stellar/constant";
 import { AccountSchema } from "~/lib/stellar/fan/utils";
 import { api } from "~/utils/api";
 import { UploadButton } from "~/utils/uploadthing";
@@ -355,10 +355,10 @@ export default function SongCreate({ albumId }: { albumId: number }) {
                     <div className="w-full max-w-xs">
                       <label className="label">
                         <span className="label-text">
-                          Price in {PLATFROM_ASSET.code}
+                          Price in {PLATFORM_ASSET.code}
                         </span>
                         <span className="label-text-alt">
-                          Default price is 2 {PLATFROM_ASSET.code}
+                          Default price is 2 {PLATFORM_ASSET.code}
                         </span>
                       </label>
                       <input

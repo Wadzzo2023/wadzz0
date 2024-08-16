@@ -10,7 +10,7 @@ import BuyWithSquire from "~/components/marketplace/pay/buy_with_squire";
 import Alert from "~/components/ui/alert";
 import useNeedSign from "~/lib/hook";
 import { useUserStellarAcc } from "~/lib/state/wallete/stellar-balances";
-import { PLATFROM_ASSET } from "~/lib/stellar/constant";
+import { PLATFORM_ASSET } from "~/lib/stellar/constant";
 import { clientSelect } from "~/lib/stellar/fan/utils";
 import { addrShort } from "~/utils/utils";
 
@@ -89,7 +89,7 @@ export default function BuyModal({
                 Asset Name: <span className="badge badge-primary">{code}</span>
               </p>
               <p className="font-bold">
-                Price: {price} {PLATFROM_ASSET.code}
+                Price: {price} {PLATFORM_ASSET.code}
               </p>
               <p className="font-bold">Price in USD : ${priceUSD}</p>
               <p className="text-sm">

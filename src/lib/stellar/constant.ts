@@ -9,9 +9,9 @@ export const STELLAR_URL = env.NEXT_PUBLIC_STELLAR_PUBNET
   ? "https://horizon.stellar.org"
   : "https://horizon-testnet.stellar.org";
 
-export const PLATFROM_ASSET = new Asset(
+export const PLATFORM_ASSET = new Asset(
   env.NEXT_PUBLIC_ASSET_CODE,
   env.NEXT_PUBLIC_ASSET_ISSUER,
 );
 
-export const PLATFROM_FEE = env.NEXT_PUBLIC_STELLAR_PUBNET ? "0.1" : "2";
+export const PLATFORM_FEE = env.NEXT_PUBLIC_STELLAR_PUBNET ? "0.1" : "2";

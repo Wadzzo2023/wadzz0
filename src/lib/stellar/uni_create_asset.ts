@@ -6,8 +6,8 @@ import {
   Asset,
 } from "@stellar/stellar-sdk";
 import {
-  PLATFROM_ASSET,
-  PLATFROM_FEE,
+  PLATFORM_ASSET,
+  PLATFORM_FEE,
   STELLAR_URL,
   networkPassphrase,
 } from "./constant";
@@ -49,7 +49,7 @@ export async function createUniAsset({
 
   // get total platform token
   const requiredAsset2refundXlm = await getplatformAssetNumberForXLM(2.5);
-  const totalAction = requiredAsset2refundXlm + Number(PLATFROM_FEE);
+  const totalAction = requiredAsset2refundXlm + Number(PLATFORM_FEE);
 
   // here pubkey should be change for admin
   const transactionInializer = await server.loadAccount(pubkey);
@@ -66,7 +66,7 @@ export async function createUniAsset({
     Tx1.addOperation(
       Operation.payment({
         destination: PLATFORM_MOTHER_ACC.publicKey(),
-        asset: PLATFROM_ASSET,
+        asset: PLATFORM_ASSET,
         amount: totalAction.toString(),
       }),
     )

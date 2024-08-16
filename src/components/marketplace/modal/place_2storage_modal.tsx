@@ -47,7 +47,7 @@ export default function PlaceNFT2Storage({
     defaultValues: { code: item.code, issuer: item.issuer, placingCopies: 1 },
   });
 
-  const xdrMutaion = api.marketplace.market.placeNft2StorageXdr.useMutation({
+  const xdrMutation = api.marketplace.market.placeNft2StorageXdr.useMutation({
     onSuccess(data, variables, context) {
       const xdr = data;
       // console.log(xdr, "...");
@@ -73,7 +73,7 @@ export default function PlaceNFT2Storage({
 
   function resetState() {
     reset();
-    xdrMutaion.reset();
+    xdrMutation.reset();
   }
 
   const handleModal = () => {
@@ -85,7 +85,7 @@ export default function PlaceNFT2Storage({
   ) => {
     const placingCopies = getValues("placingCopies");
     if (placingCopies <= item.copies) {
-      xdrMutaion.mutate({
+      xdrMutation.mutate({
         issuer: item.issuer,
         placingCopies: getValues("placingCopies"),
         code: item.code,
@@ -165,10 +165,10 @@ export default function PlaceNFT2Storage({
 
               <div className=" flex w-full max-w-sm flex-col items-center">
                 <button
-                  disabled={xdrMutaion.isSuccess}
+                  disabled={xdrMutation.isSuccess}
                   className="btn btn-primary  w-full"
                 >
-                  {xdrMutaion.isLoading && (
+                  {xdrMutation.isLoading && (
                     <span className="loading loading-spinner"></span>
                   )}
                   Submit
