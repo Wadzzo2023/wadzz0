@@ -26,7 +26,7 @@ export default function Pins() {
 type Group = Record<string, Location[]>;
 
 function GroupPins({ pins }: { pins: Location[] }) {
-  let groups: Group = {};
+  const groups: Group = {};
 
   const groupPins = pins.map((pin) => {
     const locationGroupId = pin.locationGroupId;
