@@ -44,7 +44,7 @@ export const TierSchema = z.object({
     }),
   featureDescription: z
     .string()
-    .min(20, { message: "Make description longer" }),
+    .min(10, { message: "Make description longer" }),
 });
 
 export default function AddTierModal({ creator }: { creator: Creator }) {
@@ -81,8 +81,6 @@ export default function AddTierModal({ creator }: { creator: Creator }) {
 
   function handleEditorChange(value: string): void {
     setValue("featureDescription", value);
-
-    // throw new Error("Function not implemented.");
   }
 
   return (
@@ -100,98 +98,93 @@ export default function AddTierModal({ creator }: { creator: Creator }) {
         <div className="w-full">
           <form
             onSubmit={handleSubmit(onSubmit)}
-            className="flex flex-col   gap-2 rounded-md bg-base-300 "
+            className="flex flex-col   gap-2   "
           >
-            <label className="form-control w-full px-2">
-              <div className="label">
-                <span className="label-text">Tier Name</span>
-              </div>
-              <input
-                type="text"
-                placeholder="Name of the tier"
-                {...register("name")}
-                className="input input-bordered w-full  px-2"
-              />
-              {errors.name && (
+            <div className="rounded-md bg-base-300">
+              <label className="form-control w-full px-2">
                 <div className="label">
-                  <span className="label-text-alt text-warning">
-                    {errors.name.message}
-                  </span>
+                  <span className="label-text">Tier Name</span>
                 </div>
-              )}
-            </label>
+                <input
+                  type="text"
+                  placeholder="Name of the tier"
+                  {...register("name")}
+                  className="input input-bordered w-full  px-2"
+                />
+                {errors.name && (
+                  <div className="label">
+                    <span className="label-text-alt text-warning">
+                      {errors.name.message}
+                    </span>
+                  </div>
+                )}
+              </label>
 
-            <label className="form-control w-full px-2">
-              <div className="label">
-                <span className="label-text">Price</span>
-              </div>
-              <input
-                {...register("price", { valueAsNumber: true })}
-                className="input input-bordered w-full px-2 "
-                type="number"
-                step="1"
-                min="1"
-                placeholder={`Price in ${PLATFORM_ASSET.code}`}
-              ></input>
-              {errors.price && (
+              <label className="form-control w-full px-2">
                 <div className="label">
-                  <span className="label-text-alt text-warning">
-                    {errors.price.message}
-                  </span>
+                  <span className="label-text">Price</span>
                 </div>
-              )}
-            </label>
+                <input
+                  {...register("price", { valueAsNumber: true })}
+                  className="input input-bordered w-full px-2 "
+                  type="number"
+                  step="1"
+                  min="1"
+                  placeholder={`Price in ${PLATFORM_ASSET.code}`}
+                ></input>
+                {errors.price && (
+                  <div className="label">
+                    <span className="label-text-alt text-warning">
+                      {errors.price.message}
+                    </span>
+                  </div>
+                )}
+              </label>
 
-            <label className="form-control  h-[200px] w-full px-2 ">
-              <div className="label">
-                <span className="label-text">Tier Features</span>
-              </div>
-              {/* <textarea
+              <label className="form-control  h-[200px] w-full px-2 ">
+                <div className="label">
+                  <span className="label-text">Tier Features</span>
+                </div>
+                {/* <textarea
                   {...register("featureDescription")}
                   className="textarea textarea-bordered h-24"
                   placeholder="What does this tier offer?"
                 /> */}
 
-              <Editor
-                height={"110px"}
-                onChange={handleEditorChange}
-                value={getValues("featureDescription")}
-              />
-
-              {errors.featureDescription && (
-                <div className="label">
-                  <span className="label-text-alt text-warning">
-                    {errors.featureDescription.message}
-                  </span>
-                </div>
-              )}
-            </label>
-            {/* <div className="max-w-xs">
-                <Alert
-                  type={mutation.error ? "warning" : "noraml"}
-                  content={`To create a Tier, you'll need ${assetAmount.data} ${PLATFROM_ASSET.code} for your Asset account. Additionally, there's a platform fee of ${PLATFROM_FEE} ${PLATFROM_ASSET.code}. Total: ${assetAmount.data ?? 1 + Number(PLATFROM_FEE)}`}
+                <Editor
+                  height={"110px"}
+                  onChange={handleEditorChange}
+                  value={getValues("featureDescription")}
                 />
-              </div> */}
+
+                {errors.featureDescription && (
+                  <div className="label">
+                    <span className="label-text-alt text-warning">
+                      {errors.featureDescription.message}
+                    </span>
+                  </div>
+                )}
+              </label>
+            </div>
+            <DialogFooter className="flex w-full">
+              <DialogClose asChild>
+                <Button className="w-full" variant="outline">
+                  Close
+                </Button>
+              </DialogClose>
+              <Button
+                className="w-full"
+                type="submit"
+                disabled={mutation.isLoading}
+              >
+                {(mutation.isLoading || isModalOpen) && (
+                  <span className="loading loading-spinner"></span>
+                )}
+                Create Tier
+              </Button>
+            </DialogFooter>
           </form>
         </div>
-
-        <DialogFooter className="flex w-full">
-          <DialogClose asChild>
-            <Button className="w-full" variant="outline">
-              Close
-            </Button>
-          </DialogClose>
-          <Button
-            className="w-full"
-            type="submit"
-            disabled={mutation.isLoading}
-          >
-            {(mutation.isLoading || isModalOpen) && (
-              <span className="loading loading-spinner"></span>
-            )}
-            Create Tier
-          </Button>
-        </DialogFooter>
       </DialogContent>
     </Dialog>
   );
