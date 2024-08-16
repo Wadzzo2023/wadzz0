@@ -44,7 +44,7 @@ export const marketRouter = createTRPCRouter({
       const creatorId = ctx.session.user.id;
       const storage = await ctx.db.creator.findUnique({
         where: { id: creatorId },
-        select: { storagePub: true },
+        select: { storagePub: true, storageSecret: true },
       });
       if (!storage?.storagePub) {
         throw new Error("storage does not exist");
@@ -59,6 +59,7 @@ export const marketRouter = createTRPCRouter({
         signWith,
         issuerPub: issuer,
         storagePub: storage.storagePub,
+        storageSecret: storage.storageSecret,
         userPub: creatorId,
       });
     }),

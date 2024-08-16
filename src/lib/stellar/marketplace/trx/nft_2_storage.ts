@@ -16,13 +16,16 @@ import { getplatformAssetNumberForXLM } from "../../fan/get_token_price";
 export async function sendNft2StorageXDR({
   assetCode,
   issuerPub,
+
   assetAmount,
   userPub,
   storagePub,
+  storageSecret,
   signWith,
 }: {
   userPub: string;
   storagePub: string;
+  storageSecret: string;
   assetCode: string;
   issuerPub: string;
   assetAmount: string;
@@ -33,6 +36,8 @@ export async function sendNft2StorageXDR({
   const server = new Horizon.Server(STELLAR_URL);
 
   const mother = Keypair.fromSecret(env.MOTHER_SECRET);
+
+  const creatorStorage = Keypair.fromSecret(storageSecret);
 
   const transactionInializer = await server.loadAccount(userPub);
 
@@ -69,6 +74,11 @@ export async function sendNft2StorageXDR({
         destination: storagePub,
         source: mother.publicKey(),
       }),
+    ).addOperation(
+      Operation.changeTrust({
+        asset: asset,
+        source: storagePub,
+      }),
     );
 
     const requiredAsset2refundXlm = await getplatformAssetNumberForXLM(0.5);
@@ -97,7 +107,7 @@ export async function sendNft2StorageXDR({
     .build();
 
   if (trust === undefined) {
-    buildTrx.sign(mother);
+    buildTrx.sign(mother, creatorStorage);
   }
 
   return await WithSing({ xdr: buildTrx.toXDR(), signWith });
