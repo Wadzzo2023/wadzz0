@@ -11,12 +11,12 @@ import { CREATOR_PLURAL_TERM } from "~/utils/term";
 
 export const LeftNavigation = {
   Home: { path: "/", icon: HomeIcon, text: "HOMEPAGE" },
-  WalletBalance: {
-    path: "/walletBalance",
-    icon: Wallet,
-    text: "MY WALLET",
-  },
-  MyAssets: { path: "/assets", icon: Bell, text: "MY COLLECTION" },
+  // WalletBalance: {
+  //   path: "/walletBalance",
+  //   icon: Wallet,
+  //   text: "MY WALLET",
+  // },
+  MyAssets: { path: "/assets", icon: Bell, text: "COLLECTION" },
   // Search: { path: "/search", icon: Search, text: "Search" },
   Music: { path: "/music", icon: Diamond, text: "MUSIC" },
   Marketplace: { path: "/marketplace", icon: Bell, text: "MARKETPLACE" },
