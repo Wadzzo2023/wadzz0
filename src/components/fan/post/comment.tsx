@@ -33,13 +33,7 @@ export default function CommentView({
     <div className="flex h-full w-full items-start justify-between text-sm ">
       <div className="flex w-full gap-2">
         <div className="h-auto w-auto rounded-full">
-          <Image
-            height={100}
-            width={100}
-            className="h-10 w-10 cursor-pointer rounded-full object-cover shadow"
-            alt="User avatar"
-            src={comment.user.image ?? "/images/icons/avatar-icon.png"}
-          />
+          <Avater className="h-12 w-12" url={comment.user.image} />
         </div>
         <div className="flex w-full flex-col items-start">
           <h2 className="font-bold">{comment.user.name}</h2>
@@ -54,23 +48,25 @@ export default function CommentView({
             {formatPostCreatedAt(comment.createdAt)}
           </p>
 
-          <Button
-            onClick={() => setReplyBox((prev) => !prev)}
-            variant="link"
-            className="m-0 p-0"
-          >
-            Reply
-          </Button>
-          {
-            <div className="flex w-full flex-col">
-              {replyBox && (
+          <div className="w-full">
+            <Button
+              onClick={() => setReplyBox((prev) => !prev)}
+              variant="link"
+              className="m-0 p-0"
+            >
+              Reply
+            </Button>
+
+            {replyBox && (
+              <div className="w-full ">
                 <AddReplyComment
                   parentId={comment.id}
                   postId={comment.postId}
                 />
-              )}
-            </div>
-          }
+              </div>
+            )}
+          </div>
+
           <div className="mt-2 w-full">
             {childrenComments.length > 0 &&
               childrenComments.map((comment) => (

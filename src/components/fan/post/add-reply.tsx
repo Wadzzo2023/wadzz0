@@ -35,17 +35,17 @@ export function AddReplyComment({
   };
 
   return (
-    <div className="flex w-full flex-col">
+    <div className=" ">
       <form onSubmit={handleSubmit(onSubmit)}>
-        <label className="form-control w-full ">
+        <label className="form-control ">
           <div className="flex w-full  items-center gap-2">
             <textarea
               {...register("content")}
-              className=" textarea textarea-bordered w-full"
+              className=" textarea textarea-bordered h-10 w-full"
             />
             <button
               disabled={commentM.isLoading || !contentValue?.trim()}
-              className="btn"
+              className="btn "
               type="submit"
             >
               {commentM.isLoading && (

@@ -76,7 +76,7 @@ function AllRecentPost() {
 
   if (posts.data) {
     return (
-      <div className="flex w-full flex-col items-center gap-6">
+      <div className="flex w-full flex-col items-center">
         {posts.data.pages.map((page) => (
           <>
             {page.posts.length === 0 && <p>There are no post yet</p>}

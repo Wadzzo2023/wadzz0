@@ -31,7 +31,10 @@ export function AllCreators() {
           {creators.data?.pages.map((page) => {
             return page.items.map((creator) => {
               return (
-                <div className="mb-1 border-b-2 border-black" key={creator.id}>
+                <div
+                  className="mb-1 border-b-2 border-black border-opacity-10"
+                  key={creator.id}
+                >
                   <li>
                     <CreatorAvater creator={creator} />
                   </li>

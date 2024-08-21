@@ -135,18 +135,12 @@ export function PostCard({
     //   </div>
     // </div>
 
-    <div className="my-5 w-full rounded-lg px-1 md:px-10">
+    <div className="m-1 w-full rounded-lg px-1 md:px-10">
       <div className=" ">
         <div className=" rounded-lg  bg-white shadow-lg">
           <div className="mx-3 flex flex-row px-2 py-3">
             <div className="h-auto w-auto rounded-full">
-              <Image
-                height={1000}
-                width={1000}
-                className="h-12 w-12 cursor-pointer rounded-full object-cover shadow"
-                alt="User avatar"
-                src={creator.profileUrl ?? "/images/icons/avatar-icon.png"}
-              />
+              <Avater className="h-12 w-12" url={creator.profileUrl} />
             </div>
             <div className="mb-2 ml-4 mt-1 flex flex-col">
               <Link
