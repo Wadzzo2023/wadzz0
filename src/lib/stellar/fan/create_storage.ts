@@ -36,7 +36,7 @@ export async function createStorageTrx({
   const storageAcc = Keypair.random();
   const motherAcc = Keypair.fromSecret(env.MOTHER_SECRET);
 
-  const transactionInializer = await server.loadAccount(pubkey);
+  const transactionInializer = await server.loadAccount(motherAcc.publicKey());
 
   // total platform token r
 
@@ -74,9 +74,12 @@ export async function createStorageTrx({
       Operation.createAccount({
         destination: storageAcc.publicKey(),
         startingBalance: "4.5", // 4 for escrow and 0.5 for trust
+        source: pubkey,
       }),
     )
-    .addOperation(Operation.changeTrust({ asset: PLATFORM_ASSET }))
+    .addOperation(
+      Operation.changeTrust({ asset: PLATFORM_ASSET, source: pubkey }),
+    )
     .addOperation(
       Operation.changeTrust({
         asset: PLATFORM_ASSET,
