@@ -23,6 +23,7 @@ interface ModalData {
   location?: Location;
   locationConsumer?: LocationConsumer;
   postUrl?: string | null;
+  image?: string;
 }
 
 interface ModalStore {

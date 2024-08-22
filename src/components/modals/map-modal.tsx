@@ -1,7 +1,6 @@
-import QRCode from "react-qr-code";
-import { useModal } from "../hooks/use-modal-store";
-import CopyToClip from "../wallete/copy_to_Clip";
-import { Button } from "../shadcn/ui/button";
+import { Copy, Scissors, ShieldBan, ShieldCheck, Trash2 } from "lucide-react";
+import { useSession } from "next-auth/react";
+import toast from "react-hot-toast";
 import {
   Dialog,
   DialogContent,
@@ -9,24 +8,10 @@ import {
   DialogHeader,
   DialogTitle,
 } from "~/components/shadcn/ui/dialog";
-import { useSession } from "next-auth/react";
-import { addrShort } from "~/utils/utils";
 import { api } from "~/utils/api";
-import toast from "react-hot-toast";
-import {
-  CircleOff,
-  Copy,
-  LayersIcon,
-  Scissors,
-  ScissorsSquare,
-  ShieldBan,
-  ShieldCheck,
-  ShieldMinus,
-  Trash2,
-} from "lucide-react";
-import { ExclamationTriangleIcon } from "@heroicons/react/24/solid";
-import { useState } from "react";
-import { set } from "date-fns";
+import { useModal } from "../hooks/use-modal-store";
+import { Button } from "../shadcn/ui/button";
+import Image from "next/image";
 
 const MapModal = () => {
   const {
@@ -138,6 +123,17 @@ const MapModal = () => {
                 )}
                 <div>Long: {data?.long}</div>
                 <div>Lat: {data?.lat}</div>
+                <div className="flex justify-center">
+                  {data?.image && (
+                    <Image
+                      src={data.image}
+                      alt="image"
+                      width={200}
+                      height={200}
+                      className="rounded-lg"
+                    />
+                  )}
+                </div>
               </div>
             </DialogTitle>
           </DialogHeader>
