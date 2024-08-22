@@ -11,6 +11,7 @@ import {
   CollapsibleTrigger,
 } from "~/components/shadcn/ui/collapsible";
 import { addrShort } from "~/utils/utils";
+import Image from "next/image";
 
 export default function Pins() {
   const pins = api.maps.pin.getPins.useQuery();
@@ -121,6 +122,7 @@ function PinsList({ groups }: { groups: Group }) {
                     <th></th>
                     <th>ID</th>
                     <th>title</th>
+                    <th>Image</th>
                     <th>CreatorId</th>
                     <th>Description</th>
                   </tr>
@@ -140,6 +142,16 @@ function PinsList({ groups }: { groups: Group }) {
                       </th>
                       <th>{pin.id}</th>
                       <td>{pin.title}</td>
+                      <td>
+                        {pin.image && (
+                          <Image
+                            alt="pin image"
+                            width={50}
+                            height={50}
+                            src={pin.image}
+                          />
+                        )}
+                      </td>
                       <td>{addrShort(pin.creatorId, 10)}</td>
                       <td>{pin.description}</td>
                     </tr>

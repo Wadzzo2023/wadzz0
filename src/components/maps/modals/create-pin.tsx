@@ -171,7 +171,7 @@ export default function CreatePinModal({
       setValue("lng", position.lng);
       // console.log(data);
       // return;
-      addPinM.mutate({ ...data });
+      addPinM.mutate({ ...data, lat: position.lat, lng: position.lng });
     } else {
       // toast.error("Please select a location on the map");
       addPinM.mutate({ ...data });
