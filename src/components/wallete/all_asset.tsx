@@ -48,7 +48,7 @@ export default function AllAsset() {
 
   console.log(assets.data, musicAssets.data, adminAssets.data, "vong cong");
 
-  if (assets.data || musicAssets.data || adminAssets.data || fanAssets.data)
+  if (assets.data ?? musicAssets.data ?? adminAssets.data ?? fanAssets.data)
     return (
       <div
         style={{
