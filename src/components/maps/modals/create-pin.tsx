@@ -8,6 +8,7 @@ import { match } from "ts-pattern";
 import { z } from "zod";
 import { useCreatorStorageAcc } from "~/lib/state/wallete/stellar-balances";
 import { api } from "~/utils/api";
+import { BADWORDS } from "~/utils/banned-word";
 import { error, loading, success } from "~/utils/trcp/patterns";
 import { UploadButton } from "~/utils/uploadthing";
 
@@ -25,7 +26,17 @@ export const createPinFormSchema = z.object({
   lat: z.number().min(-180).max(180),
   lng: z.number().min(-180).max(180),
   description: z.string(),
-  title: z.string().min(3),
+  title: z
+    .string()
+    .min(3)
+    .refine(
+      (value) => {
+        return !BADWORDS.some((word) => value.includes(word));
+      },
+      {
+        message: "Input contains banned words.",
+      },
+    ),
   image: z.string().url().optional(),
   startDate: z.date(),
   endDate: z.date().min(new Date(new Date().setHours(0, 0, 0, 0))),

@@ -25,6 +25,7 @@ import { UploadButton } from "~/utils/uploadthing";
 import Alert from "../ui/alert";
 import Loading from "../wallete/loading";
 import { Button } from "../shadcn/ui/button";
+import { BADWORDS } from "~/utils/banned-word";
 
 export const ExtraSongInfo = z.object({
   artist: z.string(),
@@ -32,7 +33,14 @@ export const ExtraSongInfo = z.object({
 });
 
 export const NftFormSchema = z.object({
-  name: z.string(),
+  name: z.string().refine(
+    (value) => {
+      return !BADWORDS.some((word) => value.includes(word));
+    },
+    {
+      message: "Input contains banned words.",
+    },
+  ),
   description: z.string(),
   mediaUrl: z.string(),
   coverImgUrl: z.string(),

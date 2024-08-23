@@ -318,10 +318,10 @@ function AboutForm({ user }: { user: User }) {
             <div className="text-sm text-muted-foreground">
               Public Key : {addrShort(user.id, 4)}
             </div>
-            <div className="text-sm text-muted-foreground">
+            {/* <div className="text-sm text-muted-foreground">
               Verified Status :{" "}
               {user.emailVerified ? "Verified" : "Not Verified"}
-            </div>
+            </div> */}
             <div className="text-sm text-muted-foreground">
               Joined at :{" "}
               {user.joinedAt

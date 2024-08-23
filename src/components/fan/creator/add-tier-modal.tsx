@@ -19,6 +19,7 @@ import {
   DialogTrigger,
 } from "~/components/shadcn/ui/dialog";
 import { Button } from "~/components/shadcn/ui/button";
+import { BADWORDS } from "~/utils/banned-word";
 
 export const TierSchema = z.object({
   name: z
@@ -32,6 +33,14 @@ export const TierSchema = z.object({
       },
       {
         message: "Input must be a single word",
+      },
+    )
+    .refine(
+      (value) => {
+        return !BADWORDS.some((word) => value.includes(word));
+      },
+      {
+        message: "Input contains banned words.",
       },
     ),
   price: z

@@ -1,32 +1,26 @@
 import { Creator } from "@prisma/client";
 import { Plus } from "lucide-react";
 import { useRef, useState } from "react";
-import { z } from "zod";
-import Loading from "~/components/wallete/loading";
-import { useUserStellarAcc } from "~/lib/state/wallete/stellar-balances";
-import { api } from "~/utils/api";
-import Alert from "../../ui/alert";
-import NewPageAssetFrom from "./page_asset/new";
-import CustomPageAssetFrom from "./page_asset/custom";
-import clsx from "clsx";
-import { PLATFORM_ASSET } from "~/lib/stellar/constant";
+import { Button } from "~/components/shadcn/ui/button";
 import {
   Dialog,
   DialogClose,
   DialogContent,
-  DialogDescription,
   DialogFooter,
-  DialogHeader,
-  DialogTitle,
   DialogTrigger,
 } from "~/components/shadcn/ui/dialog";
-import { Button } from "~/components/shadcn/ui/button";
 import {
   Tabs,
   TabsContent,
   TabsList,
   TabsTrigger,
 } from "~/components/shadcn/ui/tabs";
+import { useUserStellarAcc } from "~/lib/state/wallete/stellar-balances";
+import { PLATFORM_ASSET } from "~/lib/stellar/constant";
+import { api } from "~/utils/api";
+import Alert from "../../ui/alert";
+import CustomPageAssetFrom from "./page_asset/custom";
+import NewPageAssetFrom from "./page_asset/new";
 
 export default function AddCreatorPageAssetModal({
   creator,
