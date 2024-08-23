@@ -179,7 +179,7 @@ function AboutForm({ user }: { user: User }) {
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
               <Button
-                variant="destructive"
+                // variant=""
                 onClick={() => setIsDialogOpen(true)}
               >
                 <Pen size={14} className="mr-2" /> Edit profile

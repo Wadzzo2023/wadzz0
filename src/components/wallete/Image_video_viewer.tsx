@@ -54,9 +54,8 @@ export default function ImageVideViewer({
       width={1000}
       alt={code}
       style={{
-        backgroundColor: color ?? undefined,
+        backgroundColor: "#7ec34e" ?? undefined,
         height: "100%",
-
         width: "100%",
       }}
       className={twMerge("rounded-full p-2", className)}

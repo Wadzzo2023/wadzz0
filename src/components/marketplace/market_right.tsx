@@ -36,7 +36,7 @@ export function AssetDetails({
 }: {
   currentData: MarketAssetType;
 }) {
-  const color = "blue";
+  const color = "#7ec34e";
   return (
     <div className=" h-full w-full">
       <div className="scrollbar-style relative h-full w-full overflow-y-auto rounded-xl">
@@ -55,7 +55,6 @@ export function AssetDetails({
                 mediaUrl={currentData.asset.mediaUrl}
                 thumbnailUrl={currentData.asset.thumbnail}
                 name={currentData.asset.name}
-                color={color}
               />
             </div>
 
@@ -192,12 +191,11 @@ export function DisableFromMarketButton({
 }
 
 function MediaViewer(props: {
-  color: string;
+  // color: string;
   thumbnailUrl: string;
   mediaUrl: string;
   name: string;
 }) {
-  const { color } = props;
   const { thumbnailUrl, mediaUrl, name } = props;
   // const thumbnailUrl = "https://picsum.photos/200/200";
   // const name = "vog";
@@ -276,7 +274,6 @@ function ThumbNailView(props: { name: string; thumbnailUrl: string }) {
         sizes="100%"
         className="h-full w-full"
         code={name}
-        color={"blue"}
         url={thumbnailUrl}
         blurData={"hi"}
       />
