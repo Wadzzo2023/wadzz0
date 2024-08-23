@@ -26,6 +26,8 @@ import Alert from "../ui/alert";
 import Loading from "../wallete/loading";
 import { Button } from "../shadcn/ui/button";
 import { BADWORDS } from "~/utils/banned-word";
+import Link from "next/link";
+import RechargeLink from "./recharge/link";
 
 export const ExtraSongInfo = z.object({
   artist: z.string(),
@@ -597,6 +599,7 @@ function NftCreateForm({
                   }
                   content={`You need minimum ${requiredTokenAmount} ${PLATFORM_ASSET.code}`}
                 />
+                {requiredTokenAmount > platformAssetBalance && <RechargeLink />}
               </div>
 
               <button

@@ -21,6 +21,7 @@ import { api } from "~/utils/api";
 import Alert from "../../ui/alert";
 import CustomPageAssetFrom from "./page_asset/custom";
 import NewPageAssetFrom from "./page_asset/new";
+import RechargeLink from "~/components/marketplace/recharge/link";
 
 export default function AddCreatorPageAssetModal({
   creator,
@@ -44,11 +45,14 @@ export default function AddCreatorPageAssetModal({
   if (requiredToken.data) {
     if (platformAssetBalance < requiredToken.data) {
       return (
-        <Alert
-          className="max-w-lg"
-          type={"error"}
-          content={`To create this page asset, you'll need ${requiredToken.data} ${PLATFORM_ASSET.code} for your Asset account.`}
-        />
+        <>
+          <Alert
+            className="max-w-lg"
+            type={"error"}
+            content={`To create this page asset, you'll need ${requiredToken.data} ${PLATFORM_ASSET.code} for your Asset account.`}
+          />
+          <RechargeLink />
+        </>
       );
     } else {
       return (

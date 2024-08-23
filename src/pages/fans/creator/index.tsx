@@ -2,20 +2,20 @@ import { Creator } from "@prisma/client";
 import { type Session } from "next-auth";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
-import { WalletType, clientsign } from "package/connect_wallet";
+import { clientsign } from "package/connect_wallet";
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { PostMenu } from "~/components/fan/creator/CreatPost";
 import MemberShip from "~/components/fan/creator/membership";
-import Shop from "~/components/fan/creator/shop";
 import CreatorsTabs from "~/components/fan/creator/tabs";
+import RechargeLink from "~/components/marketplace/recharge/link";
 import Alert from "~/components/ui/alert";
 import Avater from "~/components/ui/avater";
 import Loading from "~/components/wallete/loading";
 import useNeedSign from "~/lib/hook";
 import { CreatorMenu, useCreator } from "~/lib/state/fan/creator-menu";
 import { useUserStellarAcc } from "~/lib/state/wallete/stellar-balances";
-import { PLATFORM_ASSET, PLATFORM_FEE } from "~/lib/stellar/constant";
+import { PLATFORM_ASSET } from "~/lib/stellar/constant";
 import { clientSelect } from "~/lib/stellar/fan/utils";
 import { api } from "~/utils/api";
 import { CREATOR_TERM } from "~/utils/term";
@@ -121,6 +121,7 @@ export function ValidCreateCreator({ message }: { message?: string }) {
             type="error"
             content={`You don't have Sufficient Balance ,To create storage account, you need minimum ${requiredToken.data} ${PLATFORM_ASSET.code} `}
           />
+          <RechargeLink />
         </div>
       );
     }

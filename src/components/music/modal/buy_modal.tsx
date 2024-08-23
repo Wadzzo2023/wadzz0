@@ -13,6 +13,7 @@ import { useUserStellarAcc } from "~/lib/state/wallete/stellar-balances";
 import { PLATFORM_ASSET } from "~/lib/stellar/constant";
 import { clientSelect } from "~/lib/stellar/fan/utils";
 import { addrShort } from "~/utils/utils";
+import RechargeLink from "~/components/marketplace/recharge/link";
 
 type BuyModalProps = {
   item: AssetType;
@@ -81,7 +82,7 @@ export default function BuyModal({
               ✕
             </button>
           </form>
-          <h3 className="mb-2 text-lg font-bold">BUY</h3>
+          <h3 className="mb-2 text-center text-lg font-bold">BUY</h3>
 
           <div className="flex flex-col items-center gap-y-2">
             <div className="flex flex-col gap-2  bg-base-200 p-10">
@@ -135,7 +136,17 @@ export default function BuyModal({
                           Confirm Payment
                         </button>
                       ) : (
-                        <p className="text-error">Insufficient Balance</p>
+                        <>
+                          <p className="mt-2">
+                            You have {platformAssetBalance}{" "}
+                            {PLATFORM_ASSET.code}
+                          </p>
+
+                          <p className="mb-2 text-error">
+                            Insufficient Balance
+                          </p>
+                          <RechargeLink />
+                        </>
                       )}
                     </>
                   ) : (
