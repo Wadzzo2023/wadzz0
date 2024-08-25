@@ -18,7 +18,7 @@ export default async function handler(
         where: { userId: user.id },
       });
 
-      return res.status(204).end;
+      return res.status(204).end();
     } else {
       res.status(401).json({ error: "Unauthorized" });
     }
