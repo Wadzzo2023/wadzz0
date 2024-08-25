@@ -1,7 +1,5 @@
 import { Location, LocationConsumer } from "@prisma/client";
-import React from "react";
 import { useModal } from "~/components/hooks/use-modal-store";
-import ClaimPinModal from "~/components/maps/claim/modal";
 import { Button } from "~/components/shadcn/ui/button";
 import { api } from "~/utils/api";
 
@@ -14,7 +12,7 @@ export default function Page() {
 }
 
 function ConsumedPins() {
-  const consumedPins = api.maps.pin.getConsumedLocated.useQuery();
+  const consumedPins = api.maps.pin.getAUserConsumedPin.useQuery();
   if (consumedPins.isLoading) return <p>Loading...</p>;
   if (consumedPins.isError) return <p>Error</p>;
 

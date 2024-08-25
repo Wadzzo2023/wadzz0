@@ -134,13 +134,48 @@ export const pinRouter = createTRPCRouter({
       });
     }),
 
-  getConsumedLocated: protectedProcedure.query(async ({ ctx }) => {
+  getAUserConsumedPin: protectedProcedure.query(async ({ ctx }) => {
     const userId = ctx.session.user.id;
     const consumedLocations = await ctx.db.locationConsumer.findMany({
       where: {
         userId,
       },
       include: { location: true },
+      orderBy: { createdAt: "desc" },
+    });
+    return consumedLocations;
+  }),
+
+  getCreatorPinThatConsumed: creatorProcedure.query(async ({ ctx }) => {
+    const creatorId = ctx.session.user.id;
+    const consumedLocations = await ctx.db.locationConsumer.findMany({
+      where: {
+        location: {
+          creatorId,
+        },
+      },
+      include: {
+        location: { select: { title: true, latitude: true, longitude: true } },
+        user: { select: { id: true, email: true } },
+      },
+      orderBy: { createdAt: "desc" },
+    });
+    return consumedLocations;
+  }),
+  getCreatorCreatedPin: creatorProcedure.query(async ({ ctx }) => {
+    const creatorId = ctx.session.user.id;
+    const createdLocations = await ctx.db.location.findMany({
+      where: {
+        creatorId,
+      },
+      orderBy: { createdAt: "desc" },
+    });
+    return createdLocations;
+  }),
+
+  getAllConsumedLocation: adminProcedure.query(async ({ ctx }) => {
+    const consumedLocations = await ctx.db.locationConsumer.findMany({
+      include: { location: true, user: true },
       orderBy: { createdAt: "desc" },
     });
     return consumedLocations;

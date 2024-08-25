@@ -47,6 +47,9 @@ importers:
       '@radix-ui/react-avatar':
         specifier: ^1.1.0
         version: 1.1.0(@types/react-dom@18.3.0)(@types/react@18.3.3)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+      '@radix-ui/react-checkbox':
+        specifier: ^1.1.1
+        version: 1.1.1(@types/react-dom@18.3.0)(@types/react@18.3.3)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       '@radix-ui/react-collapsible':
         specifier: ^1.1.0
         version: 1.1.0(@types/react-dom@18.3.0)(@types/react@18.3.3)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
@@ -95,6 +98,9 @@ importers:
       '@tanstack/react-query':
         specifier: ^4.36.1
         version: 4.36.1(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+      '@tanstack/react-table':
+        specifier: ^8.20.5
+        version: 8.20.5(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       '@trpc/client':
         specifier: ^10.45.2
         version: 10.45.2(@trpc/server@10.45.2)
@@ -1274,6 +1280,19 @@ packages:
       '@types/react-dom':
         optional: true
 
+  '@radix-ui/react-checkbox@1.1.1':
+    resolution: {integrity: sha512-0i/EKJ222Afa1FE0C6pNJxDq1itzcl3HChE9DwskA4th4KRse8ojx8a1nVcOjwJdbpDLcz7uol77yYnQNMHdKw==}
+    peerDependencies:
+      '@types/react': '*'
+      '@types/react-dom': '*'
+      react: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+      react-dom: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+      '@types/react-dom':
+        optional: true
+
   '@radix-ui/react-collapsible@1.1.0':
     resolution: {integrity: sha512-zQY7Epa8sTL0mq4ajSJpjgn2YmCgyrG7RsQgLp3C0LQVkG7+Tf6Pv1CeNWZLyqMjhdPkBa5Lx7wYBeSu7uCSTA==}
     peerDependencies:
@@ -1854,11 +1873,22 @@ packages:
       react-native:
         optional: true
 
+  '@tanstack/react-table@8.20.5':
+    resolution: {integrity: sha512-WEHopKw3znbUZ61s9i0+i9g8drmDo6asTWbrQh8Us63DAk/M0FkmIqERew6P71HI75ksZ2Pxyuf4vvKh9rAkiA==}
+    engines: {node: '>=12'}
+    peerDependencies:
+      react: '>=16.8'
+      react-dom: '>=16.8'
+
   '@tanstack/react-virtual@3.8.3':
     resolution: {integrity: sha512-9ICwbDUUzN99CJIGc373i8NLoj6zFTKI2Hlcmo0+lCSAhPQ5mxq4dGOMKmLYoEFyHcGQ64Bd6ZVbnPpM6lNK5w==}
     peerDependencies:
       react: ^16.8.0 || ^17.0.0 || ^18.0.0
       react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
+
+  '@tanstack/table-core@8.20.5':
+    resolution: {integrity: sha512-P9dF7XbibHph2PFRz8gfBKEXEY/HJPOhym8CHmjF8y3q5mWpKx9xtZapXQUWCgkqvsK0R46Azuz+VaxD4Xl+Tg==}
+    engines: {node: '>=12'}
 
   '@tanstack/virtual-core@3.8.3':
     resolution: {integrity: sha512-vd2A2TnM5lbnWZnHi9B+L2gPtkSeOtJOAw358JqokIH1+v2J7vUAzFVPwB/wrye12RFOurffXu33plm4uQ+JBQ==}
@@ -6443,6 +6473,22 @@ snapshots:
       '@types/react': 18.3.3
       '@types/react-dom': 18.3.0
 
+  '@radix-ui/react-checkbox@1.1.1(@types/react-dom@18.3.0)(@types/react@18.3.3)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)':
+    dependencies:
+      '@radix-ui/primitive': 1.1.0
+      '@radix-ui/react-compose-refs': 1.1.0(@types/react@18.3.3)(react@18.2.0)
+      '@radix-ui/react-context': 1.1.0(@types/react@18.3.3)(react@18.2.0)
+      '@radix-ui/react-presence': 1.1.0(@types/react-dom@18.3.0)(@types/react@18.3.3)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+      '@radix-ui/react-primitive': 2.0.0(@types/react-dom@18.3.0)(@types/react@18.3.3)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+      '@radix-ui/react-use-controllable-state': 1.1.0(@types/react@18.3.3)(react@18.2.0)
+      '@radix-ui/react-use-previous': 1.1.0(@types/react@18.3.3)(react@18.2.0)
+      '@radix-ui/react-use-size': 1.1.0(@types/react@18.3.3)(react@18.2.0)
+      react: 18.2.0
+      react-dom: 18.2.0(react@18.2.0)
+    optionalDependencies:
+      '@types/react': 18.3.3
+      '@types/react-dom': 18.3.0
+
   '@radix-ui/react-collapsible@1.1.0(@types/react-dom@18.3.0)(@types/react@18.3.3)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)':
     dependencies:
       '@radix-ui/primitive': 1.1.0
@@ -7033,11 +7079,19 @@ snapshots:
     optionalDependencies:
       react-dom: 18.2.0(react@18.2.0)
 
+  '@tanstack/react-table@8.20.5(react-dom@18.2.0(react@18.2.0))(react@18.2.0)':
+    dependencies:
+      '@tanstack/table-core': 8.20.5
+      react: 18.2.0
+      react-dom: 18.2.0(react@18.2.0)
+
   '@tanstack/react-virtual@3.8.3(react-dom@18.2.0(react@18.2.0))(react@18.2.0)':
     dependencies:
       '@tanstack/virtual-core': 3.8.3
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
+
+  '@tanstack/table-core@8.20.5': {}
 
   '@tanstack/virtual-core@3.8.3': {}
 
