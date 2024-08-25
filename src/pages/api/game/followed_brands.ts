@@ -3,6 +3,7 @@ import { getSession } from "next-auth/react";
 import internal from "stream";
 import { db } from "~/server/db";
 import { Brand } from "~/types/game/brand";
+import { avaterIconUrl } from "./brands";
 
 // import { getSession } from "next-auth/react";
 
@@ -39,9 +40,13 @@ export default async function handler(
     return {
       id: brand.id,
       first_name: brand.name,
-      last_name: brand.name,
+      last_name: "",
       email: "",
-      logo: brand.pageAsset?.thumbnail ?? "https://picsum.photos/200/300",
+      logo:
+        brand.pageAsset?.thumbnail ??
+        brand.profileUrl ??
+        avaterIconUrl ??
+        "https://picsum.photos/200/300",
       followed_by_current_user: true,
     };
   });
