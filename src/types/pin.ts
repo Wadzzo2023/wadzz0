@@ -19,3 +19,17 @@ const PinLocation = z.object({
 });
 
 export type PinLocation = z.infer<typeof PinLocation>;
+
+const locationType = z.object({
+  creator: z.object({ name: z.string() }),
+  title: z.string(),
+  latitude: z.number(),
+  longitude: z.number(),
+  description: z.string().optional(),
+  approved: z.boolean(),
+  image: z.string().optional(),
+  locationGroupId: z.string().optional(),
+  id: z.number(),
+});
+
+export type LocationType = z.infer<typeof locationType>;

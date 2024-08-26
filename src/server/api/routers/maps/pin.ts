@@ -12,7 +12,7 @@ import {
   protectedProcedure,
   publicProcedure,
 } from "~/server/api/trpc";
-import { PinLocation } from "~/types/pin";
+import { LocationType, PinLocation } from "~/types/pin";
 import { randomLocation as getLocationInLatLngRad } from "~/utils/map";
 
 export const pinRouter = createTRPCRouter({
@@ -106,10 +106,11 @@ export const pinRouter = createTRPCRouter({
   getPins: adminProcedure.query(async ({ ctx, input }) => {
     const pins = await ctx.db.location.findMany({
       where: { approved: { equals: null }, endDate: { gte: new Date() } },
+      include: { creator: { select: { name: true } } },
       orderBy: { createdAt: "desc" },
     });
 
-    return pins;
+    return pins as LocationType[];
   }),
 
   getPinsGrops: adminProcedure.query(async ({ ctx }) => {

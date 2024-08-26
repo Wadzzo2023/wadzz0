@@ -12,6 +12,7 @@ import {
 } from "~/components/shadcn/ui/collapsible";
 import { addrShort } from "~/utils/utils";
 import Image from "next/image";
+import { LocationType } from "~/types/pin";
 
 export default function Pins() {
   const pins = api.maps.pin.getPins.useQuery();
@@ -24,9 +25,9 @@ export default function Pins() {
   }
 }
 
-type Group = Record<string, Location[]>;
+type Group = Record<string, LocationType[]>;
 
-function GroupPins({ pins }: { pins: Location[] }) {
+function GroupPins({ pins }: { pins: LocationType[] }) {
   const groups: Group = {};
 
   const groupPins = pins.map((pin) => {
@@ -40,7 +41,7 @@ function GroupPins({ pins }: { pins: Location[] }) {
     }
   });
   return (
-    <div className="">
+    <div className="min-w-3xl">
       <h2 className="text-lg font-bold">Pins</h2>
       <PinsList groups={groups} />
     </div>
@@ -98,7 +99,7 @@ function PinsList({ groups }: { groups: Group }) {
   }
 
   return (
-    <div className="min-w-lg bg-base-100  p-10">
+    <div className=" w-3xl  p-2">
       {Object.entries(groups).map(([key, pins]) => {
         return (
           <CollapsibleDemo
@@ -112,7 +113,7 @@ function PinsList({ groups }: { groups: Group }) {
                     onChange={(e) => handleGroupSelection(key)}
                   />
                 </label>
-                Pin Groups {key}
+                Pin Groups {key} {}
               </div>
             }
             content={
@@ -123,7 +124,7 @@ function PinsList({ groups }: { groups: Group }) {
                     <th>ID</th>
                     <th>title</th>
                     <th>Image</th>
-                    <th>CreatorId</th>
+                    <th>Creator Name</th>
                     <th>Description</th>
                   </tr>
                 </thead>
@@ -152,7 +153,7 @@ function PinsList({ groups }: { groups: Group }) {
                           />
                         )}
                       </td>
-                      <td>{addrShort(pin.creatorId, 10)}</td>
+                      <td>{pin.creator.name}</td>
                       <td>{pin.description}</td>
                     </tr>
                   ))}
