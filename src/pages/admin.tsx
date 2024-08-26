@@ -11,6 +11,7 @@ import MintedItemAdd from "~/components/wallete/add_asset_form";
 import { AdminNavigation, useAdminMenu } from "~/lib/state/admin-tab-menu";
 import { PLATFORM_ASSET } from "~/lib/stellar/constant";
 import { api } from "~/utils/api";
+import AdminPinConsumptionReport from "./maps/pins/admin";
 
 export default function AdminPage() {
   return <IsAdmin />;
@@ -67,6 +68,8 @@ function RenderTabs() {
 
     case AdminNavigation.USERS:
       return <UserList />;
+    case AdminNavigation.PINS_REPORT:
+      return <AdminPinConsumptionReport />;
   }
 }
 

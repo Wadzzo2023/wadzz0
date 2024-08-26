@@ -12,6 +12,7 @@ import {
   protectedProcedure,
   publicProcedure,
 } from "~/server/api/trpc";
+import { PinLocation } from "~/types/pin";
 import { randomLocation as getLocationInLatLngRad } from "~/utils/map";
 
 export const pinRouter = createTRPCRouter({
@@ -155,12 +156,19 @@ export const pinRouter = createTRPCRouter({
         },
       },
       include: {
-        location: { select: { title: true, latitude: true, longitude: true } },
-        user: { select: { id: true, email: true } },
+        location: {
+          select: {
+            title: true,
+            latitude: true,
+            longitude: true,
+            creator: { select: { name: true } },
+          },
+        },
+        user: { select: { id: true, email: true, name: true } },
       },
       orderBy: { createdAt: "desc" },
     });
-    return consumedLocations;
+    return consumedLocations as PinLocation[];
   }),
   getCreatorCreatedPin: creatorProcedure.query(async ({ ctx }) => {
     const creatorId = ctx.session.user.id;
@@ -173,13 +181,96 @@ export const pinRouter = createTRPCRouter({
     return createdLocations;
   }),
 
-  getAllConsumedLocation: adminProcedure.query(async ({ ctx }) => {
-    const consumedLocations = await ctx.db.locationConsumer.findMany({
-      include: { location: true, user: true },
-      orderBy: { createdAt: "desc" },
-    });
-    return consumedLocations;
-  }),
+  getAllConsumedLocation: adminProcedure
+    .input(z.object({ day: z.number() }).optional())
+    .query(async ({ ctx, input }) => {
+      const consumedLocations = await ctx.db.locationConsumer.findMany({
+        where: {
+          createdAt: input
+            ? {
+                gte: new Date(
+                  new Date().getTime() - input.day * 24 * 60 * 60 * 1000,
+                ),
+              }
+            : {},
+        },
+        include: {
+          location: {
+            select: {
+              title: true,
+              latitude: true,
+              longitude: true,
+              creator: { select: { name: true } },
+            },
+          },
+          user: { select: { id: true, email: true, name: true } },
+        },
+        orderBy: { createdAt: "desc" },
+      });
+      return consumedLocations as PinLocation[];
+    }),
+
+  downloadAllConsumedLocation: creatorProcedure
+    .input(z.object({ day: z.number() }).optional())
+    .mutation(async ({ ctx, input }) => {
+      const creatorId = ctx.session.user.id;
+      const consumedLocations = await ctx.db.locationConsumer.findMany({
+        where: {
+          createdAt: input
+            ? {
+                gte: new Date(
+                  new Date().getTime() - input.day * 24 * 60 * 60 * 1000,
+                ),
+              }
+            : {},
+          location: {
+            creatorId,
+          },
+        },
+        include: {
+          location: {
+            select: {
+              title: true,
+              latitude: true,
+              longitude: true,
+              creator: { select: { name: true } },
+            },
+          },
+          user: { select: { id: true, email: true, name: true } },
+        },
+        orderBy: { createdAt: "desc" },
+      });
+      return consumedLocations as PinLocation[];
+    }),
+
+  downloadCreatorConsumedLocation: adminProcedure
+    .input(z.object({ day: z.number() }).optional())
+    .mutation(async ({ ctx, input }) => {
+      const consumedLocations = await ctx.db.locationConsumer.findMany({
+        where: {
+          createdAt: input
+            ? {
+                gte: new Date(
+                  new Date().getTime() - input.day * 24 * 60 * 60 * 1000,
+                ),
+              }
+            : {},
+        },
+        include: {
+          location: {
+            select: {
+              title: true,
+              latitude: true,
+              longitude: true,
+              creator: { select: { name: true } },
+            },
+          },
+          user: { select: { id: true, email: true, name: true } },
+        },
+        orderBy: { createdAt: "desc" },
+      });
+      return consumedLocations as PinLocation[];
+    }),
 
   claimAPin: protectedProcedure
     .input(z.object({ id: z.string() }))

@@ -41,15 +41,23 @@ import {
 } from "~/components/shadcn/ui/table";
 import { api } from "~/utils/api";
 import { Location } from "@prisma/client";
+import Link from "next/link";
 
-export default function CreatorsConsumedPinReports() {
+export default function CreatorsPinReports() {
   const pins = api.maps.pin.getCreatorCreatedPin.useQuery();
   if (pins.isLoading) return <Loader2 className="animate-spin" />;
 
   if (pins.data)
     return (
       <div>
-        Creators Consumed Reports
+        <div className="flex items-center justify-center ">
+          <h2 className="p-4 text-center text-lg font-bold">
+            CreatorsPinReports
+          </h2>
+          <Link href="/maps/pins/creator/report">
+            <Button>Consumed Reports</Button>
+          </Link>
+        </div>
         <div className="m-auto max-w-3xl">
           <DataTableDemo pins={pins.data} />
         </div>
