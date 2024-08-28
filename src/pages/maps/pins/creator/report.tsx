@@ -22,7 +22,9 @@ export default function CreatorConsumptionReport() {
     return (
       <div>
         <div className="flex items-center justify-center">
-          <ArrowLeft onClick={() => router.back()} />
+          <Button variant="outline" size="icon" onClick={() => router.back()}>
+            <ArrowLeft />
+          </Button>
           <h2 className="p-4 text-center text-2xl font-bold">
             Creators Consumed Reports
           </h2>

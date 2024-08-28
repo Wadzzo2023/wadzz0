@@ -51,11 +51,9 @@ export default function CreatorsPinReports() {
     return (
       <div>
         <div className="flex items-center justify-center ">
-          <h2 className="p-4 text-center text-lg font-bold">
-            CreatorsPinReports
-          </h2>
+          <h2 className="p-4 text-center text-lg font-bold">Creator Pins</h2>
           <Link href="/maps/pins/creator/report">
-            <Button>Consumed Reports</Button>
+            <Button>Collection Reports</Button>
           </Link>
         </div>
         <div className="m-auto max-w-3xl">

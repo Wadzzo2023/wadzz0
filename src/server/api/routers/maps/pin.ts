@@ -87,6 +87,22 @@ export const pinRouter = createTRPCRouter({
       });
     }),
 
+  updatePin: creatorProcedure
+    .input(
+      z.object({
+        pinId: z.number(),
+        title: z.string(),
+        description: z.string(),
+        imgUrl: z.string().optional(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { pinId, title, description } = input;
+      await ctx.db.location.update({
+        data: { title, description, image: input.imgUrl },
+        where: { id: pinId },
+      });
+    }),
   getMyPins: creatorProcedure.query(async ({ ctx }) => {
     const pins = await ctx.db.location.findMany({
       where: {

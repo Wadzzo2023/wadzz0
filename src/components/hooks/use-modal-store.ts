@@ -11,7 +11,7 @@ export type ModalType =
   | "nft create"
   | "share";
 
-interface ModalData {
+export interface ModalData {
   pinId?: number;
   recipientId?: string;
   amount?: string;
@@ -38,6 +38,7 @@ interface ModalStore {
   setIsPinCopied: (isPinCopied: boolean) => void;
   setIsPinCut: (isPinCut: boolean) => void;
   setIsAutoCollect: (isAutoCollect: boolean) => void;
+  updateData: (data: ModalData) => void;
 }
 
 export const useModal = create<ModalStore>((set) => ({
@@ -52,4 +53,5 @@ export const useModal = create<ModalStore>((set) => ({
   setIsPinCopied: (isPinCopied) => set({ isPinCopied }),
   setIsPinCut: (isPinCut) => set({ isPinCut }),
   setIsAutoCollect: (isAutoCollect) => set({ isAutoCollect }),
+  updateData: (data) => set({ data }),
 }));
