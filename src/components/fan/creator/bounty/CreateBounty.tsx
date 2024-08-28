@@ -191,7 +191,7 @@ const CreateBounty = () => {
                       )}
                       <input
                         type="number"
-                        placeholder="Price in BAND"
+                        placeholder={`Price in  ${PLATFROM_ASSET.code}`}
                         {...register("priceInBAND", { valueAsNumber: true })}
                         className="input input-bordered   w-full"
                       />

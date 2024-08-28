@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Preview } from "~/components/preview";
 import { useBountyRightStore } from "~/lib/state/bounty/use-bounty-store";
 import { usePopUpState } from "~/lib/state/right-pop";
+import { PLATFROM_ASSET } from "~/lib/stellar/constant";
 import { api } from "~/utils/api";
 import { getTailwindScreenSize } from "~/utils/clientUtils";
 
@@ -89,8 +90,10 @@ const Bounty = () => {
                           </dd>
                         </div>
                         <div className="text-sm font-medium">
-                          <div>Price in $: {bounty.priceInUSD}</div>
-                          <div>Price in BAND: {bounty.priceInBand} </div>
+                          <div>Price in USD : ${bounty.priceInUSD}</div>
+                          <div>
+                            Price in {PLATFROM_ASSET.code}: {bounty.priceInBand}{" "}
+                          </div>
                         </div>
                       </dl>
                     </div>

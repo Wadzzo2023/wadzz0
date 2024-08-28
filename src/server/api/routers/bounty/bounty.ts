@@ -51,7 +51,7 @@ export const BountyRoute = createTRPCRouter({
             cursor: cursor ? { id: cursor } : undefined,
 
             orderBy: {
-                createdAt: "desc",
+                createdAt: "asc",
             },
             include: {
                 _count: {
@@ -148,7 +148,7 @@ export const BountyRoute = createTRPCRouter({
                 },
             },
             orderBy: {
-                createdAt: "desc",
+                createdAt: "asc",
             },
         });
         let nextCursor: typeof cursor | undefined = undefined;

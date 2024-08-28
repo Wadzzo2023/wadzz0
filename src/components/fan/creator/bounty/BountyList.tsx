@@ -3,6 +3,7 @@ import { format } from "date-fns";
 import Image from "next/image";
 import Link from "next/link";
 import { Preview } from "~/components/preview";
+import { PLATFROM_ASSET } from "~/lib/stellar/constant";
 
 import { api } from "~/utils/api";
 
@@ -78,7 +79,9 @@ const BountyList = () => {
                         </div>
                         <div className="text-sm font-medium">
                           <div>Price in $: {bounty.priceInUSD}</div>
-                          <div>Price in BAND: {bounty.priceInBand} </div>
+                          <div>
+                            Price in {PLATFROM_ASSET.code}: {bounty.priceInBand}{" "}
+                          </div>
                         </div>
                       </dl>
                     </div>
