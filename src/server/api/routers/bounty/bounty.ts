@@ -324,6 +324,13 @@ export const BountyRoute = createTRPCRouter({
             },
         });
     }),
+    deleteBountySubmission: protectedProcedure.input(z.object({
+        submissionId: z.number(),
+    })).mutation(async ({ input, ctx }) => {
+        const userId = ctx.session.user.id;
+        return await ctx.db.bountySubmission.delete({ where: { id: input.submissionId, userId } });
+    }
+    ),
 
     createBountyComment: protectedProcedure
         .input(BountyCommentSchema)

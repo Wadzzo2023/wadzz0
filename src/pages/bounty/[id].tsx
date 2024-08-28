@@ -31,6 +31,7 @@ const UserBountyPage = () => {
   const router = useRouter();
   const { id } = router.query;
   console.log(id);
+  const utils = api.useUtils();
   const { data } = api.bounty.Bounty.getBountyByID.useQuery({
     BountyId: Number(id),
   });
@@ -45,6 +46,19 @@ const UserBountyPage = () => {
   const bountyComment = api.bounty.Bounty.getBountyComments.useQuery({
     bountyId: Number(id),
   });
+
+  const DeleteSubmissionMutation =
+    api.bounty.Bounty.deleteBountySubmission.useMutation({
+      onSuccess: async () => {
+        toast.success("Submission Deleted");
+        await utils.bounty.Bounty.getBountyAttachmentByUserId.refetch();
+      },
+    });
+  const handleSubmissionDelete = (id: number) => {
+    DeleteSubmissionMutation.mutate({
+      submissionId: id,
+    });
+  };
 
   if (data)
     return (
@@ -138,7 +152,7 @@ const UserBountyPage = () => {
                   </p>
                 </div>
 
-                <div>
+                <div className="flex items-center justify-between">
                   <Button
                     className="  "
                     onClick={() =>
@@ -149,6 +163,12 @@ const UserBountyPage = () => {
                     variant="outline"
                   >
                     <Paperclip size={16} className="mr-2" /> View Attachment
+                  </Button>
+                  <Button
+                    variant="destructive"
+                    onClick={() => handleSubmissionDelete(submission.id)}
+                  >
+                    <Trash />
                   </Button>
                 </div>
               </div>
