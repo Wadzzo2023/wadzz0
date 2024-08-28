@@ -46,6 +46,7 @@
     "@trpc/next": "^10.45.2",
     "@trpc/react-query": "^10.45.2",
     "@trpc/server": "^10.45.2",
+    "@uiw/react-md-editor": "^4.0.4",
     "@uploadthing/react": "^6.7.2",
     "@vis.gl/react-google-maps": "^1.1.0",
     "@walletconnect/sign-client": "^2.13.3",

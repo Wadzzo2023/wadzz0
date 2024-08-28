@@ -11,6 +11,7 @@ import { MarketType } from "@prisma/client";
 import { usePopUpState } from "~/lib/state/right-pop";
 import Drawer from "./drawer";
 import PageAssetRight from "./wallete/page_asset_right";
+import BountyRightBar from "./fan/creator/bounty/BountyRightSide";
 
 export const AssetVariant = {
   ...MarketType,
@@ -63,5 +64,7 @@ export function RightComponent() {
     return <AssetRight />;
   } else if (router.pathname.includes("/admin")) {
     return <AdminRightSide />;
+  } else if (router.pathname.includes("/bounty")) {
+    return <BountyRightBar />;
   }
 }

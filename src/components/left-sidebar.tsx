@@ -19,6 +19,7 @@ export const LeftNavigation = {
   // Search: { path: "/search", icon: Search, text: "Search" },
   Music: { path: "/music", icon: Diamond, text: "MUSIC" },
   Marketplace: { path: "/marketplace", icon: Bell, text: "MARKETPLACE" },
+  Bounty: { path: "/bounty", icon: Bell, text: "BOUNTY" },
   Fan: { path: "/fans/home", icon: Bell, text: "ARTISTS" },
   Settings: { path: "/settings", icon: Settings2, text: "SETTINGS" },
 } as const;
