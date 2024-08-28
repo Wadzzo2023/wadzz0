@@ -28,9 +28,7 @@ export default function ViewReplyBountyComment({
           <Avater className="h-12 w-12" url={comment.user.image} />
         </div>
         <div className="flex flex-col items-start">
-          <Link href={`/fans/creator/${comment.userId}`} className="font-bold">
-            {comment.user.name}
-          </Link>
+          <div className="font-bold">{comment.user.name}</div>
           {/* <p>{comment.content}</p> */}
           {comment.content.length > 50 ? (
             <ShowMore content={comment.content} />

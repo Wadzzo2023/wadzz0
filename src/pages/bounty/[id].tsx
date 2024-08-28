@@ -68,25 +68,26 @@ const UserBountyPage = () => {
             <header className=" mb-4 lg:mb-6">
               <div className="flex items-center justify-between ">
                 <address className="mb-6 flex items-center not-italic">
-                  <div className="mr-3 inline-flex items-center text-sm text-gray-900 dark:text-white">
-                    <Avater
-                      className="h-12 w-12"
-                      url={data?.creator.profileUrl}
-                    />
-                    <div>
-                      <Link
-                        href={`/fans/creator/${data?.creator.id}`}
-                        rel="author"
-                        className="text-xl font-bold text-gray-900 dark:text-white"
-                      >
-                        {data?.creator.name}
-                      </Link>
-                      <p className="text-base text-gray-500 dark:text-gray-400">
-                        Posted On{" "}
-                        {format(new Date(data?.createdAt), "MMMM dd, yyyy")}
-                      </p>
+                  <Link href={`/fans/creator/${data?.creator.id}`}>
+                    <div className="mr-3 inline-flex items-center text-sm text-gray-900 dark:text-white">
+                      <Avater
+                        className="h-12 w-12"
+                        url={data?.creator.profileUrl}
+                      />
+                      <div>
+                        <div
+                          rel="author"
+                          className="text-xl font-bold text-gray-900 dark:text-white"
+                        >
+                          {data?.creator.name}
+                        </div>
+                        <p className="text-base text-gray-500 dark:text-gray-400">
+                          Posted On{" "}
+                          {format(new Date(data?.createdAt), "MMMM dd, yyyy")}
+                        </p>
+                      </div>
                     </div>
-                  </div>
+                  </Link>
                 </address>
               </div>
 
@@ -119,7 +120,7 @@ const UserBountyPage = () => {
           </article>
         </div>
 
-        <div className="mt-2 border-2 p-4">
+        <div className="mb-6 mt-2  flex flex-col gap-4   rounded-lg bg-white p-6 shadow-md">
           <div className="flex items-center justify-between">
             <h1 className="text-center text-2xl font-extrabold text-gray-900 dark:text-white">
               Your Recent Submissions
