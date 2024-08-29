@@ -32,7 +32,7 @@ export default function ViewBountyComment({
   const [replyBox, setReplyBox] = useState<boolean>(false);
 
   return (
-    <div className="flex h-full w-full items-start justify-between text-sm ">
+    <div className="flex items-start justify-between text-sm ">
       <div className="flex w-full gap-2">
         <div className="h-auto w-auto rounded-full">
           <Avater className="h-12 w-12" url={comment.user.image} />
@@ -69,7 +69,7 @@ export default function ViewBountyComment({
             )}
           </div>
 
-          <div className="mt-2 w-full">
+          <div className="mt-2 flex w-full flex-col gap-3">
             {bountyChildComments.length > 0 &&
               bountyChildComments.map((comment) => (
                 <ViewReplyBountyComment key={comment.id} comment={comment} />

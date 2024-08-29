@@ -5,6 +5,7 @@ import { z } from "zod";
 import { BountyCommentSchema } from "~/components/fan/creator/bounty/Add-Bounty-Comment";
 import { MediaInfo } from "~/components/fan/creator/bounty/CreateBounty";
 import { SendBountyBalanceToMotherAccount, SendBountyBalanceToUserAccount, SendBountyBalanceToWinner } from "~/lib/stellar/bounty/bounty";
+import { getPlatfromAssetPrice } from "~/lib/stellar/fan/get_token_price";
 import { SignUser } from "~/lib/stellar/utils";
 import {
     createTRPCRouter,
@@ -17,7 +18,7 @@ import {
 export const BountyRoute = createTRPCRouter({
     sendBountyBalanceToMotherAcc: protectedProcedure.input(z.object({
         signWith: SignUser,
-        price: z.number().min(1, { message: "Price can't less than 0" }),
+        price: z.number().min(0.00001, { message: "Price can't less than 0" }),
     })).mutation(async ({ input, ctx }) => {
         const userPubKey = ctx.session.user.id;
 
@@ -37,11 +38,11 @@ export const BountyRoute = createTRPCRouter({
 
     createBounty: protectedProcedure.input(z.object({
         title: z.string().min(1, { message: "Title can't be empty" }),
-        priceInUSD: z.number().min(1, { message: "Price can't less than 0" }),
-        price: z.number().min(1, { message: "Price can't less than 0" }),
+        priceInUSD: z.number().min(0.00001, { message: "Price can't less than 0" }),
+        price: z.number().min(0.00001, { message: "Price can't less than 0" }),
         requiredBalance: z
             .number()
-            .min(1, { message: "Required Balance can't be less that 0" }),
+            .min(0, { message: "Required Balance can't be less than 0" }),
         content: z.string().min(2, { message: "Description can't be empty" }),
 
         medias: z.array(MediaInfo).optional(),
@@ -332,8 +333,11 @@ export const BountyRoute = createTRPCRouter({
             },
         });
     }),
+    getCurrentUSDFromAsset: protectedProcedure.query(async ({ ctx }) => {
+        return await getPlatfromAssetPrice();
+    }),
     getSendBalanceToWinnerXdr: protectedProcedure.input(z.object({
-        price: z.number().min(1, { message: "Price can't less than 0" }),
+        price: z.number().min(0.00001, { message: "Price can't less than 00001" }),
         userId: z.string().min(1, { message: "Bounty ID can't be less than 0" }),
         BountyId: z.number().min(1, { message: "Bounty ID can't be less than 0" }),
     })).mutation(async ({ input, ctx }) => {
@@ -353,9 +357,11 @@ export const BountyRoute = createTRPCRouter({
             },
 
         });
+
         if (hasBountyWinner) {
             throw new Error("Bounty has a winner, you can't send balance to winner");
         }
+
         return await SendBountyBalanceToWinner({
             recipientID: userPubKey,
             price: input.price,
@@ -386,7 +392,8 @@ export const BountyRoute = createTRPCRouter({
         });
     }),
     getDeleteXdr: protectedProcedure.input(z.object({
-        price: z.number().min(1, { message: "Price can't less than 0" }),
+        price: z.number().min(0.00001, { message: "Price can't less than 0" }),
+        creatorId: z.string().min(1, { message: "User ID can't be less than 0" }).optional(),
         bountyId: z.number().min(1, { message: "Bounty ID can't be less than 0" }),
     })).mutation(async ({ input, ctx }) => {
         const userPubKey = ctx.session.user.id;
@@ -396,7 +403,6 @@ export const BountyRoute = createTRPCRouter({
                 winnerId: {
                     not: null,
                 },
-
             },
             select: {
                 id: true,
@@ -410,7 +416,7 @@ export const BountyRoute = createTRPCRouter({
         }
         console.log("hasBountyWinner", hasBountyWinner);
         return await SendBountyBalanceToUserAccount({
-            userPubKey: userPubKey,
+            userPubKey: input.creatorId ? input.creatorId : userPubKey,
             price: input.price,
         });
     }),
@@ -421,7 +427,7 @@ export const BountyRoute = createTRPCRouter({
         status: z.nativeEnum(BountyStatus).optional(),
         requiredBalance: z
             .number()
-            .min(1, { message: "Required Balance can't be less that 0" }),
+            .min(0, { message: "Required Balance can't be less than 0" }),
         content: z.string().min(2, { message: "Description can't be empty" }),
         medias: z.array(MediaInfo).optional(),
     })).mutation(async ({ input, ctx }) => {
