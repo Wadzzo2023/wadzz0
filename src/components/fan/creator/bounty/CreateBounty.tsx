@@ -50,6 +50,7 @@ type MediaInfoType = z.TypeOf<typeof MediaInfo>;
 const CreateBounty = () => {
   const [media, setMedia] = useState<MediaInfoType[]>([]);
   const [wantMediaType, setWantMedia] = useState<MediaType>();
+  const [loading, setLoading] = useState(false);
   const { needSign } = useNeedSign();
   const session = useSession();
   const { platformAssetBalance } = useUserStellarAcc();
@@ -65,10 +66,13 @@ const CreateBounty = () => {
   } = useForm<z.infer<typeof BountySchema>>({
     resolver: zodResolver(BountySchema),
   });
-
+  const utils = api.useUtils();
   const CreateBountyMutation = api.bounty.Bounty.createBounty.useMutation({
     onSuccess: async (data) => {
       toast.success("Bounty Created");
+      utils.bounty.Bounty.getAllBounties.refetch().catch((error) => {
+        console.error("Error refetching bounties", error);
+      });
     },
   });
 
@@ -77,6 +81,7 @@ const CreateBounty = () => {
       onSuccess: async (data) => {
         if (data) {
           try {
+            setLoading(true);
             const clientResponse = await clientsign({
               presignedxdr: data.xdr,
               walletType: session.data?.user?.walletType,
@@ -84,6 +89,7 @@ const CreateBounty = () => {
               test: clientSelect(),
             });
             if (clientResponse) {
+              setLoading(true);
               CreateBountyMutation.mutate({
                 title: getValues("title"),
                 priceInUSD: getValues("priceInUSD"),
@@ -92,11 +98,17 @@ const CreateBounty = () => {
                 content: getValues("content"),
                 medias: getValues("medias"),
               });
+              setLoading(false);
               reset();
-              toast.success("Bounty Created");
+              setMedia([]);
+            } else {
+              setLoading(false);
+              reset();
+              toast.success("Error in signing transaction");
               setMedia([]);
             }
           } catch (error) {
+            setLoading(false);
             console.error("Error sending balance to bounty mother", error);
             reset();
             toast.success("Bounty Created");
@@ -109,14 +121,17 @@ const CreateBounty = () => {
         toast.error(error.message);
         reset();
         setMedia([]);
+        setLoading(false);
       },
     });
   const onSubmit: SubmitHandler<z.infer<typeof BountySchema>> = (data) => {
     data.medias = media;
+    setLoading(true);
     SendBalanceToBountyMother.mutate({
       signWith: needSign(),
       price: data.price,
     });
+    setLoading(false);
   };
 
   const addMediaItem = (url: string, type: MediaType) => {
@@ -179,6 +194,7 @@ const CreateBounty = () => {
               >
                 <label className="form-control w-full ">
                   <input
+                    readOnly={loading}
                     type="text"
                     placeholder="Add a Title..."
                     {...register("title")}
@@ -239,6 +255,7 @@ const CreateBounty = () => {
                       Required Balance to Join this Bounty in{" "}
                       {PLATFROM_ASSET.code}
                       <input
+                        readOnly={loading}
                         type="number"
                         {...register("requiredBalance", {
                           valueAsNumber: true,
@@ -257,6 +274,7 @@ const CreateBounty = () => {
                       <label className=" mb-1 text-xs tracking-wide text-gray-600 sm:text-sm">
                         Price in $USD
                         <input
+                          readOnly={loading}
                           onChange={(e) => {
                             const value = e.target.value;
                             setValue("priceInUSD", Number(value));
@@ -292,7 +310,7 @@ const CreateBounty = () => {
                       </label>
                     </div>
                     <UploadButton
-                      disabled={media.length >= 4 || isCardDisabled}
+                      disabled={media.length >= 4 || isCardDisabled || loading}
                       endpoint="imageUploader"
                       content={{
                         button: "Add Media",
@@ -313,7 +331,7 @@ const CreateBounty = () => {
                   </div>
                 </div>{" "}
                 <CardFooter className="flex justify-between">
-                  <Button className="w-full" type="submit">
+                  <Button disabled={loading} className="w-full" type="submit">
                     Create
                   </Button>
                 </CardFooter>

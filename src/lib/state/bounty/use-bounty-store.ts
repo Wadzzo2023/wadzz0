@@ -1,3 +1,4 @@
+import { BountyStatus } from "@prisma/client";
 import { create } from "zustand";
 interface BountyProps {
     id: number;
@@ -14,6 +15,7 @@ interface BountyProps {
         participants: number;
     };
     requiredBalance: number; // Changed from requiredBalance to requredBalance
+    status: BountyStatus;
 }
 
 interface BountyRightState {

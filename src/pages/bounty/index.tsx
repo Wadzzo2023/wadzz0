@@ -80,23 +80,40 @@ const Bounty = () => {
 
                       <dl className="mt-6 flex justify-between">
                         <div className="flex flex-col-reverse">
-                          <dt className="text-sm font-medium text-slate-600">
+                          <dt className="text-sm font-medium uppercase text-slate-600">
                             Published
                           </dt>
                           <dd className="text-xs text-slate-500">
                             {format(new Date(bounty.createdAt), "MM/dd/yyyy")}
                           </dd>
                         </div>
-
+                        <div className="flex flex-col-reverse">
+                          <dt className="text-sm font-medium uppercase text-slate-600">
+                            Status
+                          </dt>
+                          {bounty.status === "PENDING" ? (
+                            <div className="relative grid select-none items-center whitespace-nowrap rounded-md bg-indigo-500/20 px-2 py-1 font-sans text-xs font-bold uppercase text-indigo-900">
+                              <span className="">{bounty.status}</span>
+                            </div>
+                          ) : bounty.status === "APPROVED" ? (
+                            <div className="relative grid select-none items-center whitespace-nowrap rounded-md bg-green-500/20 px-2 py-1 font-sans text-xs font-bold uppercase text-green-900">
+                              <span className="">{bounty.status}</span>
+                            </div>
+                          ) : (
+                            <div className="relative grid select-none items-center whitespace-nowrap rounded-md bg-red-500/20 px-2 py-1 font-sans text-xs font-bold uppercase text-red-900">
+                              <span className="">{bounty.status}</span>
+                            </div>
+                          )}
+                        </div>
                         <div className="ml-3 flex flex-col-reverse sm:ml-6">
-                          <dt className="text-sm font-medium text-slate-600">
+                          <dt className="text-sm font-medium uppercase text-slate-600">
                             Total Participants
                           </dt>
                           <dd className="text-xs text-slate-500">
                             {bounty._count.participants}
                           </dd>
                         </div>
-                        <div className="text-sm font-medium">
+                        <div className="text-sm font-medium uppercase">
                           <div>Price in USD : ${bounty.priceInUSD}</div>
                           <div>
                             Price in {PLATFROM_ASSET.code}: {bounty.priceInBand}{" "}

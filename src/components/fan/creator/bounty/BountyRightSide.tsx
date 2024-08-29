@@ -44,25 +44,40 @@ const BountyRightBar = () => {
             <div className="relative flex-1 space-y-2 rounded-xl border-4 border-base-100 p-4 text-sm tracking-wider">
               <div className="flex flex-col gap-2">
                 <p>
-                  <span className="font-semibold">Title:</span>{" "}
+                  <span className="font-semibold uppercase">Title:</span>{" "}
                   {currentData.title}
                 </p>
 
-                <p className="line-clamp-2">
-                  <b>Description: </b>
+                <p className="line-clamp-2 ">
+                  <b className="uppercase">Description: </b>
                   <Preview value={currentData.description} />
                 </p>
 
                 <p>
-                  <span className="font-semibold">
+                  <span className="font-semibold uppercase">
                     Price in USD $: {currentData.priceInUSD}
                   </span>
                 </p>
                 <p>
-                  <span className="font-semibold">
+                  <span className="font-semibold uppercase">
                     Price in {PLATFROM_ASSET.code} : {currentData.priceInBand}
                   </span>
                 </p>
+                <div className="">
+                  {currentData.status === "PENDING" ? (
+                    <div className="relative grid select-none items-center whitespace-nowrap rounded-md bg-indigo-500/20 px-2 py-1 font-sans text-xs font-bold uppercase text-indigo-900">
+                      <span className=""> {currentData.status}</span>
+                    </div>
+                  ) : currentData.status === "APPROVED" ? (
+                    <div className="relative grid select-none items-center whitespace-nowrap rounded-md bg-green-500/20 px-2 py-1 font-sans text-xs font-bold uppercase text-green-900">
+                      <span className="">{currentData.status}</span>
+                    </div>
+                  ) : (
+                    <div className="relative grid select-none items-center whitespace-nowrap rounded-md bg-red-500/20 px-2 py-1 font-sans text-xs font-bold uppercase text-red-900">
+                      <span className="">{currentData.status}</span>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
             <div className="p-2">

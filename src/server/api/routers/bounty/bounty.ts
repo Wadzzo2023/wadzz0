@@ -4,7 +4,7 @@ import { getAccSecretFromRubyApi } from "package/connect_wallet/src/lib/stellar/
 import { z } from "zod";
 import { BountyCommentSchema } from "~/components/fan/creator/bounty/Add-Bounty-Comment";
 import { MediaInfo } from "~/components/fan/creator/bounty/CreateBounty";
-import { SendBountyBalanceToMotherAccount } from "~/lib/stellar/bounty/bounty";
+import { SendBountyBalanceToMotherAccount, SendBountyBalanceToUserAccount } from "~/lib/stellar/bounty/bounty";
 import { SignUser } from "~/lib/stellar/utils";
 import {
     createTRPCRouter,
@@ -77,7 +77,7 @@ export const BountyRoute = createTRPCRouter({
             cursor: cursor ? { id: cursor } : undefined,
 
             orderBy: {
-                createdAt: "asc",
+                createdAt: "desc",
             },
             include: {
                 _count: {
@@ -174,7 +174,7 @@ export const BountyRoute = createTRPCRouter({
                 },
             },
             orderBy: {
-                createdAt: "asc",
+                createdAt: "desc",
             },
         });
         let nextCursor: typeof cursor | undefined = undefined;
@@ -299,8 +299,6 @@ export const BountyRoute = createTRPCRouter({
 
     deleteBounty: protectedProcedure.input(z.object({
         BountyId: z.number().min(1, { message: "Bounty ID can't be less than 0" }),
-        price: z.number().min(1, { message: "Price can't less than 0" }),
-        signWith: SignUser,
     })).mutation(async ({ input, ctx }) => {
         const bounty = await ctx.db.bounty.findUnique({
             where: {
@@ -317,6 +315,17 @@ export const BountyRoute = createTRPCRouter({
             where: {
                 id: input.BountyId,
             },
+        });
+    }),
+
+    getDeleteXdr: protectedProcedure.input(z.object({
+        price: z.number().min(1, { message: "Price can't less than 0" }),
+        bountyId: z.number().min(1, { message: "Bounty ID can't be less than 0" }),
+    })).mutation(async ({ input, ctx }) => {
+        const userPubKey = ctx.session.user.id;
+        return await SendBountyBalanceToUserAccount({
+            userPubKey: userPubKey,
+            price: input.price,
         });
     }),
 

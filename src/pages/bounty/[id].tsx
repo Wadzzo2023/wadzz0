@@ -1,8 +1,17 @@
 import { format } from "date-fns";
-import { Edit, File, Paperclip, Trash, UploadCloud } from "lucide-react";
+import {
+  DatabaseZap,
+  Edit,
+  File,
+  Paperclip,
+  Trash,
+  UploadCloud,
+} from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
+import { clientsign, submitSignedXDRToServer } from "package/connect_wallet";
+import { submitSignedXDRToServer4User } from "package/connect_wallet/src/lib/stellar/trx/payment_fb_g";
 import toast from "react-hot-toast";
 import { AddBountyComment } from "~/components/fan/creator/bounty/Add-Bounty-Comment";
 import ViewBountyComment from "~/components/fan/creator/bounty/View-Bounty-Comment";
@@ -70,7 +79,7 @@ const UserBountyPage = () => {
               <div className="flex items-center justify-between ">
                 <address className="mb-6 flex items-center not-italic">
                   <Link href={`/fans/creator/${data?.creator.id}`}>
-                    <div className="mr-3 inline-flex items-center text-sm text-gray-900 dark:text-white">
+                    <div className="mr-3 inline-flex items-center gap-2 text-sm text-gray-900 dark:text-white">
                       <Avater
                         className="h-12 w-12"
                         url={data?.creator.profileUrl}
@@ -86,6 +95,19 @@ const UserBountyPage = () => {
                           Posted On{" "}
                           {format(new Date(data?.createdAt), "MMMM dd, yyyy")}
                         </p>
+                        {data.status === "PENDING" ? (
+                          <div className="relative grid select-none items-center whitespace-nowrap rounded-md bg-indigo-500/20 px-2 py-1 font-sans text-xs font-bold uppercase text-indigo-900">
+                            <span className="">Status: {data.status}</span>
+                          </div>
+                        ) : data.status === "APPROVED" ? (
+                          <div className="relative grid select-none items-center whitespace-nowrap rounded-md bg-green-500/20 px-2 py-1 font-sans text-xs font-bold uppercase text-green-900">
+                            <span className="">Status: {data.status}</span>
+                          </div>
+                        ) : (
+                          <div className="relative grid select-none items-center whitespace-nowrap rounded-md bg-red-500/20 px-2 py-1 font-sans text-xs font-bold uppercase text-red-900">
+                            <span className="">Status: {data.status}</span>
+                          </div>
+                        )}
                       </div>
                     </div>
                   </Link>
@@ -236,9 +258,23 @@ const AdminBountyPage = () => {
     bountyId: Number(id),
   });
 
+  const GetDeleteXDR = api.bounty.Bounty.getDeleteXdr.useMutation({
+    onSuccess: async (data) => {
+      if (data) {
+        const res = await submitSignedXDRToServer4User(data);
+        if (res) {
+          DeleteMutation.mutate({
+            BountyId: GetDeleteXDR.variables?.bountyId ?? 0,
+          });
+        }
+      }
+    },
+  });
+
   const handleDelete = (id: number, price: number) => {
-    DeleteMutation.mutate({ BountyId: id, price: price, signWith: needSign() });
+    GetDeleteXDR.mutate({ price: price, bountyId: id });
   };
+
   if (data)
     return (
       <>
@@ -248,7 +284,7 @@ const AdminBountyPage = () => {
               <header className=" mb-4 lg:mb-6">
                 <div className="flex items-center justify-between ">
                   <address className="mb-6 flex items-center not-italic">
-                    <div className="mr-3 inline-flex items-center text-sm text-gray-900 dark:text-white">
+                    <div className="mr-3 inline-flex items-center gap-2 text-sm text-gray-900 dark:text-white">
                       <Avater
                         className="h-12 w-12"
                         url={data?.creator.profileUrl}
@@ -264,6 +300,21 @@ const AdminBountyPage = () => {
                         <p className="text-base text-gray-500 dark:text-gray-400">
                           Posted On{" "}
                           {format(new Date(data?.createdAt), "MMMM dd, yyyy")}
+                        </p>
+                        <p>
+                          {data.status === "PENDING" ? (
+                            <div className="relative grid select-none items-center whitespace-nowrap rounded-md bg-indigo-500/20 px-2 py-1 font-sans text-xs font-bold uppercase text-indigo-900">
+                              <span className="">Status: {data.status}</span>
+                            </div>
+                          ) : data.status === "APPROVED" ? (
+                            <div className="relative grid select-none items-center whitespace-nowrap rounded-md bg-green-500/20 px-2 py-1 font-sans text-xs font-bold uppercase text-green-900">
+                              <span className="">Status: {data.status}</span>
+                            </div>
+                          ) : (
+                            <div className="relative grid select-none items-center whitespace-nowrap rounded-md bg-red-500/20 px-2 py-1 font-sans text-xs font-bold uppercase text-red-900">
+                              <span className="">Status: {data.status}</span>
+                            </div>
+                          )}
                         </p>
                       </div>
                     </div>
