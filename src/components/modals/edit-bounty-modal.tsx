@@ -134,14 +134,11 @@ const EditBountyModal = () => {
         <DialogContent className="overflow-hidden p-0">
           <DialogHeader className="px-6 pt-8">
             <DialogTitle className="text-center text-2xl font-bold">
-              Attach Your File
+              Edit Bounty
             </DialogTitle>
           </DialogHeader>
           <Card className="w-full ">
-            <CardHeader>
-              <CardTitle>Edit Bounty</CardTitle>
-              <CardDescription></CardDescription>
-            </CardHeader>
+            <CardHeader className="p-2"></CardHeader>
             <CardContent>
               <form
                 onSubmit={handleSubmit(onSubmit)}

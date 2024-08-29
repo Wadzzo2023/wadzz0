@@ -13,7 +13,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Editor } from "~/components/editor";
 import { MediaType } from "@prisma/client";
-import { Image as ImageIcon } from "lucide-react";
+import { Image as ImageIcon, X } from "lucide-react";
 import { useState } from "react";
 import Image from "next/image";
 import { UploadButton } from "~/utils/uploadthing";
@@ -88,7 +88,9 @@ const CreateBounty = () => {
 
   const RequiredBalance = 5000;
   const isCardDisabled = platformAssetBalance < RequiredBalance;
-
+  const removeMediaItem = (index: number) => {
+    setMedia((prevMedia) => prevMedia.filter((_, i) => i !== index));
+  };
   return (
     <>
       {isCardDisabled ? (
@@ -150,16 +152,25 @@ const CreateBounty = () => {
                   )}
                 </label>
                 <div>
-                  <div className="flex  flex-col items-center gap-2">
+                  <div className="flex flex-col items-center gap-2">
                     <div className="flex gap-2">
                       {media.map((el, id) => (
-                        <Image
-                          key={id}
-                          src={el.url}
-                          alt="d"
-                          height={100}
-                          width={100}
-                        />
+                        <div key={id} className="relative">
+                          <Image
+                            src={el.url}
+                            alt="media"
+                            height={100}
+                            width={100}
+                            className="h-full w-full object-cover"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => removeMediaItem(id)}
+                            className="absolute right-0 top-0 rounded-full bg-red-500 p-1 text-white"
+                          >
+                            <X size={16} />
+                          </button>
+                        </div>
                       ))}
                     </div>
                     <input
@@ -191,7 +202,7 @@ const CreateBounty = () => {
                       )}
                       <input
                         type="number"
-                        placeholder="Price in BAND"
+                        placeholder={`Price in  ${PLATFROM_ASSET.code}`}
                         {...register("priceInBAND", { valueAsNumber: true })}
                         className="input input-bordered   w-full"
                       />
