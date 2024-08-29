@@ -1,18 +1,14 @@
-import { MarketType } from "@prisma/client";
-import { format } from "date-fns";
 import Image from "next/image";
-import Link from "next/link";
-import { useRouter } from "next/router";
+
 import { submitSignedXDRToServer4User } from "package/connect_wallet/src/lib/stellar/trx/payment_fb_g";
 import { useCallback, useState } from "react";
 import toast from "react-hot-toast";
 import { useModal } from "~/components/hooks/use-modal-store";
 import { Preview } from "~/components/preview";
-import { useBountyRightStore } from "~/lib/state/bounty/use-bounty-store";
-import { usePopUpState } from "~/lib/state/right-pop";
-import { PLATFROM_ASSET } from "~/lib/stellar/constant";
+
 import { api } from "~/utils/api";
-import { getTailwindScreenSize } from "~/utils/clientUtils";
+
+import { addrShort } from "~/utils/utils";
 
 const Bounty = () => {
   const getAllBounty = api.bounty.Bounty.getAllBounties.useInfiniteQuery(
@@ -47,8 +43,9 @@ const Bounty = () => {
         }
       }
     },
-    onError: () => {
+    onError: (error) => {
       setLoadingBountyId(null);
+      toast.error(error.message);
     },
   });
   const handleDelete = useCallback(
@@ -119,6 +116,26 @@ const Bounty = () => {
                   <th className="cursor-pointer border-y border-slate-200 bg-slate-50 p-4 transition-colors hover:bg-slate-100">
                     <p className="flex items-center justify-between gap-2 font-sans text-sm  font-normal leading-none text-slate-500">
                       Status
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke-width="2"
+                        stroke="currentColor"
+                        aria-hidden="true"
+                        className="h-4 w-4"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          d="M8.25 15L12 18.75 15.75 15m-7.5-6L12 5.25 15.75 9"
+                        ></path>
+                      </svg>
+                    </p>
+                  </th>
+                  <th className="cursor-pointer border-y border-slate-200 bg-slate-50 p-4 transition-colors hover:bg-slate-100">
+                    <p className="flex items-center justify-between gap-2 font-sans text-sm  font-normal leading-none text-slate-500">
+                      Winning Status
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         fill="none"
@@ -212,7 +229,21 @@ const Bounty = () => {
                               )}
                             </div>
                           </td>
-
+                          <td className="border-b border-slate-200 p-4">
+                            <div className="w-max">
+                              {bounty.winnerId ? (
+                                <div className="relative grid select-none items-center whitespace-nowrap rounded-md bg-indigo-500/20 px-2 py-1 font-sans text-xs font-bold uppercase text-indigo-900">
+                                  <span className="">
+                                    {addrShort(bounty.winnerId, 10)}
+                                  </span>
+                                </div>
+                              ) : (
+                                <div className="relative grid select-none items-center whitespace-nowrap rounded-md bg-green-500/20 px-2 py-1 font-sans text-xs font-bold uppercase text-green-900">
+                                  <span className="">NOT ANNOUNCED</span>
+                                </div>
+                              )}
+                            </div>
+                          </td>
                           <td className="border-b border-slate-200 p-4">
                             <button
                               onClick={() =>
@@ -236,7 +267,11 @@ const Bounty = () => {
                               </span>
                             </button>
                             <button
-                              disabled={loadingBountyId === bounty.id}
+                              disabled={
+                                loadingBountyId === bounty.id || bounty.winnerId
+                                  ? true
+                                  : false
+                              }
                               onClick={() => {
                                 handleDelete(bounty.priceInBand, bounty.id);
                               }}

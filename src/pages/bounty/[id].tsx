@@ -1,5 +1,6 @@
 import { format } from "date-fns";
 import {
+  Crown,
   DatabaseZap,
   Edit,
   File,
@@ -7,11 +8,12 @@ import {
   Trash,
   UploadCloud,
 } from "lucide-react";
+
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { clientsign, submitSignedXDRToServer } from "package/connect_wallet";
 import { submitSignedXDRToServer4User } from "package/connect_wallet/src/lib/stellar/trx/payment_fb_g";
+import { useState } from "react";
 import toast from "react-hot-toast";
 import { AddBountyComment } from "~/components/fan/creator/bounty/Add-Bounty-Comment";
 import ViewBountyComment from "~/components/fan/creator/bounty/View-Bounty-Comment";
@@ -84,30 +86,45 @@ const UserBountyPage = () => {
                         className="h-12 w-12"
                         url={data?.creator.profileUrl}
                       />
-                      <div>
-                        <div
+                      <div className="flex flex-col gap-2">
+                        <Link
+                          href={`/fans/creator/${data?.creator.id}`}
                           rel="author"
                           className="text-xl font-bold text-gray-900 dark:text-white"
                         >
                           {data?.creator.name}
-                        </div>
-                        <p className="text-base text-gray-500 dark:text-gray-400">
-                          Posted On{" "}
-                          {format(new Date(data?.createdAt), "MMMM dd, yyyy")}
+                        </Link>
+                        <p className="mt-1 text-xs font-medium text-slate-600">
+                          WINNER:{" "}
+                          {data.winner?.name ? (
+                            <span className="me-2 rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-medium text-red-800 dark:bg-red-900 dark:text-red-300">
+                              {data.winner.name}
+                            </span>
+                          ) : (
+                            <span className="me-2 rounded-full bg-purple-100 px-2.5 py-0.5 text-xs font-medium text-purple-800 dark:bg-purple-900 dark:text-purple-300">
+                              NOT ANNOUNCED
+                            </span>
+                          )}
                         </p>
-                        {data.status === "PENDING" ? (
-                          <div className="relative grid select-none items-center whitespace-nowrap rounded-md bg-indigo-500/20 px-2 py-1 font-sans text-xs font-bold uppercase text-indigo-900">
-                            <span className="">Status: {data.status}</span>
-                          </div>
-                        ) : data.status === "APPROVED" ? (
-                          <div className="relative grid select-none items-center whitespace-nowrap rounded-md bg-green-500/20 px-2 py-1 font-sans text-xs font-bold uppercase text-green-900">
-                            <span className="">Status: {data.status}</span>
-                          </div>
-                        ) : (
-                          <div className="relative grid select-none items-center whitespace-nowrap rounded-md bg-red-500/20 px-2 py-1 font-sans text-xs font-bold uppercase text-red-900">
-                            <span className="">Status: {data.status}</span>
-                          </div>
-                        )}
+
+                        <p className="mt-1 text-xs font-medium uppercase text-slate-600">
+                          STATUS:
+                          {data.status === "PENDING" ? (
+                            <span className="items-center whitespace-nowrap rounded-md bg-indigo-500/20 px-2 py-1 uppercase text-indigo-900">
+                              {" "}
+                              {data.status}
+                            </span>
+                          ) : data.status === "APPROVED" ? (
+                            <span className="items-center whitespace-nowrap rounded-md bg-green-500/20 px-2 py-1 uppercase text-green-900">
+                              {data.status}
+                            </span>
+                          ) : (
+                            <span className=" select-none items-center whitespace-nowrap rounded-md bg-red-500/20 px-2 py-1 uppercase text-red-900">
+                              {" "}
+                              {data.status}
+                            </span>
+                          )}
+                        </p>
                       </div>
                     </div>
                   </Link>
@@ -139,6 +156,9 @@ const UserBountyPage = () => {
               <h1 className="mb-4 text-2xl font-extrabold text-gray-900 dark:text-white ">
                 Price in {PLATFROM_ASSET.code} : {data?.priceInBand}
               </h1>
+              <p className="mt-1 text-xs font-medium text-slate-600">
+                Posted on {format(new Date(data.createdAt), "MMMM dd, yyyy")}
+              </p>
             </div>
           </article>
         </div>
@@ -150,6 +170,7 @@ const UserBountyPage = () => {
             </h1>
             <div className="flex items-center justify-center ">
               <Button
+                disabled={data?.winner?.name ? true : false}
                 className=""
                 onClick={() =>
                   onOpen("upload file", {
@@ -189,6 +210,7 @@ const UserBountyPage = () => {
                     <Paperclip size={16} className="mr-2" /> View Attachment
                   </Button>
                   <Button
+                    disabled={data?.winner?.name ? true : false}
                     variant="destructive"
                     onClick={() => handleSubmissionDelete(submission.id)}
                   >
@@ -231,6 +253,7 @@ const UserBountyPage = () => {
 const AdminBountyPage = () => {
   const { onOpen } = useModal();
   const router = useRouter();
+  const [loadingBountyId, setLoadingBountyId] = useState<number | null>(null);
   const { needSign } = useNeedSign();
   const { id } = router.query;
   console.log(id);
@@ -242,10 +265,11 @@ const AdminBountyPage = () => {
   });
 
   const DeleteMutation = api.bounty.Bounty.deleteBounty.useMutation({
-    onSuccess: async () => {
+    onSuccess: async (data, variables) => {
+      setLoadingBountyId(variables.BountyId);
       await router.push("/fans/creator/bounty");
-
       toast.success("Bounty Deleted");
+      setLoadingBountyId(null);
     },
   });
 
@@ -259,7 +283,8 @@ const AdminBountyPage = () => {
   });
 
   const GetDeleteXDR = api.bounty.Bounty.getDeleteXdr.useMutation({
-    onSuccess: async (data) => {
+    onSuccess: async (data, variables) => {
+      setLoadingBountyId(variables.bountyId);
       if (data) {
         const res = await submitSignedXDRToServer4User(data);
         if (res) {
@@ -268,11 +293,52 @@ const AdminBountyPage = () => {
           });
         }
       }
+      setLoadingBountyId(null);
     },
   });
 
+  const MakeWinnerMutation = api.bounty.Bounty.makeBountyWinner.useMutation({
+    onSuccess: async (data, variables) => {
+      setLoadingBountyId(variables.BountyId);
+      toast.success("Winner Marked");
+      setLoadingBountyId(null);
+    },
+  });
+
+  const GetSendBalanceToWinnerXdr =
+    api.bounty.Bounty.getSendBalanceToWinnerXdr.useMutation({
+      onSuccess: async (data, variables) => {
+        setLoadingBountyId(variables.BountyId);
+        if (data) {
+          const res = await submitSignedXDRToServer4User(data);
+          if (res) {
+            MakeWinnerMutation.mutate({
+              BountyId: variables?.BountyId,
+              userId: variables?.userId,
+            });
+          }
+        }
+        setLoadingBountyId(null);
+      },
+      onError: (error) => {
+        toast.error(error.message);
+        setLoadingBountyId(null);
+      },
+    });
+  const handleWinner = (bountyId: number, userId: string, price: number) => {
+    setLoadingBountyId(bountyId);
+    GetSendBalanceToWinnerXdr.mutate({
+      BountyId: bountyId,
+      userId: userId,
+      price: price,
+    });
+    setLoadingBountyId(null);
+  };
+
   const handleDelete = (id: number, price: number) => {
+    setLoadingBountyId(id);
     GetDeleteXDR.mutate({ price: price, bountyId: id });
+    setLoadingBountyId(null);
   };
 
   if (data)
@@ -284,44 +350,57 @@ const AdminBountyPage = () => {
               <header className=" mb-4 lg:mb-6">
                 <div className="flex items-center justify-between ">
                   <address className="mb-6 flex items-center not-italic">
-                    <div className="mr-3 inline-flex items-center gap-2 text-sm text-gray-900 dark:text-white">
+                    <Link
+                      href={`/fans/creator/${data?.creator.id}`}
+                      className="mr-3 inline-flex items-center gap-2 text-sm text-gray-900 dark:text-white"
+                    >
                       <Avater
                         className="h-12 w-12"
                         url={data?.creator.profileUrl}
                       />
-                      <div>
-                        <Link
-                          href={`/fans/creator/${data?.creator.id}`}
+                      <div className="flex flex-col gap-2">
+                        <div
                           rel="author"
                           className="text-xl font-bold text-gray-900 dark:text-white"
                         >
                           {data?.creator.name}
-                        </Link>
-                        <p className="text-base text-gray-500 dark:text-gray-400">
-                          Posted On{" "}
-                          {format(new Date(data?.createdAt), "MMMM dd, yyyy")}
-                        </p>
-                        <p>
-                          {data.status === "PENDING" ? (
-                            <div className="relative grid select-none items-center whitespace-nowrap rounded-md bg-indigo-500/20 px-2 py-1 font-sans text-xs font-bold uppercase text-indigo-900">
-                              <span className="">Status: {data.status}</span>
-                            </div>
-                          ) : data.status === "APPROVED" ? (
-                            <div className="relative grid select-none items-center whitespace-nowrap rounded-md bg-green-500/20 px-2 py-1 font-sans text-xs font-bold uppercase text-green-900">
-                              <span className="">Status: {data.status}</span>
-                            </div>
+                        </div>
+                        <p className="mt-1 text-xs font-medium text-slate-600">
+                          WINNER:{" "}
+                          {data.winner?.name ? (
+                            <span className="me-2 rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-medium text-red-800 dark:bg-red-900 dark:text-red-300">
+                              {data.winner.name}
+                            </span>
                           ) : (
-                            <div className="relative grid select-none items-center whitespace-nowrap rounded-md bg-red-500/20 px-2 py-1 font-sans text-xs font-bold uppercase text-red-900">
-                              <span className="">Status: {data.status}</span>
-                            </div>
+                            <span className="me-2 rounded-full bg-purple-100 px-2.5 py-0.5 text-xs font-medium text-purple-800 dark:bg-purple-900 dark:text-purple-300">
+                              NOT ANNOUNCED
+                            </span>
+                          )}
+                        </p>
+
+                        <p className="mt-1 text-xs font-medium uppercase text-slate-600">
+                          STATUS:
+                          {data.status === "PENDING" ? (
+                            <span className="items-center   rounded-md bg-indigo-500/20 px-2 py-1 uppercase text-indigo-900">
+                              {" "}
+                              {data.status}
+                            </span>
+                          ) : data.status === "APPROVED" ? (
+                            <span className="items-center whitespace-nowrap rounded-md bg-green-500/20 px-2 py-1 uppercase text-green-900">
+                              {data.status}
+                            </span>
+                          ) : (
+                            <span className=" select-none items-center whitespace-nowrap rounded-md bg-red-500/20 px-2 py-1 uppercase text-red-900">
+                              {" "}
+                              {data.status}
+                            </span>
                           )}
                         </p>
                       </div>
-                    </div>
+                    </Link>
                   </address>
                   <div>
                     <div className="flex flex-col gap-2">
-                      {" "}
                       <Button
                         onClick={() =>
                           onOpen("edit bounty", { bountyId: data.id })
@@ -330,6 +409,11 @@ const AdminBountyPage = () => {
                         <Edit className="mr-2" size={16} /> Edit
                       </Button>
                       <Button
+                        disabled={
+                          loadingBountyId === data.id || data.winner?.name
+                            ? true
+                            : false
+                        }
                         onClick={() => handleDelete(data.id, data.priceInBand)}
                         variant="destructive"
                       >
@@ -365,6 +449,9 @@ const AdminBountyPage = () => {
                 <h1 className="mb-4 text-2xl font-extrabold text-gray-900 dark:text-white ">
                   Price in {PLATFROM_ASSET.code} : {data?.priceInBand}
                 </h1>
+                <p className="mt-1 text-xs font-medium text-slate-600">
+                  Posted on {format(new Date(data.createdAt), "MMMM dd, yyyy")}
+                </p>
               </div>
             </article>
           </div>
@@ -428,7 +515,7 @@ const AdminBountyPage = () => {
                     {submission.content}
                   </p>
 
-                  <div>
+                  <div className="flex items-center justify-between gap-2">
                     <Button
                       className="  "
                       variant="outline"
@@ -439,6 +526,25 @@ const AdminBountyPage = () => {
                       }
                     >
                       <Paperclip size={16} className="mr-2" /> View Attachment
+                    </Button>
+
+                    <Button
+                      disabled={
+                        loadingBountyId === data.id || data.winner?.name
+                          ? true
+                          : false
+                      }
+                      className=" me-2  bg-purple-100 px-2.5 py-0.5 text-xs font-medium text-purple-800 dark:bg-purple-900 dark:text-purple-300 "
+                      variant="outline"
+                      onClick={() =>
+                        handleWinner(
+                          data.id,
+                          submission.userId,
+                          data.priceInBand,
+                        )
+                      }
+                    >
+                      <Crown size={16} className="mr-2" /> MARK AS WINNER
                     </Button>
                   </div>
                 </div>

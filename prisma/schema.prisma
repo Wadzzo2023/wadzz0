@@ -270,6 +270,7 @@ model User {
     BountyParticipant        BountyParticipant[]
     BountySubmission         BountySubmission[]
     BountyComment            BountyComment[]
+    Bounty                   Bounty[]
 }
 
 model VerificationToken {
@@ -524,6 +525,9 @@ model Bounty {
     participants BountyParticipant[] // Users who join the bounty
     comments     BountyComment[] // Comments on the bounty
     submissions  BountySubmission[] // Submissions to the bounty
+    // New field to reference the winner
+    winnerId     String? // Optional: Can be null until a winner is selected
+    winner       User?               @relation(fields: [winnerId], references: [id], onDelete: SetNull)
 
     @@index([title, description])
 }

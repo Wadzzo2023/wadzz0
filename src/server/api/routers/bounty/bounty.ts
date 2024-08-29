@@ -4,7 +4,7 @@ import { getAccSecretFromRubyApi } from "package/connect_wallet/src/lib/stellar/
 import { z } from "zod";
 import { BountyCommentSchema } from "~/components/fan/creator/bounty/Add-Bounty-Comment";
 import { MediaInfo } from "~/components/fan/creator/bounty/CreateBounty";
-import { SendBountyBalanceToMotherAccount, SendBountyBalanceToUserAccount } from "~/lib/stellar/bounty/bounty";
+import { SendBountyBalanceToMotherAccount, SendBountyBalanceToUserAccount, SendBountyBalanceToWinner } from "~/lib/stellar/bounty/bounty";
 import { SignUser } from "~/lib/stellar/utils";
 import {
     createTRPCRouter,
@@ -90,6 +90,11 @@ export const BountyRoute = createTRPCRouter({
                         name: true,
                     }
                 },
+                winner: {
+                    select: {
+                        name: true,
+                    }
+                },
             },
         });
         let nextCursor: typeof cursor | undefined = undefined;
@@ -167,6 +172,11 @@ export const BountyRoute = createTRPCRouter({
                         participants: true,
                     },
                 },
+                winner: {
+                    select: {
+                        name: true,
+                    }
+                },
                 creator: {
                     select: {
                         name: true,
@@ -208,6 +218,11 @@ export const BountyRoute = createTRPCRouter({
                         profileUrl: true,
 
                     },
+                },
+                winner: {
+                    select: {
+                        name: true,
+                    }
                 },
                 submissions: {
                     select: {
@@ -317,12 +332,83 @@ export const BountyRoute = createTRPCRouter({
             },
         });
     }),
+    getSendBalanceToWinnerXdr: protectedProcedure.input(z.object({
+        price: z.number().min(1, { message: "Price can't less than 0" }),
+        userId: z.string().min(1, { message: "Bounty ID can't be less than 0" }),
+        BountyId: z.number().min(1, { message: "Bounty ID can't be less than 0" }),
+    })).mutation(async ({ input, ctx }) => {
+        const userPubKey = input.userId;
+        const hasBountyWinner = await ctx.db.bounty.findUnique({
+            where: {
+                id: input.BountyId,
+                winnerId: {
+                    not: null,
+                },
 
+            },
+            select: {
+                id: true,
+                title: true,
+                winnerId: true,
+            },
+
+        });
+        if (hasBountyWinner) {
+            throw new Error("Bounty has a winner, you can't send balance to winner");
+        }
+        return await SendBountyBalanceToWinner({
+            recipientID: userPubKey,
+            price: input.price,
+        });
+    }),
+    makeBountyWinner: protectedProcedure.input(z.object({
+        BountyId: z.number().min(1, { message: "Bounty ID can't be less than 0" }),
+        userId: z.string().min(1, { message: "User ID can't be less than 0" }),
+    })).mutation(async ({ input, ctx }) => {
+        const bounty = await ctx.db.bounty.findUnique({
+            where: {
+                id: input.BountyId,
+            },
+        });
+        if (!bounty) {
+            throw new Error("Bounty not found");
+        }
+        if (bounty.creatorId !== ctx.session.user.id) {
+            throw new Error("You are not the owner of this bounty");
+        }
+        await ctx.db.bounty.update({
+            where: {
+                id: input.BountyId,
+            },
+            data: {
+                winnerId: input.userId,
+            },
+        });
+    }),
     getDeleteXdr: protectedProcedure.input(z.object({
         price: z.number().min(1, { message: "Price can't less than 0" }),
         bountyId: z.number().min(1, { message: "Bounty ID can't be less than 0" }),
     })).mutation(async ({ input, ctx }) => {
         const userPubKey = ctx.session.user.id;
+        const hasBountyWinner = await ctx.db.bounty.findUnique({
+            where: {
+                id: input.bountyId,
+                winnerId: {
+                    not: null,
+                },
+
+            },
+            select: {
+                id: true,
+                title: true,
+                winnerId: true,
+            },
+
+        });
+        if (hasBountyWinner) {
+            throw new Error("Bounty has a winner, you can't delete this bounty");
+        }
+        console.log("hasBountyWinner", hasBountyWinner);
         return await SendBountyBalanceToUserAccount({
             userPubKey: userPubKey,
             price: input.price,

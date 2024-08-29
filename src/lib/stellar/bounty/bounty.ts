@@ -1,5 +1,5 @@
 import { SignUserType, WithSing } from "../utils";
-import { BASE_FEE, Horizon, Keypair, Networks, Operation, TransactionBuilder } from "@stellar/stellar-sdk";
+import { BASE_FEE, Claimant, Horizon, Keypair, Networks, Operation, TransactionBuilder } from "@stellar/stellar-sdk";
 import { PLATFROM_ASSET, STELLAR_URL, networkPassphrase } from "./constant";
 import { MOTHER_SECRET } from "../marketplace/SECRET";
 import { useUserStellarAcc } from "~/lib/state/wallete/stellar-balances";
@@ -101,6 +101,78 @@ export async function SendBountyBalanceToUserAccount({
             amount: price.toString(),
         })
     );
+    transaction.setTimeout(0);
+
+    const buildTrx = transaction.build();
+    buildTrx.sign(motherAcc);
+    return buildTrx.toXDR();
+}
+
+
+export async function SendBountyBalanceToWinner({
+    price,
+    recipientID,
+
+}: {
+    price: number,
+    recipientID: string,
+}) {
+
+    const server = new Horizon.Server(STELLAR_URL);
+    const motherAcc = Keypair.fromSecret(MOTHER_SECRET);
+    const account = await server.loadAccount(motherAcc.publicKey());
+    const receiverAcc = await server.loadAccount(recipientID);
+    const accBalance = account.balances.find((balance) => {
+        if (balance.asset_type === 'credit_alphanum4' || balance.asset_type === 'credit_alphanum12') {
+            return balance.asset_code === PLATFROM_ASSET.code;
+        } else if (balance.asset_type === 'native') {
+            return balance.asset_type === PLATFROM_ASSET.getAssetType();
+        }
+        return false;
+    });
+    if (!accBalance || parseFloat(accBalance.balance) < price) {
+        throw new Error('Balance is not enough to send the asset.');
+    }
+    const hasTrust = receiverAcc.balances.find((balance) => {
+        if (balance.asset_type === 'credit_alphanum4' || balance.asset_type === 'credit_alphanum12') {
+            return balance.asset_code === PLATFROM_ASSET.getCode() && balance.asset_issuer === PLATFROM_ASSET.getIssuer();
+        }
+        else if (balance.asset_type === 'native') {
+            return balance.asset_type === PLATFROM_ASSET.getAssetType();
+        }
+        return false;
+    });
+    console.log("hasTrust", hasTrust);
+    console.log("accBalance", accBalance);
+    const transaction = new TransactionBuilder(account, {
+        fee: BASE_FEE.toString(),
+        networkPassphrase,
+    });
+
+    if (!hasTrust) {
+        const claimants: Claimant[] = [
+            new Claimant(recipientID, Claimant.predicateUnconditional()),
+
+        ];
+
+        transaction.addOperation(
+            Operation.createClaimableBalance({
+                amount: price.toString(),
+                asset: PLATFROM_ASSET,
+                claimants: claimants,
+            })
+        );
+    } else {
+        transaction.addOperation(
+            Operation.payment({
+
+                destination: recipientID,
+                source: motherAcc.publicKey(),
+                asset: PLATFROM_ASSET,
+                amount: price.toString(),
+            })
+        );
+    }
     transaction.setTimeout(0);
 
     const buildTrx = transaction.build();
