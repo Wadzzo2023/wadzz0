@@ -14,7 +14,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Editor } from "~/components/editor";
 import { MediaType } from "@prisma/client";
 import { Image as ImageIcon, X } from "lucide-react";
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Image from "next/image";
 import { UploadButton } from "~/utils/uploadthing";
 import clsx from "clsx";
@@ -23,6 +23,11 @@ import toast from "react-hot-toast";
 import { useUserStellarAcc } from "~/lib/state/wallete/stellar-balances";
 import Alert from "~/components/ui/alert";
 import { PLATFROM_ASSET } from "~/lib/stellar/constant";
+import { getPlatfromAssetPrice } from "~/lib/stellar/fan/get_token_price";
+import useNeedSign from "~/lib/hook";
+import { clientsign } from "package/connect_wallet";
+import { useSession } from "next-auth/react";
+import { clientSelect } from "~/lib/stellar/fan/utils";
 
 export const MediaInfo = z.object({
   url: z.string(),
@@ -32,7 +37,7 @@ export const MediaInfo = z.object({
 export const BountySchema = z.object({
   title: z.string().min(1, { message: "Title can't be empty" }),
   priceInUSD: z.number().min(1, { message: "Price can't less than 0" }),
-  priceInBAND: z.number().min(1, { message: "Price can't less than 0" }),
+  price: z.number().min(1, { message: "Price can't less than 0" }),
   requiredBalance: z
     .number()
     .min(1, { message: "Required Balance can't be less that 0" }),
@@ -45,6 +50,8 @@ type MediaInfoType = z.TypeOf<typeof MediaInfo>;
 const CreateBounty = () => {
   const [media, setMedia] = useState<MediaInfoType[]>([]);
   const [wantMediaType, setWantMedia] = useState<MediaType>();
+  const { needSign } = useNeedSign();
+  const session = useSession();
   const { platformAssetBalance } = useUserStellarAcc();
   console.log(platformAssetBalance);
   const {
@@ -59,23 +66,56 @@ const CreateBounty = () => {
     resolver: zodResolver(BountySchema),
   });
 
-  const createBountyMutation = api.bounty.Bounty.createBounty.useMutation({
-    onSuccess: () => {
-      reset();
+  const CreateBountyMutation = api.bounty.Bounty.createBounty.useMutation({
+    onSuccess: async (data) => {
       toast.success("Bounty Created");
-      setMedia([]);
     },
   });
 
+  const SendBalanceToBountyMother =
+    api.bounty.Bounty.sendBountyBalanceToMotherAcc.useMutation({
+      onSuccess: async (data) => {
+        if (data) {
+          try {
+            const clientResponse = await clientsign({
+              presignedxdr: data.xdr,
+              walletType: session.data?.user?.walletType,
+              pubkey: data.pubKey,
+              test: clientSelect(),
+            });
+            if (clientResponse) {
+              CreateBountyMutation.mutate({
+                title: getValues("title"),
+                priceInUSD: getValues("priceInUSD"),
+                price: getValues("price"),
+                requiredBalance: getValues("requiredBalance"),
+                content: getValues("content"),
+                medias: getValues("medias"),
+              });
+              reset();
+              toast.success("Bounty Created");
+              setMedia([]);
+            }
+          } catch (error) {
+            console.error("Error sending balance to bounty mother", error);
+            reset();
+            toast.success("Bounty Created");
+            setMedia([]);
+          }
+        }
+      },
+      onError: (error) => {
+        console.error("Error creating bounty", error);
+        toast.error(error.message);
+        reset();
+        setMedia([]);
+      },
+    });
   const onSubmit: SubmitHandler<z.infer<typeof BountySchema>> = (data) => {
     data.medias = media;
-    createBountyMutation.mutate({
-      title: data.title,
-      content: data.content,
-      priceInUSD: data.priceInUSD,
-      priceInBAND: data.priceInBAND,
-      requiredBalance: data.requiredBalance,
-      medias: data.medias,
+    SendBalanceToBountyMother.mutate({
+      signWith: needSign(),
+      price: data.price,
     });
   };
 
@@ -91,6 +131,26 @@ const CreateBounty = () => {
   const removeMediaItem = (index: number) => {
     setMedia((prevMedia) => prevMedia.filter((_, i) => i !== index));
   };
+
+  const [price, setPrice] = useState<number>(0);
+
+  const fetchPrice = useCallback(async () => {
+    try {
+      const res = await getPlatfromAssetPrice();
+      console.log(res);
+      setPrice(res);
+    } catch (error) {
+      console.error("Error fetching price:", error);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchPrice().catch((error) => {
+      console.error("Error fetching price:", error);
+    });
+  }, [fetchPrice]);
+
+  console.log(price);
   return (
     <>
       {isCardDisabled ? (
@@ -107,7 +167,9 @@ const CreateBounty = () => {
             })}
           >
             <CardHeader>
-              <CardTitle>Create a new Bounty </CardTitle>
+              <CardTitle className="text-center">
+                Create a new Bounty{" "}
+              </CardTitle>
               <CardDescription></CardDescription>
             </CardHeader>
             <CardContent>
@@ -173,46 +235,61 @@ const CreateBounty = () => {
                         </div>
                       ))}
                     </div>
-                    <input
-                      type="number"
-                      placeholder={`Required Balance to Join Bounty in  ${PLATFROM_ASSET.code}`}
-                      {...register("requiredBalance", { valueAsNumber: true })}
-                      className="input input-bordered   w-full"
-                    />
-                    {errors.priceInBAND && (
-                      <div className="label">
-                        <span className="label-text-alt text-warning">
-                          {errors.priceInBAND.message}
-                        </span>
-                      </div>
-                    )}
-                    <div className=" flex w-full flex-row gap-2">
+                    <label className=" mb-1 w-full text-xs tracking-wide text-gray-600 sm:text-sm">
+                      Required Balance to Join this Bounty in{" "}
+                      {PLATFROM_ASSET.code}
                       <input
                         type="number"
-                        placeholder="Price in USD $"
-                        {...register("priceInUSD", { valueAsNumber: true })}
-                        className="input input-bordered w-full "
-                      />
-                      {errors.priceInUSD && (
-                        <div className="label">
-                          <span className="label-text-alt text-warning">
-                            {errors.priceInUSD.message}
-                          </span>
-                        </div>
-                      )}
-                      <input
-                        type="number"
-                        placeholder={`Price in  ${PLATFROM_ASSET.code}`}
-                        {...register("priceInBAND", { valueAsNumber: true })}
+                        {...register("requiredBalance", {
+                          valueAsNumber: true,
+                        })}
                         className="input input-bordered   w-full"
                       />
-                      {errors.priceInBAND && (
+                      {errors.requiredBalance && (
                         <div className="label">
                           <span className="label-text-alt text-warning">
-                            {errors.priceInBAND.message}
+                            {errors.requiredBalance.message}
                           </span>
                         </div>
                       )}
+                    </label>
+                    <div className=" flex w-full flex-row  gap-2">
+                      <label className=" mb-1 text-xs tracking-wide text-gray-600 sm:text-sm">
+                        Price in $USD
+                        <input
+                          onChange={(e) => {
+                            const value = e.target.value;
+                            setValue("priceInUSD", Number(value));
+                            setValue("price", Number(value) / Number(price));
+                          }}
+                          className="input input-bordered   w-full"
+                          type="number"
+                          placeholder=""
+                        />
+                        {errors.priceInUSD && (
+                          <div className="label">
+                            <span className="label-text-alt text-warning">
+                              {errors.priceInUSD.message}
+                            </span>
+                          </div>
+                        )}
+                      </label>
+                      <label className=" mb-1 text-xs tracking-wide text-gray-600 sm:text-sm">
+                        Price in {PLATFROM_ASSET.code}
+                        <input
+                          readOnly
+                          type="number"
+                          {...register("price", { valueAsNumber: true })}
+                          className="input input-bordered   w-full"
+                        />
+                        {errors.price && (
+                          <div className="label">
+                            <span className="label-text-alt text-warning">
+                              {errors.price.message}
+                            </span>
+                          </div>
+                        )}
+                      </label>
                     </div>
                     <UploadButton
                       disabled={media.length >= 4 || isCardDisabled}
@@ -236,15 +313,9 @@ const CreateBounty = () => {
                   </div>
                 </div>{" "}
                 <CardFooter className="flex justify-between">
-                  <Button
-                    variant="outline"
-                    type="button"
-                    onClick={() => reset()}
-                  >
-                    Cancel
+                  <Button className="w-full" type="submit">
+                    Create
                   </Button>
-
-                  <Button type="submit">Create</Button>
                 </CardFooter>
               </form>
             </CardContent>

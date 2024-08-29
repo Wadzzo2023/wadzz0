@@ -8,6 +8,7 @@ export enum AdminNavigation {
   PINS = "pins",
   CREATORS = "creators",
   USERS = "users",
+  BOUNTY = "bounty",
 }
 
 interface MarketMenurState {

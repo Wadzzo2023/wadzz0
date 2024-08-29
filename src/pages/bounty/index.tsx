@@ -19,13 +19,20 @@ const Bounty = () => {
 
   const bountyStore = useBountyRightStore();
   const pop = usePopUpState();
+
   if (getAllBounty.data)
     return (
       <div className="p-4">
         <div className="flex flex-col gap-2">
-          {getAllBounty.data.pages[0]?.bounties.length === 0 && (
-            <p className="w-full text-center">There is no page asset yet</p>
+          {getAllBounty.data.pages[0]?.bounties.length === 0 ||
+          getAllBounty.data.pages[0]?.bounties === undefined ? (
+            <p className="w-full text-center text-xl">
+              There is no Bounty yet!!
+            </p>
+          ) : (
+            <></>
           )}
+
           {getAllBounty.data.pages.map((page) => (
             <>
               {page.bounties.map((bounty) => (

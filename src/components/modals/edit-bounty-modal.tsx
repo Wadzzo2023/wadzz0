@@ -12,8 +12,8 @@ import { useForm, SubmitHandler } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Editor } from "~/components/editor";
-import { MediaType } from "@prisma/client";
-import { useEffect, useState } from "react";
+import { BountyStatus, MediaType } from "@prisma/client";
+import { useCallback, useEffect, useState } from "react";
 import Image from "next/image";
 import { UploadButton } from "~/utils/uploadthing";
 import { api } from "~/utils/api";
@@ -26,6 +26,8 @@ import {
   DialogTitle,
 } from "../shadcn/ui/dialog";
 import { X } from "lucide-react"; // Import a delete icon
+import { getPlatfromAssetPrice } from "~/lib/stellar/fan/get_token_price";
+import { PLATFROM_ASSET } from "~/lib/stellar/constant";
 
 export const MediaInfo = z.object({
   url: z.string(),
@@ -37,8 +39,12 @@ const BountySchema = z.object({
   title: z.string().min(1, { message: "Title can't be empty" }),
   priceInUSD: z.number().min(1, { message: "Price can't less than 0" }),
   priceInBAND: z.number().min(1, { message: "Price can't less than 0" }),
+  requiredBalance: z
+    .number()
+    .min(1, { message: "Required Balance can't be less that 0" }),
   content: z.string().min(2, { message: "Description can't be empty" }),
   medias: z.array(MediaInfo).optional(),
+  status: z.nativeEnum(BountyStatus).optional(),
 });
 
 const EditBountyModal = () => {
@@ -46,8 +52,11 @@ const EditBountyModal = () => {
   const { bountyId } = data;
   const isModalOpen = isOpen && type === "edit bounty";
   const [media, setMedia] = useState<MediaInfoType[]>([]);
-  const [wantMediaType, setWantMedia] = useState<MediaType>();
+  const { data: Owner } = api.bounty.Bounty.isOwnerOfBounty.useQuery({
+    BountyId: bountyId ?? 0,
+  });
 
+  const [price, setPrice] = useState<number>(0);
   const { data: CurrentBounty, isLoading: CurrentBountyLoading } =
     api.bounty.Bounty.getBountyByID.useQuery({
       BountyId: data.bountyId ?? 0,
@@ -68,6 +77,8 @@ const EditBountyModal = () => {
       priceInUSD: CurrentBounty?.priceInUSD,
       priceInBAND: CurrentBounty?.priceInBand,
       content: CurrentBounty?.description,
+      requiredBalance: CurrentBounty?.requiredBalance,
+      status: CurrentBounty?.status,
       medias: CurrentBounty?.imageUrls.map((url) => ({ url: url })),
     },
   });
@@ -83,15 +94,16 @@ const EditBountyModal = () => {
 
   const onSubmit: SubmitHandler<z.infer<typeof BountySchema>> = (data) => {
     data.medias = media;
-    console.log(CurrentBounty);
-    console.log("data", data);
+
     updateBountyMutation.mutate({
       BountyId: bountyId ?? 0,
       title: data.title,
       content: data.content,
       priceInUSD: data.priceInUSD,
       priceInBAND: data.priceInBAND,
+      requiredBalance: data.requiredBalance,
       medias: data.medias,
+      status: data.status,
     });
   };
 
@@ -119,12 +131,15 @@ const EditBountyModal = () => {
         priceInUSD: CurrentBounty?.priceInUSD,
         priceInBAND: CurrentBounty?.priceInBand,
         content: CurrentBounty?.description,
+        requiredBalance: CurrentBounty?.requiredBalance,
         medias: initialMedia, // Set the default medias value
+        status: CurrentBounty?.status,
       });
     }
   }, [CurrentBounty, reset]);
 
   const handleClose = () => {
+    reset();
     onClose();
   };
 
@@ -197,34 +212,43 @@ const EditBountyModal = () => {
                         </div>
                       ))}
                     </div>
-                    <div className="flex w-full flex-row gap-2">
+                    <label className=" mb-1 w-full text-xs tracking-wide text-gray-600 sm:text-sm">
+                      Required Balance to Join this Bounty in{" "}
+                      {PLATFROM_ASSET.code}
                       <input
                         type="number"
-                        placeholder="Price in USD $"
-                        {...register("priceInUSD", { valueAsNumber: true })}
-                        className="input input-bordered w-full "
+                        {...register("requiredBalance", {
+                          valueAsNumber: true,
+                        })}
+                        className="input input-bordered   w-full"
                       />
-                      {errors.priceInUSD && (
+                      {errors.requiredBalance && (
                         <div className="label">
                           <span className="label-text-alt text-warning">
-                            {errors.priceInUSD.message}
+                            {errors.requiredBalance.message}
                           </span>
                         </div>
                       )}
-                      <input
-                        type="number"
-                        placeholder="Price in BAND"
-                        {...register("priceInBAND", { valueAsNumber: true })}
-                        className="input input-bordered w-full"
-                      />
-                      {errors.priceInBAND && (
+                    </label>
+                    <label className="form-control w-full ">
+                      <span className="label-text">Status</span>
+                      <select
+                        {...register("status")}
+                        defaultValue={CurrentBounty?.status}
+                        className="select select-bordered w-full"
+                      >
+                        <option value="PENDING">Pending</option>
+                        <option value="APPROVED">Approved</option>
+                        <option value="REJECTED">Rejected</option>
+                      </select>
+                      {errors.status && (
                         <div className="label">
                           <span className="label-text-alt text-warning">
-                            {errors.priceInBAND.message}
+                            {errors.status.message}
                           </span>
                         </div>
                       )}
-                    </div>
+                    </label>
                     <UploadButton
                       endpoint="imageUploader"
                       content={{
@@ -236,7 +260,6 @@ const EditBountyModal = () => {
 
                         if (data?.url) {
                           addMediaItem(data.url);
-                          setWantMedia(undefined);
                         }
                       }}
                       onUploadError={(error: Error) => {

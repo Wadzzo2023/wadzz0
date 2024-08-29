@@ -11,6 +11,7 @@ import { Preview } from "~/components/preview";
 import { Button } from "~/components/shadcn/ui/button";
 import { Separator } from "~/components/shadcn/ui/separator";
 import Avater from "~/components/ui/avater";
+import useNeedSign from "~/lib/hook";
 import { PLATFROM_ASSET } from "~/lib/stellar/constant";
 import { api } from "~/utils/api";
 
@@ -208,6 +209,7 @@ const UserBountyPage = () => {
 const AdminBountyPage = () => {
   const { onOpen } = useModal();
   const router = useRouter();
+  const { needSign } = useNeedSign();
   const { id } = router.query;
   console.log(id);
   const { data } = api.bounty.Bounty.getBountyByID.useQuery({
@@ -234,8 +236,8 @@ const AdminBountyPage = () => {
     bountyId: Number(id),
   });
 
-  const handleDelete = (id: number) => {
-    DeleteMutation.mutate({ BountyId: id });
+  const handleDelete = (id: number, price: number) => {
+    DeleteMutation.mutate({ BountyId: id, price: price, signWith: needSign() });
   };
   if (data)
     return (
@@ -277,7 +279,7 @@ const AdminBountyPage = () => {
                         <Edit className="mr-2" size={16} /> Edit
                       </Button>
                       <Button
-                        onClick={() => handleDelete(data.id)}
+                        onClick={() => handleDelete(data.id, data.priceInBand)}
                         variant="destructive"
                       >
                         <Trash size={16} className="mr-2" />
@@ -346,7 +348,9 @@ const AdminBountyPage = () => {
               Recent Submissions
             </h1>
             {allSubmission?.length === 0 && (
-              <p className="w-full text-center">There is no submission yet</p>
+              <p className="mb-6 mt-2  flex flex-col gap-4 rounded-lg  bg-white p-6 text-center shadow-md">
+                There is no submission yet
+              </p>
             )}
             {allSubmission?.map((submission, id) => (
               <div key={id}>
