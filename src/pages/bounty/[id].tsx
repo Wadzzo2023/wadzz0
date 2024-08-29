@@ -409,7 +409,11 @@ const AdminBountyPage = () => {
                         <Edit className="mr-2" size={16} /> Edit
                       </Button>
                       <Button
-                        disabled={loadingBountyId === data.id}
+                        disabled={
+                          loadingBountyId === data.id || data.winner?.name
+                            ? true
+                            : false
+                        }
                         onClick={() => handleDelete(data.id, data.priceInBand)}
                         variant="destructive"
                       >

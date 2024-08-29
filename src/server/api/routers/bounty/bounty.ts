@@ -338,6 +338,24 @@ export const BountyRoute = createTRPCRouter({
         BountyId: z.number().min(1, { message: "Bounty ID can't be less than 0" }),
     })).mutation(async ({ input, ctx }) => {
         const userPubKey = input.userId;
+        const hasBountyWinner = await ctx.db.bounty.findUnique({
+            where: {
+                id: input.BountyId,
+                winnerId: {
+                    not: null,
+                },
+
+            },
+            select: {
+                id: true,
+                title: true,
+                winnerId: true,
+            },
+
+        });
+        if (hasBountyWinner) {
+            throw new Error("Bounty has a winner, you can't send balance to winner");
+        }
         return await SendBountyBalanceToWinner({
             recipientID: userPubKey,
             price: input.price,
@@ -372,6 +390,25 @@ export const BountyRoute = createTRPCRouter({
         bountyId: z.number().min(1, { message: "Bounty ID can't be less than 0" }),
     })).mutation(async ({ input, ctx }) => {
         const userPubKey = ctx.session.user.id;
+        const hasBountyWinner = await ctx.db.bounty.findUnique({
+            where: {
+                id: input.bountyId,
+                winnerId: {
+                    not: null,
+                },
+
+            },
+            select: {
+                id: true,
+                title: true,
+                winnerId: true,
+            },
+
+        });
+        if (hasBountyWinner) {
+            throw new Error("Bounty has a winner, you can't delete this bounty");
+        }
+        console.log("hasBountyWinner", hasBountyWinner);
         return await SendBountyBalanceToUserAccount({
             userPubKey: userPubKey,
             price: input.price,
