@@ -324,8 +324,6 @@ export const BountyRoute = createTRPCRouter({
         BountyId: z.number(),
         title: z.string().min(1, { message: "Title can't be empty" }),
         status: z.nativeEnum(BountyStatus).optional(),
-        priceInUSD: z.number().min(1, { message: "Price can't less than 0" }),
-        priceInBAND: z.number().min(1, { message: "Price can't less than 0" }),
         requiredBalance: z
             .number()
             .min(1, { message: "Required Balance can't be less that 0" }),
@@ -350,8 +348,6 @@ export const BountyRoute = createTRPCRouter({
             data: {
                 title: input.title,
                 description: input.content,
-                priceInUSD: input.priceInUSD,
-                priceInBand: input.priceInBAND,
                 requiredBalance: input.requiredBalance,
                 status: input.status,
                 imageUrls: input.medias ? input.medias.map((media) => media.url) : [],

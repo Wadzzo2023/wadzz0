@@ -26,7 +26,7 @@ import {
   DialogTitle,
 } from "../shadcn/ui/dialog";
 import { X } from "lucide-react"; // Import a delete icon
-import { getPlatfromAssetPrice } from "~/lib/stellar/fan/get_token_price";
+
 import { PLATFROM_ASSET } from "~/lib/stellar/constant";
 
 export const MediaInfo = z.object({
@@ -37,8 +37,6 @@ type MediaInfoType = z.TypeOf<typeof MediaInfo>;
 
 const BountySchema = z.object({
   title: z.string().min(1, { message: "Title can't be empty" }),
-  priceInUSD: z.number().min(1, { message: "Price can't less than 0" }),
-  priceInBAND: z.number().min(1, { message: "Price can't less than 0" }),
   requiredBalance: z
     .number()
     .min(1, { message: "Required Balance can't be less that 0" }),
@@ -52,15 +50,10 @@ const EditBountyModal = () => {
   const { bountyId } = data;
   const isModalOpen = isOpen && type === "edit bounty";
   const [media, setMedia] = useState<MediaInfoType[]>([]);
-  const { data: Owner } = api.bounty.Bounty.isOwnerOfBounty.useQuery({
-    BountyId: bountyId ?? 0,
-  });
 
-  const [price, setPrice] = useState<number>(0);
-  const { data: CurrentBounty, isLoading: CurrentBountyLoading } =
-    api.bounty.Bounty.getBountyByID.useQuery({
-      BountyId: data.bountyId ?? 0,
-    });
+  const { data: CurrentBounty } = api.bounty.Bounty.getBountyByID.useQuery({
+    BountyId: data.bountyId ?? 0,
+  });
 
   const {
     register,
@@ -72,15 +65,6 @@ const EditBountyModal = () => {
     formState: { errors },
   } = useForm<z.infer<typeof BountySchema>>({
     resolver: zodResolver(BountySchema),
-    defaultValues: {
-      title: CurrentBounty?.title,
-      priceInUSD: CurrentBounty?.priceInUSD,
-      priceInBAND: CurrentBounty?.priceInBand,
-      content: CurrentBounty?.description,
-      requiredBalance: CurrentBounty?.requiredBalance,
-      status: CurrentBounty?.status,
-      medias: CurrentBounty?.imageUrls.map((url) => ({ url: url })),
-    },
   });
 
   const updateBountyMutation = api.bounty.Bounty.updateBounty.useMutation({
@@ -99,8 +83,6 @@ const EditBountyModal = () => {
       BountyId: bountyId ?? 0,
       title: data.title,
       content: data.content,
-      priceInUSD: data.priceInUSD,
-      priceInBAND: data.priceInBAND,
       requiredBalance: data.requiredBalance,
       medias: data.medias,
       status: data.status,
@@ -128,8 +110,6 @@ const EditBountyModal = () => {
 
       reset({
         title: CurrentBounty?.title,
-        priceInUSD: CurrentBounty?.priceInUSD,
-        priceInBAND: CurrentBounty?.priceInBand,
         content: CurrentBounty?.description,
         requiredBalance: CurrentBounty?.requiredBalance,
         medias: initialMedia, // Set the default medias value
