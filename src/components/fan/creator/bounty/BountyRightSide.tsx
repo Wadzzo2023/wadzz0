@@ -63,21 +63,34 @@ const BountyRightBar = () => {
                     Price in {PLATFROM_ASSET.code} : {currentData.priceInBand}
                   </span>
                 </p>
-                <div className="">
+                <div className="font-semibold uppercase">
+                  Status:
                   {currentData.status === "PENDING" ? (
-                    <div className="relative grid select-none items-center whitespace-nowrap rounded-md bg-indigo-500/20 px-2 py-1 font-sans text-xs font-bold uppercase text-indigo-900">
-                      <span className=""> {currentData.status}</span>
-                    </div>
+                    <span className="select-none items-center whitespace-nowrap rounded-md bg-indigo-500/20 px-2 py-1 font-sans text-xs font-bold uppercase text-indigo-900">
+                      {currentData.status}
+                    </span>
                   ) : currentData.status === "APPROVED" ? (
-                    <div className="relative grid select-none items-center whitespace-nowrap rounded-md bg-green-500/20 px-2 py-1 font-sans text-xs font-bold uppercase text-green-900">
-                      <span className="">{currentData.status}</span>
-                    </div>
+                    <span className=" select-none items-center whitespace-nowrap rounded-md bg-green-500/20 px-2 py-1 font-sans text-xs font-bold uppercase text-green-900">
+                      {currentData.status}
+                    </span>
                   ) : (
-                    <div className="relative grid select-none items-center whitespace-nowrap rounded-md bg-red-500/20 px-2 py-1 font-sans text-xs font-bold uppercase text-red-900">
-                      <span className="">{currentData.status}</span>
-                    </div>
+                    <span className="select-none items-center whitespace-nowrap rounded-md bg-red-500/20 px-2 py-1 font-sans text-xs font-bold uppercase text-red-900">
+                      {currentData.status}
+                    </span>
                   )}
                 </div>
+                <p className="font-semibold uppercase">
+                  WINNER:{" "}
+                  {currentData.winner?.name ? (
+                    <span className="me-2 rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-medium text-red-800 dark:bg-red-900 dark:text-red-300">
+                      {currentData.winner.name}
+                    </span>
+                  ) : (
+                    <span className="me-2 rounded-full bg-purple-100 px-2.5 py-0.5 text-xs font-medium text-purple-800 dark:bg-purple-900 dark:text-purple-300">
+                      NOT ANNOUNCED
+                    </span>
+                  )}
+                </p>
               </div>
             </div>
             <div className="p-2">

@@ -3,7 +3,10 @@ import { format } from "date-fns";
 import Image from "next/image";
 import Link from "next/link";
 import { Preview } from "~/components/preview";
-import { useBountyRightStore } from "~/lib/state/bounty/use-bounty-store";
+import {
+  BountyProps,
+  useBountyRightStore,
+} from "~/lib/state/bounty/use-bounty-store";
 import { usePopUpState } from "~/lib/state/right-pop";
 import { PLATFROM_ASSET } from "~/lib/stellar/constant";
 import { api } from "~/utils/api";
@@ -40,7 +43,7 @@ const Bounty = () => {
                   <div
                     key={bounty.id}
                     onClick={() => {
-                      bountyStore.setData(bounty);
+                      bountyStore.setData(bounty as BountyProps);
                       if (!getTailwindScreenSize().includes("xl")) {
                         pop.setOpen(true);
                       }
@@ -55,10 +58,22 @@ const Bounty = () => {
                           <p className="mt-1 text-xs font-medium text-slate-600">
                             By {bounty.creator.name}
                           </p>
+                          <p className="mt-1 text-xs font-medium text-slate-600">
+                            Winner:{" "}
+                            {bounty.winner?.name ? (
+                              <span className="me-2 rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-medium text-red-800 dark:bg-red-900 dark:text-red-300">
+                                {bounty.winner.name}
+                              </span>
+                            ) : (
+                              <span className="me-2 rounded-full bg-purple-100 px-2.5 py-0.5 text-xs font-medium text-purple-800 dark:bg-purple-900 dark:text-purple-300">
+                                NOT ANNOUNCED
+                              </span>
+                            )}
+                          </p>
                         </div>
 
                         <div className="ml-3 hidden flex-shrink-0 sm:block">
-                          {bounty.imageUrls ? (
+                          {bounty.imageUrls && (
                             <Image
                               src={bounty.imageUrls[0] ?? "/images/logo.png"}
                               height={1000}
@@ -66,8 +81,6 @@ const Bounty = () => {
                               alt=""
                               className="h-16 w-16 rounded-lg object-cover shadow-sm"
                             />
-                          ) : (
-                            <></>
                           )}
                         </div>
                       </div>
@@ -78,8 +91,8 @@ const Bounty = () => {
                         </p>
                       </div>
 
-                      <dl className="mt-6 flex justify-between">
-                        <div className="flex flex-col-reverse">
+                      <dl className="mt-6 flex flex-col justify-between gap-2 md:flex-row  ">
+                        <div className="flex flex-col-reverse border-b-2 md:border-none">
                           <dt className="text-sm font-medium uppercase text-slate-600">
                             Published
                           </dt>
@@ -87,7 +100,7 @@ const Bounty = () => {
                             {format(new Date(bounty.createdAt), "MM/dd/yyyy")}
                           </dd>
                         </div>
-                        <div className="flex flex-col-reverse">
+                        <div className="flex flex-col-reverse border-b-2  md:border-none">
                           <dt className="text-sm font-medium uppercase text-slate-600">
                             Status
                           </dt>
@@ -105,7 +118,7 @@ const Bounty = () => {
                             </div>
                           )}
                         </div>
-                        <div className="ml-3 flex flex-col-reverse sm:ml-6">
+                        <div className=" flex-col-reverse border-b-2  md:border-none">
                           <dt className="text-sm font-medium uppercase text-slate-600">
                             Total Participants
                           </dt>
@@ -113,7 +126,7 @@ const Bounty = () => {
                             {bounty._count.participants}
                           </dd>
                         </div>
-                        <div className="text-sm font-medium uppercase">
+                        <div className="border-b-2 text-sm font-medium uppercase  md:border-none">
                           <div>Price in USD : ${bounty.priceInUSD}</div>
                           <div>
                             Price in {PLATFROM_ASSET.code}: {bounty.priceInBand}{" "}

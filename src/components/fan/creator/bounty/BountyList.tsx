@@ -39,7 +39,7 @@ const BountyList = () => {
                         </div>
 
                         <div className="ml-3 hidden flex-shrink-0 sm:block">
-                          {bounty.imageUrls ? (
+                          {bounty.imageUrls && (
                             <Image
                               src={bounty.imageUrls[0] ?? "/images/logo.png"}
                               height={1000}
@@ -47,8 +47,6 @@ const BountyList = () => {
                               alt=""
                               className="h-16 w-16 rounded-lg object-cover shadow-sm"
                             />
-                          ) : (
-                            <></>
                           )}
                         </div>
                       </div>
