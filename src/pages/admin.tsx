@@ -1,6 +1,7 @@
 import React from "react";
 import AddAdmin from "~/components/admin/add_admin";
 import AdminsList from "~/components/admin/admins";
+import Bounty from "~/components/admin/bounty/Bounty";
 import CreatorPage from "~/components/admin/creator/page";
 import Pins from "~/components/admin/pins";
 import UserList from "~/components/admin/users";
@@ -67,6 +68,9 @@ function RenderTabs() {
 
     case AdminNavigation.USERS:
       return <UserList />;
+
+    case AdminNavigation.BOUNTY:
+      return <Bounty />;
   }
 }
 

@@ -2,7 +2,7 @@ import { create } from "zustand";
 
 export enum BountyTabMenu {
     Bounty = "Create Bounty",
-    BountyList = "All Bounty",
+    BountyList = "My Bounty",
 }
 
 interface BountyTabState {

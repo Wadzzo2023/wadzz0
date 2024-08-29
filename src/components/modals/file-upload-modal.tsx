@@ -19,6 +19,7 @@ import Image from "next/image";
 import { UploadButton } from "~/utils/uploadthing";
 import { api } from "~/utils/api";
 import toast from "react-hot-toast";
+import { X } from "lucide-react";
 
 export const MediaInfo = z.object({
   url: z.string(),
@@ -83,7 +84,9 @@ const FileUploadModal = () => {
       medias: data.medias,
     });
   };
-
+  const removeMediaItem = (index: number) => {
+    setMedia((prevMedia) => prevMedia.filter((_, i) => i !== index));
+  };
   const addMediaItem = (url: string, type: MediaType) => {
     setMedia((prevMedia) => [...prevMedia, { url, type }]);
   };
@@ -117,10 +120,27 @@ const FileUploadModal = () => {
                 </div>
               )}{" "}
             </label>
-            <div className="flex gap-2 p-2">
-              {media.map((el, id) => (
-                <Image key={id} src={el.url} alt="d" height={100} width={100} />
-              ))}
+            <div className="flex flex-col items-center gap-2">
+              <div className="flex gap-2">
+                {media.map((el, id) => (
+                  <div key={id} className="relative">
+                    <Image
+                      src={el.url}
+                      alt="media"
+                      height={100}
+                      width={100}
+                      className="h-full w-full object-cover"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => removeMediaItem(id)}
+                      className="absolute right-0 top-0 rounded-full bg-red-500 p-1 text-white"
+                    >
+                      <X size={16} />
+                    </button>
+                  </div>
+                ))}
+              </div>
             </div>
 
             <UploadButton

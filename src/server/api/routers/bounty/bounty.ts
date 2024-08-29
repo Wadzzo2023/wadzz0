@@ -1,24 +1,50 @@
 
-import { MediaType } from "@prisma/client";
+import { BountyStatus, MediaType } from "@prisma/client";
+import { getAccSecretFromRubyApi } from "package/connect_wallet/src/lib/stellar/get-acc-secret";
 import { z } from "zod";
 import { BountyCommentSchema } from "~/components/fan/creator/bounty/Add-Bounty-Comment";
 import { MediaInfo } from "~/components/fan/creator/bounty/CreateBounty";
+import { SendBountyBalanceToMotherAccount, SendBountyBalanceToUserAccount } from "~/lib/stellar/bounty/bounty";
+import { SignUser } from "~/lib/stellar/utils";
 import {
     createTRPCRouter,
     protectedProcedure,
     publicProcedure,
 } from "~/server/api/trpc";
 
+
+
 export const BountyRoute = createTRPCRouter({
+    sendBountyBalanceToMotherAcc: protectedProcedure.input(z.object({
+        signWith: SignUser,
+        price: z.number().min(1, { message: "Price can't less than 0" }),
+    })).mutation(async ({ input, ctx }) => {
+        const userPubKey = ctx.session.user.id;
+
+        let secretKey;
+        if (ctx.session.user.email && ctx.session.user.email.length > 0) {
+            secretKey = await getAccSecretFromRubyApi(ctx.session.user.email);
+        }
+        return await SendBountyBalanceToMotherAccount({
+            userPubKey: userPubKey,
+            price: input.price,
+            signWith: input.signWith,
+            secretKey: secretKey,
+        });
+    }),
+
+
+
     createBounty: protectedProcedure.input(z.object({
         title: z.string().min(1, { message: "Title can't be empty" }),
         priceInUSD: z.number().min(1, { message: "Price can't less than 0" }),
-        priceInBAND: z.number().min(1, { message: "Price can't less than 0" }),
+        price: z.number().min(1, { message: "Price can't less than 0" }),
         requiredBalance: z
             .number()
             .min(1, { message: "Required Balance can't be less that 0" }),
         content: z.string().min(2, { message: "Description can't be empty" }),
-        medias: z.array(MediaInfo).optional()
+
+        medias: z.array(MediaInfo).optional(),
     })).mutation(async ({ input, ctx }) => {
 
 
@@ -27,7 +53,7 @@ export const BountyRoute = createTRPCRouter({
                 title: input.title,
                 description: input.content,
                 priceInUSD: input.priceInUSD,
-                priceInBand: input.priceInBAND,
+                priceInBand: input.price,
                 creatorId: ctx.session.user.id,
                 requiredBalance: input.requiredBalance,
                 imageUrls: input.medias ? input.medias.map((media) => media.url) : [],
@@ -51,7 +77,7 @@ export const BountyRoute = createTRPCRouter({
             cursor: cursor ? { id: cursor } : undefined,
 
             orderBy: {
-                createdAt: "asc",
+                createdAt: "desc",
             },
             include: {
                 _count: {
@@ -148,7 +174,7 @@ export const BountyRoute = createTRPCRouter({
                 },
             },
             orderBy: {
-                createdAt: "asc",
+                createdAt: "desc",
             },
         });
         let nextCursor: typeof cursor | undefined = undefined;
@@ -272,7 +298,7 @@ export const BountyRoute = createTRPCRouter({
     }),
 
     deleteBounty: protectedProcedure.input(z.object({
-        BountyId: z.number(),
+        BountyId: z.number().min(1, { message: "Bounty ID can't be less than 0" }),
     })).mutation(async ({ input, ctx }) => {
         const bounty = await ctx.db.bounty.findUnique({
             where: {
@@ -292,11 +318,24 @@ export const BountyRoute = createTRPCRouter({
         });
     }),
 
+    getDeleteXdr: protectedProcedure.input(z.object({
+        price: z.number().min(1, { message: "Price can't less than 0" }),
+        bountyId: z.number().min(1, { message: "Bounty ID can't be less than 0" }),
+    })).mutation(async ({ input, ctx }) => {
+        const userPubKey = ctx.session.user.id;
+        return await SendBountyBalanceToUserAccount({
+            userPubKey: userPubKey,
+            price: input.price,
+        });
+    }),
+
     updateBounty: protectedProcedure.input(z.object({
         BountyId: z.number(),
         title: z.string().min(1, { message: "Title can't be empty" }),
-        priceInUSD: z.number().min(1, { message: "Price can't less than 0" }),
-        priceInBAND: z.number().min(1, { message: "Price can't less than 0" }),
+        status: z.nativeEnum(BountyStatus).optional(),
+        requiredBalance: z
+            .number()
+            .min(1, { message: "Required Balance can't be less that 0" }),
         content: z.string().min(2, { message: "Description can't be empty" }),
         medias: z.array(MediaInfo).optional(),
     })).mutation(async ({ input, ctx }) => {
@@ -318,8 +357,8 @@ export const BountyRoute = createTRPCRouter({
             data: {
                 title: input.title,
                 description: input.content,
-                priceInUSD: input.priceInUSD,
-                priceInBand: input.priceInBAND,
+                requiredBalance: input.requiredBalance,
+                status: input.status,
                 imageUrls: input.medias ? input.medias.map((media) => media.url) : [],
             },
         });

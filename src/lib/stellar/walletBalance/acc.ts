@@ -1,5 +1,5 @@
 import { Asset, BASE_FEE, Claimant, Keypair, Networks, Operation, Transaction, TransactionBuilder } from "@stellar/stellar-sdk";
-import { PLATFROM_ASSET, STELLAR_URL } from "./constant";
+import { PLATFROM_ASSET, STELLAR_URL, networkPassphrase } from "./constant";
 
 import { Horizon } from "@stellar/stellar-sdk";
 import { StellarAccount } from "../marketplace/test/Account";
@@ -179,7 +179,7 @@ export async function SendAssets({
 
   const transaction = new TransactionBuilder(account, {
     fee: BASE_FEE.toString(),
-    networkPassphrase: Networks.TESTNET,
+    networkPassphrase,
   });
 
   if (!hasTrust && asset_type !== 'native') {
@@ -252,7 +252,7 @@ export async function AddAssetTrustLine({
   const asset = new Asset(asset_code, asset_issuer);
   const transaction = new TransactionBuilder(account, {
     fee: BASE_FEE.toString(),
-    networkPassphrase: Networks.TESTNET,
+    networkPassphrase,
   })
     .addOperation(
       Operation.changeTrust({
@@ -407,7 +407,7 @@ export async function AcceptClaimableBalance({
   try {
     const transaction = new TransactionBuilder(account, {
       fee: BASE_FEE.toString(),
-      networkPassphrase: Networks.TESTNET,
+      networkPassphrase,
     })
       .addOperation(
         Operation.claimClaimableBalance({
@@ -455,7 +455,7 @@ export async function DeclineClaimableBalance({
 
   const transaction = new TransactionBuilder(account, {
     fee: '100', // Adjust fee as needed
-    networkPassphrase: Networks.TESTNET, // Adjust for mainnet if necessary
+    networkPassphrase, // Adjust for mainnet if necessary
   })
     .addOperation(
       Operation.clawbackClaimableBalance({

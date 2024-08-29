@@ -508,18 +508,18 @@ model LocationConsumer {
 }
 
 model Bounty {
-    id              Int       @id @default(autoincrement())
+    id              Int          @id @default(autoincrement())
     title           String
     description     String
     priceInUSD      Float
     priceInBand     Float
     requiredBalance Float
     imageUrls       String[]
-    createdAt       DateTime  @default(now())
+    createdAt       DateTime     @default(now())
     endDate         DateTime?
-
-    creatorId String
-    creator   Creator @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+    status          BountyStatus @default(PENDING)
+    creatorId       String
+    creator         Creator      @relation(fields: [creatorId], references: [id], onDelete: Cascade)
 
     participants BountyParticipant[] // Users who join the bounty
     comments     BountyComment[] // Comments on the bounty
@@ -567,4 +567,10 @@ model BountyComment {
     createdAt DateTime @default(now())
 
     bountyChildComments BountyComment[] @relation("ChildBountyComments")
+}
+
+enum BountyStatus {
+    PENDING
+    APPROVED
+    REJECTED
 }

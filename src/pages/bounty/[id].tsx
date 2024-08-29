@@ -1,8 +1,17 @@
 import { format } from "date-fns";
-import { Edit, File, Paperclip, Trash, UploadCloud } from "lucide-react";
+import {
+  DatabaseZap,
+  Edit,
+  File,
+  Paperclip,
+  Trash,
+  UploadCloud,
+} from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
+import { clientsign, submitSignedXDRToServer } from "package/connect_wallet";
+import { submitSignedXDRToServer4User } from "package/connect_wallet/src/lib/stellar/trx/payment_fb_g";
 import toast from "react-hot-toast";
 import { AddBountyComment } from "~/components/fan/creator/bounty/Add-Bounty-Comment";
 import ViewBountyComment from "~/components/fan/creator/bounty/View-Bounty-Comment";
@@ -11,6 +20,7 @@ import { Preview } from "~/components/preview";
 import { Button } from "~/components/shadcn/ui/button";
 import { Separator } from "~/components/shadcn/ui/separator";
 import Avater from "~/components/ui/avater";
+import useNeedSign from "~/lib/hook";
 import { PLATFROM_ASSET } from "~/lib/stellar/constant";
 import { api } from "~/utils/api";
 
@@ -68,25 +78,39 @@ const UserBountyPage = () => {
             <header className=" mb-4 lg:mb-6">
               <div className="flex items-center justify-between ">
                 <address className="mb-6 flex items-center not-italic">
-                  <div className="mr-3 inline-flex items-center text-sm text-gray-900 dark:text-white">
-                    <Avater
-                      className="h-12 w-12"
-                      url={data?.creator.profileUrl}
-                    />
-                    <div>
-                      <Link
-                        href={`/fans/creator/${data?.creator.id}`}
-                        rel="author"
-                        className="text-xl font-bold text-gray-900 dark:text-white"
-                      >
-                        {data?.creator.name}
-                      </Link>
-                      <p className="text-base text-gray-500 dark:text-gray-400">
-                        Posted On{" "}
-                        {format(new Date(data?.createdAt), "MMMM dd, yyyy")}
-                      </p>
+                  <Link href={`/fans/creator/${data?.creator.id}`}>
+                    <div className="mr-3 inline-flex items-center gap-2 text-sm text-gray-900 dark:text-white">
+                      <Avater
+                        className="h-12 w-12"
+                        url={data?.creator.profileUrl}
+                      />
+                      <div>
+                        <div
+                          rel="author"
+                          className="text-xl font-bold text-gray-900 dark:text-white"
+                        >
+                          {data?.creator.name}
+                        </div>
+                        <p className="text-base text-gray-500 dark:text-gray-400">
+                          Posted On{" "}
+                          {format(new Date(data?.createdAt), "MMMM dd, yyyy")}
+                        </p>
+                        {data.status === "PENDING" ? (
+                          <div className="relative grid select-none items-center whitespace-nowrap rounded-md bg-indigo-500/20 px-2 py-1 font-sans text-xs font-bold uppercase text-indigo-900">
+                            <span className="">Status: {data.status}</span>
+                          </div>
+                        ) : data.status === "APPROVED" ? (
+                          <div className="relative grid select-none items-center whitespace-nowrap rounded-md bg-green-500/20 px-2 py-1 font-sans text-xs font-bold uppercase text-green-900">
+                            <span className="">Status: {data.status}</span>
+                          </div>
+                        ) : (
+                          <div className="relative grid select-none items-center whitespace-nowrap rounded-md bg-red-500/20 px-2 py-1 font-sans text-xs font-bold uppercase text-red-900">
+                            <span className="">Status: {data.status}</span>
+                          </div>
+                        )}
+                      </div>
                     </div>
-                  </div>
+                  </Link>
                 </address>
               </div>
 
@@ -119,7 +143,7 @@ const UserBountyPage = () => {
           </article>
         </div>
 
-        <div className="mt-2 border-2 p-4">
+        <div className="mb-6 mt-2  flex flex-col gap-4   rounded-lg bg-white p-6 shadow-md">
           <div className="flex items-center justify-between">
             <h1 className="text-center text-2xl font-extrabold text-gray-900 dark:text-white">
               Your Recent Submissions
@@ -207,6 +231,7 @@ const UserBountyPage = () => {
 const AdminBountyPage = () => {
   const { onOpen } = useModal();
   const router = useRouter();
+  const { needSign } = useNeedSign();
   const { id } = router.query;
   console.log(id);
   const { data } = api.bounty.Bounty.getBountyByID.useQuery({
@@ -233,9 +258,23 @@ const AdminBountyPage = () => {
     bountyId: Number(id),
   });
 
-  const handleDelete = (id: number) => {
-    DeleteMutation.mutate({ BountyId: id });
+  const GetDeleteXDR = api.bounty.Bounty.getDeleteXdr.useMutation({
+    onSuccess: async (data) => {
+      if (data) {
+        const res = await submitSignedXDRToServer4User(data);
+        if (res) {
+          DeleteMutation.mutate({
+            BountyId: GetDeleteXDR.variables?.bountyId ?? 0,
+          });
+        }
+      }
+    },
+  });
+
+  const handleDelete = (id: number, price: number) => {
+    GetDeleteXDR.mutate({ price: price, bountyId: id });
   };
+
   if (data)
     return (
       <>
@@ -245,7 +284,7 @@ const AdminBountyPage = () => {
               <header className=" mb-4 lg:mb-6">
                 <div className="flex items-center justify-between ">
                   <address className="mb-6 flex items-center not-italic">
-                    <div className="mr-3 inline-flex items-center text-sm text-gray-900 dark:text-white">
+                    <div className="mr-3 inline-flex items-center gap-2 text-sm text-gray-900 dark:text-white">
                       <Avater
                         className="h-12 w-12"
                         url={data?.creator.profileUrl}
@@ -262,6 +301,21 @@ const AdminBountyPage = () => {
                           Posted On{" "}
                           {format(new Date(data?.createdAt), "MMMM dd, yyyy")}
                         </p>
+                        <p>
+                          {data.status === "PENDING" ? (
+                            <div className="relative grid select-none items-center whitespace-nowrap rounded-md bg-indigo-500/20 px-2 py-1 font-sans text-xs font-bold uppercase text-indigo-900">
+                              <span className="">Status: {data.status}</span>
+                            </div>
+                          ) : data.status === "APPROVED" ? (
+                            <div className="relative grid select-none items-center whitespace-nowrap rounded-md bg-green-500/20 px-2 py-1 font-sans text-xs font-bold uppercase text-green-900">
+                              <span className="">Status: {data.status}</span>
+                            </div>
+                          ) : (
+                            <div className="relative grid select-none items-center whitespace-nowrap rounded-md bg-red-500/20 px-2 py-1 font-sans text-xs font-bold uppercase text-red-900">
+                              <span className="">Status: {data.status}</span>
+                            </div>
+                          )}
+                        </p>
                       </div>
                     </div>
                   </address>
@@ -276,7 +330,7 @@ const AdminBountyPage = () => {
                         <Edit className="mr-2" size={16} /> Edit
                       </Button>
                       <Button
-                        onClick={() => handleDelete(data.id)}
+                        onClick={() => handleDelete(data.id, data.priceInBand)}
                         variant="destructive"
                       >
                         <Trash size={16} className="mr-2" />
@@ -345,7 +399,9 @@ const AdminBountyPage = () => {
               Recent Submissions
             </h1>
             {allSubmission?.length === 0 && (
-              <p className="w-full text-center">There is no submission yet</p>
+              <p className="mb-6 mt-2  flex flex-col gap-4 rounded-lg  bg-white p-6 text-center shadow-md">
+                There is no submission yet
+              </p>
             )}
             {allSubmission?.map((submission, id) => (
               <div key={id}>
