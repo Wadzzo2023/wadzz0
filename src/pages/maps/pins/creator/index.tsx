@@ -140,7 +140,7 @@ export const columns: ColumnDef<Location>[] = [
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
-          Created At
+          Date Created
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
       );
@@ -148,9 +148,9 @@ export const columns: ColumnDef<Location>[] = [
     cell: ({ row }) => {
       // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
       const createdAt = row.getValue("createdAt") as Date;
-      const formattedDate = createdAt.toLocaleDateString("en-GB", {
-        day: "2-digit",
+      const formattedDate = createdAt.toLocaleDateString("en-US", {
         month: "2-digit",
+        day: "2-digit",
         year: "2-digit",
       });
       return <div className="lowercase">{formattedDate}</div>;

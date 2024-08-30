@@ -21,7 +21,7 @@ export default function AdminPinConsumptionReport() {
     return (
       <div>
         <h2 className="p-4 text-center text-2xl font-bold">
-          All Consumed Reports
+          All Collection Reports
         </h2>
         <div className="m-auto max-w-4xl">
           <TableDemo pins={pins.data} />
@@ -44,7 +44,7 @@ export function TableDemo({ pins }: { pins: PinLocation[] }) {
         </ReportDownload>
       </div>
       <Table>
-        <TableCaption>All pin consumption report</TableCaption>
+        <TableCaption>All pin collection report</TableCaption>
         <TableHeader>
           <TableRow>
             <TableHead>Lat Lan</TableHead>

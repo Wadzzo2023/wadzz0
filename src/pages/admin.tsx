@@ -68,7 +68,7 @@ function RenderTabs() {
 
     case AdminNavigation.USERS:
       return <UserList />;
-    case AdminNavigation.PINS_REPORT:
+    case AdminNavigation.COLLECTION_REPORTS:
       return <AdminPinConsumptionReport />;
   }
 }

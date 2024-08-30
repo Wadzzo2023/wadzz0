@@ -26,7 +26,7 @@ export default function CreatorConsumptionReport() {
             <ArrowLeft />
           </Button>
           <h2 className="p-4 text-center text-2xl font-bold">
-            Creators Consumed Reports
+            Pin Collection Report
           </h2>
         </div>
 
@@ -51,7 +51,7 @@ export function TableDemo({ pins }: { pins: PinLocation[] }) {
         </ReportDownload>
       </div>
       <Table>
-        <TableCaption>My Pin consumption report</TableCaption>
+        <TableCaption>My pin collection report</TableCaption>
         <TableHeader>
           <TableRow>
             <TableHead>Lat Lan</TableHead>

@@ -52,7 +52,7 @@ function PinsList({ groups }: { groups: Group }) {
   const [selectedPins, setSelectedPin] = useState<number[]>([]);
   const [isOpen, setIsOpen] = React.useState(false);
 
-  const aproveM = api.maps.pin.approvePins.useMutation({
+  const approveM = api.maps.pin.approvePins.useMutation({
     onSuccess: (data, variable) => {
       if (variable.approved) toast.success("Pins Approved Successfully!");
       if (!variable.approved) toast.error("Pins Rejected Successfully!");
@@ -185,20 +185,20 @@ function PinsList({ groups }: { groups: Group }) {
           <button
             className="btn btn-primary"
             onClick={() => {
-              aproveM.mutate({ pins: selectedPins, approved: true });
+              approveM.mutate({ pins: selectedPins, approved: true });
               toast("Selected Pins: " + selectedPins.join(", "));
             }}
-            disabled={selectedPins.length === 0 || aproveM.isLoading}
+            disabled={selectedPins.length === 0 || approveM.isLoading}
           >
             <Check />
-            Aprove
+            Approve
           </button>
           <button
             onClick={() =>
-              aproveM.mutate({ pins: selectedPins, approved: false })
+              approveM.mutate({ pins: selectedPins, approved: false })
             }
             className="btn btn-error"
-            disabled={selectedPins.length === 0 || aproveM.isLoading}
+            disabled={selectedPins.length === 0 || approveM.isLoading}
           >
             <X />
             Reject

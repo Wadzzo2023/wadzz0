@@ -6,7 +6,7 @@ export enum AdminNavigation {
   ALBUM = "album",
   ADMIN = "admin",
   PINS = "pins",
-  PINS_REPORT = "pins-report",
+  COLLECTION_REPORTS = "pins-report",
   CREATORS = "creators",
   USERS = "users",
 }

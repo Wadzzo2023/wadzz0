@@ -88,7 +88,7 @@ export function AssetDetails({
                 </p>
                 {currentData.placerId && (
                   <p>
-                    <b>Seller</b>: {addrShort(currentData.placerId, 5)}
+                    <b>Seller</b>: <SellerInfo id={currentData.placerId} />
                   </p>
                 )}
                 <p>
@@ -109,8 +109,14 @@ export function AssetDetails({
   );
 }
 
+function SellerInfo({ id }: { id: string }) {
+  const seller = api.fan.user.getUserById.useQuery(id);
+  if (seller.isLoading) return <span>{addrShort(id, 5)}</span>;
+
+  if (seller.data) return <span>{seller.data.name}</span>;
+}
+
 export function TokenCopies({ id }: { id: number }) {
-  const { currentData } = useMarketRightStore();
   const copy = api.marketplace.market.getMarketAssetAvailableCopy.useQuery({
     id,
   });
