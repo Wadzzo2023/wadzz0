@@ -85,7 +85,7 @@ const Bounty = () => {
                   onClick={(e) => {
                     e.preventDefault();
                   }}
-                  className="absolute bottom-2.5 end-2.5 rounded-lg bg-blue-700 px-4 py-2 text-sm font-medium text-white hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                  className="absolute bottom-2.5 end-2.5 rounded-lg bg-blue-700 px-4 py-2  text-sm font-medium text-white hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
                 >
                   Search
                 </button>
@@ -96,7 +96,7 @@ const Bounty = () => {
             <select
               value={statusFilter}
               onChange={handleStatusChange}
-              className="mb-6 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2 p-4 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+              className="mb-6 block w-full rounded-lg border  border-gray-300 bg-gray-50 p-4  text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
             >
               <option value="ALL">All Bounty</option>
               <option value="ACTIVE">Active Bounty</option>
@@ -106,12 +106,12 @@ const Bounty = () => {
             <select
               value={sortOption}
               onChange={handleSortChange}
-              className="mb-6 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2 p-4 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+              className="mb-6 block w-full rounded-lg border border-gray-300 bg-gray-50 p-4 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
             >
               <option value="DATE_ASC">Date Ascending</option>
               <option value="DATE_DESC">Date Descending</option>
-              <option value="PRICE_ASC">Price Ascending</option>
-              <option value="PRICE_DESC">Price Descending</option>
+              <option value="PRICE_ASC">Prize Ascending</option>
+              <option value="PRICE_DESC">Prize Descending</option>
             </select>
           </div>
         </div>
@@ -215,9 +215,9 @@ const Bounty = () => {
                         </dd>
                       </div>
                       <div className="relative  bg-gradient-to-r from-blue-500 via-teal-500 to-pink-500 bg-clip-text    text-transparent">
-                        <div>Price in USD : ${bounty.priceInUSD}</div>
+                        <div>Prize in USD : ${bounty.prizeInUSD}</div>
                         <div>
-                          Price in {PLATFROM_ASSET.code}: {bounty.priceInBand}{" "}
+                          Prize in {PLATFROM_ASSET.code}: {bounty.prizeInBand}{" "}
                         </div>
                       </div>
                     </dl>

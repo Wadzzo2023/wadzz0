@@ -30,7 +30,7 @@ import { sortOptionEnum, statusFilterEnum } from "~/components/fan/creator/bount
 export const BountyRoute = createTRPCRouter({
     sendBountyBalanceToMotherAcc: protectedProcedure.input(z.object({
         signWith: SignUser,
-        price: z.number().min(0.00001, { message: "Price can't less than 0" }),
+        prize: z.number().min(0.00001, { message: "Prize can't less than 0" }),
     })).mutation(async ({ input, ctx }) => {
         const userPubKey = ctx.session.user.id;
 
@@ -40,7 +40,7 @@ export const BountyRoute = createTRPCRouter({
         }
         return await SendBountyBalanceToMotherAccount({
             userPubKey: userPubKey,
-            price: input.price,
+            prize: input.prize,
             signWith: input.signWith,
             secretKey: secretKey,
         });
@@ -50,8 +50,8 @@ export const BountyRoute = createTRPCRouter({
 
     createBounty: protectedProcedure.input(z.object({
         title: z.string().min(1, { message: "Title can't be empty" }),
-        priceInUSD: z.number().min(0.00001, { message: "Price can't less than 0" }),
-        price: z.number().min(0.00001, { message: "Price can't less than 0" }),
+        prizeInUSD: z.number().min(0.00001, { message: "Prize can't less than 0" }),
+        prize: z.number().min(0.00001, { message: "Prize can't less than 0" }),
         requiredBalance: z
             .number()
             .min(0, { message: "Required Balance can't be less than 0" }),
@@ -65,8 +65,8 @@ export const BountyRoute = createTRPCRouter({
             data: {
                 title: input.title,
                 description: input.content,
-                priceInUSD: input.priceInUSD,
-                priceInBand: input.price,
+                prizeInUSD: input.prizeInUSD,
+                prizeInBand: input.prize,
                 creatorId: ctx.session.user.id,
                 requiredBalance: input.requiredBalance,
                 imageUrls: input.medias ? input.medias.map((media) => media.url) : [],
@@ -91,9 +91,9 @@ export const BountyRoute = createTRPCRouter({
         } else if (sortBy === sortOptionEnum.DATE_DESC) {
             orderBy.createdAt = "desc";
         } else if (sortBy === sortOptionEnum.PRICE_ASC) {
-            orderBy.priceInUSD = "asc";
+            orderBy.prizeInUSD = "asc";
         } else if (sortBy === sortOptionEnum.PRICE_DESC) {
-            orderBy.priceInUSD = "desc";
+            orderBy.prizeInUSD = "desc";
         }
 
         const where: Prisma.BountyWhereInput = {
@@ -210,9 +210,9 @@ export const BountyRoute = createTRPCRouter({
         } else if (sortBy === sortOptionEnum.DATE_DESC) {
             orderBy.createdAt = "desc";
         } else if (sortBy === sortOptionEnum.PRICE_ASC) {
-            orderBy.priceInUSD = "asc";
+            orderBy.prizeInUSD = "asc";
         } else if (sortBy === sortOptionEnum.PRICE_DESC) {
-            orderBy.priceInUSD = "desc";
+            orderBy.prizeInUSD = "desc";
         }
 
         const where: Prisma.BountyWhereInput = {
@@ -406,7 +406,7 @@ export const BountyRoute = createTRPCRouter({
         return await getPlatfromAssetPrice();
     }),
     getSendBalanceToWinnerXdr: protectedProcedure.input(z.object({
-        price: z.number().min(0.00001, { message: "Price can't less than 00001" }),
+        prize: z.number().min(0.00001, { message: "Prize can't less than 00001" }),
         userId: z.string().min(1, { message: "Bounty ID can't be less than 0" }),
         BountyId: z.number().min(1, { message: "Bounty ID can't be less than 0" }),
     })).mutation(async ({ input, ctx }) => {
@@ -433,7 +433,7 @@ export const BountyRoute = createTRPCRouter({
 
         return await SendBountyBalanceToWinner({
             recipientID: userPubKey,
-            price: input.price,
+            prize: input.prize,
         });
     }),
     makeBountyWinner: protectedProcedure.input(z.object({
@@ -461,7 +461,7 @@ export const BountyRoute = createTRPCRouter({
         });
     }),
     getDeleteXdr: protectedProcedure.input(z.object({
-        price: z.number().min(0.00001, { message: "Price can't less than 0" }),
+        prize: z.number().min(0.00001, { message: "Prize can't less than 0" }),
         creatorId: z.string().min(1, { message: "User ID can't be less than 0" }).optional(),
         bountyId: z.number().min(1, { message: "Bounty ID can't be less than 0" }),
     })).mutation(async ({ input, ctx }) => {
@@ -486,7 +486,7 @@ export const BountyRoute = createTRPCRouter({
         console.log("hasBountyWinner", hasBountyWinner);
         return await SendBountyBalanceToUserAccount({
             userPubKey: input.creatorId ? input.creatorId : userPubKey,
-            price: input.price,
+            prize: input.prize,
         });
     }),
 

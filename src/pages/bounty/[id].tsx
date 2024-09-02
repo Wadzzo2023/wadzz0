@@ -151,10 +151,10 @@ const UserBountyPage = () => {
                 ))}
               </div>
               <h1 className="mb-4 text-2xl font-extrabold text-gray-900 dark:text-white ">
-                Price in USD : ${data?.priceInUSD}
+                Prize in USD : ${data?.prizeInUSD}
               </h1>
               <h1 className="mb-4 text-2xl font-extrabold text-gray-900 dark:text-white ">
-                Price in {PLATFROM_ASSET.code} : {data?.priceInBand}
+                Prize in {PLATFROM_ASSET.code} : {data?.prizeInBand}
               </h1>
               <p className="mt-1 text-xs font-medium text-slate-600">
                 Posted on {format(new Date(data.createdAt), "MMMM dd, yyyy")}
@@ -325,19 +325,19 @@ const AdminBountyPage = () => {
         setLoadingBountyId(null);
       },
     });
-  const handleWinner = (bountyId: number, userId: string, price: number) => {
+  const handleWinner = (bountyId: number, userId: string, prize: number) => {
     setLoadingBountyId(bountyId);
     GetSendBalanceToWinnerXdr.mutate({
       BountyId: bountyId,
       userId: userId,
-      price: price,
+      prize: prize,
     });
     setLoadingBountyId(null);
   };
 
-  const handleDelete = (id: number, price: number) => {
+  const handleDelete = (id: number, prize: number) => {
     setLoadingBountyId(id);
-    GetDeleteXDR.mutate({ price: price, bountyId: id });
+    GetDeleteXDR.mutate({ prize: prize, bountyId: id });
     setLoadingBountyId(null);
   };
 
@@ -414,7 +414,7 @@ const AdminBountyPage = () => {
                             ? true
                             : false
                         }
-                        onClick={() => handleDelete(data.id, data.priceInBand)}
+                        onClick={() => handleDelete(data.id, data.prizeInBand)}
                         variant="destructive"
                       >
                         <Trash size={16} className="mr-2" />
@@ -444,10 +444,10 @@ const AdminBountyPage = () => {
                   ))}
                 </div>
                 <h1 className="mb-4 text-2xl font-extrabold text-gray-900 dark:text-white ">
-                  Price in USD : ${data?.priceInUSD}
+                  Prize in USD : ${data?.prizeInUSD}
                 </h1>
                 <h1 className="mb-4 text-2xl font-extrabold text-gray-900 dark:text-white ">
-                  Price in {PLATFROM_ASSET.code} : {data?.priceInBand}
+                  Prize in {PLATFROM_ASSET.code} : {data?.prizeInBand}
                 </h1>
                 <p className="mt-1 text-xs font-medium text-slate-600">
                   Posted on {format(new Date(data.createdAt), "MMMM dd, yyyy")}
@@ -542,7 +542,7 @@ const AdminBountyPage = () => {
                         handleWinner(
                           data.id,
                           submission.userId,
-                          data.priceInBand,
+                          data.prizeInBand,
                         )
                       }
                     >
