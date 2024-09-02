@@ -65,8 +65,8 @@ export const BountyRoute = createTRPCRouter({
             data: {
                 title: input.title,
                 description: input.content,
-                prizeInUSD: input.prizeInUSD,
-                prizeInBand: input.prize,
+                priceInUSD: input.prizeInUSD,
+                priceInBand: input.prize,
                 creatorId: ctx.session.user.id,
                 requiredBalance: input.requiredBalance,
                 imageUrls: input.medias ? input.medias.map((media) => media.url) : [],
@@ -91,9 +91,9 @@ export const BountyRoute = createTRPCRouter({
         } else if (sortBy === sortOptionEnum.DATE_DESC) {
             orderBy.createdAt = "desc";
         } else if (sortBy === sortOptionEnum.PRICE_ASC) {
-            orderBy.prizeInUSD = "asc";
+            orderBy.priceInUSD = "asc";
         } else if (sortBy === sortOptionEnum.PRICE_DESC) {
-            orderBy.prizeInUSD = "desc";
+            orderBy.priceInUSD = "desc";
         }
 
         const where: Prisma.BountyWhereInput = {
@@ -210,9 +210,9 @@ export const BountyRoute = createTRPCRouter({
         } else if (sortBy === sortOptionEnum.DATE_DESC) {
             orderBy.createdAt = "desc";
         } else if (sortBy === sortOptionEnum.PRICE_ASC) {
-            orderBy.prizeInUSD = "asc";
+            orderBy.priceInUSD = "asc";
         } else if (sortBy === sortOptionEnum.PRICE_DESC) {
-            orderBy.prizeInUSD = "desc";
+            orderBy.priceInUSD = "desc";
         }
 
         const where: Prisma.BountyWhereInput = {

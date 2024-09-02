@@ -151,10 +151,10 @@ const UserBountyPage = () => {
                 ))}
               </div>
               <h1 className="mb-4 text-2xl font-extrabold text-gray-900 dark:text-white ">
-                Prize in USD : ${data?.prizeInUSD}
+                Prize in USD : ${data?.priceInUSD}
               </h1>
               <h1 className="mb-4 text-2xl font-extrabold text-gray-900 dark:text-white ">
-                Prize in {PLATFROM_ASSET.code} : {data?.prizeInBand}
+                Prize in {PLATFROM_ASSET.code} : {data?.priceInBand}
               </h1>
               <p className="mt-1 text-xs font-medium text-slate-600">
                 Posted on {format(new Date(data.createdAt), "MMMM dd, yyyy")}
@@ -414,7 +414,7 @@ const AdminBountyPage = () => {
                             ? true
                             : false
                         }
-                        onClick={() => handleDelete(data.id, data.prizeInBand)}
+                        onClick={() => handleDelete(data.id, data.priceInBand)}
                         variant="destructive"
                       >
                         <Trash size={16} className="mr-2" />
@@ -444,10 +444,10 @@ const AdminBountyPage = () => {
                   ))}
                 </div>
                 <h1 className="mb-4 text-2xl font-extrabold text-gray-900 dark:text-white ">
-                  Prize in USD : ${data?.prizeInUSD}
+                  Prize in USD : ${data?.priceInUSD}
                 </h1>
                 <h1 className="mb-4 text-2xl font-extrabold text-gray-900 dark:text-white ">
-                  Prize in {PLATFROM_ASSET.code} : {data?.prizeInBand}
+                  Prize in {PLATFROM_ASSET.code} : {data?.priceInBand}
                 </h1>
                 <p className="mt-1 text-xs font-medium text-slate-600">
                   Posted on {format(new Date(data.createdAt), "MMMM dd, yyyy")}
@@ -542,7 +542,7 @@ const AdminBountyPage = () => {
                         handleWinner(
                           data.id,
                           submission.userId,
-                          data.prizeInBand,
+                          data.priceInBand,
                         )
                       }
                     >

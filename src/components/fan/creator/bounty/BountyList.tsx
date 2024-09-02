@@ -191,9 +191,9 @@ const BountyList = () => {
                         </dd>
                       </div>
                       <div className="relative  bg-gradient-to-r from-blue-500 via-teal-500 to-pink-500 bg-clip-text    text-transparent ">
-                        <div>Prize in $: {bounty.prizeInUSD}</div>
+                        <div>Prize in $: {bounty.priceInUSD}</div>
                         <div>
-                          prize in {PLATFROM_ASSET.code}: {bounty.prizeInBand}{" "}
+                          prize in {PLATFROM_ASSET.code}: {bounty.priceInBand}{" "}
                         </div>
                       </div>
                     </dl>

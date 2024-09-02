@@ -55,12 +55,12 @@ const BountyRightBar = () => {
 
                 <p>
                   <span className="font-semibold uppercase">
-                    Prize in USD $: {currentData.prizeInUSD}
+                    Prize in USD $: {currentData.priceInUSD}
                   </span>
                 </p>
                 <p>
                   <span className="font-semibold uppercase">
-                    Prize in {PLATFROM_ASSET.code} : {currentData.prizeInBand}
+                    Prize in {PLATFROM_ASSET.code} : {currentData.priceInBand}
                   </span>
                 </p>
                 <div className="font-semibold uppercase">

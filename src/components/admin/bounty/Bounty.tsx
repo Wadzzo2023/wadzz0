@@ -274,7 +274,7 @@ const Bounty = () => {
                               }
                               onClick={() => {
                                 handleDelete(
-                                  bounty.prizeInBand,
+                                  bounty.priceInBand,
                                   bounty.id,
                                   bounty.creatorId,
                                 );
