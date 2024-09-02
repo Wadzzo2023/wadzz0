@@ -49,9 +49,9 @@ const Bounty = () => {
     },
   });
   const handleDelete = useCallback(
-    (price: number, id: number, creatorId: string) => {
+    (prize: number, id: number, creatorId: string) => {
       setLoadingBountyId(id);
-      GetDeleteXDR.mutate({ price: price, bountyId: id, creatorId: creatorId });
+      GetDeleteXDR.mutate({ prize: prize, bountyId: id, creatorId: creatorId });
       setLoadingBountyId(null);
     },
     [GetDeleteXDR],
@@ -274,7 +274,7 @@ const Bounty = () => {
                               }
                               onClick={() => {
                                 handleDelete(
-                                  bounty.priceInBand,
+                                  bounty.prizeInBand,
                                   bounty.id,
                                   bounty.creatorId,
                                 );

@@ -23,7 +23,6 @@ import toast from "react-hot-toast";
 import { useUserStellarAcc } from "~/lib/state/wallete/stellar-balances";
 import Alert from "~/components/ui/alert";
 import { PLATFROM_ASSET } from "~/lib/stellar/constant";
-import { getPlatfromAssetPrice } from "~/lib/stellar/fan/get_token_price";
 import useNeedSign from "~/lib/hook";
 import { clientsign } from "package/connect_wallet";
 import { useSession } from "next-auth/react";
@@ -36,10 +35,10 @@ export const MediaInfo = z.object({
 
 export const BountySchema = z.object({
   title: z.string().min(1, { message: "Title can't be empty" }),
-  priceInUSD: z
+  prizeInUSD: z
     .number()
-    .min(0.00001, { message: "Price can't less than 0.00001" }),
-  price: z.number().min(0.00001, { message: "Price can't less than 0.00001" }),
+    .min(0.00001, { message: "Prize can't less than 0.00001" }),
+  prize: z.number().min(0.00001, { message: "Prize can't less than 0.00001" }),
   requiredBalance: z
     .number()
     .min(0, { message: "Required Balance can't be less than 0" }),
@@ -95,8 +94,8 @@ const CreateBounty = () => {
               setLoading(true);
               CreateBountyMutation.mutate({
                 title: getValues("title"),
-                priceInUSD: getValues("priceInUSD"),
-                price: getValues("price"),
+                prizeInUSD: getValues("prizeInUSD"),
+                prize: getValues("prize"),
                 requiredBalance: getValues("requiredBalance"),
                 content: getValues("content"),
                 medias: getValues("medias"),
@@ -132,7 +131,7 @@ const CreateBounty = () => {
     setLoading(true);
     SendBalanceToBountyMother.mutate({
       signWith: needSign(),
-      price: data.price,
+      prize: data.prize,
     });
     setLoading(false);
   };
@@ -150,8 +149,8 @@ const CreateBounty = () => {
     setMedia((prevMedia) => prevMedia.filter((_, i) => i !== index));
   };
 
-  const { data: price } = api.bounty.Bounty.getCurrentUSDFromAsset.useQuery();
-  console.log("price", price);
+  const { data: prize } = api.bounty.Bounty.getCurrentUSDFromAsset.useQuery();
+  console.log("prize", prize);
   return (
     <>
       {isCardDisabled ? (
@@ -259,39 +258,39 @@ const CreateBounty = () => {
                     </label>
                     <div className=" flex w-full flex-row  gap-2">
                       <label className=" mb-1 text-xs tracking-wide text-gray-600 sm:text-sm">
-                        Price in $USD
+                        Prize in $USD
                         <input
                           step={0.00001}
                           readOnly={loading}
                           onChange={(e) => {
                             const value = e.target.value;
-                            setValue("priceInUSD", Number(value));
-                            setValue("price", Number(value) / Number(price));
+                            setValue("prizeInUSD", Number(value));
+                            setValue("prize", Number(value) / Number(prize));
                           }}
                           className="input input-bordered   w-full"
                           type="number"
                           placeholder=""
                         />
-                        {errors.priceInUSD && (
+                        {errors.prizeInUSD && (
                           <div className="label">
                             <span className="label-text-alt text-warning">
-                              {errors.priceInUSD.message}
+                              {errors.prizeInUSD.message}
                             </span>
                           </div>
                         )}
                       </label>
                       <label className=" mb-1 text-xs tracking-wide text-gray-600 sm:text-sm">
-                        Price in {PLATFROM_ASSET.code}
+                        Prize in {PLATFROM_ASSET.code}
                         <input
                           readOnly
                           type="number"
-                          {...register("price", { valueAsNumber: true })}
+                          {...register("prize", { valueAsNumber: true })}
                           className="input input-bordered   w-full"
                         />
-                        {errors.price && (
+                        {errors.prize && (
                           <div className="label">
                             <span className="label-text-alt text-warning">
-                              {errors.price.message}
+                              {errors.prize.message}
                             </span>
                           </div>
                         )}

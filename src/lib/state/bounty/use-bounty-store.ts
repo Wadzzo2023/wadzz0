@@ -4,8 +4,8 @@ export interface BountyProps {
     id: number;
     title: string;
     description: string;
-    priceInUSD: number;
-    priceInBand: number;
+    prizeInUSD: number;
+    prizeInBand: number;
     creator: {
         name: string;
     };

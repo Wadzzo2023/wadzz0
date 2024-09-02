@@ -5,13 +5,13 @@ import { MOTHER_SECRET } from "../marketplace/SECRET";
 import { useUserStellarAcc } from "~/lib/state/wallete/stellar-balances";
 
 export async function SendBountyBalanceToMotherAccount({
-    price,
+    prize,
     signWith,
     userPubKey,
     secretKey
 }: {
 
-    price: number,
+    prize: number,
 
     signWith: SignUserType,
     userPubKey: string,
@@ -29,7 +29,7 @@ export async function SendBountyBalanceToMotherAccount({
         return false;
     });
     console.log("accBalance", platformAssetBalance);
-    if (!platformAssetBalance || parseFloat(platformAssetBalance.balance) < price) {
+    if (!platformAssetBalance || parseFloat(platformAssetBalance.balance) < prize) {
         throw new Error('Balance is not enough to send the asset.');
     }
 
@@ -53,7 +53,7 @@ export async function SendBountyBalanceToMotherAccount({
         Operation.payment({
             destination: destination.publicKey(),
             asset: PLATFROM_ASSET,
-            amount: price.toFixed(7).toString(),
+            amount: prize.toFixed(7).toString(),
         })
     );
     transaction.setTimeout(0);
@@ -73,11 +73,11 @@ export async function SendBountyBalanceToMotherAccount({
 
 
 export async function SendBountyBalanceToUserAccount({
-    price,
+    prize,
     userPubKey,
 
 }: {
-    price: number,
+    prize: number,
     userPubKey: string,
 }) {
     const server = new Horizon.Server(STELLAR_URL);
@@ -90,7 +90,7 @@ export async function SendBountyBalanceToUserAccount({
         }
         return false;
     });
-    if (!platformAssetBalance || parseFloat(platformAssetBalance.balance) < price) {
+    if (!platformAssetBalance || parseFloat(platformAssetBalance.balance) < prize) {
         throw new Error('Balance is not enough to send the asset.');
     }
 
@@ -115,7 +115,7 @@ export async function SendBountyBalanceToUserAccount({
             destination: userPubKey,
             source: motherAcc.publicKey(),
             asset: PLATFROM_ASSET,
-            amount: price.toFixed(7).toString(),
+            amount: prize.toFixed(7).toString(),
         })
     );
     transaction.setTimeout(0);
@@ -127,10 +127,10 @@ export async function SendBountyBalanceToUserAccount({
 
 
 export async function SendBountyBalanceToWinner({
-    price,
+    prize,
     recipientID,
 }: {
-    price: number,
+    prize: number,
     recipientID: string,
 }) {
 
@@ -146,7 +146,7 @@ export async function SendBountyBalanceToWinner({
         }
         return false;
     });
-    if (!platformAssetBalance || parseFloat(platformAssetBalance.balance) < price) {
+    if (!platformAssetBalance || parseFloat(platformAssetBalance.balance) < prize) {
         throw new Error('Balance is not enough to send the asset.');
     }
 
@@ -184,7 +184,7 @@ export async function SendBountyBalanceToWinner({
 
         transaction.addOperation(
             Operation.createClaimableBalance({
-                amount: price.toFixed(7).toString(),
+                amount: prize.toFixed(7).toString(),
                 asset: PLATFROM_ASSET,
                 claimants: claimants,
             })
@@ -196,7 +196,7 @@ export async function SendBountyBalanceToWinner({
                 destination: recipientID,
                 source: motherAcc.publicKey(),
                 asset: PLATFROM_ASSET,
-                amount: price.toFixed(7).toString(),
+                amount: prize.toFixed(7).toString(),
             })
         );
     }
