@@ -13,6 +13,18 @@ import {
     publicProcedure,
 } from "~/server/api/trpc";
 
+const getAllBountyByUserIdInput = z.object({
+    limit: z.number().min(1).max(100).default(10),
+    cursor: z.string().uuid().nullish(),
+    search: z.string().optional(),
+    sortBy: z.enum(['DATE_ASC', 'DATE_DESC', 'PRICE_ASC', 'PRICE_DESC']).optional(),
+    status: z.enum(['ALL', 'ACTIVE', 'FINISHED']).optional(),
+});
+import { Prisma } from "@prisma/client"; // Assuming you are using Prisma
+import { sortOptionEnum, statusFilterEnum } from "~/components/fan/creator/bounty/BountyList";
+
+// Define the orderBy type for the specific query
+
 
 
 export const BountyRoute = createTRPCRouter({
@@ -65,21 +77,46 @@ export const BountyRoute = createTRPCRouter({
 
     getAllBounties: publicProcedure.input(z.object({
         limit: z.number(),
-        // cursor is a reference to the last item in the previous batch
-        // it's used to fetch the next batch
         cursor: z.number().nullish(),
         skip: z.number().optional(),
+        search: z.string().optional(),
+        sortBy: z.enum(["DATE_ASC", "DATE_DESC", "PRICE_ASC", "PRICE_DESC"]).optional(),
+        status: z.enum(["ALL", "ACTIVE", "FINISHED"]).optional(),
     })).query(async ({ input, ctx }) => {
-        const { limit, cursor, skip } = input;
+        const { limit, cursor, skip, search, sortBy, status } = input;
+
+        const orderBy: Prisma.BountyOrderByWithRelationInput = {};
+        if (sortBy === sortOptionEnum.DATE_ASC) {
+            orderBy.createdAt = "asc";
+        } else if (sortBy === sortOptionEnum.DATE_DESC) {
+            orderBy.createdAt = "desc";
+        } else if (sortBy === sortOptionEnum.PRICE_ASC) {
+            orderBy.priceInUSD = "asc";
+        } else if (sortBy === sortOptionEnum.PRICE_DESC) {
+            orderBy.priceInUSD = "desc";
+        }
+
+        const where: Prisma.BountyWhereInput = {
+            ...(search && {
+                OR: [
+                    { title: { contains: search, mode: "insensitive" } },
+                    { description: { contains: search, mode: "insensitive" } },
+                ]
+            }),
+            ...(status === statusFilterEnum.ACTIVE && {
+                winnerId: null // Bounties with no winner
+            }),
+            ...(status === statusFilterEnum.FINISHED && {
+                winnerId: { not: null } // Bounties with a winner
+            }),
+        };
 
         const bounties = await ctx.db.bounty.findMany({
             take: limit + 1,
             skip: skip,
             cursor: cursor ? { id: cursor } : undefined,
-
-            orderBy: {
-                createdAt: "desc",
-            },
+            where: where,
+            orderBy: orderBy,
             include: {
                 _count: {
                     select: {
@@ -155,19 +192,51 @@ export const BountyRoute = createTRPCRouter({
             },
         });
     }),
+
+
     getAllBountyByUserId: protectedProcedure.input(z.object({
         limit: z.number(),
         cursor: z.number().nullish(),
         skip: z.number().optional(),
+        search: z.string().optional(),
+        sortBy: z.nativeEnum(sortOptionEnum).optional(),
+        status: z.nativeEnum(statusFilterEnum).optional(),
     })).query(async ({ input, ctx }) => {
-        const { limit, cursor, skip } = input;
+        const { limit, cursor, skip, search, sortBy, status } = input;
+
+        const orderBy: Prisma.BountyOrderByWithRelationInput = {};
+        if (sortBy === sortOptionEnum.DATE_ASC) {
+            orderBy.createdAt = "asc";
+        } else if (sortBy === sortOptionEnum.DATE_DESC) {
+            orderBy.createdAt = "desc";
+        } else if (sortBy === sortOptionEnum.PRICE_ASC) {
+            orderBy.priceInUSD = "asc";
+        } else if (sortBy === sortOptionEnum.PRICE_DESC) {
+            orderBy.priceInUSD = "desc";
+        }
+
+        const where: Prisma.BountyWhereInput = {
+            creatorId: ctx.session.user.id,
+            ...(search && {
+                OR: [
+                    { title: { contains: search, mode: "insensitive" } },
+                    { description: { contains: search, mode: "insensitive" } },
+                ]
+            }),
+            ...(status === statusFilterEnum.ACTIVE && {
+                winnerId: null // Bounties with no winner
+            }),
+            ...(status === statusFilterEnum.FINISHED && {
+                winnerId: { not: null } // Bounties with a winner
+            }),
+        };
+
         const bounties = await ctx.db.bounty.findMany({
             take: limit + 1,
             skip: skip,
             cursor: cursor ? { id: cursor } : undefined,
-            where: {
-                creatorId: ctx.session.user.id,
-            }, include: {
+            where: where,
+            include: {
                 _count: {
                     select: {
                         participants: true,
@@ -184,15 +253,15 @@ export const BountyRoute = createTRPCRouter({
                     }
                 },
             },
-            orderBy: {
-                createdAt: "desc",
-            },
+            orderBy: orderBy,
         });
+
         let nextCursor: typeof cursor | undefined = undefined;
         if (bounties.length > limit) {
             const nextItem = bounties.pop();
             nextCursor = nextItem?.id;
         }
+
         return {
             bounties: bounties,
             nextCursor: nextCursor,
