@@ -15,7 +15,7 @@ export default function AllTags() {
       style={{
         scrollbarGutter: "stable",
       }}
-      className="scrollbar-style join flex w-full space-x-2 overflow-x-auto py-1"
+      className="scrollbar-style join flex w-full gap-2 space-x-2 overflow-x-auto py-1"
     >
       <input
         className="!btn join-item"
