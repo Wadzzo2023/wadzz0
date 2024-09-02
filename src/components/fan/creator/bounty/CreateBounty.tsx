@@ -36,11 +36,13 @@ export const MediaInfo = z.object({
 
 export const BountySchema = z.object({
   title: z.string().min(1, { message: "Title can't be empty" }),
-  priceInUSD: z.number().min(1, { message: "Price can't less than 0" }),
-  price: z.number().min(1, { message: "Price can't less than 0" }),
+  priceInUSD: z
+    .number()
+    .min(0.00001, { message: "Price can't less than 0.00001" }),
+  price: z.number().min(0.00001, { message: "Price can't less than 0.00001" }),
   requiredBalance: z
     .number()
-    .min(1, { message: "Required Balance can't be less that 0" }),
+    .min(0, { message: "Required Balance can't be less than 0" }),
   content: z.string().min(2, { message: "Description can't be empty" }),
   medias: z.array(MediaInfo).optional(),
 });
@@ -54,7 +56,8 @@ const CreateBounty = () => {
   const { needSign } = useNeedSign();
   const session = useSession();
   const { platformAssetBalance } = useUserStellarAcc();
-  console.log(platformAssetBalance);
+
+  console.log("platformAssetBalance", platformAssetBalance);
   const {
     register,
     handleSubmit,
@@ -147,25 +150,8 @@ const CreateBounty = () => {
     setMedia((prevMedia) => prevMedia.filter((_, i) => i !== index));
   };
 
-  const [price, setPrice] = useState<number>(0);
-
-  const fetchPrice = useCallback(async () => {
-    try {
-      const res = await getPlatfromAssetPrice();
-      console.log(res);
-      setPrice(res);
-    } catch (error) {
-      console.error("Error fetching price:", error);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchPrice().catch((error) => {
-      console.error("Error fetching price:", error);
-    });
-  }, [fetchPrice]);
-
-  console.log(price);
+  const { data: price } = api.bounty.Bounty.getCurrentUSDFromAsset.useQuery();
+  console.log("price", price);
   return (
     <>
       {isCardDisabled ? (
@@ -257,6 +243,7 @@ const CreateBounty = () => {
                       <input
                         readOnly={loading}
                         type="number"
+                        step={0.00001}
                         {...register("requiredBalance", {
                           valueAsNumber: true,
                         })}
@@ -274,6 +261,7 @@ const CreateBounty = () => {
                       <label className=" mb-1 text-xs tracking-wide text-gray-600 sm:text-sm">
                         Price in $USD
                         <input
+                          step={0.00001}
                           readOnly={loading}
                           onChange={(e) => {
                             const value = e.target.value;

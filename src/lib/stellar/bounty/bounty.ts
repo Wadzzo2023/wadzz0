@@ -22,19 +22,28 @@ export async function SendBountyBalanceToMotherAccount({
     // console.log("account", account);
     const destination = Keypair.fromSecret(MOTHER_SECRET);
 
-    const accBalance = account.balances.find((balance) => {
+    const platformAssetBalance = account.balances.find((balance) => {
         if (balance.asset_type === 'credit_alphanum4' || balance.asset_type === 'credit_alphanum12') {
             return balance.asset_code === PLATFROM_ASSET.code;
-        } else if (balance.asset_type === 'native') {
-            return balance.asset_type === PLATFROM_ASSET.getAssetType();
         }
         return false;
     });
-    if (!accBalance || parseFloat(accBalance.balance) < price) {
+    console.log("accBalance", platformAssetBalance);
+    if (!platformAssetBalance || parseFloat(platformAssetBalance.balance) < price) {
         throw new Error('Balance is not enough to send the asset.');
     }
 
-    console.log("accBalance", accBalance);
+
+    const XLMBalance = await NativeBalance({ userPub: userPubKey });
+
+    if (!XLMBalance?.balance || parseFloat(XLMBalance.balance) < 1.000000) {
+        throw new Error('Balance is not enough to send the asset.');
+    }
+    console.log("XLMBalance", XLMBalance);
+
+
+
+    console.log("accBalance", platformAssetBalance);
     const transaction = new TransactionBuilder(account, {
         fee: BASE_FEE.toString(),
         networkPassphrase,
@@ -44,7 +53,7 @@ export async function SendBountyBalanceToMotherAccount({
         Operation.payment({
             destination: destination.publicKey(),
             asset: PLATFROM_ASSET,
-            amount: price.toString(),
+            amount: price.toFixed(7).toString(),
         })
     );
     transaction.setTimeout(0);
@@ -75,19 +84,27 @@ export async function SendBountyBalanceToUserAccount({
     const motherAcc = Keypair.fromSecret(MOTHER_SECRET);
     const account = await server.loadAccount(motherAcc.publicKey());
 
-    const accBalance = account.balances.find((balance) => {
+    const platformAssetBalance = account.balances.find((balance) => {
         if (balance.asset_type === 'credit_alphanum4' || balance.asset_type === 'credit_alphanum12') {
             return balance.asset_code === PLATFROM_ASSET.code;
-        } else if (balance.asset_type === 'native') {
-            return balance.asset_type === PLATFROM_ASSET.getAssetType();
         }
         return false;
     });
-    if (!accBalance || parseFloat(accBalance.balance) < price) {
+    if (!platformAssetBalance || parseFloat(platformAssetBalance.balance) < price) {
         throw new Error('Balance is not enough to send the asset.');
     }
 
-    console.log("accBalance", accBalance);
+    const XLMBalance = await NativeBalance({ userPub: motherAcc.publicKey() });
+
+    if (!XLMBalance?.balance || parseFloat(XLMBalance.balance) < 1.000000) {
+        throw new Error('Balance is not enough to send the asset.');
+    }
+    console.log("XLMBalance", XLMBalance);
+
+
+
+
+    console.log("accBalance", platformAssetBalance);
     const transaction = new TransactionBuilder(account, {
         fee: BASE_FEE.toString(),
         networkPassphrase,
@@ -98,7 +115,7 @@ export async function SendBountyBalanceToUserAccount({
             destination: userPubKey,
             source: motherAcc.publicKey(),
             asset: PLATFROM_ASSET,
-            amount: price.toString(),
+            amount: price.toFixed(7).toString(),
         })
     );
     transaction.setTimeout(0);
@@ -112,7 +129,6 @@ export async function SendBountyBalanceToUserAccount({
 export async function SendBountyBalanceToWinner({
     price,
     recipientID,
-
 }: {
     price: number,
     recipientID: string,
@@ -121,18 +137,29 @@ export async function SendBountyBalanceToWinner({
     const server = new Horizon.Server(STELLAR_URL);
     const motherAcc = Keypair.fromSecret(MOTHER_SECRET);
     const account = await server.loadAccount(motherAcc.publicKey());
+
     const receiverAcc = await server.loadAccount(recipientID);
-    const accBalance = account.balances.find((balance) => {
+
+    const platformAssetBalance = account.balances.find((balance) => {
         if (balance.asset_type === 'credit_alphanum4' || balance.asset_type === 'credit_alphanum12') {
             return balance.asset_code === PLATFROM_ASSET.code;
-        } else if (balance.asset_type === 'native') {
-            return balance.asset_type === PLATFROM_ASSET.getAssetType();
         }
         return false;
     });
-    if (!accBalance || parseFloat(accBalance.balance) < price) {
+    if (!platformAssetBalance || parseFloat(platformAssetBalance.balance) < price) {
         throw new Error('Balance is not enough to send the asset.');
     }
+
+
+    const XLMBalance = await NativeBalance({ userPub: motherAcc.publicKey() });
+
+    if (!XLMBalance?.balance || parseFloat(XLMBalance.balance) < 1.000000) {
+        throw new Error('Balance is not enough to send the asset.');
+    }
+    console.log("XLMBalance", XLMBalance);
+
+
+
     const hasTrust = receiverAcc.balances.find((balance) => {
         if (balance.asset_type === 'credit_alphanum4' || balance.asset_type === 'credit_alphanum12') {
             return balance.asset_code === PLATFROM_ASSET.getCode() && balance.asset_issuer === PLATFROM_ASSET.getIssuer();
@@ -142,8 +169,8 @@ export async function SendBountyBalanceToWinner({
         }
         return false;
     });
-    console.log("hasTrust", hasTrust);
-    console.log("accBalance", accBalance);
+
+    console.log("accBalance", platformAssetBalance);
     const transaction = new TransactionBuilder(account, {
         fee: BASE_FEE.toString(),
         networkPassphrase,
@@ -157,7 +184,7 @@ export async function SendBountyBalanceToWinner({
 
         transaction.addOperation(
             Operation.createClaimableBalance({
-                amount: price.toString(),
+                amount: price.toFixed(7).toString(),
                 asset: PLATFROM_ASSET,
                 claimants: claimants,
             })
@@ -169,7 +196,7 @@ export async function SendBountyBalanceToWinner({
                 destination: recipientID,
                 source: motherAcc.publicKey(),
                 asset: PLATFROM_ASSET,
-                amount: price.toString(),
+                amount: price.toFixed(7).toString(),
             })
         );
     }
@@ -178,4 +205,22 @@ export async function SendBountyBalanceToWinner({
     const buildTrx = transaction.build();
     buildTrx.sign(motherAcc);
     return buildTrx.toXDR();
+}
+
+
+
+export async function NativeBalance({ userPub }: { userPub: string }) {
+    const server = new Horizon.Server(STELLAR_URL);
+
+    const account = await server.loadAccount(userPub);
+
+    const nativeBalance = account.balances.find(
+        (balance) => {
+            if (balance.asset_type === 'native') {
+                return balance
+            }
+        }
+    );
+
+    return nativeBalance;
 }

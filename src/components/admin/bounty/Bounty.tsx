@@ -49,9 +49,9 @@ const Bounty = () => {
     },
   });
   const handleDelete = useCallback(
-    (price: number, id: number) => {
+    (price: number, id: number, creatorId: string) => {
       setLoadingBountyId(id);
-      GetDeleteXDR.mutate({ price: price, bountyId: id });
+      GetDeleteXDR.mutate({ price: price, bountyId: id, creatorId: creatorId });
       setLoadingBountyId(null);
     },
     [GetDeleteXDR],
@@ -273,7 +273,11 @@ const Bounty = () => {
                                   : false
                               }
                               onClick={() => {
-                                handleDelete(bounty.priceInBand, bounty.id);
+                                handleDelete(
+                                  bounty.priceInBand,
+                                  bounty.id,
+                                  bounty.creatorId,
+                                );
                               }}
                               className="relative h-10 max-h-[40px] w-10 max-w-[40px] select-none rounded-lg text-center align-middle font-sans text-xs font-medium uppercase text-slate-900 transition-all hover:bg-slate-900/10 active:bg-slate-900/20 disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none"
                               type="button"

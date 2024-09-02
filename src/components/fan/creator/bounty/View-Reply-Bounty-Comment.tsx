@@ -22,7 +22,7 @@ export default function ViewReplyBountyComment({
   };
 }) {
   return (
-    <div className="flex h-full w-full items-start justify-between text-sm ">
+    <div className="flex items-start justify-between gap-4 text-sm ">
       <div className="flex w-full gap-2">
         <div className="h-auto w-auto rounded-full">
           <Avater className="h-12 w-12" url={comment.user.image} />

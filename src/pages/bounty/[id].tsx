@@ -462,24 +462,26 @@ const AdminBountyPage = () => {
             </h2>
           </div>
           <AddBountyComment bountyId={Number(id)} />
-          {bountyComment.data && bountyComment.data.length > 0 && (
-            <div className="mb-10 px-4">
-              <div className=" flex flex-col gap-4 rounded-lg border-2 border-base-200 ">
-                <div className=" mt-1 flex flex-col gap-4  rounded-lg p-2">
-                  {bountyComment.data?.map((comment) => (
-                    <>
-                      <ViewBountyComment
-                        key={comment.id}
-                        comment={comment}
-                        bountyChildComments={comment.bountyChildComments}
-                      />
-                      <Separator />
-                    </>
-                  ))}
+          <div className="max-h-[650px]">
+            {bountyComment.data && bountyComment.data.length > 0 && (
+              <div className="mb-10 px-4">
+                <div className=" flex flex-col gap-4 rounded-lg border-2 border-base-200 ">
+                  <div className=" mt-1 flex flex-col gap-2  rounded-lg p-2">
+                    {bountyComment.data?.map((comment) => (
+                      <>
+                        <ViewBountyComment
+                          key={comment.id}
+                          comment={comment}
+                          bountyChildComments={comment.bountyChildComments}
+                        />
+                        <Separator />
+                      </>
+                    ))}
+                  </div>
                 </div>
               </div>
-            </div>
-          )}
+            )}
+          </div>
 
           <div className="mt-2 p-2">
             <h1 className="mt-4 text-center text-3xl font-extrabold text-gray-900 dark:text-white  lg:text-4xl">

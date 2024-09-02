@@ -39,7 +39,7 @@ const BountySchema = z.object({
   title: z.string().min(1, { message: "Title can't be empty" }),
   requiredBalance: z
     .number()
-    .min(1, { message: "Required Balance can't be less that 0" }),
+    .min(0, { message: "Required Balance can't be less than 0" }),
   content: z.string().min(2, { message: "Description can't be empty" }),
   medias: z.array(MediaInfo).optional(),
   status: z.nativeEnum(BountyStatus).optional(),
