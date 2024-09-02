@@ -37,7 +37,7 @@ export async function SendBountyBalanceToMotherAccount({
     const XLMBalance = await NativeBalance({ userPub: userPubKey });
 
     if (!XLMBalance?.balance || parseFloat(XLMBalance.balance) < 1.000000) {
-        throw new Error('Balance is not enough to send the asset.');
+        throw new Error('Please make sure you have at least 1 XLM in your account.');
     }
     console.log("XLMBalance", XLMBalance);
 
@@ -97,7 +97,7 @@ export async function SendBountyBalanceToUserAccount({
     const XLMBalance = await NativeBalance({ userPub: motherAcc.publicKey() });
 
     if (!XLMBalance?.balance || parseFloat(XLMBalance.balance) < 1.000000) {
-        throw new Error('Balance is not enough to send the asset.');
+        throw new Error('Please make sure you have at least 1 XLM in your account.');
     }
     console.log("XLMBalance", XLMBalance);
 
@@ -154,7 +154,7 @@ export async function SendBountyBalanceToWinner({
     const XLMBalance = await NativeBalance({ userPub: motherAcc.publicKey() });
 
     if (!XLMBalance?.balance || parseFloat(XLMBalance.balance) < 1.000000) {
-        throw new Error('Balance is not enough to send the asset.');
+        throw new Error('Please make sure you have at least 1 XLM in your account.');
     }
     console.log("XLMBalance", XLMBalance);
 
