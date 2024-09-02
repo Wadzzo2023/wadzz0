@@ -512,8 +512,8 @@ model Bounty {
     id              Int          @id @default(autoincrement())
     title           String
     description     String
-    prizeInUSD      Float
-    prizeInBand     Float
+    priceInUSD      Float
+    priceInBand     Float
     requiredBalance Float
     imageUrls       String[]
     createdAt       DateTime     @default(now())
