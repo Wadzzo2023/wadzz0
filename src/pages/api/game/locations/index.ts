@@ -95,14 +95,11 @@ export default async function handler(
       description: location.description ?? "No description provided",
       brand_name: location.creator.name,
       url: location.link ?? "https://app.wadzzo.com/",
-      image_url: location.image ?? "https://picsum.photos/500/500",
+      image_url: location.image ?? location.creator.profileUrl ?? wadzzoIconURL,
       collected: location.consumers.length > 0,
       collection_limit_remaining: 3,
       auto_collect: location.autoCollect,
-      brand_image_url:
-        location.creator.profileUrl ??
-        avaterIconUrl ??
-        "https://picsum.photos/100/100",
+      brand_image_url: location.creator.profileUrl ?? avaterIconUrl,
       brand_id: location.creatorId,
       public: false,
     };
@@ -117,14 +114,11 @@ export default async function handler(
       description: location.description ?? "No description provided",
       brand_name: location.creator.name,
       url: location.link ?? "https://app.wadzzo.com/",
-      image_url: location.image ?? "https://picsum.photos/500/500",
+      image_url: location.image ?? location.creator.profileUrl ?? wadzzoIconURL,
       collected: location.consumers.length > 0,
       collection_limit_remaining: 3,
       auto_collect: location.autoCollect,
-      brand_image_url:
-        location.creator.profileUrl ??
-        avaterIconUrl ??
-        "https://picsum.photos/100/100",
+      brand_image_url: location.creator.profileUrl ?? avaterIconUrl,
       brand_id: location.creatorId,
       public: true,
     };
@@ -136,3 +130,5 @@ export default async function handler(
 
   res.status(200).json({ locations: locations });
 }
+
+export const wadzzoIconURL = "https://app.wadzzo.com/images/logo.png";

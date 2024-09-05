@@ -42,11 +42,7 @@ export default async function handler(
       first_name: brand.name,
       last_name: "",
       email: "",
-      logo:
-        brand.pageAsset?.thumbnail ??
-        brand.profileUrl ??
-        avaterIconUrl ??
-        "https://picsum.photos/200/300",
+      logo: brand.pageAsset?.thumbnail ?? brand.profileUrl ?? avaterIconUrl,
       followed_by_current_user: true,
     };
   });
