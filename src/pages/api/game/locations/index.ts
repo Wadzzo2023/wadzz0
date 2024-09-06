@@ -2,7 +2,7 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { getSession } from "next-auth/react";
 import { db } from "~/server/db";
 import { Location } from "~/types/game/location";
-import { avaterIconUrl } from "../brands";
+import { avaterIconUrl as abaterIconUrl } from "../brands";
 
 // import { getSession } from "next-auth/react";
 
@@ -99,7 +99,7 @@ export default async function handler(
       collected: location.consumers.length > 0,
       collection_limit_remaining: 3,
       auto_collect: location.autoCollect,
-      brand_image_url: location.creator.profileUrl ?? avaterIconUrl,
+      brand_image_url: location.creator.profileUrl ?? abaterIconUrl,
       brand_id: location.creatorId,
       public: false,
     };
@@ -118,7 +118,7 @@ export default async function handler(
       collected: location.consumers.length > 0,
       collection_limit_remaining: 3,
       auto_collect: location.autoCollect,
-      brand_image_url: location.creator.profileUrl ?? avaterIconUrl,
+      brand_image_url: location.creator.profileUrl ?? abaterIconUrl,
       brand_id: location.creatorId,
       public: true,
     };

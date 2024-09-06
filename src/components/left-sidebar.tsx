@@ -71,7 +71,7 @@ function NavigationButtons() {
           },
         )}
       </div>
-      {/* <div className="flex   flex-col  gap-2">
+      <div className="flex   flex-col  gap-2">
         {Object.entries(BottomNavigation).map(
           ([key, { path, icon: Icon, text }]) => (
             <Link href={path} className="w-full " key={key}>
@@ -84,7 +84,7 @@ function NavigationButtons() {
             </Link>
           ),
         )}
-      </div> */}
+      </div>
     </div>
   );
 }
