@@ -1,8 +1,9 @@
 import { SignUserType, WithSing } from "../utils";
 import { BASE_FEE, Claimant, Horizon, Keypair, Networks, Operation, TransactionBuilder } from "@stellar/stellar-sdk";
-import { PLATFROM_ASSET, STELLAR_URL, networkPassphrase } from "./constant";
+import { PLATFROM_ASSET, PLATFROM_FEE, STELLAR_URL, networkPassphrase } from "./constant";
 import { MOTHER_SECRET } from "../marketplace/SECRET";
 import { useUserStellarAcc } from "~/lib/state/wallete/stellar-balances";
+import { getplatformAssetNumberForXLM } from "../fan/get_token_price";
 
 export async function SendBountyBalanceToMotherAccount({
     prize,
@@ -18,9 +19,10 @@ export async function SendBountyBalanceToMotherAccount({
     secretKey?: string | undefined
 }) {
     const server = new Horizon.Server(STELLAR_URL);
-    const account = await server.loadAccount(userPubKey);
+    const motherAcc = Keypair.fromSecret(MOTHER_SECRET);
+    const account = await server.loadAccount(motherAcc.publicKey());
     // console.log("account", account);
-    const destination = Keypair.fromSecret(MOTHER_SECRET);
+
 
     const platformAssetBalance = account.balances.find((balance) => {
         if (balance.asset_type === 'credit_alphanum4' || balance.asset_type === 'credit_alphanum12') {
@@ -39,26 +41,30 @@ export async function SendBountyBalanceToMotherAccount({
     if (!XLMBalance?.balance || parseFloat(XLMBalance.balance) < 1.000000) {
         throw new Error('Please make sure you have at least 1 XLM in your account.');
     }
-    console.log("XLMBalance", XLMBalance);
 
-
-
-    console.log("accBalance", platformAssetBalance);
     const transaction = new TransactionBuilder(account, {
         fee: BASE_FEE.toString(),
         networkPassphrase,
     });
 
+    const totalExtraFee = 1400 * 2;
+
+
+    const totalAmount = prize + totalExtraFee + Number(PLATFROM_FEE);
+
+
     transaction.addOperation(
         Operation.payment({
-            destination: destination.publicKey(),
+            destination: motherAcc.publicKey(),
             asset: PLATFROM_ASSET,
-            amount: prize.toFixed(7).toString(),
+            amount: totalAmount.toFixed(7).toString(),
         })
     );
     transaction.setTimeout(0);
 
     const buildTrx = transaction.build();
+    buildTrx.sign(motherAcc);
+
 
     if (signWith && 'email' in signWith && secretKey) {
         const xdr = buildTrx.toXDR();
@@ -75,7 +81,6 @@ export async function SendBountyBalanceToMotherAccount({
 export async function SendBountyBalanceToUserAccount({
     prize,
     userPubKey,
-
 }: {
     prize: number,
     userPubKey: string,
@@ -99,12 +104,7 @@ export async function SendBountyBalanceToUserAccount({
     if (!XLMBalance?.balance || parseFloat(XLMBalance.balance) < 1.000000) {
         throw new Error('Please make sure you have at least 1 XLM in your account.');
     }
-    console.log("XLMBalance", XLMBalance);
 
-
-
-
-    console.log("accBalance", platformAssetBalance);
     const transaction = new TransactionBuilder(account, {
         fee: BASE_FEE.toString(),
         networkPassphrase,
@@ -170,7 +170,6 @@ export async function SendBountyBalanceToWinner({
         return false;
     });
 
-    console.log("accBalance", platformAssetBalance);
     const transaction = new TransactionBuilder(account, {
         fee: BASE_FEE.toString(),
         networkPassphrase,
@@ -179,7 +178,6 @@ export async function SendBountyBalanceToWinner({
     if (!hasTrust) {
         const claimants: Claimant[] = [
             new Claimant(recipientID, Claimant.predicateUnconditional()),
-
         ];
 
         transaction.addOperation(
@@ -192,7 +190,6 @@ export async function SendBountyBalanceToWinner({
     } else {
         transaction.addOperation(
             Operation.payment({
-
                 destination: recipientID,
                 source: motherAcc.publicKey(),
                 asset: PLATFROM_ASSET,

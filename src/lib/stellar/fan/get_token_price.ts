@@ -44,7 +44,7 @@ export async function getAssetPrice(): Promise<number> {
 
     const platformAssetInfo = response.data;
     const price = platformAssetInfo.price;
-
+    console.log("price", price);
     return price ?? 0.00231;
   } catch (error) {
     console.error(`Error fetching ${PLATFROM_ASSET.code}  price:`, error);

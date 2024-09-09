@@ -16,4 +16,4 @@ export const PLATFROM_ASSET = new Asset(
   env.NEXT_PUBLIC_ASSET_ISSUER,
 );
 
-export const PLATFROM_FEE = env.NEXT_PUBLIC_STELLAR_PUBNET ? "500" : "2";
+export const PLATFROM_FEE = env.NEXT_PUBLIC_STELLAR_PUBNET ? "3000" : "2";
