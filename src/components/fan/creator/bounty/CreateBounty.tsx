@@ -54,6 +54,7 @@ const CreateBounty = () => {
   const [loading, setLoading] = useState(false);
   const { needSign } = useNeedSign();
   const session = useSession();
+  const [prizeInAsset, setPrizeInAsset] = useState<number>(0);
   const { platformAssetBalance } = useUserStellarAcc();
 
   console.log("platformAssetBalance", platformAssetBalance);
@@ -266,6 +267,7 @@ const CreateBounty = () => {
                             const value = e.target.value;
                             setValue("prizeInUSD", Number(value));
                             setValue("prize", Number(value) / Number(prize));
+                            setPrizeInAsset(Number(value) / Number(prize));
                           }}
                           className="input input-bordered   w-full"
                           type="number"
@@ -318,9 +320,28 @@ const CreateBounty = () => {
                   </div>
                 </div>{" "}
                 <CardFooter className="flex justify-between">
-                  <Button disabled={loading} className="w-full" type="submit">
-                    Create
-                  </Button>
+                  {platformAssetBalance < prizeInAsset ? (
+                    <Alert
+                      type="error"
+                      content={`You don't have Sufficient Balance ,To  create this bounty, you need minimum ${prizeInAsset} ${PLATFROM_ASSET.code},`}
+                    />
+                  ) : (
+                    <div className="flex flex-col gap-2">
+                      <Button
+                        disabled={loading}
+                        className="w-full"
+                        type="submit"
+                      >
+                        Create
+                      </Button>
+                      <Alert
+                        type="success"
+                        content={`
+                          Note: You will be charged ${prizeInAsset} ${PLATFROM_ASSET.code} to create this bounty
+                          `}
+                      />
+                    </div>
+                  )}
                 </CardFooter>
               </form>
             </CardContent>
