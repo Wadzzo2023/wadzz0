@@ -27,6 +27,16 @@ import useNeedSign from "~/lib/hook";
 import { clientsign } from "package/connect_wallet";
 import { useSession } from "next-auth/react";
 import { clientSelect } from "~/lib/stellar/fan/utils";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogClose,
+} from "~/components/shadcn/ui/dialog";
 
 export const MediaInfo = z.object({
   url: z.string(),
@@ -41,7 +51,7 @@ export const BountySchema = z.object({
   prize: z.number().min(0.00001, { message: "Prize can't less than 0.00001" }),
   requiredBalance: z
     .number()
-    .min(0, { message: "Required Balance can't be less than 0" }),
+    .nonnegative({ message: "Required Balance can't be less than 0" }),
   content: z.string().min(2, { message: "Description can't be empty" }),
   medias: z.array(MediaInfo).optional(),
 });
@@ -56,6 +66,7 @@ const CreateBounty = () => {
   const session = useSession();
   const [prizeInAsset, setPrizeInAsset] = useState<number>(0);
   const { platformAssetBalance } = useUserStellarAcc();
+  const [isDialogOpen, setIsDialogOpen] = useState(false); // State to control modal
 
   console.log("platformAssetBalance", platformAssetBalance);
   const {
@@ -65,14 +76,17 @@ const CreateBounty = () => {
     getValues,
     reset,
 
-    formState: { errors },
+    formState: { errors, isValid },
   } = useForm<z.infer<typeof BountySchema>>({
     resolver: zodResolver(BountySchema),
+    mode: "onChange",
   });
   const utils = api.useUtils();
   const CreateBountyMutation = api.bounty.Bounty.createBounty.useMutation({
     onSuccess: async (data) => {
       toast.success("Bounty Created");
+      setIsDialogOpen(false);
+      setPrizeInAsset(0);
       utils.bounty.Bounty.getAllBounties.refetch().catch((error) => {
         console.error("Error refetching bounties", error);
       });
@@ -107,7 +121,7 @@ const CreateBounty = () => {
             } else {
               setLoading(false);
               reset();
-              toast.success("Error in signing transaction");
+              toast.error("Error in signing transaction");
               setMedia([]);
             }
           } catch (error) {
@@ -128,6 +142,7 @@ const CreateBounty = () => {
       },
     });
   const onSubmit: SubmitHandler<z.infer<typeof BountySchema>> = (data) => {
+    console.log("data", data);
     data.medias = media;
     setLoading(true);
     SendBalanceToBountyMother.mutate({
@@ -327,13 +342,49 @@ const CreateBounty = () => {
                     />
                   ) : (
                     <div className="flex flex-col gap-2">
-                      <Button
-                        disabled={loading}
-                        className="w-full"
-                        type="submit"
+                      <Dialog
+                        open={isDialogOpen}
+                        onOpenChange={setIsDialogOpen}
                       >
-                        Create
-                      </Button>
+                        <DialogTrigger asChild>
+                          <Button
+                            disabled={loading || !isValid}
+                            className="w-full"
+                          >
+                            Create
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent className="sm:max-w-[425px]">
+                          <DialogHeader>
+                            <DialogTitle>Confirmation </DialogTitle>
+                          </DialogHeader>
+                          <div>
+                            You will be charged{" "}
+                            <span className="text-red-600">
+                              {prizeInAsset} {PLATFROM_ASSET.code}
+                            </span>{" "}
+                            to create this bounty.
+                          </div>
+                          <DialogFooter className=" w-full">
+                            <div className="flex w-full gap-4  ">
+                              <DialogClose className="w-full">
+                                <Button variant="outline" className="w-full">
+                                  Cancel
+                                </Button>
+                              </DialogClose>
+                              <Button
+                                variant="destructive"
+                                type="submit"
+                                onClick={handleSubmit(onSubmit)}
+                                className="w-full"
+                              >
+                                Confirm
+                              </Button>
+                            </div>
+                          </DialogFooter>
+                        </DialogContent>
+                      </Dialog>
+
                       <Alert
                         type="success"
                         content={`
