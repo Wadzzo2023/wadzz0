@@ -32,32 +32,6 @@ export async function SendBountyBalanceToMotherAccount({
   const server = new Horizon.Server(STELLAR_URL);
   const motherAcc = Keypair.fromSecret(MOTHER_SECRET);
   const account = await server.loadAccount(motherAcc.publicKey());
-  // console.log("account", account);
-
-  const platformAssetBalance = account.balances.find((balance) => {
-    if (
-      balance.asset_type === "credit_alphanum4" ||
-      balance.asset_type === "credit_alphanum12"
-    ) {
-      return balance.asset_code === PLATFORM_ASSET.code;
-    }
-    return false;
-  });
-  console.log("accBalance", platformAssetBalance);
-  if (
-    !platformAssetBalance ||
-    parseFloat(platformAssetBalance.balance) < prize
-  ) {
-    throw new Error("Balance is not enough to send the asset.");
-  }
-
-  const XLMBalance = await NativeBalance({ userPub: userPubKey });
-
-  if (!XLMBalance?.balance || parseFloat(XLMBalance.balance) < 1.0) {
-    throw new Error(
-      "Please make sure you have at least 1 XLM in your account.",
-    );
-  }
 
   const transaction = new TransactionBuilder(account, {
     fee: TrxBaseFee,
@@ -73,6 +47,7 @@ export async function SendBountyBalanceToMotherAccount({
       destination: motherAcc.publicKey(),
       asset: PLATFORM_ASSET,
       amount: totalAmount.toFixed(7).toString(),
+      source: userPubKey,
     }),
   );
   transaction.setTimeout(0);
