@@ -416,7 +416,7 @@ const CreateBounty = () => {
                       <Alert
                         type="success"
                         content={`
-                          Note: You will be charged ${prizeInAsset} ${PLATFORM_ASSET.code} to create this bounty
+                          Note: You will be charged ${prizeInAsset + 5800} ${PLATFORM_ASSET.code} to create this bounty
                           `}
                       />
                     </div>
