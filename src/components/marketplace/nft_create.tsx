@@ -12,8 +12,11 @@ import toast from "react-hot-toast";
 import { z } from "zod";
 import {
   Dialog,
+  DialogClose,
   DialogContent,
+  DialogFooter,
   DialogHeader,
+  DialogTitle,
   DialogTrigger,
 } from "~/components/shadcn/ui/dialog";
 import useNeedSign from "~/lib/hook";
@@ -75,7 +78,7 @@ export default function NftCreate({ admin: isAdmin }: { admin?: true }) {
   if (requiredToken.isLoading) return <Loading />;
 
   if (requiredToken.data) {
-    const requiredTokenAmount = requiredToken.data + Number(PLATFORM_FEE);
+    const requiredTokenAmount = requiredToken.data;
     return (
       <NftCreateForm
         admin={isAdmin}
@@ -94,6 +97,8 @@ function NftCreateForm({
 }) {
   const session = useSession();
   const { platformAssetBalance } = useUserStellarAcc();
+  const [isOpen, setIsOpen] = useState(false);
+  const [parentIsOpen, setParentIsOpen] = useState(false);
   // pinta upload
   const [file, setFile] = useState<File>();
   const [ipfs, setCid] = useState<string>();
@@ -146,6 +151,8 @@ function NftCreateForm({
         position: "top-center",
         duration: 4000,
       });
+      setIsOpen(false);
+      setMediaUploadSuccess(false);
       reset();
     },
   });
@@ -190,11 +197,11 @@ function NftCreateForm({
 
   // Function to upload the selected file to Pinata
 
-  const onSubmit: SubmitHandler<z.infer<typeof NftFormSchema>> = (data) => {
+  const onSubmit = () => {
     if (ipfs)
       xdrMutation.mutate({
-        code: data.code,
-        limit: data.limit,
+        code: getValues("code"),
+        limit: getValues("limit"),
         signWith: needSign(isAdmin),
         ipfsHash: ipfs,
       });
@@ -289,9 +296,10 @@ function NftCreateForm({
       duration: 4000,
     });
   };
+  const loading = xdrMutation.isLoading || addAsset.isLoading || submitLoading;
   return (
     <>
-      <Dialog>
+      <Dialog open={parentIsOpen} onOpenChange={setParentIsOpen}>
         <DialogTrigger asChild>
           <Button variant="destructive">
             <PlusIcon size={16} /> Item
@@ -373,29 +381,6 @@ function NftCreateForm({
                     </label>
 
                     <div className="my-2">
-                      {/* <UploadButton
-                        endpoint="imageUploader"
-                        content={{
-                          button: "Add Thumbnail",
-                          allowedContent: "Max (4MB)",
-                        }}
-                        onClientUploadComplete={(res) => {
-                          // Do something with the response
-                          // alert("Upload Completed");
-                          const data = res[0];
-
-                          if (data?.url) {
-                            setCover(data.url);
-                            setValue("coverImgUrl", data.url);
-                          }
-                          // updateProfileMutation.mutate(res);
-                        }}
-                        onUploadError={(error: Error) => {
-                          // Do something with the error.
-                          alert(`ERROR! ${error.message}`);
-                        }}
-                      /> */}
-
                       <input
                         type="file"
                         id="file"
@@ -591,34 +576,54 @@ function NftCreateForm({
                 />
               </div>
 
-              <button
-                className="btn btn-primary"
-                type="submit"
-                disabled={
-                  xdrMutation.isLoading ||
-                  addAsset.isLoading ||
-                  submitLoading ||
-                  requiredTokenAmount > platformAssetBalance
-                }
-              >
-                {(xdrMutation.isLoading ||
-                  addAsset.isLoading ||
-                  submitLoading) && (
-                  <span className="loading loading-spinner"></span>
-                )}
-                Create Asset
-              </button>
-              {/* <input className="btn btn-primary btn-sm mt-4" type="submit" /> */}
+              <Dialog open={isOpen} onOpenChange={setIsOpen}>
+                <DialogTrigger asChild>
+                  <button
+                    className="btn btn-primary"
+                    disabled={
+                      loading || requiredTokenAmount > platformAssetBalance
+                    }
+                  >
+                    {loading && (
+                      <span className="loading loading-spinner"></span>
+                    )}
+                    Create Asset
+                  </button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-[425px]">
+                  <DialogHeader>
+                    <DialogTitle>Confirmation </DialogTitle>
+                  </DialogHeader>
+                  <div>
+                    Your account will be charged {requiredTokenAmount}{" "}
+                    <span className="text-red-600">{PLATFORM_ASSET.code}</span>{" "}
+                    to create this NFT
+                  </div>
+                  <DialogFooter className=" w-full">
+                    <div className="flex w-full gap-4  ">
+                      <DialogClose className="w-full">
+                        <Button variant="outline" className="w-full">
+                          Cancel
+                        </Button>
+                      </DialogClose>
+                      <Button
+                        variant="destructive"
+                        type="submit"
+                        onClick={() => onSubmit()}
+                        disabled={loading}
+                        className="w-full"
+                      >
+                        {loading && (
+                          <span className="loading loading-spinner" />
+                        )}
+                        Confirm
+                      </Button>
+                    </div>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
             </div>
           </form>
-
-          {/* <div className="modal-action">
-            <form method="dialog">
-              <button className="btn" onClick={handleCloseClick}>
-                Close
-              </button>
-            </form>
-          </div> */}
         </DialogContent>
       </Dialog>
     </>

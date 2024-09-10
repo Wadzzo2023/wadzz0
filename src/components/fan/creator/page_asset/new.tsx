@@ -76,6 +76,7 @@ function NewPageAssetFrom({ requiredToken }: { requiredToken: number }) {
   const mutation = api.fan.member.createCreatePageAsset.useMutation({
     onSuccess: () => {
       toast.success("Page Asset Created Successfully");
+      setIsOpen(false);
       reset();
     },
   });

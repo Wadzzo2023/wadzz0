@@ -10,6 +10,8 @@ import {
   PLATFORM_ASSET,
   PLATFORM_FEE,
   STELLAR_URL,
+  TrxBaseFee,
+  TrxBaseFeeInPlatformAsset,
   networkPassphrase,
 } from "./constant";
 import { getplatformAssetNumberForXLM } from "./fan/get_token_price";
@@ -49,17 +51,22 @@ export async function createUniAsset({
 
   // get total platform token
   const requiredAsset2refundXlm = await getplatformAssetNumberForXLM(2.5);
-  const totalAction = requiredAsset2refundXlm + Number(PLATFORM_FEE);
+  const totalAction =
+    requiredAsset2refundXlm +
+    Number(PLATFORM_FEE) +
+    Number(TrxBaseFeeInPlatformAsset);
 
   // here pubkey should be change for admin
-  const transactionInializer = await server.loadAccount(pubkey);
+  const transactionInializer = await server.loadAccount(
+    PLATFORM_MOTHER_ACC.publicKey(),
+  );
 
   const Tx1 = new TransactionBuilder(transactionInializer, {
-    fee: "200",
+    fee: TrxBaseFee,
     networkPassphrase,
   });
 
-  // is admin is creating the trx
+  // is admin is not creating the trx
   // console.log(signWith, "signWith");
   if (signWith === undefined || (signWith && !("isAdmin" in signWith))) {
     // first get action for required xlm. and platformFee
@@ -68,42 +75,45 @@ export async function createUniAsset({
         destination: PLATFORM_MOTHER_ACC.publicKey(),
         asset: PLATFORM_ASSET,
         amount: totalAction.toString(),
+        source: pubkey,
       }),
     )
 
-      // send this required xlm to storage so that it can lock new  trusting asset (0.5xlm)
-      .addOperation(
-        Operation.payment({
-          destination: asesetStorage.publicKey(),
-          asset: Asset.native(),
-          amount: "0.5",
-          source: PLATFORM_MOTHER_ACC.publicKey(),
-        }),
-      )
       // send this required xlm to creator puby so that it can lock new  trusting asset (0.5xlm)
       .addOperation(
         Operation.payment({
           destination: pubkey,
           asset: Asset.native(),
-          amount: "2",
+          amount: "0.5",
           source: PLATFORM_MOTHER_ACC.publicKey(),
         }),
       );
   }
 
-  // create issuer account
+  // send this required xlm to storage so that it can lock new  trusting asset (0.5xlm)
   Tx1.addOperation(
-    Operation.createAccount({
-      destination: issuerAcc.publicKey(),
-      startingBalance: "1.5",
-      // source: PLATFORM_MOTHER_ACC.publicKey(),
+    Operation.payment({
+      destination: asesetStorage.publicKey(),
+      asset: Asset.native(),
+      amount: "2",
+      source: PLATFORM_MOTHER_ACC.publicKey(),
     }),
   )
+
+    // create issuer account
+    .addOperation(
+      Operation.createAccount({
+        destination: issuerAcc.publicKey(),
+        startingBalance: "1.5",
+        source: asesetStorage.publicKey(),
+      }),
+    )
     //
     .addOperation(
       Operation.changeTrust({
         asset,
         limit: limit,
+        source: pubkey,
       }),
     )
     // 2
