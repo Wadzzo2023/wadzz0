@@ -24,6 +24,11 @@ import {
 } from "~/server/api/trpc";
 import { db } from "~/server/db";
 import { trustCustomPageAsset } from "~/lib/stellar/fan/trust_custom_page_asset";
+import { platform } from "os";
+import {
+  PLATFORM_FEE,
+  TrxBaseFeeInPlatformAsset,
+} from "~/lib/stellar/constant";
 
 export const trxRouter = createTRPCRouter({
   createCreatorPageAsset: protectedProcedure
@@ -274,10 +279,18 @@ export const trxRouter = createTRPCRouter({
       } else throw new Error("creator has no page asset");
     }),
 
-  getPlatformTokenPriceForXLM: publicProcedure
-    .input(z.object({ xlm: z.number() }))
+  getRequiredPlatformAsset: publicProcedure
+    .input(
+      z.object({
+        xlm: z.number(),
+        platformAsset: z
+          .number()
+          .default(Number(PLATFORM_FEE) + Number(TrxBaseFeeInPlatformAsset)),
+      }),
+    )
     .query(async ({ ctx, input }) => {
-      return await getplatformAssetNumberForXLM(input.xlm);
+      const token = await getplatformAssetNumberForXLM(input.xlm);
+      return token + input.platformAsset;
     }),
 
   trustCustomPageAssetXDR: protectedProcedure

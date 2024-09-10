@@ -27,7 +27,12 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "~/components/shadcn/ui/dialog";
-import { PLATFORM_ASSET } from "~/lib/stellar/constant";
+import {
+  PLATFORM_ASSET,
+  PLATFORM_FEE,
+  TrxBaseFee,
+  TrxBaseFeeInPlatformAsset,
+} from "~/lib/stellar/constant";
 
 export default function CreatorProfile() {
   const { data: session } = useSession();
@@ -107,7 +112,7 @@ function ConditionallyRenderMenuPage({ creator }: { creator: Creator }) {
 
 export function ValidCreateCreator({ message }: { message?: string }) {
   const { platformAssetBalance } = useUserStellarAcc();
-  const requiredToken = api.fan.trx.getPlatformTokenPriceForXLM.useQuery({
+  const requiredToken = api.fan.trx.getRequiredPlatformAsset.useQuery({
     xlm: 5,
   });
 
@@ -193,8 +198,8 @@ function CreateCreator({ requiredToken }: { requiredToken: number }) {
           </DialogHeader>
           <div>
             Your account will be charged {requiredToken}{" "}
-            <span className="text-red-600">{PLATFORM_ASSET.code}</span>
-            to be a brand.
+            <span className="text-red-600">{PLATFORM_ASSET.code}</span> to be a
+            brand.
           </div>
           <DialogFooter className=" w-full">
             <div className="flex w-full gap-4  ">

@@ -15,6 +15,7 @@ import {
   PLATFORM_FEE,
   STELLAR_URL,
   TrxBaseFee,
+  TrxBaseFeeInPlatformAsset,
 } from "../constant";
 
 export async function SendBountyBalanceToMotherAccount({
@@ -38,9 +39,8 @@ export async function SendBountyBalanceToMotherAccount({
     networkPassphrase,
   });
 
-  const totalExtraFee = 1400 * 2;
-
-  const totalAmount = prize + totalExtraFee + Number(PLATFORM_FEE);
+  const totalAmount =
+    prize + 2 * Number(TrxBaseFeeInPlatformAsset) + Number(PLATFORM_FEE);
 
   transaction.addOperation(
     Operation.payment({

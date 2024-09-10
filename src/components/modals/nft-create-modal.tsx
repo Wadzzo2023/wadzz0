@@ -67,7 +67,7 @@ export const NftFormSchema = z.object({
 });
 
 export default function NftCreate({ admin: isAdmin }: { admin?: true }) {
-  const requiredToken = api.fan.trx.getPlatformTokenPriceForXLM.useQuery({
+  const requiredToken = api.fan.trx.getRequiredPlatformAsset.useQuery({
     xlm: 2.5,
   });
 

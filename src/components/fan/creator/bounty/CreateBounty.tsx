@@ -369,7 +369,7 @@ const CreateBounty = () => {
 
                               <dl className="flex items-center justify-between gap-4 py-3">
                                 <dt className="text-base font-normal text-gray-500 dark:text-gray-400">
-                                  Frees
+                                  Fees
                                 </dt>
                                 <dd className="text-base font-medium text-green-500">
                                   5800 {PLATFORM_ASSET.code}
