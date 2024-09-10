@@ -1,7 +1,7 @@
 import { ShieldAlert } from "lucide-react";
 import Image from "next/image";
 import { twMerge } from "tailwind-merge";
-import { PLATFROM_ASSET } from "~/lib/stellar/constant";
+import { PLATFORM_ASSET } from "~/lib/stellar/constant";
 
 interface LoadingProps {
   className?: string;
@@ -27,7 +27,7 @@ export default function Loading({ className, text }: LoadingProps) {
               height={1000}
               width={1000}
               src={"/favicon.ico"}
-              alt={PLATFROM_ASSET.code}
+              alt={PLATFORM_ASSET.code}
             />
             <span className="loading" />
           </>

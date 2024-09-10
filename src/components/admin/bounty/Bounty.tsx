@@ -1,3 +1,4 @@
+/* eslint-disable */
 import Image from "next/image";
 
 import { submitSignedXDRToServer4User } from "package/connect_wallet/src/lib/stellar/trx/payment_fb_g";

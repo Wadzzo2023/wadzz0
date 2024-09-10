@@ -3,7 +3,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import axios from "axios";
 import cryptoRandomString from "crypto-random-string";
-import { CODE_ISSUER_JOINER } from "../constants";
 
 export function getFileIdClient(length?: number): string {
   return cryptoRandomString({ length: length ?? 8, type: "ascii-printable" });
@@ -41,14 +40,4 @@ export function extractHostnameFromURL(url: string): string | null {
     console.error("Invalid URL:", error);
     return null;
   }
-}
-
-export function joinCodeIssuer({
-  code,
-  issuer,
-}: {
-  code: string;
-  issuer: string;
-}) {
-  return `${code}${CODE_ISSUER_JOINER}${issuer}`;
 }

@@ -7,7 +7,7 @@ import {
   AssetDetails,
   MarketAssetType,
 } from "~/components/marketplace/market_right";
-import { PLATFROM_ASSET } from "~/lib/stellar/constant";
+import { PLATFORM_ASSET } from "~/lib/stellar/constant";
 import { api } from "~/utils/api";
 
 type PlaceMarketModalProps = {
@@ -140,7 +140,7 @@ function EditForm({ item }: { item: MarketAssetType }) {
       <form onSubmit={handleSubmit(onSubmit)}>
         <label className="form-control w-full ">
           <div className="label">
-            <span className="label-text">Price in {PLATFROM_ASSET.code}</span>
+            <span className="label-text">Price in {PLATFORM_ASSET.code}</span>
           </div>
           <input
             type="number"

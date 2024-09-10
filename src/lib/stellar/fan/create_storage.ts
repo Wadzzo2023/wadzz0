@@ -7,8 +7,8 @@ import {
 } from "@stellar/stellar-sdk";
 
 import {
-  PLATFROM_ASSET,
-  PLATFROM_FEE,
+  PLATFORM_ASSET,
+  TrxBaseFee,
   STELLAR_URL,
   networkPassphrase,
 } from "../constant";
@@ -41,12 +41,10 @@ export async function createStorageTrx({
   // total platform token r
 
   const requiredAsset2refundXlm = await getplatformAssetNumberForXLM(5);
-  const totalAction = (requiredAsset2refundXlm + Number(PLATFROM_FEE)).toFixed(
-    7,
-  );
+  const totalAction = (requiredAsset2refundXlm + Number(TrxBaseFee)).toFixed(7);
 
   const Tx1 = new TransactionBuilder(transactionInializer, {
-    fee: "200",
+    fee: TrxBaseFee,
     networkPassphrase,
   })
     // send mother required platform fee and extra
@@ -54,7 +52,7 @@ export async function createStorageTrx({
       Operation.payment({
         destination: motherAcc.publicKey(),
         amount: totalAction.toString(),
-        asset: PLATFROM_ASSET,
+        asset: PLATFORM_ASSET,
         source: pubkey,
       }),
     )
@@ -76,10 +74,10 @@ export async function createStorageTrx({
         startingBalance: "4.5", // 4 for escrow and 0.5 for trust
       }),
     )
-    .addOperation(Operation.changeTrust({ asset: PLATFROM_ASSET }))
+    .addOperation(Operation.changeTrust({ asset: PLATFORM_ASSET }))
     .addOperation(
       Operation.changeTrust({
-        asset: PLATFROM_ASSET,
+        asset: PLATFORM_ASSET,
         source: storageAcc.publicKey(),
       }),
     )

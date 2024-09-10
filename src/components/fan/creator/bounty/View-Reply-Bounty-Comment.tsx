@@ -1,15 +1,12 @@
 import { formatPostCreatedAt } from "~/utils/format-date";
 
-import React, { useState } from "react";
 import { useSession } from "next-auth/react";
+import React from "react";
 
-import { api } from "~/utils/api";
-import Image from "next/image";
-import { Button } from "~/components/shadcn/ui/button";
-import Link from "next/link";
+import { BountyComment } from "@prisma/client";
 import Avater from "~/components/ui/avater";
 import ContextMenu from "~/components/ui/context-menu";
-import { BountyComment } from "@prisma/client";
+import { api } from "~/utils/api";
 
 export default function ViewReplyBountyComment({
   comment,

@@ -1,6 +1,5 @@
 import { Horizon } from "@stellar/stellar-sdk";
-import { SITE_ASSET_OBJ } from "./constant";
-import { STROOP, STELLAR_URL } from "../constant";
+import { PLATFORM_ASSET, STELLAR_URL, STROOP } from "../../constant";
 
 export function checkSiteAssetBalance(accRes: Horizon.AccountResponse) {
   for (const balance of accRes.balances) {
@@ -9,8 +8,8 @@ export function checkSiteAssetBalance(accRes: Horizon.AccountResponse) {
       balance.asset_type === "credit_alphanum4"
     ) {
       if (
-        balance.asset_code == SITE_ASSET_OBJ.asset_code &&
-        balance.asset_issuer == SITE_ASSET_OBJ.asset_issuer
+        balance.asset_code == PLATFORM_ASSET.code &&
+        balance.asset_issuer == PLATFORM_ASSET.issuer
       ) {
         return balance.balance;
       }

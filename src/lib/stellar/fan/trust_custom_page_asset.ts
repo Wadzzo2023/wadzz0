@@ -7,7 +7,7 @@ import {
 } from "@stellar/stellar-sdk";
 import { env } from "~/env";
 import { SignUserType, WithSing } from "../utils";
-import { PLATFROM_ASSET, STELLAR_URL, networkPassphrase } from "../constant";
+import { PLATFORM_ASSET, STELLAR_URL, networkPassphrase } from "../constant";
 
 export async function trustCustomPageAsset({
   creator,
@@ -43,7 +43,7 @@ export async function trustCustomPageAsset({
     Operation.payment({
       amount: requiredPlatformAsset,
       destination: motherAcc.publicKey(),
-      asset: PLATFROM_ASSET,
+      asset: PLATFORM_ASSET,
     }),
   )
     .addOperation(

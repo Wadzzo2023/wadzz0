@@ -23,7 +23,7 @@ import { Button } from "~/components/shadcn/ui/button";
 import { Separator } from "~/components/shadcn/ui/separator";
 import Avater from "~/components/ui/avater";
 import useNeedSign from "~/lib/hook";
-import { PLATFROM_ASSET } from "~/lib/stellar/constant";
+import { PLATFORM_ASSET } from "~/lib/stellar/constant";
 import { api } from "~/utils/api";
 
 const SingleBountyPage = () => {
@@ -154,7 +154,7 @@ const UserBountyPage = () => {
                 Prize in USD : ${data?.priceInUSD}
               </h1>
               <h1 className="mb-4 text-2xl font-extrabold text-gray-900 dark:text-white ">
-                Prize in {PLATFROM_ASSET.code} : {data?.priceInBand}
+                Prize in {PLATFORM_ASSET.code} : {data?.priceInBand}
               </h1>
               <p className="mt-1 text-xs font-medium text-slate-600">
                 Posted on {format(new Date(data.createdAt), "MMMM dd, yyyy")}
@@ -447,7 +447,7 @@ const AdminBountyPage = () => {
                   Prize in USD : ${data?.priceInUSD}
                 </h1>
                 <h1 className="mb-4 text-2xl font-extrabold text-gray-900 dark:text-white ">
-                  Prize in {PLATFROM_ASSET.code} : {data?.priceInBand}
+                  Prize in {PLATFORM_ASSET.code} : {data?.priceInBand}
                 </h1>
                 <p className="mt-1 text-xs font-medium text-slate-600">
                   Posted on {format(new Date(data.createdAt), "MMMM dd, yyyy")}

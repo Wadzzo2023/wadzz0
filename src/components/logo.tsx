@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { twMerge } from "tailwind-merge";
-import { PLATFROM_ASSET } from "~/lib/stellar/constant";
+import { PLATFORM_ASSET } from "~/lib/stellar/constant";
 export default function Logo({ className }: { className?: string }) {
   return (
     <Link
@@ -18,7 +18,7 @@ export default function Logo({ className }: { className?: string }) {
             className,
           )}
         >
-          {PLATFROM_ASSET.code}
+          {PLATFORM_ASSET.code}
           <p className="absolute right-0 top-0 -mr-4 -mt-1 text-xs">TM</p>
         </h1>
       </div>

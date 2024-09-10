@@ -3,7 +3,7 @@ import { useRightStore } from "~/lib/state/wallete/right";
 import { useTagStore } from "~/lib/state/wallete/tag";
 import { api } from "~/utils/api";
 import { AssetVariant } from "../right-sidebar";
-import { PLATFROM_ASSET } from "~/lib/stellar/constant";
+import { PLATFORM_ASSET } from "~/lib/stellar/constant";
 
 export default function AllTags() {
   const { selectTag, selectedTag } = useTagStore();
@@ -31,10 +31,10 @@ export default function AllTags() {
       />
       <input
         className="!btn join-item"
-        key={PLATFROM_ASSET.code}
+        key={PLATFORM_ASSET.code}
         type="radio"
         name="options"
-        aria-label={PLATFROM_ASSET.code}
+        aria-label={PLATFORM_ASSET.code}
         onClick={() => {
           selectTag(AssetVariant.ADMIN);
           setData(undefined);

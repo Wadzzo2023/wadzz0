@@ -6,7 +6,7 @@ import { SubmitHandler, useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { z } from "zod";
 import { Editor } from "~/components/editor";
-import { PLATFROM_ASSET } from "~/lib/stellar/constant";
+import { PLATFORM_ASSET } from "~/lib/stellar/constant";
 import { api } from "~/utils/api";
 import {
   Dialog,
@@ -131,7 +131,7 @@ export default function AddTierModal({ creator }: { creator: Creator }) {
                 type="number"
                 step="1"
                 min="1"
-                placeholder={`Price in ${PLATFROM_ASSET.code}`}
+                placeholder={`Price in ${PLATFORM_ASSET.code}`}
               ></input>
               {errors.price && (
                 <div className="label">

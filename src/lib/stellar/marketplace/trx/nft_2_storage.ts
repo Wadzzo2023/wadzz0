@@ -6,11 +6,16 @@ import {
   Horizon,
   TransactionBuilder,
 } from "@stellar/stellar-sdk";
-import { STELLAR_URL } from "../constant";
-import { networkPassphrase } from "../constant";
 import { SignUserType, WithSing } from "../../utils";
 import { env } from "~/env";
-import { PLATFROM_ASSET, PLATFROM_FEE } from "../../constant";
+import {
+  networkPassphrase,
+  PLATFORM_ASSET,
+  PLATFORM_FEE,
+  STELLAR_URL,
+  STROOP,
+  TrxBaseFee,
+} from "../../constant";
 
 export async function sendNft2StorageXDR({
   assetCode,
@@ -34,14 +39,14 @@ export async function sendNft2StorageXDR({
   const transactionInializer = await server.loadAccount(userPub);
 
   const Tx2 = new TransactionBuilder(transactionInializer, {
-    fee: BASE_FEE,
+    fee: TrxBaseFee,
     networkPassphrase,
   })
     .addOperation(
       Operation.payment({
         destination: Keypair.fromSecret(env.MOTHER_SECRET).publicKey(),
-        amount: PLATFROM_FEE,
-        asset: PLATFROM_ASSET,
+        amount: PLATFORM_FEE,
+        asset: PLATFORM_ASSET,
       }),
     )
     //
@@ -91,8 +96,8 @@ export async function sendNftback({
     .addOperation(
       Operation.payment({
         destination: motherAcc.publicKey(),
-        amount: PLATFROM_FEE,
-        asset: PLATFROM_ASSET,
+        amount: PLATFORM_FEE,
+        asset: PLATFORM_ASSET,
       }),
     )
     .addOperation(

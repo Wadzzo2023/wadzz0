@@ -8,7 +8,7 @@ import {
   useBountyRightStore,
 } from "~/lib/state/bounty/use-bounty-store";
 import { usePopUpState } from "~/lib/state/right-pop";
-import { PLATFROM_ASSET } from "~/lib/stellar/constant";
+import { PLATFORM_ASSET } from "~/lib/stellar/constant";
 import { api } from "~/utils/api";
 import { getTailwindScreenSize } from "~/utils/clientUtils";
 import {
@@ -217,7 +217,7 @@ const Bounty = () => {
                       <div className="relative  bg-gradient-to-r from-blue-500 via-teal-500 to-pink-500 bg-clip-text    text-transparent">
                         <div>Prize in USD : ${bounty.priceInUSD}</div>
                         <div>
-                          Prize in {PLATFROM_ASSET.code}: {bounty.priceInBand}{" "}
+                          Prize in {PLATFORM_ASSET.code}: {bounty.priceInBand}{" "}
                         </div>
                       </div>
                     </dl>

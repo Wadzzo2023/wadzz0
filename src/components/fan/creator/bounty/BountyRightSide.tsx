@@ -7,7 +7,7 @@ import { Button } from "~/components/shadcn/ui/button";
 import { useBountyRightStore } from "~/lib/state/bounty/use-bounty-store";
 import { usePopUpState } from "~/lib/state/right-pop";
 import { useUserStellarAcc } from "~/lib/state/wallete/stellar-balances";
-import { PLATFROM_ASSET } from "~/lib/stellar/constant";
+import { PLATFORM_ASSET } from "~/lib/stellar/constant";
 import { api } from "~/utils/api";
 
 const BountyRightBar = () => {
@@ -60,7 +60,7 @@ const BountyRightBar = () => {
                 </p>
                 <p>
                   <span className="font-semibold uppercase">
-                    Prize in {PLATFROM_ASSET.code} : {currentData.priceInBand}
+                    Prize in {PLATFORM_ASSET.code} : {currentData.priceInBand}
                   </span>
                 </p>
                 <div className="font-semibold uppercase">
@@ -110,7 +110,7 @@ const BountyRightBar = () => {
                 </Link>
               ) : currentData.requiredBalance > platformAssetBalance ? (
                 <Button className="w-full" disabled variant={"destructive"}>
-                  Required {currentData.requiredBalance} {PLATFROM_ASSET.code}
+                  Required {currentData.requiredBalance} {PLATFORM_ASSET.code}
                 </Button>
               ) : (
                 <Button

@@ -100,8 +100,8 @@ export default function FAQ() {
         <section className="mt-12">
           <h2 className="mb-4 text-2xl font-semibold">Still have questions?</h2>
           <p className="mb-4">
-            If you couldn't find the answer you were looking for, please don't
-            hesitate to reach out to our support team.
+            If you couldn&apos;t find the answer you were looking for, please
+            don&apos;t hesitate to reach out to our support team.
           </p>
           <Link href="/contact" className="text-blue-600 hover:underline">
             Contact Us

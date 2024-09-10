@@ -4,7 +4,7 @@ import Link from "next/link";
 import { WalletType } from "package/connect_wallet/src/lib/enums";
 import { Button } from "~/components/shadcn/ui/button";
 import { useUserStellarAcc } from "~/lib/state/wallete/stellar-balances";
-import { PLATFROM_ASSET } from "~/lib/stellar/constant";
+import { PLATFORM_ASSET } from "~/lib/stellar/constant";
 import { api } from "~/utils/api";
 
 export function SiteAssetBalance() {
@@ -43,7 +43,7 @@ export function SiteAssetBalance() {
     <div className=" flex items-center justify-center gap-1 ">
       <Link href="/walletBalance" className="">
         <Button className="">
-          {PLATFROM_ASSET.code.toUpperCase() + " : "}
+          {PLATFORM_ASSET.code.toUpperCase() + " : "}
           {formatNumber(bal.data?.platformAssetBal?.toString())}
         </Button>
 

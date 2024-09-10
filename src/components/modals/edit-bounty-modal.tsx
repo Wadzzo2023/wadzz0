@@ -27,7 +27,7 @@ import {
 } from "../shadcn/ui/dialog";
 import { X } from "lucide-react"; // Import a delete icon
 
-import { PLATFROM_ASSET } from "~/lib/stellar/constant";
+import { PLATFORM_ASSET } from "~/lib/stellar/constant";
 
 export const MediaInfo = z.object({
   url: z.string(),
@@ -194,7 +194,7 @@ const EditBountyModal = () => {
                     </div>
                     <label className=" mb-1 w-full text-xs tracking-wide text-gray-600 sm:text-sm">
                       Required Balance to Join this Bounty in{" "}
-                      {PLATFROM_ASSET.code}
+                      {PLATFORM_ASSET.code}
                       <input
                         type="number"
                         {...register("requiredBalance", {

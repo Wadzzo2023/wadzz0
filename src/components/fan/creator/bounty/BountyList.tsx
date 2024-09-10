@@ -3,7 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Preview } from "~/components/preview";
-import { PLATFROM_ASSET } from "~/lib/stellar/constant";
+import { PLATFORM_ASSET } from "~/lib/stellar/constant";
 
 import { api } from "~/utils/api";
 
@@ -193,7 +193,7 @@ const BountyList = () => {
                       <div className="relative  bg-gradient-to-r from-blue-500 via-teal-500 to-pink-500 bg-clip-text    text-transparent ">
                         <div>Prize in $: {bounty.priceInUSD}</div>
                         <div>
-                          prize in {PLATFROM_ASSET.code}: {bounty.priceInBand}{" "}
+                          prize in {PLATFORM_ASSET.code}: {bounty.priceInBand}{" "}
                         </div>
                       </div>
                     </dl>
