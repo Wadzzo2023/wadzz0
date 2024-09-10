@@ -2,6 +2,16 @@ import React from "react";
 import { api } from "~/utils/api";
 import { Button } from "../shadcn/ui/button";
 import toast from "react-hot-toast";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "~/components/shadcn/ui/dialog";
+import { set } from "lodash";
 
 export default function AdminsList() {
   const admins = api.wallate.admin.admins.useQuery();
@@ -36,19 +46,59 @@ export default function AdminsList() {
 }
 
 function DeleteAdminButton({ admin }: { admin: string }) {
+  const [isOpen, setIsOpen] = React.useState(false);
   const deleteAdmin = api.wallate.admin.deleteAdmin.useMutation({
-    onSuccess: () => toast.success("Admin deleted"),
+    onSuccess: () => {
+      toast.success("Admin deleted");
+      setIsOpen(false);
+    },
   });
   return (
-    <Button
-      onClick={() => {
-        deleteAdmin.mutate(admin);
-      }}
-    >
-      {deleteAdmin.isLoading && (
-        <span className="loading loading-spinner"></span>
-      )}
-      Delete
-    </Button>
+    <>
+      <Dialog open={isOpen} onOpenChange={setIsOpen}>
+        <DialogTrigger asChild>
+          <Button>
+            {deleteAdmin.isLoading && (
+              <span className="loading loading-spinner"></span>
+            )}
+            Delete
+          </Button>
+        </DialogTrigger>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Confirmation </DialogTitle>
+          </DialogHeader>
+          <div>
+            <p>
+              Are you sure you want to delete this admin? This action is
+              irreversible.
+            </p>
+          </div>
+          <DialogFooter className=" w-full">
+            <div className="flex w-full gap-4  ">
+              <DialogClose className="w-full">
+                <Button variant="outline" className="w-full">
+                  Cancel
+                </Button>
+              </DialogClose>
+              <Button
+                variant="destructive"
+                type="submit"
+                onClick={() => {
+                  deleteAdmin.mutate(admin);
+                }}
+                disabled={deleteAdmin.isLoading}
+                className="w-full"
+              >
+                {deleteAdmin.isLoading && (
+                  <span className="loading loading-spinner" />
+                )}
+                Confirm
+              </Button>
+            </div>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
