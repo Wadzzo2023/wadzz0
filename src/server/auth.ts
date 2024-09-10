@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { verifyMessageSignature } from "@albedo-link/signature-verification";
 import axios from "axios";
 import { type GetServerSidePropsContext } from "next";

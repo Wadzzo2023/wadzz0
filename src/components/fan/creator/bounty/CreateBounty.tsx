@@ -51,7 +51,8 @@ export const BountySchema = z.object({
   prize: z.number().min(0.00001, { message: "Prize can't less than 0.00001" }),
   requiredBalance: z
     .number()
-    .nonnegative({ message: "Required Balance can't be less than 0" }),
+    .nonnegative({ message: "Required Balance can't be less than 0" })
+    .optional(),
   content: z.string().min(2, { message: "Description can't be empty" }),
   medias: z.array(MediaInfo).optional(),
 });
@@ -111,7 +112,7 @@ const CreateBounty = () => {
                 title: getValues("title"),
                 prizeInUSD: getValues("prizeInUSD"),
                 prize: getValues("prize"),
-                requiredBalance: getValues("requiredBalance"),
+                requiredBalance: getValues("requiredBalance") ?? 0,
                 content: getValues("content"),
                 medias: getValues("medias"),
               });
@@ -252,26 +253,7 @@ const CreateBounty = () => {
                         </div>
                       ))}
                     </div>
-                    <label className=" mb-1 w-full text-xs tracking-wide text-gray-600 sm:text-sm">
-                      Required Balance to Join this Bounty in{" "}
-                      {PLATFROM_ASSET.code}
-                      <input
-                        readOnly={loading}
-                        type="number"
-                        step={0.00001}
-                        {...register("requiredBalance", {
-                          valueAsNumber: true,
-                        })}
-                        className="input input-bordered   w-full"
-                      />
-                      {errors.requiredBalance && (
-                        <div className="label">
-                          <span className="label-text-alt text-warning">
-                            {errors.requiredBalance.message}
-                          </span>
-                        </div>
-                      )}
-                    </label>
+
                     <div className=" flex w-full flex-row  gap-2">
                       <label className=" mb-1 text-xs tracking-wide text-gray-600 sm:text-sm">
                         Prize in $USD
@@ -313,6 +295,27 @@ const CreateBounty = () => {
                         )}
                       </label>
                     </div>
+
+                    <label className=" mb-1 w-full text-xs tracking-wide text-gray-600 sm:text-sm">
+                      Required Balance to Join this Bounty in{" "}
+                      {PLATFROM_ASSET.code}
+                      <input
+                        readOnly={loading}
+                        type="number"
+                        step={0.00001}
+                        {...register("requiredBalance", {
+                          valueAsNumber: true,
+                        })}
+                        className="input input-bordered   w-full"
+                      />
+                      {errors.requiredBalance && (
+                        <div className="label">
+                          <span className="label-text-alt text-warning">
+                            {errors.requiredBalance.message}
+                          </span>
+                        </div>
+                      )}
+                    </label>
                     <UploadButton
                       disabled={media.length >= 4 || isCardDisabled || loading}
                       endpoint="imageUploader"
