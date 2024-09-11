@@ -52,7 +52,7 @@ export default function ImageVideViewer({
       // sizes={sizes ?? "100"}
       height={1000}
       width={1000}
-      alt={code}
+      alt={code ?? "image"}
       style={{
         backgroundColor: color ?? undefined,
         height: "100%",

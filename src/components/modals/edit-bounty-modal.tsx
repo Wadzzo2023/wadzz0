@@ -13,7 +13,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Editor } from "~/components/editor";
 import { BountyStatus, MediaType } from "@prisma/client";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import { UploadButton } from "~/utils/uploadthing";
 import { api } from "~/utils/api";
@@ -51,9 +51,10 @@ const EditBountyModal = () => {
   const isModalOpen = isOpen && type === "edit bounty";
   const [media, setMedia] = useState<MediaInfoType[]>([]);
 
-  const { data: CurrentBounty } = api.bounty.Bounty.getBountyByID.useQuery({
-    BountyId: data.bountyId ?? 0,
-  });
+  const { data: CurrentBounty, isLoading: CurrentBountyIsLoading } =
+    api.bounty.Bounty.getBountyByID.useQuery({
+      BountyId: data.bountyId ?? 0,
+    });
 
   const {
     register,
@@ -61,24 +62,32 @@ const EditBountyModal = () => {
     setValue,
     getValues,
     reset,
-
     formState: { errors },
   } = useForm<z.infer<typeof BountySchema>>({
     resolver: zodResolver(BountySchema),
+    defaultValues: useMemo(() => {
+      return {
+        title: CurrentBounty?.title,
+        content: CurrentBounty?.description,
+        requiredBalance: CurrentBounty?.requiredBalance,
+        status: CurrentBounty?.status,
+      };
+    }, [CurrentBounty]),
   });
-
+  const utils = api.useUtils();
   const updateBountyMutation = api.bounty.Bounty.updateBounty.useMutation({
     onSuccess: () => {
-      reset();
+      utils.bounty.Bounty.getBountyByID
+        .refetch()
+        .catch((e) => console.error(e));
+      handleClose();
       toast.success("Bounty Updated");
       setMedia([]);
-      handleClose();
     },
   });
 
   const onSubmit: SubmitHandler<z.infer<typeof BountySchema>> = (data) => {
     data.medias = media;
-
     updateBountyMutation.mutate({
       BountyId: bountyId ?? 0,
       title: data.title,
@@ -107,16 +116,8 @@ const EditBountyModal = () => {
         url: url,
       }));
       setMedia(initialMedia);
-
-      reset({
-        title: CurrentBounty?.title,
-        content: CurrentBounty?.description,
-        requiredBalance: CurrentBounty?.requiredBalance,
-        medias: initialMedia, // Set the default medias value
-        status: CurrentBounty?.status,
-      });
     }
-  }, [CurrentBounty, reset]);
+  }, [CurrentBounty]);
 
   const handleClose = () => {
     reset();
@@ -141,6 +142,7 @@ const EditBountyModal = () => {
               >
                 <label className="form-control w-full ">
                   <input
+                    defaultValue={CurrentBounty ? CurrentBounty.title : ""}
                     type="text"
                     placeholder="Add a Title..."
                     {...register("title")}
@@ -157,7 +159,7 @@ const EditBountyModal = () => {
                 <label className="h-[240px]">
                   <Editor
                     height="200px"
-                    value={getValues("content")}
+                    value={getValues("content") ?? CurrentBounty?.description}
                     onChange={handleEditorChange}
                     placeholder="Add a Description..."
                   />
@@ -197,6 +199,7 @@ const EditBountyModal = () => {
                       {PLATFROM_ASSET.code}
                       <input
                         type="number"
+                        defaultValue={CurrentBounty?.requiredBalance}
                         {...register("requiredBalance", {
                           valueAsNumber: true,
                         })}

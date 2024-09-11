@@ -1,8 +1,18 @@
 import { format } from "date-fns";
+import { Award, CheckCircle, XCircle } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { CardFooter } from "package/connect_wallet/src/shadcn/ui/card";
 import { useEffect, useState } from "react";
 import { Preview } from "~/components/preview";
+import { Badge } from "~/components/shadcn/ui/badge";
+import { Button } from "~/components/shadcn/ui/button";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "~/components/shadcn/ui/card";
 import { PLATFROM_ASSET } from "~/lib/stellar/constant";
 
 import { api } from "~/utils/api";
@@ -63,9 +73,6 @@ const BountyList = () => {
   return (
     <div className="p-4">
       <div>
-        <div>
-          <h2 className="mb-5 text-center text-2xl font-bold">Bounty</h2>
-        </div>
         <div className="flex flex-col gap-2 md:grid md:grid-cols-2">
           <div className="">
             <form className="">
@@ -115,7 +122,7 @@ const BountyList = () => {
           </div>
         </div>
       </div>
-      <div className="flex flex-col gap-2">
+      {/* <div className="flex flex-col gap-2">
         {getAllBounty.data &&
           getAllBounty.data.pages[0]?.bounties.length === 0 && (
             <p className="w-full text-center">There is no page asset yet</p>
@@ -203,6 +210,107 @@ const BountyList = () => {
             ))}
           </>
         ))}
+        <div className="mt-5">
+          {getAllBounty.hasNextPage && (
+            <button
+              className="btn btn-outline btn-primary"
+              onClick={() => void getAllBounty.fetchNextPage()}
+            >
+              Load More
+            </button>
+          )}
+        </div>
+      </div> */}
+
+      <div className="w-full md:py-8">
+        <h1 className="mb-6 text-3xl font-bold">Available Bounties</h1>
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {getAllBounty.data &&
+            getAllBounty.data.pages[0]?.bounties.length === 0 && (
+              <p className="w-full text-center">There is no page asset yet</p>
+            )}
+          {getAllBounty.data?.pages.map((page) => (
+            <>
+              {page.bounties.map((bounty) => (
+                <>
+                  <Link href={`/bounty/${bounty.id}`} key={bounty.id}>
+                    <Card key={bounty.id} className="flex flex-col">
+                      <CardHeader>
+                        <div className="relative">
+                          <Image
+                            src={bounty.imageUrls[0] ?? "/images/logo.png"}
+                            alt={bounty.title}
+                            width={200}
+                            height={100}
+                            className="h-40 w-full rounded-t-lg object-cover"
+                          />
+                          <Badge
+                            variant={
+                              bounty.status === "APPROVED"
+                                ? "default"
+                                : "destructive"
+                            }
+                            className="absolute right-2 top-2"
+                          >
+                            {bounty.status === "APPROVED"
+                              ? "Approved"
+                              : "Pending"}
+                          </Badge>
+                        </div>
+                        <CardTitle className="mt-4">{bounty.title}</CardTitle>
+                      </CardHeader>
+                      <CardContent className="flex-grow">
+                        <div className="mb-4">
+                          <span className="font-semibold">Prize Pool:</span>{" "}
+                          {bounty.priceInUSD} USD ({bounty.priceInBand}{" "}
+                          {PLATFROM_ASSET.code})
+                        </div>
+                        <div>
+                          <span className="font-semibold">Requirements:</span>
+                          <ul className="mt-2 list-inside list-disc">
+                            {
+                              <Preview
+                                value={bounty.description.slice(0, 200)}
+                              />
+                            }
+                          </ul>
+                        </div>
+                      </CardContent>
+                      <CardFooter className="flex items-center justify-between">
+                        <div className="flex items-center">
+                          <Badge variant="secondary" className="mr-2">
+                            {bounty._count.participants} participants
+                          </Badge>
+                          <div className="flex items-center justify-between">
+                            <Badge
+                              variant={
+                                bounty.winner ? "destructive" : "default"
+                              }
+                            >
+                              {bounty.winner ? "Finished" : "Active"}
+                            </Badge>
+                            {bounty.winner && (
+                              <div className="flex items-center">
+                                <Award className="mr-1 h-4 w-4 text-yellow-500" />
+                                <span className="mr-2 text-sm font-medium">
+                                  Winner:
+                                </span>
+
+                                <span className="text-sm">
+                                  {bounty.winner.name}
+                                </span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </CardFooter>
+                    </Card>
+                  </Link>
+                </>
+              ))}
+            </>
+          ))}
+        </div>
         <div className="mt-5">
           {getAllBounty.hasNextPage && (
             <button

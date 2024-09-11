@@ -25,7 +25,6 @@ export function AddBountyComment({ bountyId }: { bountyId: number }) {
     register,
     handleSubmit,
     reset,
-    control,
     watch,
     formState: { errors },
   } = useForm<z.infer<typeof BountyCommentSchema>>({
@@ -47,7 +46,7 @@ export function AddBountyComment({ bountyId }: { bountyId: number }) {
           <div className="flex items-center  gap-2">
             <textarea
               {...register("content")}
-              className="textarea textarea-bordered h-10 w-full"
+              className="textarea textarea-bordered h-10 w-full resize-none"
             />
             <button
               disabled={

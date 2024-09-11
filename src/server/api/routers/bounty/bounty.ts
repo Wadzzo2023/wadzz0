@@ -317,6 +317,14 @@ export const BountyRoute = createTRPCRouter({
                         },
                         content: true
                     }
+                },
+                _count: {
+                    select: {
+                        participants: true,
+                        submissions: true,
+                        comments: true
+                    }
+
                 }
 
             },
