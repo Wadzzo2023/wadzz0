@@ -8,8 +8,7 @@ import {
 } from "@stellar/stellar-sdk";
 import { networkPassphrase } from "./create_song_token";
 import { SignUserType, WithSing } from "../../utils";
-import { STROOP } from "../../marketplace/constant";
-import { PLATFROM_ASSET, PLATFROM_FEE, STELLAR_URL } from "../../constant";
+import { PLATFORM_ASSET, PLATFORM_FEE, STELLAR_URL } from "../../constant";
 import { env } from "~/env";
 
 const log = console;
@@ -59,7 +58,7 @@ export async function XDR4BuyAsset({
       Operation.payment({
         destination: seller,
         amount: price,
-        asset: PLATFROM_ASSET,
+        asset: PLATFORM_ASSET,
         source: buyer,
       }),
     );
@@ -86,8 +85,8 @@ export async function XDR4BuyAsset({
     // pay fee for platform
     .addOperation(
       Operation.payment({
-        asset: PLATFROM_ASSET,
-        amount: PLATFROM_FEE,
+        asset: PLATFORM_ASSET,
+        amount: PLATFORM_FEE,
         destination: Keypair.fromSecret(env.MOTHER_SECRET).publicKey(),
       }),
     )

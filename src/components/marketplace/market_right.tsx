@@ -10,6 +10,18 @@ import BuyModal from "../music/modal/buy_modal";
 import ImageVideViewer from "../wallete/Image_video_viewer";
 import MyError from "../wallete/my_error";
 
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "~/components/shadcn/ui/dialog";
+import { Button } from "../shadcn/ui/button";
+import { set } from "lodash";
+
 export type AssetType = Omit<Asset, "issuerPrivate">;
 
 export type MarketAssetType = MarketAsset & {
@@ -290,20 +302,58 @@ function TakeBack() {
 
 function DeleteAssetByAdmin({ id }: { id: number }) {
   const { setData } = useMarketRightStore();
+  const [isOpen, setIsOpen] = useState(false);
   const admin = api.wallate.admin.checkAdmin.useQuery();
   const del = api.marketplace.market.deleteMarketAsset.useMutation({
     onSuccess: () => {
       setData(undefined);
+      setIsOpen(false);
     },
   });
 
   if (admin.data)
     return (
-      <button
-        className="btn btn-primary btn-sm w-full"
-        onClick={() => del.mutate(id)}
-      >
-        {del.isLoading && <span className="loading loading-spinner" />}Delete
-      </button>
+      <>
+        <Dialog open={isOpen} onOpenChange={setIsOpen}>
+          <DialogTrigger asChild>
+            <button className="btn btn-primary btn-sm w-full">
+              {del.isLoading && <span className="loading loading-spinner" />}
+              Delete
+            </button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+              <DialogTitle>Confirmation </DialogTitle>
+            </DialogHeader>
+            <div>
+              <p>
+                Are you sure you want to delete this item? This action is
+                irreversible.
+              </p>
+            </div>
+            <DialogFooter className=" w-full">
+              <div className="flex w-full gap-4  ">
+                <DialogClose className="w-full">
+                  <Button variant="outline" className="w-full">
+                    Cancel
+                  </Button>
+                </DialogClose>
+                <Button
+                  variant="destructive"
+                  type="submit"
+                  onClick={() => del.mutate(id)}
+                  disabled={del.isLoading}
+                  className="w-full"
+                >
+                  {del.isLoading && (
+                    <span className="loading loading-spinner" />
+                  )}
+                  Confirm
+                </Button>
+              </div>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </>
     );
 }

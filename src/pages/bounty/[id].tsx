@@ -43,7 +43,7 @@ import {
 } from "~/components/shadcn/ui/tabs";
 import Avater from "~/components/ui/avater";
 import useNeedSign from "~/lib/hook";
-import { PLATFROM_ASSET } from "~/lib/stellar/constant";
+import { PLATFORM_ASSET } from "~/lib/stellar/constant";
 import { api } from "~/utils/api";
 
 const SingleBountyPage = () => {
@@ -729,7 +729,7 @@ const AdminBountyPage = () => {
                 </Badge>
                 <Badge variant="destructive" className="flex items-center">
                   <Trophy className="mr-1 h-4 w-4" />
-                  {data?.priceInBand} {PLATFROM_ASSET.code}
+                  {data?.priceInBand} {PLATFORM_ASSET.code}
                 </Badge>
                 <Badge variant="secondary" className="flex items-center">
                   <Users className="mr-1 h-4 w-4" />

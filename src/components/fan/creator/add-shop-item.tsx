@@ -7,7 +7,7 @@ import React, { useRef } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { z } from "zod";
-import { PLATFROM_ASSET, PLATFROM_FEE } from "~/lib/stellar/constant";
+import { PLATFORM_ASSET, PLATFORM_FEE } from "~/lib/stellar/constant";
 import { AccountSchema, clientSelect } from "~/lib/stellar/fan/utils";
 import { api } from "~/utils/api";
 import { UploadButton } from "~/utils/uploadthing";
@@ -244,7 +244,7 @@ export default function AddItem2Shop() {
         </label>
         <div className="max-w-xs">
           <Alert
-            content={`To create a Item, you'll need ${assetAmount.data} ${PLATFROM_ASSET.code} for your Asset account. Additionally, there's a platform fee of ${PLATFROM_FEE} ${PLATFROM_ASSET.code}.`}
+            content={`To create a Item, you'll need ${assetAmount.data} ${PLATFORM_ASSET.code} for your Asset account. Additionally, there's a platform fee of ${PLATFORM_FEE} ${PLATFORM_ASSET.code}.`}
           />
         </div>
       </div>

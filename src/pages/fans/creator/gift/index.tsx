@@ -1,16 +1,14 @@
-import React, { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { z } from "zod";
 import { api } from "~/utils/api";
 
-import { DollarSign, Mail, RefreshCcw } from "lucide-react";
-import toast from "react-hot-toast";
+import { DollarSign, RefreshCcw } from "lucide-react";
 import { submitSignedXDRToServer } from "package/connect_wallet";
-import { fetchPubkeyfromEmail } from "~/utils/get-pubkey";
-import Loading from "~/components/wallete/loading";
-import { PLATFROM_ASSET } from "~/lib/stellar/constant";
+import toast from "react-hot-toast";
 import Avater from "~/components/ui/avater";
+import Loading from "~/components/wallete/loading";
+import { fetchPubkeyfromEmail } from "~/utils/get-pubkey";
 
 export const FanGitFormSchema = z.object({
   pubkey: z.string().length(56),

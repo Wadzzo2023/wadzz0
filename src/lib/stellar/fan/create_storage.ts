@@ -7,15 +7,17 @@ import {
 } from "@stellar/stellar-sdk";
 
 import {
-  PLATFROM_ASSET,
-  PLATFROM_FEE,
+  PLATFORM_ASSET,
+  TrxBaseFee,
   STELLAR_URL,
   networkPassphrase,
+  TrxBaseFeeInPlatformAsset,
+  PLATFORM_FEE,
 } from "../constant";
 import { AccountType } from "./utils";
 import { SignUserType, WithSing } from "../utils";
 import { env } from "~/env";
-import { getplatformAssetNumberForXLM } from "./get_token_price";
+import { getplatformAssetNumberForXLM as getPlatformAssetNumberForXLM } from "./get_token_price";
 
 const log = console;
 
@@ -36,17 +38,18 @@ export async function createStorageTrx({
   const storageAcc = Keypair.random();
   const motherAcc = Keypair.fromSecret(env.MOTHER_SECRET);
 
-  const transactionInializer = await server.loadAccount(pubkey);
+  const transactionInializer = await server.loadAccount(motherAcc.publicKey());
 
   // total platform token r
 
-  const requiredAsset2refundXlm = await getplatformAssetNumberForXLM(5);
-  const totalAction = (requiredAsset2refundXlm + Number(PLATFROM_FEE)).toFixed(
-    7,
-  );
+  const requiredAsset2refundXlm = await getPlatformAssetNumberForXLM(5);
+  const totalAction =
+    requiredAsset2refundXlm +
+    Number(TrxBaseFeeInPlatformAsset) +
+    Number(PLATFORM_FEE);
 
   const Tx1 = new TransactionBuilder(transactionInializer, {
-    fee: "200",
+    fee: TrxBaseFee,
     networkPassphrase,
   })
     // send mother required platform fee and extra
@@ -54,7 +57,7 @@ export async function createStorageTrx({
       Operation.payment({
         destination: motherAcc.publicKey(),
         amount: totalAction.toString(),
-        asset: PLATFROM_ASSET,
+        asset: PLATFORM_ASSET,
         source: pubkey,
       }),
     )
@@ -74,12 +77,18 @@ export async function createStorageTrx({
       Operation.createAccount({
         destination: storageAcc.publicKey(),
         startingBalance: "4.5", // 4 for escrow and 0.5 for trust
+        source: pubkey,
       }),
     )
-    .addOperation(Operation.changeTrust({ asset: PLATFROM_ASSET }))
     .addOperation(
       Operation.changeTrust({
-        asset: PLATFROM_ASSET,
+        asset: PLATFORM_ASSET,
+        source: pubkey,
+      }),
+    )
+    .addOperation(
+      Operation.changeTrust({
+        asset: PLATFORM_ASSET,
         source: storageAcc.publicKey(),
       }),
     )

@@ -1,7 +1,6 @@
-import { create } from "zustand";
 import { Horizon } from "@stellar/stellar-sdk";
-import { accountBalances } from "~/lib/stellar/marketplace/test/acc";
-import { PLATFROM_ASSET } from "~/lib/stellar/constant";
+import { create } from "zustand";
+import { PLATFORM_ASSET } from "~/lib/stellar/constant";
 
 export type AccBalanceType =
   | Horizon.HorizonApi.BalanceLineNative
@@ -62,8 +61,8 @@ export const useUserStellarAcc = create<Balance>((set, get) => ({
         balance.asset_type == "credit_alphanum4"
       )
         if (
-          balance.asset_code == PLATFROM_ASSET.code &&
-          balance.asset_issuer == PLATFROM_ASSET.issuer
+          balance.asset_code == PLATFORM_ASSET.code &&
+          balance.asset_issuer == PLATFORM_ASSET.issuer
         ) {
           set({ platformAssetBalance: Number(balance.balance) });
         }

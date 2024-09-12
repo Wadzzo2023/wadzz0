@@ -3,6 +3,16 @@ import toast from "react-hot-toast";
 import { api } from "~/utils/api";
 import { Button } from "../shadcn/ui/button";
 
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "~/components/shadcn/ui/dialog";
+
 export default function UserList() {
   const users = api.admin.user.getUsers.useQuery();
 
@@ -43,19 +53,59 @@ export default function UserList() {
 }
 
 function DeleteUserButton({ user }: { user: string }) {
+  const [isOpen, setIsOpen] = React.useState(false);
   const deleteUser = api.admin.user.deleteUser.useMutation({
-    onSuccess: () => toast.success("User deleted"),
+    onSuccess: () => {
+      toast.success("User deleted");
+      setIsOpen(false);
+    },
   });
   return (
-    <Button
-      onClick={() => {
-        deleteUser.mutate(user);
-      }}
-    >
-      {deleteUser.isLoading && (
-        <span className="loading loading-spinner"></span>
-      )}
-      Delete
-    </Button>
+    <>
+      <Dialog open={isOpen} onOpenChange={setIsOpen}>
+        <DialogTrigger asChild>
+          <Button>
+            {deleteUser.isLoading && (
+              <span className="loading loading-spinner"></span>
+            )}
+            Delete
+          </Button>
+        </DialogTrigger>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Confirmation </DialogTitle>
+          </DialogHeader>
+          <div>
+            <p>
+              Are you sure you want to delete this user? This action is
+              irreversible.
+            </p>
+          </div>
+          <DialogFooter className=" w-full">
+            <div className="flex w-full gap-4  ">
+              <DialogClose className="w-full">
+                <Button variant="outline" className="w-full">
+                  Cancel
+                </Button>
+              </DialogClose>
+              <Button
+                variant="destructive"
+                type="submit"
+                onClick={() => {
+                  deleteUser.mutate(user);
+                }}
+                disabled={deleteUser.isLoading}
+                className="w-full"
+              >
+                {deleteUser.isLoading && (
+                  <span className="loading loading-spinner" />
+                )}
+                Confirm
+              </Button>
+            </div>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }

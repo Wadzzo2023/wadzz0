@@ -1,24 +1,21 @@
 import {
-  BASE_FEE,
+  Asset,
+  Horizon,
   Keypair,
   Operation,
-  Horizon,
   TransactionBuilder,
-  Asset,
-  AuthClawbackEnabledFlag,
-  AuthRevocableFlag,
 } from "@stellar/stellar-sdk";
+import { env } from "~/env";
 import {
-  PLATFROM_ASSET,
-  PLATFROM_FEE,
+  PLATFORM_ASSET,
+  PLATFORM_FEE,
   STELLAR_URL,
+  STROOP,
   networkPassphrase,
 } from "../constant";
-import { MyAssetType } from "./utils";
-import { env } from "~/env";
-import { STROOP } from "../marketplace/constant";
-import { SignUserType, WithSing } from "../utils";
 import { StellarAccount } from "../marketplace/test/Account";
+import { SignUserType, WithSing } from "../utils";
+import { MyAssetType } from "./utils";
 
 const log = console;
 // transection variables
@@ -78,15 +75,15 @@ export async function getClawbackAsPayment({
     .addOperation(
       Operation.payment({
         amount: price,
-        asset: PLATFROM_ASSET,
+        asset: PLATFORM_ASSET,
         destination: creatorId,
       }),
     )
     // sending platform fee.
     .addOperation(
       Operation.payment({
-        amount: PLATFROM_FEE,
-        asset: PLATFROM_ASSET,
+        amount: PLATFORM_FEE,
+        asset: PLATFORM_ASSET,
         destination: motherAccount.publicKey(),
       }),
     )

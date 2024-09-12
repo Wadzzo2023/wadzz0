@@ -5,9 +5,9 @@ import {
   Operation,
   TransactionBuilder,
 } from "@stellar/stellar-sdk";
-import { STELLAR_URL, networkPassphrase } from "../constant";
 import { MyAssetType } from "../fan/utils";
 import { SignUserType, WithSing } from "../utils";
+import { networkPassphrase, STELLAR_URL, TrxBaseFee } from "../constant";
 
 export async function ClaimXDR({
   asset,
@@ -32,7 +32,7 @@ export async function ClaimXDR({
   const transactionInializer = await server.loadAccount(receiver);
 
   const Tx1 = new TransactionBuilder(transactionInializer, {
-    fee: "200",
+    fee: TrxBaseFee,
     networkPassphrase,
   })
 

@@ -1,4 +1,16 @@
 "use client";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { MediaType } from "@prisma/client";
+import clsx from "clsx";
+import { X } from "lucide-react";
+import { useSession } from "next-auth/react";
+import Image from "next/image";
+import { clientsign } from "package/connect_wallet";
+import { useState } from "react";
+import { SubmitHandler, useForm } from "react-hook-form";
+import toast from "react-hot-toast";
+import { z } from "zod";
+import { Editor } from "~/components/editor";
 import { Button } from "~/components/shadcn/ui/button";
 import {
   Card,
@@ -8,35 +20,22 @@ import {
   CardHeader,
   CardTitle,
 } from "~/components/shadcn/ui/card";
-import { useForm, SubmitHandler, Controller } from "react-hook-form";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Editor } from "~/components/editor";
-import { MediaType } from "@prisma/client";
-import { Image as ImageIcon, X } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
-import Image from "next/image";
-import { UploadButton } from "~/utils/uploadthing";
-import clsx from "clsx";
-import { api } from "~/utils/api";
-import toast from "react-hot-toast";
-import { useUserStellarAcc } from "~/lib/state/wallete/stellar-balances";
-import Alert from "~/components/ui/alert";
-import { PLATFROM_ASSET } from "~/lib/stellar/constant";
-import useNeedSign from "~/lib/hook";
-import { clientsign } from "package/connect_wallet";
-import { useSession } from "next-auth/react";
-import { clientSelect } from "~/lib/stellar/fan/utils";
 import {
   Dialog,
+  DialogClose,
   DialogContent,
-  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-  DialogClose,
 } from "~/components/shadcn/ui/dialog";
+import Alert from "~/components/ui/alert";
+import useNeedSign from "~/lib/hook";
+import { useUserStellarAcc } from "~/lib/state/wallete/stellar-balances";
+import { PLATFORM_ASSET } from "~/lib/stellar/constant";
+import { clientSelect } from "~/lib/stellar/fan/utils";
+import { api } from "~/utils/api";
+import { UploadButton } from "~/utils/uploadthing";
 
 export const MediaInfo = z.object({
   url: z.string(),
@@ -51,6 +50,8 @@ export const BountySchema = z.object({
   prize: z.number().min(0.00001, { message: "Prize can't less than 0.00001" }),
   requiredBalance: z
     .number()
+    .nonnegative({ message: "Required Balance can't be less than 0" })
+    .optional(),
     .nonnegative({ message: "Required Balance can't be less than 0" })
     .optional(),
   content: z.string().min(2, { message: "Description can't be empty" }),
@@ -69,7 +70,7 @@ const CreateBounty = () => {
   const { platformAssetBalance } = useUserStellarAcc();
   const [isDialogOpen, setIsDialogOpen] = useState(false); // State to control modal
 
-  console.log("platformAssetBalance", platformAssetBalance);
+  // console.log("platformAssetBalance", platformAssetBalance);
   const {
     register,
     handleSubmit,
@@ -81,7 +82,9 @@ const CreateBounty = () => {
   } = useForm<z.infer<typeof BountySchema>>({
     resolver: zodResolver(BountySchema),
     mode: "onChange",
+    defaultValues: {},
   });
+
   const utils = api.useUtils();
   const CreateBountyMutation = api.bounty.Bounty.createBounty.useMutation({
     onSuccess: async (data) => {
@@ -174,7 +177,7 @@ const CreateBounty = () => {
         <Alert
           className="flex  items-center justify-center"
           type="error"
-          content={`You don't have Sufficient Balance ,To create storage account, you need minimum ${RequiredBalance} ${PLATFROM_ASSET.code} `}
+          content={`You don't have Sufficient Balance ,To create storage account, you need minimum ${RequiredBalance} ${PLATFORM_ASSET.code} `}
         />
       ) : (
         <div className="flex  w-full  justify-center">
@@ -279,11 +282,11 @@ const CreateBounty = () => {
                         )}
                       </label>
                       <label className=" mb-1 text-xs tracking-wide text-gray-600 sm:text-sm">
-                        Prize in {PLATFROM_ASSET.code}
+                        Prize in {PLATFORM_ASSET.code}
                         <input
                           readOnly
                           type="number"
-                          {...register("prize", { valueAsNumber: true })}
+                          {...register("prize")}
                           className="input input-bordered   w-full"
                         />
                         {errors.prize && (
@@ -341,7 +344,7 @@ const CreateBounty = () => {
                   {platformAssetBalance < prizeInAsset ? (
                     <Alert
                       type="error"
-                      content={`You don't have Sufficient Balance ,To  create this bounty, you need minimum ${prizeInAsset} ${PLATFROM_ASSET.code},`}
+                      content={`You don't have Sufficient Balance ,To  create this bounty, you need minimum ${prizeInAsset} ${PLATFORM_ASSET.code},`}
                     />
                   ) : (
                     <div className="flex flex-col gap-2">
@@ -369,16 +372,16 @@ const CreateBounty = () => {
                                     Prize
                                   </dt>
                                   <dd className="text-base font-medium text-gray-900 dark:text-white">
-                                    {prizeInAsset} {PLATFROM_ASSET.code}
+                                    {prizeInAsset} {PLATFORM_ASSET.code}
                                   </dd>
                                 </dl>
 
                                 <dl className="flex items-center justify-between gap-4 py-3">
                                   <dt className="text-base font-normal text-gray-500 dark:text-gray-400">
-                                    Frees
+                                    Fees
                                   </dt>
                                   <dd className="text-base font-medium text-green-500">
-                                    5800 {PLATFROM_ASSET.code}
+                                    5800 {PLATFORM_ASSET.code}
                                   </dd>
                                 </dl>
 
@@ -387,7 +390,7 @@ const CreateBounty = () => {
                                     Total
                                   </dt>
                                   <dd className="text-base font-bold text-gray-900 dark:text-white">
-                                    {prizeInAsset + 5800} {PLATFROM_ASSET.code}
+                                    {prizeInAsset + 5800} {PLATFORM_ASSET.code}
                                   </dd>
                                 </dl>
                               </div>
@@ -417,7 +420,7 @@ const CreateBounty = () => {
                       <Alert
                         type="success"
                         content={`
-                          Note: You will be charged ${prizeInAsset} ${PLATFROM_ASSET.code} to create this bounty
+                          Note: You will be charged ${prizeInAsset + 5800} ${PLATFORM_ASSET.code} to create this bounty
                           `}
                       />
                     </div>

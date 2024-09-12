@@ -8,7 +8,7 @@ import {
   useBountyRightStore,
 } from "~/lib/state/bounty/use-bounty-store";
 import { usePopUpState } from "~/lib/state/right-pop";
-import { PLATFROM_ASSET } from "~/lib/stellar/constant";
+import { PLATFORM_ASSET } from "~/lib/stellar/constant";
 import { api } from "~/utils/api";
 import { getTailwindScreenSize } from "~/utils/clientUtils";
 import {
@@ -176,7 +176,7 @@ const Bounty = () => {
                       <div className="mb-4">
                         <span className="font-semibold">Prize Pool:</span>{" "}
                         {bounty.priceInUSD} USD ({bounty.priceInBand}{" "}
-                        {PLATFROM_ASSET.code})
+                        {PLATFORM_ASSET.code})
                       </div>
                       <div>
                         <span className="font-semibold">Requirements:</span>

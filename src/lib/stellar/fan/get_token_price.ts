@@ -1,6 +1,6 @@
 import axios from "axios";
 import { env } from "~/env";
-import { PLATFROM_ASSET } from "../constant";
+import { PLATFORM_ASSET } from "../constant";
 
 interface PlatformAssetInfo {
   price: number;
@@ -38,7 +38,7 @@ export async function getPlatformAssetNumberForUSD(
 export async function getAssetPrice(): Promise<number> {
   try {
     const response = await axios.get<PlatformAssetInfo>(
-      `https://api.stellar.expert/explorer/${env.NEXT_PUBLIC_STELLAR_PUBNET ? "public" : "testnet"}/asset/${PLATFROM_ASSET.code}-${PLATFROM_ASSET.issuer}`,
+      `https://api.stellar.expert/explorer/${env.NEXT_PUBLIC_STELLAR_PUBNET ? "public" : "testnet"}/asset/${PLATFORM_ASSET.code}-${PLATFORM_ASSET.issuer}`,
     );
     // console.log(response.data);
 
@@ -47,7 +47,7 @@ export async function getAssetPrice(): Promise<number> {
     console.log("price", price);
     return price ?? 0.00231;
   } catch (error) {
-    console.error(`Error fetching ${PLATFROM_ASSET.code}  price:`, error);
+    console.error(`Error fetching ${PLATFORM_ASSET.code}  price:`, error);
     throw error;
   }
 }
@@ -58,7 +58,7 @@ export async function getPlatfromAssetPrice() {
 }
 
 export async function getplatformAssetNumberForXLM(xlm = 1.5) {
-  if (PLATFROM_ASSET.code === "Wadzzo") return Math.ceil(xlm * 7.69);
+  if (PLATFORM_ASSET.code === "Wadzzo") return Math.ceil(xlm * 7.69);
   const price = await getPlatfromAssetPrice();
   return Math.ceil((xlm * 0.12) / price);
 }

@@ -23,6 +23,15 @@ export default function Home() {
           name="description"
           content="A subscription-based platform that connects bands & creators with their fans on Stellar Blockchain."
         />
+        <meta property="og:title" content={env.NEXT_PUBLIC_SITE} />
+        <meta
+          property="og:description"
+          content="Connect with bands & creators on the Stellar Blockchain."
+        />
+        <meta name="keywords" content={process.env.NEXT_PUBLIC_KEYWORD} />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content={env.NEXT_PUBLIC_URL} />
+        <meta name="robots" content="index, follow" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className="p-4">
