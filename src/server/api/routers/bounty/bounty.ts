@@ -185,6 +185,9 @@ export const BountyRoute = createTRPCRouter({
         if (bounty?.participants.length) {
             throw new Error("You already joined this bounty");
         }
+        if (bounty?.creatorId === ctx.session.user.id) {
+            throw new Error("You can't join your own bounty");
+        }
         await ctx.db.bountyParticipant.create({
             data: {
                 bountyId: input.BountyId,

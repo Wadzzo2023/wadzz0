@@ -17,10 +17,12 @@ import {
 } from "~/components/shadcn/ui/select";
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogFooter,
   DialogHeader,
   DialogTitle,
+  DialogTrigger,
 } from "~/components/shadcn/ui/dialog";
 import {
   Form,
@@ -43,6 +45,7 @@ import useNeedSign from "~/lib/hook";
 import { clientSelect } from "~/lib/stellar/fan/utils";
 import { useRouter } from "next/navigation";
 
+import { addrShort } from "~/utils/utils";
 const formSchema = z.object({
   asset_code: z.string().min(1, {
     message: "Asset code Id is required.",
@@ -58,7 +61,7 @@ const formSchema = z.object({
 const AddAssets = () => {
   const { isOpen, onClose, type } = useModal();
   const isModalOpen = isOpen && type === "add assets";
-
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const session = useSession();
 
   const [loading, setLoading] = useState(false);
@@ -70,7 +73,11 @@ const AddAssets = () => {
       issuerId: "",
     },
   });
+  const {
+    formState: { errors, isValid },
+  } = form;
 
+  const utils = api.useUtils();
   const AddTrustMutation =
     api.walletBalance.wallBalance.addTrustLine.useMutation({
       onSuccess(data) {
@@ -83,6 +90,9 @@ const AddAssets = () => {
           .then((data) => {
             if (data) {
               toast.success("Added trustline successfully");
+              utils.walletBalance.wallBalance.getWalletsBalance
+                .refetch()
+                .catch((e) => console.log(e));
             } else {
               toast.error("No Data Found at TrustLine Operation");
             }
@@ -91,6 +101,7 @@ const AddAssets = () => {
             toast.error(`Error: ${e}` || "Something went wrong.");
           })
           .finally(() => {
+            setIsDialogOpen(false);
             setLoading(false);
             handleClose();
           });
@@ -177,7 +188,54 @@ const AddAssets = () => {
               />
             </div>
             <DialogFooter className="px-6 py-4">
-              <div className="flex items-center justify-end space-y-6">
+              <div className="flex flex-col gap-2">
+                <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                  <DialogTrigger asChild>
+                    <Button className="w-full" disabled={loading || !isValid}>
+                      Add Trust
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-[425px]">
+                    <DialogHeader>
+                      <DialogTitle>Confirmation </DialogTitle>
+                    </DialogHeader>
+                    <div className="mt-6 w-full space-y-6 sm:mt-8 lg:mt-0 lg:max-w-xs xl:max-w-md">
+                      <div className="flex flex-col gap-2">
+                        <p className="font-semibold">
+                          Asset Code: {form.watch("asset_code")}
+                        </p>
+                        <p className="font-semibold">
+                          Recipient Id: {addrShort(form.watch("issuerId"), 10)}
+                        </p>
+                      </div>
+                    </div>
+                    <DialogFooter className="w-full">
+                      <div className="flex w-full gap-4">
+                        <DialogClose className="w-full">
+                          <Button
+                            disabled={loading}
+                            variant="outline"
+                            onClick={() => setIsDialogOpen(false)}
+                            className="w-full"
+                          >
+                            Cancel
+                          </Button>
+                        </DialogClose>
+                        <Button
+                          disabled={loading}
+                          onClick={form.handleSubmit(onSubmit)}
+                          variant="destructive"
+                          type="submit"
+                          className="w-full"
+                        >
+                          Confirm
+                        </Button>
+                      </div>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
+              </div>
+              {/* <div className="flex items-center justify-end space-y-6">
                 <Button
                   type="submit"
                   disabled={loading}
@@ -191,7 +249,7 @@ const AddAssets = () => {
                   )}
                   {loading ? "ADDING..." : "ADD"}
                 </Button>
-              </div>
+              </div> */}
             </DialogFooter>
           </form>
         </Form>

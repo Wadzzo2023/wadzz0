@@ -232,7 +232,7 @@ const UserBountyPage = () => {
                   <Trophy className="mr-1 h-4 w-4" />
                   {data?.priceInUSD} USD
                 </Badge>
-                <Badge variant="secondary" className="flex items-center">
+                <Badge variant="destructive" className="flex items-center">
                   <Trophy className="mr-1 h-4 w-4" />
                   {data?.priceInBand} {PLATFROM_ASSET.code}
                 </Badge>
@@ -559,8 +559,8 @@ const AdminBountyPage = () => {
               <Image
                 src={data?.imageUrls[0] ?? "/images/logo.png"}
                 alt={data?.title}
-                width={10000}
-                height={10000}
+                width={1000}
+                height={1000}
                 className="h-64 w-full rounded-t-lg object-cover"
               />
 
@@ -727,7 +727,7 @@ const AdminBountyPage = () => {
                   <DollarSign className="mr-1 h-4 w-4" />
                   {data?.priceInUSD} USD
                 </Badge>
-                <Badge variant="secondary" className="flex items-center">
+                <Badge variant="destructive" className="flex items-center">
                   <Trophy className="mr-1 h-4 w-4" />
                   {data?.priceInBand} {PLATFROM_ASSET.code}
                 </Badge>

@@ -144,7 +144,10 @@ const Bounty = () => {
                     }
                   }}
                 >
-                  <Card key={bounty.id} className="flex flex-col">
+                  <Card
+                    key={bounty.id}
+                    className="flex max-h-[450px] min-h-[450px] flex-col"
+                  >
                     <CardHeader>
                       <div className="relative">
                         <Image
@@ -178,7 +181,7 @@ const Bounty = () => {
                       <div>
                         <span className="font-semibold">Requirements:</span>
                         <ul className="mt-2 list-inside list-disc">
-                          {<Preview value={bounty.description.slice(0, 200)} />}
+                          {<Preview value={bounty.description.slice(0, 100)} />}
                         </ul>
                       </div>
                     </CardContent>

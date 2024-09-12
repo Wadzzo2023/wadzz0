@@ -53,12 +53,11 @@ const BountyRightBar = () => {
             </div>
             <div className="relative flex-1 space-y-2 rounded-xl border-4 border-base-100 p-4 text-sm tracking-wider">
               <div className="flex flex-col gap-2">
-                <p>
-                  <span className="font-semibold uppercase">Title:</span>{" "}
-                  {currentData.title}
+                <p className="font-semibold uppercase">
+                  <span>Title:</span> {currentData.title}
                 </p>
 
-                <p className="line-clamp-2 ">
+                <p className="font-semibold ">
                   <b className="uppercase">Description: </b>
                   <Preview value={currentData.description} />
                 </p>

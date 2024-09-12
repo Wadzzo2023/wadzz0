@@ -234,7 +234,10 @@ const BountyList = () => {
               {page.bounties.map((bounty) => (
                 <>
                   <Link href={`/bounty/${bounty.id}`} key={bounty.id}>
-                    <Card key={bounty.id} className="flex flex-col">
+                    <Card
+                      key={bounty.id}
+                      className="flex max-h-[450px] min-h-[450px] flex-col"
+                    >
                       <CardHeader>
                         <div className="relative">
                           <Image
@@ -270,7 +273,7 @@ const BountyList = () => {
                           <ul className="mt-2 list-inside list-disc">
                             {
                               <Preview
-                                value={bounty.description.slice(0, 200)}
+                                value={bounty.description.slice(0, 100)}
                               />
                             }
                           </ul>
