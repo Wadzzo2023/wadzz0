@@ -13,7 +13,16 @@ import { useUserStellarAcc } from "~/lib/state/wallete/stellar-balances";
 import { PLATFORM_ASSET } from "~/lib/stellar/constant";
 import { clientSelect } from "~/lib/stellar/fan/utils";
 import { addrShort } from "~/utils/utils";
-
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "~/components/shadcn/ui/dialog";
+import { Button } from "~/components/shadcn/ui/button";
 type BuyModalProps = {
   item: AssetType;
   placerId?: string | null;
@@ -36,7 +45,8 @@ export default function BuyModal({
   const [xdr, setXdr] = useState<string>();
   const [isWallet, setIsWallet] = useState(true);
   const [paymentSuccess, setPaymentSuccess] = useState(false);
-
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isBuyDialogOpen, setIsBuyDialogOpen] = useState(false);
   // const { asset } = item;
   const { code, issuer } = item;
 
@@ -74,15 +84,8 @@ export default function BuyModal({
   if (!active) return null;
   return (
     <>
-      <dialog className="modal" ref={modal}>
-        <div className="modal-box">
-          <form method="dialog">
-            <button className="btn btn-circle btn-ghost btn-sm absolute right-2 top-2">
-              ✕
-            </button>
-          </form>
-          <h3 className="mb-2 text-lg font-bold">BUY</h3>
-
+      <Dialog open={isBuyDialogOpen} onOpenChange={setIsBuyDialogOpen}>
+        <DialogContent className="modal-box">
           <div className="flex flex-col items-center gap-y-2">
             <div className="flex flex-col gap-2  bg-base-200 p-10">
               <p>
@@ -145,33 +148,86 @@ export default function BuyModal({
                   )}
                 </>
               ) : (
-                <button
-                  disabled={
-                    xdrMutaion.isSuccess || !copy.isSuccess || copy.data < 1
-                  }
-                  className="btn btn-primary"
-                  onClick={() => handleXDR()}
-                >
-                  {xdrMutaion.isLoading && (
-                    <div>
-                      <span className="loading"></span>
-                    </div>
-                  )}
-                  Proceed to checkout
-                </button>
+                <div className="flex flex-col gap-2">
+                  <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                    <DialogTrigger asChild>
+                      <Button
+                        disabled={
+                          xdrMutaion.isSuccess ||
+                          !copy.isSuccess ||
+                          copy.data < 1
+                        }
+                        className="w-full"
+                      >
+                        Buy Now
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="sm:max-w-[425px]">
+                      <DialogHeader>
+                        <DialogTitle>Confirmation </DialogTitle>
+                      </DialogHeader>
+                      <div className="mt-6 w-full space-y-6 sm:mt-8 lg:mt-0 lg:max-w-xs xl:max-w-md">
+                        <div className="flow-root">
+                          <div className="-my-3 divide-y divide-gray-200 dark:divide-gray-800">
+                            <dl className="flex items-center justify-between gap-4 py-3">
+                              You are about to buy {code} for {price}{" "}
+                              {PLATFORM_ASSET.code}
+                            </dl>
+                          </div>
+                        </div>
+                      </div>
+                      <DialogFooter className=" w-full">
+                        <div className="flex w-full gap-4  ">
+                          <DialogClose className="w-full">
+                            <Button variant="outline" className="w-full">
+                              Cancel
+                            </Button>
+                          </DialogClose>
+                          <Button
+                            disabled={
+                              xdrMutaion.isSuccess ||
+                              !copy.isSuccess ||
+                              copy.data < 1
+                            }
+                            variant="destructive"
+                            type="submit"
+                            onClick={() => handleXDR()}
+                            className="w-full"
+                          >
+                            Confirm
+                          </Button>
+                        </div>
+                      </DialogFooter>
+                    </DialogContent>
+                  </Dialog>
+                </div>
+                // <button
+                //   disabled={
+                //     xdrMutaion.isSuccess || !copy.isSuccess || copy.data < 1
+                //   }
+                //   className="btn btn-primary"
+                //   onClick={() => handleXDR()}
+                // >
+                //   {xdrMutaion.isLoading && (
+                //     <div>
+                //       <span className="loading"></span>
+                //     </div>
+                //   )}
+                //   Proceed to checkout
+                // </button>
               )}
             </div>
           </div>
-          <div className="modal-action">
-            <form method="dialog">
-              <button className="btn">Close</button>
-            </form>
-          </div>
-        </div>
-      </dialog>
+          <DialogFooter>
+            <DialogClose>
+              <Button>Close</Button>
+            </DialogClose>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
       <button
         className="btn btn-primary btn-sm my-2 w-full transition duration-500 ease-in-out"
-        onClick={() => handleModal()}
+        onClick={() => setIsBuyDialogOpen(true)}
       >
         BUY
       </button>

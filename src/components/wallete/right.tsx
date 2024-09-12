@@ -11,7 +11,16 @@ import { useSearchOpenStore } from "~/lib/state/wallete/searchOpen";
 import { addrShort } from "~/utils/utils";
 import { api } from "~/utils/api";
 import MyError from "./my_error";
-
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "~/components/shadcn/ui/dialog";
+import { Button } from "../shadcn/ui/button";
 interface RightProps {
   key?: React.Key;
 }
@@ -156,6 +165,7 @@ export default Right;
 
 function DeleteWallateAsset({ id }: { id: number }) {
   const { setData } = useRightStore();
+  const [isDialogOpen, setIsDialogOpen] = React.useState(false);
   const admin = api.wallate.admin.checkAdmin.useQuery();
 
   const del = api.wallate.asset.deleteAsset.useMutation({
@@ -166,11 +176,55 @@ function DeleteWallateAsset({ id }: { id: number }) {
 
   if (admin.data)
     return (
-      <button
-        className="btn btn-primary btn-sm w-full"
-        onClick={() => del.mutate(id)}
-      >
-        {del.isLoading && <span className="loading loading-spinner" />}Delete
-      </button>
+      <div className="flex flex-col gap-2">
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <DialogTrigger asChild>
+            <button className="btn btn-primary btn-sm my-2 w-full transition duration-500 ease-in-out">
+              {del.isLoading && <span className="loading loading-spinner" />}
+              Delete
+            </button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+              <DialogTitle>Confirmation </DialogTitle>
+            </DialogHeader>
+            <div className="mt-6 w-full space-y-6 sm:mt-8 lg:mt-0 lg:max-w-xs xl:max-w-md">
+              <div className="flow-root">
+                <div className="-my-3 divide-y divide-gray-200 dark:divide-gray-800">
+                  <dl className="flex items-center justify-between gap-4 py-3">
+                    <dd className="text-base font-medium text-gray-900 dark:text-white">
+                      Do you want to disable this item from the market?
+                    </dd>
+                  </dl>
+                </div>
+              </div>
+            </div>
+            <DialogFooter className=" w-full">
+              <div className="flex w-full gap-4  ">
+                <DialogClose className="w-full">
+                  <Button variant="outline" className="w-full">
+                    Cancel
+                  </Button>
+                </DialogClose>
+                <Button
+                  disabled={del.isLoading}
+                  variant="destructive"
+                  type="submit"
+                  onClick={() => del.mutate(id)}
+                  className="w-full"
+                >
+                  Confirm
+                </Button>
+              </div>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </div>
+      // <button
+      //   className="btn btn-primary btn-sm w-full"
+      //   onClick={() => del.mutate(id)}
+      // >
+      //   {del.isLoading && <span className="loading loading-spinner" />}Delete
+      // </button>
     );
 }

@@ -52,8 +52,7 @@ export const BountySchema = z.object({
     .number()
     .nonnegative({ message: "Required Balance can't be less than 0" })
     .optional(),
-    .nonnegative({ message: "Required Balance can't be less than 0" })
-    .optional(),
+
   content: z.string().min(2, { message: "Description can't be empty" }),
   medias: z.array(MediaInfo).optional(),
 });
@@ -301,7 +300,7 @@ const CreateBounty = () => {
 
                     <label className=" mb-1 w-full text-xs tracking-wide text-gray-600 sm:text-sm">
                       Required Balance to Join this Bounty in{" "}
-                      {PLATFROM_ASSET.code}
+                      {PLATFORM_ASSET.code}
                       <input
                         readOnly={loading}
                         type="number"

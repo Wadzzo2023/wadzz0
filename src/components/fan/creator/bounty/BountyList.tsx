@@ -13,7 +13,7 @@ import {
   CardHeader,
   CardTitle,
 } from "~/components/shadcn/ui/card";
-import { PLATFROM_ASSET } from "~/lib/stellar/constant";
+import { PLATFORM_ASSET } from "~/lib/stellar/constant";
 
 import { api } from "~/utils/api";
 
@@ -266,7 +266,7 @@ const BountyList = () => {
                         <div className="mb-4">
                           <span className="font-semibold">Prize Pool:</span>{" "}
                           {bounty.priceInUSD} USD ({bounty.priceInBand}{" "}
-                          {PLATFROM_ASSET.code})
+                          {PLATFORM_ASSET.code})
                         </div>
                         <div>
                           <span className="font-semibold">Requirements:</span>
