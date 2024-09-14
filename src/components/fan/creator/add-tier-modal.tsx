@@ -6,7 +6,7 @@ import { SubmitHandler, useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { z } from "zod";
 import { Editor } from "~/components/editor";
-import { PLATFORM_ASSET } from "~/lib/stellar/constant";
+import { PLATFROM_ASSET } from "~/lib/stellar/constant";
 import { api } from "~/utils/api";
 import {
   Dialog,

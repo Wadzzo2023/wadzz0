@@ -17,10 +17,12 @@ import {
 } from "~/components/shadcn/ui/select";
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogFooter,
   DialogHeader,
   DialogTitle,
+  DialogTrigger,
 } from "~/components/shadcn/ui/dialog";
 import {
   Form,
@@ -43,6 +45,7 @@ import useNeedSign from "~/lib/hook";
 import { clientSelect } from "~/lib/stellar/fan/utils";
 import { useRouter } from "next/router";
 import { fetchPubkeyfromEmail } from "~/utils/get-pubkey";
+import { addrShort } from "~/utils/utils";
 
 const formSchema = z.object({
   recipientId: z.string().length(56, {
@@ -71,15 +74,20 @@ const SendAssets = () => {
   const { needSign } = useNeedSign();
   const isModalOpen = isOpen && type === "send assets";
   const router = useRouter();
-
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const form = useForm({
     resolver: zodResolver(formSchema),
+    mode: "onChange",
     defaultValues: {
       recipientId: "",
       amount: 0,
       selectItem: "",
     },
   });
+
+  const {
+    formState: { errors, isValid },
+  } = form;
 
   interface CreditBalanceType {
     asset_code: string;
@@ -136,6 +144,7 @@ const SendAssets = () => {
 
           if (clientResponse) {
             toast.success("Transaction successful");
+            setIsDialogOpen(false);
             try {
               await api
                 .useUtils()
@@ -355,14 +364,18 @@ const SendAssets = () => {
                         <SelectContent>
                           <SelectGroup>
                             <SelectLabel>Wallets</SelectLabel>
-                            {assetWithBalance?.map((wallet, idx) => (
-                              <SelectItem
-                                key={idx}
-                                value={`${wallet?.asset_code}-${wallet?.asset_type}-${wallet?.asset_issuer}`}
-                              >
-                                {wallet?.asset_code}
-                              </SelectItem>
-                            ))}
+                            {assetWithBalance?.map(
+                              (wallet, idx) =>
+                                wallet.asset_code.toLocaleLowerCase() !==
+                                  "wadzzo" && (
+                                  <SelectItem
+                                    key={idx}
+                                    value={`${wallet?.asset_code}-${wallet?.asset_type}-${wallet?.asset_issuer}`}
+                                  >
+                                    {wallet?.asset_code}
+                                  </SelectItem>
+                                ),
+                            )}
                           </SelectGroup>
                         </SelectContent>
                       </Select>
@@ -373,14 +386,66 @@ const SendAssets = () => {
               />
             </div>
             <DialogFooter className="px-6 py-4">
-              <Button size="lg" variant="default" disabled={loading}>
+              <div className="flex flex-col gap-2">
+                <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                  <DialogTrigger asChild>
+                    <Button className="w-full" disabled={loading || !isValid}>
+                      Send Assets
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-[425px]">
+                    <DialogHeader>
+                      <DialogTitle>Confirmation </DialogTitle>
+                    </DialogHeader>
+                    <div className="mt-6 w-full space-y-6 sm:mt-8 lg:mt-0 lg:max-w-xs xl:max-w-md">
+                      <div className="flex flex-col gap-2">
+                        <p className="font-semibold">
+                          Recipient Id:{" "}
+                          {addrShort(form.watch("recipientId"), 10)}
+                        </p>
+                        <p className="font-semibold">
+                          Amount: {form.watch("amount")}
+                        </p>
+                        <p className="font-semibold">
+                          Asset Code: {form.watch("selectItem").split("-")[0]}
+                        </p>
+                      </div>
+                    </div>
+                    <DialogFooter className="w-full">
+                      <div className="flex w-full gap-4">
+                        <DialogClose className="w-full">
+                          <Button
+                            disabled={loading}
+                            variant="outline"
+                            onClick={() => setIsDialogOpen(false)}
+                            className="w-full"
+                          >
+                            Cancel
+                          </Button>
+                        </DialogClose>
+                        <Button
+                          disabled={loading}
+                          onClick={form.handleSubmit(onSubmit)}
+                          variant="destructive"
+                          type="submit"
+                          className="w-full"
+                        >
+                          Confirm
+                        </Button>
+                      </div>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
+              </div>
+
+              {/* <Button size="lg" variant="default" disabled={loading}>
                 {loading ? (
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" size={20} />
                 ) : (
                   <Send className="mr-2" size={15} />
                 )}
                 {loading ? "SENDING..." : "SEND"}
-              </Button>
+              </Button> */}
             </DialogFooter>
           </form>
         </Form>

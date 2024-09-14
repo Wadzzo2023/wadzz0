@@ -7,8 +7,13 @@ import {
   TransactionBuilder,
 } from "@stellar/stellar-sdk";
 import { STORAGE_SECRET } from "../SECRET";
-import { STELLAR_URL, STROOP, networkPassphrase } from "../constant";
-import { SITE_ASSET } from "./constant";
+import {
+  STROOP,
+  STELLAR_URL,
+  PLATFORM_ASSET,
+  networkPassphrase,
+  TrxBaseFee,
+} from "../../constant";
 
 export async function covertSiteAsset2XLM(props: {
   siteAssetAmount: number;
@@ -31,7 +36,7 @@ export async function covertSiteAsset2XLM(props: {
   const transactionInializer = await server.loadAccount(pubkey);
 
   const Tx = new TransactionBuilder(transactionInializer, {
-    fee: BASE_FEE,
+    fee: TrxBaseFee,
     networkPassphrase,
   })
     // 0 send xlm to user
@@ -46,7 +51,7 @@ export async function covertSiteAsset2XLM(props: {
     //1
     .addOperation(
       Operation.payment({
-        asset: SITE_ASSET,
+        asset: PLATFORM_ASSET,
         amount: assetAmount,
         source: pubkey,
         destination: storageAcc.publicKey(),

@@ -192,6 +192,7 @@ model Creator {
     followers     Follow[]
     Location      Location[]
     LocationGroup LocationGroup[]
+    Bounty        Bounty[]
 
     @@index([bio, name])
 }
@@ -266,6 +267,10 @@ model User {
     LocationConsumer LocationConsumer[]
 
     actorNotificationObjects NotificationObject[]
+    BountyParticipant        BountyParticipant[]
+    BountySubmission         BountySubmission[]
+    BountyComment            BountyComment[]
+    Bounty                   Bounty[]
 }
 
 model VerificationToken {
@@ -503,4 +508,75 @@ model LocationConsumer {
     hidden Boolean @default(false)
 
     createdAt DateTime @default(now())
+}
+
+model Bounty {
+    id              Int          @id @default(autoincrement())
+    title           String
+    description     String
+    priceInUSD      Float
+    priceInBand     Float
+    requiredBalance Float
+    imageUrls       String[]
+    createdAt       DateTime     @default(now())
+    endDate         DateTime?
+    status          BountyStatus @default(PENDING)
+    creatorId       String
+    creator         Creator      @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+
+    participants BountyParticipant[] // Users who join the bounty
+    comments     BountyComment[] // Comments on the bounty
+    submissions  BountySubmission[] // Submissions to the bounty
+    // New field to reference the winner
+    winnerId     String? // Optional: Can be null until a winner is selected
+    winner       User?               @relation(fields: [winnerId], references: [id], onDelete: SetNull)
+
+    @@index([title, description])
+}
+
+model BountyParticipant {
+    id       Int    @id @default(autoincrement())
+    bountyId Int
+    bounty   Bounty @relation(fields: [bountyId], references: [id], onDelete: Cascade)
+
+    userId String
+    user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    joinedAt DateTime @default(now())
+
+    @@unique([bountyId, userId])
+}
+
+model BountySubmission {
+    id       Int    @id @default(autoincrement())
+    bountyId Int
+    bounty   Bounty @relation(fields: [bountyId], references: [id], onDelete: Cascade)
+
+    userId        String
+    user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+    content       String
+    attachmentUrl String[] // URL of the attachment submitted by the user
+    createdAt     DateTime @default(now())
+}
+
+model BountyComment {
+    id                    Int    @id @default(autoincrement())
+    bountyParentCommentID Int?
+    bountyId              Int
+    bounty                Bounty @relation(fields: [bountyId], references: [id], onDelete: Cascade)
+    userId                String
+    user                  User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+    content               String
+
+    bountyParentBComment BountyComment? @relation("ChildBountyComments", fields: [bountyParentCommentID], references: [id], onDelete: Cascade)
+
+    createdAt DateTime @default(now())
+
+    bountyChildComments BountyComment[] @relation("ChildBountyComments")
+}
+
+enum BountyStatus {
+    PENDING
+    APPROVED
+    REJECTED
 }

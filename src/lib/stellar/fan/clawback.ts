@@ -11,12 +11,14 @@ import {
   PLATFORM_ASSET,
   PLATFORM_FEE,
   STELLAR_URL,
+  TrxBaseFee,
+  TrxBaseFeeInPlatformAsset,
   networkPassphrase,
 } from "../constant";
 import { getplatformAssetNumberForXLM } from "./get_token_price";
 import { AccountType } from "./utils";
 
-// transection variables
+// transaction variables
 
 export async function creatorPageAccCreate({
   limit,
@@ -36,7 +38,10 @@ export async function creatorPageAccCreate({
   const server = new Horizon.Server(STELLAR_URL);
 
   const requiredAsset2refundXlm = await getplatformAssetNumberForXLM(2);
-  const totalAction = requiredAsset2refundXlm + Number(PLATFORM_FEE);
+  const totalAction =
+    requiredAsset2refundXlm +
+    Number(PLATFORM_FEE) +
+    Number(TrxBaseFeeInPlatformAsset);
 
   const storageAcc = Keypair.fromSecret(storageSecret);
   const PLATFORM_MOTHER_ACC = Keypair.fromSecret(env.MOTHER_SECRET);
@@ -44,10 +49,12 @@ export async function creatorPageAccCreate({
   const issuerAcc = Keypair.random();
   const asset = new Asset(assetCode, issuerAcc.publicKey());
 
-  const transactionInializer = await server.loadAccount(pubkey);
+  const transactionInializer = await server.loadAccount(
+    PLATFORM_MOTHER_ACC.publicKey(),
+  );
 
   const Tx1 = new TransactionBuilder(transactionInializer, {
-    fee: "200",
+    fee: TrxBaseFee,
     networkPassphrase,
   })
     // first get action for required xlm. and platformFee
@@ -56,6 +63,7 @@ export async function creatorPageAccCreate({
         destination: PLATFORM_MOTHER_ACC.publicKey(),
         asset: PLATFORM_ASSET,
         amount: totalAction.toString(),
+        source: pubkey,
       }),
     )
 
@@ -64,7 +72,7 @@ export async function creatorPageAccCreate({
       Operation.payment({
         destination: storageAcc.publicKey(),
         asset: Asset.native(),
-        amount: "0.5",
+        amount: "2",
         source: PLATFORM_MOTHER_ACC.publicKey(),
       }),
     )
@@ -74,7 +82,7 @@ export async function creatorPageAccCreate({
       Operation.createAccount({
         destination: issuerAcc.publicKey(),
         startingBalance: "1.5",
-        source: PLATFORM_MOTHER_ACC.publicKey(),
+        source: storageAcc.publicKey(),
       }),
     )
     // 1 escrow acc setting his auth clawbackflag.
@@ -115,7 +123,7 @@ export async function creatorPageAccCreate({
   // sign
   Tx1.sign(issuerAcc, storageAcc, PLATFORM_MOTHER_ACC);
 
-  // fab and oogle user sing
+  // fab and google user sing
   const trx = Tx1.toXDR();
   const signedXDr = await WithSing({ xdr: trx, signWith });
 

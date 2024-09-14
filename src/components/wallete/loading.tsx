@@ -26,7 +26,7 @@ export default function Loading({ className, text }: LoadingProps) {
               className="h-20 w-20"
               height={1000}
               width={1000}
-              src={"/images/loading.png"}
+              src={"/favicon.ico"}
               alt={PLATFORM_ASSET.code}
             />
             <span className="loading" />

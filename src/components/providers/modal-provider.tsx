@@ -7,6 +7,9 @@ import MapModalComponent from "../modals/map-modal";
 import CopyCutPinModal from "../modals/copy-cut-pin-modal";
 import ClaimPinModal from "../modals/claim-pin-modal";
 import ShareModal from "../modals/share-modal";
+import FileUploadModal from "../modals/file-upload-modal";
+import EditBountyModal from "../modals/edit-bounty-modal";
+import ViewAttachmentModal from "../modals/view-attachment-modal";
 
 const ModalProvider = () => {
   const [isMounted, setIsMounted] = useState(false);
@@ -26,6 +29,9 @@ const ModalProvider = () => {
       <CopyCutPinModal />
       <ClaimPinModal />
       <ShareModal />
+      <FileUploadModal />
+      <EditBountyModal />
+      <ViewAttachmentModal />
     </>
   );
 };

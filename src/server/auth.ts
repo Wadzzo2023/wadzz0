@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { verifyMessageSignature } from "@albedo-link/signature-verification";
 import axios from "axios";
 import { type GetServerSidePropsContext } from "next";
@@ -20,7 +21,7 @@ import { db } from "~/server/db";
 import { AuthCredentialType } from "~/types/auth";
 import { truncateString } from "~/utils/string";
 
-import { USER_ACOUNT_URL } from "package/connect_wallet/src/lib/stellar/constant";
+import { USER_ACCOUNT_URL } from "package/connect_wallet/src/lib/stellar/constant";
 import { verifyXDRsSignature } from "package/connect_wallet/src/lib/stellar/trx/deummy";
 
 /**
@@ -197,7 +198,7 @@ async function getUserPublicKey({
   email: string;
 }) {
   const res = await axios.get<z.infer<typeof getPublicKeyAPISchema>>(
-    USER_ACOUNT_URL,
+    USER_ACCOUNT_URL,
     {
       params: {
         uid,

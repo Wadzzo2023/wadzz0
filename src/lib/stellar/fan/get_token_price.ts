@@ -44,7 +44,7 @@ export async function getAssetPrice(): Promise<number> {
 
     const platformAssetInfo = response.data;
     const price = platformAssetInfo.price;
-
+    console.log("price", price);
     return price ?? 0.00231;
   } catch (error) {
     console.error(`Error fetching ${PLATFORM_ASSET.code}  price:`, error);
@@ -58,7 +58,7 @@ export async function getPlatfromAssetPrice() {
 }
 
 export async function getplatformAssetNumberForXLM(xlm = 1.5) {
-  if (PLATFORM_ASSET.code === "Wadzzo") return Math.ceil(xlm * 15);
+  if (PLATFORM_ASSET.code === "Wadzzo") return Math.ceil(xlm * 7.69);
   const price = await getPlatfromAssetPrice();
   return Math.ceil((xlm * 0.12) / price);
 }

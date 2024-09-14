@@ -12,6 +12,7 @@ import { usePopUpState } from "~/lib/state/right-pop";
 import Drawer from "./drawer";
 import PageAssetRight from "./wallete/page_asset_right";
 import { CREATOR_PLURAL_TERM } from "~/utils/term";
+import BountyRightBar from "./fan/creator/bounty/BountyRightSide";
 
 export const AssetVariant = {
   ...MarketType,
@@ -64,5 +65,7 @@ export function RightComponent() {
     return <AssetRight />;
   } else if (router.pathname.includes("/admin")) {
     return <AdminRightSide />;
+  } else if (router.pathname.includes("/bounty")) {
+    return <BountyRightBar />;
   }
 }

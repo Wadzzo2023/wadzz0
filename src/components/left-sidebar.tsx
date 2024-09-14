@@ -20,6 +20,7 @@ export const LeftNavigation = {
   // Search: { path: "/search", icon: Search, text: "Search" },
   Music: { path: "/music", icon: Diamond, text: "MUSIC" },
   Marketplace: { path: "/marketplace", icon: Bell, text: "MARKETPLACE" },
+  Bounty: { path: "/bounty", icon: Bell, text: "BOUNTY" },
   Fan: {
     path: "/fans/home",
     icon: Bell,
@@ -35,11 +36,11 @@ export default function LeftBar({ className }: { className?: string }) {
   return (
     <div
       className={cn(
-        "flex h-full max-h-screen w-80 flex-col items-center justify-between overflow-auto bg-base-100/80 px-4 pb-4 scrollbar-hide lg:pt-5",
+        "flex h-full max-h-screen w-80 flex-col items-center justify-between gap-4 overflow-auto bg-base-100/80 px-4 pb-4 scrollbar-hide lg:pt-5",
         className,
       )}
     >
-      <div className="flex h-full w-full flex-1 flex-col items-center justify-between gap-2">
+      <div className="flex h-full w-full flex-1 flex-col items-center justify-between gap-2 overflow-auto">
         <div className="mt-7  w-full flex-1">
           <NavigationButtons />
         </div>

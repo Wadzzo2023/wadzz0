@@ -1,35 +1,27 @@
-import { Input } from "~/components/shadcn/ui/input";
 import { Button } from "~/components/shadcn/ui/button";
+import { Card, CardContent, CardTitle } from "~/components/shadcn/ui/card";
 import { PLATFORM_ASSET } from "~/lib/stellar/constant";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "~/components/shadcn/ui/card";
 
-import WBRightSideBar from "~/components/wallet-balance/wb-right-sidebar";
 import { useSession } from "next-auth/react";
+import WBRightSideBar from "~/components/wallet-balance/wb-right-sidebar";
 
-import { HandIcon, Plus, QrCode, Send } from "lucide-react";
-import { useModal } from "~/components/hooks/use-modal-store";
-import { api } from "~/utils/api";
-import TransactionHistory from "~/components/wallet-balance/transactionHistory";
-import QRCode from "react-qr-code";
-import CopyToClip from "~/components/wallete/copy_to_Clip";
-import {} from "lucide-react";
-import { ViewfinderCircleIcon } from "@heroicons/react/24/solid";
-import Loading from "~/components/wallete/loading";
-import { clientSelect } from "~/lib/stellar/fan/utils";
-import useNeedSign from "~/lib/hook";
-import { useCallback, useEffect, useState } from "react";
+import { Plus, QrCode, Send } from "lucide-react";
 import {
   checkStellarAccountActivity,
   clientsign,
 } from "package/connect_wallet/src/lib/stellar/utils";
+import { useCallback, useEffect, useState } from "react";
+import QRCode from "react-qr-code";
+import { useModal } from "~/components/hooks/use-modal-store";
+import TransactionHistory from "~/components/wallet-balance/transactionHistory";
+import CopyToClip from "~/components/wallete/copy_to_Clip";
+import Loading from "~/components/wallete/loading";
+import useNeedSign from "~/lib/hook";
+import { clientSelect } from "~/lib/stellar/fan/utils";
+import { api } from "~/utils/api";
 
-import toast from "react-hot-toast";
 import { useRouter } from "next/router";
+import toast from "react-hot-toast";
 
 const Wallets = () => {
   const session = useSession();

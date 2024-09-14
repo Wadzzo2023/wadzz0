@@ -9,7 +9,10 @@ export type ModalType =
   | "copied"
   | "claim pin"
   | "nft create"
-  | "share";
+  | "share"
+  | "upload file"
+  | "edit bounty"
+  | 'view attachment'
 
 export interface ModalData {
   pinId?: number;
@@ -24,6 +27,8 @@ export interface ModalData {
   locationConsumer?: LocationConsumer;
   postUrl?: string | null;
   image?: string;
+  bountyId?: number;
+  attachment?: string[];
 }
 
 interface ModalStore {

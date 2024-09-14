@@ -8,14 +8,16 @@ import {
 
 import {
   PLATFORM_ASSET,
-  PLATFORM_FEE,
+  TrxBaseFee,
   STELLAR_URL,
   networkPassphrase,
+  TrxBaseFeeInPlatformAsset,
+  PLATFORM_FEE,
 } from "../constant";
 import { AccountType } from "./utils";
 import { SignUserType, WithSing } from "../utils";
 import { env } from "~/env";
-import { getplatformAssetNumberForXLM } from "./get_token_price";
+import { getplatformAssetNumberForXLM as getPlatformAssetNumberForXLM } from "./get_token_price";
 
 const log = console;
 
@@ -40,13 +42,14 @@ export async function createStorageTrx({
 
   // total platform token r
 
-  const requiredAsset2refundXlm = await getplatformAssetNumberForXLM(5);
-  const totalAction = (requiredAsset2refundXlm + Number(PLATFORM_FEE)).toFixed(
-    7,
-  );
+  const requiredAsset2refundXlm = await getPlatformAssetNumberForXLM(5);
+  const totalAction =
+    requiredAsset2refundXlm +
+    Number(TrxBaseFeeInPlatformAsset) +
+    Number(PLATFORM_FEE);
 
   const Tx1 = new TransactionBuilder(transactionInializer, {
-    fee: "200",
+    fee: TrxBaseFee,
     networkPassphrase,
   })
     // send mother required platform fee and extra
@@ -78,7 +81,10 @@ export async function createStorageTrx({
       }),
     )
     .addOperation(
-      Operation.changeTrust({ asset: PLATFORM_ASSET, source: pubkey }),
+      Operation.changeTrust({
+        asset: PLATFORM_ASSET,
+        source: pubkey,
+      }),
     )
     .addOperation(
       Operation.changeTrust({

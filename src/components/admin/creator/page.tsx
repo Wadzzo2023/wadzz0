@@ -5,6 +5,16 @@ import { api } from "~/utils/api";
 import PostDeleteComponent from "../post";
 import { addrShort } from "~/utils/utils";
 
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "~/components/shadcn/ui/dialog";
+
 export default function CreatorPage() {
   return (
     <div className="p-4">
@@ -116,22 +126,59 @@ function ActionButton({
 }
 
 function DeleteCreatorButton({ creatorId }: { creatorId: string }) {
+  const [isOpen, setIsOpen] = React.useState(false);
   const deleteCreator = api.admin.creator.deleteCreator.useMutation({
     onSuccess: () => {
-      return toast.success("Creator deleted");
+      toast.success("Creator deleted");
+      setIsOpen(false);
     },
   });
   return (
-    <Button
-      variant="outline"
-      onClick={() => {
-        deleteCreator.mutate(creatorId);
-      }}
-    >
-      Delete
-      {deleteCreator.isLoading && (
-        <span className="loading loading-spinner ml-1 h-4 w-4"></span>
-      )}
-    </Button>
+    <>
+      <Dialog open={isOpen} onOpenChange={setIsOpen}>
+        <DialogTrigger asChild>
+          <Button variant="outline">
+            Delete
+            {deleteCreator.isLoading && (
+              <span className="loading loading-spinner ml-1 h-4 w-4"></span>
+            )}
+          </Button>
+        </DialogTrigger>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Confirmation </DialogTitle>
+          </DialogHeader>
+          <div>
+            <p>
+              Are you sure you want to delete this creator? This action is
+              irreversible.
+            </p>
+          </div>
+          <DialogFooter className=" w-full">
+            <div className="flex w-full gap-4  ">
+              <DialogClose className="w-full">
+                <Button variant="outline" className="w-full">
+                  Cancel
+                </Button>
+              </DialogClose>
+              <Button
+                variant="destructive"
+                type="submit"
+                onClick={() => {
+                  deleteCreator.mutate(creatorId);
+                }}
+                disabled={deleteCreator.isLoading}
+                className="w-full"
+              >
+                {deleteCreator.isLoading && (
+                  <span className="loading loading-spinner" />
+                )}
+                Confirm
+              </Button>
+            </div>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }

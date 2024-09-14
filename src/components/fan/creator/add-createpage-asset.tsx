@@ -22,6 +22,12 @@ import Alert from "../../ui/alert";
 import CustomPageAssetFrom from "./page_asset/custom";
 import NewPageAssetFrom from "./page_asset/new";
 import RechargeLink from "~/components/marketplace/recharge/link";
+import { useUserStellarAcc } from "~/lib/state/wallete/stellar-balances";
+import { PLATFORM_ASSET } from "~/lib/stellar/constant";
+import { api } from "~/utils/api";
+import Alert from "../../ui/alert";
+import CustomPageAssetFrom from "./page_asset/custom";
+import NewPageAssetFrom from "./page_asset/new";
 
 export default function AddCreatorPageAssetModal({
   creator,
@@ -30,7 +36,7 @@ export default function AddCreatorPageAssetModal({
 }) {
   const { platformAssetBalance } = useUserStellarAcc();
 
-  const requiredToken = api.fan.trx.getPlatformTokenPriceForXLM.useQuery({
+  const requiredToken = api.fan.trx.getRequiredPlatformAsset.useQuery({
     xlm: 2,
   });
 
