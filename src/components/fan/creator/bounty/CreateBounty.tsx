@@ -32,7 +32,11 @@ import {
 import Alert from "~/components/ui/alert";
 import useNeedSign from "~/lib/hook";
 import { useUserStellarAcc } from "~/lib/state/wallete/stellar-balances";
-import { PLATFORM_ASSET } from "~/lib/stellar/constant";
+import {
+  PLATFORM_ASSET,
+  PLATFORM_FEE,
+  TrxBaseFeeInPlatformAsset,
+} from "~/lib/stellar/constant";
 import { clientSelect } from "~/lib/stellar/fan/utils";
 import { api } from "~/utils/api";
 import { UploadButton } from "~/utils/uploadthing";
@@ -68,6 +72,8 @@ const CreateBounty = () => {
   const [prizeInAsset, setPrizeInAsset] = useState<number>(0);
   const { platformAssetBalance } = useUserStellarAcc();
   const [isDialogOpen, setIsDialogOpen] = useState(false); // State to control modal
+  const totalAmount =
+    2 * Number(TrxBaseFeeInPlatformAsset) + Number(PLATFORM_FEE);
 
   // console.log("platformAssetBalance", platformAssetBalance);
   const {
@@ -340,10 +346,10 @@ const CreateBounty = () => {
                   </div>
                 </div>{" "}
                 <CardFooter className="flex justify-between">
-                  {platformAssetBalance < prizeInAsset ? (
+                  {platformAssetBalance < prizeInAsset + totalAmount ? (
                     <Alert
                       type="error"
-                      content={`You don't have Sufficient Balance ,To  create this bounty, you need minimum ${prizeInAsset} ${PLATFORM_ASSET.code},`}
+                      content={`You don't have Sufficient Balance ,To  create this bounty, you need minimum ${prizeInAsset + totalAmount} ${PLATFORM_ASSET.code},`}
                     />
                   ) : (
                     <div className="flex flex-col gap-2">

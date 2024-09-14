@@ -17,6 +17,7 @@ import { CreatorMenu, useCreator } from "~/lib/state/fan/creator-menu";
 import { useUserStellarAcc } from "~/lib/state/wallete/stellar-balances";
 import { clientSelect } from "~/lib/stellar/fan/utils";
 import { api } from "~/utils/api";
+import { CREATOR_TERM } from "~/utils/term";
 
 import { Button } from "~/components/shadcn/ui/button";
 import {

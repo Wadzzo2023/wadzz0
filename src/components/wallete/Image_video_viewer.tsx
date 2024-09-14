@@ -54,7 +54,7 @@ export default function ImageVideViewer({
       width={1000}
       alt={code ?? "image"}
       style={{
-        backgroundColor: "#7ec34e" ?? undefined,
+        backgroundColor: "#7ec34e",
         height: "100%",
         width: "100%",
       }}
