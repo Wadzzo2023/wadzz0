@@ -8,6 +8,7 @@ import toast from "react-hot-toast";
 import { PostMenu } from "~/components/fan/creator/CreatPost";
 import MemberShip from "~/components/fan/creator/membership";
 import CreatorsTabs from "~/components/fan/creator/tabs";
+import RechargeLink from "~/components/marketplace/recharge/link";
 import Alert from "~/components/ui/alert";
 import Avater from "~/components/ui/avater";
 import Loading from "~/components/wallete/loading";
@@ -16,6 +17,7 @@ import { CreatorMenu, useCreator } from "~/lib/state/fan/creator-menu";
 import { useUserStellarAcc } from "~/lib/state/wallete/stellar-balances";
 import { clientSelect } from "~/lib/stellar/fan/utils";
 import { api } from "~/utils/api";
+import { CREATOR_TERM } from "~/utils/term";
 
 import { Button } from "~/components/shadcn/ui/button";
 import {
@@ -135,6 +137,7 @@ export function ValidCreateCreator({ message }: { message?: string }) {
             type="error"
             content={`You don't have Sufficient Balance ,To create storage account, you need minimum ${requiredToken.data} ${PLATFORM_ASSET.code} `}
           />
+          <RechargeLink />
         </div>
       );
     }
@@ -182,7 +185,7 @@ function CreateCreator({ requiredToken }: { requiredToken: number }) {
 
   return (
     <div className="flex h-full flex-col items-center justify-center gap-2 ">
-      <p className="text-2xl font-bold">You are not a brand</p>
+      <p className="text-2xl font-bold">You are not a {CREATOR_TERM}</p>
       <p className="alert alert-info max-w-xl text-center">
         Your account will be charged {requiredToken} {PLATFORM_ASSET.code} to be
         a brand.

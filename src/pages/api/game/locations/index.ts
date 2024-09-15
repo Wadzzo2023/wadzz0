@@ -2,6 +2,7 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { getSession } from "next-auth/react";
 import { db } from "~/server/db";
 import { Location } from "~/types/game/location";
+import { avaterIconUrl as abaterIconUrl } from "../brands";
 
 // import { getSession } from "next-auth/react";
 
@@ -24,6 +25,7 @@ export default async function handler(
   const all_creator_public_pin = await db.location.findMany({
     select: {
       id: true,
+      link: true,
       latitude: true,
       longitude: true,
       description: true,
@@ -92,13 +94,12 @@ export default async function handler(
       title: location.title,
       description: location.description ?? "No description provided",
       brand_name: location.creator.name,
-      url: "https://picsum.photos/200/300",
-      image_url: location.image ?? "https://picsum.photos/500/500",
+      url: location.link ?? "https://bandcoin.io/",
+      image_url: location.image ?? location.creator.profileUrl ?? BandcoinIconURL,
       collected: location.consumers.length > 0,
       collection_limit_remaining: 3,
       auto_collect: location.autoCollect,
-      brand_image_url:
-        location.creator.profileUrl ?? "https://picsum.photos/100/100",
+      brand_image_url: location.creator.profileUrl ?? abaterIconUrl,
       brand_id: location.creatorId,
       public: false,
     };
@@ -112,13 +113,12 @@ export default async function handler(
       title: location.title,
       description: location.description ?? "No description provided",
       brand_name: location.creator.name,
-      url: "https://picsum.photos/200/300",
-      image_url: location.image ?? "https://picsum.photos/500/500",
+      url: location.link ?? "https://bandcoin.io/",
+      image_url: location.image ?? location.creator.profileUrl ?? BandcoinIconURL,
       collected: location.consumers.length > 0,
       collection_limit_remaining: 3,
       auto_collect: location.autoCollect,
-      brand_image_url:
-        location.creator.profileUrl ?? "https://picsum.photos/100/100",
+      brand_image_url: location.creator.profileUrl ?? abaterIconUrl,
       brand_id: location.creatorId,
       public: true,
     };
@@ -130,3 +130,5 @@ export default async function handler(
 
   res.status(200).json({ locations: locations });
 }
+
+export const BandcoinIconURL = "https://bandcoin.io/images/logo.png";

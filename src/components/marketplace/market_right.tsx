@@ -49,7 +49,7 @@ export function AssetDetails({
 }: {
   currentData: MarketAssetType;
 }) {
-  const color = "blue";
+  const color = "#7ec34e";
   return (
     <div className=" h-full w-full">
       <div className="scrollbar-style relative h-full w-full overflow-y-auto rounded-xl">
@@ -68,7 +68,6 @@ export function AssetDetails({
                 mediaUrl={currentData.asset.mediaUrl}
                 thumbnailUrl={currentData.asset.thumbnail}
                 name={currentData.asset.name}
-                color={color}
               />
             </div>
 
@@ -102,7 +101,7 @@ export function AssetDetails({
                 </p>
                 {currentData.placerId && (
                   <p>
-                    <b>Seller</b>: {addrShort(currentData.placerId, 5)}
+                    <b>Seller</b>: <SellerInfo id={currentData.placerId} />
                   </p>
                 )}
                 <p>
@@ -123,8 +122,14 @@ export function AssetDetails({
   );
 }
 
+function SellerInfo({ id }: { id: string }) {
+  const seller = api.fan.user.getUserById.useQuery(id);
+  if (seller.isLoading) return <span>{addrShort(id, 5)}</span>;
+
+  if (seller.data) return <span>{seller.data.name}</span>;
+}
+
 export function TokenCopies({ id }: { id: number }) {
-  const { currentData } = useMarketRightStore();
   const copy = api.marketplace.market.getMarketAssetAvailableCopy.useQuery({
     id,
   });
@@ -243,12 +248,11 @@ export function DisableFromMarketButton({
 }
 
 function MediaViewer(props: {
-  color: string;
+  // color: string;
   thumbnailUrl: string;
   mediaUrl: string;
   name: string;
 }) {
-  const { color } = props;
   const { thumbnailUrl, mediaUrl, name } = props;
   // const thumbnailUrl = "https://picsum.photos/200/200";
   // const name = "vog";
@@ -327,7 +331,6 @@ function ThumbNailView(props: { name: string; thumbnailUrl: string }) {
         sizes="100%"
         className="h-full w-full"
         code={name}
-        color={"blue"}
         url={thumbnailUrl}
         blurData={"hi"}
       />

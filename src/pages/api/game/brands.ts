@@ -31,6 +31,7 @@ export default async function handler(
       id: true,
       name: true,
       profileUrl: true,
+
       pageAsset: { select: { code: true, thumbnail: true } },
     },
     where: { pageAsset: {} },
@@ -44,9 +45,9 @@ export default async function handler(
     return {
       id: brand.id,
       first_name: brand.name,
-      last_name: brand.name,
+      last_name: "",
       email: "",
-      logo: brand.pageAsset?.thumbnail ?? "https://picsum.photos/200/300",
+      logo: brand.pageAsset?.thumbnail ?? brand.profileUrl ?? avaterIconUrl,
       followed_by_current_user: follows.some(
         (follow) => follow.creatorId === brand.id,
       ),
@@ -55,3 +56,6 @@ export default async function handler(
 
   res.status(200).json({ users: bands });
 }
+
+export const avaterIconUrl =
+  "https://app.wadzzo.com/images/icons/avatar-icon.png";

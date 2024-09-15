@@ -12,6 +12,7 @@ import {
   protectedProcedure,
   publicProcedure,
 } from "~/server/api/trpc";
+import { LocationType, PinLocation } from "~/types/pin";
 import { randomLocation as getLocationInLatLngRad } from "~/utils/map";
 
 export const pinRouter = createTRPCRouter({
@@ -29,6 +30,7 @@ export const pinRouter = createTRPCRouter({
         tokenAmount: totalTokenAmount,
         token: tokenId,
         image,
+        url,
         tier,
       } = input;
 
@@ -69,6 +71,7 @@ export const pinRouter = createTRPCRouter({
           isActive: true,
           startDate: input.startDate,
           description: input.description,
+          link: url,
         };
       });
 
@@ -84,6 +87,22 @@ export const pinRouter = createTRPCRouter({
       });
     }),
 
+  updatePin: creatorProcedure
+    .input(
+      z.object({
+        pinId: z.number(),
+        title: z.string(),
+        description: z.string(),
+        imgUrl: z.string().optional(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { pinId, title, description } = input;
+      await ctx.db.location.update({
+        data: { title, description, image: input.imgUrl },
+        where: { id: pinId },
+      });
+    }),
   getMyPins: creatorProcedure.query(async ({ ctx }) => {
     const pins = await ctx.db.location.findMany({
       where: {
@@ -103,10 +122,11 @@ export const pinRouter = createTRPCRouter({
   getPins: adminProcedure.query(async ({ ctx, input }) => {
     const pins = await ctx.db.location.findMany({
       where: { approved: { equals: null }, endDate: { gte: new Date() } },
+      include: { creator: { select: { name: true } } },
       orderBy: { createdAt: "desc" },
     });
 
-    return pins;
+    return pins as LocationType[];
   }),
 
   getPinsGrops: adminProcedure.query(async ({ ctx }) => {
@@ -132,7 +152,7 @@ export const pinRouter = createTRPCRouter({
       });
     }),
 
-  getConsumedLocated: protectedProcedure.query(async ({ ctx }) => {
+  getAUserConsumedPin: protectedProcedure.query(async ({ ctx }) => {
     const userId = ctx.session.user.id;
     const consumedLocations = await ctx.db.locationConsumer.findMany({
       where: {
@@ -143,6 +163,131 @@ export const pinRouter = createTRPCRouter({
     });
     return consumedLocations;
   }),
+
+  getCreatorPinThatConsumed: creatorProcedure.query(async ({ ctx }) => {
+    const creatorId = ctx.session.user.id;
+    const consumedLocations = await ctx.db.locationConsumer.findMany({
+      where: {
+        location: {
+          creatorId,
+        },
+      },
+      include: {
+        location: {
+          select: {
+            title: true,
+            latitude: true,
+            longitude: true,
+            creator: { select: { name: true } },
+          },
+        },
+        user: { select: { id: true, email: true, name: true } },
+      },
+      orderBy: { createdAt: "desc" },
+    });
+    return consumedLocations as PinLocation[];
+  }),
+  getCreatorCreatedPin: creatorProcedure.query(async ({ ctx }) => {
+    const creatorId = ctx.session.user.id;
+    const createdLocations = await ctx.db.location.findMany({
+      where: {
+        creatorId,
+      },
+      orderBy: { createdAt: "desc" },
+    });
+    return createdLocations;
+  }),
+
+  getAllConsumedLocation: adminProcedure
+    .input(z.object({ day: z.number() }).optional())
+    .query(async ({ ctx, input }) => {
+      const consumedLocations = await ctx.db.locationConsumer.findMany({
+        where: {
+          createdAt: input
+            ? {
+                gte: new Date(
+                  new Date().getTime() - input.day * 24 * 60 * 60 * 1000,
+                ),
+              }
+            : {},
+        },
+        include: {
+          location: {
+            select: {
+              title: true,
+              latitude: true,
+              longitude: true,
+              creator: { select: { name: true } },
+            },
+          },
+          user: { select: { id: true, email: true, name: true } },
+        },
+        orderBy: { createdAt: "desc" },
+      });
+      return consumedLocations as PinLocation[];
+    }),
+
+  downloadAllConsumedLocation: creatorProcedure
+    .input(z.object({ day: z.number() }).optional())
+    .mutation(async ({ ctx, input }) => {
+      const creatorId = ctx.session.user.id;
+      const consumedLocations = await ctx.db.locationConsumer.findMany({
+        where: {
+          createdAt: input
+            ? {
+                gte: new Date(
+                  new Date().getTime() - input.day * 24 * 60 * 60 * 1000,
+                ),
+              }
+            : {},
+          location: {
+            creatorId,
+          },
+        },
+        include: {
+          location: {
+            select: {
+              title: true,
+              latitude: true,
+              longitude: true,
+              creator: { select: { name: true } },
+            },
+          },
+          user: { select: { id: true, email: true, name: true } },
+        },
+        orderBy: { createdAt: "desc" },
+      });
+      return consumedLocations as PinLocation[];
+    }),
+
+  downloadCreatorConsumedLocation: adminProcedure
+    .input(z.object({ day: z.number() }).optional())
+    .mutation(async ({ ctx, input }) => {
+      const consumedLocations = await ctx.db.locationConsumer.findMany({
+        where: {
+          createdAt: input
+            ? {
+                gte: new Date(
+                  new Date().getTime() - input.day * 24 * 60 * 60 * 1000,
+                ),
+              }
+            : {},
+        },
+        include: {
+          location: {
+            select: {
+              title: true,
+              latitude: true,
+              longitude: true,
+              creator: { select: { name: true } },
+            },
+          },
+          user: { select: { id: true, email: true, name: true } },
+        },
+        orderBy: { createdAt: "desc" },
+      });
+      return consumedLocations as PinLocation[];
+    }),
 
   claimAPin: protectedProcedure
     .input(z.object({ id: z.string() }))

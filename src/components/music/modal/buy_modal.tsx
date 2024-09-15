@@ -13,6 +13,7 @@ import { useUserStellarAcc } from "~/lib/state/wallete/stellar-balances";
 import { PLATFORM_ASSET } from "~/lib/stellar/constant";
 import { clientSelect } from "~/lib/stellar/fan/utils";
 import { addrShort } from "~/utils/utils";
+import RechargeLink from "~/components/marketplace/recharge/link";
 import {
   Dialog,
   DialogClose,
@@ -138,7 +139,17 @@ export default function BuyModal({
                           Confirm Payment
                         </button>
                       ) : (
-                        <p className="text-error">Insufficient Balance</p>
+                        <>
+                          <p className="mt-2">
+                            You have {platformAssetBalance}{" "}
+                            {PLATFORM_ASSET.code}
+                          </p>
+
+                          <p className="mb-2 text-error">
+                            Insufficient Balance
+                          </p>
+                          <RechargeLink />
+                        </>
                       )}
                     </>
                   ) : (

@@ -24,7 +24,9 @@ function Header(_props: HeaderProps) {
           <Logo className="self hidden sm:flex" />
         </div>
         <div className="self-end  md:hidden">
-          <ConnectWalletButton />
+          {/* <ConnectWalletButton  /> */}
+
+          <SiteAssetBalance />
         </div>
         <div className="ml-auto hidden md:flex">
           <SiteAssetBalance />

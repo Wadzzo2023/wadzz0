@@ -179,7 +179,7 @@ function AboutForm({ user }: { user: User }) {
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
               <Button
-                variant="destructive"
+                // variant=""
                 onClick={() => setIsDialogOpen(true)}
               >
                 <Pen size={14} className="mr-2" /> Edit profile
@@ -318,10 +318,10 @@ function AboutForm({ user }: { user: User }) {
             <div className="text-sm text-muted-foreground">
               Public Key : {addrShort(user.id, 4)}
             </div>
-            <div className="text-sm text-muted-foreground">
+            {/* <div className="text-sm text-muted-foreground">
               Verified Status :{" "}
               {user.emailVerified ? "Verified" : "Not Verified"}
-            </div>
+            </div> */}
             <div className="text-sm text-muted-foreground">
               Joined at :{" "}
               {user.joinedAt

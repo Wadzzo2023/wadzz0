@@ -4,11 +4,12 @@ import { useTagStore } from "~/lib/state/wallete/tag";
 import { api } from "~/utils/api";
 import { AssetVariant } from "../right-sidebar";
 import { PLATFORM_ASSET } from "~/lib/stellar/constant";
+import { CREATOR_PLURAL_TERM, CREATOR_TERM } from "~/utils/term";
 
 export default function AllTags() {
   const { selectTag, selectedTag } = useTagStore();
   const { setData } = useRightStore();
-  const { setData: setMarektData } = useMarketRightStore();
+  const { setData: setMarketData } = useMarketRightStore();
 
   return (
     <div
@@ -26,7 +27,7 @@ export default function AllTags() {
         onClick={() => {
           selectTag(undefined);
           setData(undefined);
-          setMarektData(undefined);
+          setMarketData(undefined);
         }}
       />
       <input
@@ -38,10 +39,10 @@ export default function AllTags() {
         onClick={() => {
           selectTag(AssetVariant.ADMIN);
           setData(undefined);
-          setMarektData(undefined);
+          setMarketData(undefined);
         }}
       />
-      <input
+      {/* <input
         className="!btn join-item"
         type="radio"
         name="options"
@@ -51,27 +52,27 @@ export default function AllTags() {
           setData(undefined);
           setMarektData(undefined);
         }}
-      />
+      /> */}
       <input
         className="!btn join-item"
         type="radio"
         name="options"
-        aria-label="ARTISTS"
+        aria-label={CREATOR_PLURAL_TERM}
         onClick={() => {
           selectTag(AssetVariant.Artists);
           setData(undefined);
-          setMarektData(undefined);
+          setMarketData(undefined);
         }}
       />
       <input
         className="!btn join-item"
         type="radio"
         name="options"
-        aria-label="ARTIST TOKEN"
+        aria-label={`${CREATOR_TERM.toUpperCase()} TOKEN`}
         onClick={() => {
           selectTag(AssetVariant.FAN);
           setData(undefined);
-          setMarektData(undefined);
+          setMarketData(undefined);
         }}
       />
     </div>

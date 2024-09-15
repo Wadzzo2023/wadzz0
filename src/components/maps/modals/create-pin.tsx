@@ -8,6 +8,7 @@ import { match } from "ts-pattern";
 import { z } from "zod";
 import { useCreatorStorageAcc } from "~/lib/state/wallete/stellar-balances";
 import { api } from "~/utils/api";
+import { BADWORDS } from "~/utils/banned-word";
 import { error, loading, success } from "~/utils/trcp/patterns";
 import { UploadButton } from "~/utils/uploadthing";
 
@@ -25,10 +26,21 @@ export const createPinFormSchema = z.object({
   lat: z.number().min(-180).max(180),
   lng: z.number().min(-180).max(180),
   description: z.string(),
-  title: z.string().min(3),
+  title: z
+    .string()
+    .min(3)
+    .refine(
+      (value) => {
+        return !BADWORDS.some((word) => value.includes(word));
+      },
+      {
+        message: "Input contains banned words.",
+      },
+    ),
   image: z.string().url().optional(),
   startDate: z.date(),
   endDate: z.date().min(new Date(new Date().setHours(0, 0, 0, 0))),
+  url: z.string().url().optional(),
   autoCollect: z.boolean(),
   token: z.number().optional(),
   tokenAmount: z.number().nonnegative().optional(), // if it optional then no token selected
@@ -170,7 +182,7 @@ export default function CreatePinModal({
       setValue("lng", position.lng);
       // console.log(data);
       // return;
-      addPinM.mutate({ ...data });
+      addPinM.mutate({ ...data, lat: position.lat, lng: position.lng });
     } else {
       // toast.error("Please select a location on the map");
       addPinM.mutate({ ...data });
@@ -360,6 +372,21 @@ export default function CreatePinModal({
                   <p className="text-red-500">{errors.description.message}</p>
                 )}
               </div>
+
+              <div className="flex flex-col space-y-2">
+                <label htmlFor="description" className="text-sm font-medium">
+                  URL / LINK
+                </label>
+                <input
+                  id="url"
+                  {...register("url")}
+                  className="input input-bordered"
+                />
+                {errors.url && (
+                  <p className="text-red-500">{errors.url.message}</p>
+                )}
+              </div>
+
               <div className="flex flex-col space-y-2">
                 <label htmlFor="startDate" className="text-sm font-medium">
                   Start Date

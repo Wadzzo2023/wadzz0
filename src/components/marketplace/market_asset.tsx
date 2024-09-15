@@ -10,9 +10,8 @@ function MarketAssetComponent({ item }: { item: MarketAssetType }) {
 
   const urs = useMarketRightStore();
   const pop = usePopUpState();
-  console.log(asset);
   return (
-    <div>
+    <div className="">
       <button
         onClick={() => {
           urs.setData(item);
@@ -22,7 +21,7 @@ function MarketAssetComponent({ item }: { item: MarketAssetType }) {
             pop.setOpen(true);
           }
         }}
-        className="btn relative h-fit w-full overflow-hidden  py-4 "
+        className="btn relative h-fit w-full  overflow-hidden py-4 hover:bg-green-300/50"
       >
         <AssetView code={asset.name} thumbnail={asset.thumbnail} />
       </button>

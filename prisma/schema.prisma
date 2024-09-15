@@ -470,6 +470,8 @@ model Location {
     isActive Boolean // just an field
     image    String?
 
+    link String?
+
     limit Int // how many person can claim the Location / pin
 
     creatorId String

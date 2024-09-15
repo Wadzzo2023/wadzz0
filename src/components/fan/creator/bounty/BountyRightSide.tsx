@@ -46,7 +46,7 @@ const BountyRightBar = () => {
               <div className="relative m-8 w-full ">
                 <ImageVideViewer
                   code={"Bounty"}
-                  url={currentData.imageUrls[0] ?? "https://picsum.photos/100"}
+                  url={currentData.imageUrls[0] ?? "/images/logo.png"}
                   blurData={"noting"}
                 />
               </div>

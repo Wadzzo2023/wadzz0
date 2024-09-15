@@ -29,10 +29,10 @@ export const postRouter = createTRPCRouter({
             : null,
           medias: input.medias
             ? {
-              createMany: {
-                data: input.medias,
-              },
-            }
+                createMany: {
+                  data: input.medias,
+                },
+              }
             : undefined,
         },
       });
@@ -112,8 +112,6 @@ export const postRouter = createTRPCRouter({
             select: { likes: true, comments: true },
           },
 
-
-
           creator: {
             select: {
               name: true,
@@ -123,7 +121,6 @@ export const postRouter = createTRPCRouter({
             },
           },
           medias: true,
-
         },
       });
 
@@ -309,13 +306,11 @@ export const postRouter = createTRPCRouter({
               },
               orderBy: { createdAt: "asc" }, // Order child comments by createdAt in ascending order
             },
-
           },
           take: input.limit, // Limit the number of comments
           orderBy: { createdAt: "desc" }, // Order top-level comments by createdAt in descending order
         });
-      }
-      else {
+      } else {
         return await ctx.db.comment.findMany({
           where: {
             postId: input.postId,
@@ -330,7 +325,6 @@ export const postRouter = createTRPCRouter({
               },
               orderBy: { createdAt: "asc" }, // Order child comments by createdAt in ascending order
             },
-
           },
 
           orderBy: { createdAt: "desc" }, // Order top-level comments by createdAt in descending order

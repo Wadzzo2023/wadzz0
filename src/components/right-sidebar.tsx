@@ -11,12 +11,13 @@ import { MarketType } from "@prisma/client";
 import { usePopUpState } from "~/lib/state/right-pop";
 import Drawer from "./drawer";
 import PageAssetRight from "./wallete/page_asset_right";
+import { CREATOR_PLURAL_TERM } from "~/utils/term";
 import BountyRightBar from "./fan/creator/bounty/BountyRightSide";
 
 export const AssetVariant = {
   ...MarketType,
   Other: "Other",
-  Artists: "Artists",
+  Artists: CREATOR_PLURAL_TERM,
 } as const;
 
 export default function RightSideBar() {

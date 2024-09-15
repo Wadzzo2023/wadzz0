@@ -17,7 +17,13 @@ export default function Button({
   const router = useRouter();
 
   return (
-    <button className={clsx("btn w-full", router.pathname == path, className)}>
+    <button
+      className={clsx(
+        "btn  w-full",
+        router.pathname == path && "btn-primary",
+        className,
+      )}
+    >
       {/* {Icon} */}
       <p className="">{text}</p>
     </button>

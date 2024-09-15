@@ -11,6 +11,13 @@ export const userRouter = createTRPCRouter({
   getUser: protectedProcedure.query(async ({ ctx }) => {
     return await ctx.db.user.findUnique({ where: { id: ctx.session.user.id } });
   }),
+
+  getUserById: publicProcedure
+    .input(z.string())
+    .query(async ({ input, ctx }) => {
+      const user = await ctx.db.user.findUnique({ where: { id: input } });
+      return user;
+    }),
   updateUserProfile: protectedProcedure
     .input(UserAboutShema)
     .mutation(async ({ ctx, input }) => {

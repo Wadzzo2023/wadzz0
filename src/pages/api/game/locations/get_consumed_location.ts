@@ -2,6 +2,8 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { getSession } from "next-auth/react";
 import { db } from "~/server/db";
 import { ConsumedLocation, Location } from "~/types/game/location";
+import { avaterIconUrl } from "../brands";
+import { BandcoinIconURL } from ".";
 
 // import { getSession } from "next-auth/react";
 
@@ -36,14 +38,15 @@ export default async function handler(
       description:
         consumption.location.description ?? "No description provided",
       brand_name: consumption.location.creator.name,
-      url: "https://picsum.photos/200/300",
-      image_url: consumption.location.image ?? "https://picsum.photos/500/500",
+      url: consumption.location.link ?? "https://bandcoin.io/",
+      image_url:
+        consumption.location.image ??
+        consumption.location.creator.profileUrl ??
+        BandcoinIconURL,
       collected: false,
       collection_limit_remaining: 3,
       auto_collect: true,
-      brand_image_url:
-        consumption.location.creator.profileUrl ??
-        "https://picsum.photos/100/100",
+      brand_image_url: consumption.location.creator.profileUrl ?? avaterIconUrl,
       brand_id: consumption.location.creator.id,
       modal_url: "https://vong.cong/",
       viewed: consumption.viewedAt != null,
