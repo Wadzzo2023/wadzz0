@@ -29,7 +29,7 @@ export const LeftNavigation = {
   Settings: { path: "/settings", icon: Settings2, text: "SETTINGS" },
 } as const;
 export const BottomNavigation = {
-  Home: { path: "/maps/pins", icon: HomeIcon, text: "CLAIM" },
+  Claim: { path: "/maps/pins/my", icon: HomeIcon, text: "CLAIM" },
 } as const;
 
 export default function LeftBar({ className }: { className?: string }) {
