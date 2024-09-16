@@ -126,7 +126,7 @@ const Bounty = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid grid-flow-row grid-cols-1 gap-6 md:grid-cols-2 	">
         {getAllBounty.data &&
           getAllBounty.data.pages[0]?.bounties.length === 0 && (
             <p className="w-full text-center">There is no page asset yet</p>
@@ -146,7 +146,7 @@ const Bounty = () => {
                 >
                   <Card
                     key={bounty.id}
-                    className="flex max-h-[450px] min-h-[450px] flex-col"
+                    className="flex  max-h-[480px] min-h-[480px] flex-col "
                   >
                     <CardHeader>
                       <div className="relative">
@@ -178,8 +178,8 @@ const Bounty = () => {
                         {bounty.priceInUSD} USD ({bounty.priceInBand}{" "}
                         {PLATFORM_ASSET.code})
                       </div>
-                      <div>
-                        <span className="font-semibold">Requirements:</span>
+                      <div className="max-h-[85px] min-h-[85px]">
+                        <span className="font-semibold ">Requirements:</span>
                         <ul className="mt-2 list-inside list-disc">
                           {<Preview value={bounty.description.slice(0, 100)} />}
                         </ul>

@@ -18,7 +18,7 @@ function Header(_props: HeaderProps) {
         className={"flex items-center justify-between gap-2 md:justify-center "}
       >
         <div className="flex ">
-          <div className="md:hidden">
+          <div className="lg:hidden">
             <Hamburger />
           </div>
           <Logo className="self hidden sm:flex" />

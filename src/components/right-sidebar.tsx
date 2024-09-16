@@ -25,7 +25,7 @@ export default function RightSideBar() {
   if (router.pathname.includes("/maps")) return undefined;
   return (
     <div>
-      <div className="absolute bottom-0 right-0 lg:hidden">
+      <div className="absolute bottom-0 right-0 xl:hidden">
         <Drawer />
       </div>
       <RightSideBarComponent />
@@ -37,7 +37,7 @@ function RightSideBarComponent() {
   if (router.pathname.includes("/maps")) return undefined;
 
   return (
-    <div className="hidden h-full w-80  flex-col bg-base-100/80  lg:flex">
+    <div className="hidden h-full w-80  flex-col bg-base-100/80  xl:flex">
       <RightComponent />
     </div>
   );
