@@ -38,6 +38,12 @@ enum NotificationType {
     SHOP_ASSET
     FOLLOW
     REPLY
+    BOUNTY
+    BOUNTY_PARTICIPANT
+    BOUNTY_SUBMISSION
+    BOUNTY_COMMENT
+    BOUNTY_REPLY
+    BOUNTY_WINNER
 }
 
 // it is kinda notification actor and the entity that is being acted upon

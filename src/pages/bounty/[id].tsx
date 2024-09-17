@@ -1,3 +1,4 @@
+import clsx from "clsx";
 import { format, formatDate } from "date-fns";
 import {
   Clock,
@@ -13,7 +14,15 @@ import {
   UploadCloud,
   Users,
 } from "lucide-react";
-
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "~/components/shadcn/ui/dialog";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -41,20 +50,40 @@ import {
   TabsList,
   TabsTrigger,
 } from "~/components/shadcn/ui/tabs";
+import Alert from "~/components/ui/alert";
 import Avater from "~/components/ui/avater";
 import useNeedSign from "~/lib/hook";
+import { useBountyRightStore } from "~/lib/state/bounty/use-bounty-store";
+import { usePopUpState } from "~/lib/state/right-pop";
+import { useUserStellarAcc } from "~/lib/state/wallete/stellar-balances";
 import { PLATFORM_ASSET } from "~/lib/stellar/constant";
 
 import { api } from "~/utils/api";
 
 const SingleBountyPage = () => {
+  const bountyStore = useBountyRightStore();
+  const pop = usePopUpState();
+
   const router = useRouter();
   const { id } = router.query;
   const { data: Owner } = api.bounty.Bounty.isOwnerOfBounty.useQuery({
     BountyId: Number(id),
   });
+  const isAlreadyJoin = api.bounty.Bounty.isAlreadyJoined.useQuery({
+    BountyId: Number(id) ?? 0,
+  });
 
-  return <>{Owner?.isOwner ? <AdminBountyPage /> : <UserBountyPage />}</>;
+  return (
+    <>
+      {!isAlreadyJoin ? (
+        <></>
+      ) : Owner?.isOwner ? (
+        <AdminBountyPage />
+      ) : (
+        <UserBountyPage />
+      )}
+    </>
+  );
 };
 
 export default SingleBountyPage;
@@ -92,194 +121,251 @@ const UserBountyPage = () => {
       submissionId: id,
     });
   };
+  const { platformAssetBalance } = useUserStellarAcc();
 
-  if (data) {
+  const joinBountyMutation = api.bounty.Bounty.joinBounty.useMutation({
+    onSuccess: async (data) => {
+      toast.success("Bounty Joined");
+      await utils.bounty.Bounty.isAlreadyJoined.refetch();
+      await router.push(`/bounty/${Number(id)}`);
+    },
+  });
+  const pop = usePopUpState();
+  const bountyStore = useBountyRightStore();
+  const handleJoinBounty = (id: number) => {
+    joinBountyMutation.mutate({ BountyId: id });
+  };
+
+  const { data: Owner } = api.bounty.Bounty.isOwnerOfBounty.useQuery({
+    BountyId: Number(id) ?? 0,
+  });
+
+  const isAlreadyJoin = api.bounty.Bounty.isAlreadyJoined.useQuery({
+    BountyId: Number(id) ?? 0,
+  });
+  if (data && isAlreadyJoin.data && Owner) {
     return (
       <div className="container mx-auto py-8">
-        <Card className="mx-auto w-full max-w-4xl">
-          <CardHeader>
-            <div className="relative">
-              <Image
-                src={data?.imageUrls[0] ?? "/images/logo.png"}
-                alt={data?.title}
-                width={600}
-                height={300}
-                className="h-64 w-full rounded-t-lg object-cover"
-              />
+        <div className="p-2">
+          {isAlreadyJoin.isLoading ? (
+            <div className="mb-2.5 h-10  bg-gray-200 dark:bg-gray-700"></div>
+          ) : isAlreadyJoin.data.isJoined || Owner.isOwner ? (
+            <Card
+              className={clsx("mx-auto w-full max-w-4xl", {
+                "blur-sm": !isAlreadyJoin.data,
+              })}
+            >
+              <CardHeader>
+                <div className="relative">
+                  <Image
+                    src={data?.imageUrls[0] ?? "/images/logo.png"}
+                    alt={data?.title}
+                    width={600}
+                    height={300}
+                    className="h-64 w-full rounded-t-lg object-cover"
+                  />
 
-              <Badge
-                variant={
-                  data?.status === "APPROVED"
-                    ? "default"
-                    : data?.status === "PENDING"
-                      ? "secondary"
-                      : "destructive"
-                }
-                className="absolute right-4 top-4 px-3 py-1 text-lg"
-              >
-                {data?.status === "APPROVED"
-                  ? "Approved"
-                  : data?.status === "PENDING"
-                    ? "Pending"
-                    : "Rejected"}
-              </Badge>
-            </div>
-            <div className="mt-4 flex items-center justify-between">
-              <CardTitle className="text-3xl">{data?.title}</CardTitle>
-            </div>
-            {/* <div className="mt-2 flex items-center text-muted-foreground">
+                  <Badge
+                    variant={
+                      data?.status === "APPROVED"
+                        ? "default"
+                        : data?.status === "PENDING"
+                          ? "secondary"
+                          : "destructive"
+                    }
+                    className="absolute right-4 top-4 px-3 py-1 text-lg"
+                  >
+                    {data?.status === "APPROVED"
+                      ? "Approved"
+                      : data?.status === "PENDING"
+                        ? "Pending"
+                        : "Rejected"}
+                  </Badge>
+                </div>
+                <div className="mt-4 flex items-center justify-between">
+                  <CardTitle className="text-3xl">{data?.title}</CardTitle>
+                </div>
+                {/* <div className="mt-2 flex items-center text-muted-foreground">
               <Clock className="mr-1 h-4 w-4" />
               <span>Deadline:</span>
             </div> */}
-          </CardHeader>
-          <CardContent>
-            <Tabs defaultValue="details">
-              <TabsList className="grid w-full grid-cols-3">
-                <TabsTrigger value="details">Details</TabsTrigger>
+              </CardHeader>
+              <CardContent>
+                <Tabs defaultValue="details">
+                  <TabsList className="grid w-full grid-cols-3">
+                    <TabsTrigger value="details">Details</TabsTrigger>
 
-                <TabsTrigger value="submissions" className="relative">
-                  Submissions{" "}
-                </TabsTrigger>
-                <TabsTrigger value="comments">Comments</TabsTrigger>
-              </TabsList>
-              <TabsContent value="details" className="mt-4">
-                <Preview value={data?.description} />
-              </TabsContent>
+                    <TabsTrigger value="submissions" className="relative">
+                      Submissions{" "}
+                    </TabsTrigger>
+                    <TabsTrigger value="comments">Comments</TabsTrigger>
+                  </TabsList>
+                  <TabsContent value="details" className="mt-4">
+                    <Preview value={data?.description} />
+                  </TabsContent>
 
-              <TabsContent value="submissions" className="mt-4">
-                <div className="mt-4">
-                  <h1 className="mt-4 text-center text-3xl font-extrabold text-gray-900 dark:text-white  lg:text-4xl">
-                    Your Submissions
-                  </h1>
-                  {submissionData?.length === 0 && (
-                    <p className="w-full text-center">
-                      There is no submission yet
-                    </p>
-                  )}
-                  {submissionData?.map((submission, id) => (
-                    <div key={id}>
-                      <div className="mb-6 flex flex-col gap-4   rounded-lg bg-white p-6 shadow-md ">
-                        <div className=" flex flex-col gap-2">
-                          <div className="flex items-center gap-4">
-                            <p className="  ">{submission.content}</p>
+                  <TabsContent value="submissions" className="mt-4">
+                    <div className="mt-4">
+                      <h1 className="mt-4 text-center text-3xl font-extrabold text-gray-900 dark:text-white  lg:text-4xl">
+                        Your Submissions
+                      </h1>
+                      {submissionData?.length === 0 && (
+                        <p className="w-full text-center">
+                          There is no submission yet
+                        </p>
+                      )}
+                      {submissionData?.map((submission, id) => (
+                        <div key={id}>
+                          <div className="mb-6 flex flex-col gap-4   rounded-lg bg-white p-6 shadow-md ">
+                            <div className=" flex flex-col gap-2">
+                              <div className="flex items-center gap-4">
+                                <p className="  ">{submission.content}</p>
+                              </div>
+                              <p className=" text-xs text-gray-700">
+                                {format(
+                                  new Date(submission.createdAt),
+                                  "MMMM dd, yyyy",
+                                )}
+                              </p>
+                            </div>
+
+                            <div className="flex items-center justify-between">
+                              <Button
+                                className="  "
+                                onClick={() =>
+                                  onOpen("view attachment", {
+                                    attachment: submission.attachmentUrl,
+                                  })
+                                }
+                                variant="outline"
+                              >
+                                <Paperclip size={16} className="mr-2" /> View
+                                Attachment
+                              </Button>
+                              <Button
+                                disabled={data?.winner?.name ? true : false}
+                                variant="destructive"
+                                onClick={() =>
+                                  handleSubmissionDelete(submission.id)
+                                }
+                              >
+                                <Trash />
+                              </Button>
+                            </div>
                           </div>
-                          <p className=" text-xs text-gray-700">
-                            {format(
-                              new Date(submission.createdAt),
-                              "MMMM dd, yyyy",
-                            )}
-                          </p>
                         </div>
-
-                        <div className="flex items-center justify-between">
-                          <Button
-                            className="  "
-                            onClick={() =>
-                              onOpen("view attachment", {
-                                attachment: submission.attachmentUrl,
-                              })
-                            }
-                            variant="outline"
-                          >
-                            <Paperclip size={16} className="mr-2" /> View
-                            Attachment
-                          </Button>
-                          <Button
-                            disabled={data?.winner?.name ? true : false}
-                            variant="destructive"
-                            onClick={() =>
-                              handleSubmissionDelete(submission.id)
-                            }
-                          >
-                            <Trash />
-                          </Button>
-                        </div>
+                      ))}
+                    </div>
+                  </TabsContent>
+                  <TabsContent value="comments" className="mt-4">
+                    <div className="space-y-4">
+                      <AddBountyComment bountyId={Number(id)} />
+                      <div className="max-h-[650px]">
+                        {bountyComment.data &&
+                          bountyComment.data.length > 0 && (
+                            <div className="mb-10 px-4">
+                              <div className=" flex flex-col gap-4 rounded-lg border-2 border-base-200 ">
+                                <div className=" mt-1 flex flex-col gap-2  rounded-lg p-2">
+                                  {bountyComment.data?.map((comment) => (
+                                    <>
+                                      <ViewBountyComment
+                                        key={comment.id}
+                                        comment={comment}
+                                        bountyChildComments={
+                                          comment.bountyChildComments
+                                        }
+                                      />
+                                      <Separator />
+                                    </>
+                                  ))}
+                                </div>
+                              </div>
+                            </div>
+                          )}
                       </div>
                     </div>
-                  ))}
-                </div>
-              </TabsContent>
-              <TabsContent value="comments" className="mt-4">
-                <div className="space-y-4">
-                  <AddBountyComment bountyId={Number(id)} />
-                  <div className="max-h-[650px]">
-                    {bountyComment.data && bountyComment.data.length > 0 && (
-                      <div className="mb-10 px-4">
-                        <div className=" flex flex-col gap-4 rounded-lg border-2 border-base-200 ">
-                          <div className=" mt-1 flex flex-col gap-2  rounded-lg p-2">
-                            {bountyComment.data?.map((comment) => (
-                              <>
-                                <ViewBountyComment
-                                  key={comment.id}
-                                  comment={comment}
-                                  bountyChildComments={
-                                    comment.bountyChildComments
-                                  }
-                                />
-                                <Separator />
-                              </>
-                            ))}
-                          </div>
-                        </div>
-                      </div>
-                    )}
+                  </TabsContent>
+                </Tabs>
+                <div className="mt-6 flex items-center justify-between">
+                  <div className="flex flex-col gap-2  md:flex-row md:items-center md:space-x-4">
+                    <Badge variant="secondary" className="flex items-center">
+                      <Trophy className="mr-1 h-4 w-4" />
+                      {data?.priceInUSD} USD
+                    </Badge>
+                    <Badge variant="destructive" className="flex items-center">
+                      <Trophy className="mr-1 h-4 w-4" />
+                      {data?.priceInBand} {PLATFORM_ASSET.code}
+                    </Badge>
+                    <Badge variant="secondary" className="flex items-center">
+                      <Users className="mr-1 h-4 w-4" />
+                      {data?._count.participants} participants
+                    </Badge>
+                    <Badge variant="secondary" className="flex items-center">
+                      <MessageSquare className="mr-1 h-4 w-4" />
+                      {data?._count.comments} comments
+                    </Badge>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Avater className="h-8 w-8" />
+                    <div>
+                      <Link
+                        href={`/fans/creator/${data?.creator.id}`}
+                        className="mr-3 inline-flex items-center gap-2 text-sm text-gray-900 dark:text-white"
+                      >
+                        {" "}
+                        <p className="text-sm font-medium">Created by</p>
+                        <p className="text-sm text-muted-foreground">
+                          {data?.creator.name}
+                        </p>
+                      </Link>
+                    </div>
                   </div>
                 </div>
-              </TabsContent>
-            </Tabs>
-            <div className="mt-6 flex items-center justify-between">
-              <div className="flex flex-col gap-2  md:flex-row md:items-center md:space-x-4">
-                <Badge variant="secondary" className="flex items-center">
-                  <Trophy className="mr-1 h-4 w-4" />
-                  {data?.priceInUSD} USD
-                </Badge>
-                <Badge variant="destructive" className="flex items-center">
-                  <Trophy className="mr-1 h-4 w-4" />
-                  {data?.priceInBand} {PLATFORM_ASSET.code}
-                </Badge>
-                <Badge variant="secondary" className="flex items-center">
-                  <Users className="mr-1 h-4 w-4" />
-                  {data?._count.participants} participants
-                </Badge>
-                <Badge variant="secondary" className="flex items-center">
-                  <MessageSquare className="mr-1 h-4 w-4" />
-                  {data?._count.comments} comments
-                </Badge>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Avater className="h-8 w-8" />
-                <div>
-                  <Link
-                    href={`/fans/creator/${data?.creator.id}`}
-                    className="mr-3 inline-flex items-center gap-2 text-sm text-gray-900 dark:text-white"
+              </CardContent>
+              <CardFooter className="flex items-center justify-between">
+                <div className="flex space-x-4">
+                  <Button
+                    variant="destructive"
+                    disabled={data?.winner?.name ? true : false}
+                    className=""
+                    onClick={() =>
+                      onOpen("upload file", {
+                        bountyId: data.id,
+                      })
+                    }
                   >
-                    {" "}
-                    <p className="text-sm font-medium">Created by</p>
-                    <p className="text-sm text-muted-foreground">
-                      {data?.creator.name}
-                    </p>
-                  </Link>
+                    Submit Solution
+                  </Button>
                 </div>
-              </div>
-            </div>
-          </CardContent>
-          <CardFooter className="flex items-center justify-between">
-            <div className="flex space-x-4">
+              </CardFooter>
+            </Card>
+          ) : data.requiredBalance > platformAssetBalance ? (
+            <Alert
+              className="flex  items-center justify-center"
+              type="error"
+              content={`You don't have Sufficient Balance ,To join this bounty, you need minimum  
+                
+                ${data.requiredBalance} ${PLATFORM_ASSET.code} `}
+            />
+          ) : (
+            <div className="flex h-screen flex-col items-center justify-center gap-4">
+              <Alert
+                className="flex  items-center justify-center"
+                type="success"
+                content={`You can join this bounty by clicking the button below`}
+              />
               <Button
-                variant="destructive"
-                disabled={data?.winner?.name ? true : false}
-                className=""
-                onClick={() =>
-                  onOpen("upload file", {
-                    bountyId: data.id,
-                  })
+                className="w-1/2 rounded-lg"
+                disabled={
+                  joinBountyMutation.isLoading || isAlreadyJoin.isLoading
                 }
+                onClick={() => handleJoinBounty(data.id)}
               >
-                Submit Solution
+                Join Bounty
               </Button>
             </div>
-          </CardFooter>
-        </Card>
+          )}
+        </div>
       </div>
     );
   }
@@ -462,6 +548,7 @@ const UserBountyPage = () => {
 
 const AdminBountyPage = () => {
   const { onOpen } = useModal();
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const router = useRouter();
   const [loadingBountyId, setLoadingBountyId] = useState<number | null>(null);
   const { needSign } = useNeedSign();
@@ -512,6 +599,7 @@ const AdminBountyPage = () => {
       setLoadingBountyId(variables.BountyId);
       toast.success("Winner Marked");
       setLoadingBountyId(null);
+      setIsDialogOpen(false);
     },
   });
 
@@ -656,38 +744,73 @@ const AdminBountyPage = () => {
                           {submission.content}
                         </p>
 
-                        <div className="flex items-center justify-between gap-2">
-                          <Button
-                            className="  "
-                            variant="outline"
-                            onClick={() =>
-                              onOpen("view attachment", {
-                                attachment: submission.attachmentUrl,
-                              })
-                            }
-                          >
-                            <Paperclip size={16} className="mr-2" /> View
-                            Attachment
-                          </Button>
-
-                          <Button
-                            disabled={
-                              loadingBountyId === data.id || data.winner?.name
-                                ? true
-                                : false
-                            }
-                            className=" me-2  bg-purple-100 px-2.5 py-0.5 text-xs font-medium text-purple-800 dark:bg-purple-900 dark:text-purple-300 "
-                            variant="outline"
-                            onClick={() =>
-                              handleWinner(
-                                data.id,
-                                submission.userId,
-                                data.priceInBand,
-                              )
-                            }
-                          >
-                            <Crown size={16} className="mr-2" /> MARK AS WINNER
-                          </Button>
+                        <div className="flex flex-col gap-2">
+                          <div className="">
+                            <Dialog
+                              open={isDialogOpen}
+                              onOpenChange={setIsDialogOpen}
+                            >
+                              <DialogTrigger asChild>
+                                <Button
+                                  disabled={
+                                    loadingBountyId === data.id ||
+                                    data.winner?.name
+                                      ? true
+                                      : false
+                                  }
+                                  className=" me-2  bg-purple-100 px-2.5 py-0.5 text-xs font-medium text-purple-800 dark:bg-purple-900 dark:text-purple-300 "
+                                  variant="outline"
+                                >
+                                  <Crown size={16} className="mr-2" /> MARK AS
+                                  WINNER
+                                </Button>
+                              </DialogTrigger>
+                              <DialogContent className="sm:max-w-[425px]">
+                                <DialogHeader>
+                                  <DialogTitle>Confirmation </DialogTitle>
+                                </DialogHeader>
+                                <div className="mt-6 w-full space-y-6 sm:mt-8 lg:mt-0 lg:max-w-xs xl:max-w-md">
+                                  <div className="flow-root">
+                                    Do you want to make {submission.user.name}{" "}
+                                    as a winner? This action can{"'t"} be
+                                    undone.
+                                  </div>
+                                </div>
+                                <DialogFooter className=" w-full">
+                                  <div className="flex w-full gap-4  ">
+                                    <DialogClose className="w-full">
+                                      <Button
+                                        variant="outline"
+                                        className="w-full"
+                                      >
+                                        Cancel
+                                      </Button>
+                                    </DialogClose>
+                                    <Button
+                                      disabled={
+                                        loadingBountyId === data.id ||
+                                        data.winner?.name
+                                          ? true
+                                          : false
+                                      }
+                                      variant="destructive"
+                                      type="submit"
+                                      onClick={() =>
+                                        handleWinner(
+                                          data.id,
+                                          submission.userId,
+                                          data.priceInBand,
+                                        )
+                                      }
+                                      className="w-full"
+                                    >
+                                      Confirm
+                                    </Button>
+                                  </div>
+                                </DialogFooter>
+                              </DialogContent>
+                            </Dialog>
+                          </div>
                         </div>
                       </div>
                     </div>

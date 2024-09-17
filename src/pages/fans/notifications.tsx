@@ -106,6 +106,7 @@
 //   );
 // }
 
+import { NotificationType } from "@prisma/client";
 import Image from "next/image";
 import Link from "next/link";
 import React, { useState } from "react";
@@ -164,7 +165,7 @@ const Notifications = () => {
     );
   // console.log(notifications);
   return (
-    <div className=" w-full rounded-lg bg-white shadow-sm lg:w-[715px] ">
+    <div className="w-full rounded-lg bg-white shadow-sm lg:w-[715px]">
       <div className="p-6">
         <div className="mb-6 flex flex-row gap-x-6">
           <h1 className="text-2xl font-bold">User{"'s"} Notifications</h1>
@@ -174,40 +175,77 @@ const Notifications = () => {
         </div>
 
         <div className="max-h-[500px] overflow-auto">
-          {/* Mark Webber */}
           {notifications.data?.pages.map((page) => {
-            return page.posts.map((el) => {
+            return page.notifications.map((el) => {
+              let message = "";
+              let url = "";
+
+              // Adjust the notification logic here
+              switch (el.notificationObject.entityType) {
+                case NotificationType.LIKE:
+                  message = `${el.notificationObject.actor.name} liked a post`;
+                  url = `/fans/posts/${el.notificationObject.entityId}`; // Update URL as per user context
+                  break;
+                case NotificationType.COMMENT:
+                  message = `${el.notificationObject.actor.name} commented on a post`;
+                  url = `/fans/posts/${el.notificationObject.entityId}`; // Update URL as per user context
+                  break;
+                case NotificationType.FOLLOW:
+                  message = `${el.notificationObject.actor.name} followed you`;
+                  url = `/fans/creator/${el.notificationObject.actor.id}`; // Update URL as per user context
+                  break;
+                case NotificationType.REPLY:
+                  message = `${el.notificationObject.actor.name} replied a comment`;
+                  url = `/fans/posts/${el.notificationObject.entityId}`; // Update URL as per user context
+                  break;
+                case NotificationType.POST:
+                  message = `${el.notificationObject.actor.name} created a new post`;
+                  url = `/fans/posts/${el.notificationObject.entityId}`; // Update URL as per user context
+                  break;
+
+                case NotificationType.BOUNTY:
+                  message = `${el.notificationObject.actor.name} added a bounty`;
+                  url = `/bounty/${el.notificationObject.entityId}`; // Update URL as per user context
+                  break;
+                case NotificationType.BOUNTY_WINNER:
+                  message = "You won a bounty";
+                  url = `/bounty/${el.notificationObject.entityId}`;
+                  break;
+                case NotificationType.BOUNTY_COMMENT:
+                  message = `${el.notificationObject.actor.name} commented on a bounty`;
+                  url = `/bounty/${el.notificationObject.entityId}`;
+
+                  break;
+
+                case NotificationType.BOUNTY_REPLY:
+                  message = `${el.notificationObject.actor.name} replied to a comment on bounty`;
+                  url = `/bounty/${el.notificationObject.entityId}`;
+
+                  break;
+                default:
+                  message = "";
+                  url = "";
+              }
+
               return (
-                // <div key={el.id} className="flex flex-col hover:bg-neutral">
-                //   <Link
-                //     href={url}
-                //     className="p-4 hover:bg-base-100 hover:underline"
-                //   >
-                //     {message} {formatPostCreatedAt(el.createdAt)}
-                //   </Link>
-                // </div>
                 <>
-                  <div key={el.id} className="flex  gap-x-3  p-2">
-                    <Link href={`/fans/posts/${el.id}`} className="flex">
+                  <div key={el.id} className="flex gap-x-3 p-2">
+                    <Link href={url} className="flex">
                       <Image
                         width={1000}
                         height={1000}
-                        className="h-10 w-10 rounded-full"
+                        className="h-10 w-10"
                         src={
-                          el.creator.profileUrl ??
-                          "/images/icons/avatar-icon.png"
+                          el.notificationObject.actor.image
+                            ? el.notificationObject.actor.image
+                            : "/images/icons/avatar-icon.png"
                         }
-                        alt="user icon"
+                        alt=""
                       />
                       <div className="ml-4 flex w-full flex-col">
-                        <div className="flex gap-2">
-                          <h1>{el.creator.name} </h1>
-                          <a>
-                            <span className="message-describe ">
-                              create a post
-                            </span>
-                          </a>
-                        </div>
+                        <a>
+                          <span className="message-describe"> {message}</span>
+                        </a>
                         <div className="">
                           <p className="message-duration text-gray-500">
                             {formatPostCreatedAt(el.createdAt)}
@@ -216,7 +254,6 @@ const Notifications = () => {
                       </div>
                     </Link>
                   </div>
-
                   <Separator />
                 </>
               );

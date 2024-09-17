@@ -1,4 +1,4 @@
-import { BountyStatus, Prisma } from "@prisma/client"; // Assuming you are using Prisma
+import { BountyStatus, NotificationType, Prisma } from "@prisma/client"; // Assuming you are using Prisma
 import { getAccSecretFromRubyApi } from "package/connect_wallet/src/lib/stellar/get-acc-secret";
 import { z } from "zod";
 import { BountyCommentSchema } from "~/components/fan/creator/bounty/Add-Bounty-Comment";
@@ -83,7 +83,41 @@ export const BountyRoute = createTRPCRouter({
           imageUrls: input.medias ? input.medias.map((media) => media.url) : [],
         },
       });
-      console.log("bounty", bounty);
+      const followers = await ctx.db.follow.findMany({
+        where: { creatorId: ctx.session.user.id },
+        select: { userId: true },
+      });
+
+
+      const followerIds = followers.map((follower) => follower.userId);
+
+
+      const createNotification = async (notifierId: string) => {
+        await ctx.db.notificationObject.create({
+          data: {
+            actorId: ctx.session.user.id,
+            entityType: NotificationType.BOUNTY,
+            entityId: bounty.id,
+            isUser: true,
+            Notification: {
+              create: [
+                {
+                  notifierId,
+                  isCreator: false,
+                },
+              ],
+            },
+          },
+        });
+      };
+
+
+      for (const followerId of followerIds) {
+        await createNotification(followerId);
+      }
+
+
+
     }),
 
   getAllBounties: publicProcedure
@@ -218,6 +252,25 @@ export const BountyRoute = createTRPCRouter({
           userId: ctx.session.user.id,
         },
       });
+      // Notify the bounty creator about the new participant
+      if (bounty?.creatorId) {
+        await ctx.db.notificationObject.create({
+          data: {
+            actorId: ctx.session.user.id,
+            entityType: NotificationType.BOUNTY_PARTICIPANT,
+            entityId: input.BountyId,
+            isUser: true,
+            Notification: {
+              create: [
+                {
+                  notifierId: bounty.creatorId,
+                  isCreator: true,
+                },
+              ],
+            },
+          },
+        });
+      }
     }),
 
   getAllBountyByUserId: protectedProcedure
@@ -391,6 +444,25 @@ export const BountyRoute = createTRPCRouter({
             : [],
         },
       });
+
+      await ctx.db.notificationObject.create({
+        data: {
+          actorId: ctx.session.user.id,
+          entityType: NotificationType.BOUNTY_SUBMISSION,
+          entityId: input.BountyId,
+          isUser: true,
+          Notification: {
+            create: [
+              {
+                notifierId: bounty.creatorId,
+                isCreator: true,
+              },
+            ],
+          },
+        },
+      });
+
+
     }),
 
   getBountyAttachmentByUserId: protectedProcedure
@@ -531,6 +603,24 @@ export const BountyRoute = createTRPCRouter({
           winnerId: input.userId,
         },
       });
+
+      await ctx.db.notificationObject.create({
+        data: {
+          actorId: ctx.session.user.id,
+          entityType: NotificationType.BOUNTY_WINNER,
+          entityId: input.BountyId,
+          isUser: true,
+          Notification: {
+            create: [
+              {
+                notifierId: input.userId,
+                isCreator: false,
+              },
+            ],
+          },
+        },
+      });
+
     }),
   getDeleteXdr: protectedProcedure
     .input(
@@ -641,6 +731,53 @@ export const BountyRoute = createTRPCRouter({
             content: input.content,
             bountyId: input.bountyId,
             userId: ctx.session.user.id,
+          },
+        });
+      }
+
+
+      const bountys = await ctx.db.bounty.findUnique({
+        where: { id: input.bountyId },
+        select: { creatorId: true },
+      });
+
+
+      const previousCommenters = await ctx.db.bountyComment.findMany({
+        where: {
+          bountyId: input.bountyId,
+          userId: { not: ctx.session.user.id },
+        },
+        distinct: ['userId'],
+        select: { userId: true },
+      });
+
+
+      const previousCommenterIds = previousCommenters.map(comment => comment.userId);
+
+
+      const usersToNotify = new Set([
+        bountys?.creatorId,
+        ...previousCommenterIds,
+      ]);
+
+
+      usersToNotify.delete(ctx.session.user.id);
+
+      if (usersToNotify.size > 0) {
+        await ctx.db.notificationObject.create({
+          data: {
+            actorId: ctx.session.user.id,
+            entityType: input.parentId ? NotificationType.BOUNTY_REPLY : NotificationType.BOUNTY_COMMENT,
+            entityId: input.bountyId,
+            isUser: false,
+            Notification: {
+              create: Array.from(usersToNotify)
+                .filter((notifierId): notifierId is string => notifierId !== undefined)
+                .map((notifierId) => ({
+                  notifierId,
+                  isCreator: notifierId === bountys?.creatorId,
+                })),
+            },
           },
         });
       }
