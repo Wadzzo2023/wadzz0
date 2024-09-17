@@ -264,7 +264,7 @@ export const postRouter = createTRPCRouter({
               create: [
                 {
                   notifierId: like.post.creatorId,
-                  isCreator: true, // Notification for the creator
+                  isCreator: true,
                 },
               ],
             },
