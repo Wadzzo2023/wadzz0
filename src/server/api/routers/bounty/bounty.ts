@@ -1,3 +1,4 @@
+import { useMutation } from '@tanstack/react-query';
 import { BountyStatus, NotificationType, Prisma } from "@prisma/client"; // Assuming you are using Prisma
 import { getAccSecretFromRubyApi } from "package/connect_wallet/src/lib/stellar/get-acc-secret";
 import { z } from "zod";
@@ -11,8 +12,9 @@ import {
   SendBountyBalanceToMotherAccount,
   SendBountyBalanceToUserAccount,
   SendBountyBalanceToWinner,
+  SwapUserAssetToMotherUSDC,
 } from "~/lib/stellar/bounty/bounty";
-import { getPlatfromAssetPrice } from "~/lib/stellar/fan/get_token_price";
+import { getAssetPrice, getAssetToUSDCRate, getPlatfromAssetPrice } from "~/lib/stellar/fan/get_token_price";
 import { SignUser } from "~/lib/stellar/utils";
 import {
   createTRPCRouter,
@@ -533,6 +535,13 @@ export const BountyRoute = createTRPCRouter({
   getCurrentUSDFromAsset: protectedProcedure.query(async ({ ctx }) => {
     return await getPlatfromAssetPrice();
   }),
+  getPlatformAsset: protectedProcedure.query(async ({ ctx }) => {
+    return await getAssetPrice();
+  }),
+
+  getAssetToUSDCRate: protectedProcedure.query(async ({ ctx }) => {
+    return await getAssetToUSDCRate();
+  }),
   getSendBalanceToWinnerXdr: protectedProcedure
     .input(
       z.object({
@@ -872,4 +881,42 @@ export const BountyRoute = createTRPCRouter({
       });
       return bounty;
     }),
+  swapAssetToUSDC: protectedProcedure
+    .input(z.object({
+      bountyId: z.number(),
+      price: z.number(),
+      signWith: SignUser
+    }))
+    .mutation(async ({ input, ctx }) => {
+      let secretKey;
+      if (ctx.session.user.email && ctx.session.user.email.length > 0) {
+        secretKey = await getAccSecretFromRubyApi(ctx.session.user.email);
+      }
+
+      return await SwapUserAssetToMotherUSDC({
+        prize: input.price,
+        userPubKey: ctx.session.user.id,
+        secretKey: secretKey,
+        signWith: input.signWith,
+      });
+
+
+
+    }),
+  makeSwapUpdate: protectedProcedure
+    .input(z.object({
+      bountyId: z.number(),
+
+    }))
+    .mutation(async ({ input, ctx }) => {
+      const bounty = await ctx.db.bounty.update({
+        where: {
+          id: input.bountyId,
+        },
+        data: {
+          isSwaped: true,
+        },
+      });
+    }),
+
 });

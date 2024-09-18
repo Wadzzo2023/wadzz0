@@ -1,6 +1,9 @@
 import clsx from "clsx";
 import { format, formatDate } from "date-fns";
 import {
+  ArrowLeft,
+  ArrowLeftRight,
+  ArrowRight,
   Clock,
   Crown,
   DatabaseZap,
@@ -56,50 +59,47 @@ import useNeedSign from "~/lib/hook";
 import { useBountyRightStore } from "~/lib/state/bounty/use-bounty-store";
 import { usePopUpState } from "~/lib/state/right-pop";
 import { useUserStellarAcc } from "~/lib/state/wallete/stellar-balances";
-import { PLATFORM_ASSET } from "~/lib/stellar/constant";
+import {
+  PLATFORM_ASSET,
+  PLATFORM_FEE,
+  TrxBaseFeeInPlatformAsset,
+} from "~/lib/stellar/constant";
 
 import { api } from "~/utils/api";
+import { useSession } from "next-auth/react";
+import { clientsign, WalletType } from "package/connect_wallet";
+import { clientSelect } from "~/lib/stellar/fan/utils";
+import {
+  getAssetPrice,
+  getAssetToUSDCRate,
+} from "~/lib/stellar/fan/get_token_price";
 
 const SingleBountyPage = () => {
-  const bountyStore = useBountyRightStore();
-  const pop = usePopUpState();
-
   const router = useRouter();
   const { id } = router.query;
   const { data: Owner } = api.bounty.Bounty.isOwnerOfBounty.useQuery({
     BountyId: Number(id),
   });
-  const isAlreadyJoin = api.bounty.Bounty.isAlreadyJoined.useQuery({
-    BountyId: Number(id) ?? 0,
-  });
 
-  return (
-    <>
-      {!isAlreadyJoin ? (
-        <></>
-      ) : Owner?.isOwner ? (
-        <AdminBountyPage />
-      ) : (
-        <UserBountyPage />
-      )}
-    </>
-  );
+  return <>{Owner?.isOwner ? <AdminBountyPage /> : <UserBountyPage />}</>;
 };
 
 export default SingleBountyPage;
 
 const UserBountyPage = () => {
   const { onOpen } = useModal();
+  const session = useSession();
+  const { needSign } = useNeedSign();
   const router = useRouter();
   const { id } = router.query;
-  console.log(id);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+
   const utils = api.useUtils();
   const { data } = api.bounty.Bounty.getBountyByID.useQuery({
     BountyId: Number(id),
   });
-  const { data: totalComment } = api.bounty.Bounty.getBountyComments.useQuery({
-    bountyId: Number(id),
-  });
+
   const { data: submissionData } =
     api.bounty.Bounty.getBountyAttachmentByUserId.useQuery({
       BountyId: Number(id),
@@ -130,10 +130,49 @@ const UserBountyPage = () => {
       await router.push(`/bounty/${Number(id)}`);
     },
   });
-  const pop = usePopUpState();
-  const bountyStore = useBountyRightStore();
+
   const handleJoinBounty = (id: number) => {
     joinBountyMutation.mutate({ BountyId: id });
+  };
+
+  const MakeSwapUpdateMutation = api.bounty.Bounty.makeSwapUpdate.useMutation({
+    onSuccess: async (data) => {
+      toast.success("Swap Successfull");
+
+      await utils.bounty.Bounty.getBountyByID.refetch();
+      setLoading(false);
+    },
+  });
+  const swapAssetToUSDC = api.bounty.Bounty.swapAssetToUSDC.useMutation({
+    onSuccess: async (data, variables) => {
+      if (data) {
+        setLoading(true);
+        const clientResponse = await clientsign({
+          presignedxdr: data.xdr,
+          walletType: session.data?.user?.walletType,
+          pubkey: data.pubKey,
+          test: clientSelect(),
+        });
+        if (clientResponse) {
+          MakeSwapUpdateMutation.mutate({
+            bountyId: variables.bountyId,
+          });
+        }
+      }
+    },
+  });
+  const { data: oneUSDCEqual } =
+    api.bounty.Bounty.getAssetToUSDCRate.useQuery();
+  const { data: oneASSETEqual } = api.bounty.Bounty.getPlatformAsset.useQuery();
+
+  const handleSwap = (id: number, price: number) => {
+    setLoading(true);
+    swapAssetToUSDC.mutate({
+      bountyId: id,
+      price: price,
+      signWith: needSign(),
+    });
+    setLoading(false);
   };
 
   const { data: Owner } = api.bounty.Bounty.isOwnerOfBounty.useQuery({
@@ -143,7 +182,8 @@ const UserBountyPage = () => {
   const isAlreadyJoin = api.bounty.Bounty.isAlreadyJoined.useQuery({
     BountyId: Number(id) ?? 0,
   });
-  if (data && isAlreadyJoin.data && Owner) {
+
+  if (data && isAlreadyJoin.data && Owner && oneUSDCEqual && oneASSETEqual) {
     return (
       <div className="container mx-auto py-8">
         <div className="p-2">
@@ -337,6 +377,97 @@ const UserBountyPage = () => {
                     Submit Solution
                   </Button>
                 </div>
+                {data.winnerId &&
+                  data.winnerId === session.data?.user.id &&
+                  (session.data?.user?.walletType === WalletType.emailPass ||
+                    session.data?.user?.walletType === WalletType.apple ||
+                    session.data?.user?.walletType === WalletType.google) && (
+                    <>
+                      <div className="flex flex-col gap-2">
+                        <div className="">
+                          <Dialog
+                            open={isDialogOpen}
+                            onOpenChange={setIsDialogOpen}
+                          >
+                            <DialogTrigger asChild>
+                              <Button
+                                className=""
+                                disabled={
+                                  data.isSwaped ? true : false || loading
+                                }
+                              >
+                                <span className="flex items-center">
+                                  SWAP {PLATFORM_ASSET.code}{" "}
+                                  <ArrowRight className="ml-2 mr-2" size={16} />{" "}
+                                  USDC
+                                </span>
+                              </Button>
+                            </DialogTrigger>
+                            <DialogContent className="sm:max-w-[425px]">
+                              <DialogHeader>
+                                <DialogTitle>Confirmation </DialogTitle>
+                              </DialogHeader>
+                              <div className="">
+                                <div className="border-b-2 py-2">
+                                  Do you want to swap{" "}
+                                  <span className="font-bold text-red-500">
+                                    {data.priceInBand} {PLATFORM_ASSET.code}
+                                  </span>{" "}
+                                  to USDC ?
+                                </div>
+                                <div className="border-b-2 py-2 ">
+                                  You will need total{" "}
+                                  <span className="font-bold text-red-500">
+                                    {" "}
+                                    {data?.priceInBand +
+                                      Number(TrxBaseFeeInPlatformAsset) +
+                                      Number(PLATFORM_FEE)}{" "}
+                                    {PLATFORM_ASSET.code}
+                                  </span>{" "}
+                                  to swap.
+                                </div>
+                                <span className="text-xs text-red-500">
+                                  NOTE: This is a one time operation! You can
+                                  {"'t"} undo this operation
+                                </span>
+                              </div>
+                              <div>
+                                You will get total{" "}
+                                {data.priceInBand *
+                                  (oneASSETEqual / oneUSDCEqual)}{" "}
+                                USDC
+                              </div>
+                              <DialogFooter className=" w-full">
+                                <div className="flex w-full gap-4  ">
+                                  <DialogClose className="w-full">
+                                    <Button
+                                      variant="outline"
+                                      className="w-full"
+                                    >
+                                      Cancel
+                                    </Button>
+                                  </DialogClose>
+                                  <Button
+                                    disabled={
+                                      data.isSwaped ? true : false || loading
+                                    }
+                                    variant="destructive"
+                                    type="submit"
+                                    onClick={() =>
+                                      handleSwap(data.id, data.priceInBand)
+                                    }
+                                    className="w-full"
+                                  >
+                                    Confirm
+                                  </Button>
+                                </div>
+                              </DialogFooter>
+                            </DialogContent>
+                          </Dialog>
+                        </div>
+                      </div>
+                    </>
+                  )}
               </CardFooter>
             </Card>
           ) : data.requiredBalance > platformAssetBalance ? (
