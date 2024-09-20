@@ -45,6 +45,7 @@
     "@tailwindcss/typography": "^0.5.13",
     "@tanstack/react-query": "^4.36.1",
     "@tanstack/react-table": "^8.20.5",
+    "@trigger.dev/sdk": "^3.0.5",
     "@trpc/client": "^10.45.2",
     "@trpc/next": "^10.45.2",
     "@trpc/react-query": "^10.45.2",
@@ -109,6 +110,7 @@
     "zustand": "^4.5.4"
   },
   "devDependencies": {
+    "@trigger.dev/build": "^3.0.5",
     "@types/bcrypt": "^5.0.2",
     "@types/eslint": "^8.56.10",
     "@types/formidable": "^3.4.5",
