@@ -1,4 +1,5 @@
 import { BountyStatus, NotificationType, Prisma } from "@prisma/client"; // Assuming you are using Prisma
+import { task } from "@trigger.dev/sdk/v3";
 import { getAccSecretFromRubyApi } from "package/connect_wallet/src/lib/stellar/get-acc-secret";
 import { z } from "zod";
 import { BountyCommentSchema } from "~/components/fan/creator/bounty/Add-Bounty-Comment";
@@ -25,6 +26,7 @@ import {
   publicProcedure,
 } from "~/server/api/trpc";
 import { swapTask } from "~/trigger/swap";
+import { runs } from "@trigger.dev/sdk/v3";
 
 const getAllBountyByUserIdInput = z.object({
   limit: z.number().min(1).max(100).default(10),
@@ -902,6 +904,16 @@ export const BountyRoute = createTRPCRouter({
         xdr: xdr.xdr,
         bountyId: input.bountyId,
       });
+      if (res.id) {
+        await ctx.db.bounty.update({
+          where: {
+            id: input.bountyId,
+          },
+          data: {
+            taskId: res.id,
+          },
+        });
+      }
       return res.id;
     }),
   makeSwapUpdate: protectedProcedure
@@ -920,4 +932,16 @@ export const BountyRoute = createTRPCRouter({
         },
       });
     }),
+
+  getSwapTaskInfo: protectedProcedure
+    .input(
+      z.object({
+        taskId: z.string(),
+      }),
+    ).query(async ({ input, ctx }) => {
+      const result = await runs.retrieve(input.taskId);
+      console.log("result", result);
+      return result
+    })
+
 });

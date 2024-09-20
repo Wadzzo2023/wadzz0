@@ -4,24 +4,30 @@ import { db } from "~/server/db";
 
 export const swapTask = task({
   id: "swap-asset-usdt",
-  run: async (payload: { xdr: string; bountyId: number }, { ctx }) => {
-    const { xdr, bountyId } = payload;
-    const res = await submitSignedXDRToServer4User(xdr);
-    if (res) {
-      await db.bounty.update({
-        where: {
-          id: bountyId,
-        },
-        data: {
-          isSwaped: true,
-        },
-      });
-      return {
-        message: "Swap task completed",
-      };
-    }
-    return {
-      message: "Swap task failed",
-    };
+  retry: {
+    maxAttempts: 5,
+    factor: 1.8,
+    minTimeoutInMs: 500,
+    maxTimeoutInMs: 30_000,
   },
+
+  run: async (payload: { xdr: string; bountyId: number }) => {
+    const { xdr } = payload;
+    const res = await submitSignedXDRToServer4User(xdr);
+    if (!res) {
+      throw new Error("Swap failed");
+    }
+  },
+  onSuccess: async (payload: { xdr: string; bountyId: number }) => {
+    console.log("Swap success Swap success Swap success Swap success Swap success");
+    await db.bounty.update({
+      where: {
+        id: payload.bountyId,
+      },
+      data: {
+        isSwaped: true,
+      },
+    });
+  },
+
 });

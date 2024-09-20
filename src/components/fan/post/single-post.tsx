@@ -38,7 +38,7 @@ export function SinglePostView({ postId }: { postId: number }) {
   if (post.data) {
     const creatorProfileUrl = `/fans/creator/${post.data.creatorId}`;
     const postUrl = `/fans/posts/${post.data.id}`;
-    // console.log("COMMNETSS", comments.data);
+    console.log("COMMNETSS", comments.data);
     return (
       <div className=" flex h-full flex-col  items-center  md:p-5 ">
         <h2 className="mb-5 text-center text-2xl font-bold">

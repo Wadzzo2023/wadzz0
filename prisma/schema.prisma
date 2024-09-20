@@ -536,6 +536,7 @@ model Bounty {
     // New field to reference the winner
     winnerId        String? // Optional: Can be null until a winner is selected
     winner          User?               @relation(fields: [winnerId], references: [id], onDelete: SetNull)
+    taskId          String? // Optional: Task ID for the bounty
 
     @@index([title, description])
 }

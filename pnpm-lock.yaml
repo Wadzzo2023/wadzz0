@@ -218,6 +218,9 @@ importers:
       plaiceholder:
         specifier: ^2.5.0
         version: 2.5.0(sharp@0.33.5)
+      prisma:
+        specifier: ^5.19.1
+        version: 5.19.1
       react:
         specifier: 18.2.0
         version: 18.2.0
@@ -348,9 +351,6 @@ importers:
       prettier-plugin-tailwindcss:
         specifier: ^0.5.14
         version: 0.5.14(prettier@3.3.3)
-      prisma:
-        specifier: ^5.16.2
-        version: 5.19.1
       tailwindcss:
         specifier: ^3.4.4
         version: 3.4.11
