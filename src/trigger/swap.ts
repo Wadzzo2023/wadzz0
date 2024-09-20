@@ -1,14 +1,27 @@
-import { logger, task, wait } from "@trigger.dev/sdk/v3";
+import { task } from "@trigger.dev/sdk/v3";
+import { submitSignedXDRToServer4User } from "package/connect_wallet/src/lib/stellar/trx/payment_fb_g";
+import { db } from "~/server/db";
 
-export const helloWorldTask = task({
+export const swapTask = task({
   id: "swap-asset-usdt",
-  run: async (payload: any, { ctx }) => {
-    logger.log("Hello, world!", { payload, ctx });
-
-    await wait.for({ seconds: 5 });
-
+  run: async (payload: { xdr: string; bountyId: number }, { ctx }) => {
+    const { xdr, bountyId } = payload;
+    const res = await submitSignedXDRToServer4User(xdr);
+    if (res) {
+      await db.bounty.update({
+        where: {
+          id: bountyId,
+        },
+        data: {
+          isSwaped: true,
+        },
+      });
+      return {
+        message: "Swap task completed",
+      };
+    }
     return {
-      message: "Hello, world!",
+      message: "Swap task failed",
     };
   },
 });

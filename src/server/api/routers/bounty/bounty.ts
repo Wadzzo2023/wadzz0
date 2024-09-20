@@ -1,4 +1,3 @@
-import { useMutation } from '@tanstack/react-query';
 import { BountyStatus, NotificationType, Prisma } from "@prisma/client"; // Assuming you are using Prisma
 import { getAccSecretFromRubyApi } from "package/connect_wallet/src/lib/stellar/get-acc-secret";
 import { z } from "zod";
@@ -14,13 +13,18 @@ import {
   SendBountyBalanceToWinner,
   SwapUserAssetToMotherUSDC,
 } from "~/lib/stellar/bounty/bounty";
-import { getAssetPrice, getAssetToUSDCRate, getPlatfromAssetPrice } from "~/lib/stellar/fan/get_token_price";
+import {
+  getAssetPrice,
+  getAssetToUSDCRate,
+  getPlatfromAssetPrice,
+} from "~/lib/stellar/fan/get_token_price";
 import { SignUser } from "~/lib/stellar/utils";
 import {
   createTRPCRouter,
   protectedProcedure,
   publicProcedure,
 } from "~/server/api/trpc";
+import { swapTask } from "~/trigger/swap";
 
 const getAllBountyByUserIdInput = z.object({
   limit: z.number().min(1).max(100).default(10),
@@ -90,9 +94,7 @@ export const BountyRoute = createTRPCRouter({
         select: { userId: true },
       });
 
-
       const followerIds = followers.map((follower) => follower.userId);
-
 
       const createNotification = async (notifierId: string) => {
         await ctx.db.notificationObject.create({
@@ -113,13 +115,9 @@ export const BountyRoute = createTRPCRouter({
         });
       };
 
-
       for (const followerId of followerIds) {
         await createNotification(followerId);
       }
-
-
-
     }),
 
   getAllBounties: publicProcedure
@@ -357,67 +355,66 @@ export const BountyRoute = createTRPCRouter({
     .input(
       z.object({
         BountyId: z.number(),
-      })).query(async ({ input, ctx }) => {
-        const bounty = await ctx.db.bounty.findUnique({
-          where: {
-            id: input.BountyId,
-          },
-          include: {
-            participants: {
-              select: {
-                user: true,
-              },
-            },
-            creator: {
-              select: {
-                id: true,
-                name: true,
-                profileUrl: true,
-
-              },
-            },
-            winner: {
-              select: {
-                name: true,
-              }
-            },
-            submissions: {
-              select: {
-                user: {
-                  select: {
-                    id: true,
-                    name: true,
-                    image: true,
-                  }
-                },
-                attachmentUrl: true,
-              }
-            },
-            comments: {
-              select: {
-                user: {
-                  select: {
-                    id: true,
-                    name: true,
-                    image: true
-                  }
-                },
-                content: true
-              }
-            },
-            _count: {
-              select: {
-                participants: true,
-                submissions: true,
-                comments: true
-              }
-
-            }
-
-          },
-        });
-        return bounty;
       }),
+    )
+    .query(async ({ input, ctx }) => {
+      const bounty = await ctx.db.bounty.findUnique({
+        where: {
+          id: input.BountyId,
+        },
+        include: {
+          participants: {
+            select: {
+              user: true,
+            },
+          },
+          creator: {
+            select: {
+              id: true,
+              name: true,
+              profileUrl: true,
+            },
+          },
+          winner: {
+            select: {
+              name: true,
+            },
+          },
+          submissions: {
+            select: {
+              user: {
+                select: {
+                  id: true,
+                  name: true,
+                  image: true,
+                },
+              },
+              attachmentUrl: true,
+            },
+          },
+          comments: {
+            select: {
+              user: {
+                select: {
+                  id: true,
+                  name: true,
+                  image: true,
+                },
+              },
+              content: true,
+            },
+          },
+          _count: {
+            select: {
+              participants: true,
+              submissions: true,
+              comments: true,
+            },
+          },
+        },
+      });
+      return bounty;
+    }),
   createBountyAttachment: protectedProcedure
     .input(
       z.object({
@@ -463,8 +460,6 @@ export const BountyRoute = createTRPCRouter({
           },
         },
       });
-
-
     }),
 
   getBountyAttachmentByUserId: protectedProcedure
@@ -629,7 +624,6 @@ export const BountyRoute = createTRPCRouter({
           },
         },
       });
-
     }),
   getDeleteXdr: protectedProcedure
     .input(
@@ -744,31 +738,28 @@ export const BountyRoute = createTRPCRouter({
         });
       }
 
-
       const bountys = await ctx.db.bounty.findUnique({
         where: { id: input.bountyId },
         select: { creatorId: true },
       });
-
 
       const previousCommenters = await ctx.db.bountyComment.findMany({
         where: {
           bountyId: input.bountyId,
           userId: { not: ctx.session.user.id },
         },
-        distinct: ['userId'],
+        distinct: ["userId"],
         select: { userId: true },
       });
 
-
-      const previousCommenterIds = previousCommenters.map(comment => comment.userId);
-
+      const previousCommenterIds = previousCommenters.map(
+        (comment) => comment.userId,
+      );
 
       const usersToNotify = new Set([
         bountys?.creatorId,
         ...previousCommenterIds,
       ]);
-
 
       usersToNotify.delete(ctx.session.user.id);
 
@@ -776,12 +767,17 @@ export const BountyRoute = createTRPCRouter({
         await ctx.db.notificationObject.create({
           data: {
             actorId: ctx.session.user.id,
-            entityType: input.parentId ? NotificationType.BOUNTY_REPLY : NotificationType.BOUNTY_COMMENT,
+            entityType: input.parentId
+              ? NotificationType.BOUNTY_REPLY
+              : NotificationType.BOUNTY_COMMENT,
             entityId: input.bountyId,
             isUser: false,
             Notification: {
               create: Array.from(usersToNotify)
-                .filter((notifierId): notifierId is string => notifierId !== undefined)
+                .filter(
+                  (notifierId): notifierId is string =>
+                    notifierId !== undefined,
+                )
                 .map((notifierId) => ({
                   notifierId,
                   isCreator: notifierId === bountys?.creatorId,
@@ -882,32 +878,38 @@ export const BountyRoute = createTRPCRouter({
       return bounty;
     }),
   swapAssetToUSDC: protectedProcedure
-    .input(z.object({
-      bountyId: z.number(),
-      price: z.number(),
-      signWith: SignUser
-    }))
+    .input(
+      z.object({
+        bountyId: z.number(),
+        price: z.number(),
+        signWith: SignUser,
+      }),
+    )
     .mutation(async ({ input, ctx }) => {
       let secretKey;
       if (ctx.session.user.email && ctx.session.user.email.length > 0) {
         secretKey = await getAccSecretFromRubyApi(ctx.session.user.email);
       }
 
-      return await SwapUserAssetToMotherUSDC({
+      const xdr = await SwapUserAssetToMotherUSDC({
         prize: input.price,
         userPubKey: ctx.session.user.id,
         secretKey: secretKey,
         signWith: input.signWith,
       });
 
-
-
+      const res = await swapTask.trigger({
+        xdr: xdr.xdr,
+        bountyId: input.bountyId,
+      });
+      return res.id;
     }),
   makeSwapUpdate: protectedProcedure
-    .input(z.object({
-      bountyId: z.number(),
-
-    }))
+    .input(
+      z.object({
+        bountyId: z.number(),
+      }),
+    )
     .mutation(async ({ input, ctx }) => {
       const bounty = await ctx.db.bounty.update({
         where: {
@@ -918,5 +920,4 @@ export const BountyRoute = createTRPCRouter({
         },
       });
     }),
-
 });

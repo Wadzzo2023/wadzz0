@@ -1,31 +1,15 @@
 import clsx from "clsx";
-import { format, formatDate } from "date-fns";
+import { format } from "date-fns";
 import {
-  ArrowLeft,
-  ArrowLeftRight,
   ArrowRight,
-  Clock,
   Crown,
-  DatabaseZap,
   DollarSign,
-  Edit,
-  File,
   MessageSquare,
   Paperclip,
   Trash,
   Trophy,
-  UploadCloud,
   Users,
 } from "lucide-react";
-import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "~/components/shadcn/ui/dialog";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -36,7 +20,6 @@ import { AddBountyComment } from "~/components/fan/creator/bounty/Add-Bounty-Com
 import ViewBountyComment from "~/components/fan/creator/bounty/View-Bounty-Comment";
 import { useModal } from "~/components/hooks/use-modal-store";
 import { Preview } from "~/components/preview";
-import { AvatarImage } from "~/components/shadcn/ui/avatar";
 import { Badge } from "~/components/shadcn/ui/badge";
 import { Button } from "~/components/shadcn/ui/button";
 import {
@@ -46,6 +29,15 @@ import {
   CardHeader,
   CardTitle,
 } from "~/components/shadcn/ui/card";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "~/components/shadcn/ui/dialog";
 import { Separator } from "~/components/shadcn/ui/separator";
 import {
   Tabs,
@@ -56,8 +48,6 @@ import {
 import Alert from "~/components/ui/alert";
 import Avater from "~/components/ui/avater";
 import useNeedSign from "~/lib/hook";
-import { useBountyRightStore } from "~/lib/state/bounty/use-bounty-store";
-import { usePopUpState } from "~/lib/state/right-pop";
 import { useUserStellarAcc } from "~/lib/state/wallete/stellar-balances";
 import {
   PLATFORM_ASSET,
@@ -65,14 +55,9 @@ import {
   TrxBaseFeeInPlatformAsset,
 } from "~/lib/stellar/constant";
 
-import { api } from "~/utils/api";
 import { useSession } from "next-auth/react";
-import { clientsign, WalletType } from "package/connect_wallet";
-import { clientSelect } from "~/lib/stellar/fan/utils";
-import {
-  getAssetPrice,
-  getAssetToUSDCRate,
-} from "~/lib/stellar/fan/get_token_price";
+import { WalletType } from "package/connect_wallet";
+import { api } from "~/utils/api";
 
 const SingleBountyPage = () => {
   const router = useRouter();
@@ -135,29 +120,30 @@ const UserBountyPage = () => {
     joinBountyMutation.mutate({ BountyId: id });
   };
 
-  const MakeSwapUpdateMutation = api.bounty.Bounty.makeSwapUpdate.useMutation({
-    onSuccess: async (data) => {
-      toast.success("Swap Successfull");
+  // const MakeSwapUpdateMutation = api.bounty.Bounty.makeSwapUpdate.useMutation({
+  //   onSuccess: async (data) => {
+  //     toast.success("Swap Successfull");
 
-      await utils.bounty.Bounty.getBountyByID.refetch();
-      setLoading(false);
-    },
-  });
+  //     await utils.bounty.Bounty.getBountyByID.refetch();
+  //     setLoading(false);
+  //   },
+  // });
   const swapAssetToUSDC = api.bounty.Bounty.swapAssetToUSDC.useMutation({
     onSuccess: async (data, variables) => {
       if (data) {
-        setLoading(true);
-        const clientResponse = await clientsign({
-          presignedxdr: data.xdr,
-          walletType: session.data?.user?.walletType,
-          pubkey: data.pubKey,
-          test: clientSelect(),
-        });
-        if (clientResponse) {
-          MakeSwapUpdateMutation.mutate({
-            bountyId: variables.bountyId,
-          });
-        }
+        console.log(data);
+        //   setLoading(true);
+        //   const clientResponse = await clientsign({
+        //     presignedxdr: data.xdr,
+        //     walletType: session.data?.user?.walletType,
+        //     pubkey: data.pubKey,
+        //     test: clientSelect(),
+        //   });
+        //   if (clientResponse) {
+        //     MakeSwapUpdateMutation.mutate({
+        //       bountyId: variables.bountyId,
+        //     });
+        //   }
       }
     },
   });
