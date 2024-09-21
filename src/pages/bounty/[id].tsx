@@ -65,8 +65,10 @@ import {
   TrxBaseFeeInPlatformAsset,
 } from "~/lib/stellar/constant";
 
-import { api } from "~/utils/api";
 import { useSession } from "next-auth/react";
+
+import { api } from "~/utils/api";
+
 import { clientsign, WalletType } from "package/connect_wallet";
 import { clientSelect } from "~/lib/stellar/fan/utils";
 import {
@@ -93,7 +95,7 @@ const UserBountyPage = () => {
   const router = useRouter();
   const { id } = router.query;
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState<boolean>(false);
 
   const utils = api.useUtils();
   const { data } = api.bounty.Bounty.getBountyByID.useQuery({
@@ -155,6 +157,7 @@ const UserBountyPage = () => {
           test: clientSelect(),
         });
         if (clientResponse) {
+          setLoading(true);
           MakeSwapUpdateMutation.mutate({
             bountyId: variables.bountyId,
           });
@@ -189,13 +192,13 @@ const UserBountyPage = () => {
     BountyId: Number(id) ?? 0,
   });
 
-  if (data && isAlreadyJoin.data && Owner && oneUSDCEqual && oneASSETEqual) {
+  if (data && isAlreadyJoin.data) {
     return (
       <div className="container mx-auto py-8">
         <div className="p-2">
           {isAlreadyJoin.isLoading ? (
             <div className="mb-2.5 h-10  bg-gray-200 dark:bg-gray-700"></div>
-          ) : isAlreadyJoin.data.isJoined || Owner.isOwner ? (
+          ) : isAlreadyJoin.data.isJoined || Owner?.isOwner ? (
             <Card
               className={clsx("mx-auto w-full max-w-4xl", {
                 "blur-sm": !isAlreadyJoin.data,
@@ -340,7 +343,7 @@ const UserBountyPage = () => {
                     </Badge>
                     <Badge variant="destructive" className="flex items-center">
                       <Trophy className="mr-1 h-4 w-4" />
-                      {data?.priceInBand} {PLATFORM_ASSET.code}
+                      {data?.priceInBand.toFixed(3)} {PLATFORM_ASSET.code}
                     </Badge>
                     <Badge variant="secondary" className="flex items-center">
                       <Users className="mr-1 h-4 w-4" />
@@ -399,7 +402,11 @@ const UserBountyPage = () => {
                               <Button
                                 className=""
                                 disabled={
-                                  data.isSwaped ? true : false || loading
+                                  loading || data.isSwaped
+                                    ? true
+                                    : false ||
+                                      swapAssetToUSDC.isLoading ||
+                                      MakeSwapUpdateMutation.isLoading
                                 }
                               >
                                 <span className="flex items-center">
@@ -437,12 +444,14 @@ const UserBountyPage = () => {
                                   {"'t"} undo this operation
                                 </span>
                               </div>
-                              <div>
-                                You will get total{" "}
-                                {data.priceInBand *
-                                  (oneASSETEqual / oneUSDCEqual)}{" "}
-                                USDC
-                              </div>
+                              {oneUSDCEqual && oneASSETEqual && (
+                                <div>
+                                  You will get total{" "}
+                                  {data.priceInBand *
+                                    (oneASSETEqual / oneUSDCEqual)}{" "}
+                                  USDC
+                                </div>
+                              )}
                               <DialogFooter className=" w-full">
                                 <div className="flex w-full gap-4  ">
                                   <DialogClose className="w-full">
@@ -455,10 +464,13 @@ const UserBountyPage = () => {
                                   </DialogClose>
                                   <Button
                                     disabled={
-                                      data.isSwaped ? true : false || loading
+                                      loading || data.isSwaped
+                                        ? true
+                                        : false ||
+                                          swapAssetToUSDC.isLoading ||
+                                          MakeSwapUpdateMutation.isLoading
                                     }
                                     variant="destructive"
-                                    type="submit"
                                     onClick={() =>
                                       handleSwap(data.id, data.priceInBand)
                                     }
@@ -705,6 +717,10 @@ const AdminBountyPage = () => {
       toast.success("Bounty Deleted");
       setLoadingBountyId(null);
     },
+    onError: (error) => {
+      toast.error(error.message);
+      setLoadingBountyId(null);
+    },
   });
 
   const { data: allSubmission } =
@@ -893,7 +909,8 @@ const AdminBountyPage = () => {
                                     loadingBountyId === data.id ||
                                     data.winner?.name
                                       ? true
-                                      : false
+                                      : false ||
+                                        GetSendBalanceToWinnerXdr.isLoading
                                   }
                                   className=" me-2  bg-purple-100 px-2.5 py-0.5 text-xs font-medium text-purple-800 dark:bg-purple-900 dark:text-purple-300 "
                                   variant="outline"
@@ -928,7 +945,8 @@ const AdminBountyPage = () => {
                                         loadingBountyId === data.id ||
                                         data.winner?.name
                                           ? true
-                                          : false
+                                          : false ||
+                                            GetSendBalanceToWinnerXdr.isLoading
                                       }
                                       variant="destructive"
                                       type="submit"
@@ -1025,17 +1043,53 @@ const AdminBountyPage = () => {
               >
                 Edit Bounty
               </Button>
-              <Button
-                variant="destructive"
-                disabled={
-                  loadingBountyId === data.id || data.winner?.name
-                    ? true
-                    : false
-                }
-                onClick={() => handleDelete(data.id, data.priceInBand)}
-              >
-                Delete Bounty
-              </Button>
+              <div className="flex flex-col gap-2">
+                <div className="">
+                  <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                    <DialogTrigger asChild>
+                      <Button variant="destructive">Delete Bounty</Button>
+                    </DialogTrigger>
+                    <DialogContent className="sm:max-w-[425px]">
+                      <DialogHeader>
+                        <DialogTitle>Confirmation </DialogTitle>
+                      </DialogHeader>
+
+                      <div className="border-b-2 py-2">
+                        Do you want to delete this bounty?
+                        <span className="font-bold text-red-500">
+                          {data.priceInBand} {PLATFORM_ASSET.code}
+                        </span>{" "}
+                        to USDC ?
+                      </div>
+
+                      <DialogFooter className=" w-full">
+                        <div className="flex w-full gap-4  ">
+                          <DialogClose className="w-full">
+                            <Button variant="outline" className="w-full">
+                              Cancel
+                            </Button>
+                          </DialogClose>
+                          <Button
+                            disabled={
+                              loadingBountyId === data.id || data.winner?.name
+                                ? true
+                                : false
+                            }
+                            variant="destructive"
+                            type="submit"
+                            onClick={() =>
+                              handleDelete(data.id, data.priceInBand)
+                            }
+                            className="w-full"
+                          >
+                            Confirm
+                          </Button>
+                        </div>
+                      </DialogFooter>
+                    </DialogContent>
+                  </Dialog>
+                </div>
+              </div>
             </div>
           </CardFooter>
         </Card>
