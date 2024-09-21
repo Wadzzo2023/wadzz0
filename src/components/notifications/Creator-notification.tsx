@@ -5,90 +5,17 @@ import React, { useState } from "react";
 import { Separator } from "~/components/shadcn/ui/separator";
 import { api } from "~/utils/api";
 import { formatPostCreatedAt } from "~/utils/format-date";
-import { getNotificationMessage } from "~/utils/notificationConfig";
 
-export default function CreatorNotofication() {
+const CreatorNotifications = () => {
   return (
-    // <div className="flex flex-col items-center gap-4 p-5 ">
-    //   <h2 className="text-2xl font-bold">Notifications</h2>
-    //   <div className="bg-base-200 p-4">
-    //     {notifications.data?.pages.map((page) => {
-    //       return page.items.map((el) => {
-    //         const { message, url } = getNotificationMessage(
-    //           el.notificationObject,
-    //         );
-    //         return (
-    //           <div key={el.id} className="flex flex-col hover:bg-neutral">
-    //             <Link
-    //               href={url}
-    //               className="p-4 hover:bg-base-100 hover:underline"
-    //             >
-    //               {message} {formatPostCreatedAt(el.createdAt)}
-    //             </Link>
-    //           </div>
-    //         );
-    //       });
-    //     })}
-
-    //     {notifications.hasNextPage && (
-    //       <button
-    //         className="btn"
-    //         onClick={() => void notifications.fetchNextPage()}
-    //       >
-    //         Load More
-    //       </button>
-    //     )}
-    //   </div>
-    // </div>
-    <div className=" ">
-      <div className="flex   flex-row items-start justify-center">
+    <div className="">
+      <div className="flex  flex-row items-start justify-center">
         <Notifications />
       </div>
     </div>
   );
-}
-
-interface NotificationObject {
-  entityType: NotificationType;
-  actor: {
-    id: string;
-    name: string;
-    image: string;
-  };
-}
-
+};
 const Notifications = () => {
-  const [newNotifications, setNewNotifications] = useState([0, 1, 2]);
-
-  function newNotificationCount() {
-    return newNotifications.length;
-  }
-
-  function isNew(id: number) {
-    return newNotifications.includes(id);
-  }
-
-  function markAllAsRead() {
-    setNewNotifications([]);
-  }
-
-  function addNewNotification(id: number) {
-    setNewNotifications([...newNotifications, id]);
-  }
-
-  function toggleNotification(id: number) {
-    if (newNotifications.includes(id)) {
-      removeNewNotification(id);
-    } else {
-      addNewNotification(id);
-    }
-  }
-
-  function removeNewNotification(id: number) {
-    setNewNotifications(
-      newNotifications.filter((notification) => notification !== id),
-    );
-  }
   const notifications =
     api.fan.notification.getCreatorNotifications.useInfiniteQuery(
       { limit: 10 },
@@ -106,7 +33,7 @@ const Notifications = () => {
           </a> */}
         </div>
 
-        <div className="max-h-[500px] overflow-auto">
+        <div className="max-h-[70vh] min-h-[70vh] overflow-auto">
           {/* Mark Webber */}
           {notifications.data?.pages.map((page) => {
             return page.items.map((el) => {
@@ -165,16 +92,8 @@ const Notifications = () => {
               }
 
               return (
-                // <div key={el.id} className="flex flex-col hover:bg-neutral">
-                //   <Link
-                //     href={url}
-                //     className="p-4 hover:bg-base-100 hover:underline"
-                //   >
-                //     {message} {formatPostCreatedAt(el.createdAt)}
-                //   </Link>
-                // </div>
                 <>
-                  <div key={el.id} className="flex  gap-x-3  p-2">
+                  <div key={el.id} className="flex  gap-x-3 p-2">
                     {enable ? (
                       <Link href={url} className="flex">
                         <Image
@@ -193,7 +112,7 @@ const Notifications = () => {
                             <span className="message-describe"> {message}</span>
                           </a>
                           <div className="">
-                            <p className="message-duration text-gray-500">
+                            <p className="message-duration  text-start text-gray-500">
                               {formatPostCreatedAt(el.createdAt)}
                             </p>
                           </div>
@@ -212,12 +131,12 @@ const Notifications = () => {
                           }
                           alt=""
                         />
-                        <div className="ml-4 flex w-full flex-col">
+                        <div className="ml-4 flex w-full flex-col ">
                           <a>
                             <span className="message-describe"> {message}</span>
                           </a>
                           <div className="">
-                            <p className="message-duration text-gray-500">
+                            <p className="message-duration text-start text-gray-500">
                               {formatPostCreatedAt(el.createdAt)}
                             </p>
                           </div>
@@ -234,7 +153,7 @@ const Notifications = () => {
 
           {notifications.hasNextPage && (
             <button
-              className="btn"
+              className="btn "
               onClick={() => void notifications.fetchNextPage()}
             >
               Load More
@@ -245,3 +164,5 @@ const Notifications = () => {
     </div>
   );
 };
+
+export default CreatorNotifications;

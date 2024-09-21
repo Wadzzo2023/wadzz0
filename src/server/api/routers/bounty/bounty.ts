@@ -1,4 +1,5 @@
-import { BountyStatus, Prisma } from "@prisma/client"; // Assuming you are using Prisma
+import { BountyStatus, NotificationType, Prisma } from "@prisma/client"; // Assuming you are using Prisma
+import { task } from "@trigger.dev/sdk/v3";
 import { getAccSecretFromRubyApi } from "package/connect_wallet/src/lib/stellar/get-acc-secret";
 import { z } from "zod";
 import { BountyCommentSchema } from "~/components/fan/creator/bounty/Add-Bounty-Comment";
@@ -11,14 +12,21 @@ import {
   SendBountyBalanceToMotherAccount,
   SendBountyBalanceToUserAccount,
   SendBountyBalanceToWinner,
+  SwapUserAssetToMotherUSDC,
 } from "~/lib/stellar/bounty/bounty";
-import { getPlatfromAssetPrice } from "~/lib/stellar/fan/get_token_price";
+import {
+  getAssetPrice,
+  getAssetToUSDCRate,
+  getPlatfromAssetPrice,
+} from "~/lib/stellar/fan/get_token_price";
 import { SignUser } from "~/lib/stellar/utils";
 import {
   createTRPCRouter,
   protectedProcedure,
   publicProcedure,
 } from "~/server/api/trpc";
+import { swapTask } from "~/trigger/swap";
+import { runs } from "@trigger.dev/sdk/v3";
 
 const getAllBountyByUserIdInput = z.object({
   limit: z.number().min(1).max(100).default(10),
@@ -83,7 +91,35 @@ export const BountyRoute = createTRPCRouter({
           imageUrls: input.medias ? input.medias.map((media) => media.url) : [],
         },
       });
-      console.log("bounty", bounty);
+      const followers = await ctx.db.follow.findMany({
+        where: { creatorId: ctx.session.user.id },
+        select: { userId: true },
+      });
+
+      const followerIds = followers.map((follower) => follower.userId);
+
+      const createNotification = async (notifierId: string) => {
+        await ctx.db.notificationObject.create({
+          data: {
+            actorId: ctx.session.user.id,
+            entityType: NotificationType.BOUNTY,
+            entityId: bounty.id,
+            isUser: true,
+            Notification: {
+              create: [
+                {
+                  notifierId,
+                  isCreator: false,
+                },
+              ],
+            },
+          },
+        });
+      };
+
+      for (const followerId of followerIds) {
+        await createNotification(followerId);
+      }
     }),
 
   getAllBounties: publicProcedure
@@ -218,6 +254,25 @@ export const BountyRoute = createTRPCRouter({
           userId: ctx.session.user.id,
         },
       });
+      // Notify the bounty creator about the new participant
+      if (bounty?.creatorId) {
+        await ctx.db.notificationObject.create({
+          data: {
+            actorId: ctx.session.user.id,
+            entityType: NotificationType.BOUNTY_PARTICIPANT,
+            entityId: input.BountyId,
+            isUser: true,
+            Notification: {
+              create: [
+                {
+                  notifierId: bounty.creatorId,
+                  isCreator: true,
+                },
+              ],
+            },
+          },
+        });
+      }
     }),
 
   getAllBountyByUserId: protectedProcedure
@@ -302,67 +357,66 @@ export const BountyRoute = createTRPCRouter({
     .input(
       z.object({
         BountyId: z.number(),
-      })).query(async ({ input, ctx }) => {
-        const bounty = await ctx.db.bounty.findUnique({
-          where: {
-            id: input.BountyId,
-          },
-          include: {
-            participants: {
-              select: {
-                user: true,
-              },
-            },
-            creator: {
-              select: {
-                id: true,
-                name: true,
-                profileUrl: true,
-
-              },
-            },
-            winner: {
-              select: {
-                name: true,
-              }
-            },
-            submissions: {
-              select: {
-                user: {
-                  select: {
-                    id: true,
-                    name: true,
-                    image: true,
-                  }
-                },
-                attachmentUrl: true,
-              }
-            },
-            comments: {
-              select: {
-                user: {
-                  select: {
-                    id: true,
-                    name: true,
-                    image: true
-                  }
-                },
-                content: true
-              }
-            },
-            _count: {
-              select: {
-                participants: true,
-                submissions: true,
-                comments: true
-              }
-
-            }
-
-          },
-        });
-        return bounty;
       }),
+    )
+    .query(async ({ input, ctx }) => {
+      const bounty = await ctx.db.bounty.findUnique({
+        where: {
+          id: input.BountyId,
+        },
+        include: {
+          participants: {
+            select: {
+              user: true,
+            },
+          },
+          creator: {
+            select: {
+              id: true,
+              name: true,
+              profileUrl: true,
+            },
+          },
+          winner: {
+            select: {
+              name: true,
+            },
+          },
+          submissions: {
+            select: {
+              user: {
+                select: {
+                  id: true,
+                  name: true,
+                  image: true,
+                },
+              },
+              attachmentUrl: true,
+            },
+          },
+          comments: {
+            select: {
+              user: {
+                select: {
+                  id: true,
+                  name: true,
+                  image: true,
+                },
+              },
+              content: true,
+            },
+          },
+          _count: {
+            select: {
+              participants: true,
+              submissions: true,
+              comments: true,
+            },
+          },
+        },
+      });
+      return bounty;
+    }),
   createBountyAttachment: protectedProcedure
     .input(
       z.object({
@@ -389,6 +443,23 @@ export const BountyRoute = createTRPCRouter({
           attachmentUrl: input.medias
             ? input.medias.map((media) => media.url)
             : [],
+        },
+      });
+
+      await ctx.db.notificationObject.create({
+        data: {
+          actorId: ctx.session.user.id,
+          entityType: NotificationType.BOUNTY_SUBMISSION,
+          entityId: input.BountyId,
+          isUser: true,
+          Notification: {
+            create: [
+              {
+                notifierId: bounty.creatorId,
+                isCreator: true,
+              },
+            ],
+          },
         },
       });
     }),
@@ -461,6 +532,13 @@ export const BountyRoute = createTRPCRouter({
   getCurrentUSDFromAsset: protectedProcedure.query(async ({ ctx }) => {
     return await getPlatfromAssetPrice();
   }),
+  getPlatformAsset: protectedProcedure.query(async ({ ctx }) => {
+    return await getAssetPrice();
+  }),
+
+  getAssetToUSDCRate: protectedProcedure.query(async ({ ctx }) => {
+    return await getAssetToUSDCRate();
+  }),
   getSendBalanceToWinnerXdr: protectedProcedure
     .input(
       z.object({
@@ -529,6 +607,23 @@ export const BountyRoute = createTRPCRouter({
         },
         data: {
           winnerId: input.userId,
+        },
+      });
+
+      await ctx.db.notificationObject.create({
+        data: {
+          actorId: ctx.session.user.id,
+          entityType: NotificationType.BOUNTY_WINNER,
+          entityId: input.BountyId,
+          isUser: true,
+          Notification: {
+            create: [
+              {
+                notifierId: input.userId,
+                isCreator: false,
+              },
+            ],
+          },
         },
       });
     }),
@@ -644,6 +739,55 @@ export const BountyRoute = createTRPCRouter({
           },
         });
       }
+
+      const bountys = await ctx.db.bounty.findUnique({
+        where: { id: input.bountyId },
+        select: { creatorId: true },
+      });
+
+      const previousCommenters = await ctx.db.bountyComment.findMany({
+        where: {
+          bountyId: input.bountyId,
+          userId: { not: ctx.session.user.id },
+        },
+        distinct: ["userId"],
+        select: { userId: true },
+      });
+
+      const previousCommenterIds = previousCommenters.map(
+        (comment) => comment.userId,
+      );
+
+      const usersToNotify = new Set([
+        bountys?.creatorId,
+        ...previousCommenterIds,
+      ]);
+
+      usersToNotify.delete(ctx.session.user.id);
+
+      if (usersToNotify.size > 0) {
+        await ctx.db.notificationObject.create({
+          data: {
+            actorId: ctx.session.user.id,
+            entityType: input.parentId
+              ? NotificationType.BOUNTY_REPLY
+              : NotificationType.BOUNTY_COMMENT,
+            entityId: input.bountyId,
+            isUser: false,
+            Notification: {
+              create: Array.from(usersToNotify)
+                .filter(
+                  (notifierId): notifierId is string =>
+                    notifierId !== undefined,
+                )
+                .map((notifierId) => ({
+                  notifierId,
+                  isCreator: notifierId === bountys?.creatorId,
+                })),
+            },
+          },
+        });
+      }
       return comment;
     }),
 
@@ -735,4 +879,69 @@ export const BountyRoute = createTRPCRouter({
       });
       return bounty;
     }),
+  swapAssetToUSDC: protectedProcedure
+    .input(
+      z.object({
+        bountyId: z.number(),
+        price: z.number(),
+        signWith: SignUser,
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      let secretKey;
+      if (ctx.session.user.email && ctx.session.user.email.length > 0) {
+        secretKey = await getAccSecretFromRubyApi(ctx.session.user.email);
+      }
+
+      const xdr = await SwapUserAssetToMotherUSDC({
+        prize: input.price,
+        userPubKey: ctx.session.user.id,
+        secretKey: secretKey,
+        signWith: input.signWith,
+      });
+
+      const res = await swapTask.trigger({
+        xdr: xdr.xdr,
+        bountyId: input.bountyId,
+      });
+      if (res.id) {
+        await ctx.db.bounty.update({
+          where: {
+            id: input.bountyId,
+          },
+          data: {
+            taskId: res.id,
+          },
+        });
+      }
+      return res.id;
+    }),
+  makeSwapUpdate: protectedProcedure
+    .input(
+      z.object({
+        bountyId: z.number(),
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      const bounty = await ctx.db.bounty.update({
+        where: {
+          id: input.bountyId,
+        },
+        data: {
+          isSwaped: true,
+        },
+      });
+    }),
+
+  getSwapTaskInfo: protectedProcedure
+    .input(
+      z.object({
+        taskId: z.string(),
+      }),
+    ).query(async ({ input, ctx }) => {
+      const result = await runs.retrieve(input.taskId);
+      console.log("result", result);
+      return result
+    })
+
 });

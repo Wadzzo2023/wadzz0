@@ -59,6 +59,7 @@ function NavigationButtons() {
         {Object.entries(LeftNavigation).map(
           ([key, { path, icon: Icon, text }]) => {
             if (text == "MUSIC") return;
+            if (text == "BOUNTY") return;
 
             return (
               <Link href={path} className="w-full" key={key}>

@@ -38,6 +38,12 @@ enum NotificationType {
     SHOP_ASSET
     FOLLOW
     REPLY
+    BOUNTY
+    BOUNTY_PARTICIPANT
+    BOUNTY_SUBMISSION
+    BOUNTY_COMMENT
+    BOUNTY_REPLY
+    BOUNTY_WINNER
 }
 
 // it is kinda notification actor and the entity that is being acted upon
@@ -511,25 +517,26 @@ model LocationConsumer {
 }
 
 model Bounty {
-    id              Int          @id @default(autoincrement())
+    id              Int                 @id @default(autoincrement())
     title           String
     description     String
     priceInUSD      Float
     priceInBand     Float
     requiredBalance Float
     imageUrls       String[]
-    createdAt       DateTime     @default(now())
+    createdAt       DateTime            @default(now())
     endDate         DateTime?
-    status          BountyStatus @default(PENDING)
+    status          BountyStatus        @default(PENDING)
     creatorId       String
-    creator         Creator      @relation(fields: [creatorId], references: [id], onDelete: Cascade)
-
-    participants BountyParticipant[] // Users who join the bounty
-    comments     BountyComment[] // Comments on the bounty
-    submissions  BountySubmission[] // Submissions to the bounty
+    creator         Creator             @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+    isSwaped        Boolean?            @default(false)
+    participants    BountyParticipant[] // Users who join the bounty
+    comments        BountyComment[] // Comments on the bounty
+    submissions     BountySubmission[] // Submissions to the bounty
     // New field to reference the winner
-    winnerId     String? // Optional: Can be null until a winner is selected
-    winner       User?               @relation(fields: [winnerId], references: [id], onDelete: SetNull)
+    winnerId        String? // Optional: Can be null until a winner is selected
+    winner          User?               @relation(fields: [winnerId], references: [id], onDelete: SetNull)
+    taskId          String? // Optional: Task ID for the bounty
 
     @@index([title, description])
 }

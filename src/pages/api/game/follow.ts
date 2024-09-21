@@ -39,5 +39,22 @@ export default async function handler(
     data: { creatorId: creator.id, userId: pubkey },
   });
 
+
+  await db.notification.create({
+    data: {
+      notifierId: pubkey,
+      isCreator: true,
+      notificationObject: {
+        create: {
+          entityType: "FOLLOW",
+          entityId: follow.id,
+          actor: {
+            connect: { id: pubkey },
+          },
+        },
+      },
+    },
+  });
+
   res.status(200).json(follow);
 }

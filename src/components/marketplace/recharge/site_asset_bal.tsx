@@ -1,8 +1,11 @@
-import { Plus, ShoppingBag, ShoppingCart } from "lucide-react";
+import { Bell, Plus, ShoppingBag, ShoppingCart } from "lucide-react";
 import { useSession } from "next-auth/react";
+import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/router";
 import { WalletType } from "package/connect_wallet/src/lib/enums";
 import { Button } from "~/components/shadcn/ui/button";
+import { Mode, useMode } from "~/lib/state/fan/left-side-mode";
 import { useUserStellarAcc } from "~/lib/state/wallete/stellar-balances";
 import { PLATFORM_ASSET } from "~/lib/stellar/constant";
 import { api } from "~/utils/api";
@@ -19,7 +22,8 @@ export function isRechargeAbleClient(walletType: WalletType): boolean {
 export function SiteAssetBalance() {
   const { setBalance, setActive, active } = useUserStellarAcc();
   const session = useSession();
-
+  const { selectedMenu } = useMode();
+  const router = useRouter();
   const bal = api.wallate.acc.getAccountBalance.useQuery(undefined, {
     onSuccess: (data) => {
       const { balances, platformAssetBal, xlm } = data;
@@ -31,24 +35,36 @@ export function SiteAssetBalance() {
       setActive(false);
     },
   });
-
+  const updateMutation = api.fan.notification.updateNotification.useMutation();
+  const updateNotification = () => {
+    updateMutation.mutate();
+  };
+  const { data: notificationCount } =
+    api.fan.notification.getUnseenNotificationCount.useQuery();
   const walletType = session.data?.user.walletType ?? WalletType.none;
 
   const isFBorGoogle = isRechargeAbleClient(walletType);
 
   if (walletType == WalletType.none) return null;
   if (bal.isLoading) return <div className="skeleton h-10 w-48"></div>;
-  // if (!bal.isSuccess)
-  //   return (
-  //     <div className="flex h-10 w-48 items-center justify-center rounded-2xl bg-error text-white">
-  //       Pubkey Not Active
-  //     </div>
-  //   );
+  if (notificationCount === undefined)
+    return <div className="skeleton h-10 w-48"></div>;
   return (
     <div className=" flex items-center justify-center gap-1 ">
       <Link href="/walletBalance" className="">
         <Button className="">
-          {PLATFORM_ASSET.code.toUpperCase() + " : "}
+          <div className="flex md:hidden">
+            <Image
+              alt="logo"
+              src="/images/logo.png"
+              className=" mr-2 h-6 w-6"
+              width={100}
+              height={100}
+            />
+          </div>
+          <span className="hidden md:flex">
+            {PLATFORM_ASSET.code.toUpperCase() + " : "}
+          </span>
           {formatNumber(bal.data?.platformAssetBal?.toString())}
         </Button>
 
@@ -64,6 +80,18 @@ export function SiteAssetBalance() {
           <ShoppingCart />
         </Button>
       </Link>
+      <Button
+        className=" relative "
+        onClick={async () => {
+          await router.push("/notification");
+          updateNotification();
+        }}
+      >
+        {notificationCount > 0 && (
+          <div className="absolute -top-2 left-0 h-4 w-4  rounded-full bg-red-500"></div>
+        )}
+        <Bell />
+      </Button>
     </div>
   );
 }
@@ -76,7 +104,7 @@ export function formatNumber(input?: string): string | null {
       if (Math.abs(parsedNumber) >= 1e6) {
         // If the parsed number is an integer larger than or equal to 1 million,
         // format it in scientific notation
-        return parsedNumber.toExponential();
+        return parsedNumber.toExponential(3);
       } else {
         // If the parsed number is an integer smaller than 1 million,
         // return it as is
