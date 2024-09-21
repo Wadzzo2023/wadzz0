@@ -140,6 +140,7 @@ const UserBountyPage = () => {
       toast.success("Swap Successfull");
 
       await utils.bounty.Bounty.getBountyByID.refetch();
+      setIsDialogOpen(false);
       setLoading(false);
     },
   });
@@ -160,6 +161,10 @@ const UserBountyPage = () => {
         }
       }
     },
+    onError: (error) => {
+      setLoading(false);
+      toast.error(error.message);
+    },
   });
   const { data: oneUSDCEqual } =
     api.bounty.Bounty.getAssetToUSDCRate.useQuery();
@@ -167,6 +172,7 @@ const UserBountyPage = () => {
 
   const handleSwap = (id: number, price: number) => {
     setLoading(true);
+    console.log("price", price);
     swapAssetToUSDC.mutate({
       bountyId: id,
       price: price,
