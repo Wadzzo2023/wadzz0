@@ -265,8 +265,8 @@ const BountyList = () => {
                       <CardContent className="flex-grow">
                         <div className="mb-4">
                           <span className="font-semibold">Prize Pool:</span>{" "}
-                          {bounty.priceInUSD} USD ({bounty.priceInBand}{" "}
-                          {PLATFORM_ASSET.code})
+                          {bounty.priceInUSD} USD (
+                          {bounty.priceInBand.toFixed(3)} {PLATFORM_ASSET.code})
                         </div>
                         <div className="max-h-[85px] min-h-[85px]">
                           <span className="font-semibold">Requirements:</span>

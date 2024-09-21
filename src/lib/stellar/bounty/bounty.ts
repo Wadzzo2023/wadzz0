@@ -18,7 +18,7 @@ import {
   TrxBaseFee,
   TrxBaseFeeInPlatformAsset,
 } from "../constant";
-import { getAssetPrice, getAssetToUSDCRate } from "../fan/get_token_price";
+import { getAssetPrice, getAssetToUSDCRate, getplatformAssetNumberForXLM } from "../fan/get_token_price";
 import { env } from "~/env";
 
 export async function SendBountyBalanceToMotherAccount({
@@ -239,21 +239,16 @@ export async function SwapUserAssetToMotherUSDC({
 
   const server = new Horizon.Server(STELLAR_URL);
   const motherAcc = Keypair.fromSecret(MOTHER_SECRET);
-
   const account = await server.loadAccount(motherAcc.publicKey());
-
   const senderAcc = await server.loadAccount(userPubKey);
-
-
   const transaction = new TransactionBuilder(account, {
     fee: TrxBaseFee,
     networkPassphrase,
   });
 
-  const totalAmount =
-    prize + Number(TrxBaseFeeInPlatformAsset) + Number(PLATFORM_FEE);
-
-  console.log("totalAmount", totalAmount);
+  const trustCost = await getplatformAssetNumberForXLM(.5)
+  let totalAmount =
+    prize + Number(TrxBaseFeeInPlatformAsset) + Number(PLATFORM_FEE)
 
   const platformAssetBalance = senderAcc.balances.find((balance) => {
     if (
@@ -265,18 +260,12 @@ export async function SwapUserAssetToMotherUSDC({
     return false;
   });
 
-  if (
-    !platformAssetBalance ||
-    parseFloat(platformAssetBalance.balance) < totalAmount
-  ) {
-    throw new Error(`You don't have total amount of ${totalAmount} ${PLATFORM_ASSET.code} to send.`);
-  }
 
   const assetIssuer = env.NEXT_PUBLIC_STELLAR_PUBNET ? "GCTDHOF4JMAULZKOX5DKAYHF3JDEQMED73JFMNCJZTO2DMDEJW6VSWIS" : "GB5AVDCDB2DRY6O2GGF4N6JXC6CAIBF7Q4RCQTWDOLFKZDQOKEEKBFEO"
 
   const asset = new Asset("USDC", assetIssuer);
 
-  const hasTrust = senderAcc.balances.find((balance) => {
+  const senderHasTrustOnUSDC = senderAcc.balances.find((balance) => {
     if (
       balance.asset_type === "credit_alphanum4" ||
       balance.asset_type === "credit_alphanum12"
@@ -288,6 +277,21 @@ export async function SwapUserAssetToMotherUSDC({
     }
     return false;
   });
+  const receiverHasTrustOnUSDC = account.balances.find((balance) => {
+    if (
+      balance.asset_type === "credit_alphanum4" ||
+      balance.asset_type === "credit_alphanum12"
+    ) {
+      return (
+        balance.asset_code === "USDC" &&
+        balance.asset_issuer === assetIssuer
+      );
+    }
+    return false;
+  });
+  if (!receiverHasTrustOnUSDC) {
+    throw new Error("Please Contact Admin to add USDC trustline");
+  }
 
   const oneUSDCEqual = await getAssetToUSDCRate()
   const oneASSETEqual = await getAssetPrice()
@@ -295,45 +299,50 @@ export async function SwapUserAssetToMotherUSDC({
   const oneAssetInUSDC = oneASSETEqual / oneUSDCEqual;
 
   const prizeInUSDC = prize * oneAssetInUSDC;
-  console.log("prizeInUSDC", prizeInUSDC);
 
-  if (!hasTrust) {
-    const claimants: Claimant[] = [
-      new Claimant(userPubKey, Claimant.predicateUnconditional()),
-    ];
+  if (!senderHasTrustOnUSDC) {
+    totalAmount += trustCost
+    if (
+      !platformAssetBalance ||
+      parseFloat(platformAssetBalance.balance) < totalAmount
+    ) {
+      throw new Error(`You don't have total amount of ${totalAmount} ${PLATFORM_ASSET.code} to send.`);
+    }
     transaction.addOperation(
-      Operation.payment({
-        destination: motherAcc.publicKey(),
-        asset: PLATFORM_ASSET,
-        amount: totalAmount.toFixed(7).toString(),
-        source: userPubKey,
-      }),
-
-    ).addOperation(
-      Operation.createClaimableBalance({
-        amount: prizeInUSDC.toFixed(7).toString(),
+      Operation.changeTrust({
         asset: asset,
-        claimants: claimants,
+        source: userPubKey,
+
       }),
     );
-  } else {
-    transaction.addOperation(
-      Operation.payment({
-        destination: motherAcc.publicKey(),
-        asset: PLATFORM_ASSET,
-        amount: totalAmount.toFixed(7).toString(),
-        source: userPubKey,
-      }),
-
-    ).addOperation(
-      Operation.payment({
-        destination: userPubKey,
-        asset: asset,
-        amount: prizeInUSDC.toFixed(7).toString(),
-        source: motherAcc.publicKey(),
-      })
-    )
   }
+
+
+
+
+  if (
+    !platformAssetBalance ||
+    parseFloat(platformAssetBalance.balance) < totalAmount
+  ) {
+    throw new Error(`You don't have total amount of ${totalAmount} ${PLATFORM_ASSET.code} to send.`);
+  }
+  transaction.addOperation(
+    Operation.payment({
+      destination: motherAcc.publicKey(),
+      asset: PLATFORM_ASSET,
+      amount: totalAmount.toFixed(7).toString(),
+      source: userPubKey,
+    }),
+
+  ).addOperation(
+    Operation.payment({
+      destination: userPubKey,
+      asset: asset,
+      amount: prizeInUSDC.toFixed(7).toString(),
+      source: motherAcc.publicKey(),
+    })
+  )
+
 
   transaction.setTimeout(0);
 
