@@ -137,24 +137,20 @@ const UserBountyPage = () => {
   });
 
   const handleSyncStatus = () => {
-    api
-      .useUtils()
-      .bounty.Bounty.getSwapTaskInfo.refetch()
-      .catch((error) => {
-        toast.error("Error fetching task status");
-      });
+    utils.bounty.Bounty.getSwapTaskInfo.refetch().catch((error) => {
+      toast.error("Error fetching task status");
+    });
   };
+
   const swapAssetToUSDC = api.bounty.Bounty.swapAssetToUSDC.useMutation({
     onSuccess: async (data, variables) => {
       if (data) {
         console.log(data);
         setLoading(true);
-        api
-          .useUtils()
-          .bounty.Bounty.getSwapTaskInfo.refetch()
-          .catch((error) => {
-            toast.error("Error fetching task status");
-          });
+        utils.bounty.Bounty.getSwapTaskInfo.refetch().catch((error) => {
+          toast.error("Error fetching task status");
+        });
+        setIsDialogOpen(false);
         setLoading(false);
         //   setLoading(true);
         //   const clientResponse = await clientsign({
@@ -169,6 +165,10 @@ const UserBountyPage = () => {
         //     });
         //   }
       }
+    },
+    onError: (error) => {
+      toast.error(error.message);
+      setLoading(false);
     },
   });
 
@@ -501,7 +501,8 @@ const UserBountyPage = () => {
                                       }
                                       variant="destructive"
                                       type="submit"
-                                      onClick={() => {
+                                      onClick={(event) => {
+                                        event.preventDefault();
                                         startCountdown();
                                         handleSwap(data.id, data.priceInBand);
                                       }}

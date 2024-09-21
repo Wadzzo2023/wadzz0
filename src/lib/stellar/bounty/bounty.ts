@@ -254,8 +254,26 @@ export async function SwapUserAssetToMotherUSDC({
     prize + Number(TrxBaseFeeInPlatformAsset) + Number(PLATFORM_FEE);
 
   console.log("totalAmount", totalAmount);
+
+  const platformAssetBalance = senderAcc.balances.find((balance) => {
+    if (
+      balance.asset_type === "credit_alphanum4" ||
+      balance.asset_type === "credit_alphanum12"
+    ) {
+      return balance.asset_code === PLATFORM_ASSET.code;
+    }
+    return false;
+  });
+
+  if (
+    !platformAssetBalance ||
+    parseFloat(platformAssetBalance.balance) < totalAmount
+  ) {
+    throw new Error(`You don't have total amount of ${totalAmount} ${PLATFORM_ASSET.code} to send.`);
+  }
+
   const assetIssuer = env.NEXT_PUBLIC_STELLAR_PUBNET ? "GCTDHOF4JMAULZKOX5DKAYHF3JDEQMED73JFMNCJZTO2DMDEJW6VSWIS" : "GB5AVDCDB2DRY6O2GGF4N6JXC6CAIBF7Q4RCQTWDOLFKZDQOKEEKBFEO"
-  console.log("assetIssuer", assetIssuer);
+
   const asset = new Asset("USDC", assetIssuer);
 
   const hasTrust = senderAcc.balances.find((balance) => {
@@ -270,6 +288,8 @@ export async function SwapUserAssetToMotherUSDC({
     }
     return false;
   });
+
+
 
 
   const oneUSDCEqual = await getAssetToUSDCRate()
