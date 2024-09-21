@@ -289,9 +289,6 @@ export async function SwapUserAssetToMotherUSDC({
     return false;
   });
 
-
-
-
   const oneUSDCEqual = await getAssetToUSDCRate()
   const oneASSETEqual = await getAssetPrice()
 

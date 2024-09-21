@@ -893,28 +893,13 @@ export const BountyRoute = createTRPCRouter({
         secretKey = await getAccSecretFromRubyApi(ctx.session.user.email);
       }
 
-      const xdr = await SwapUserAssetToMotherUSDC({
+      return await SwapUserAssetToMotherUSDC({
         prize: input.price,
         userPubKey: ctx.session.user.id,
         secretKey: secretKey,
         signWith: input.signWith,
       });
 
-      const res = await swapTask.trigger({
-        xdr: xdr.xdr,
-        bountyId: input.bountyId,
-      });
-      if (res.id) {
-        await ctx.db.bounty.update({
-          where: {
-            id: input.bountyId,
-          },
-          data: {
-            taskId: res.id,
-          },
-        });
-      }
-      return res.id;
     }),
   makeSwapUpdate: protectedProcedure
     .input(
@@ -933,15 +918,6 @@ export const BountyRoute = createTRPCRouter({
       });
     }),
 
-  getSwapTaskInfo: protectedProcedure
-    .input(
-      z.object({
-        taskId: z.string(),
-      }),
-    ).query(async ({ input, ctx }) => {
-      const result = await runs.retrieve(input.taskId);
-      console.log("result", result);
-      return result
-    })
+
 
 });
