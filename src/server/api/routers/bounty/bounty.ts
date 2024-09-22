@@ -24,6 +24,7 @@ import {
   protectedProcedure,
   publicProcedure,
 } from "~/server/api/trpc";
+import { SubmissionMediaInfo } from '~/components/modals/file-upload-modal';
 
 const getAllBountyByUserIdInput = z.object({
   limit: z.number().min(1).max(100).default(10),
@@ -393,7 +394,7 @@ export const BountyRoute = createTRPCRouter({
                     image: true,
                   }
                 },
-                attachmentUrl: true,
+                medias: true,
               }
             },
             comments: {
@@ -426,7 +427,7 @@ export const BountyRoute = createTRPCRouter({
       z.object({
         BountyId: z.number(),
         content: z.string().min(2, { message: "Description can't be empty" }),
-        medias: z.array(MediaInfo).optional(),
+        medias: z.array(SubmissionMediaInfo).optional(),
       }),
     )
     .mutation(async ({ input, ctx }) => {
@@ -444,9 +445,13 @@ export const BountyRoute = createTRPCRouter({
           userId: ctx.session.user.id,
           content: input.content,
           bountyId: input.BountyId,
-          attachmentUrl: input.medias
-            ? input.medias.map((media) => media.url)
-            : [],
+          medias: input.medias
+            ? {
+              createMany: {
+                data: input.medias,
+              },
+            }
+            : undefined,
         },
       });
 
@@ -475,7 +480,7 @@ export const BountyRoute = createTRPCRouter({
       z.object({
         submissionId: z.number(),
         content: z.string().min(2, { message: "Description can't be empty" }),
-        medias: z.array(MediaInfo).optional(),
+        medias: z.array(SubmissionMediaInfo).optional(),
       }),
     )
     .mutation(async ({ input, ctx }) => {
@@ -484,6 +489,7 @@ export const BountyRoute = createTRPCRouter({
           id: input.submissionId,
         },
       });
+      console.log(input.medias)
       if (!bounty) {
         throw new Error("Bounty not found");
       }
@@ -496,9 +502,17 @@ export const BountyRoute = createTRPCRouter({
         },
         data: {
           content: input.content,
-          attachmentUrl: input.medias
-            ? input.medias.map((media) => media.url)
-            : [],
+          medias: {
+            deleteMany: {}, // Remove existing media
+            createMany: {
+              data: input.medias ? input.medias.map((media) => ({
+                url: media.url,
+                name: media.name,
+                size: media.size,
+                type: media.type,
+              })) : [],
+            },
+          },
         },
       });
     }),
@@ -508,6 +522,9 @@ export const BountyRoute = createTRPCRouter({
   })).query(async ({ input, ctx }) => {
     return await ctx.db.bountySubmission.findUnique({
       where: { id: input.submissionId },
+      include: {
+        medias: true,
+      },
     });
   })
   ,
@@ -522,6 +539,9 @@ export const BountyRoute = createTRPCRouter({
         where: {
           bountyId: input.BountyId,
           userId: ctx.session.user.id,
+        },
+        include: {
+          medias: true,
         },
       });
 
@@ -972,6 +992,7 @@ export const BountyRoute = createTRPCRouter({
               image: true,
             },
           },
+          medias: true,
         },
       });
       return bounty;
