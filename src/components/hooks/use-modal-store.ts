@@ -29,6 +29,7 @@ export interface ModalData {
   image?: string;
   bountyId?: number;
   attachment?: string[];
+  submissionId?: number;
 }
 
 interface ModalStore {

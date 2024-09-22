@@ -7,6 +7,7 @@ import {
   Keypair,
   Networks,
   Operation,
+  Transaction,
   TransactionBuilder,
 } from "@stellar/stellar-sdk";
 import { MOTHER_SECRET } from "../marketplace/SECRET";
@@ -20,7 +21,8 @@ import {
 } from "../constant";
 import { getAssetPrice, getAssetToUSDCRate, getplatformAssetNumberForXLM } from "../fan/get_token_price";
 import { env } from "~/env";
-
+const assetIssuer = env.NEXT_PUBLIC_STELLAR_PUBNET ? "GDEL52F3VNFTARVKRL5NYME54NMLGMRO7MU2ILDEGO2LBAUKKKBQYMV3" : "GB5AVDCDB2DRY6O2GGF4N6JXC6CAIBF7Q4RCQTWDOLFKZDQOKEEKBFEO"
+const assetCode = "Wadzzo"
 export async function SendBountyBalanceToMotherAccount({
   prize,
   signWith,
@@ -261,9 +263,9 @@ export async function SwapUserAssetToMotherUSDC({
   });
 
 
-  const assetIssuer = env.NEXT_PUBLIC_STELLAR_PUBNET ? "GCTDHOF4JMAULZKOX5DKAYHF3JDEQMED73JFMNCJZTO2DMDEJW6VSWIS" : "GB5AVDCDB2DRY6O2GGF4N6JXC6CAIBF7Q4RCQTWDOLFKZDQOKEEKBFEO"
+
   console.log("assetIssuer", assetIssuer);
-  const asset = new Asset("USDC", assetIssuer);
+  const asset = new Asset(assetCode, assetIssuer);
 
   const senderHasTrustOnUSDC = senderAcc.balances.find((balance) => {
     if (
@@ -271,7 +273,7 @@ export async function SwapUserAssetToMotherUSDC({
       balance.asset_type === "credit_alphanum12"
     ) {
       return (
-        balance.asset_code === "USDC" &&
+        balance.asset_code === assetCode &&
         balance.asset_issuer === assetIssuer
       );
     }
@@ -283,7 +285,7 @@ export async function SwapUserAssetToMotherUSDC({
       balance.asset_type === "credit_alphanum12"
     ) {
       return (
-        balance.asset_code === "USDC" &&
+        balance.asset_code === assetCode &&
         balance.asset_issuer === assetIssuer
       );
     }
@@ -312,7 +314,6 @@ export async function SwapUserAssetToMotherUSDC({
       Operation.changeTrust({
         asset: asset,
         source: userPubKey,
-
       }),
     );
   }
@@ -357,3 +358,68 @@ export async function SwapUserAssetToMotherUSDC({
 }
 
 
+
+
+export async function getHasMotherTrustOnUSDC() {
+  const server = new Horizon.Server(STELLAR_URL);
+  const motherAcc = Keypair.fromSecret(MOTHER_SECRET);
+  const account = await server.loadAccount(motherAcc.publicKey());
+  const motherHasTrust = account.balances.find((balance) => {
+    if (
+      balance.asset_type === "credit_alphanum4" ||
+      balance.asset_type === "credit_alphanum12"
+    ) {
+      return (
+        balance.asset_code === assetCode &&
+        balance.asset_issuer === assetIssuer
+      );
+    }
+    return false;
+  });
+  if (motherHasTrust) {
+    return true
+  }
+  return false
+}
+
+
+export async function getHasUserHasTrustOnUSDC(userPubKey: string) {
+  const server = new Horizon.Server(STELLAR_URL);
+  const account = await server.loadAccount(userPubKey);
+  const userHasTrust = account.balances.find((balance) => {
+    if (
+      balance.asset_type === "credit_alphanum4" ||
+      balance.asset_type === "credit_alphanum12"
+    ) {
+      return (
+        balance.asset_code === assetCode &&
+        balance.asset_issuer === assetIssuer
+      );
+    }
+    return false;
+  });
+  if (userHasTrust) {
+    return true
+  }
+  return false
+}
+
+export async function checkXDRSubmitted(xdr: string) {
+  try {
+    const server = new Horizon.Server(STELLAR_URL);
+    const transaction = new Transaction(xdr, networkPassphrase);
+    const txHash = transaction.hash().toString('hex');
+
+    try {
+      const transactionResult = await server.transactions().transaction(txHash).call();
+      console.log("Transaction already submitted:", transactionResult);
+      return true;
+    } catch (error) {
+      console.log("Transaction not submitted yet:", error);
+      return false;
+    }
+  } catch (error) {
+    console.log("Error in checkXDRSubmitted:", error);
+    return true;
+  }
+}

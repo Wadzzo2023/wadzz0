@@ -561,10 +561,11 @@ model BountySubmission {
     bounty   Bounty @relation(fields: [bountyId], references: [id], onDelete: Cascade)
 
     userId        String
-    user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+    user          User               @relation(fields: [userId], references: [id], onDelete: Cascade)
     content       String
     attachmentUrl String[] // URL of the attachment submitted by the user
-    createdAt     DateTime @default(now())
+    createdAt     DateTime           @default(now())
+    status        SubmissionViewType @default(UNCHECKED)
 }
 
 model BountyComment {
@@ -585,6 +586,14 @@ model BountyComment {
 
 enum BountyStatus {
     PENDING
+    APPROVED
+    REJECTED
+}
+
+enum SubmissionViewType {
+    UNCHECKED
+    CHECKED
+    ONREVIEW
     APPROVED
     REJECTED
 }

@@ -182,7 +182,7 @@ const CreateBounty = () => {
         <Alert
           className="flex  items-center justify-center"
           type="error"
-          content={`You don't have Sufficient Balance ,To create storage account, you need minimum ${RequiredBalance} ${PLATFORM_ASSET.code} `}
+          content={`You don't have Sufficient Balance ,To create bounty , you need minimum ${RequiredBalance} ${PLATFORM_ASSET.code} `}
         />
       ) : (
         <div className="flex  w-full  justify-center">

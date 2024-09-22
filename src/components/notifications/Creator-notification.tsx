@@ -93,9 +93,12 @@ const Notifications = () => {
 
               return (
                 <>
-                  <div key={el.id} className="flex  gap-x-3 p-2">
+                  <div key={el.id} className=" p-2">
                     {enable ? (
-                      <Link href={url} className="flex">
+                      <Link
+                        href={url}
+                        className="flex items-center justify-start gap-2"
+                      >
                         <Image
                           width={1000}
                           height={1000}
@@ -107,19 +110,16 @@ const Notifications = () => {
                           }
                           alt=""
                         />
-                        <div className="ml-4 flex w-full flex-col">
-                          <a>
-                            <span className="message-describe"> {message}</span>
-                          </a>
-                          <div className="">
-                            <p className="message-duration  text-start text-gray-500">
-                              {formatPostCreatedAt(el.createdAt)}
-                            </p>
-                          </div>
+                        <div className=" flex w-full flex-col items-start ">
+                          <span className="text-start"> {message}</span>
+
+                          <p className="text-start text-gray-500">
+                            {formatPostCreatedAt(el.createdAt)}
+                          </p>
                         </div>
                       </Link>
                     ) : (
-                      <div className="flex">
+                      <div className="">
                         <Image
                           width={1000}
                           height={1000}
@@ -131,15 +131,12 @@ const Notifications = () => {
                           }
                           alt=""
                         />
-                        <div className="ml-4 flex w-full flex-col ">
-                          <a>
-                            <span className="message-describe"> {message}</span>
-                          </a>
-                          <div className="">
-                            <p className="message-duration text-start text-gray-500">
-                              {formatPostCreatedAt(el.createdAt)}
-                            </p>
-                          </div>
+                        <div className="flex w-full flex-col items-start">
+                          <span className="text-start"> {message}</span>
+
+                          <p className=" text-start text-gray-500">
+                            {formatPostCreatedAt(el.createdAt)}
+                          </p>
                         </div>
                       </div>
                     )}

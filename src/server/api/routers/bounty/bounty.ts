@@ -1,5 +1,5 @@
 import { useMutation } from '@tanstack/react-query';
-import { BountyStatus, NotificationType, Prisma } from "@prisma/client"; // Assuming you are using Prisma
+import { BountyStatus, NotificationType, Prisma, SubmissionViewType } from "@prisma/client"; // Assuming you are using Prisma
 import { getAccSecretFromRubyApi } from "package/connect_wallet/src/lib/stellar/get-acc-secret";
 import { z } from "zod";
 import { BountyCommentSchema } from "~/components/fan/creator/bounty/Add-Bounty-Comment";
@@ -9,12 +9,15 @@ import {
 } from "~/components/fan/creator/bounty/BountyList";
 import { MediaInfo } from "~/components/fan/creator/bounty/CreateBounty";
 import {
+  checkXDRSubmitted,
+  getHasMotherTrustOnUSDC,
+  getHasUserHasTrustOnUSDC,
   SendBountyBalanceToMotherAccount,
   SendBountyBalanceToUserAccount,
   SendBountyBalanceToWinner,
   SwapUserAssetToMotherUSDC,
 } from "~/lib/stellar/bounty/bounty";
-import { getAssetPrice, getAssetToUSDCRate, getPlatfromAssetPrice } from "~/lib/stellar/fan/get_token_price";
+import { getAssetPrice, getAssetToUSDCRate, getplatformAssetNumberForXLM, getPlatfromAssetPrice } from "~/lib/stellar/fan/get_token_price";
 import { SignUser } from "~/lib/stellar/utils";
 import {
   createTRPCRouter,
@@ -467,6 +470,47 @@ export const BountyRoute = createTRPCRouter({
 
     }),
 
+  updateBountyAttachment: protectedProcedure
+    .input(
+      z.object({
+        submissionId: z.number(),
+        content: z.string().min(2, { message: "Description can't be empty" }),
+        medias: z.array(MediaInfo).optional(),
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      const bounty = await ctx.db.bountySubmission.findUnique({
+        where: {
+          id: input.submissionId,
+        },
+      });
+      if (!bounty) {
+        throw new Error("Bounty not found");
+      }
+      if (bounty.userId !== ctx.session.user.id) {
+        throw new Error("You are not the owner of this bounty");
+      }
+      await ctx.db.bountySubmission.update({
+        where: {
+          id: input.submissionId,
+        },
+        data: {
+          content: input.content,
+          attachmentUrl: input.medias
+            ? input.medias.map((media) => media.url)
+            : [],
+        },
+      });
+    }),
+
+  getSubmittedAttachmentById: protectedProcedure.input(z.object({
+    submissionId: z.number(),
+  })).query(async ({ input, ctx }) => {
+    return await ctx.db.bountySubmission.findUnique({
+      where: { id: input.submissionId },
+    });
+  })
+  ,
   getBountyAttachmentByUserId: protectedProcedure
     .input(
       z.object({
@@ -541,6 +585,9 @@ export const BountyRoute = createTRPCRouter({
 
   getAssetToUSDCRate: protectedProcedure.query(async ({ ctx }) => {
     return await getAssetToUSDCRate();
+  }),
+  getTrustCost: protectedProcedure.query(async ({ ctx }) => {
+    return await getplatformAssetNumberForXLM(.5)
   }),
   getSendBalanceToWinnerXdr: protectedProcedure
     .input(
@@ -631,6 +678,54 @@ export const BountyRoute = createTRPCRouter({
       });
 
     }),
+
+  updateBountySubmissionStatus: protectedProcedure
+    .input(
+      z.object({
+        creatorId: z.string().min(1, { message: "User ID can't be less than 0" }),
+        submissionId: z.number(),
+        status: z.nativeEnum(SubmissionViewType),
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      const Submission = await ctx.db.bountySubmission.findUnique({
+        where: {
+          id: input.submissionId,
+        },
+      });
+
+      if (!Submission) {
+        throw new Error("Bounty not found");
+      }
+      const submission = await ctx.db.bountySubmission.findUnique({
+        where: {
+          id: input.submissionId,
+        },
+      });
+      if (!submission) {
+        throw new Error("Submission not found");
+      }
+
+      const isUserIsAdmin = await ctx.db.admin.findUnique({
+        where: {
+          id: ctx.session.user.id,
+        },
+      });
+      const isOwner = input.creatorId === ctx.session.user.id;
+      console.log("isOwner", isOwner);
+      if (!isOwner && !isUserIsAdmin) {
+        throw new Error("You do not have permission to update this submission status");
+      }
+      await ctx.db.bountySubmission.update({
+        where: {
+          id: input.submissionId,
+        },
+        data: {
+          status: input.status,
+        },
+      });
+    }),
+
   getDeleteXdr: protectedProcedure
     .input(
       z.object({
@@ -892,17 +987,45 @@ export const BountyRoute = createTRPCRouter({
       if (ctx.session.user.email && ctx.session.user.email.length > 0) {
         secretKey = await getAccSecretFromRubyApi(ctx.session.user.email);
       }
+      const findXDR = await ctx.db.bounty.findUnique({
+        where: {
+          id: input.bountyId,
+        },
+        select: {
+          xdr: true,
+        },
+      });
 
-      return await SwapUserAssetToMotherUSDC({
+      if (findXDR?.xdr) {
+        const prevXDR = findXDR.xdr;
+        const isSubmitted = await checkXDRSubmitted(prevXDR);
+        if (isSubmitted) {
+          throw new Error("You already submitted the XDR");
+        }
+      }
+
+      const res = await SwapUserAssetToMotherUSDC({
         prize: input.price,
         userPubKey: ctx.session.user.id,
         secretKey: secretKey,
         signWith: input.signWith,
       });
-
+      console.log("res", res);
+      if (res.xdr) {
+        await ctx.db.bounty.update({
+          where: {
+            id: input.bountyId,
+          },
+          data: {
+            xdr: res.xdr,
+          },
+        });
+      }
+      return res;
 
 
     }),
+
   makeSwapUpdate: protectedProcedure
     .input(z.object({
       bountyId: z.number(),
@@ -918,5 +1041,14 @@ export const BountyRoute = createTRPCRouter({
         },
       });
     }),
+  hasMotherTrustOnUSDC: protectedProcedure.query(async ({ ctx }) => {
+    return getHasMotherTrustOnUSDC();
+  }),
+
+  hasUserTrustOnUSDC: protectedProcedure.query(async ({ ctx }) => {
+    return await getHasUserHasTrustOnUSDC(ctx.session.user.id);
+  }),
+
+
 
 });

@@ -10,6 +10,7 @@ import {
   DialogTitle,
 } from "~/components/shadcn/ui/dialog";
 import Image from "next/image";
+import { api } from "~/utils/api";
 
 const ViewAttachmentModal = () => {
   const { isOpen, onClose, type, data } = useModal();

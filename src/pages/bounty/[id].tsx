@@ -40,6 +40,13 @@ import { AvatarImage } from "~/components/shadcn/ui/avatar";
 import { Badge } from "~/components/shadcn/ui/badge";
 import { Button } from "~/components/shadcn/ui/button";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "~/components/shadcn/ui/select";
+import {
   Card,
   CardContent,
   CardFooter,
@@ -75,6 +82,8 @@ import {
   getAssetPrice,
   getAssetToUSDCRate,
 } from "~/lib/stellar/fan/get_token_price";
+import Loading from "~/components/wallete/loading";
+import { SubmissionViewType } from "@prisma/client";
 
 const SingleBountyPage = () => {
   const router = useRouter();
@@ -98,9 +107,10 @@ const UserBountyPage = () => {
   const [loading, setLoading] = useState<boolean>(false);
 
   const utils = api.useUtils();
-  const { data } = api.bounty.Bounty.getBountyByID.useQuery({
-    BountyId: Number(id),
-  });
+  const { data, isLoading: bountyLoading } =
+    api.bounty.Bounty.getBountyByID.useQuery({
+      BountyId: Number(id),
+    });
 
   const { data: submissionData } =
     api.bounty.Bounty.getBountyAttachmentByUserId.useQuery({
@@ -172,10 +182,10 @@ const UserBountyPage = () => {
   const { data: oneUSDCEqual } =
     api.bounty.Bounty.getAssetToUSDCRate.useQuery();
   const { data: oneASSETEqual } = api.bounty.Bounty.getPlatformAsset.useQuery();
-
+  const { data: getTrustCost } = api.bounty.Bounty.getTrustCost.useQuery();
   const handleSwap = (id: number, price: number) => {
     setLoading(true);
-    console.log("price", price);
+
     swapAssetToUSDC.mutate({
       bountyId: id,
       price: price,
@@ -192,12 +202,16 @@ const UserBountyPage = () => {
     BountyId: Number(id) ?? 0,
   });
 
+  const getUserHasTrustLine = api.bounty.Bounty.hasUserTrustOnUSDC.useQuery();
+  const getMotherTrustLine = api.bounty.Bounty.hasMotherTrustOnUSDC.useQuery();
+
+  if (bountyLoading || isAlreadyJoin.isLoading) return <Loading />;
   if (data && isAlreadyJoin.data) {
     return (
-      <div className="container mx-auto py-8">
+      <div className=" py-8">
         <div className="p-2">
           {isAlreadyJoin.isLoading ? (
-            <div className="mb-2.5 h-10  bg-gray-200 dark:bg-gray-700"></div>
+            <div className="mb-2.5 h-10  bg-gray-200 "></div>
           ) : isAlreadyJoin.data.isJoined || Owner?.isOwner ? (
             <Card
               className={clsx("mx-auto w-full max-w-4xl", {
@@ -265,10 +279,14 @@ const UserBountyPage = () => {
                       )}
                       {submissionData?.map((submission, id) => (
                         <div key={id}>
-                          <div className="mb-6 flex flex-col gap-4   rounded-lg bg-white p-6 shadow-md ">
+                          <div className="mb-6 flex flex-col gap-4   rounded-lg bg-white p-4 shadow-md ">
                             <div className=" flex flex-col gap-2">
-                              <div className="flex items-center gap-4">
-                                <p className="  ">{submission.content}</p>
+                              <div className="flex flex-col items-start gap-2 ">
+                                {submission.content.length > 400 ? (
+                                  <ShowMore content={submission.content} />
+                                ) : (
+                                  <Preview value={submission.content} />
+                                )}
                               </div>
                               <p className=" text-xs text-gray-700">
                                 {format(
@@ -276,9 +294,38 @@ const UserBountyPage = () => {
                                   "MMMM dd, yyyy",
                                 )}
                               </p>
+                              <p className=" flex items-center gap-2 text-xs text-gray-700">
+                                CHECK SEEN STATUS :{" "}
+                                {submission.status === "UNCHECKED" ? (
+                                  <>
+                                    {submission.status}
+                                    <span className="me-3 flex h-2 w-2 rounded-full bg-blue-600 "></span>{" "}
+                                  </>
+                                ) : submission.status === "CHECKED" ? (
+                                  <>
+                                    {submission.status}
+                                    <span className="me-3 flex h-2 w-2 rounded-full bg-yellow-300"></span>{" "}
+                                  </>
+                                ) : submission.status === "ONREVIEW" ? (
+                                  <>
+                                    {submission.status}
+                                    <span className="me-3 flex h-2 w-2 rounded-full bg-purple-500"></span>{" "}
+                                  </>
+                                ) : submission.status === "REJECTED" ? (
+                                  <>
+                                    {submission.status}
+                                    <span className="me-3 flex h-2 w-2 rounded-full bg-red-500  "></span>{" "}
+                                  </>
+                                ) : (
+                                  <>
+                                    {submission.status}
+                                    <span className="me-3 flex h-2 w-2 rounded-full bg-green-500 "></span>{" "}
+                                  </>
+                                )}
+                              </p>
                             </div>
 
-                            <div className="flex items-center justify-between">
+                            <div className="flex items-center justify-between gap-2">
                               <Button
                                 className="  "
                                 onClick={() =>
@@ -291,15 +338,28 @@ const UserBountyPage = () => {
                                 <Paperclip size={16} className="mr-2" /> View
                                 Attachment
                               </Button>
-                              <Button
-                                disabled={data?.winner?.name ? true : false}
-                                variant="destructive"
-                                onClick={() =>
-                                  handleSubmissionDelete(submission.id)
-                                }
-                              >
-                                <Trash />
-                              </Button>
+                              <div className="flex items-center justify-between gap-2">
+                                <Button
+                                  // disabled={data?.winner?.name ? true : false}
+                                  onClick={() =>
+                                    onOpen("upload file", {
+                                      submissionId: submission.id,
+                                      bountyId: data.id,
+                                    })
+                                  }
+                                >
+                                  <Edit />
+                                </Button>
+                                <Button
+                                  disabled={data?.winner?.name ? true : false}
+                                  variant="destructive"
+                                  onClick={() =>
+                                    handleSubmissionDelete(submission.id)
+                                  }
+                                >
+                                  <Trash />
+                                </Button>
+                              </div>
                             </div>
                           </div>
                         </div>
@@ -335,8 +395,8 @@ const UserBountyPage = () => {
                     </div>
                   </TabsContent>
                 </Tabs>
-                <div className="mt-6 flex items-center justify-between">
-                  <div className="flex flex-col gap-2  md:flex-row md:items-center md:space-x-4">
+                <div className="mt-6 flex flex-col justify-between gap-2 md:flex-row md:items-center">
+                  <div className="flex flex-col gap-4  md:flex-row md:items-center md:space-x-4">
                     <Badge variant="secondary" className="flex items-center">
                       <Trophy className="mr-1 h-4 w-4" />
                       {data?.priceInUSD} USD
@@ -372,7 +432,7 @@ const UserBountyPage = () => {
                 </div>
               </CardContent>
               <CardFooter className="flex items-center justify-between">
-                <div className="flex space-x-4">
+                <div className="flex   space-x-4">
                   <Button
                     variant="destructive"
                     disabled={data?.winner?.name ? true : false}
@@ -410,7 +470,7 @@ const UserBountyPage = () => {
                                 }
                               >
                                 <span className="flex items-center">
-                                  SWAP {PLATFORM_ASSET.code}{" "}
+                                  {PLATFORM_ASSET.code}{" "}
                                   <ArrowRight className="ml-2 mr-2" size={16} />{" "}
                                   USDC
                                 </span>
@@ -420,66 +480,215 @@ const UserBountyPage = () => {
                               <DialogHeader>
                                 <DialogTitle>Confirmation </DialogTitle>
                               </DialogHeader>
-                              <div className="">
-                                <div className="border-b-2 py-2">
-                                  Do you want to swap{" "}
-                                  <span className="font-bold text-red-500">
-                                    {data.priceInBand} {PLATFORM_ASSET.code}
-                                  </span>{" "}
-                                  to USDC ?
-                                </div>
-                                <div className="border-b-2 py-2 ">
-                                  You will need total{" "}
-                                  <span className="font-bold text-red-500">
-                                    {" "}
-                                    {data?.priceInBand +
-                                      Number(TrxBaseFeeInPlatformAsset) +
-                                      Number(PLATFORM_FEE)}{" "}
-                                    {PLATFORM_ASSET.code}
-                                  </span>{" "}
-                                  to swap.
-                                </div>
-                                <span className="text-xs text-red-500">
-                                  NOTE: This is a one time operation! You can
-                                  {"'t"} undo this operation
-                                </span>
-                              </div>
-                              {oneUSDCEqual && oneASSETEqual && (
-                                <div>
-                                  You will get total{" "}
-                                  {data.priceInBand *
-                                    (oneASSETEqual / oneUSDCEqual)}{" "}
-                                  USDC
-                                </div>
+                              {!getMotherTrustLine.data ? (
+                                <Alert
+                                  className="flex  items-center justify-center"
+                                  type="error"
+                                  content={`Please Contact Admin. support@bandcoin.io`}
+                                />
+                              ) : !getUserHasTrustLine.data &&
+                                getTrustCost &&
+                                oneUSDCEqual &&
+                                oneASSETEqual ? (
+                                <>
+                                  {" "}
+                                  <div className="">
+                                    <div className="space-y-4 rounded-lg border border-gray-100 bg-gray-50 p-6 dark:border-gray-700 dark:bg-gray-800">
+                                      <div className="space-y-2">
+                                        <dl className="flex items-center justify-between gap-4">
+                                          <dt className="text-base font-normal text-gray-500 dark:text-gray-400">
+                                            Transaction Cost
+                                          </dt>
+                                          <dd className="text-base font-medium text-gray-900 dark:text-white">
+                                            {(
+                                              data?.priceInBand +
+                                              Number(
+                                                TrxBaseFeeInPlatformAsset,
+                                              ) +
+                                              Number(PLATFORM_FEE)
+                                            ).toFixed(2)}{" "}
+                                            {PLATFORM_ASSET.code}
+                                          </dd>
+                                        </dl>
+
+                                        <dl className="flex items-center justify-between gap-4">
+                                          <dt className="text-base font-normal text-gray-500 dark:text-gray-400">
+                                            Trust Cost
+                                          </dt>
+                                          <dd className="text-base font-medium text-green-500">
+                                            {getTrustCost} {PLATFORM_ASSET.code}
+                                          </dd>
+                                        </dl>
+                                      </div>
+
+                                      <dl className="flex items-center justify-between gap-4 border-t border-gray-200 pt-2 dark:border-gray-700">
+                                        <dt className="text-base font-bold text-gray-900 dark:text-white">
+                                          Total
+                                        </dt>
+                                        <dd className="text-base font-bold text-gray-900 dark:text-white">
+                                          {(
+                                            data?.priceInBand +
+                                            Number(TrxBaseFeeInPlatformAsset) +
+                                            Number(PLATFORM_FEE) +
+                                            getTrustCost
+                                          ).toFixed(2)}{" "}
+                                          {PLATFORM_ASSET.code}
+                                        </dd>
+                                      </dl>
+                                      <dl className="flex items-center justify-between gap-4 border-t border-gray-200 pt-2 dark:border-gray-700">
+                                        <dt className="text-base font-bold text-gray-900 dark:text-white">
+                                          Swapped Amount
+                                        </dt>
+                                        <dd className="text-base font-bold text-gray-900 dark:text-white">
+                                          {(
+                                            data.priceInBand *
+                                            (oneASSETEqual / oneUSDCEqual)
+                                          ).toFixed(3)}{" "}
+                                          USDC
+                                        </dd>
+                                      </dl>
+                                    </div>
+
+                                    <span className="text-xs text-red-500">
+                                      NOTE: This is a one time operation! You
+                                      can
+                                      {"'t"} undo this operation
+                                    </span>
+                                  </div>
+                                  <DialogFooter className=" w-full">
+                                    <div className="flex w-full gap-4  ">
+                                      <DialogClose className="w-full">
+                                        <Button
+                                          variant="outline"
+                                          className="w-full"
+                                        >
+                                          Cancel
+                                        </Button>
+                                      </DialogClose>
+                                      <Button
+                                        disabled={
+                                          loading || data.isSwaped
+                                            ? true
+                                            : false ||
+                                              swapAssetToUSDC.isLoading ||
+                                              MakeSwapUpdateMutation.isLoading
+                                        }
+                                        variant="destructive"
+                                        onClick={() =>
+                                          handleSwap(data.id, data.priceInBand)
+                                        }
+                                        className="w-full"
+                                      >
+                                        Confirm
+                                      </Button>
+                                    </div>
+                                  </DialogFooter>
+                                </>
+                              ) : (
+                                <>
+                                  {" "}
+                                  <div className="">
+                                    <div className="space-y-4 rounded-lg border border-gray-100 bg-gray-50 p-6 dark:border-gray-700 dark:bg-gray-800">
+                                      <div className="space-y-2">
+                                        <dl className="flex items-center justify-between gap-4">
+                                          <dt className="text-base font-normal text-gray-500 dark:text-gray-400">
+                                            Transaction Cost
+                                          </dt>
+                                          <dd className="text-base font-medium text-gray-900 dark:text-white">
+                                            {(
+                                              data?.priceInBand +
+                                              Number(
+                                                TrxBaseFeeInPlatformAsset,
+                                              ) +
+                                              Number(PLATFORM_FEE)
+                                            ).toFixed(2)}{" "}
+                                            {PLATFORM_ASSET.code}
+                                          </dd>
+                                        </dl>
+
+                                        <dl className="flex items-center justify-between gap-4">
+                                          <dt className="text-base font-normal text-gray-500 dark:text-gray-400">
+                                            Trust Cost
+                                          </dt>
+                                          <dd className="text-base font-medium text-green-500">
+                                            {getTrustCost} {PLATFORM_ASSET.code}
+                                          </dd>
+                                        </dl>
+                                      </div>
+
+                                      <dl className="flex items-center justify-between gap-4 border-t border-gray-200 pt-2 dark:border-gray-700">
+                                        <dt className="text-base font-bold text-gray-900 dark:text-white">
+                                          Total
+                                        </dt>
+                                        <dd className="text-base font-bold text-gray-900 dark:text-white">
+                                          {(
+                                            data?.priceInBand +
+                                            Number(TrxBaseFeeInPlatformAsset) +
+                                            Number(PLATFORM_FEE)
+                                          ).toFixed(2)}{" "}
+                                          {PLATFORM_ASSET.code}
+                                        </dd>
+                                      </dl>
+                                      <dl className="flex items-center justify-between gap-4 border-t border-gray-200 pt-2 dark:border-gray-700">
+                                        <dt className="text-base font-bold text-gray-900 dark:text-white">
+                                          Swapped Amount
+                                        </dt>
+                                        {oneASSETEqual && oneUSDCEqual && (
+                                          <dd className="text-base font-bold text-gray-900 dark:text-white">
+                                            {(
+                                              data.priceInBand *
+                                              (oneASSETEqual / oneUSDCEqual)
+                                            ).toFixed(3)}{" "}
+                                            USDC
+                                          </dd>
+                                        )}
+                                      </dl>
+                                    </div>
+
+                                    <span className="text-xs text-red-500">
+                                      NOTE: This is a one time operation! You
+                                      can
+                                      {"'t"} undo this operation
+                                    </span>
+                                  </div>
+                                  {oneUSDCEqual && oneASSETEqual && (
+                                    <div>
+                                      You will get total{" "}
+                                      {data.priceInBand *
+                                        (oneASSETEqual / oneUSDCEqual)}{" "}
+                                      USDC
+                                    </div>
+                                  )}
+                                  <DialogFooter className=" w-full">
+                                    <div className="flex w-full gap-4  ">
+                                      <DialogClose className="w-full">
+                                        <Button
+                                          variant="outline"
+                                          className="w-full"
+                                        >
+                                          Cancel
+                                        </Button>
+                                      </DialogClose>
+                                      <Button
+                                        disabled={
+                                          loading || data.isSwaped
+                                            ? true
+                                            : false ||
+                                              swapAssetToUSDC.isLoading ||
+                                              MakeSwapUpdateMutation.isLoading
+                                        }
+                                        variant="destructive"
+                                        onClick={() =>
+                                          handleSwap(data.id, data.priceInBand)
+                                        }
+                                        className="w-full"
+                                      >
+                                        Confirm
+                                      </Button>
+                                    </div>
+                                  </DialogFooter>
+                                </>
                               )}
-                              <DialogFooter className=" w-full">
-                                <div className="flex w-full gap-4  ">
-                                  <DialogClose className="w-full">
-                                    <Button
-                                      variant="outline"
-                                      className="w-full"
-                                    >
-                                      Cancel
-                                    </Button>
-                                  </DialogClose>
-                                  <Button
-                                    disabled={
-                                      loading || data.isSwaped
-                                        ? true
-                                        : false ||
-                                          swapAssetToUSDC.isLoading ||
-                                          MakeSwapUpdateMutation.isLoading
-                                    }
-                                    variant="destructive"
-                                    onClick={() =>
-                                      handleSwap(data.id, data.priceInBand)
-                                    }
-                                    className="w-full"
-                                  >
-                                    Confirm
-                                  </Button>
-                                </div>
-                              </DialogFooter>
                             </DialogContent>
                           </Dialog>
                         </div>
@@ -792,6 +1001,21 @@ const AdminBountyPage = () => {
     setLoadingBountyId(null);
   };
 
+  const UpdateSubmissionStatusMutation =
+    api.bounty.Bounty.updateBountySubmissionStatus.useMutation();
+
+  const updateSubmissionStatus = (
+    creatorId: string,
+    submissionId: number,
+    status: SubmissionViewType,
+  ) => {
+    UpdateSubmissionStatusMutation.mutate({
+      creatorId: creatorId,
+      submissionId: submissionId,
+      status: status,
+    });
+  };
+
   if (data)
     return (
       <div className="py-4">
@@ -878,24 +1102,36 @@ const AdminBountyPage = () => {
                             className="h-12 w-12"
                             url={submission.user.image}
                           />
-                          <div className="ml-2">
-                            <div className="text-sm ">
-                              <span className="font-semibold">
-                                {submission.user.name}
-                              </span>
+                          <div className="flex w-full items-center justify-between">
+                            <div className="ml-2">
+                              <div className="text-sm ">
+                                <span className="font-semibold">
+                                  {submission.user.name}
+                                </span>
+                              </div>
+                              <div className="text-xs text-gray-500 ">
+                                {format(
+                                  new Date(submission.createdAt),
+                                  "MMMM dd, yyyy",
+                                )}
+                              </div>
                             </div>
-                            <div className="text-xs text-gray-500 ">
-                              {format(
-                                new Date(submission.createdAt),
-                                "MMMM dd, yyyy",
-                              )}
-                            </div>
+                            <SubmissionStatusSelect
+                              defaultValue={submission.status as string}
+                              submissionId={submission.id}
+                              creatorId={data.creatorId}
+                              updateSubmissionStatus={updateSubmissionStatus}
+                            />
                           </div>
                         </div>
 
-                        <p className="mt-2 text-sm leading-normal text-gray-800 md:leading-relaxed">
-                          {submission.content}
-                        </p>
+                        <div className="flex flex-col items-start gap-2 ">
+                          {submission.content.length > 400 ? (
+                            <ShowMore content={submission.content} />
+                          ) : (
+                            <Preview value={submission.content} />
+                          )}
+                        </div>
 
                         <div className="flex flex-col gap-2">
                           <div className="">
@@ -903,22 +1139,41 @@ const AdminBountyPage = () => {
                               open={isDialogOpen}
                               onOpenChange={setIsDialogOpen}
                             >
-                              <DialogTrigger asChild>
+                              <div className="flex items-start justify-between">
+                                <DialogTrigger asChild>
+                                  <Button
+                                    disabled={
+                                      loadingBountyId === data.id ||
+                                      data.winner?.name
+                                        ? true
+                                        : false ||
+                                          GetSendBalanceToWinnerXdr.isLoading
+                                    }
+                                    className=" me-2  bg-purple-100 px-2.5 py-0.5 text-xs font-medium text-purple-800 dark:bg-purple-900 dark:text-purple-300 "
+                                    variant="outline"
+                                  >
+                                    <Crown size={16} className="mr-2" /> MARK AS
+                                    WINNER
+                                  </Button>
+                                </DialogTrigger>
                                 <Button
-                                  disabled={
-                                    loadingBountyId === data.id ||
-                                    data.winner?.name
-                                      ? true
-                                      : false ||
-                                        GetSendBalanceToWinnerXdr.isLoading
-                                  }
-                                  className=" me-2  bg-purple-100 px-2.5 py-0.5 text-xs font-medium text-purple-800 dark:bg-purple-900 dark:text-purple-300 "
+                                  className="  "
+                                  onClick={() => {
+                                    updateSubmissionStatus(
+                                      data.creatorId,
+                                      submission.id,
+                                      "CHECKED",
+                                    ),
+                                      onOpen("view attachment", {
+                                        attachment: submission.attachmentUrl,
+                                      });
+                                  }}
                                   variant="outline"
                                 >
-                                  <Crown size={16} className="mr-2" /> MARK AS
-                                  WINNER
+                                  <Paperclip size={16} className="mr-2" /> View
+                                  Attachment
                                 </Button>
-                              </DialogTrigger>
+                              </div>
                               <DialogContent className="sm:max-w-[425px]">
                                 <DialogHeader>
                                   <DialogTitle>Confirmation </DialogTitle>
@@ -1000,15 +1255,15 @@ const AdminBountyPage = () => {
                 </div>
               </TabsContent>
             </Tabs>
-            <div className="mt-6 flex flex-col justify-between gap-2  md:flex-row md:items-center">
-              <div className="flex flex-col gap-2  md:flex-row md:items-center md:space-x-4">
+            <div className="mt-6 flex flex-col justify-between gap-2 md:flex-row md:items-center">
+              <div className="flex flex-col gap-4  md:flex-row md:items-center md:space-x-4">
                 <Badge variant="secondary" className="flex items-center">
                   <DollarSign className="mr-1 h-4 w-4" />
                   {data?.priceInUSD} USD
                 </Badge>
                 <Badge variant="destructive" className="flex items-center">
                   <Trophy className="mr-1 h-4 w-4" />
-                  {data?.priceInBand} {PLATFORM_ASSET.code}
+                  {data?.priceInBand.toFixed(3)} {PLATFORM_ASSET.code}
                 </Badge>
                 <Badge variant="secondary" className="flex items-center">
                   <Users className="mr-1 h-4 w-4" />
@@ -1047,19 +1302,24 @@ const AdminBountyPage = () => {
                 <div className="">
                   <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                     <DialogTrigger asChild>
-                      <Button variant="destructive">Delete Bounty</Button>
+                      <Button
+                        disabled={
+                          loadingBountyId === data.id || data.winner?.name
+                            ? true
+                            : false
+                        }
+                        variant="destructive"
+                      >
+                        Delete Bounty
+                      </Button>
                     </DialogTrigger>
                     <DialogContent className="sm:max-w-[425px]">
                       <DialogHeader>
                         <DialogTitle>Confirmation </DialogTitle>
                       </DialogHeader>
 
-                      <div className="border-b-2 py-2">
+                      <div className=" py-2">
                         Do you want to delete this bounty?
-                        <span className="font-bold text-red-500">
-                          {data.priceInBand} {PLATFORM_ASSET.code}
-                        </span>{" "}
-                        to USDC ?
                       </div>
 
                       <DialogFooter className=" w-full">
@@ -1095,218 +1355,58 @@ const AdminBountyPage = () => {
         </Card>
       </div>
     );
-  // return (
-  //   <>
-  //     <main className="  bg-white py-2 dark:bg-gray-900 md:px-40 md:py-4">
-  //       <div className=" flex justify-between px-4 ">
-  //         <article className=" mx-auto w-full ">
-  //           <header className=" mb-4 lg:mb-6">
-  //             <div className="flex items-center justify-between ">
-  //               <address className="mb-6 flex items-center not-italic">
-  //                 <Link
-  //                   href={`/fans/creator/${data?.creator.id}`}
-  //                   className="mr-3 inline-flex items-center gap-2 text-sm text-gray-900 dark:text-white"
-  //                 >
-  //                   <Avater
-  //                     className="h-12 w-12"
-  //                     url={data?.creator.profileUrl}
-  //                   />
-  //                   <div className="flex flex-col gap-2">
-  //                     <div
-  //                       rel="author"
-  //                       className="text-xl font-bold text-gray-900 dark:text-white"
-  //                     >
-  //                       {data?.creator.name}
-  //                     </div>
-  //                     <p className="mt-1 text-xs font-medium text-slate-600">
-  //                       WINNER:{" "}
-  //                       {data.winner?.name ? (
-  //                         <span className="me-2 rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-medium text-red-800 dark:bg-red-900 dark:text-red-300">
-  //                           {data.winner.name}
-  //                         </span>
-  //                       ) : (
-  //                         <span className="me-2 rounded-full bg-purple-100 px-2.5 py-0.5 text-xs font-medium text-purple-800 dark:bg-purple-900 dark:text-purple-300">
-  //                           NOT ANNOUNCED
-  //                         </span>
-  //                       )}
-  //                     </p>
+};
+function ShowMore({ content }: { content: string }) {
+  const [isExpanded, setIsExpanded] = useState<boolean>(false);
+  return (
+    <>
+      <p>
+        {isExpanded ? (
+          <Preview value={content} />
+        ) : (
+          <Preview value={content.slice(0, 400)} />
+        )}
+      </p>
 
-  //                     <p className="mt-1 text-xs font-medium uppercase text-slate-600">
-  //                       STATUS:
-  //                       {data.status === "PENDING" ? (
-  //                         <span className="items-center   rounded-md bg-indigo-500/20 px-2 py-1 uppercase text-indigo-900">
-  //                           {" "}
-  //                           {data.status}
-  //                         </span>
-  //                       ) : data.status === "APPROVED" ? (
-  //                         <span className="items-center whitespace-nowrap rounded-md bg-green-500/20 px-2 py-1 uppercase text-green-900">
-  //                           {data.status}
-  //                         </span>
-  //                       ) : (
-  //                         <span className=" select-none items-center whitespace-nowrap rounded-md bg-red-500/20 px-2 py-1 uppercase text-red-900">
-  //                           {" "}
-  //                           {data.status}
-  //                         </span>
-  //                       )}
-  //                     </p>
-  //                   </div>
-  //                 </Link>
-  //               </address>
-  //               <div>
-  //                 <div className="flex flex-col gap-2">
-  //                   <Button
-  //                     onClick={() =>
-  //                       onOpen("edit bounty", { bountyId: data.id })
-  //                     }
-  //                   >
-  //                     <Edit className="mr-2" size={16} /> Edit
-  //                   </Button>
-  //                   <Button
-  //                     disabled={
-  //                       loadingBountyId === data.id || data.winner?.name
-  //                         ? true
-  //                         : false
-  //                     }
-  //                     onClick={() => handleDelete(data.id, data.priceInBand)}
-  //                     variant="destructive"
-  //                   >
-  //                     <Trash size={16} className="mr-2" />
-  //                     Delete
-  //                   </Button>
-  //                 </div>
-  //               </div>
-  //             </div>
+      <button
+        className="ml-4 text-red-400 underline"
+        onClick={() => setIsExpanded(!isExpanded)}
+      >
+        {isExpanded ? "Show Less" : "Show More"}
+      </button>
+    </>
+  );
+}
+const SubmissionStatusSelect = ({
+  defaultValue,
+  submissionId,
+  creatorId,
+  updateSubmissionStatus,
+}: {
+  defaultValue: string;
+  submissionId: number;
+  creatorId: string;
+  updateSubmissionStatus: (
+    creatorId: string,
+    submissionId: number,
+    status: SubmissionViewType,
+  ) => void;
+}) => {
+  const handleStatusChange = (value: SubmissionViewType) => {
+    updateSubmissionStatus(creatorId, submissionId, value);
+  };
 
-  //             <h1 className="mb-4 text-3xl font-extrabold text-gray-900 dark:text-white  lg:text-4xl">
-  //               {data?.title}
-  //             </h1>
-  //           </header>
-  //           <div>
-  //             <Preview value={data?.description} />
-
-  //             <div className="flex flex-col items-center  justify-center gap-4">
-  //               {data.imageUrls.map((url) => (
-  //                 <Image
-  //                   key={url}
-  //                   src={url}
-  //                   alt="bounty image"
-  //                   width={1000}
-  //                   height={1000}
-  //                   className="h-full w-full "
-  //                 />
-  //               ))}
-  //             </div>
-  //             <h1 className="mb-4 text-2xl font-extrabold text-gray-900 dark:text-white ">
-  //               Prize in USD : ${data?.priceInUSD}
-  //             </h1>
-  //             <h1 className="mb-4 text-2xl font-extrabold text-gray-900 dark:text-white ">
-  //               Prize in {PLATFROM_ASSET.code} : {data?.priceInBand}
-  //             </h1>
-  //             <p className="mt-1 text-xs font-medium text-slate-600">
-  //               Posted on {format(new Date(data.createdAt), "MMMM dd, yyyy")}
-  //             </p>
-  //           </div>
-  //         </article>
-  //       </div>
-
-  //       <div className="mb-6 flex items-center justify-between">
-  //         <h2 className="ml-4 mt-2 text-lg font-bold text-gray-900 dark:text-white lg:text-2xl">
-  //           Discussion ({totalComment?.length})
-  //         </h2>
-  //       </div>
-  //       <AddBountyComment bountyId={Number(id)} />
-  //       <div className="max-h-[650px]">
-  //         {bountyComment.data && bountyComment.data.length > 0 && (
-  //           <div className="mb-10 px-4">
-  //             <div className=" flex flex-col gap-4 rounded-lg border-2 border-base-200 ">
-  //               <div className=" mt-1 flex flex-col gap-2  rounded-lg p-2">
-  //                 {bountyComment.data?.map((comment) => (
-  //                   <>
-  //                     <ViewBountyComment
-  //                       key={comment.id}
-  //                       comment={comment}
-  //                       bountyChildComments={comment.bountyChildComments}
-  //                     />
-  //                     <Separator />
-  //                   </>
-  //                 ))}
-  //               </div>
-  //             </div>
-  //           </div>
-  //         )}
-  //       </div>
-
-  //       <div className="mt-2 p-2">
-  //         <h1 className="mt-4 text-center text-3xl font-extrabold text-gray-900 dark:text-white  lg:text-4xl">
-  //           Recent Submissions
-  //         </h1>
-  //         {allSubmission?.length === 0 && (
-  //           <p className="mb-6 mt-2  flex flex-col gap-4 rounded-lg  bg-white p-6 text-center shadow-md">
-  //             There is no submission yet
-  //           </p>
-  //         )}
-  //         {allSubmission?.map((submission, id) => (
-  //           <div key={id}>
-  //             <div className="mb-6 flex flex-col gap-4   rounded-lg bg-white p-6 shadow-md ">
-  //               <div className="flex items-center">
-  //                 <Avater className="h-12 w-12" url={submission.user.image} />
-  //                 <div className="ml-2">
-  //                   <div className="text-sm ">
-  //                     <span className="font-semibold">
-  //                       {submission.user.name}
-  //                     </span>
-  //                     <span className="text-gray-500"> • 1st</span>
-  //                   </div>
-  //                   <div className="text-xs text-gray-500 ">
-  //                     {format(
-  //                       new Date(submission.createdAt),
-  //                       "MMMM dd, yyyy",
-  //                     )}
-  //                   </div>
-  //                 </div>
-  //               </div>
-
-  //               <p className="mt-2 text-sm leading-normal text-gray-800 md:leading-relaxed">
-  //                 {submission.content}
-  //               </p>
-
-  //               <div className="flex items-center justify-between gap-2">
-  //                 <Button
-  //                   className="  "
-  //                   variant="outline"
-  //                   onClick={() =>
-  //                     onOpen("view attachment", {
-  //                       attachment: submission.attachmentUrl,
-  //                     })
-  //                   }
-  //                 >
-  //                   <Paperclip size={16} className="mr-2" /> View Attachment
-  //                 </Button>
-
-  //                 <Button
-  //                   disabled={
-  //                     loadingBountyId === data.id || data.winner?.name
-  //                       ? true
-  //                       : false
-  //                   }
-  //                   className=" me-2  bg-purple-100 px-2.5 py-0.5 text-xs font-medium text-purple-800 dark:bg-purple-900 dark:text-purple-300 "
-  //                   variant="outline"
-  //                   onClick={() =>
-  //                     handleWinner(
-  //                       data.id,
-  //                       submission.userId,
-  //                       data.priceInBand,
-  //                     )
-  //                   }
-  //                 >
-  //                   <Crown size={16} className="mr-2" /> MARK AS WINNER
-  //                 </Button>
-  //               </div>
-  //             </div>
-  //           </div>
-  //         ))}
-  //       </div>
-  //     </main>
-  //   </>
-  // );
+  return (
+    <Select onValueChange={handleStatusChange}>
+      <SelectTrigger className="w-[100px]">
+        <SelectValue placeholder={defaultValue} />
+      </SelectTrigger>
+      <SelectContent>
+        <SelectItem value="CHECKED">CHECKED</SelectItem>
+        <SelectItem value="ONREVIEW">REVIEW</SelectItem>
+        <SelectItem value="APPROVED">APPROVED</SelectItem>
+        <SelectItem value="REJECTED">REJECTED</SelectItem>
+      </SelectContent>
+    </Select>
+  );
 };
