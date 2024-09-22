@@ -422,4 +422,4 @@ export async function checkXDRSubmitted(xdr: string) {
     console.log("Error in checkXDRSubmitted:", error);
     return true;
   }
-}
+} 
