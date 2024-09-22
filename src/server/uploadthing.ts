@@ -30,6 +30,29 @@ export const ourFileRouter = {
       // !!! Whatever is returned here is sent to the clientside `onClientUploadComplete` callback
       return { uploadedBy: metadata.userId };
     }),
+  SubmissionImageUploader: f({ blob: { maxFileSize: "1024MB", maxFileCount: 1 } })
+    // Set permissions and file types for this FileRoute
+    .middleware(async ({ req, res }) => {
+      // This code runs on your server before upload
+      const user = await auth(req, res);
+
+      // If you throw, the user will not be able to upload
+      if (!user) throw new Error("Unauthorized");
+
+      // Whatever is returned here is accessible in onUploadComplete as `metadata`
+      return { userId: user.id };
+    }).onUploadError((error) => {
+      return error;
+    })
+    .onUploadComplete(async ({ metadata, file }) => {
+      // This code RUNS ON YOUR SERVER after upload
+      console.log("Upload complete for userId:", metadata.userId);
+
+      // console.log("file url", file.url);
+
+      // !!! Whatever is returned here is sent to the clientside `onClientUploadComplete` callback
+      return { uploadedBy: metadata.userId };
+    }),
 
   musicUploader: f({ audio: { maxFileSize: "64MB", maxFileCount: 1, } })
     .middleware(async ({ req, res }) => {

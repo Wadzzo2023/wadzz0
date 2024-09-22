@@ -556,16 +556,26 @@ model BountyParticipant {
 }
 
 model BountySubmission {
-    id       Int    @id @default(autoincrement())
-    bountyId Int
-    bounty   Bounty @relation(fields: [bountyId], references: [id], onDelete: Cascade)
+    id        Int                    @id @default(autoincrement())
+    bountyId  Int
+    bounty    Bounty                 @relation(fields: [bountyId], references: [id], onDelete: Cascade)
+    userId    String
+    user      User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+    content   String
+    medias    SubmissionAttachment[]
+    createdAt DateTime               @default(now())
+    status    SubmissionViewType     @default(UNCHECKED)
+}
 
-    userId        String
-    user          User               @relation(fields: [userId], references: [id], onDelete: Cascade)
-    content       String
-    attachmentUrl String[] // URL of the attachment submitted by the user
-    createdAt     DateTime           @default(now())
-    status        SubmissionViewType @default(UNCHECKED)
+model SubmissionAttachment {
+    id           Int              @id @default(autoincrement())
+    submissionId Int
+    submission   BountySubmission @relation(fields: [submissionId], references: [id], onDelete: Cascade) // Add this relation field
+    url          String
+    name         String
+    size         Int
+    type         String
+    createdAt    DateTime         @default(now())
 }
 
 model BountyComment {
