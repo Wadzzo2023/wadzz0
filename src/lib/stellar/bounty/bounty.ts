@@ -18,7 +18,11 @@ import {
   TrxBaseFee,
   TrxBaseFeeInPlatformAsset,
 } from "../constant";
-import { getAssetPrice, getAssetToUSDCRate, getplatformAssetNumberForXLM } from "../fan/get_token_price";
+import {
+  getAssetPrice,
+  getAssetToUSDCRate,
+  getplatformAssetNumberForXLM,
+} from "../fan/get_token_price";
 import { env } from "~/env";
 
 export async function SendBountyBalanceToMotherAccount({
@@ -233,10 +237,9 @@ export async function SwapUserAssetToMotherUSDC({
 }: {
   prize: number;
   userPubKey: string;
-  secretKey?: string | undefined
+  secretKey?: string | undefined;
   signWith: SignUserType;
 }) {
-
   const server = new Horizon.Server(STELLAR_URL);
   const motherAcc = Keypair.fromSecret(MOTHER_SECRET);
   const account = await server.loadAccount(motherAcc.publicKey());
@@ -246,9 +249,9 @@ export async function SwapUserAssetToMotherUSDC({
     networkPassphrase,
   });
 
-  const trustCost = await getplatformAssetNumberForXLM(.5)
+  const trustCost = await getplatformAssetNumberForXLM(0.5);
   let totalAmount =
-    prize + Number(TrxBaseFeeInPlatformAsset) + Number(PLATFORM_FEE)
+    prize + Number(TrxBaseFeeInPlatformAsset) + Number(PLATFORM_FEE);
 
   const platformAssetBalance = senderAcc.balances.find((balance) => {
     if (
@@ -260,8 +263,9 @@ export async function SwapUserAssetToMotherUSDC({
     return false;
   });
 
-
-  const assetIssuer = env.NEXT_PUBLIC_STELLAR_PUBNET ? "GCTDHOF4JMAULZKOX5DKAYHF3JDEQMED73JFMNCJZTO2DMDEJW6VSWIS" : "GB5AVDCDB2DRY6O2GGF4N6JXC6CAIBF7Q4RCQTWDOLFKZDQOKEEKBFEO"
+  const assetIssuer = env.NEXT_PUBLIC_STELLAR_PUBNET
+    ? "GCTDHOF4JMAULZKOX5DKAYHF3JDEQMED73JFMNCJZTO2DMDEJW6VSWIS"
+    : "GB5AVDCDB2DRY6O2GGF4N6JXC6CAIBF7Q4RCQTWDOLFKZDQOKEEKBFEO";
 
   const asset = new Asset("USDC", assetIssuer);
 
@@ -271,8 +275,7 @@ export async function SwapUserAssetToMotherUSDC({
       balance.asset_type === "credit_alphanum12"
     ) {
       return (
-        balance.asset_code === "USDC" &&
-        balance.asset_issuer === assetIssuer
+        balance.asset_code === "USDC" && balance.asset_issuer === assetIssuer
       );
     }
     return false;
@@ -283,8 +286,7 @@ export async function SwapUserAssetToMotherUSDC({
       balance.asset_type === "credit_alphanum12"
     ) {
       return (
-        balance.asset_code === "USDC" &&
-        balance.asset_issuer === assetIssuer
+        balance.asset_code === "USDC" && balance.asset_issuer === assetIssuer
       );
     }
     return false;
@@ -293,56 +295,65 @@ export async function SwapUserAssetToMotherUSDC({
     throw new Error("Please Contact Admin to add USDC trustline");
   }
 
-  const oneUSDCEqual = await getAssetToUSDCRate()
-  const oneASSETEqual = await getAssetPrice()
+  const oneUSDCEqual = await getAssetToUSDCRate();
+  const oneASSETEqual = await getAssetPrice();
 
   const oneAssetInUSDC = oneASSETEqual / oneUSDCEqual;
 
   const prizeInUSDC = prize * oneAssetInUSDC;
 
   if (!senderHasTrustOnUSDC) {
-    totalAmount += trustCost
+    totalAmount += trustCost;
     if (
       !platformAssetBalance ||
       parseFloat(platformAssetBalance.balance) < totalAmount
     ) {
-      throw new Error(`You don't have total amount of ${totalAmount} ${PLATFORM_ASSET.code} to send.`);
+      throw new Error(
+        `You don't have total amount of ${totalAmount} ${PLATFORM_ASSET.code} to send.`,
+      );
     }
-    transaction.addOperation(
-      Operation.changeTrust({
-        asset: asset,
-        source: userPubKey,
-
-      }),
-    );
+    transaction
+      .addOperation(
+        Operation.payment({
+          destination: userPubKey,
+          asset: Asset.native(),
+          amount: "0.5",
+          source: motherAcc.publicKey(),
+        }),
+      )
+      .addOperation(
+        Operation.changeTrust({
+          asset: asset,
+          source: userPubKey,
+        }),
+      );
   }
-
-
-
 
   if (
     !platformAssetBalance ||
     parseFloat(platformAssetBalance.balance) < totalAmount
   ) {
-    throw new Error(`You don't have total amount of ${totalAmount} ${PLATFORM_ASSET.code} to send.`);
+    throw new Error(
+      `You don't have total amount of ${totalAmount} ${PLATFORM_ASSET.code} to send.`,
+    );
   }
-  transaction.addOperation(
-    Operation.payment({
-      destination: motherAcc.publicKey(),
-      asset: PLATFORM_ASSET,
-      amount: totalAmount.toFixed(7).toString(),
-      source: userPubKey,
-    }),
-
-  ).addOperation(
-    Operation.payment({
-      destination: userPubKey,
-      asset: asset,
-      amount: prizeInUSDC.toFixed(7).toString(),
-      source: motherAcc.publicKey(),
-    })
-  )
-
+  transaction
+    .addOperation(
+      Operation.payment({
+        destination: motherAcc.publicKey(),
+        asset: PLATFORM_ASSET,
+        amount: totalAmount.toFixed(7).toString(),
+        source: userPubKey,
+      }),
+    )
+    .addOperation(
+      Operation.payment({
+        destination: userPubKey,
+        asset: asset,
+        amount: prizeInUSDC.toFixed(7).toString(),
+        source: motherAcc.publicKey(),
+      }),
+    );
 
   transaction.setTimeout(0);
 
@@ -359,6 +370,3 @@ export async function SwapUserAssetToMotherUSDC({
   }
   return { xdr: buildTrx.toXDR(), pubKey: userPubKey };
 }
-
-
-
