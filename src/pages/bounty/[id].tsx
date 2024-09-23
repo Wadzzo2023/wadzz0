@@ -12,6 +12,7 @@ import {
   File,
   MessageSquare,
   Paperclip,
+  Send,
   Trash,
   Trophy,
   UploadCloud,
@@ -30,13 +31,17 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { submitSignedXDRToServer4User } from "package/connect_wallet/src/lib/stellar/trx/payment_fb_g";
-import { useState } from "react";
+import { MutableRefObject, useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { AddBountyComment } from "~/components/fan/creator/bounty/Add-Bounty-Comment";
 import ViewBountyComment from "~/components/fan/creator/bounty/View-Bounty-Comment";
 import { useModal } from "~/components/hooks/use-modal-store";
 import { Preview } from "~/components/preview";
-import { AvatarImage } from "~/components/shadcn/ui/avatar";
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "~/components/shadcn/ui/avatar";
 import { Badge } from "~/components/shadcn/ui/badge";
 import { Button } from "~/components/shadcn/ui/button";
 import {
@@ -83,7 +88,10 @@ import {
   getAssetToUSDCRate,
 } from "~/lib/stellar/fan/get_token_price";
 import Loading from "~/components/wallete/loading";
-import { SubmissionViewType } from "@prisma/client";
+import { SubmissionViewType, UserRole } from "@prisma/client";
+import { Input } from "~/components/shadcn/ui/input";
+import { cn } from "~/lib/utils";
+import Chat from "~/components/fan/creator/bounty/Chat";
 
 const SingleBountyPage = () => {
   const router = useRouter();
@@ -97,6 +105,11 @@ const SingleBountyPage = () => {
 
 export default SingleBountyPage;
 
+type Message = {
+  role: UserRole;
+  message: string;
+};
+
 const UserBountyPage = () => {
   const { onOpen } = useModal();
   const session = useSession();
@@ -105,7 +118,12 @@ const UserBountyPage = () => {
   const { id } = router.query;
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [loading, setLoading] = useState<boolean>(false);
+  const [input, setInput] = useState("");
+  const [messages, setMessages] = useState<Message[]>([]);
+  const messagesEndRef: MutableRefObject<HTMLDivElement | null> =
+    useRef<HTMLDivElement | null>(null);
 
+  const inputLength = input.trim().length;
   const utils = api.useUtils();
   const { data, isLoading: bountyLoading } =
     api.bounty.Bounty.getBountyByID.useQuery({
@@ -205,10 +223,54 @@ const UserBountyPage = () => {
   const getUserHasTrustLine = api.bounty.Bounty.hasUserTrustOnUSDC.useQuery();
   const getMotherTrustLine = api.bounty.Bounty.hasMotherTrustOnUSDC.useQuery();
 
+  const { data: oldMessage, isSuccess: oldMessageSucess } =
+    api.bounty.Bounty.getBountyForCreatorUser.useQuery({
+      bountyId: Number(id),
+    });
+
+  const NewMessageMutation =
+    api.bounty.Bounty.createNewBountyDoubt.useMutation();
+
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (input.length === 0) return;
+
+    try {
+      // Create a new message (API Call)
+      const newMessage = NewMessageMutation.mutate({
+        bountyId: Number(id),
+        content: input,
+        role: UserRole.USER,
+      });
+
+      setMessages((prevMessages: Message[]) => [
+        ...prevMessages,
+        { role: UserRole.USER, message: input },
+      ]);
+      setInput("");
+    } catch (error) {
+      console.error("Error sending message:", error);
+    }
+  };
+  useEffect(() => {
+    if (oldMessage && oldMessageSucess) {
+      setMessages(oldMessage);
+    }
+  }, [oldMessage, oldMessageSucess]);
+  const scrollToBottom = () => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
+  // Call scrollToBottom on initial render and whenever new content is added
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
   if (bountyLoading || isAlreadyJoin.isLoading) return <Loading />;
   if (data && isAlreadyJoin.data) {
     return (
-      <div className=" py-8">
+      <div className="">
         <div className="p-2">
           {isAlreadyJoin.isLoading ? (
             <div className="mb-2.5 h-10  bg-gray-200 "></div>
@@ -255,12 +317,16 @@ const UserBountyPage = () => {
               </CardHeader>
               <CardContent>
                 <Tabs defaultValue="details">
-                  <TabsList className="grid w-full grid-cols-3">
+                  <TabsList className="w-full md:grid md:grid-cols-4">
                     <TabsTrigger value="details">Details</TabsTrigger>
 
-                    <TabsTrigger value="submissions" className="relative">
+                    <TabsTrigger value="submissions" className="">
                       Submissions{" "}
                     </TabsTrigger>
+                    <TabsTrigger value="doubt" className="">
+                      Chat{" "}
+                    </TabsTrigger>
+
                     <TabsTrigger value="comments">Comments</TabsTrigger>
                   </TabsList>
                   <TabsContent value="details" className="mt-4">
@@ -365,6 +431,94 @@ const UserBountyPage = () => {
                         </div>
                       ))}
                     </div>
+                  </TabsContent>
+                  <TabsContent value="doubt" className="mt-4">
+                    {" "}
+                    <Card>
+                      <CardHeader className="flex flex-row items-center border-b-2 p-4">
+                        <div className="flex items-center space-x-4 ">
+                          <Avatar>
+                            <AvatarImage
+                              src={data.creator.profileUrl ?? ""}
+                              alt="Image"
+                            />
+                            <AvatarFallback>
+                              {data.creator.name.slice(0, 2)}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div>
+                            <p className="text-sm font-medium leading-none">
+                              {data.creator.name}
+                            </p>
+                            <p className="text-sm text-muted-foreground">
+                              m@example.com
+                            </p>
+                          </div>
+                        </div>
+                      </CardHeader>
+                      <CardContent className="py-2 ">
+                        <div className="max-h-[300px] space-y-4 overflow-y-auto">
+                          {messages?.map((message, index) => (
+                            <div
+                              key={index}
+                              className={cn(
+                                "flex w-max max-w-[75%] flex-col gap-2 rounded-lg px-3 py-2 text-sm",
+                                message.role === UserRole.USER
+                                  ? "ml-auto bg-primary text-primary-foreground"
+                                  : "bg-muted",
+                              )}
+                            >
+                              {sanitizeInput(message.message).sanitizedInput}
+                              {// Display all matched URLs as links
+                              sanitizeInput(message.message).urls?.map(
+                                (url, index) => (
+                                  <div
+                                    key={index}
+                                    className=" w-full rounded-md bg-[#F5F7FB] py-2  shadow-sm"
+                                  >
+                                    <Link
+                                      href={url}
+                                      className="flex items-center justify-between gap-2"
+                                    >
+                                      <File color="black" />{" "}
+                                      <span className="truncate text-base font-medium text-[#07074D]">
+                                        {shortURL(url)}
+                                      </span>
+                                    </Link>
+                                  </div>
+                                ),
+                              )}
+                            </div>
+                          ))}
+                          <div ref={messagesEndRef} />
+                        </div>
+                      </CardContent>
+                      <CardFooter>
+                        <form
+                          onSubmit={handleSubmit}
+                          className="flex w-full items-center space-x-2"
+                        >
+                          <Input
+                            id="message"
+                            placeholder="Type your message..."
+                            className="flex-1"
+                            autoComplete="off"
+                            value={input}
+                            onChange={(event) => setInput(event.target.value)}
+                          />
+                          <Button
+                            type="submit"
+                            size="icon"
+                            disabled={
+                              inputLength === 0 || NewMessageMutation.isLoading
+                            }
+                          >
+                            <Send className="h-4 w-4" />
+                            <span className="sr-only">Send</span>
+                          </Button>
+                        </form>
+                      </CardFooter>
+                    </Card>
                   </TabsContent>
                   <TabsContent value="comments" className="mt-4">
                     <div className="space-y-4">
@@ -727,181 +881,6 @@ const UserBountyPage = () => {
       </div>
     );
   }
-  // return (
-  //   <main className="  bg-white py-2 dark:bg-gray-900 md:px-40 md:py-4">
-  //     <div className=" flex justify-between px-4 ">
-  //       <article className=" mx-auto w-full ">
-  //         <header className=" mb-4 lg:mb-6">
-  //           <div className="flex items-center justify-between ">
-  //             <address className="mb-6 flex items-center not-italic">
-  //               <Link href={`/fans/creator/${data?.creator.id}`}>
-  //                 <div className="mr-3 inline-flex items-center gap-2 text-sm text-gray-900 dark:text-white">
-  //                   <Avater
-  //                     className="h-12 w-12"
-  //                     url={data?.creator.profileUrl}
-  //                   />
-  //                   <div className="flex flex-col gap-2">
-  //                     <Link
-  //                       href={`/fans/creator/${data?.creator.id}`}
-  //                       rel="author"
-  //                       className="text-xl font-bold text-gray-900 dark:text-white"
-  //                     >
-  //                       {data?.creator.name}
-  //                     </Link>
-  //                     <p className="mt-1 text-xs font-medium text-slate-600">
-  //                       WINNER:{" "}
-  //                       {data.winner?.name ? (
-  //                         <span className="me-2 rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-medium text-red-800 dark:bg-red-900 dark:text-red-300">
-  //                           {data.winner.name}
-  //                         </span>
-  //                       ) : (
-  //                         <span className="me-2 rounded-full bg-purple-100 px-2.5 py-0.5 text-xs font-medium text-purple-800 dark:bg-purple-900 dark:text-purple-300">
-  //                           NOT ANNOUNCED
-  //                         </span>
-  //                       )}
-  //                     </p>
-
-  //                     <p className="mt-1 text-xs font-medium uppercase text-slate-600">
-  //                       STATUS:
-  //                       {data.status === "PENDING" ? (
-  //                         <span className="items-center whitespace-nowrap rounded-md bg-indigo-500/20 px-2 py-1 uppercase text-indigo-900">
-  //                           {" "}
-  //                           {data.status}
-  //                         </span>
-  //                       ) : data.status === "APPROVED" ? (
-  //                         <span className="items-center whitespace-nowrap rounded-md bg-green-500/20 px-2 py-1 uppercase text-green-900">
-  //                           {data.status}
-  //                         </span>
-  //                       ) : (
-  //                         <span className=" select-none items-center whitespace-nowrap rounded-md bg-red-500/20 px-2 py-1 uppercase text-red-900">
-  //                           {" "}
-  //                           {data.status}
-  //                         </span>
-  //                       )}
-  //                     </p>
-  //                   </div>
-  //                 </div>
-  //               </Link>
-  //             </address>
-  //           </div>
-
-  //           <h1 className="mb-4 text-3xl font-extrabold text-gray-900 dark:text-white  lg:text-4xl">
-  //             {data?.title}
-  //           </h1>
-  //         </header>
-  //         <div>
-  //           <Preview value={data?.description} />
-
-  //           <div className="flex flex-col items-center  justify-center gap-4">
-  //             {data.imageUrls.map((url) => (
-  //               <Image
-  //                 key={url}
-  //                 src={url}
-  //                 alt="bounty image"
-  //                 width={1000}
-  //                 height={1000}
-  //                 className="h-full w-full "
-  //               />
-  //             ))}
-  //           </div>
-  //           <h1 className="mb-4 text-2xl font-extrabold text-gray-900 dark:text-white ">
-  //             Prize in USD : ${data?.priceInUSD}
-  //           </h1>
-  //           <h1 className="mb-4 text-2xl font-extrabold text-gray-900 dark:text-white ">
-  //             Prize in {PLATFROM_ASSET.code} : {data?.priceInBand}
-  //           </h1>
-  //           <p className="mt-1 text-xs font-medium text-slate-600">
-  //             Posted on {format(new Date(data.createdAt), "MMMM dd, yyyy")}
-  //           </p>
-  //         </div>
-  //       </article>
-  //     </div>
-
-  //     <div className="mb-6 mt-2  flex flex-col gap-4   rounded-lg bg-white p-6 shadow-md">
-  //       <div className="flex items-center justify-between">
-  //         <h1 className="text-center text-2xl font-extrabold text-gray-900 dark:text-white">
-  //           Your Recent Submissions
-  //         </h1>
-  //         <div className="flex items-center justify-center ">
-  //           <Button
-  //             disabled={data?.winner?.name ? true : false}
-  //             className=""
-  //             onClick={() =>
-  //               onOpen("upload file", {
-  //                 bountyId: data.id,
-  //               })
-  //             }
-  //           >
-  //             <UploadCloud className="mr-2" /> Attach Your Submission
-  //           </Button>
-  //         </div>
-  //       </div>
-  //       {submissionData?.length === 0 && (
-  //         <p className="w-full text-center">There is no submission yet</p>
-  //       )}
-  //       {submissionData?.map((submission, id) => (
-  //         <div key={id}>
-  //           <div className="mb-6 flex flex-col gap-4   rounded-lg bg-white p-6 shadow-md ">
-  //             <div className=" flex flex-col gap-2">
-  //               <div className="flex items-center gap-4">
-  //                 <p className="  ">{submission.content}</p>
-  //               </div>
-  //               <p className=" text-xs text-gray-700">
-  //                 {format(new Date(submission.createdAt), "MMMM dd, yyyy")}
-  //               </p>
-  //             </div>
-
-  //             <div className="flex items-center justify-between">
-  //               <Button
-  //                 className="  "
-  //                 onClick={() =>
-  //                   onOpen("view attachment", {
-  //                     attachment: submission.attachmentUrl,
-  //                   })
-  //                 }
-  //                 variant="outline"
-  //               >
-  //                 <Paperclip size={16} className="mr-2" /> View Attachment
-  //               </Button>
-  //               <Button
-  //                 disabled={data?.winner?.name ? true : false}
-  //                 variant="destructive"
-  //                 onClick={() => handleSubmissionDelete(submission.id)}
-  //               >
-  //                 <Trash />
-  //               </Button>
-  //             </div>
-  //           </div>
-  //         </div>
-  //       ))}
-  //     </div>
-
-  //     <div className="mb-6 flex items-center justify-between">
-  //       <h2 className="ml-4 mt-2 text-lg font-bold text-gray-900 dark:text-white lg:text-2xl">
-  //         Discussion ({totalComment?.length})
-  //       </h2>
-  //     </div>
-  //     <AddBountyComment bountyId={Number(id)} />
-  //     {bountyComment.data && bountyComment.data.length > 0 && (
-  //       <div className="mb-10 px-4">
-  //         <div className=" flex flex-col gap-4 rounded-lg border-2 border-base-200 ">
-  //           <div className=" mt-1 flex flex-col gap-4  rounded-lg p-2">
-  //             {bountyComment.data?.map((comment) => (
-  //               <>
-  //                 <ViewBountyComment
-  //                   key={comment.id}
-  //                   comment={comment}
-  //                   bountyChildComments={comment.bountyChildComments}
-  //                 />
-  //                 <Separator />
-  //               </>
-  //             ))}
-  //           </div>
-  //         </div>
-  //       </div>
-  //     )}
-  //   </main>
-  // );
 };
 
 const AdminBountyPage = () => {
@@ -910,13 +889,14 @@ const AdminBountyPage = () => {
   const router = useRouter();
   const [loadingBountyId, setLoadingBountyId] = useState<number | null>(null);
   const { needSign } = useNeedSign();
+  const [input, setInput] = useState("");
+  const inputLength = input.trim().length;
+  const [messages, setMessages] = useState<Message[]>([]);
+
   const { id } = router.query;
   console.log(id);
   const { data } = api.bounty.Bounty.getBountyByID.useQuery({
     BountyId: Number(id),
-  });
-  const { data: totalComment } = api.bounty.Bounty.getBountyComments.useQuery({
-    bountyId: Number(id),
   });
 
   const DeleteMutation = api.bounty.Bounty.deleteBounty.useMutation({
@@ -1018,7 +998,7 @@ const AdminBountyPage = () => {
 
   if (data)
     return (
-      <div className="py-4">
+      <div className=" ">
         <Card className="mx-auto w-full max-w-4xl">
           <CardHeader>
             <div className="relative">
@@ -1059,16 +1039,17 @@ const AdminBountyPage = () => {
           </CardHeader>
           <CardContent className="w-full">
             <Tabs defaultValue="details">
-              <TabsList className="grid w-full grid-cols-3">
+              <TabsList className="w-full md:grid md:grid-cols-4">
                 <TabsTrigger value="details">Details</TabsTrigger>
 
                 <TabsTrigger value="submissions">Submissions</TabsTrigger>
+                <TabsTrigger value="doubt">Chat</TabsTrigger>
+
                 <TabsTrigger value="comments">Comments</TabsTrigger>
               </TabsList>
               <TabsContent value="details" className="mt-4">
                 <Preview value={data?.description} />
               </TabsContent>
-
               <TabsContent value="submissions" className="mt-4">
                 <p>Total submissions: {data?._count.submissions}</p>
 
@@ -1213,6 +1194,10 @@ const AdminBountyPage = () => {
                     </div>
                   ))}
                 </div>
+              </TabsContent>{" "}
+              <TabsContent value="doubt" className=" m-0 h-full  w-full p-0">
+                {" "}
+                <Chat bountyId={data.id} />
               </TabsContent>
               <TabsContent value="comments" className="mt-4">
                 <div className="space-y-4">
@@ -1396,4 +1381,31 @@ const SubmissionStatusSelect = ({
       </SelectContent>
     </Select>
   );
+};
+
+function sanitizeInput(input: string) {
+  const regex = /https:\/\/utfs\.io\/f\/[\w-]+\.\w+/g;
+
+  const urlMatches = input.match(regex) ?? [];
+
+  const sanitizedInput = input.replace(regex, "").trim();
+
+  return {
+    sanitizedInput,
+    urls: urlMatches.length ? urlMatches : null,
+  };
+}
+const shortFileName = (fileName: string) => {
+  const shortFileName = fileName.split(".")[0];
+  const extension = fileName.split(".")[1];
+  if (shortFileName && shortFileName.length > 20) {
+    return `${shortFileName?.slice(0, 20)}...${extension}`;
+  }
+  return fileName;
+};
+const shortURL = (url: string) => {
+  if (url.length > 20) {
+    return `${url.slice(0, 20)}...`;
+  }
+  return url;
 };

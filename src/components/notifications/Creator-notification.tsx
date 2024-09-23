@@ -86,6 +86,11 @@ const Notifications = () => {
                   url = `/bounty/${el.notificationObject.entityId}`;
                   enable = true;
                   break;
+                case NotificationType.BOUNTY_DOUBT:
+                  message = `${el.notificationObject.actor.name} added a doubt on your bounty`;
+                  url = `/bounty/${el.notificationObject.entityId}`;
+                  enable = true;
+                  break;
                 default:
                   message = "";
                   url = "";
