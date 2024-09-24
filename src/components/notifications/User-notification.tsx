@@ -83,9 +83,10 @@ const Notifications = () => {
 
                   break;
 
-                case NotificationType.BOUNTY_DOUBT:
-                  message = `${el.notificationObject.actor.name} added a Clarification on your bounty`;
+                case NotificationType.BOUNTY_DOUBT_REPLY:
+                  message = `${el.notificationObject.actor.name} reply to your chat on bounty`;
                   url = `/bounty/${el.notificationObject.entityId}`;
+
                   break;
                 default:
                   message = "";

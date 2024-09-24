@@ -92,6 +92,7 @@ import { SubmissionViewType, UserRole } from "@prisma/client";
 import { Input } from "~/components/shadcn/ui/input";
 import { cn } from "~/lib/utils";
 import Chat from "~/components/fan/creator/bounty/Chat";
+import { addrShort } from "~/utils/utils";
 
 const SingleBountyPage = () => {
   const router = useRouter();
@@ -229,15 +230,24 @@ const UserBountyPage = () => {
     });
 
   const NewMessageMutation =
-    api.bounty.Bounty.createNewBountyDoubt.useMutation();
+    api.bounty.Bounty.createUpdateBountyDoubtForUserCreator.useMutation({
+      onSuccess: async (data) => {
+        await utils.bounty.Bounty.getBountyForCreatorUser
+          .invalidate()
+          .catch(() => console.log("error"));
+        await utils.bounty.Bounty.listBountyDoubts
+          .invalidate()
+          .catch(() => console.log("error"));
+      },
+    });
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (input.length === 0) return;
 
     try {
       // Create a new message (API Call)
-      const newMessage = NewMessageMutation.mutate({
+      await NewMessageMutation.mutateAsync({
         bountyId: Number(id),
         content: input,
         role: UserRole.USER,
@@ -267,514 +277,399 @@ const UserBountyPage = () => {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
   if (bountyLoading || isAlreadyJoin.isLoading) return <Loading />;
   if (data && isAlreadyJoin.data) {
     return (
-      <div className="">
-        <div className="p-2">
-          {isAlreadyJoin.isLoading ? (
-            <div className="mb-2.5 h-10  bg-gray-200 "></div>
-          ) : isAlreadyJoin.data.isJoined || Owner?.isOwner ? (
-            <Card
-              className={clsx("mx-auto w-full max-w-4xl", {
-                "blur-sm": !isAlreadyJoin.data,
-              })}
-            >
-              <CardHeader>
-                <div className="relative">
-                  <Image
-                    src={data?.imageUrls[0] ?? "/images/logo.png"}
-                    alt={data?.title}
-                    width={600}
-                    height={300}
-                    className="h-64 w-full rounded-t-lg object-cover"
-                  />
+      <div className="p-2">
+        {isAlreadyJoin.isLoading ? (
+          <div className="mb-2.5 h-10  bg-gray-200 "></div>
+        ) : isAlreadyJoin.data.isJoined || Owner?.isOwner ? (
+          <Card
+            className={clsx("mx-auto w-full max-w-4xl", {
+              "blur-sm": !isAlreadyJoin.data,
+            })}
+          >
+            <CardHeader>
+              <div className="relative">
+                <Image
+                  src={data?.imageUrls[0] ?? "/images/logo.png"}
+                  alt={data?.title}
+                  width={600}
+                  height={300}
+                  className="h-64 w-full rounded-t-lg object-cover"
+                />
 
-                  <Badge
-                    variant={
-                      data?.status === "APPROVED"
-                        ? "default"
-                        : data?.status === "PENDING"
-                          ? "secondary"
-                          : "destructive"
-                    }
-                    className="absolute right-4 top-4 px-3 py-1 text-lg"
-                  >
-                    {data?.status === "APPROVED"
-                      ? "Approved"
+                <Badge
+                  variant={
+                    data?.status === "APPROVED"
+                      ? "default"
                       : data?.status === "PENDING"
-                        ? "Pending"
-                        : "Rejected"}
-                  </Badge>
-                </div>
-                <div className="mt-4 flex items-center justify-between">
-                  <CardTitle className="text-3xl">{data?.title}</CardTitle>
-                </div>
-                {/* <div className="mt-2 flex items-center text-muted-foreground">
+                        ? "secondary"
+                        : "destructive"
+                  }
+                  className="absolute right-4 top-4 px-3 py-1 text-lg"
+                >
+                  {data?.status === "APPROVED"
+                    ? "Approved"
+                    : data?.status === "PENDING"
+                      ? "Pending"
+                      : "Rejected"}
+                </Badge>
+              </div>
+              <div className="mt-4 flex items-center justify-between">
+                <CardTitle className="text-3xl">{data?.title}</CardTitle>
+              </div>
+              {/* <div className="mt-2 flex items-center text-muted-foreground">
               <Clock className="mr-1 h-4 w-4" />
               <span>Deadline:</span>
             </div> */}
-              </CardHeader>
-              <CardContent>
-                <Tabs defaultValue="details">
-                  <TabsList className="w-full md:grid md:grid-cols-4">
-                    <TabsTrigger value="details">Details</TabsTrigger>
+            </CardHeader>
+            <CardContent>
+              <Tabs defaultValue="details">
+                <TabsList className="w-full md:grid md:grid-cols-4">
+                  <TabsTrigger value="details">Details</TabsTrigger>
 
-                    <TabsTrigger value="submissions" className="">
-                      Submissions{" "}
-                    </TabsTrigger>
-                    <TabsTrigger value="doubt" className="">
-                      Chat{" "}
-                    </TabsTrigger>
+                  <TabsTrigger value="submissions" className="">
+                    Submissions{" "}
+                  </TabsTrigger>
+                  <TabsTrigger value="doubt" className="">
+                    Chat{" "}
+                  </TabsTrigger>
 
-                    <TabsTrigger value="comments">Comments</TabsTrigger>
-                  </TabsList>
-                  <TabsContent value="details" className="mt-4">
-                    <Preview value={data?.description} />
-                  </TabsContent>
+                  <TabsTrigger value="comments">Comments</TabsTrigger>
+                </TabsList>
+                <TabsContent value="details" className="mt-4">
+                  <Preview value={data?.description} />
+                </TabsContent>
 
-                  <TabsContent value="submissions" className="mt-4">
-                    <div className="mt-4">
-                      <h1 className="mt-4 text-center text-3xl font-extrabold text-gray-900 dark:text-white  lg:text-4xl">
-                        Your Submissions
-                      </h1>
-                      {submissionData?.length === 0 && (
-                        <p className="w-full text-center">
-                          There is no submission yet
-                        </p>
-                      )}
-                      {submissionData?.map((submission, id) => (
-                        <div key={id}>
-                          <div className="mb-6 flex flex-col gap-4   rounded-lg bg-white p-4 shadow-md ">
-                            <div className=" flex flex-col gap-2">
-                              <div className="flex flex-col items-start gap-2 ">
-                                {submission.content.length > 400 ? (
-                                  <ShowMore content={submission.content} />
-                                ) : (
-                                  <Preview value={submission.content} />
-                                )}
-                              </div>
-                              <p className=" text-xs text-gray-700">
-                                {format(
-                                  new Date(submission.createdAt),
-                                  "MMMM dd, yyyy",
-                                )}
-                              </p>
-                              <p className=" flex items-center gap-2 text-xs text-gray-700">
-                                CHECK SEEN STATUS :{" "}
-                                {submission.status === "UNCHECKED" ? (
-                                  <>
-                                    {submission.status}
-                                    <span className="me-3 flex h-2 w-2 rounded-full bg-blue-600 "></span>{" "}
-                                  </>
-                                ) : submission.status === "CHECKED" ? (
-                                  <>
-                                    {submission.status}
-                                    <span className="me-3 flex h-2 w-2 rounded-full bg-yellow-300"></span>{" "}
-                                  </>
-                                ) : submission.status === "ONREVIEW" ? (
-                                  <>
-                                    {submission.status}
-                                    <span className="me-3 flex h-2 w-2 rounded-full bg-purple-500"></span>{" "}
-                                  </>
-                                ) : submission.status === "REJECTED" ? (
-                                  <>
-                                    {submission.status}
-                                    <span className="me-3 flex h-2 w-2 rounded-full bg-red-500  "></span>{" "}
-                                  </>
-                                ) : (
-                                  <>
-                                    {submission.status}
-                                    <span className="me-3 flex h-2 w-2 rounded-full bg-green-500 "></span>{" "}
-                                  </>
-                                )}
-                              </p>
-                            </div>
-
-                            <div className="flex items-center justify-between gap-2">
-                              <Button
-                                className="  "
-                                onClick={() =>
-                                  onOpen("view attachment", {
-                                    attachment: submission.medias,
-                                  })
-                                }
-                                variant="outline"
-                              >
-                                <Paperclip size={16} className="mr-2" /> View
-                                Attachment
-                              </Button>
-                              <div className="flex items-center justify-between gap-2">
-                                <Button
-                                  // disabled={data?.winner?.name ? true : false}
-                                  onClick={() =>
-                                    onOpen("upload file", {
-                                      submissionId: submission.id,
-                                      bountyId: data.id,
-                                    })
-                                  }
-                                >
-                                  <Edit />
-                                </Button>
-                                <Button
-                                  disabled={data?.winner?.name ? true : false}
-                                  variant="destructive"
-                                  onClick={() =>
-                                    handleSubmissionDelete(submission.id)
-                                  }
-                                >
-                                  <Trash />
-                                </Button>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </TabsContent>
-                  <TabsContent value="doubt" className="mt-4">
-                    {" "}
-                    <Card>
-                      <CardHeader className="flex flex-row items-center border-b-2 p-4">
-                        <div className="flex items-center space-x-4 ">
-                          <Avatar>
-                            <AvatarImage
-                              src={data.creator.profileUrl ?? ""}
-                              alt="Image"
-                            />
-                            <AvatarFallback>
-                              {data.creator.name.slice(0, 2)}
-                            </AvatarFallback>
-                          </Avatar>
-                          <div>
-                            <p className="text-sm font-medium leading-none">
-                              {data.creator.name}
-                            </p>
-                            <p className="text-sm text-muted-foreground">
-                              m@example.com
-                            </p>
-                          </div>
-                        </div>
-                      </CardHeader>
-                      <CardContent className="py-2 ">
-                        <div className="max-h-[300px] space-y-4 overflow-y-auto">
-                          {messages?.map((message, index) => (
-                            <div
-                              key={index}
-                              className={cn(
-                                "flex w-max max-w-[75%] flex-col gap-2 rounded-lg px-3 py-2 text-sm",
-                                message.role === UserRole.USER
-                                  ? "ml-auto bg-primary text-primary-foreground"
-                                  : "bg-muted",
-                              )}
-                            >
-                              {sanitizeInput(message.message).sanitizedInput}
-                              {// Display all matched URLs as links
-                              sanitizeInput(message.message).urls?.map(
-                                (url, index) => (
-                                  <div
-                                    key={index}
-                                    className=" w-full rounded-md bg-[#F5F7FB] py-2  shadow-sm"
-                                  >
-                                    <Link
-                                      href={url}
-                                      className="flex items-center justify-between gap-2"
-                                    >
-                                      <File color="black" />{" "}
-                                      <span className="truncate text-base font-medium text-[#07074D]">
-                                        {shortURL(url)}
-                                      </span>
-                                    </Link>
-                                  </div>
-                                ),
+                <TabsContent value="submissions" className="mt-4">
+                  <div className="mt-4">
+                    <h1 className="mt-4 text-center text-3xl font-extrabold text-gray-900 dark:text-white  lg:text-4xl">
+                      Your Submissions
+                    </h1>
+                    {submissionData?.length === 0 && (
+                      <p className="w-full text-center">
+                        There is no submission yet
+                      </p>
+                    )}
+                    {submissionData?.map((submission, id) => (
+                      <div key={id}>
+                        <div className="mb-6 flex flex-col gap-4   rounded-lg bg-white p-4 shadow-md ">
+                          <div className=" flex flex-col gap-2">
+                            <div className="flex flex-col items-start gap-2 ">
+                              {submission.content.length > 400 ? (
+                                <ShowMore content={submission.content} />
+                              ) : (
+                                <Preview value={submission.content} />
                               )}
                             </div>
-                          ))}
-                          <div ref={messagesEndRef} />
-                        </div>
-                      </CardContent>
-                      <CardFooter>
-                        <form
-                          onSubmit={handleSubmit}
-                          className="flex w-full items-center space-x-2"
-                        >
-                          <Input
-                            id="message"
-                            placeholder="Type your message..."
-                            className="flex-1"
-                            autoComplete="off"
-                            value={input}
-                            onChange={(event) => setInput(event.target.value)}
-                          />
-                          <Button
-                            type="submit"
-                            size="icon"
-                            disabled={
-                              inputLength === 0 || NewMessageMutation.isLoading
-                            }
-                          >
-                            <Send className="h-4 w-4" />
-                            <span className="sr-only">Send</span>
-                          </Button>
-                        </form>
-                      </CardFooter>
-                    </Card>
-                  </TabsContent>
-                  <TabsContent value="comments" className="mt-4">
-                    <div className="space-y-4">
-                      <AddBountyComment bountyId={Number(id)} />
-                      <div className="max-h-[650px]">
-                        {bountyComment.data &&
-                          bountyComment.data.length > 0 && (
-                            <div className="mb-10 px-4">
-                              <div className=" flex flex-col gap-4 rounded-lg border-2 border-base-200 ">
-                                <div className=" mt-1 flex flex-col gap-2  rounded-lg p-2">
-                                  {bountyComment.data?.map((comment) => (
-                                    <>
-                                      <ViewBountyComment
-                                        key={comment.id}
-                                        comment={comment}
-                                        bountyChildComments={
-                                          comment.bountyChildComments
-                                        }
-                                      />
-                                      <Separator />
-                                    </>
-                                  ))}
-                                </div>
-                              </div>
-                            </div>
-                          )}
-                      </div>
-                    </div>
-                  </TabsContent>
-                </Tabs>
-                <div className="mt-6 flex flex-col justify-between gap-2 md:flex-row md:items-center">
-                  <div className="flex flex-col gap-4  md:flex-row md:items-center md:space-x-4">
-                    <Badge variant="secondary" className="flex items-center">
-                      <Trophy className="mr-1 h-4 w-4" />
-                      {data?.priceInUSD} USD
-                    </Badge>
-                    <Badge variant="destructive" className="flex items-center">
-                      <Trophy className="mr-1 h-4 w-4" />
-                      {data?.priceInBand.toFixed(3)} {PLATFORM_ASSET.code}
-                    </Badge>
-                    <Badge variant="secondary" className="flex items-center">
-                      <Users className="mr-1 h-4 w-4" />
-                      {data?._count.participants} participants
-                    </Badge>
-                    <Badge variant="secondary" className="flex items-center">
-                      <MessageSquare className="mr-1 h-4 w-4" />
-                      {data?._count.comments} comments
-                    </Badge>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <Avater className="h-8 w-8" />
-                    <div>
-                      <Link
-                        href={`/fans/creator/${data?.creator.id}`}
-                        className="mr-3 inline-flex items-center gap-2 text-sm text-gray-900 dark:text-white"
-                      >
-                        {" "}
-                        <p className="text-sm font-medium">Created by</p>
-                        <p className="text-sm text-muted-foreground">
-                          {data?.creator.name}
-                        </p>
-                      </Link>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-              <CardFooter className="flex items-center justify-between">
-                <div className="flex   space-x-4">
-                  <Button
-                    variant="destructive"
-                    disabled={data?.winner?.name ? true : false}
-                    className=""
-                    onClick={() =>
-                      onOpen("upload file", {
-                        bountyId: data.id,
-                      })
-                    }
-                  >
-                    Submit Solution
-                  </Button>
-                </div>
-                {data.winnerId &&
-                  data.winnerId === session.data?.user.id &&
-                  (session.data?.user?.walletType === WalletType.emailPass ||
-                    session.data?.user?.walletType === WalletType.apple ||
-                    session.data?.user?.walletType === WalletType.google) && (
-                    <>
-                      <div className="flex flex-col gap-2">
-                        <div className="">
-                          <Dialog
-                            open={isDialogOpen}
-                            onOpenChange={setIsDialogOpen}
-                          >
-                            <DialogTrigger asChild>
-                              <Button
-                                className=""
-                                disabled={
-                                  loading || data.isSwaped
-                                    ? true
-                                    : false ||
-                                      swapAssetToUSDC.isLoading ||
-                                      MakeSwapUpdateMutation.isLoading
-                                }
-                              >
-                                <span className="flex items-center">
-                                  {PLATFORM_ASSET.code}{" "}
-                                  <ArrowRight className="ml-2 mr-2" size={16} />{" "}
-                                  USDC
-                                </span>
-                              </Button>
-                            </DialogTrigger>
-                            <DialogContent className="sm:max-w-[425px]">
-                              <DialogHeader>
-                                <DialogTitle>Confirmation </DialogTitle>
-                              </DialogHeader>
-                              {!getMotherTrustLine.data ? (
-                                <Alert
-                                  className="flex  items-center justify-center"
-                                  type="error"
-                                  content={`Please Contact Admin. support@bandcoin.io`}
-                                />
-                              ) : !getUserHasTrustLine.data &&
-                                getTrustCost &&
-                                oneUSDCEqual &&
-                                oneASSETEqual ? (
+                            <p className=" text-xs text-gray-700">
+                              {format(
+                                new Date(submission.createdAt),
+                                "MMMM dd, yyyy",
+                              )}
+                            </p>
+                            <p className=" flex items-center gap-2 text-xs text-gray-700">
+                              CHECK SEEN STATUS :{" "}
+                              {submission.status === "UNCHECKED" ? (
                                 <>
-                                  {" "}
-                                  <div className="">
-                                    <div className="space-y-4 rounded-lg border border-gray-100 bg-gray-50 p-6 dark:border-gray-700 dark:bg-gray-800">
-                                      <div className="space-y-2">
-                                        <dl className="flex items-center justify-between gap-4">
-                                          <dt className="text-base font-normal text-gray-500 dark:text-gray-400">
-                                            Transaction Cost
-                                          </dt>
-                                          <dd className="text-base font-medium text-gray-900 dark:text-white">
-                                            {(
-                                              data?.priceInBand +
-                                              Number(
-                                                TrxBaseFeeInPlatformAsset,
-                                              ) +
-                                              Number(PLATFORM_FEE)
-                                            ).toFixed(2)}{" "}
-                                            {PLATFORM_ASSET.code}
-                                          </dd>
-                                        </dl>
-
-                                        <dl className="flex items-center justify-between gap-4">
-                                          <dt className="text-base font-normal text-gray-500 dark:text-gray-400">
-                                            Trust Cost
-                                          </dt>
-                                          <dd className="text-base font-medium text-green-500">
-                                            {getTrustCost} {PLATFORM_ASSET.code}
-                                          </dd>
-                                        </dl>
-                                      </div>
-
-                                      <dl className="flex items-center justify-between gap-4 border-t border-gray-200 pt-2 dark:border-gray-700">
-                                        <dt className="text-base font-bold text-gray-900 dark:text-white">
-                                          Total
-                                        </dt>
-                                        <dd className="text-base font-bold text-gray-900 dark:text-white">
-                                          {(
-                                            data?.priceInBand +
-                                            Number(TrxBaseFeeInPlatformAsset) +
-                                            Number(PLATFORM_FEE) +
-                                            getTrustCost
-                                          ).toFixed(2)}{" "}
-                                          {PLATFORM_ASSET.code}
-                                        </dd>
-                                      </dl>
-                                      <dl className="flex items-center justify-between gap-4 border-t border-gray-200 pt-2 dark:border-gray-700">
-                                        <dt className="text-base font-bold text-gray-900 dark:text-white">
-                                          Swapped Amount
-                                        </dt>
-                                        <dd className="text-base font-bold text-gray-900 dark:text-white">
-                                          {(
-                                            data.priceInBand *
-                                            (oneASSETEqual / oneUSDCEqual)
-                                          ).toFixed(3)}{" "}
-                                          USDC
-                                        </dd>
-                                      </dl>
-                                    </div>
-
-                                    <span className="text-xs text-red-500">
-                                      NOTE: This is a one time operation! You
-                                      can
-                                      {"'t"} undo this operation
-                                    </span>
-                                  </div>
-                                  <DialogFooter className=" w-full">
-                                    <div className="flex w-full gap-4  ">
-                                      <DialogClose className="w-full">
-                                        <Button
-                                          variant="outline"
-                                          className="w-full"
-                                        >
-                                          Cancel
-                                        </Button>
-                                      </DialogClose>
-                                      <Button
-                                        disabled={
-                                          loading || data.isSwaped
-                                            ? true
-                                            : false ||
-                                              swapAssetToUSDC.isLoading ||
-                                              MakeSwapUpdateMutation.isLoading
-                                        }
-                                        variant="destructive"
-                                        onClick={() =>
-                                          handleSwap(data.id, data.priceInBand)
-                                        }
-                                        className="w-full"
-                                      >
-                                        Confirm
-                                      </Button>
-                                    </div>
-                                  </DialogFooter>
+                                  {submission.status}
+                                  <span className="me-3 flex h-2 w-2 rounded-full bg-blue-600 "></span>{" "}
+                                </>
+                              ) : submission.status === "CHECKED" ? (
+                                <>
+                                  {submission.status}
+                                  <span className="me-3 flex h-2 w-2 rounded-full bg-yellow-300"></span>{" "}
+                                </>
+                              ) : submission.status === "ONREVIEW" ? (
+                                <>
+                                  {submission.status}
+                                  <span className="me-3 flex h-2 w-2 rounded-full bg-purple-500"></span>{" "}
+                                </>
+                              ) : submission.status === "REJECTED" ? (
+                                <>
+                                  {submission.status}
+                                  <span className="me-3 flex h-2 w-2 rounded-full bg-red-500  "></span>{" "}
                                 </>
                               ) : (
                                 <>
-                                  {" "}
-                                  <div className="">
-                                    <div className="space-y-4 rounded-lg border border-gray-100 bg-gray-50 p-6 dark:border-gray-700 dark:bg-gray-800">
-                                      <div className="space-y-2">
-                                        <dl className="flex items-center justify-between gap-4">
-                                          <dt className="text-base font-normal text-gray-500 dark:text-gray-400">
-                                            Transaction Cost
-                                          </dt>
-                                          <dd className="text-base font-medium text-gray-900 dark:text-white">
-                                            {(
-                                              data?.priceInBand +
-                                              Number(
-                                                TrxBaseFeeInPlatformAsset,
-                                              ) +
-                                              Number(PLATFORM_FEE)
-                                            ).toFixed(2)}{" "}
-                                            {PLATFORM_ASSET.code}
-                                          </dd>
-                                        </dl>
+                                  {submission.status}
+                                  <span className="me-3 flex h-2 w-2 rounded-full bg-green-500 "></span>{" "}
+                                </>
+                              )}
+                            </p>
+                          </div>
 
-                                        <dl className="flex items-center justify-between gap-4">
-                                          <dt className="text-base font-normal text-gray-500 dark:text-gray-400">
-                                            Trust Cost
-                                          </dt>
-                                          <dd className="text-base font-medium text-green-500">
-                                            {getTrustCost} {PLATFORM_ASSET.code}
-                                          </dd>
-                                        </dl>
-                                      </div>
-
-                                      <dl className="flex items-center justify-between gap-4 border-t border-gray-200 pt-2 dark:border-gray-700">
-                                        <dt className="text-base font-bold text-gray-900 dark:text-white">
-                                          Total
+                          <div className="flex items-center justify-between gap-2">
+                            <Button
+                              className="  "
+                              onClick={() =>
+                                onOpen("view attachment", {
+                                  attachment: submission.medias,
+                                })
+                              }
+                              variant="outline"
+                            >
+                              <Paperclip size={16} className="mr-2" /> View
+                              Attachment
+                            </Button>
+                            <div className="flex items-center justify-between gap-2">
+                              <Button
+                                // disabled={data?.winner?.name ? true : false}
+                                onClick={() =>
+                                  onOpen("upload file", {
+                                    submissionId: submission.id,
+                                    bountyId: data.id,
+                                  })
+                                }
+                              >
+                                <Edit />
+                              </Button>
+                              <Button
+                                disabled={data?.winner?.name ? true : false}
+                                variant="destructive"
+                                onClick={() =>
+                                  handleSubmissionDelete(submission.id)
+                                }
+                              >
+                                <Trash />
+                              </Button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </TabsContent>
+                <TabsContent value="doubt" className="">
+                  {" "}
+                  <Card>
+                    <CardHeader className="flex flex-row items-center border-b-2 p-4">
+                      <div className="flex items-center space-x-4 ">
+                        <Avatar>
+                          <AvatarImage
+                            src={data.creator.profileUrl ?? ""}
+                            alt="Image"
+                          />
+                          <AvatarFallback>
+                            {data.creator.name.slice(0, 2)}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <p className="text-sm font-medium leading-none">
+                            {addrShort(data.creator.id)}
+                          </p>
+                          <p className="text-sm text-muted-foreground">
+                            {data.creator.name}
+                          </p>
+                        </div>
+                      </div>
+                    </CardHeader>
+                    <CardContent className="py-2 ">
+                      <div className=" max-h-[300px] min-h-[300px] space-y-4 overflow-y-auto">
+                        {messages?.map((message, index) => (
+                          <div
+                            key={index}
+                            className={cn(
+                              "flex max-w-[75%] flex-col gap-2 rounded-lg px-3 py-2 text-sm",
+                              message.role === UserRole.USER
+                                ? "ml-auto bg-primary text-primary-foreground"
+                                : "bg-muted",
+                            )}
+                          >
+                            {sanitizeInput(message.message).sanitizedInput}
+                            {// Display all matched URLs as links
+                            sanitizeInput(message.message).urls?.map(
+                              (url, index) => (
+                                <div
+                                  key={index}
+                                  className=" w-full rounded-md bg-[#F5F7FB] py-2  shadow-sm"
+                                >
+                                  <Link
+                                    href={url}
+                                    className="flex items-center justify-start gap-2"
+                                  >
+                                    <File color="black" />{" "}
+                                    <span className="text-base font-medium text-[#07074D]">
+                                      {url}
+                                    </span>
+                                  </Link>
+                                </div>
+                              ),
+                            )}
+                          </div>
+                        ))}
+                        <div ref={messagesEndRef} />
+                      </div>
+                    </CardContent>
+                    <CardFooter>
+                      <form
+                        onSubmit={handleSubmit}
+                        className="flex w-full items-center space-x-2"
+                      >
+                        <Input
+                          id="message"
+                          placeholder="Type your message..."
+                          className="flex-1"
+                          autoComplete="off"
+                          value={input}
+                          onChange={(event) => setInput(event.target.value)}
+                        />
+                        <Button
+                          type="submit"
+                          size="icon"
+                          disabled={
+                            inputLength === 0 || NewMessageMutation.isLoading
+                          }
+                        >
+                          <Send className="h-4 w-4" />
+                          <span className="sr-only">Send</span>
+                        </Button>
+                      </form>
+                      {NewMessageMutation.isError && (
+                        <Alert
+                          className="mt-2"
+                          type="error"
+                          content={NewMessageMutation.error.message}
+                        />
+                      )}
+                    </CardFooter>
+                  </Card>
+                </TabsContent>
+                <TabsContent value="comments" className="mt-4">
+                  <div className="space-y-4">
+                    <AddBountyComment bountyId={Number(id)} />
+                    <div className="max-h-[650px]">
+                      {bountyComment.data && bountyComment.data.length > 0 && (
+                        <div className="mb-10 px-4">
+                          <div className=" flex flex-col gap-4 rounded-lg border-2 border-base-200 ">
+                            <div className=" mt-1 flex flex-col gap-2  rounded-lg p-2">
+                              {bountyComment.data?.map((comment) => (
+                                <>
+                                  <ViewBountyComment
+                                    key={comment.id}
+                                    comment={comment}
+                                    bountyChildComments={
+                                      comment.bountyChildComments
+                                    }
+                                  />
+                                  <Separator />
+                                </>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </TabsContent>
+              </Tabs>
+              <div className="mt-6 flex flex-col justify-between gap-2 md:flex-row md:items-center">
+                <div className="flex flex-col gap-4  md:flex-row md:items-center md:space-x-4">
+                  <Badge variant="secondary" className="flex items-center">
+                    <Trophy className="mr-1 h-4 w-4" />
+                    {data?.priceInUSD} USD
+                  </Badge>
+                  <Badge variant="destructive" className="flex items-center">
+                    <Trophy className="mr-1 h-4 w-4" />
+                    {data?.priceInBand.toFixed(3)} {PLATFORM_ASSET.code}
+                  </Badge>
+                  <Badge variant="secondary" className="flex items-center">
+                    <Users className="mr-1 h-4 w-4" />
+                    {data?._count.participants} participants
+                  </Badge>
+                  <Badge variant="secondary" className="flex items-center">
+                    <MessageSquare className="mr-1 h-4 w-4" />
+                    {data?._count.comments} comments
+                  </Badge>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Avater className="h-8 w-8" />
+                  <div>
+                    <Link
+                      href={`/fans/creator/${data?.creator.id}`}
+                      className="mr-3 inline-flex items-center gap-2 text-sm text-gray-900 dark:text-white"
+                    >
+                      {" "}
+                      <p className="text-sm font-medium">Created by</p>
+                      <p className="text-sm text-muted-foreground">
+                        {data?.creator.name}
+                      </p>
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+            <CardFooter className="flex items-center justify-between">
+              <div className="flex   space-x-4">
+                <Button
+                  variant="destructive"
+                  disabled={data?.winner?.name ? true : false}
+                  className=""
+                  onClick={() =>
+                    onOpen("upload file", {
+                      bountyId: data.id,
+                    })
+                  }
+                >
+                  Submit Solution
+                </Button>
+              </div>
+              {data.winnerId &&
+                data.winnerId === session.data?.user.id &&
+                (session.data?.user?.walletType === WalletType.emailPass ||
+                  session.data?.user?.walletType === WalletType.apple ||
+                  session.data?.user?.walletType === WalletType.google) && (
+                  <>
+                    <div className="flex flex-col gap-2">
+                      <div className="">
+                        <Dialog
+                          open={isDialogOpen}
+                          onOpenChange={setIsDialogOpen}
+                        >
+                          <DialogTrigger asChild>
+                            <Button
+                              className=""
+                              disabled={
+                                loading || data.isSwaped
+                                  ? true
+                                  : false ||
+                                    swapAssetToUSDC.isLoading ||
+                                    MakeSwapUpdateMutation.isLoading
+                              }
+                            >
+                              <span className="flex items-center">
+                                {PLATFORM_ASSET.code}{" "}
+                                <ArrowRight className="ml-2 mr-2" size={16} />{" "}
+                                USDC
+                              </span>
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent className="sm:max-w-[425px]">
+                            <DialogHeader>
+                              <DialogTitle>Confirmation </DialogTitle>
+                            </DialogHeader>
+                            {!getMotherTrustLine.data ? (
+                              <Alert
+                                className="flex  items-center justify-center"
+                                type="error"
+                                content={`Please Contact Admin. support@bandcoin.io`}
+                              />
+                            ) : !getUserHasTrustLine.data &&
+                              getTrustCost &&
+                              oneUSDCEqual &&
+                              oneASSETEqual ? (
+                              <>
+                                {" "}
+                                <div className="">
+                                  <div className="space-y-4 rounded-lg border border-gray-100 bg-gray-50 p-6 dark:border-gray-700 dark:bg-gray-800">
+                                    <div className="space-y-2">
+                                      <dl className="flex items-center justify-between gap-4">
+                                        <dt className="text-base font-normal text-gray-500 dark:text-gray-400">
+                                          Transaction Cost
                                         </dt>
-                                        <dd className="text-base font-bold text-gray-900 dark:text-white">
+                                        <dd className="text-base font-medium text-gray-900 dark:text-white">
                                           {(
                                             data?.priceInBand +
                                             Number(TrxBaseFeeInPlatformAsset) +
@@ -783,101 +678,213 @@ const UserBountyPage = () => {
                                           {PLATFORM_ASSET.code}
                                         </dd>
                                       </dl>
-                                      <dl className="flex items-center justify-between gap-4 border-t border-gray-200 pt-2 dark:border-gray-700">
-                                        <dt className="text-base font-bold text-gray-900 dark:text-white">
-                                          Swapped Amount
+
+                                      <dl className="flex items-center justify-between gap-4">
+                                        <dt className="text-base font-normal text-gray-500 dark:text-gray-400">
+                                          Trust Cost
                                         </dt>
-                                        {oneASSETEqual && oneUSDCEqual && (
-                                          <dd className="text-base font-bold text-gray-900 dark:text-white">
-                                            {(
-                                              data.priceInBand *
-                                              (oneASSETEqual / oneUSDCEqual)
-                                            ).toFixed(3)}{" "}
-                                            USDC
-                                          </dd>
-                                        )}
+                                        <dd className="text-base font-medium text-green-500">
+                                          {getTrustCost} {PLATFORM_ASSET.code}
+                                        </dd>
                                       </dl>
                                     </div>
 
-                                    <span className="text-xs text-red-500">
-                                      NOTE: This is a one time operation! You
-                                      can
-                                      {"'t"} undo this operation
-                                    </span>
+                                    <dl className="flex items-center justify-between gap-4 border-t border-gray-200 pt-2 dark:border-gray-700">
+                                      <dt className="text-base font-bold text-gray-900 dark:text-white">
+                                        Total
+                                      </dt>
+                                      <dd className="text-base font-bold text-gray-900 dark:text-white">
+                                        {(
+                                          data?.priceInBand +
+                                          Number(TrxBaseFeeInPlatformAsset) +
+                                          Number(PLATFORM_FEE) +
+                                          getTrustCost
+                                        ).toFixed(2)}{" "}
+                                        {PLATFORM_ASSET.code}
+                                      </dd>
+                                    </dl>
+                                    <dl className="flex items-center justify-between gap-4 border-t border-gray-200 pt-2 dark:border-gray-700">
+                                      <dt className="text-base font-bold text-gray-900 dark:text-white">
+                                        Swapped Amount
+                                      </dt>
+                                      <dd className="text-base font-bold text-gray-900 dark:text-white">
+                                        {(
+                                          data.priceInBand *
+                                          (oneASSETEqual / oneUSDCEqual)
+                                        ).toFixed(3)}{" "}
+                                        USDC
+                                      </dd>
+                                    </dl>
                                   </div>
-                                  {oneUSDCEqual && oneASSETEqual && (
-                                    <div>
-                                      You will get total{" "}
-                                      {data.priceInBand *
-                                        (oneASSETEqual / oneUSDCEqual)}{" "}
-                                      USDC
-                                    </div>
-                                  )}
-                                  <DialogFooter className=" w-full">
-                                    <div className="flex w-full gap-4  ">
-                                      <DialogClose className="w-full">
-                                        <Button
-                                          variant="outline"
-                                          className="w-full"
-                                        >
-                                          Cancel
-                                        </Button>
-                                      </DialogClose>
+
+                                  <span className="text-xs text-red-500">
+                                    NOTE: This is a one time operation! You can
+                                    {"'t"} undo this operation
+                                  </span>
+                                </div>
+                                <DialogFooter className=" w-full">
+                                  <div className="flex w-full gap-4  ">
+                                    <DialogClose className="w-full">
                                       <Button
-                                        disabled={
-                                          loading || data.isSwaped
-                                            ? true
-                                            : false ||
-                                              swapAssetToUSDC.isLoading ||
-                                              MakeSwapUpdateMutation.isLoading
-                                        }
-                                        variant="destructive"
-                                        onClick={() =>
-                                          handleSwap(data.id, data.priceInBand)
-                                        }
+                                        variant="outline"
                                         className="w-full"
                                       >
-                                        Confirm
+                                        Cancel
                                       </Button>
+                                    </DialogClose>
+                                    <Button
+                                      disabled={
+                                        loading || data.isSwaped
+                                          ? true
+                                          : false ||
+                                            swapAssetToUSDC.isLoading ||
+                                            MakeSwapUpdateMutation.isLoading
+                                      }
+                                      variant="destructive"
+                                      onClick={() =>
+                                        handleSwap(data.id, data.priceInBand)
+                                      }
+                                      className="w-full"
+                                    >
+                                      Confirm
+                                    </Button>
+                                  </div>
+                                </DialogFooter>
+                              </>
+                            ) : (
+                              <>
+                                {" "}
+                                <div className="">
+                                  <div className="space-y-4 rounded-lg border border-gray-100 bg-gray-50 p-6 dark:border-gray-700 dark:bg-gray-800">
+                                    <div className="space-y-2">
+                                      <dl className="flex items-center justify-between gap-4">
+                                        <dt className="text-base font-normal text-gray-500 dark:text-gray-400">
+                                          Transaction Cost
+                                        </dt>
+                                        <dd className="text-base font-medium text-gray-900 dark:text-white">
+                                          {(
+                                            data?.priceInBand +
+                                            Number(TrxBaseFeeInPlatformAsset) +
+                                            Number(PLATFORM_FEE)
+                                          ).toFixed(2)}{" "}
+                                          {PLATFORM_ASSET.code}
+                                        </dd>
+                                      </dl>
+
+                                      <dl className="flex items-center justify-between gap-4">
+                                        <dt className="text-base font-normal text-gray-500 dark:text-gray-400">
+                                          Trust Cost
+                                        </dt>
+                                        <dd className="text-base font-medium text-green-500">
+                                          {getTrustCost} {PLATFORM_ASSET.code}
+                                        </dd>
+                                      </dl>
                                     </div>
-                                  </DialogFooter>
-                                </>
-                              )}
-                            </DialogContent>
-                          </Dialog>
-                        </div>
+
+                                    <dl className="flex items-center justify-between gap-4 border-t border-gray-200 pt-2 dark:border-gray-700">
+                                      <dt className="text-base font-bold text-gray-900 dark:text-white">
+                                        Total
+                                      </dt>
+                                      <dd className="text-base font-bold text-gray-900 dark:text-white">
+                                        {(
+                                          data?.priceInBand +
+                                          Number(TrxBaseFeeInPlatformAsset) +
+                                          Number(PLATFORM_FEE)
+                                        ).toFixed(2)}{" "}
+                                        {PLATFORM_ASSET.code}
+                                      </dd>
+                                    </dl>
+                                    <dl className="flex items-center justify-between gap-4 border-t border-gray-200 pt-2 dark:border-gray-700">
+                                      <dt className="text-base font-bold text-gray-900 dark:text-white">
+                                        Swapped Amount
+                                      </dt>
+                                      {oneASSETEqual && oneUSDCEqual && (
+                                        <dd className="text-base font-bold text-gray-900 dark:text-white">
+                                          {(
+                                            data.priceInBand *
+                                            (oneASSETEqual / oneUSDCEqual)
+                                          ).toFixed(3)}{" "}
+                                          USDC
+                                        </dd>
+                                      )}
+                                    </dl>
+                                  </div>
+
+                                  <span className="text-xs text-red-500">
+                                    NOTE: This is a one time operation! You can
+                                    {"'t"} undo this operation
+                                  </span>
+                                </div>
+                                {oneUSDCEqual && oneASSETEqual && (
+                                  <div>
+                                    You will get total{" "}
+                                    {data.priceInBand *
+                                      (oneASSETEqual / oneUSDCEqual)}{" "}
+                                    USDC
+                                  </div>
+                                )}
+                                <DialogFooter className=" w-full">
+                                  <div className="flex w-full gap-4  ">
+                                    <DialogClose className="w-full">
+                                      <Button
+                                        variant="outline"
+                                        className="w-full"
+                                      >
+                                        Cancel
+                                      </Button>
+                                    </DialogClose>
+                                    <Button
+                                      disabled={
+                                        loading || data.isSwaped
+                                          ? true
+                                          : false ||
+                                            swapAssetToUSDC.isLoading ||
+                                            MakeSwapUpdateMutation.isLoading
+                                      }
+                                      variant="destructive"
+                                      onClick={() =>
+                                        handleSwap(data.id, data.priceInBand)
+                                      }
+                                      className="w-full"
+                                    >
+                                      Confirm
+                                    </Button>
+                                  </div>
+                                </DialogFooter>
+                              </>
+                            )}
+                          </DialogContent>
+                        </Dialog>
                       </div>
-                    </>
-                  )}
-              </CardFooter>
-            </Card>
-          ) : data.requiredBalance > platformAssetBalance ? (
-            <Alert
-              className="flex  items-center justify-center"
-              type="error"
-              content={`You don't have Sufficient Balance ,To join this bounty, you need minimum  
+                    </div>
+                  </>
+                )}
+            </CardFooter>
+          </Card>
+        ) : data.requiredBalance > platformAssetBalance ? (
+          <Alert
+            className="flex  items-center justify-center"
+            type="error"
+            content={`You don't have Sufficient Balance ,To join this bounty, you need minimum  
                 
                 ${data.requiredBalance} ${PLATFORM_ASSET.code} `}
+          />
+        ) : (
+          <div className="flex h-screen flex-col items-center justify-center gap-4">
+            <Alert
+              className="flex  items-center justify-center"
+              type="success"
+              content={`You can join this bounty by clicking the button below`}
             />
-          ) : (
-            <div className="flex h-screen flex-col items-center justify-center gap-4">
-              <Alert
-                className="flex  items-center justify-center"
-                type="success"
-                content={`You can join this bounty by clicking the button below`}
-              />
-              <Button
-                className="w-1/2 rounded-lg"
-                disabled={
-                  joinBountyMutation.isLoading || isAlreadyJoin.isLoading
-                }
-                onClick={() => handleJoinBounty(data.id)}
-              >
-                Join Bounty
-              </Button>
-            </div>
-          )}
-        </div>
+            <Button
+              className="w-1/2 rounded-lg"
+              disabled={joinBountyMutation.isLoading || isAlreadyJoin.isLoading}
+              onClick={() => handleJoinBounty(data.id)}
+            >
+              Join Bounty
+            </Button>
+          </div>
+        )}
       </div>
     );
   }

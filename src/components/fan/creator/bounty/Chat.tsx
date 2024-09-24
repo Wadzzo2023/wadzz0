@@ -52,33 +52,6 @@ type BountyDoubtListItem = {
     email: string | null;
   };
 };
-const users = [
-  {
-    name: "Olivia Martin",
-    email: "m@example.com",
-    avatar: "/avatars/01.png",
-  },
-  {
-    name: "Isabella Nguyen",
-    email: "isabella.nguyen@email.com",
-    avatar: "/avatars/03.png",
-  },
-  {
-    name: "Emma Wilson",
-    email: "emma@example.com",
-    avatar: "/avatars/05.png",
-  },
-  {
-    name: "Jackson Lee",
-    email: "lee@example.com",
-    avatar: "/avatars/02.png",
-  },
-  {
-    name: "William Kim",
-    email: "will@email.com",
-    avatar: "/avatars/04.png",
-  },
-] as const;
 
 const Chat = ({ bountyId }: { bountyId: number }) => {
   const { data: listBountyDoubt } = api.bounty.Bounty.listBountyDoubts.useQuery(
@@ -147,16 +120,22 @@ const Chat = ({ bountyId }: { bountyId: number }) => {
         </DialogContent>
       </Dialog>
 
-      <Tabs
-        className="flex w-full"
-        defaultValue={listBountyDoubt[0]?.id.toString()}
-      >
-        <TabsList className=" hidden max-h-[470px] min-h-[470px] w-60 flex-col  items-start     justify-start px-0    md:flex ">
+      <Tabs className="flex w-full">
+        <TabsList className=" hidden max-h-[455px] min-h-[455px] w-60 flex-col  items-start     justify-start px-0    md:flex ">
+          {listBountyDoubt.length === 0 && (
+            <div className="flex h-full w-full items-center justify-center">
+              <p className="w-full text-center  text-lg font-bold">
+                No User Available
+              </p>
+            </div>
+          )}
+
           {listBountyDoubt?.map((item: BountyDoubtListItem) => {
             return (
               <TabsTrigger
                 key={item.id}
                 value={item.id.toString()}
+                onClick={() => setSelectedDoubt(item)} // Update selectedDoubt when tab is clicked
                 className="flex w-full flex-row items-center justify-start gap-4 border-2  p-4  text-[#575759] hover:bg-[#dcdc2c]"
               >
                 <Avatar>
@@ -177,8 +156,15 @@ const Chat = ({ bountyId }: { bountyId: number }) => {
               </TabsTrigger>
             );
           })}
-        </TabsList>
+        </TabsList>{" "}
         <div className="w-full">
+          {!selectedDoubt && (
+            <div className="flex h-full w-full items-center justify-center">
+              <p className="w-full text-center  text-lg font-bold">
+                Select a user to start chat
+              </p>
+            </div>
+          )}
           {listBountyDoubt?.map((item: BountyDoubtListItem) => (
             <TabsContent
               key={item.id}
@@ -233,8 +219,15 @@ const ChatItem = ({ item }: { item: BountyDoubtListItem }) => {
   ) => {
     setMedia((prevMedia) => [...prevMedia, { url, name, size, type }]);
   };
+  const utils = api.useUtils();
   const NewMessageMutation =
-    api.bounty.Bounty.createNewBountyDoubt.useMutation();
+    api.bounty.Bounty.createUpdateBountyDoubtForCreatorAndUser.useMutation({
+      onSuccess: () => {
+        utils.bounty.Bounty.getBountyForUserCreator.invalidate().catch((e) => {
+          console.log(e);
+        });
+      },
+    });
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -245,6 +238,7 @@ const ChatItem = ({ item }: { item: BountyDoubtListItem }) => {
     try {
       // Construct the message payload
       const messagePayload = {
+        chatUserId: item.userId,
         bountyId: Number(item.bountyId),
         content: input, // Text message
         role: UserRole.CREATOR,
@@ -281,7 +275,7 @@ const ChatItem = ({ item }: { item: BountyDoubtListItem }) => {
       messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
   };
-
+  console.log("oldMessage", oldMessage);
   // Call scrollToBottom on initial render and whenever new content is added
   useEffect(() => {
     scrollToBottom();
@@ -311,9 +305,8 @@ const ChatItem = ({ item }: { item: BountyDoubtListItem }) => {
           {messages?.map((message, index) => (
             <div
               key={index}
-              ref={messagesEndRef}
               className={cn(
-                "flex w-max max-w-[75%] flex-col gap-2 rounded-lg px-3 py-2 text-sm",
+                "flex  max-w-[75%] flex-col gap-2 rounded-lg px-3 py-2 text-sm",
                 message.role === UserRole.CREATOR
                   ? "ml-auto bg-primary text-primary-foreground"
                   : "bg-muted",
@@ -331,15 +324,15 @@ const ChatItem = ({ item }: { item: BountyDoubtListItem }) => {
                     className="flex items-center justify-between gap-2"
                   >
                     <File color="black" />{" "}
-                    <span className="truncate text-base font-medium text-[#07074D]">
-                      {shortURL(url)}
+                    <span className=" text-base font-medium text-[#07074D]">
+                      {url}
                     </span>
                   </Link>
                 </div>
               ))}
             </div>
           ))}
-          <div />
+          <div ref={messagesEndRef} />
           {media.length > 0 &&
             media.map((item, index) => (
               <div
@@ -384,10 +377,10 @@ const ChatItem = ({ item }: { item: BountyDoubtListItem }) => {
         </div>
       </CardContent>
 
-      <CardFooter>
+      <CardFooter className="">
         <form
           onSubmit={handleSubmit}
-          className="flex w-full items-center gap-1 space-x-2"
+          className="flex w-full items-center gap-1 space-x-2 "
         >
           <div className="flex w-full items-center gap-5">
             <UploadButton
@@ -471,7 +464,7 @@ const shortFileName = (fileName: string) => {
 };
 
 const shortURL = (url: string) => {
-  if (url.length > 20) {
+  if (url.length > 30) {
     return `${url.slice(0, 20)}...`;
   }
   return url;

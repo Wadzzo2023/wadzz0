@@ -45,6 +45,8 @@ enum NotificationType {
     BOUNTY_REPLY
     BOUNTY_WINNER
     BOUNTY_DOUBT
+    BOUNTY_DOUBT_CREATE
+    BOUNTY_DOUBT_REPLY
 }
 
 // it is kinda notification actor and the entity that is being acted upon
