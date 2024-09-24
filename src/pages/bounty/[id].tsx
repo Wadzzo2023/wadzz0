@@ -230,16 +230,7 @@ const UserBountyPage = () => {
     });
 
   const NewMessageMutation =
-    api.bounty.Bounty.createUpdateBountyDoubtForUserCreator.useMutation({
-      onSuccess: async (data) => {
-        await utils.bounty.Bounty.getBountyForCreatorUser
-          .invalidate()
-          .catch(() => console.log("error"));
-        await utils.bounty.Bounty.listBountyDoubts
-          .invalidate()
-          .catch(() => console.log("error"));
-      },
-    });
+    api.bounty.Bounty.createUpdateBountyDoubtForUserCreator.useMutation();
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -498,9 +489,9 @@ const UserBountyPage = () => {
                                 </div>
                               ),
                             )}
+                            <div ref={messagesEndRef} />
                           </div>
                         ))}
-                        <div ref={messagesEndRef} />
                       </div>
                     </CardContent>
                     <CardFooter>
