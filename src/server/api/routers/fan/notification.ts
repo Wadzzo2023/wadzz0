@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { Input } from "~/components/shadcn/ui/input";
 
 import {
   createTRPCRouter,
@@ -74,53 +75,90 @@ export const notificationRouter = createTRPCRouter({
         limit: z.number(),
         cursor: z.number().nullish(),
         skip: z.number().optional(),
-      }),
+      })
     )
     .query(async ({ input, ctx }) => {
       const { limit, skip, cursor } = input;
 
-      // Fetch the current user's followers
-      const followers = await ctx.db.follow.findMany({
-        where: { userId: ctx.session.user.id },
-        select: { creatorId: true },
-      });
-
-      // Extract the creator IDs from the followers list
-      const followerIds = followers.map((follower) => follower.creatorId);
-
-      // Fetch posts from the followers
-      const posts = await ctx.db.post.findMany({
-        where: {
-          creatorId: {
-            in: followerIds,
-          },
-        },
-        include: {
-          creator: {
-            select: {
-              profileUrl: true,
-              name: true,
-              id: true,
-            }
-          },
-        },
+      const notifications = await ctx.db.notification.findMany({
         take: limit + 1,
         skip: skip,
         cursor: cursor ? { id: cursor } : undefined,
-        orderBy: { createdAt: 'desc' },
+        where: {
+          AND: [
+            {
+              notifierId: ctx.session.user.id,
+            },
+            { isCreator: false },
+          ],
+        },
+        include: {
+          notificationObject: {
+            select: {
+              entityType: true,
+              entityId: true,
+              createdAt: true,
+
+              actor: {
+                select: {
+                  id: true,
+                  name: true,
+                  image: true,
+                },
+              },
+            },
+          },
+        },
+        orderBy: { createdAt: "desc" },
       });
 
+      // Handle cursor pagination logic
       let nextCursor: typeof cursor | undefined = undefined;
-      if (posts.length > limit) {
-        const nextItem = posts.pop(); // return the last item from the array
+      if (notifications.length > limit) {
+        const nextItem = notifications.pop(); // Return the last item from the array
         nextCursor = nextItem?.id;
       }
 
       return {
-        posts,
+        notifications,
         nextCursor,
       };
-    }
-    ),
+    }),
+
+  getUnseenNotificationCount: protectedProcedure.query(async ({ input, ctx }) => {
+    const count = await ctx.db.notification.count({
+      where: {
+        AND: [
+          {
+            notifierId: ctx.session.user.id,
+          },
+          { seen: null },
+
+        ],
+      },
+    });
+
+    return count ?? 0;
+  }),
+
+  updateNotification: protectedProcedure
+    .mutation(async ({ input, ctx }) => {
+      const updatedNotifications = await ctx.db.notification.updateMany({
+        where: {
+          AND: [
+            {
+              notifierId: ctx.session.user.id,
+            },
+
+          ],
+        },
+        data: {
+          seen: new Date(),
+        },
+      });
+
+      return updatedNotifications;
+    }),
+
 
 });

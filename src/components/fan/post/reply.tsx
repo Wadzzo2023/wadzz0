@@ -20,7 +20,7 @@ export default function ReplyCommentView({
   };
 }) {
   return (
-    <div className="flex h-full w-full items-start justify-between text-sm ">
+    <div className="flex  w-full items-start justify-between text-sm ">
       <div className="flex w-full gap-2">
         <div className="h-auto w-auto rounded-full">
           <Avater className="h-12 w-12" url={comment.user.image} />
@@ -30,7 +30,7 @@ export default function ReplyCommentView({
             {comment.user.name}
           </Link>
           {/* <p>{comment.content}</p> */}
-          {comment.content.length > 50 ? (
+          {comment.content.length > 200 ? (
             <ShowMore content={comment.content} />
           ) : (
             <p>{comment.content}</p>

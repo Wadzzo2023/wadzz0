@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { type Location, type LocationConsumer } from "@prisma/client";
+import { SubmissionAttachment, type Location, type LocationConsumer } from "@prisma/client";
 
 export type ModalType =
   | "send assets"
@@ -9,7 +9,10 @@ export type ModalType =
   | "copied"
   | "claim pin"
   | "nft create"
-  | "share";
+  | "share"
+  | "upload file"
+  | "edit bounty"
+  | 'view attachment'
 
 export interface ModalData {
   pinId?: number;
@@ -24,6 +27,9 @@ export interface ModalData {
   locationConsumer?: LocationConsumer;
   postUrl?: string | null;
   image?: string;
+  bountyId?: number;
+  attachment?: SubmissionAttachment[];
+  submissionId?: number;
 }
 
 interface ModalStore {

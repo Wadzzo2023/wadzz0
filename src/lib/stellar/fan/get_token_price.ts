@@ -44,7 +44,7 @@ export async function getAssetPrice(): Promise<number> {
 
     const platformAssetInfo = response.data;
     const price = platformAssetInfo.price;
-
+    console.log("price", price);
     return price ?? 0.00231;
   } catch (error) {
     console.error(`Error fetching ${PLATFORM_ASSET.code}  price:`, error);
@@ -58,7 +58,7 @@ export async function getPlatfromAssetPrice() {
 }
 
 export async function getplatformAssetNumberForXLM(xlm = 1.5) {
-  if (PLATFORM_ASSET.code === "Wadzzo") return Math.ceil(xlm * 15);
+  if (PLATFORM_ASSET.code === "Wadzzo") return Math.ceil(xlm * 7.69);
   const price = await getPlatfromAssetPrice();
   return Math.ceil((xlm * 0.12) / price);
 }
@@ -69,4 +69,23 @@ export async function getPlatformTokenNumberForUSD(
   const platformAssetPrice = await getAssetPrice();
   const platformTokenNumber = usd / platformAssetPrice;
   return platformTokenNumber;
+}
+
+
+export async function getAssetToUSDCRate(): Promise<number> {
+  try {
+    // https://api.stellar.expert/explorer/public/asset/USDC-GCTDHOF4JMAULZKOX5DKAYHF3JDEQMED73JFMNCJZTO2DMDEJW6VSWIS
+    const response = await axios.get<PlatformAssetInfo>(
+      `https://api.stellar.expert/explorer/${env.NEXT_PUBLIC_STELLAR_PUBNET ? "public" : "testnet"}/asset/USDC-${env.NEXT_PUBLIC_STELLAR_PUBNET ? "GCTDHOF4JMAULZKOX5DKAYHF3JDEQMED73JFMNCJZTO2DMDEJW6VSWIS" : "GB5AVDCDB2DRY6O2GGF4N6JXC6CAIBF7Q4RCQTWDOLFKZDQOKEEKBFEO"}`,
+    );
+    // console.log(response.data);
+
+    const platformAssetInfo = response.data;
+    const price = platformAssetInfo.price;
+    console.log("price", price);
+    return price ?? 0.000531;
+  } catch (error) {
+    console.error(`Error fetching USDC-GCTDHOF4JMAULZKOX5DKAYHF3JDEQMED73JFMNCJZTO2DMDEJW6VSWIS price:`, error);
+    throw error;
+  }
 }

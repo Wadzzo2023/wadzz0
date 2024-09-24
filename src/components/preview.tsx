@@ -10,6 +10,6 @@ export const Preview = ({ value }: PreviewProps) => {
   const ReactQuill = dynamic(() => import("react-quill"));
 
   return (
-    <ReactQuill className="   text-xl" theme="bubble" value={value} readOnly />
+    <ReactQuill className="m-0 p-0" theme="bubble" value={value} readOnly />
   );
 };

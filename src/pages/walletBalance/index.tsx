@@ -1,35 +1,27 @@
-import { Input } from "~/components/shadcn/ui/input";
 import { Button } from "~/components/shadcn/ui/button";
+import { Card, CardContent, CardTitle } from "~/components/shadcn/ui/card";
 import { PLATFORM_ASSET } from "~/lib/stellar/constant";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "~/components/shadcn/ui/card";
 
-import WBRightSideBar from "~/components/wallet-balance/wb-right-sidebar";
 import { useSession } from "next-auth/react";
+import WBRightSideBar from "~/components/wallet-balance/wb-right-sidebar";
 
-import { HandIcon, Plus, QrCode, Send } from "lucide-react";
-import { useModal } from "~/components/hooks/use-modal-store";
-import { api } from "~/utils/api";
-import TransactionHistory from "~/components/wallet-balance/transactionHistory";
-import QRCode from "react-qr-code";
-import CopyToClip from "~/components/wallete/copy_to_Clip";
-import {} from "lucide-react";
-import { ViewfinderCircleIcon } from "@heroicons/react/24/solid";
-import Loading from "~/components/wallete/loading";
-import { clientSelect } from "~/lib/stellar/fan/utils";
-import useNeedSign from "~/lib/hook";
-import { useCallback, useEffect, useState } from "react";
+import { Plus, QrCode, Send } from "lucide-react";
 import {
   checkStellarAccountActivity,
   clientsign,
 } from "package/connect_wallet/src/lib/stellar/utils";
+import { useCallback, useEffect, useState } from "react";
+import QRCode from "react-qr-code";
+import { useModal } from "~/components/hooks/use-modal-store";
+import TransactionHistory from "~/components/wallet-balance/transactionHistory";
+import CopyToClip from "~/components/wallete/copy_to_Clip";
+import Loading from "~/components/wallete/loading";
+import useNeedSign from "~/lib/hook";
+import { clientSelect } from "~/lib/stellar/fan/utils";
+import { api } from "~/utils/api";
 
-import toast from "react-hot-toast";
 import { useRouter } from "next/router";
+import toast from "react-hot-toast";
 
 const Wallets = () => {
   const session = useSession();
@@ -183,13 +175,13 @@ const Wallets = () => {
 
   return (
     <div className=" min-h-screen overflow-hidden p-1">
-      <div className="grid gap-6 lg:grid-cols-3">
-        <div className="lg:col-span-2">
+      <div className="grid gap-6 xl:grid-cols-3">
+        <div className="flex flex-col xl:col-span-2">
           <div className="space-y-4">
             <Card>
               <CardContent className="m-2 p-2">
-                <div className="flex flex-col items-center justify-center md:flex-row md:items-center md:justify-between ">
-                  <div className="flex flex-col items-center justify-center md:items-start">
+                <div className="flex flex-col items-center justify-center xl:flex-row xl:items-center xl:justify-between ">
+                  <div className="flex flex-col items-center justify-center xl:items-start">
                     {hasTrustLineOnPlatformAsset ? (
                       <>
                         <CardTitle className="text-xl font-bold xl:text-2xl">
@@ -217,11 +209,11 @@ const Wallets = () => {
                       </>
                     )}
                   </div>
-                  <div className="mt-2 flex items-center justify-between gap-1 md:items-end lg:justify-end">
+                  <div className="mt-2  flex items-center justify-between gap-1 xl:items-end xl:justify-end">
                     <Button
                       size="sm"
                       variant={"default"}
-                      className="md:text-md  text-xs md:m-3 md:p-3 md:font-bold"
+                      className=""
                       onClick={() => onOpen("receive assets")}
                     >
                       <QrCode size={14} className="mr-1 md:mr-2" />
@@ -230,7 +222,7 @@ const Wallets = () => {
                     <Button
                       variant="default"
                       size="sm"
-                      className="md:text-md text-xs md:m-3 md:p-3 md:font-bold"
+                      className=""
                       onClick={() => onOpen("send assets")}
                     >
                       <Send size={14} className="mr-1 md:mr-2 " /> SEND ASSETS
@@ -238,7 +230,7 @@ const Wallets = () => {
                     <Button
                       size="sm"
                       variant="default"
-                      className=" md:text-md text-xs md:m-3 md:p-3 md:font-bold"
+                      className=" "
                       onClick={() => onOpen("add assets")}
                     >
                       <Plus size={14} className="mr-1 md:mr-2 " /> ADD ASSETS

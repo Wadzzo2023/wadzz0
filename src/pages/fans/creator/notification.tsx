@@ -112,19 +112,52 @@ const Notifications = () => {
             return page.items.map((el) => {
               let message = "";
               let url = "";
+              let enable = false;
 
               switch (el.notificationObject.entityType) {
                 case NotificationType.LIKE:
                   message = `${el.notificationObject.actor.name} liked your post`;
                   url = `/fans/posts/${el.notificationObject.entityId}`;
+                  enable = true;
                   break;
                 case NotificationType.COMMENT:
                   message = `${el.notificationObject.actor.name} commented on your post`;
                   url = `/fans/posts/${el.notificationObject.entityId}`;
+                  enable = true;
                   break;
                 case NotificationType.FOLLOW:
                   message = `${el.notificationObject.actor.name} followed you`;
                   url = `/fans/creator/${el.notificationObject.actor.id}`;
+                  enable = false;
+                  break;
+                case NotificationType.REPLY:
+                  message = `${el.notificationObject.actor.name} replied to your comment`;
+                  url = `/fans/posts/${el.notificationObject.entityId}`;
+                  enable = true;
+                  break;
+
+                case NotificationType.BOUNTY_PARTICIPANT:
+                  message = `${el.notificationObject.actor.name} joined your bounty`;
+                  url = `/bounty/${el.notificationObject.entityId}`;
+                  enable = true;
+                  break;
+
+                case NotificationType.BOUNTY_SUBMISSION:
+                  message = `${el.notificationObject.actor.name} submitted to your bounty`;
+                  url = `/bounty/${el.notificationObject.entityId}`;
+                  enable = true;
+                  break;
+
+                case NotificationType.BOUNTY_COMMENT:
+                  message = `${el.notificationObject.actor.name} commented on your bounty`;
+                  url = `/bounty/${el.notificationObject.entityId}`;
+                  enable = true;
+                  break;
+
+                case NotificationType.BOUNTY_REPLY:
+                  message = `${el.notificationObject.actor.name} replied to your comment on bounty`;
+                  url = `/bounty/${el.notificationObject.entityId}`;
+                  enable = true;
                   break;
                 default:
                   message = "";
@@ -142,29 +175,55 @@ const Notifications = () => {
                 // </div>
                 <>
                   <div key={el.id} className="flex  gap-x-3  p-2">
-                    <Link href={url} className="flex">
-                      <Image
-                        width={1000}
-                        height={1000}
-                        className="h-10 w-10"
-                        src={
-                          el.notificationObject.actor.image
-                            ? el.notificationObject.actor.image
-                            : "/images/icons/avatar-icon.png"
-                        }
-                        alt=""
-                      />
-                      <div className="ml-4 flex w-full flex-col">
-                        <a>
-                          <span className="message-describe"> {message}</span>
-                        </a>
-                        <div className="">
-                          <p className="message-duration text-gray-500">
-                            {formatPostCreatedAt(el.createdAt)}
-                          </p>
+                    {enable ? (
+                      <Link href={url} className="flex">
+                        <Image
+                          width={1000}
+                          height={1000}
+                          className="h-10 w-10"
+                          src={
+                            el.notificationObject.actor.image
+                              ? el.notificationObject.actor.image
+                              : "/images/icons/avatar-icon.png"
+                          }
+                          alt=""
+                        />
+                        <div className="ml-4 flex w-full flex-col">
+                          <a>
+                            <span className="message-describe"> {message}</span>
+                          </a>
+                          <div className="">
+                            <p className="message-duration text-gray-500">
+                              {formatPostCreatedAt(el.createdAt)}
+                            </p>
+                          </div>
+                        </div>
+                      </Link>
+                    ) : (
+                      <div className="flex">
+                        <Image
+                          width={1000}
+                          height={1000}
+                          className="h-10 w-10"
+                          src={
+                            el.notificationObject.actor.image
+                              ? el.notificationObject.actor.image
+                              : "/images/icons/avatar-icon.png"
+                          }
+                          alt=""
+                        />
+                        <div className="ml-4 flex w-full flex-col">
+                          <a>
+                            <span className="message-describe"> {message}</span>
+                          </a>
+                          <div className="">
+                            <p className="message-duration text-gray-500">
+                              {formatPostCreatedAt(el.createdAt)}
+                            </p>
+                          </div>
                         </div>
                       </div>
-                    </Link>
+                    )}
                   </div>
 
                   <Separator />

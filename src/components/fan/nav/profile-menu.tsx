@@ -26,16 +26,6 @@ function ProfileComponent({
         <p className="">Switch to {mode}</p>
         <Sparkle />
       </div>
-      <div
-        className=" btn btn-ghost btn-active"
-        onClick={() => {
-          mode == Mode.User
-            ? router.push("/fans/creator/notification")
-            : router.push("/fans/notifications");
-        }}
-      >
-        <Bell />
-      </div>
     </div>
   );
 }

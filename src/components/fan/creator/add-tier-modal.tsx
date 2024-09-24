@@ -6,7 +6,6 @@ import { SubmitHandler, useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { z } from "zod";
 import { Editor } from "~/components/editor";
-import { PLATFORM_ASSET } from "~/lib/stellar/constant";
 import { api } from "~/utils/api";
 import {
   Dialog,
@@ -20,6 +19,7 @@ import {
 } from "~/components/shadcn/ui/dialog";
 import { Button } from "~/components/shadcn/ui/button";
 import { BADWORDS } from "~/utils/banned-word";
+import { PLATFORM_ASSET } from "~/lib/stellar/constant";
 
 export const TierSchema = z.object({
   name: z

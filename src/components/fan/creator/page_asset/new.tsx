@@ -13,6 +13,16 @@ import { PLATFORM_ASSET, PLATFORM_FEE } from "~/lib/stellar/constant";
 import { clientSelect } from "~/lib/stellar/fan/utils";
 import { api } from "~/utils/api";
 
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "~/components/shadcn/ui/dialog";
+
 export const CreatorPageAssetSchema = z.object({
   code: z
     .string()
@@ -42,6 +52,7 @@ function NewPageAssetFrom({ requiredToken }: { requiredToken: number }) {
   const [signLoading, setSignLoading] = React.useState(false);
   const [uploading, setUploading] = useState(false);
   const [coverUrl, setCover] = useState<string>();
+  const [isOpen, setIsOpen] = useState(false);
 
   // pinta upload
   const [file, setFile] = useState<File>();
@@ -65,6 +76,7 @@ function NewPageAssetFrom({ requiredToken }: { requiredToken: number }) {
   const mutation = api.fan.member.createCreatePageAsset.useMutation({
     onSuccess: () => {
       toast.success("Page Asset Created Successfully");
+      setIsOpen(false);
       reset();
     },
   });
@@ -107,9 +119,7 @@ function NewPageAssetFrom({ requiredToken }: { requiredToken: number }) {
     },
   });
 
-  const onSubmit: SubmitHandler<z.infer<typeof CreatorPageAssetSchema>> = (
-    data,
-  ) => {
+  const onSubmit = () => {
     setIsModalOpen(true);
 
     if (ipfs) {
@@ -243,10 +253,43 @@ function NewPageAssetFrom({ requiredToken }: { requiredToken: number }) {
           content={`To create this page token, you'll need ${requiredToken} ${PLATFORM_ASSET.code} for your Asset account. Additionally, there's a platform fee of ${PLATFORM_FEE} ${PLATFORM_ASSET.code}. Total: ${requiredToken + Number(PLATFORM_FEE)}`}
         />
       </div>
-      <Button className="w-full" type="submit" disabled={loading}>
-        {loading && <span className="loading loading-spinner"></span>}
-        Create Page Asset
-      </Button>
+
+      <Dialog open={isOpen} onOpenChange={setIsOpen}>
+        <DialogTrigger asChild>
+          <Button className="w-full" disabled={loading}>
+            Create Page Asset
+          </Button>
+        </DialogTrigger>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Confirmation </DialogTitle>
+          </DialogHeader>
+          <div>
+            Your account will be charged {requiredToken}{" "}
+            <span className="text-red-600">{PLATFORM_ASSET.code}</span> to
+            create this page token;
+          </div>
+          <DialogFooter className=" w-full">
+            <div className="flex w-full gap-4  ">
+              <DialogClose className="w-full">
+                <Button variant="outline" className="w-full">
+                  Cancel
+                </Button>
+              </DialogClose>
+              <Button
+                variant="destructive"
+                type="submit"
+                onClick={() => onSubmit()}
+                disabled={loading}
+                className="w-full"
+              >
+                {loading && <span className="loading loading-spinner" />}
+                Confirm
+              </Button>
+            </div>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </form>
   );
 }

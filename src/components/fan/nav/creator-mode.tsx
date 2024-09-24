@@ -15,6 +15,7 @@ export const CreatorNavigation = {
   Gift: { path: "/fans/creator/gift", icon: Bell, text: "GIFT" },
   Map: { path: "/maps", icon: Bell, text: "MAP" },
   Pins: { path: "/maps/pins/creator/", icon: Bell, text: "PINS" },
+  Bounty: { path: "/fans/creator/bounty", icon: Bell, text: "BOUNTY" },
 } as const;
 
 export function CreatorNavButtons() {

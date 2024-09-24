@@ -5,11 +5,8 @@ import {
   Horizon,
   TransactionBuilder,
 } from "@stellar/stellar-sdk";
-import { STROOP, STELLAR_URL } from "../constant";
 import { STORAGE_SECRET } from "../SECRET";
-import { SITE_ASSET, SITE_ASSET_OBJ } from "./constant";
-import { networkPassphrase } from "../constant";
-import { PLATFORM_ASSET } from "../../constant";
+import { STELLAR_URL, PLATFORM_ASSET, networkPassphrase } from "../../constant";
 
 async function checkSiteAssetTrustLine(accPub: string) {
   const server = new Horizon.Server(STELLAR_URL);
@@ -20,8 +17,8 @@ async function checkSiteAssetTrustLine(accPub: string) {
       bal.asset_type == "credit_alphanum4"
     ) {
       if (
-        bal.asset_code == SITE_ASSET_OBJ.asset_code &&
-        bal.asset_issuer == SITE_ASSET_OBJ.asset_issuer
+        bal.asset_code == PLATFORM_ASSET.code &&
+        bal.asset_issuer == PLATFORM_ASSET.issuer
       ) {
         if (bal.is_authorized) {
           return true;
@@ -71,7 +68,7 @@ export async function sendSiteAsset2pub(
   })
     .addOperation(
       Operation.changeTrust({
-        asset: SITE_ASSET,
+        asset: PLATFORM_ASSET,
         source: pubkey,
       }),
     )
@@ -79,7 +76,7 @@ export async function sendSiteAsset2pub(
       Operation.payment({
         destination: pubkey,
         amount: siteAssetAmount.toString(), //copy,
-        asset: SITE_ASSET,
+        asset: PLATFORM_ASSET,
         source: storageAcc.publicKey(),
       }),
     )
@@ -120,7 +117,7 @@ export async function sendXLM_SiteAsset(props: {
     //1
     .addOperation(
       Operation.changeTrust({
-        asset: SITE_ASSET,
+        asset: PLATFORM_ASSET,
         source: pubkey,
       }),
     )
@@ -129,7 +126,7 @@ export async function sendXLM_SiteAsset(props: {
       Operation.payment({
         destination: pubkey,
         amount: siteAssetAmount.toString(), //copy,
-        asset: SITE_ASSET,
+        asset: PLATFORM_ASSET,
         source: storageAcc.publicKey(),
       }),
     )

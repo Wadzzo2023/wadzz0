@@ -7,8 +7,8 @@ import {
   TransactionBuilder,
 } from "@stellar/stellar-sdk";
 import { STORAGE_SECRET } from "../SECRET";
-import { STELLAR_URL, networkPassphrase } from "../constant";
 import { SignUserType, WithSing } from "../../utils";
+import { networkPassphrase, STELLAR_URL, TrxBaseFee } from "../../constant";
 
 export async function tradeAssetXDR(props: {
   sellingAsset: Asset;
@@ -101,7 +101,7 @@ export async function buyOfferXDR(props: {
   const transactionInializer = await server.loadAccount(pubkey);
 
   const Tx = new TransactionBuilder(transactionInializer, {
-    fee: BASE_FEE,
+    fee: TrxBaseFee,
     networkPassphrase,
   })
 

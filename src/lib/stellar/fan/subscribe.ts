@@ -1,24 +1,21 @@
 import {
-  BASE_FEE,
+  Asset,
+  Horizon,
   Keypair,
   Operation,
-  Horizon,
   TransactionBuilder,
-  Asset,
-  AuthClawbackEnabledFlag,
-  AuthRevocableFlag,
 } from "@stellar/stellar-sdk";
+import { env } from "~/env";
 import {
   PLATFORM_ASSET,
   PLATFORM_FEE,
   STELLAR_URL,
+  STROOP,
   networkPassphrase,
 } from "../constant";
-import { MyAssetType } from "./utils";
-import { env } from "~/env";
-import { STROOP } from "../marketplace/constant";
-import { SignUserType, WithSing } from "../utils";
 import { StellarAccount } from "../marketplace/test/Account";
+import { SignUserType, WithSing } from "../utils";
+import { MyAssetType } from "./utils";
 
 const log = console;
 // transection variables

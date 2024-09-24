@@ -12,6 +12,7 @@ import { usePopUpState } from "~/lib/state/right-pop";
 import Drawer from "./drawer";
 import PageAssetRight from "./wallete/page_asset_right";
 import { CREATOR_PLURAL_TERM } from "~/utils/term";
+import BountyRightBar from "./fan/creator/bounty/BountyRightSide";
 
 export const AssetVariant = {
   ...MarketType,
@@ -24,7 +25,7 @@ export default function RightSideBar() {
   if (router.pathname.includes("/maps")) return undefined;
   return (
     <div>
-      <div className="absolute bottom-0 right-0 lg:hidden">
+      <div className="absolute bottom-0 right-0 xl:hidden">
         <Drawer />
       </div>
       <RightSideBarComponent />
@@ -36,7 +37,7 @@ function RightSideBarComponent() {
   if (router.pathname.includes("/maps")) return undefined;
 
   return (
-    <div className="hidden h-full w-80  flex-col bg-base-100/80  lg:flex">
+    <div className="hidden h-full w-80  flex-col bg-base-100/80  xl:flex">
       <RightComponent />
     </div>
   );
@@ -64,5 +65,7 @@ export function RightComponent() {
     return <AssetRight />;
   } else if (router.pathname.includes("/admin")) {
     return <AdminRightSide />;
+  } else if (router.pathname.includes("/bounty")) {
+    return <BountyRightBar />;
   }
 }

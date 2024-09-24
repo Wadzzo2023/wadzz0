@@ -30,7 +30,7 @@ export default function AddCreatorPageAssetModal({
 }) {
   const { platformAssetBalance } = useUserStellarAcc();
 
-  const requiredToken = api.fan.trx.getPlatformTokenPriceForXLM.useQuery({
+  const requiredToken = api.fan.trx.getRequiredPlatformAsset.useQuery({
     xlm: 2,
   });
 

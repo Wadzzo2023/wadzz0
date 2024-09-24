@@ -15,7 +15,7 @@ import {
   adminProcedure,
   createTRPCRouter,
   protectedProcedure,
-  publicProcedure,
+
 } from "~/server/api/trpc";
 
 export const AssetSelectAllProperty = {
@@ -44,7 +44,7 @@ export const marketRouter = createTRPCRouter({
       const creatorId = ctx.session.user.id;
       const storage = await ctx.db.creator.findUnique({
         where: { id: creatorId },
-        select: { storagePub: true, storageSecret: true },
+        select: { storagePub: true },
       });
       if (!storage?.storagePub) {
         throw new Error("storage does not exist");
@@ -52,14 +52,13 @@ export const marketRouter = createTRPCRouter({
 
       const assetAmount = placingCopies.toString();
 
-      // stellar sdk for xdr
+      // stellear sdk for xdr
       return await sendNft2StorageXDR({
         assetAmount,
         assetCode: code,
         signWith,
         issuerPub: issuer,
         storagePub: storage.storagePub,
-        storageSecret: storage.storageSecret,
         userPub: creatorId,
       });
     }),

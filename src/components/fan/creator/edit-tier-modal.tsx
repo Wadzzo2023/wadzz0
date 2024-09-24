@@ -9,6 +9,18 @@ import { Button } from "~/components/shadcn/ui/button";
 import { SubscriptionType } from "~/pages/fans/creator/[id]";
 import { api } from "~/utils/api";
 
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "~/components/shadcn/ui/dialog";
+
+import toast from "react-hot-toast";
+
 export const EditTierSchema = z.object({
   name: z
     .string()
@@ -169,16 +181,61 @@ export default function EditTierModal({ item }: { item: SubscriptionType }) {
 }
 
 function DeleteTier({ id }: { id: number }) {
-  const mutation = api.fan.member.deleteTier.useMutation();
+  const [isOpen, setIsOpen] = React.useState(false);
+  const mutation = api.fan.member.deleteTier.useMutation({
+    onSuccess: () => {
+      toast.success("Tier deleted");
+      setIsOpen(false);
+    },
+  });
   return (
-    <Button
-      className="w-full max-w-xs"
-      type="button"
-      onClick={() => mutation.mutate({ id })}
-      disabled={mutation.isLoading}
-    >
-      {mutation.isLoading && <span className="loading loading-spinner"></span>}
-      Delete Tier
-    </Button>
+    <>
+      <Dialog open={isOpen} onOpenChange={setIsOpen}>
+        <DialogTrigger asChild>
+          <button
+            className="btn btn-primary mt-2 w-full max-w-xs"
+            type="button"
+            disabled={mutation.isLoading}
+          >
+            {mutation.isLoading && (
+              <span className="loading loading-spinner"></span>
+            )}
+            Delete Tier
+          </button>
+        </DialogTrigger>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Confirmation </DialogTitle>
+          </DialogHeader>
+          <div>
+            <p>
+              Are you sure you want to delete this tier? This action is
+              irreversible.
+            </p>
+          </div>
+          <DialogFooter className=" w-full">
+            <div className="flex w-full gap-4  ">
+              <DialogClose className="w-full">
+                <Button variant="outline" className="w-full">
+                  Cancel
+                </Button>
+              </DialogClose>
+              <Button
+                variant="destructive"
+                type="submit"
+                onClick={() => mutation.mutate({ id })}
+                disabled={mutation.isLoading}
+                className="w-full"
+              >
+                {mutation.isLoading && (
+                  <span className="loading loading-spinner" />
+                )}
+                Confirm
+              </Button>
+            </div>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }

@@ -1,6 +1,5 @@
 import { Horizon } from "@stellar/stellar-sdk";
-import { STELLAR_URL, STROOP } from "../constant";
-import { PLATFORM_ASSET } from "../../constant";
+import { PLATFORM_ASSET, STELLAR_URL, STROOP } from "../../constant";
 
 type Balances = (
   | Horizon.HorizonApi.BalanceLineNative

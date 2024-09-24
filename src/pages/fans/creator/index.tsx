@@ -15,10 +15,26 @@ import Loading from "~/components/wallete/loading";
 import useNeedSign from "~/lib/hook";
 import { CreatorMenu, useCreator } from "~/lib/state/fan/creator-menu";
 import { useUserStellarAcc } from "~/lib/state/wallete/stellar-balances";
-import { PLATFORM_ASSET } from "~/lib/stellar/constant";
 import { clientSelect } from "~/lib/stellar/fan/utils";
 import { api } from "~/utils/api";
 import { CREATOR_TERM } from "~/utils/term";
+
+import { Button } from "~/components/shadcn/ui/button";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "~/components/shadcn/ui/dialog";
+import {
+  PLATFORM_ASSET,
+  PLATFORM_FEE,
+  TrxBaseFee,
+  TrxBaseFeeInPlatformAsset,
+} from "~/lib/stellar/constant";
 
 export default function CreatorProfile() {
   const { data: session } = useSession();
@@ -98,7 +114,7 @@ function ConditionallyRenderMenuPage({ creator }: { creator: Creator }) {
 
 export function ValidCreateCreator({ message }: { message?: string }) {
   const { platformAssetBalance } = useUserStellarAcc();
-  const requiredToken = api.fan.trx.getPlatformTokenPriceForXLM.useQuery({
+  const requiredToken = api.fan.trx.getRequiredPlatformAsset.useQuery({
     xlm: 5,
   });
 
@@ -129,7 +145,9 @@ export function ValidCreateCreator({ message }: { message?: string }) {
 }
 
 function CreateCreator({ requiredToken }: { requiredToken: number }) {
+  const [isOpen, setIsOpen] = useState(false);
   const { needSign } = useNeedSign();
+
   const session = useSession();
   const makeCreatorMutation = api.fan.creator.makeMeCreator.useMutation();
   const [signLoading, setSingLoading] = useState(false);
@@ -137,6 +155,7 @@ function CreateCreator({ requiredToken }: { requiredToken: number }) {
   const xdr = api.fan.trx.createStorageAccount.useMutation({
     onSuccess: (data) => {
       const { xdr, storage } = data;
+      console.log("xdr", xdr);
       setSingLoading(true);
 
       const toastId = toast.loading("Creating account");
@@ -158,6 +177,7 @@ function CreateCreator({ requiredToken }: { requiredToken: number }) {
         .finally(() => {
           toast.dismiss(toastId);
           setSingLoading(false);
+          setIsOpen(false);
         });
     },
   });
@@ -169,16 +189,43 @@ function CreateCreator({ requiredToken }: { requiredToken: number }) {
       <p className="text-2xl font-bold">You are not a {CREATOR_TERM}</p>
       <p className="alert alert-info max-w-xl text-center">
         Your account will be charged {requiredToken} {PLATFORM_ASSET.code} to be
-        a {CREATOR_TERM.toLowerCase()}.
+        a brand.
       </p>
-      <button
-        className="btn btn-primary"
-        onClick={() => xdr.mutate(needSign())}
-        disabled={loading}
-      >
-        {loading && <span className="loading loading-spinner" />}
-        Join as a {CREATOR_TERM.toLocaleLowerCase()}
-      </button>
+
+      <Dialog open={isOpen} onOpenChange={setIsOpen}>
+        <DialogTrigger asChild>
+          <button className="btn btn-primary">Join as a brand</button>
+        </DialogTrigger>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Confirmation </DialogTitle>
+          </DialogHeader>
+          <div>
+            Your account will be charged {requiredToken}{" "}
+            <span className="text-red-600">{PLATFORM_ASSET.code}</span> to be a
+            brand.
+          </div>
+          <DialogFooter className=" w-full">
+            <div className="flex w-full gap-4  ">
+              <DialogClose className="w-full">
+                <Button variant="outline" className="w-full">
+                  Cancel
+                </Button>
+              </DialogClose>
+              <Button
+                variant="destructive"
+                type="submit"
+                onClick={() => xdr.mutate(needSign())}
+                disabled={loading}
+                className="w-full"
+              >
+                {loading && <span className="loading loading-spinner" />}
+                Confirm
+              </Button>
+            </div>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

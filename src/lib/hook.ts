@@ -22,7 +22,6 @@ const useNeedSign = () => {
         }
       }
     }
-    return undefined;
   };
 
   return { needSign };

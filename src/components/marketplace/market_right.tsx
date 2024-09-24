@@ -10,6 +10,19 @@ import BuyModal from "../music/modal/buy_modal";
 import ImageVideViewer from "../wallete/Image_video_viewer";
 import MyError from "../wallete/my_error";
 
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "~/components/shadcn/ui/dialog";
+import { Button } from "../shadcn/ui/button";
+
+import { PLATFORM_ASSET } from "~/lib/stellar/constant";
+
 export type AssetType = Omit<Asset, "issuerPrivate">;
 
 export type MarketAssetType = MarketAsset & {
@@ -83,7 +96,7 @@ export function AssetDetails({
 
                 <p>
                   <span className="font-semibold">
-                    Price: {currentData.price}{" "}
+                    Price: {currentData.price} {PLATFORM_ASSET.code}
                   </span>
                 </p>
                 {currentData.placerId && (
@@ -185,14 +198,52 @@ export function DisableFromMarketButton({
     },
   });
 
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
   return (
-    <button
-      className="btn btn-primary btn-sm my-2 w-full transition duration-500 ease-in-out"
-      onClick={() => disable.mutate({ code, issuer })}
-    >
-      {disable.isLoading && <span className="loading loading-spinner" />}
-      DISABLE
-    </button>
+    <div className="flex flex-col gap-2">
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogTrigger asChild>
+          <button className="btn btn-primary btn-sm my-2 w-full transition duration-500 ease-in-out">
+            {disable.isLoading && <span className="loading loading-spinner" />}
+            DISABLE
+          </button>
+        </DialogTrigger>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Confirmation </DialogTitle>
+          </DialogHeader>
+          <div className="mt-6 w-full space-y-6 sm:mt-8 lg:mt-0 lg:max-w-xs xl:max-w-md">
+            <div className="flow-root">
+              <div className="-my-3 divide-y divide-gray-200 dark:divide-gray-800">
+                <dl className="flex items-center justify-between gap-4 py-3">
+                  <dd className="text-base font-medium text-gray-900 dark:text-white">
+                    Do you want to disable this item from the market?
+                  </dd>
+                </dl>
+              </div>
+            </div>
+          </div>
+          <DialogFooter className=" w-full">
+            <div className="flex w-full gap-4  ">
+              <DialogClose className="w-full">
+                <Button variant="outline" className="w-full">
+                  Cancel
+                </Button>
+              </DialogClose>
+              <Button
+                disabled={disable.isLoading}
+                variant="destructive"
+                type="submit"
+                onClick={() => disable.mutate({ code, issuer })}
+                className="w-full"
+              >
+                Confirm
+              </Button>
+            </div>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
   );
 }
 
@@ -293,20 +344,58 @@ function TakeBack() {
 
 function DeleteAssetByAdmin({ id }: { id: number }) {
   const { setData } = useMarketRightStore();
+  const [isOpen, setIsOpen] = useState(false);
   const admin = api.wallate.admin.checkAdmin.useQuery();
   const del = api.marketplace.market.deleteMarketAsset.useMutation({
     onSuccess: () => {
       setData(undefined);
+      setIsOpen(false);
     },
   });
 
   if (admin.data)
     return (
-      <button
-        className="btn btn-primary btn-sm w-full"
-        onClick={() => del.mutate(id)}
-      >
-        {del.isLoading && <span className="loading loading-spinner" />}Delete
-      </button>
+      <>
+        <Dialog open={isOpen} onOpenChange={setIsOpen}>
+          <DialogTrigger asChild>
+            <button className="btn btn-primary btn-sm w-full">
+              {del.isLoading && <span className="loading loading-spinner" />}
+              Delete
+            </button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+              <DialogTitle>Confirmation </DialogTitle>
+            </DialogHeader>
+            <div>
+              <p>
+                Are you sure you want to delete this item? This action is
+                irreversible.
+              </p>
+            </div>
+            <DialogFooter className=" w-full">
+              <div className="flex w-full gap-4  ">
+                <DialogClose className="w-full">
+                  <Button variant="outline" className="w-full">
+                    Cancel
+                  </Button>
+                </DialogClose>
+                <Button
+                  variant="destructive"
+                  type="submit"
+                  onClick={() => del.mutate(id)}
+                  disabled={del.isLoading}
+                  className="w-full"
+                >
+                  {del.isLoading && (
+                    <span className="loading loading-spinner" />
+                  )}
+                  Confirm
+                </Button>
+              </div>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </>
     );
 }
