@@ -1,5 +1,5 @@
 import { useMutation } from '@tanstack/react-query';
-import { BountyStatus, NotificationType, Prisma, SubmissionViewType } from "@prisma/client"; // Assuming you are using Prisma
+import { BountyStatus, NotificationType, Prisma, SubmissionViewType, UserRole } from "@prisma/client"; // Assuming you are using Prisma
 import { getAccSecretFromRubyApi } from "package/connect_wallet/src/lib/stellar/get-acc-secret";
 import { z } from "zod";
 import { BountyCommentSchema } from "~/components/fan/creator/bounty/Add-Bounty-Comment";
@@ -1070,6 +1070,229 @@ export const BountyRoute = createTRPCRouter({
     return await getHasUserHasTrustOnUSDC(ctx.session.user.id);
   }),
 
+  createNewBountyDoubt: protectedProcedure
+    .input(
+      z.object({
+        bountyId: z.number(),
+        content: z.string().min(2, { message: "Message can't be empty" }), // The doubt message
+        role: z.nativeEnum(UserRole).optional(),
+        media: z.array(SubmissionMediaInfo).optional(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      const userId = ctx.session.user.id;
+      const { bountyId, content, role } = input;
+
+      // Set the default role to USER if not provided
+      const userRole = role ?? UserRole.USER;
+
+      // Fetch the bounty to check if the current user is the creator
+      const bounty = await ctx.db.bounty.findUnique({
+        where: { id: bountyId },
+        select: { creatorId: true },
+      });
+
+      if (!bounty) {
+        throw new Error("Bounty not found");
+      }
+
+      const isCreator = bounty.creatorId === userId;
+
+      // Check if a BountyDoubt already exists for this user and bounty
+      const existingDoubt = await ctx.db.bountyDoubt.findFirst({
+        where: {
+          bountyId: bountyId,
+          userId: isCreator ? undefined : userId,  // For creator, userId won't match the bountyDoubt
+        },
+      });
+
+      const newContent = input.media ? `${content} ${input.media.map((media) => media.url).join(" ")}` : content;
+
+      if (existingDoubt) {
+        // If the doubt exists, just insert a new message
+        await ctx.db.bountyDoubtMessage.create({
+          data: {
+            doubtId: existingDoubt.id,
+            senderId: userId,  // This will be either the userId or creatorId
+            role: isCreator ? UserRole.CREATOR : userRole,
+            content: newContent,
+            createdAt: new Date(),
+          },
+        });
+
+
+        await ctx.db.bountyDoubt.update({
+          where: { id: existingDoubt.id },
+          data: {
+            updatedAt: new Date(),
+          },
+        });
+
+        return existingDoubt;
+      } else {
+        // If no doubt exists, create a new one with the initial message
+        const newDoubt = await ctx.db.bountyDoubt.create({
+          data: {
+            bountyId: bountyId,
+            userId: isCreator ? bounty.creatorId : userId, // Only set userId if it's a user and not the creator
+            messages: {
+              create: {
+                senderId: userId,  // This will be either the userId or creatorId
+                role: isCreator ? UserRole.CREATOR : userRole,
+                content: newContent,
+                createdAt: new Date(),
+              },
+            },
+            updatedAt: new Date(),
+          },
+          include: {
+            messages: true,
+          },
+        });
+
+        return newDoubt;
+      }
+    }),
+
+
+
+  listBountyDoubts: protectedProcedure
+    .input(z.object({ bountyId: z.number() }))
+    .query(async ({ input, ctx }) => {
+      const creator = await ctx.db.bounty.findUnique({
+        where: {
+          id: input.bountyId,
+        },
+        select: {
+          creatorId: true,
+        },
+      });
+      const list = await ctx.db.bountyDoubt.findMany({
+        where: {
+          bountyId: input.bountyId,
+          userId: { not: creator?.creatorId },
+        },
+        include: {
+          user: {
+            select: {
+              id: true,
+              name: true,
+              image: true,
+              email: true,
+            }
+          }
+        },
+        distinct: ['userId'],
+        orderBy: {
+          updatedAt: "desc",
+        }
+      });
+      return list
+    }),
+
+
+
+  getBountyForUserCreator: protectedProcedure
+    .input(
+      z.object({
+        bountyId: z.number(),
+        userId: z.string(),
+      })
+    )
+    .query(async ({ input, ctx }) => {
+
+      const bounty = await ctx.db.bounty.findUnique({
+        where: { id: input.bountyId },
+        select: { creatorId: true },
+      });
+
+      if (!bounty) {
+        throw new Error("Bounty not found");
+      }
+
+      // Fetch the doubts between the user and creator
+      const bountyDoubts = await ctx.db.bountyDoubt.findMany({
+        where: {
+          bountyId: input.bountyId,
+          userId: input.userId,  // Fetch doubts initiated by the specific user
+        },
+        include: {
+          messages: {
+            where: {
+              senderId: {
+                in: [input.userId, bounty.creatorId],  // Ensure both user and creator messages are fetched
+              },
+            },
+            orderBy: { createdAt: "asc" },  // Order messages by creation time
+          },
+        },
+      });
+
+      // Debugging purposes: check the retrieved bounty doubts
+      console.log("bountyDoubts", bountyDoubts);
+
+      // Map messages to extract content and role
+      const messages = bountyDoubts.flatMap((doubt) =>
+        doubt.messages.map((message) => ({
+          message: message.content,
+          role: message.role,
+
+        }))
+      );
+
+      return messages.length > 0 ? messages : [];
+    }),
+
+  getBountyForCreatorUser: protectedProcedure
+    .input(
+      z.object({
+        bountyId: z.number(),
+
+      })
+    )
+    .query(async ({ input, ctx }) => {
+      const userId = ctx.session.user.id;
+      const bounty = await ctx.db.bounty.findUnique({
+        where: { id: input.bountyId },
+        select: { creatorId: true },
+      });
+
+      if (!bounty) {
+        throw new Error("Bounty not found");
+      }
+
+      // Fetch the doubts between the user and creator
+      const bountyDoubts = await ctx.db.bountyDoubt.findMany({
+        where: {
+          bountyId: input.bountyId,
+          userId: userId,  // Fetch doubts initiated by the specific user
+        },
+        include: {
+          messages: {
+            where: {
+              senderId: {
+                in: [userId, bounty.creatorId],  // Ensure both user and creator messages are fetched
+              },
+            },
+            orderBy: { createdAt: "asc" },  // Order messages by creation time
+          },
+        },
+      });
+
+      // Debugging purposes: check the retrieved bounty doubts
+      console.log("bountyDoubts", bountyDoubts);
+
+      // Map messages to extract content and role
+      const messages = bountyDoubts.flatMap((doubt) =>
+        doubt.messages.map((message) => ({
+          message: message.content,
+          role: message.role,
+
+        }))
+      );
+
+      return messages.length > 0 ? messages : [];
+    }),
 
 
 });

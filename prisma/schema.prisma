@@ -44,6 +44,7 @@ enum NotificationType {
     BOUNTY_COMMENT
     BOUNTY_REPLY
     BOUNTY_WINNER
+    BOUNTY_DOUBT
 }
 
 // it is kinda notification actor and the entity that is being acted upon
@@ -277,6 +278,8 @@ model User {
     BountySubmission         BountySubmission[]
     BountyComment            BountyComment[]
     Bounty                   Bounty[]
+    BountyDoubt              BountyDoubt[]
+    BountyDoubtMessage       BountyDoubtMessage[]
 }
 
 model VerificationToken {
@@ -533,6 +536,7 @@ model Bounty {
     participants    BountyParticipant[] // Users who join the bounty
     comments        BountyComment[] // Comments on the bounty
     submissions     BountySubmission[] // Submissions to the bounty
+    doubts          BountyDoubt[]
     // New field to reference the winner
     winnerId        String? // Optional: Can be null until a winner is selected
     winner          User?               @relation(fields: [winnerId], references: [id], onDelete: SetNull)
@@ -540,6 +544,34 @@ model Bounty {
     xdr String?
 
     @@index([title, description])
+}
+
+model BountyDoubt {
+    id        Int                  @id @default(autoincrement())
+    bountyId  Int
+    bounty    Bounty               @relation(fields: [bountyId], references: [id], onDelete: Cascade)
+    userId    String // The user who asked the doubt
+    user      User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+    updatedAt DateTime?            @updatedAt
+    createdAt DateTime             @default(now())
+    messages  BountyDoubtMessage[] // Relationship for messages between user and creator
+}
+
+model BountyDoubtMessage {
+    id        Int         @id @default(autoincrement())
+    doubtId   Int
+    doubt     BountyDoubt @relation(fields: [doubtId], references: [id], onDelete: Cascade)
+    senderId  String
+    sender    User        @relation(fields: [senderId], references: [id], onDelete: Cascade)
+    role      UserRole    @default(USER)
+    content   String
+    createdAt DateTime    @default(now())
+    updatedAt DateTime?   @updatedAt
+}
+
+enum UserRole {
+    USER
+    CREATOR
 }
 
 model BountyParticipant {
