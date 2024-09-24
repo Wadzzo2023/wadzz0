@@ -36,12 +36,12 @@ export default function LeftBar({ className }: { className?: string }) {
   return (
     <div
       className={cn(
-        "flex h-full max-h-screen w-80 flex-col items-center justify-between gap-4 overflow-auto bg-base-100/80 px-4 pb-4 scrollbar-hide lg:pt-5",
+        "flex h-full max-h-screen w-80 flex-col items-center justify-between gap-4 overflow-auto bg-base-100/80 px-4 pb-4 scrollbar-hide ",
         className,
       )}
     >
       <div className="flex h-full w-full flex-1 flex-col items-center justify-between gap-2 overflow-auto overflow-x-hidden">
-        <div className="mt-7  w-full flex-1">
+        <div className="mt-2  w-full flex-1">
           <NavigationButtons />
         </div>
       </div>
