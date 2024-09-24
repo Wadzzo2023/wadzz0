@@ -1258,23 +1258,25 @@ export const BountyRoute = createTRPCRouter({
             updatedAt: new Date(),
           },
         });
-      }
-      await ctx.db.notificationObject.create({
-        data: {
-          actorId: userId,
-          entityType: NotificationType.BOUNTY_DOUBT_REPLY,
-          entityId: bountyId,
-          isUser: false,
-          Notification: {
-            create: [
-              {
-                notifierId: creatorId,
-                isCreator: true,
-              },
-            ],
+
+        await ctx.db.notificationObject.create({
+          data: {
+            actorId: userId,
+            entityType: NotificationType.BOUNTY_DOUBT_REPLY,
+            entityId: bountyId,
+            isUser: false,
+            Notification: {
+              create: [
+                {
+                  notifierId: creatorId,
+                  isCreator: true,
+                },
+              ],
+            },
           },
-        },
-      });
+
+        });
+      }
     }),
 
   listBountyDoubts: protectedProcedure

@@ -7,41 +7,45 @@ import { HomeIcon, Settings2, Diamond, Bell } from "lucide-react";
 import Image from "next/image";
 import { cn } from "~/utils/utils";
 import { env } from "~/env";
-import { useDrawerOpenStore } from "~/lib/state/fan/drawer_open";
+import { CREATOR_PLURAL_TERM } from "~/utils/term";
 
 export const LeftNavigation = {
   Home: { path: "/", icon: HomeIcon, text: "HOMEPAGE" },
-  WalletBalance: {
-    path: "/walletBalance",
-    icon: Wallet,
-    text: "MY WALLET",
-  },
-  MyAssets: { path: "/assets", icon: Bell, text: "MY COLLECTION" },
+  // WalletBalance: {
+  //   path: "/walletBalance",
+  //   icon: Wallet,
+  //   text: "MY WALLET",
+  // },
+  MyAssets: { path: "/assets", icon: Bell, text: "COLLECTION" },
   // Search: { path: "/search", icon: Search, text: "Search" },
   Music: { path: "/music", icon: Diamond, text: "MUSIC" },
   Marketplace: { path: "/marketplace", icon: Bell, text: "MARKETPLACE" },
   Bounty: { path: "/bounty", icon: Bell, text: "BOUNTY" },
-  Fan: { path: "/fans/home", icon: Bell, text: "ARTISTS" },
+  Fan: {
+    path: "/fans/home",
+    icon: Bell,
+    text: CREATOR_PLURAL_TERM.toUpperCase(),
+  },
   Settings: { path: "/settings", icon: Settings2, text: "SETTINGS" },
 } as const;
 export const BottomNavigation = {
-  Home: { path: "/maps/pins", icon: HomeIcon, text: "CLAIM" },
+  Claim: { path: "/maps/pins/my", icon: HomeIcon, text: "CLAIM" },
 } as const;
 
 export default function LeftBar({ className }: { className?: string }) {
   return (
     <div
       className={cn(
-        "flex h-full max-h-screen w-80 flex-col items-center justify-between gap-4 overflow-hidden overflow-y-auto bg-base-100/80 px-4 pb-4 scrollbar-hide ",
+        "flex h-full max-h-screen w-80 flex-col items-center justify-between gap-4 overflow-auto bg-base-100/80 px-4 pb-4 scrollbar-hide lg:pt-5",
         className,
       )}
     >
-      <div className="flex h-full w-full flex-1 flex-col items-center justify-between gap-2 overflow-hidden overflow-y-auto">
+      <div className="flex h-full w-full flex-1 flex-col items-center justify-between gap-2 overflow-auto overflow-x-hidden">
         <div className="mt-7  w-full flex-1">
           <NavigationButtons />
         </div>
       </div>
-      <div className="flex w-full flex-col items-center">
+      <div className="flex w-full flex-col items-center ">
         <LeftBottom />
       </div>
     </div>
@@ -49,29 +53,26 @@ export default function LeftBar({ className }: { className?: string }) {
 }
 
 function NavigationButtons() {
-  const { setIsOpen } = useDrawerOpenStore();
   return (
     <div className="flex h-full min-h-full flex-col justify-between gap-2">
       <div className="flex  flex-col  gap-2">
         {Object.entries(LeftNavigation).map(
-          ([key, { path, icon: Icon, text }]) => (
-            <Link
-              href={path}
-              className="w-full"
-              key={key}
-              onClick={() => setIsOpen(false)}
-            >
-              <Button
-                className=""
-                path={path}
-                icon={<Icon className="h-5 w-5" />}
-                text={text}
-              />
-            </Link>
-          ),
+          ([key, { path, icon: Icon, text }]) => {
+            if (text == "MUSIC") return;
+
+            return (
+              <Link href={path} className="w-full" key={key}>
+                <Button
+                  path={path}
+                  icon={<Icon className="h-5 w-5" />}
+                  text={text}
+                />
+              </Link>
+            );
+          },
         )}
       </div>
-      {/* <div className="flex   flex-col  gap-2">
+      <div className="flex   flex-col  gap-2">
         {Object.entries(BottomNavigation).map(
           ([key, { path, icon: Icon, text }]) => (
             <Link href={path} className="w-full " key={key}>
@@ -84,7 +85,7 @@ function NavigationButtons() {
             </Link>
           ),
         )}
-      </div> */}
+      </div>
     </div>
   );
 }
@@ -95,7 +96,7 @@ function LeftBottom() {
       <ConnectWalletButton />
       <div className="flex justify-between space-x-2">
         <Link
-          href={"https://facebook.com/bandcoinio"}
+          href={"https://facebook.com/wadzzo"}
           className="btn flex h-16 flex-col items-center  text-xs normal-case"
           target="_blank"
         >
@@ -103,7 +104,7 @@ function LeftBottom() {
           <span>Facebook</span>
         </Link>
         <Link
-          href={"https://x.com/bandcoinio"}
+          href={"https://x.com/WadzzoApp"}
           className="btn flex h-16 flex-1 flex-col items-center text-xs normal-case "
           target="_blank"
         >
@@ -111,7 +112,7 @@ function LeftBottom() {
           <span>X</span>
         </Link>
         <Link
-          href={"https://www.instagram.com/bandcoin"}
+          href={"https://www.instagram.com/wadzzo"}
           className="btn flex h-16 flex-col items-center text-xs normal-case"
           target="_blank"
         >
