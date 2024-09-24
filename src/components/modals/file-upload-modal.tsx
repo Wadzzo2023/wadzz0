@@ -44,7 +44,7 @@ const FileUploadModal = () => {
   const [progress, setProgress] = useState<number>(0);
   const { bountyId, submissionId } = data;
   const [isInitialLoad, setIsInitialLoad] = useState(true);
-
+  const [loading, setLoading] = useState<boolean>(false);
   const [uploadingFile, setUploadingFile] = useState<File | null>(null);
   const getSubmittedAttachment =
     api.bounty.Bounty.getSubmittedAttachmentById.useQuery({
@@ -247,7 +247,8 @@ const FileUploadModal = () => {
                   endpoint="SubmissionImageUploader"
                   content={{
                     button: "Add Media",
-                    allowedContent: "Max (1024MB)",
+                    allowedContent:
+                      "Audio, Video, Image, PDF,Text ,Spreed Sheet, CSV, TSV, ODS | Max (1024MB)",
                   }}
                   onUploadProgress={(progress) => {
                     setProgress(progress);
@@ -260,13 +261,50 @@ const FileUploadModal = () => {
                     if (data?.url) {
                       addMediaItem(data.url, data.name, data.size, data.type);
                     }
+                    setLoading(false);
                   }}
                   onBeforeUploadBegin={(files) => {
+                    setLoading(true);
+                    const allowedTypes = [
+                      "image/*", // All image types
+                      "video/*", // All video types
+                      "audio/*", // All audio types
+                      "application/vnd.google-apps.document", // Google Docs
+                      "application/vnd.google-apps.spreadsheet", // Google Sheets
+                      "text/plain", // Plain text
+                      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", // XLSX
+                      "application/vnd.ms-excel", // XLS (old Excel format)
+                      "text/csv", // CSV
+                      "text/tab-separated-values", // TSV
+                      "application/pdf", // PDF
+                      "application/vnd.oasis.opendocument.spreadsheet", // ODS (OpenDocument Spreadsheet)
+                    ];
+
+                    const file = files[0];
+
+                    const fileType = file?.type;
+
+                    const isAllowed = allowedTypes.some((type) => {
+                      const baseType = type.split("/")[0];
+                      return (
+                        fileType === type || fileType?.startsWith(baseType!)
+                      );
+                    });
+
+                    if (!isAllowed) {
+                      toast.error(
+                        "Only images, PDFs, audio, and video files are allowed",
+                      );
+                      setLoading(false);
+                      return []; // Return an empty array to prevent uploading
+                    }
+
                     setUploadingFile(files[0] ?? null); // Set the first file being uploaded (or you can handle multiple files as needed)
                     setProgress(0); // Reset progress to 0 when a new file starts uploading
                     return files; // Ensure you return the files array to satisfy the type requirements
                   }}
                   onUploadError={(error: Error) => {
+                    setLoading(false);
                     toast.error(error.message);
                   }}
                 />

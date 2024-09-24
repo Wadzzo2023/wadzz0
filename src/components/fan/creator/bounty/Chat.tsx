@@ -197,6 +197,7 @@ type SubmissionMediaInfoType = z.TypeOf<typeof SubmissionMediaInfo>;
 const ChatItem = ({ item }: { item: BountyDoubtListItem }) => {
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
   const messagesEndRef: MutableRefObject<HTMLDivElement | null> =
     useRef<HTMLDivElement | null>(null);
   const [media, setMedia] = useState<SubmissionMediaInfoType[]>([]);
@@ -221,13 +222,7 @@ const ChatItem = ({ item }: { item: BountyDoubtListItem }) => {
   };
   const utils = api.useUtils();
   const NewMessageMutation =
-    api.bounty.Bounty.createUpdateBountyDoubtForCreatorAndUser.useMutation({
-      onSuccess: () => {
-        utils.bounty.Bounty.getBountyForUserCreator.invalidate().catch((e) => {
-          console.log(e);
-        });
-      },
-    });
+    api.bounty.Bounty.createUpdateBountyDoubtForCreatorAndUser.useMutation();
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -330,9 +325,10 @@ const ChatItem = ({ item }: { item: BountyDoubtListItem }) => {
                   </Link>
                 </div>
               ))}
+              <div ref={messagesEndRef} />
             </div>
           ))}
-          <div ref={messagesEndRef} />
+
           {media.length > 0 &&
             media.map((item, index) => (
               <div
@@ -413,19 +409,54 @@ const ChatItem = ({ item }: { item: BountyDoubtListItem }) => {
               }}
               onClientUploadComplete={(res) => {
                 toast.success("Media uploaded");
+
                 setUploadingFile(null); // Reset uploading file
                 const data = res[0];
                 console.log(data);
                 if (data?.url) {
                   addMediaItem(data.url, data.name, data.size, data.type);
                 }
+                setLoading(false);
               }}
               onBeforeUploadBegin={(files) => {
-                setUploadingFile(files[0] ?? null); // Set the first file being uploaded (or you can handle multiple files as needed)
-                setProgress(0); // Reset progress to 0 when a new file starts uploading
-                return files; // Ensure you return the files array to satisfy the type requirements
+                setLoading(true);
+                const allowedTypes = [
+                  "image/*", // All image types
+                  "video/*", // All video types
+                  "audio/*", // All audio types
+                  "application/vnd.google-apps.document", // Google Docs
+                  "application/vnd.google-apps.spreadsheet", // Google Sheets
+                  "text/plain", // Plain text
+                  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", // XLSX
+                  "application/vnd.ms-excel", // XLS (old Excel format)
+                  "text/csv", // CSV
+                  "text/tab-separated-values", // TSV
+                  "application/pdf", // PDF
+                  "application/vnd.oasis.opendocument.spreadsheet", // ODS (OpenDocument Spreadsheet)
+                ];
+
+                const file = files[0];
+                const fileType = file?.type;
+
+                // Manually check if the file type is allowed
+                const isAllowed = allowedTypes.some((type) => {
+                  const baseType = type.split("/")[0];
+                  return fileType === type || fileType?.startsWith(baseType!);
+                });
+
+                if (!isAllowed) {
+                  toast.error(
+                    "File type not supported. Please upload a valid file.",
+                  );
+                  setLoading(true);
+                  return []; // Cancel the upload
+                }
+                setUploadingFile(files[0] ?? null);
+                setProgress(0);
+                return files;
               }}
               onUploadError={(error: Error) => {
+                setLoading(false);
                 toast.error(error.message);
               }}
               className="custom-upload-button"
@@ -444,7 +475,9 @@ const ChatItem = ({ item }: { item: BountyDoubtListItem }) => {
           <Button
             type="submit"
             size="icon"
-            disabled={inputLength === 0 || NewMessageMutation.isLoading}
+            disabled={
+              loading || inputLength === 0 || NewMessageMutation.isLoading
+            }
           >
             <Send className="h-4 w-4" />
             <span className="sr-only">Send</span>
