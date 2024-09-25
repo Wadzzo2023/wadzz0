@@ -386,7 +386,7 @@ const CreateBounty = () => {
                                     Fees
                                   </dt>
                                   <dd className="text-base font-medium text-green-500">
-                                    5800 {PLATFORM_ASSET.code}
+                                    {totalAmount} {PLATFORM_ASSET.code}
                                   </dd>
                                 </dl>
 
@@ -395,7 +395,8 @@ const CreateBounty = () => {
                                     Total
                                   </dt>
                                   <dd className="text-base font-bold text-gray-900 dark:text-white">
-                                    {prizeInAsset + 5800} {PLATFORM_ASSET.code}
+                                    {prizeInAsset + totalAmount}{" "}
+                                    {PLATFORM_ASSET.code}
                                   </dd>
                                 </dl>
                               </div>
@@ -425,7 +426,7 @@ const CreateBounty = () => {
                       <Alert
                         type="success"
                         content={`
-                          Note: You will be charged ${prizeInAsset + 5800} ${PLATFORM_ASSET.code} to create this bounty
+                          Note: You will be charged ${prizeInAsset + totalAmount} ${PLATFORM_ASSET.code} to create this bounty
                           `}
                       />
                     </div>
