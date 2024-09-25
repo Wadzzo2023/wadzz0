@@ -890,7 +890,7 @@ const AdminBountyPage = () => {
   const [input, setInput] = useState("");
   const inputLength = input.trim().length;
   const [messages, setMessages] = useState<Message[]>([]);
-
+  const [isDialogOpenWinner, setIsDialogOpenWinner] = useState(false);
   const { id } = router.query;
   console.log(id);
   const { data } = api.bounty.Bounty.getBountyByID.useQuery({
@@ -939,7 +939,7 @@ const AdminBountyPage = () => {
       setLoadingBountyId(variables.BountyId);
       toast.success("Winner Marked");
       setLoadingBountyId(null);
-      setIsDialogOpen(false);
+      setIsDialogOpenWinner(false);
     },
   });
 
@@ -1102,8 +1102,8 @@ const AdminBountyPage = () => {
                         <div className="flex flex-col gap-2">
                           <div className="">
                             <Dialog
-                              open={isDialogOpen}
-                              onOpenChange={setIsDialogOpen}
+                              open={isDialogOpenWinner}
+                              onOpenChange={setIsDialogOpenWinner}
                             >
                               <div className="flex items-start justify-between">
                                 <DialogTrigger asChild>
