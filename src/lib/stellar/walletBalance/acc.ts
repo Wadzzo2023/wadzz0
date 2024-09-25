@@ -327,7 +327,7 @@ export async function RecentTransactionHistory({
           asset: operations[0].asset.code,
           issuer: operations[0].asset.issuer,
           destination: operations[0].destination,
-          source: userPubKey,
+          source: operations[0].source,
           createdAt: record.created_at,
         },
       };
