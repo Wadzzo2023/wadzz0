@@ -14,7 +14,7 @@ export const CustomMapControl = ({
 }: CustomAutocompleteControlProps) => {
   return (
     <MapControl position={controlPosition}>
-      <div className="autocomplete-control">
+      <div className="autocomplete-control w-full">
         <PlaceAutocompleteClassic onPlaceSelect={onPlaceSelect} />
       </div>
     </MapControl>
