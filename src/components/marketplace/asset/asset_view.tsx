@@ -1,4 +1,5 @@
-import ImageVideViewer from "~/components/wallete/Image_video_viewer";
+import Image from "next/image";
+import { twMerge } from "tailwind-merge";
 
 function AssetView({
   code,
@@ -7,29 +8,35 @@ function AssetView({
   code: string;
   thumbnail?: string | null;
 }) {
-  const color = "blue";
-  const logoBlueData = "logoBlueData";
-
   return (
     <>
       <div
-        className="absolute h-full w-full opacity-30"
-        style={{
-          backgroundColor: color,
-        }}
+        className="absolute m-0 h-full w-full bg-secondary p-0 opacity-30 "
+        style={
+          {
+            // backgroundColor: "red",
+          }
+        }
       />
-      <div className="flex flex-col space-y-2 ">
-        <div className="avatar ">
-          <div className="relative w-24 rounded-full">
-            <ImageVideViewer
-              blurData={logoBlueData}
-              code={code}
-              url={thumbnail ?? "https://picsum.photos/100"}
-              sizes="100%"
+      <div className="flex flex-col gap-4">
+        <div className="avatar m-0   rounded-xl bg-green-200 p-0">
+          <div className="h-40 w-full rounded-xl  ">
+            <Image
+              height={1000}
+              width={1000}
+              alt={code}
+              style={{
+                // backgroundColor: "red" ?? undefined,
+                height: "100%",
+
+                width: "100%",
+              }}
+              className={twMerge("")}
+              src={thumbnail ?? "https://picsum.photos/200/300"}
             />
           </div>
         </div>
-        <p>{code}</p>
+        <p className="font-bold">{code}</p>
       </div>
     </>
   );

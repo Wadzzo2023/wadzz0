@@ -4,6 +4,7 @@ import { Skeleton } from "package/connect_wallet/src/shadcn/ui/skeleton";
 import toast from "react-hot-toast";
 import { Preview } from "~/components/preview";
 import { Button } from "~/components/shadcn/ui/button";
+import ImageVideViewer from "~/components/wallete/Image_video_viewer";
 import { useBountyRightStore } from "~/lib/state/bounty/use-bounty-store";
 import { usePopUpState } from "~/lib/state/right-pop";
 import { useUserStellarAcc } from "~/lib/state/wallete/stellar-balances";
@@ -41,14 +42,22 @@ const BountyRightBar = () => {
       <div className="scrollbar-style relative h-full w-full overflow-y-auto rounded-xl">
         <div className="flex h-full flex-col justify-between space-y-2 p-2">
           <div className="flex h-full flex-col gap-2 ">
+            <div className="avatar relative w-full rounded-xl border-4 border-base-100 ">
+              <div className="relative m-8 w-full ">
+                <ImageVideViewer
+                  code={"Bounty"}
+                  url={currentData.imageUrls[0] ?? "/images/logo.png"}
+                  blurData={"noting"}
+                />
+              </div>
+            </div>
             <div className="relative flex-1 space-y-2 rounded-xl border-4 border-base-100 p-4 text-sm tracking-wider">
               <div className="flex flex-col gap-2">
-                <p>
-                  <span className="font-semibold uppercase">Title:</span>{" "}
-                  {currentData.title}
+                <p className="font-semibold uppercase">
+                  <span>Title:</span> {currentData.title}
                 </p>
 
-                <p className="line-clamp-2 ">
+                <p className="font-semibold ">
                   <b className="uppercase">Description: </b>
                   <Preview value={currentData.description} />
                 </p>

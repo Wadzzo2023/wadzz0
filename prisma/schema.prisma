@@ -38,6 +38,15 @@ enum NotificationType {
     SHOP_ASSET
     FOLLOW
     REPLY
+    BOUNTY
+    BOUNTY_PARTICIPANT
+    BOUNTY_SUBMISSION
+    BOUNTY_COMMENT
+    BOUNTY_REPLY
+    BOUNTY_WINNER
+    BOUNTY_DOUBT
+    BOUNTY_DOUBT_CREATE
+    BOUNTY_DOUBT_REPLY
 }
 
 // it is kinda notification actor and the entity that is being acted upon
@@ -271,6 +280,8 @@ model User {
     BountySubmission         BountySubmission[]
     BountyComment            BountyComment[]
     Bounty                   Bounty[]
+    BountyDoubt              BountyDoubt[]
+    BountyDoubtMessage       BountyDoubtMessage[]
 }
 
 model VerificationToken {
@@ -470,6 +481,8 @@ model Location {
     isActive Boolean // just an field
     image    String?
 
+    link String?
+
     limit Int // how many person can claim the Location / pin
 
     creatorId String
@@ -509,27 +522,58 @@ model LocationConsumer {
 }
 
 model Bounty {
-    id              Int          @id @default(autoincrement())
+    id              Int                 @id @default(autoincrement())
     title           String
     description     String
     priceInUSD      Float
     priceInBand     Float
     requiredBalance Float
     imageUrls       String[]
-    createdAt       DateTime     @default(now())
+    createdAt       DateTime            @default(now())
     endDate         DateTime?
-    status          BountyStatus @default(PENDING)
+    status          BountyStatus        @default(PENDING)
     creatorId       String
-    creator         Creator      @relation(fields: [creatorId], references: [id], onDelete: Cascade)
-
-    participants BountyParticipant[] // Users who join the bounty
-    comments     BountyComment[] // Comments on the bounty
-    submissions  BountySubmission[] // Submissions to the bounty
+    creator         Creator             @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+    isSwaped        Boolean?            @default(false)
+    participants    BountyParticipant[] // Users who join the bounty
+    comments        BountyComment[] // Comments on the bounty
+    submissions     BountySubmission[] // Submissions to the bounty
+    doubts          BountyDoubt[]
     // New field to reference the winner
-    winnerId     String? // Optional: Can be null until a winner is selected
-    winner       User?               @relation(fields: [winnerId], references: [id], onDelete: SetNull)
+    winnerId        String? // Optional: Can be null until a winner is selected
+    winner          User?               @relation(fields: [winnerId], references: [id], onDelete: SetNull)
+
+    xdr String?
 
     @@index([title, description])
+}
+
+model BountyDoubt {
+    id        Int                  @id @default(autoincrement())
+    bountyId  Int
+    bounty    Bounty               @relation(fields: [bountyId], references: [id], onDelete: Cascade)
+    userId    String // The user who asked the doubt
+    user      User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+    updatedAt DateTime?            @updatedAt
+    createdAt DateTime             @default(now())
+    messages  BountyDoubtMessage[] // Relationship for messages between user and creator
+}
+
+model BountyDoubtMessage {
+    id        Int         @id @default(autoincrement())
+    doubtId   Int
+    doubt     BountyDoubt @relation(fields: [doubtId], references: [id], onDelete: Cascade)
+    senderId  String
+    sender    User        @relation(fields: [senderId], references: [id], onDelete: Cascade)
+    role      UserRole    @default(USER)
+    content   String
+    createdAt DateTime    @default(now())
+    updatedAt DateTime?   @updatedAt
+}
+
+enum UserRole {
+    USER
+    CREATOR
 }
 
 model BountyParticipant {
@@ -546,15 +590,26 @@ model BountyParticipant {
 }
 
 model BountySubmission {
-    id       Int    @id @default(autoincrement())
-    bountyId Int
-    bounty   Bounty @relation(fields: [bountyId], references: [id], onDelete: Cascade)
+    id        Int                    @id @default(autoincrement())
+    bountyId  Int
+    bounty    Bounty                 @relation(fields: [bountyId], references: [id], onDelete: Cascade)
+    userId    String
+    user      User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+    content   String
+    medias    SubmissionAttachment[]
+    createdAt DateTime               @default(now())
+    status    SubmissionViewType     @default(UNCHECKED)
+}
 
-    userId        String
-    user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-    content       String
-    attachmentUrl String[] // URL of the attachment submitted by the user
-    createdAt     DateTime @default(now())
+model SubmissionAttachment {
+    id           Int              @id @default(autoincrement())
+    submissionId Int
+    submission   BountySubmission @relation(fields: [submissionId], references: [id], onDelete: Cascade) // Add this relation field
+    url          String
+    name         String
+    size         Int
+    type         String
+    createdAt    DateTime         @default(now())
 }
 
 model BountyComment {
@@ -575,6 +630,14 @@ model BountyComment {
 
 enum BountyStatus {
     PENDING
+    APPROVED
+    REJECTED
+}
+
+enum SubmissionViewType {
+    UNCHECKED
+    CHECKED
+    ONREVIEW
     APPROVED
     REJECTED
 }

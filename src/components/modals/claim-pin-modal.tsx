@@ -107,7 +107,7 @@ const ClaimPinModal = () => {
                             try {
                               await api
                                 .useUtils()
-                                .maps.pin.getConsumedLocated.invalidate();
+                                .maps.pin.getAUserConsumedPin.invalidate();
                             } catch (e) {
                               console.log(e);
                             }

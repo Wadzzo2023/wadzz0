@@ -15,6 +15,15 @@ import {
   sortOptionEnum,
   statusFilterEnum,
 } from "~/components/fan/creator/bounty/BountyList";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "~/components/shadcn/ui/card";
+import { Badge } from "~/components/shadcn/ui/badge";
+import { Award } from "lucide-react";
 
 const Bounty = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -116,14 +125,12 @@ const Bounty = () => {
           </div>
         </div>
       </div>
-      <div className="flex flex-col gap-2">
-        {getAllBounty.data &&
-        getAllBounty.data.pages[0]?.bounties.length === 0 ? (
-          <p className="w-full text-center text-xl">There is no Bounty yet!!</p>
-        ) : (
-          <></>
-        )}
 
+      <div className="grid grid-flow-row grid-cols-1 gap-6 md:grid-cols-2 	">
+        {getAllBounty.data &&
+          getAllBounty.data.pages[0]?.bounties.length === 0 && (
+            <p className="w-full text-center">There is no page asset yet</p>
+          )}
         {getAllBounty.data?.pages.map((page) => (
           <>
             {page.bounties.map((bounty) => (
@@ -137,106 +144,89 @@ const Bounty = () => {
                     }
                   }}
                 >
-                  <div className="relative  block overflow-hidden rounded-lg border border-slate-100 bg-white p-8 shadow-xl">
-                    <div className="justify-between sm:flex">
-                      <div>
-                        <h5 className="text-xl font-bold text-slate-900">
-                          {bounty.title}
-                        </h5>
-                        <p className="mt-1 text-xs font-medium text-slate-600">
-                          By {bounty.creator.name}
-                        </p>
-                        <p className="mt-1 text-xs font-medium text-slate-600">
-                          Winner:{" "}
-                          {bounty.winner?.name ? (
-                            <span className="me-2 rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-medium text-red-800 dark:bg-red-900 dark:text-red-300">
-                              {bounty.winner.name}
-                            </span>
-                          ) : (
-                            <span className="me-2 rounded-full bg-purple-100 px-2.5 py-0.5 text-xs font-medium text-purple-800 dark:bg-purple-900 dark:text-purple-300">
-                              NOT ANNOUNCED
-                            </span>
+                  <Card
+                    key={bounty.id}
+                    className="flex  max-h-[480px] min-h-[480px] flex-col "
+                  >
+                    <CardHeader>
+                      <div className="relative">
+                        <Image
+                          src={bounty.imageUrls[0] ?? "/images/logo.png"}
+                          alt={bounty.title}
+                          width={200}
+                          height={100}
+                          className="h-40 w-full rounded-t-lg object-cover"
+                        />
+                        <Badge
+                          variant={
+                            bounty.status === "APPROVED"
+                              ? "default"
+                              : "destructive"
+                          }
+                          className="absolute right-2 top-2"
+                        >
+                          {bounty.status === "APPROVED"
+                            ? "Approved"
+                            : "Pending"}
+                        </Badge>
+                      </div>
+                      <CardTitle className="mt-4">{bounty.title}</CardTitle>
+                    </CardHeader>
+                    <CardContent className="flex-grow">
+                      <div className="mb-4">
+                        <span className="font-semibold">Prize Pool:</span>{" "}
+                        {bounty.priceInUSD} USD ({bounty.priceInBand.toFixed(3)}{" "}
+                        {PLATFORM_ASSET.code})
+                      </div>
+                      <div className="max-h-[85px] min-h-[85px]">
+                        <span className="font-semibold ">Requirements:</span>
+                        <ul className="mt-2 list-inside list-disc">
+                          {<Preview value={bounty.description.slice(0, 100)} />}
+                        </ul>
+                      </div>
+                    </CardContent>
+                    <CardFooter className="flex items-center justify-between">
+                      <div className="flex items-center">
+                        <Badge variant="secondary" className="mr-2">
+                          {bounty._count.participants} participants
+                        </Badge>
+                        <div className="flex items-center justify-between">
+                          <Badge
+                            variant={bounty.winner ? "destructive" : "default"}
+                          >
+                            {bounty.winner ? "Finished" : "Active"}
+                          </Badge>
+                          {bounty.winner && (
+                            <div className="flex items-center">
+                              <Award className="mr-1 h-4 w-4 text-yellow-500" />
+                              <span className="mr-2 text-sm font-medium">
+                                Winner:
+                              </span>
+
+                              <span className="text-sm">
+                                {bounty.winner.name}
+                              </span>
+                            </div>
                           )}
-                        </p>
-                      </div>
-
-                      <div className="ml-3 hidden flex-shrink-0 sm:block">
-                        {bounty.imageUrls && (
-                          <Image
-                            src={bounty.imageUrls[0] ?? "/images/logo.png"}
-                            height={1000}
-                            width={1000}
-                            alt=""
-                            className="h-16 w-16 rounded-lg object-cover shadow-sm"
-                          />
-                        )}
-                      </div>
-                    </div>
-
-                    <div className=" ">
-                      <p className="min-h-[100px] text-sm text-slate-500">
-                        <Preview value={bounty.description.slice(0, 200)} />
-                      </p>
-                    </div>
-
-                    <dl className="mt-6 flex flex-col justify-between gap-2 md:flex-row  ">
-                      <div className="flex flex-col-reverse border-b-2 md:border-none">
-                        <dt className="text-sm font-medium uppercase text-slate-600">
-                          Published
-                        </dt>
-                        <dd className="text-xs text-slate-500">
-                          {format(new Date(bounty.createdAt), "MM/dd/yyyy")}
-                        </dd>
-                      </div>
-                      <div className="flex flex-col-reverse border-b-2  md:border-none">
-                        <dt className="text-sm font-medium uppercase text-slate-600">
-                          Status
-                        </dt>
-                        {bounty.status === "PENDING" ? (
-                          <div className="relative grid select-none items-center whitespace-nowrap rounded-md bg-indigo-500/20 px-2 py-1 font-sans text-xs font-bold uppercase text-indigo-900">
-                            <span className="">{bounty.status}</span>
-                          </div>
-                        ) : bounty.status === "APPROVED" ? (
-                          <div className="relative grid select-none items-center whitespace-nowrap rounded-md bg-green-500/20 px-2 py-1 font-sans text-xs font-bold uppercase text-green-900">
-                            <span className="">{bounty.status}</span>
-                          </div>
-                        ) : (
-                          <div className="relative grid select-none items-center whitespace-nowrap rounded-md bg-red-500/20 px-2 py-1 font-sans text-xs font-bold uppercase text-red-900">
-                            <span className="">{bounty.status}</span>
-                          </div>
-                        )}
-                      </div>
-                      <div className=" flex-col-reverse border-b-2  md:border-none">
-                        <dt className="text-sm font-medium uppercase text-slate-600">
-                          Total Participants
-                        </dt>
-                        <dd className="text-xs text-slate-500">
-                          {bounty._count.participants}
-                        </dd>
-                      </div>
-                      <div className="relative  bg-gradient-to-r from-blue-500 via-teal-500 to-pink-500 bg-clip-text    text-transparent">
-                        <div>Prize in USD : ${bounty.priceInUSD}</div>
-                        <div>
-                          Prize in {PLATFORM_ASSET.code}: {bounty.priceInBand}{" "}
                         </div>
                       </div>
-                    </dl>
-                  </div>
+                    </CardFooter>
+                  </Card>
                 </div>
               </>
             ))}
           </>
         ))}
-        <div className="mt-5">
-          {getAllBounty.hasNextPage && (
-            <button
-              className="btn btn-outline btn-primary"
-              onClick={() => void getAllBounty.fetchNextPage()}
-            >
-              Load More
-            </button>
-          )}
-        </div>
+      </div>
+      <div className="mt-5">
+        {getAllBounty.hasNextPage && (
+          <button
+            className="btn btn-outline btn-primary"
+            onClick={() => void getAllBounty.fetchNextPage()}
+          >
+            Load More
+          </button>
+        )}
       </div>
     </div>
   );

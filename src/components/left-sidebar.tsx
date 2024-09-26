@@ -7,6 +7,7 @@ import { HomeIcon, Settings2, Diamond, Bell } from "lucide-react";
 import Image from "next/image";
 import { cn } from "~/utils/utils";
 import { env } from "~/env";
+import { useDrawerOpenStore } from "~/lib/state/fan/drawer_open";
 
 export const LeftNavigation = {
   Home: { path: "/", icon: HomeIcon, text: "HOMEPAGE" },
@@ -31,11 +32,11 @@ export default function LeftBar({ className }: { className?: string }) {
   return (
     <div
       className={cn(
-        "flex h-full max-h-screen w-80 flex-col items-center justify-between gap-4 overflow-auto bg-base-100/80 px-4 pb-4 scrollbar-hide lg:pt-5",
+        "flex h-full max-h-screen w-80 flex-col items-center justify-between gap-4 overflow-hidden overflow-y-auto bg-base-100/80 px-4 pb-4 scrollbar-hide ",
         className,
       )}
     >
-      <div className="flex h-full w-full flex-1 flex-col items-center justify-between gap-2 overflow-auto">
+      <div className="flex h-full w-full flex-1 flex-col items-center justify-between gap-2 overflow-hidden overflow-y-auto">
         <div className="mt-7  w-full flex-1">
           <NavigationButtons />
         </div>
@@ -48,13 +49,20 @@ export default function LeftBar({ className }: { className?: string }) {
 }
 
 function NavigationButtons() {
+  const { setIsOpen } = useDrawerOpenStore();
   return (
     <div className="flex h-full min-h-full flex-col justify-between gap-2">
       <div className="flex  flex-col  gap-2">
         {Object.entries(LeftNavigation).map(
           ([key, { path, icon: Icon, text }]) => (
-            <Link href={path} className="w-full" key={key}>
+            <Link
+              href={path}
+              className="w-full"
+              key={key}
+              onClick={() => setIsOpen(false)}
+            >
               <Button
+                className=""
                 path={path}
                 icon={<Icon className="h-5 w-5" />}
                 text={text}

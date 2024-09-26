@@ -32,7 +32,11 @@ import {
 import Alert from "~/components/ui/alert";
 import useNeedSign from "~/lib/hook";
 import { useUserStellarAcc } from "~/lib/state/wallete/stellar-balances";
-import { PLATFORM_ASSET } from "~/lib/stellar/constant";
+import {
+  PLATFORM_ASSET,
+  PLATFORM_FEE,
+  TrxBaseFeeInPlatformAsset,
+} from "~/lib/stellar/constant";
 import { clientSelect } from "~/lib/stellar/fan/utils";
 import { api } from "~/utils/api";
 import { UploadButton } from "~/utils/uploadthing";
@@ -52,6 +56,7 @@ export const BountySchema = z.object({
     .number()
     .nonnegative({ message: "Required Balance can't be less than 0" })
     .optional(),
+
   content: z.string().min(2, { message: "Description can't be empty" }),
   medias: z.array(MediaInfo).optional(),
 });
@@ -67,6 +72,8 @@ const CreateBounty = () => {
   const [prizeInAsset, setPrizeInAsset] = useState<number>(0);
   const { platformAssetBalance } = useUserStellarAcc();
   const [isDialogOpen, setIsDialogOpen] = useState(false); // State to control modal
+  const totalAmount =
+    2 * Number(TrxBaseFeeInPlatformAsset) + Number(PLATFORM_FEE);
 
   // console.log("platformAssetBalance", platformAssetBalance);
   const {
@@ -175,7 +182,7 @@ const CreateBounty = () => {
         <Alert
           className="flex  items-center justify-center"
           type="error"
-          content={`You don't have Sufficient Balance ,To create storage account, you need minimum ${RequiredBalance} ${PLATFORM_ASSET.code} `}
+          content={`You don't have Sufficient Balance ,To create bounty , you need minimum ${RequiredBalance} ${PLATFORM_ASSET.code} `}
         />
       ) : (
         <div className="flex  w-full  justify-center">
@@ -296,12 +303,14 @@ const CreateBounty = () => {
                         )}
                       </label>
                     </div>
+
                     <label className=" mb-1 w-full text-xs tracking-wide text-gray-600 sm:text-sm">
                       Required Balance to Join this Bounty in{" "}
                       {PLATFORM_ASSET.code}
                       <input
                         readOnly={loading}
                         type="number"
+                        step={0.00001}
                         {...register("requiredBalance", {
                           valueAsNumber: true,
                         })}
@@ -337,10 +346,10 @@ const CreateBounty = () => {
                   </div>
                 </div>{" "}
                 <CardFooter className="flex justify-between">
-                  {platformAssetBalance < prizeInAsset ? (
+                  {platformAssetBalance < prizeInAsset + totalAmount ? (
                     <Alert
                       type="error"
-                      content={`You don't have Sufficient Balance ,To  create this bounty, you need minimum ${prizeInAsset} ${PLATFORM_ASSET.code},`}
+                      content={`You don't have Sufficient Balance ,To  create this bounty, you need minimum ${prizeInAsset + totalAmount} ${PLATFORM_ASSET.code},`}
                     />
                   ) : (
                     <div className="flex flex-col gap-2">
@@ -377,7 +386,7 @@ const CreateBounty = () => {
                                     Fees
                                   </dt>
                                   <dd className="text-base font-medium text-green-500">
-                                    5800 {PLATFORM_ASSET.code}
+                                    {totalAmount} {PLATFORM_ASSET.code}
                                   </dd>
                                 </dl>
 
@@ -386,7 +395,8 @@ const CreateBounty = () => {
                                     Total
                                   </dt>
                                   <dd className="text-base font-bold text-gray-900 dark:text-white">
-                                    {prizeInAsset + 5800} {PLATFORM_ASSET.code}
+                                    {prizeInAsset + totalAmount}{" "}
+                                    {PLATFORM_ASSET.code}
                                   </dd>
                                 </dl>
                               </div>
@@ -416,7 +426,7 @@ const CreateBounty = () => {
                       <Alert
                         type="success"
                         content={`
-                          Note: You will be charged ${prizeInAsset + 5800} ${PLATFORM_ASSET.code} to create this bounty
+                          Note: You will be charged ${prizeInAsset + totalAmount} ${PLATFORM_ASSET.code} to create this bounty
                           `}
                       />
                     </div>

@@ -9,7 +9,7 @@ export default function Logo({ className }: { className?: string }) {
       className="flex cursor-alias items-center justify-center gap-2  "
     >
       <div className="btn btn-ghost">
-        <div className="relative h-12 w-11">
+        <div className="relative hidden h-12 w-11 md:flex">
           <Image fill={true} alt="logo" src="/images/logo.png" />
         </div>
         <h1

@@ -170,8 +170,8 @@ export const payRouter = createTRPCRouter({
     const tokenNumber = await getPlatformTokenNumberForUSD(1);
     // console.log(tokenNumber, "ih..");
 
-    const offers = [5, 10, 15, 20].map((price) => {
-      const num = Math.round(tokenNumber * price);
+    const offers = [4.99, 9.99, 14.99, 19.99].map((price) => {
+      const num = Math.round((price + 0.01) * 100);
       return {
         price,
         num,

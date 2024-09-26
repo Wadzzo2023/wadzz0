@@ -19,14 +19,14 @@ export default function MarketplacePage() {
 function RenderTabs() {
   const { selectedMenu } = useMarketMenu();
   switch (selectedMenu) {
-    case MarketMenu.Wallate:
+    case "Wallet":
       return <WallateNFTs />;
-    case MarketMenu.Music:
+    case "Music":
       return <MusicAssetNfts />;
 
-    case MarketMenu.FanAsset:
+    case "FanAsset":
       return <FanAssetNfts />;
-    case MarketMenu.Trade:
+    case "Trade":
       return <TradeMarket />;
   }
 }
@@ -36,23 +36,24 @@ function MarketTabs() {
   const { setData } = useMarketRightStore();
   return (
     <div role="tablist" className="tabs-boxed tabs my-5 ">
-      {Object.values(MarketMenu).map((key) => {
-        if (key == MarketMenu.Music) return null; // for wadzzo
+      {Object.keys(MarketMenu).map((key) => {
+        if (MarketMenu[key as keyof typeof MarketMenu] === MarketMenu.Music)
+          return null; // for wadzzo
         return (
           <a
             key={key}
             onClick={() => {
-              setSelectedMenu(key);
+              setSelectedMenu(key as keyof typeof MarketMenu);
               setData(undefined);
             }}
             role="tab"
             className={clsx(
               "tab",
-              selectedMenu == key && "tab-active text-primary",
+              selectedMenu === key && "tab-active text-primary",
               "font-bold",
             )}
           >
-            {key}
+            {MarketMenu[key as keyof typeof MarketMenu]}
           </a>
         );
       })}

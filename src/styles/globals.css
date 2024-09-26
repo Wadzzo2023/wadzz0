@@ -103,6 +103,7 @@
   }
 }
 
+
 .gradient-background {
   background: linear-gradient(
     180deg,
@@ -123,6 +124,7 @@ body {
   -o-background-size: cover;
   background-size: cover;
 }
+
 
 #ihx {
   background: url("/images/guitar.svg");

@@ -20,7 +20,8 @@ import {
   DialogTrigger,
 } from "~/components/shadcn/ui/dialog";
 import { Button } from "../shadcn/ui/button";
-import { set } from "lodash";
+
+import { PLATFORM_ASSET } from "~/lib/stellar/constant";
 
 export type AssetType = Omit<Asset, "issuerPrivate">;
 
@@ -48,7 +49,7 @@ export function AssetDetails({
 }: {
   currentData: MarketAssetType;
 }) {
-  const color = "blue";
+  const color = "#7ec34e";
   return (
     <div className=" h-full w-full">
       <div className="scrollbar-style relative h-full w-full overflow-y-auto rounded-xl">
@@ -67,7 +68,6 @@ export function AssetDetails({
                 mediaUrl={currentData.asset.mediaUrl}
                 thumbnailUrl={currentData.asset.thumbnail}
                 name={currentData.asset.name}
-                color={color}
               />
             </div>
 
@@ -96,12 +96,12 @@ export function AssetDetails({
 
                 <p>
                   <span className="font-semibold">
-                    Price: {currentData.price}{" "}
+                    Price: {currentData.price} {PLATFORM_ASSET.code}
                   </span>
                 </p>
                 {currentData.placerId && (
                   <p>
-                    <b>Seller</b>: {addrShort(currentData.placerId, 5)}
+                    <b>Seller</b>: <SellerInfo id={currentData.placerId} />
                   </p>
                 )}
                 <p>
@@ -122,8 +122,14 @@ export function AssetDetails({
   );
 }
 
+function SellerInfo({ id }: { id: string }) {
+  const seller = api.fan.user.getUserById.useQuery(id);
+  if (seller.isLoading) return <span>{addrShort(id, 5)}</span>;
+
+  if (seller.data) return <span>{seller.data.name}</span>;
+}
+
 export function TokenCopies({ id }: { id: number }) {
-  const { currentData } = useMarketRightStore();
   const copy = api.marketplace.market.getMarketAssetAvailableCopy.useQuery({
     id,
   });
@@ -192,24 +198,61 @@ export function DisableFromMarketButton({
     },
   });
 
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
   return (
-    <button
-      className="btn btn-primary btn-sm my-2 w-full transition duration-500 ease-in-out"
-      onClick={() => disable.mutate({ code, issuer })}
-    >
-      {disable.isLoading && <span className="loading loading-spinner" />}
-      DISABLE
-    </button>
+    <div className="flex flex-col gap-2">
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogTrigger asChild>
+          <button className="btn btn-primary btn-sm my-2 w-full transition duration-500 ease-in-out">
+            {disable.isLoading && <span className="loading loading-spinner" />}
+            DISABLE
+          </button>
+        </DialogTrigger>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Confirmation </DialogTitle>
+          </DialogHeader>
+          <div className="mt-6 w-full space-y-6 sm:mt-8 lg:mt-0 lg:max-w-xs xl:max-w-md">
+            <div className="flow-root">
+              <div className="-my-3 divide-y divide-gray-200 dark:divide-gray-800">
+                <dl className="flex items-center justify-between gap-4 py-3">
+                  <dd className="text-base font-medium text-gray-900 dark:text-white">
+                    Do you want to disable this item from the market?
+                  </dd>
+                </dl>
+              </div>
+            </div>
+          </div>
+          <DialogFooter className=" w-full">
+            <div className="flex w-full gap-4  ">
+              <DialogClose className="w-full">
+                <Button variant="outline" className="w-full">
+                  Cancel
+                </Button>
+              </DialogClose>
+              <Button
+                disabled={disable.isLoading}
+                variant="destructive"
+                type="submit"
+                onClick={() => disable.mutate({ code, issuer })}
+                className="w-full"
+              >
+                Confirm
+              </Button>
+            </div>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
   );
 }
 
 function MediaViewer(props: {
-  color: string;
+  // color: string;
   thumbnailUrl: string;
   mediaUrl: string;
   name: string;
 }) {
-  const { color } = props;
   const { thumbnailUrl, mediaUrl, name } = props;
   // const thumbnailUrl = "https://picsum.photos/200/200";
   // const name = "vog";
@@ -288,7 +331,6 @@ function ThumbNailView(props: { name: string; thumbnailUrl: string }) {
         sizes="100%"
         className="h-full w-full"
         code={name}
-        color={"blue"}
         url={thumbnailUrl}
         blurData={"hi"}
       />

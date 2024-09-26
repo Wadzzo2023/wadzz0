@@ -115,6 +115,7 @@ function App() {
                   long: pin.longitude,
                   lat: pin.latitude,
                   mapTitle: pin.title,
+                  image: pin.image ?? undefined,
                   mapDescription: pin?.description,
                 });
                 setIsAutoCollect(pin.autoCollect); // Set isAutoCollect to true when a pin is clicked

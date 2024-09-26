@@ -1,7 +1,18 @@
-import QRCode from "react-qr-code";
-import { useModal } from "../hooks/use-modal-store";
-import CopyToClip from "../wallete/copy_to_Clip";
-import { Button } from "../shadcn/ui/button";
+import {
+  CheckCheck,
+  Copy,
+  Edit3,
+  Loader2,
+  Scissors,
+  ShieldBan,
+  ShieldCheck,
+  Trash2,
+} from "lucide-react";
+import { useSession } from "next-auth/react";
+import Image from "next/image";
+import React from "react";
+import toast from "react-hot-toast";
+import { Button } from "~/components/shadcn/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -9,26 +20,13 @@ import {
   DialogHeader,
   DialogTitle,
 } from "~/components/shadcn/ui/dialog";
-import { useSession } from "next-auth/react";
-import { addrShort } from "~/utils/utils";
 import { api } from "~/utils/api";
-import toast from "react-hot-toast";
-import {
-  CircleOff,
-  Copy,
-  LayersIcon,
-  Scissors,
-  ScissorsSquare,
-  ShieldBan,
-  ShieldCheck,
-  ShieldMinus,
-  Trash2,
-} from "lucide-react";
-import { ExclamationTriangleIcon } from "@heroicons/react/24/solid";
-import { useState } from "react";
-import { set } from "date-fns";
+import { useModal } from "../hooks/use-modal-store";
 
-const MapModal = () => {
+import { Input } from "~/components/shadcn/ui/input";
+import { UploadButton } from "~/utils/uploadthing";
+
+const MapModalComponent = () => {
   const {
     isOpen,
     onClose,
@@ -39,12 +37,15 @@ const MapModal = () => {
     isAutoCollect,
     setIsPinCut,
   } = useModal();
+  const [isForm, setIsForm] = React.useState(false);
   // console.log(data.long, data.lat, data.pinId);
   const session = useSession();
   const isModalOpen = isOpen && type === "map";
   const handleClose = () => {
     onClose();
   };
+
+  // const []= useState()
 
   const ToggleAutoCollectMutation = api.maps.pin.toggleAutoCollect.useMutation({
     onSuccess: (data) => {
@@ -125,52 +126,199 @@ const MapModal = () => {
   if (!session?.data?.user?.id) {
     return <div>Public Key not found</div>;
   }
-  return (
-    <>
-      <Dialog open={isModalOpen} onOpenChange={handleClose}>
-        <DialogContent className="overflow-hidden p-0">
-          <DialogHeader className="px-6 pt-8">
-            <DialogTitle className="text-center text-2xl font-bold">
-              {data?.mapTitle}
-              <div className="text-sm">
-                {data.mapDescription && (
-                  <div className="text-xs">{data.mapDescription}</div>
-                )}
-                <div>Long: {data?.long}</div>
-                <div>Lat: {data?.lat}</div>
-              </div>
-            </DialogTitle>
-          </DialogHeader>
-          <div className="mt-4 flex flex-col items-center justify-center md:mt-0">
-            <Button className="m-1 w-1/2 " onClick={handleCutPin}>
-              <Scissors size={15} className="mr-2" /> Cut Pin
-            </Button>
-            <Button className="m-1 w-1/2 " onClick={handleCopyPin}>
-              <Copy size={15} className="mr-2" /> Copy Pin
-            </Button>
-            {isAutoCollect ? (
-              <Button
-                className="m-1 w-1/2 "
-                onClick={() => handleToggleAutoCollect(data.pinId)}
-              >
-                <ShieldCheck size={15} className="mr-2" /> Disable Auto Collect
+
+  if (data)
+    return (
+      <>
+        <Dialog open={isModalOpen} onOpenChange={handleClose}>
+          <DialogContent className="overflow-hidden p-0">
+            <>
+              <DialogHeader className="px-6 pt-8">
+                <DialogTitle className="flex items-center justify-center gap-2  ">
+                  <h2 className="text-center text-2xl font-bold">
+                    {data?.mapTitle}{" "}
+                  </h2>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={() => setIsForm(!isForm)}
+                  >
+                    <Edit3 />
+                  </Button>
+                </DialogTitle>
+              </DialogHeader>
+              {isForm && data.pinId ? (
+                <PinInfoUpdate
+                  id={data.pinId}
+                  image={data.image}
+                  description={data.mapDescription ?? "Description"}
+                  title={data.mapTitle ?? "No Title"}
+                />
+              ) : (
+                <PinInfo data={data} />
+              )}
+            </>
+            <div className="mt-4 flex flex-col items-center justify-center md:mt-0">
+              <Button className="m-1 w-1/2 " onClick={handleCutPin}>
+                <Scissors size={15} className="mr-2" /> Cut Pin
               </Button>
-            ) : (
-              <Button
-                className="m-1 w-1/2 "
-                onClick={() => handleToggleAutoCollect(data.pinId)}
-              >
-                <ShieldBan size={15} className="mr-1" /> Enable Auto Collect
+              <Button className="m-1 w-1/2 " onClick={handleCopyPin}>
+                <Copy size={15} className="mr-2" /> Copy Pin
               </Button>
-            )}
-            <Button className="m-1 w-1/2 " onClick={handleDelete}>
-              <Trash2 size={15} className="mr-2" /> Delete Pin
-            </Button>
-          </div>
-          <DialogFooter className=" px-6 py-4"></DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </>
-  );
+              {isAutoCollect ? (
+                <Button
+                  className="m-1 w-1/2 "
+                  onClick={() => handleToggleAutoCollect(data.pinId)}
+                >
+                  <ShieldCheck size={15} className="mr-2" /> Disable Auto
+                  Collect
+                </Button>
+              ) : (
+                <Button
+                  className="m-1 w-1/2 "
+                  onClick={() => handleToggleAutoCollect(data.pinId)}
+                >
+                  <ShieldBan size={15} className="mr-1" /> Enable Auto Collect
+                </Button>
+              )}
+              <Button className="m-1 w-1/2 " onClick={handleDelete}>
+                <Trash2 size={15} className="mr-2" /> Delete Pin
+              </Button>
+            </div>
+            <DialogFooter className=" px-6 py-4"></DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </>
+    );
 };
-export default MapModal;
+export default MapModalComponent;
+
+function PinInfo({
+  data,
+}: {
+  data: {
+    mapDescription?: string | null;
+    long?: number;
+    lat?: number;
+    image?: string;
+  };
+}) {
+  return (
+    <div className="flex flex-col items-center">
+      {data.mapDescription && (
+        <div className="text-sm">{data.mapDescription}</div>
+      )}
+      <div>Long: {data.long}</div>
+      <div>Lat: {data.lat}</div>
+      <div className="flex justify-center">
+        {data.image && (
+          <Image
+            src={data.image}
+            alt="image"
+            width={200}
+            height={200}
+            className="rounded-lg"
+          />
+        )}
+      </div>
+    </div>
+  );
+}
+
+function PinInfoUpdate({
+  image,
+  description,
+  title,
+  id,
+}: {
+  image?: string;
+  title: string;
+  description: string;
+  id: number;
+}) {
+  const [coverUrl, setCover] = React.useState(image);
+  const [titleE, setTitle] = React.useState(title);
+  const [descriptionE, setDescription] = React.useState(description);
+  const { data, updateData } = useModal();
+
+  const utils = api.useUtils();
+
+  const update = api.maps.pin.updatePin.useMutation({
+    onSuccess: async () => {
+      // toast.success("Pin updated successfully");
+      updateData({
+        ...data,
+        mapTitle: titleE,
+        mapDescription: descriptionE,
+        image: coverUrl,
+      });
+
+      await utils.maps.pin.getMyPins.refetch();
+    },
+  });
+
+  return (
+    <div className="m-auto max-w-sm rounded bg-slate-200 p-3">
+      <Input
+        className="mb-2"
+        placeholder="Edit Title"
+        value={titleE}
+        onChange={(e) => setTitle(e.target.value)}
+      />
+      <Input
+        className="mb-2"
+        placeholder="Edit Description"
+        value={descriptionE}
+        onChange={(e) => setDescription(e.target.value)}
+      />
+
+      <div className="mt ">
+        <UploadButton
+          endpoint="imageUploader"
+          content={{
+            button: "Add Cover",
+            allowedContent: "Max (4MB)",
+          }}
+          onClientUploadComplete={(res) => {
+            const data = res[0];
+
+            if (data?.url) {
+              setCover(data.url);
+            }
+          }}
+          onUploadError={(error: Error) => {
+            alert(`ERROR! ${error.message}`);
+          }}
+        />
+
+        {coverUrl && (
+          <>
+            <Image
+              className="p-2"
+              width={120}
+              height={120}
+              alt="preview image"
+              src={coverUrl}
+            />
+          </>
+        )}
+      </div>
+
+      <Button
+        disabled={update.isLoading || update.isSuccess}
+        className="m-1 w-full"
+        onClick={() => {
+          update.mutate({
+            pinId: id,
+            title: titleE,
+            description: descriptionE,
+            imgUrl: coverUrl,
+          });
+        }}
+      >
+        {update.isLoading && <Loader2 className="animate-spin" />}
+        {update.isSuccess && <CheckCheck className="mr-2" />} Update
+      </Button>
+    </div>
+  );
+}

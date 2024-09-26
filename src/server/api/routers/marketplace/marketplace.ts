@@ -15,7 +15,7 @@ import {
   adminProcedure,
   createTRPCRouter,
   protectedProcedure,
-  publicProcedure,
+
 } from "~/server/api/trpc";
 
 export const AssetSelectAllProperty = {

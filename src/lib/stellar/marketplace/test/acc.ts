@@ -112,7 +112,7 @@ export async function accountDetailsWithHomeDomain({
         if (balance.is_authorized) {
           const issuerAccount = await server.loadAccount(balance.asset_issuer);
           if (issuerAccount.home_domain) {
-            const copies = balaceToCopy(balance.balance);
+            const copies = balanceToCopy(balance.balance);
             if (copies > 0) {
               return {
                 code: balance.asset_code,
@@ -148,8 +148,11 @@ export async function accountDetailsWithHomeDomain({
   return { tokens: filteredBalances, xlmBalance, siteAssetBalance };
 }
 
-function balaceToCopy(balance: string): number {
-  return Math.floor(Number(balance) / Number(STROOP));
+function balanceToCopy(balance: string): number {
+  // prev implementation stroop = copy
+  // return Math.floor(Number(balance) / Number(STROOP));
+  // now 1 xlm = 1 copy
+  return Number(balance);
 }
 
 function copyToBalance(copy: number): string {

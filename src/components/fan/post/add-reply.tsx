@@ -35,9 +35,9 @@ export function AddReplyComment({
   };
 
   return (
-    <div className=" ">
+    <div className=" w-full">
       <form onSubmit={handleSubmit(onSubmit)}>
-        <label className="form-control ">
+        <label className="form-control w-full ">
           <div className="flex w-full  items-center gap-2">
             <textarea
               {...register("content")}

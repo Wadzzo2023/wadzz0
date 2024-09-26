@@ -5,6 +5,7 @@ import React, { useRef } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { z } from "zod";
 import { Editor } from "~/components/editor";
+import { Button } from "~/components/shadcn/ui/button";
 import { SubscriptionType } from "~/pages/fans/creator/[id]";
 import { api } from "~/utils/api";
 
@@ -17,7 +18,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "~/components/shadcn/ui/dialog";
-import { Button } from "~/components/shadcn/ui/button";
+
 import toast from "react-hot-toast";
 
 export const EditTierSchema = z.object({
@@ -96,74 +97,77 @@ export default function EditTierModal({ item }: { item: SubscriptionType }) {
             <h3 className="text-center text-lg font-bold">Edit</h3>
             <form
               onSubmit={handleSubmit(onSubmit)}
-              className="flex flex-col items-center  gap-2 rounded-md bg-base-300 py-8"
+              className="flex flex-col items-center  gap-2  py-8"
             >
-              <label className="form-control w-full max-w-xs">
-                <div className="label">
-                  <span className="label-text">Tier Name</span>
-                </div>
-                <input
-                  type="text"
-                  placeholder="Name of the tier"
-                  {...register("name")}
-                  className="input input-bordered w-full max-w-xs"
-                />
-                {errors.name && (
+              <div className="rounded-md">
+                <label className="form-control w-full max-w-md">
                   <div className="label">
-                    <span className="label-text-alt text-warning">
-                      {errors.name.message}
-                    </span>
+                    <span className="label-text">Tier Name</span>
                   </div>
-                )}
-              </label>
-              <label className="form-control w-full max-w-xs">
-                <div className="label">
-                  <span className="label-text">Price</span>
-                </div>
-                <input
-                  {...register("price", { valueAsNumber: true })}
-                  className="input input-bordered w-full max-w-xs"
-                  type="number"
-                  step="1"
-                  min="1"
-                  placeholder="Price"
-                ></input>
-                {errors.price && (
+                  <input
+                    type="text"
+                    placeholder="Name of the tier"
+                    {...register("name")}
+                    className="input input-bordered w-full max-w-xs"
+                  />
+                  {errors.name && (
+                    <div className="label">
+                      <span className="label-text-alt text-warning">
+                        {errors.name.message}
+                      </span>
+                    </div>
+                  )}
+                </label>
+                <label className="form-control w-full max-w-xs">
                   <div className="label">
-                    <span className="label-text-alt text-warning">
-                      {errors.price.message}
-                    </span>
+                    <span className="label-text">Price</span>
                   </div>
-                )}
-              </label>
-              <label className="form-control w-full max-w-xs">
-                <div className="label">
-                  <span className="label-text">Tier Features</span>
-                </div>
-                <Editor
-                  onChange={handleEditorChange}
-                  value={getValues("featureDescription")}
-                />
-                {errors.featureDescription && (
+                  <input
+                    {...register("price", { valueAsNumber: true })}
+                    className="input input-bordered w-full max-w-xs"
+                    type="number"
+                    step="1"
+                    min="1"
+                    placeholder="Price"
+                  ></input>
+                  {errors.price && (
+                    <div className="label">
+                      <span className="label-text-alt text-warning">
+                        {errors.price.message}
+                      </span>
+                    </div>
+                  )}
+                </label>
+                <label className="form-control w-full max-w-xs">
                   <div className="label">
-                    <span className="label-text-alt text-warning">
-                      {errors.featureDescription.message}
-                    </span>
+                    <span className="label-text">Tier Features</span>
                   </div>
-                )}
-              </label>
-
-              <button
-                className="btn btn-primary mt-2 w-full max-w-xs"
-                type="submit"
-                disabled={mutation.isLoading}
-              >
-                {mutation.isLoading && (
-                  <span className="loading loading-spinner"></span>
-                )}
-                Edit Tier
-              </button>
-              <DeleteTier id={item.id} />
+                  <Editor
+                    onChange={handleEditorChange}
+                    value={getValues("featureDescription")}
+                  />
+                  {errors.featureDescription && (
+                    <div className="label">
+                      <span className="label-text-alt text-warning">
+                        {errors.featureDescription.message}
+                      </span>
+                    </div>
+                  )}
+                </label>
+              </div>
+              <div className="m-auto  mt-16 flex w-full flex-col  items-center gap-2 ">
+                <Button
+                  className="w-full max-w-xs"
+                  type="submit"
+                  disabled={mutation.isLoading}
+                >
+                  {mutation.isLoading && (
+                    <span className="loading loading-spinner"></span>
+                  )}
+                  Edit Tier
+                </Button>
+                <DeleteTier id={item.id} />
+              </div>
             </form>
             <div className="modal-action">
               <form method="dialog">

@@ -3,8 +3,6 @@ import { z } from "zod";
 import { PostSchema } from "~/components/fan/creator/CreatPost";
 import { CommentSchema } from "~/components/fan/post/add-comment";
 
-import NotificationPage from "~/pages/fans/notifications";
-
 import {
   createTRPCRouter,
   protectedProcedure,
@@ -36,6 +34,40 @@ export const postRouter = createTRPCRouter({
             : undefined,
         },
       });
+
+      const followers = await ctx.db.follow.findMany({
+        where: { creatorId: ctx.session.user.id },
+        select: { userId: true },
+      });
+
+
+      const followerIds = followers.map((follower) => follower.userId);
+
+
+      const createNotification = async (notifierId: string) => {
+        await ctx.db.notificationObject.create({
+          data: {
+            actorId: ctx.session.user.id,
+            entityType: NotificationType.POST,
+            entityId: post.id,
+            isUser: true,
+            Notification: {
+              create: [
+                {
+                  notifierId,
+                  isCreator: false,
+                },
+              ],
+            },
+          },
+        });
+      };
+
+
+      for (const followerId of followerIds) {
+        await createNotification(followerId);
+      }
+
       return post;
     }),
 
@@ -112,8 +144,6 @@ export const postRouter = createTRPCRouter({
             select: { likes: true, comments: true },
           },
 
-
-
           creator: {
             select: {
               name: true,
@@ -123,7 +153,6 @@ export const postRouter = createTRPCRouter({
             },
           },
           medias: true,
-
         },
       });
 
@@ -235,7 +264,7 @@ export const postRouter = createTRPCRouter({
               create: [
                 {
                   notifierId: like.post.creatorId,
-                  isCreator: true, // Notification for the creator
+                  isCreator: true,
                 },
               ],
             },
@@ -309,13 +338,11 @@ export const postRouter = createTRPCRouter({
               },
               orderBy: { createdAt: "asc" }, // Order child comments by createdAt in ascending order
             },
-
           },
           take: input.limit, // Limit the number of comments
           orderBy: { createdAt: "desc" }, // Order top-level comments by createdAt in descending order
         });
-      }
-      else {
+      } else {
         return await ctx.db.comment.findMany({
           where: {
             postId: input.postId,
@@ -330,7 +357,6 @@ export const postRouter = createTRPCRouter({
               },
               orderBy: { createdAt: "asc" }, // Order child comments by createdAt in ascending order
             },
-
           },
 
           orderBy: { createdAt: "desc" }, // Order top-level comments by createdAt in descending order
@@ -341,14 +367,16 @@ export const postRouter = createTRPCRouter({
   createComment: protectedProcedure
     .input(CommentSchema)
     .mutation(async ({ ctx, input }) => {
+      const userId = ctx.session.user.id;
       let comment;
+
 
       if (input.parentId) {
         comment = await ctx.db.comment.create({
           data: {
             content: input.content,
             postId: input.postId,
-            userId: ctx.session.user.id,
+            userId,
             parentCommentID: input.parentId,
           },
         });
@@ -357,57 +385,61 @@ export const postRouter = createTRPCRouter({
           data: {
             content: input.content,
             postId: input.postId,
-            userId: ctx.session.user.id,
+            userId,
           },
         });
       }
 
-      // await ctx.db.notificationObject.create({
-      //   data: {
-      //     actorId: ctx.session.user.id,
-      //     entityType: NotificationType.COMMENT,
-      //     entityId: input.postId,
-      //     isUser: false,
-      //     Notification: {
-      //       create: [
-      //         {
-      //           notifierId: creator?.creatorId,
-      //           isCreator: true, // Notification for the creator
-      //         },
-      //       ],
-      //     },
-      //   },
-      // });
-      // create notification
 
-      void ctx.db.post
-        .findUnique({
-          where: { id: input.postId },
-          select: { creatorId: true },
-        })
-        .then(async (creator) => {
-          creator &&
-            creator?.creatorId !== ctx.session.user.id &&
-            (await ctx.db.notificationObject.create({
-              data: {
-                actorId: ctx.session.user.id,
-                entityType: NotificationType.COMMENT,
-                entityId: input.postId,
-                isUser: false,
-                Notification: {
-                  create: [
-                    {
-                      notifierId: creator.creatorId,
-                      isCreator: true, // Notification for the creator
-                    },
-                  ],
-                },
-              },
-            }));
-        })
-        .catch(console.error);
+      const post = await ctx.db.post.findUnique({
+        where: { id: input.postId },
+        select: { creatorId: true },
+      });
+
+
+      const previousCommenters = await ctx.db.comment.findMany({
+        where: {
+          postId: input.postId,
+          userId: { not: userId },
+        },
+        distinct: ['userId'],
+        select: { userId: true },
+      });
+
+
+      const previousCommenterIds = previousCommenters.map(comment => comment.userId);
+
+
+      const usersToNotify = new Set([
+        post?.creatorId,
+        ...previousCommenterIds,
+      ]);
+
+
+      usersToNotify.delete(userId);
+
+      if (usersToNotify.size > 0) {
+        await ctx.db.notificationObject.create({
+          data: {
+            actorId: userId,
+            entityType: input.parentId ? NotificationType.REPLY : NotificationType.COMMENT,
+            entityId: input.postId,
+            isUser: false,
+            Notification: {
+              create: Array.from(usersToNotify)
+                .filter((notifierId): notifierId is string => notifierId !== undefined)
+                .map((notifierId) => ({
+                  notifierId,
+                  isCreator: notifierId === post?.creatorId, // Mark if the notifier is the post creator
+                })),
+            },
+          },
+        });
+      }
+
       return comment;
-    }),
+    })
+  ,
 
   deleteComment: protectedProcedure
     .input(z.number())

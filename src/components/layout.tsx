@@ -54,9 +54,9 @@ export default function Layout({
         <div className={clsx(" flex h-screen w-full flex-col", className)}>
           <Header />
 
-          <div className="flex-1 overflow-auto bg-base-100/50">
+          <div className="flex-1 overflow-auto bg-base-100/50 ">
             <div className="flex h-full border-t-2">
-              <LeftBar className="hidden xl:flex" />
+              <LeftBar className="hidden lg:flex" />
               <div
                 id="ih"
                 className="flex-1 border-x-2"
@@ -91,6 +91,7 @@ export default function Layout({
               </div>
 
               {router.pathname !== "/walletBalance" &&
+                router.pathname !== "/notification" &&
                 router.pathname !== "/settings" &&
                 router.pathname !== "/about" &&
                 router.pathname !== "/bounty/[id]" &&
