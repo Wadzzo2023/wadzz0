@@ -69,7 +69,7 @@ function MySongs() {
 function CreatorPublicSongs() {
   const creatorSongs = api.music.song.getCreatorPublicSong.useQuery();
 
-  const header = "Creators Public Songs";
+  const header = "Public Songs";
 
   if (creatorSongs.isLoading) return <TrackSectionSkeleton header={header} />;
 

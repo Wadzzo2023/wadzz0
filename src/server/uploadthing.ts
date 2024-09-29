@@ -30,14 +30,7 @@ export const ourFileRouter = {
       // !!! Whatever is returned here is sent to the clientside `onClientUploadComplete` callback
       return { uploadedBy: metadata.userId };
     }),
-  SubmissionImageUploader: f({
-    blob: {
-
-      maxFileSize: "1024MB", maxFileCount: 1,
-
-
-    }
-  })
+  SubmissionImageUploader: f({ blob: { maxFileSize: "1024MB", maxFileCount: 5 } })
     // Set permissions and file types for this FileRoute
     .middleware(async ({ req, res }) => {
       // This code runs on your server before upload

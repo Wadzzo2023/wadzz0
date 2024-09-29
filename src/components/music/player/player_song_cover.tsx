@@ -34,6 +34,7 @@ export function PlayerSongCover({
             artist: song.artist,
             code: song.code,
             thumbnail: song.thumbnail,
+            name: song.name,
           }}
         />
       );

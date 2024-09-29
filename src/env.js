@@ -45,7 +45,8 @@ export const env = createEnv({
   client: {
     NEXT_PUBLIC_SITE: z.string(),
     NEXT_PUBLIC_DESC: z.string(),
-    NEXT_PUBLIC_URL: z.string(),
+    NEXT_PUBLIC_URL: z.string(),  
+    NEXT_PUBLIC_STAGE: z.string(),
     NEXT_PUBLIC_PLATFORM_CREATOR_TERM: z.string(),
     // NEXT_PUBLIC_CLIENTVAR: z.string(),
     NEXT_PUBLIC_STELLAR_PUBNET: z
@@ -79,6 +80,7 @@ export const env = createEnv({
     NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET,
     NEXTAUTH_URL: process.env.NEXTAUTH_URL,
     NEXT_PUBLIC_STELLAR_PUBNET: process.env.NEXT_PUBLIC_STELLAR_PUBNET,
+    NEXT_PUBLIC_STAGE: process.env.NEXT_PUBLIC_STAGE,
     NEXT_PUBLIC_ASSET_CODE: process.env.NEXT_PUBLIC_ASSET_CODE,
     NEXT_PUBLIC_ASSET_ISSUER: process.env.NEXT_PUBLIC_ASSET_ISSUER,
     NEXT_PUBLIC_LOG_ENABLE: process.env.NEXT_PUBLIC_LOG_ENABLE,

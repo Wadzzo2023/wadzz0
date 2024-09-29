@@ -925,43 +925,76 @@ export const BountyRoute = createTRPCRouter({
     .input(z.object({ bountyId: z.number(), limit: z.number().optional() }))
     .query(async ({ input, ctx }) => {
       if (input.limit) {
-        return await ctx.db.bountyComment.findMany({
+        const comments = await ctx.db.bountyComment.findMany({
           where: {
             bountyId: input.bountyId,
-            bountyParentBComment: null, // Fetch only top-level comments (not replies)
+            bountyParentBComment: null,
           },
-
           include: {
-            user: { select: { name: true, image: true } }, // Include user details
+            user: { select: { name: true, image: true } },
             bountyChildComments: {
               include: {
-                user: { select: { name: true, image: true } }, // Include user details for child comments
+                user: { select: { name: true, image: true } },
               },
-              orderBy: { createdAt: "asc" }, // Order child comments by createdAt in ascending order
+              orderBy: { createdAt: "asc" },
             },
           },
-          take: input.limit, // Limit the number of comments
-          orderBy: { createdAt: "desc" }, // Order top-level comments by createdAt in descending order
+          take: input.limit,
+          orderBy: { createdAt: "desc" },
         });
+        const detailedComments = await Promise.all(
+          comments.map(async (comment) => {
+
+            const userWins = await ctx.db.bounty.count({
+              where: {
+                winnerId: comment.userId,
+              },
+            });
+
+
+            return {
+              ...comment,
+              userWinCount: userWins,
+            };
+          }),
+        );
+        return detailedComments;
       } else {
-        return await ctx.db.bountyComment.findMany({
+        const comments = await ctx.db.bountyComment.findMany({
           where: {
             bountyId: input.bountyId,
-            bountyParentBComment: null, // Fetch only top-level comments (not replies)
+            bountyParentBComment: null,
           },
 
           include: {
-            user: { select: { name: true, image: true } }, // Include user details
+            user: { select: { name: true, image: true } },
             bountyChildComments: {
               include: {
-                user: { select: { name: true, image: true } }, // Include user details for child comments
+                user: { select: { name: true, image: true } },
               },
-              orderBy: { createdAt: "asc" }, // Order child comments by createdAt in ascending order
+              orderBy: { createdAt: "asc" },
             },
           },
 
-          orderBy: { createdAt: "desc" }, // Order top-level comments by createdAt in descending order
+          orderBy: { createdAt: "desc" },
         });
+        const detailedComments = await Promise.all(
+          comments.map(async (comment) => {
+
+            const userWins = await ctx.db.bounty.count({
+              where: {
+                winnerId: comment.userId,
+              },
+            });
+
+
+            return {
+              ...comment,
+              userWinCount: userWins,
+            };
+          }),
+        );
+        return detailedComments;
       }
     }),
   deleteBountyComment: protectedProcedure
@@ -993,7 +1026,7 @@ export const BountyRoute = createTRPCRouter({
       }),
     )
     .query(async ({ input, ctx }) => {
-      const bounty = await ctx.db.bountySubmission.findMany({
+      const submissions = await ctx.db.bountySubmission.findMany({
         where: {
           bountyId: input.BountyId,
         },
@@ -1008,7 +1041,22 @@ export const BountyRoute = createTRPCRouter({
           medias: true,
         },
       });
-      return bounty;
+
+      const detailedSubmissions = await Promise.all(
+        submissions.map(async (submission) => {
+          const userWins = await ctx.db.bounty.count({
+            where: {
+              winnerId: submission.userId,
+            },
+          });
+
+          return {
+            ...submission,
+            userWinCount: userWins,
+          };
+        }),
+      );
+      return detailedSubmissions;
     }),
   swapAssetToUSDC: protectedProcedure
     .input(
@@ -1291,7 +1339,7 @@ export const BountyRoute = createTRPCRouter({
           creatorId: true,
         },
       });
-      const list = await ctx.db.bountyDoubt.findMany({
+      const doubts = await ctx.db.bountyDoubt.findMany({
         where: {
           bountyId: input.bountyId,
           userId: { not: creator?.creatorId },
@@ -1309,8 +1357,29 @@ export const BountyRoute = createTRPCRouter({
         orderBy: { updatedAt: "desc" },
         distinct: ["userId"],
       });
-      return list;
+      const users = doubts.map(doubt => doubt.user.id);
+
+      const winnerCounts = await ctx.db.bounty.groupBy({
+        by: ['winnerId'],
+        _count: {
+          id: true,
+        },
+        where: {
+          winnerId: {
+            in: users,
+          },
+        },
+      });
+      const result = doubts.map(doubt => {
+        const winnerData = winnerCounts.find(w => w.winnerId === doubt.user.id);
+        return {
+          ...doubt,
+          winnerCount: winnerData ? winnerData._count.id : 0,
+        };
+      });
+      return result;
     }),
+
 
   getBountyForUserCreator: protectedProcedure
     .input(

@@ -17,6 +17,8 @@ export default function ViewBountyComment({
   bountyChildComments,
 }: {
   comment: BountyComment & {
+    userWinCount: number;
+
     user: {
       name: string | null;
       image: string | null;
@@ -35,7 +37,11 @@ export default function ViewBountyComment({
     <div className="flex items-start justify-between text-sm ">
       <div className="flex w-full gap-2">
         <div className="h-auto w-auto rounded-full">
-          <Avater className="h-12 w-12" url={comment.user.image} />
+          <Avater
+            className="h-12 w-12"
+            url={comment.user.image}
+            winnerCount={comment.userWinCount}
+          />
         </div>
         <div className="flex w-full flex-col items-start">
           <h2 className="font-bold">{comment.user.name}</h2>

@@ -250,7 +250,7 @@ function NewPageAssetFrom({ requiredToken }: { requiredToken: number }) {
         <Alert
           className=""
           type={mutation.error ? "warning" : "normal"}
-          content={`To create this page token, you'll need ${requiredToken} ${PLATFORM_ASSET.code} for your Asset account. Additionally, there's a platform fee of ${PLATFORM_FEE} ${PLATFORM_ASSET.code}. Total: ${requiredToken + Number(PLATFORM_FEE)}`}
+          content={`To create this page token, you'll need ${requiredToken} ${PLATFORM_ASSET.code} for your Asset account.`}
         />
       </div>
 

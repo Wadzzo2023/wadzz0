@@ -23,7 +23,7 @@ export default function BottomPlayerContainer() {
       )}
     >
       <div className="relative flex w-full justify-center bg-blue-200">
-        <div className=" absolute -top-32 w-full max-w-2xl">
+        <div className=" absolute -top-40 w-full max-w-2xl">
           <Player />
         </div>
       </div>
