@@ -168,11 +168,11 @@ export const payRouter = createTRPCRouter({
     }),
 
   getOffers: protectedProcedure.query(async ({ ctx }) => {
-    const tokenNumber = await getPlatfromAssetPrice();
+    // const tokenNumber = await getPlatfromAssetPrice();
 
 
     const offers = [4.99, 9.99, 19.99, 24.99, 49.99, 99.99].map((price) => {
-      const num = Number((price / tokenNumber).toFixed(1));
+      const num = Number((price * 100 + 1).toFixed(1));
       return {
         price,
         num,
