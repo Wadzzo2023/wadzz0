@@ -41,11 +41,12 @@ export const BountyAttachmentSchema = z.object({
 const FileUploadModal = () => {
   const { isOpen, onClose, type, data } = useModal();
   const [media, setMedia] = useState<SubmissionMediaInfoType[]>([]);
-  const [progress, setProgress] = useState<number>(0);
+  const [uploadingFiles, setUploadingFiles] = useState<File[]>([]); // Track multiple files
+  const [progress, setProgress] = useState<number[]>([]); // Track progress for each file
   const { bountyId, submissionId } = data;
   const [isInitialLoad, setIsInitialLoad] = useState(true);
   const [loading, setLoading] = useState<boolean>(false);
-  const [uploadingFile, setUploadingFile] = useState<File | null>(null);
+
   const getSubmittedAttachment =
     api.bounty.Bounty.getSubmittedAttachmentById.useQuery({
       submissionId: submissionId ?? 0,
@@ -193,34 +194,40 @@ const FileUploadModal = () => {
                     </div>
                   )}{" "}
                 </div>
-                <div className=" mt-2 flex flex-col items-center  gap-2">
-                  <div className="flex max-h-[200px] w-full flex-col gap-2 overflow-y-auto ">
-                    {uploadingFile && (
-                      <div className="w-full rounded-md bg-[#F5F7FB] px-8 py-4 shadow-sm">
+                <div className="mt-2 flex flex-col items-center gap-2">
+                  <div className="flex max-h-[200px] w-full flex-col gap-2 overflow-y-auto">
+                    {/* Display uploading files with progress */}
+                    {uploadingFiles.map((file, index) => (
+                      <div
+                        key={index}
+                        className="w-full rounded-md bg-[#F5F7FB] px-8 py-4 shadow-sm"
+                      >
                         <div className="flex items-center justify-between">
                           <span className="truncate text-base font-medium text-[#07074D]">
-                            {shortFileName(uploadingFile.name)}
-                          </span>{" "}
+                            {shortFileName(file.name)}
+                          </span>
                           <button
                             className="text-[#07074D]"
-                            onClick={() => setUploadingFile(null)}
+                            onClick={() => removeMediaItem(index)} // Add logic to remove uploading file if needed
                           >
                             <Trash size={15} />
                           </button>
                         </div>
-                        {/* Progress bar for the uploading file */}
+                        {/* Progress bar for each uploading file */}
                         <div className="relative mt-5 h-[6px] w-full rounded-lg bg-[#E2E5EF]">
                           <div
                             className="absolute left-0 h-full rounded-lg bg-[#6A64F1]"
-                            style={{ width: `${progress}%` }} // Update progress bar
+                            style={{ width: `${progress[index] ?? 0}%` }} // Show progress for each file
                           ></div>
                         </div>
                       </div>
-                    )}{" "}
+                    ))}
+
+                    {/* Display previously uploaded media */}
                     {media.map((el, id) => (
                       <div
                         key={id}
-                        className=" w-full rounded-md bg-[#F5F7FB] px-8 py-4 shadow-sm"
+                        className="w-full rounded-md bg-[#F5F7FB] px-8 py-4 shadow-sm"
                       >
                         <div className="flex items-center justify-between">
                           <span className="truncate text-base font-medium text-[#07074D]">
@@ -228,21 +235,22 @@ const FileUploadModal = () => {
                           </span>
                           <button
                             className="text-[#07074D]"
-                            onClick={() => removeMediaItem(id)}
+                            onClick={() => removeMediaItem(id)} // Remove uploaded media item
                           >
                             <Trash size={15} />
                           </button>
                         </div>
                         <div className="relative mt-5 h-[6px] w-full rounded-lg bg-[#E2E5EF]">
-                          <div
-                            className={`absolute left-0 right-0 h-full w-[100%] rounded-lg bg-[#6A64F1]`}
-                          ></div>
+                          <div className="absolute left-0 right-0 h-full w-[100%] rounded-lg bg-[#6A64F1]"></div>
                         </div>
                       </div>
                     ))}
                   </div>
                 </div>
 
+                <span className="text-center text-xs text-red-400">
+                  You can only upload a maximum of 5 files at a time.
+                </span>
                 <UploadButton
                   endpoint="SubmissionImageUploader"
                   content={{
@@ -250,17 +258,28 @@ const FileUploadModal = () => {
                     allowedContent:
                       "Audio, Video, Image, PDF,Text ,Spreed Sheet, CSV, TSV, ODS | Max (1024MB)",
                   }}
-                  onUploadProgress={(progress) => {
-                    setProgress(progress);
+                  onUploadProgress={(progressValue) => {
+                    setProgress((prevProgress) => {
+                      // Assuming progress for the first file in the uploadingFiles list is updated
+                      const newProgress = [...prevProgress];
+                      newProgress[0] = progressValue; // Update the progress for the first file (or manage index accordingly)
+                      return newProgress;
+                    });
                   }}
                   onClientUploadComplete={(res) => {
                     toast.success("Media uploaded");
-                    setUploadingFile(null); // Reset uploading file
-                    const data = res[0];
-                    console.log(data);
-                    if (data?.url) {
-                      addMediaItem(data.url, data.name, data.size, data.type);
-                    }
+
+                    // Handle the uploaded file(s)
+                    res.forEach((data) => {
+                      console.log(data);
+                      if (data?.url) {
+                        addMediaItem(data.url, data.name, data.size, data.type);
+                      }
+                    });
+
+                    // Clear the uploading files and progress state after completion
+                    setUploadingFiles([]);
+                    setProgress([]);
                     setLoading(false);
                   }}
                   onBeforeUploadBegin={(files) => {
@@ -279,29 +298,44 @@ const FileUploadModal = () => {
                       "application/pdf", // PDF
                       "application/vnd.oasis.opendocument.spreadsheet", // ODS (OpenDocument Spreadsheet)
                     ];
-
-                    const file = files[0];
-
-                    const fileType = file?.type;
-
-                    const isAllowed = allowedTypes.some((type) => {
-                      const baseType = type.split("/")[0];
-                      return (
-                        fileType === type || fileType?.startsWith(baseType!)
-                      );
-                    });
-
-                    if (!isAllowed) {
+                    if (
+                      files.length > 5 ||
+                      media.length > 5 ||
+                      files.length + media.length > 5
+                    ) {
                       toast.error(
-                        "Only images, PDFs, audio, and video files are allowed",
+                        "You can only upload a maximum of 5 files at a time.",
                       );
                       setLoading(false);
-                      return []; // Return an empty array to prevent uploading
+                      return [];
                     }
 
-                    setUploadingFile(files[0] ?? null); // Set the first file being uploaded (or you can handle multiple files as needed)
-                    setProgress(0); // Reset progress to 0 when a new file starts uploading
-                    return files; // Ensure you return the files array to satisfy the type requirements
+                    const validFiles = files.filter((file) => {
+                      const fileType = file?.type;
+                      const isAllowed = allowedTypes.some((type) => {
+                        const baseType = type.split("/")[0];
+                        return (
+                          fileType === type || fileType?.startsWith(baseType!)
+                        );
+                      });
+
+                      if (!isAllowed) {
+                        toast.error(`File type not allowed: ${file.name}`);
+                        return false; // Exclude invalid file
+                      }
+
+                      return true;
+                    });
+
+                    if (validFiles.length === 0) {
+                      setLoading(false);
+                      return []; // Prevent upload if no valid files
+                    }
+
+                    setUploadingFiles(validFiles); // Track all valid files being uploaded
+                    setProgress(Array(validFiles.length).fill(0)); // Initialize progress for all files
+
+                    return validFiles; // Return the valid files for upload
                   }}
                   onUploadError={(error: Error) => {
                     setLoading(false);

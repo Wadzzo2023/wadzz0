@@ -82,12 +82,15 @@ const CreateBounty = () => {
     setValue,
     getValues,
     reset,
+    trigger,
 
     formState: { errors, isValid },
   } = useForm<z.infer<typeof BountySchema>>({
     resolver: zodResolver(BountySchema),
     mode: "onChange",
-    defaultValues: {},
+    defaultValues: {
+      content: "",
+    },
   });
 
   const utils = api.useUtils();
@@ -336,6 +339,7 @@ const CreateBounty = () => {
 
                         if (data?.url) {
                           addMediaItem(data.url, wantMediaType!);
+                          trigger().catch((e) => console.log(e));
                           setWantMedia(undefined);
                         }
                       }}
@@ -412,7 +416,6 @@ const CreateBounty = () => {
                               <Button
                                 disabled={loading || !isValid}
                                 variant="destructive"
-                                type="submit"
                                 onClick={handleSubmit(onSubmit)}
                                 className="w-full"
                               >

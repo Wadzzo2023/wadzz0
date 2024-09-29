@@ -2,6 +2,7 @@ import { api } from "~/utils/api";
 import MarketAssetComponent from "../marketplace/market_asset";
 import { MoreAssetsSkeleton } from "../marketplace/platforms_nfts";
 import Asset from "./asset";
+import PageAssetComponent from "../marketplace/page_asset";
 
 export default function AllAsset() {
   const assets = api.wallate.asset.getBancoinAssets.useInfiniteQuery(
@@ -27,7 +28,13 @@ export default function AllAsset() {
     );
 
   const fanAssets = api.marketplace.market.getFanMarketNfts.useInfiniteQuery(
-    { limit: 10 },
+    { limit: 4 },
+    {
+      getNextPageParam: (lastPage) => lastPage.nextCursor,
+    },
+  );
+  const artistAssets = api.marketplace.market.getPageAssets.useInfiniteQuery(
+    { limit: 4 },
     {
       getNextPageParam: (lastPage) => lastPage.nextCursor,
     },
@@ -37,7 +44,8 @@ export default function AllAsset() {
     assets.isLoading &&
     musicAssets.isLoading &&
     adminAssets.isLoading &&
-    fanAssets.isLoading
+    fanAssets.isLoading &&
+    artistAssets.isLoading
   )
     return (
       <MoreAssetsSkeleton className="grid grid-cols-2 gap-2 md:grid-cols-4 lg:grid-cols-5" />
@@ -46,7 +54,7 @@ export default function AllAsset() {
   // if (assets.isError)
   //   return <MyError text="Error catch. Please reload this page." />;
 
-  console.log(assets.data, musicAssets.data, adminAssets.data, "vong cong");
+  console.log(assets.data, musicAssets.data, adminAssets.data, fanAssets.data);
 
   if (assets.data ?? musicAssets.data ?? adminAssets.data ?? fanAssets.data)
     return (
@@ -74,6 +82,12 @@ export default function AllAsset() {
             <MarketAssetComponent key={i} item={item} />
           )),
         )}
+        {artistAssets.data?.pages.map((page) =>
+          page.nfts.map((item, i) => (
+            <PageAssetComponent key={i} item={item} />
+          )),
+        )}
+
         <LoadMore />
       </div>
     );

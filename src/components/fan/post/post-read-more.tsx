@@ -11,7 +11,10 @@ export function PostReadMore({ post }: { post: Post }) {
       <div className="px-2">
         <Preview value={post.content.slice(0, 200)} />
 
-        <Link href={`posts/${post.id}`} className="text-primary underline">
+        <Link
+          href={`/fans/posts/${post.id}`}
+          className="text-primary underline"
+        >
           Read more
         </Link>
       </div>
