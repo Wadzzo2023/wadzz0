@@ -27,7 +27,7 @@ export default function ViewReplyBountyComment({
         <div className="flex flex-col items-start">
           <div className="font-bold">{comment.user.name}</div>
           {/* <p>{comment.content}</p> */}
-          {comment.content.length > 50 ? (
+          {comment.content.length > 200 ? (
             <ShowMore content={comment.content} />
           ) : (
             <p>{comment.content}</p>

@@ -7,7 +7,10 @@ import { useMarketRightStore } from "~/lib/state/marketplace/right";
 import { api } from "~/utils/api";
 import { addrShort } from "~/utils/utils";
 import BuyModal from "../music/modal/buy_modal";
-import ImageVideViewer from "../wallete/Image_video_viewer";
+import ImageVideViewer, {
+  AudioViewer,
+  VideoViewer,
+} from "../wallete/Image_video_viewer";
 import MyError from "../wallete/my_error";
 
 import {
@@ -31,7 +34,7 @@ export type MarketAssetType = MarketAsset & {
 
 export default function MarketRight() {
   const { currentData } = useMarketRightStore();
-
+  console.log("currentData", currentData);
   if (!currentData)
     return (
       <div className="flex h-full w-full  items-start justify-center">
@@ -64,11 +67,23 @@ export function AssetDetails({
         <div className="flex h-full flex-col justify-between space-y-2 p-2">
           <div className="flex h-full flex-col gap-2 ">
             <div className="relative flex-1 space-y-2 rounded-xl border-4 border-base-100 p-1 text-sm tracking-wider">
-              <MediaViewer
-                mediaUrl={currentData.asset.mediaUrl}
-                thumbnailUrl={currentData.asset.thumbnail}
-                name={currentData.asset.name}
-              />
+              <div className="avatar w-full">
+                {currentData.asset.tierId ? (
+                  <MediaViewer
+                    mediaUrl={currentData.asset.mediaUrl}
+                    thumbnailUrl={currentData.asset.thumbnail}
+                    name={currentData.asset.name}
+                  />
+                ) : (
+                  <MediaViewForPublic
+                    mediaUrl={currentData.asset.mediaUrl}
+                    thumbnailUrl={currentData.asset.thumbnail}
+                    name={currentData.asset.name}
+                    type={currentData.asset.mediaType}
+                    color="green"
+                  />
+                )}
+              </div>
             </div>
 
             <div className="relative flex-1 space-y-2 rounded-xl border-4 border-base-100 p-4 text-sm tracking-wider">
@@ -89,16 +104,22 @@ export function AssetDetails({
                 <p className="line-clamp-2">
                   <b>Description: </b> {currentData.asset.description}
                 </p>
-                <p>
-                  <span className="font-semibold">Available:</span>{" "}
-                  <TokenCopies id={currentData.id} /> copy
-                </p>
+                {currentData.asset.tierId ? (
+                  <>
+                    <p>
+                      <span className="font-semibold">Available:</span>{" "}
+                      <TokenCopies id={currentData.id} /> copy
+                    </p>
 
-                <p>
-                  <span className="font-semibold">
-                    Price: {currentData.price} {PLATFORM_ASSET.code}
-                  </span>
-                </p>
+                    <p>
+                      <span className="font-semibold">
+                        Price: {currentData.price} {PLATFORM_ASSET.code}
+                      </span>
+                    </p>
+                  </>
+                ) : (
+                  <></>
+                )}
                 {currentData.placerId && (
                   <p>
                     <b>Seller</b>: <SellerInfo id={currentData.placerId} />
@@ -109,9 +130,11 @@ export function AssetDetails({
                 </p>
               </div>
               <div className="space-y-2">
-                <div>
-                  <OtherButtons />
-                </div>
+                {currentData.asset.tierId && (
+                  <div>
+                    <OtherButtons />
+                  </div>
+                )}
                 <DeleteAssetByAdmin id={currentData.id} />
               </div>
             </div>
@@ -160,6 +183,7 @@ export function SongTokenCopies({
 function OtherButtons() {
   const { currentData } = useMarketRightStore();
   const session = useSession();
+
   if (session.status == "authenticated")
     if (currentData) {
       if (currentData.asset.creatorId == session.data.user.id) {
@@ -245,6 +269,34 @@ export function DisableFromMarketButton({
       </Dialog>
     </div>
   );
+}
+
+function MediaViewForPublic(props: {
+  color: string;
+  thumbnailUrl: string;
+  mediaUrl: string;
+  name: string;
+  type: MediaType;
+}) {
+  const { color, type } = props;
+  const { thumbnailUrl, mediaUrl, name } = props;
+
+  const [play, setPlay] = useState(true);
+
+  function MediaPlay() {
+    switch (type) {
+      case MediaType.VIDEO:
+        return <VideoViewer url={mediaUrl} />;
+
+      case MediaType.MUSIC:
+        return <AudioViewer url={mediaUrl} thumbnailUrl={thumbnailUrl} />;
+
+      default:
+        return <ThumbNailView name={name} thumbnailUrl={thumbnailUrl} />;
+    }
+  }
+
+  return <MediaPlay />;
 }
 
 function MediaViewer(props: {

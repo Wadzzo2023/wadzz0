@@ -5,8 +5,8 @@ function AssetView({
   code,
   thumbnail,
 }: {
-  code: string;
-  thumbnail?: string | null;
+  code?: string;
+  thumbnail: string | null;
 }) {
   return (
     <>
@@ -24,15 +24,14 @@ function AssetView({
             <Image
               height={1000}
               width={1000}
-              alt={code}
+              alt={code ?? "asset"}
               style={{
                 // backgroundColor: "red" ?? undefined,
                 height: "100%",
 
                 width: "100%",
               }}
-              className={twMerge("")}
-              src={thumbnail ?? "https://picsum.photos/200/300"}
+              src={thumbnail ?? ""}
             />
           </div>
         </div>

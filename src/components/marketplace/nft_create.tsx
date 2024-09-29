@@ -48,7 +48,7 @@ export const NftFormSchema = z.object({
   ),
   description: z.string(),
   mediaUrl: z.string(),
-  coverImgUrl: z.string(),
+  coverImgUrl: z.string().min(1, { message: "Thumbnail is required" }),
   mediaType: z.nativeEnum(MediaType),
   price: z
     .number({
@@ -88,7 +88,7 @@ export default function NftCreate({ admin: isAdmin }: { admin?: true }) {
   if (requiredToken.isLoading) return <Loading />;
 
   if (requiredToken.data) {
-    const requiredTokenAmount = requiredToken.data + Number(PLATFORM_FEE);
+    const requiredTokenAmount = requiredToken.data;
     return (
       <NftCreateForm
         admin={isAdmin}
@@ -139,10 +139,12 @@ function NftCreateForm({
     setValue,
     getValues,
     reset,
-    formState: { errors },
+    formState: { errors, isValid },
     control,
+    trigger,
   } = useForm<z.infer<typeof NftFormSchema>>({
     resolver: zodResolver(NftFormSchema),
+    mode: "onChange",
     defaultValues: {
       mediaType: MediaType.IMAGE,
       mediaUrl: "https://picsum.photos/202/200",
@@ -251,6 +253,7 @@ function NftCreateForm({
       setValue("coverImgUrl", thumbnail);
       setCid(ipfsHash);
       toast.success("Thumbnail uploaded successfully");
+      await trigger();
 
       setUploading(false);
     } catch (e) {
@@ -306,6 +309,7 @@ function NftCreateForm({
       duration: 4000,
     });
   };
+
   const loading = xdrMutation.isLoading || addAsset.isLoading || submitLoading;
   return (
     <>
@@ -346,9 +350,11 @@ function NftCreateForm({
                 </div>
 
                 <div className="rounded-md bg-base-200 p-2">
-                  <label className="label font-bold">Media Info</label>
+                  <label className="label font-bold">Media Info </label>
                   <div className="w-full max-w-xs">
-                    <label className="label">Name</label>
+                    <label className="label">
+                      Name <span className="text-red-600">*</span>
+                    </label>
                     <input
                       minLength={2}
                       required
@@ -381,12 +387,14 @@ function NftCreateForm({
                     )}
                   </div>
 
-                  <label className="label font-bold">Upload Files</label>
+                  <label className="label text-center font-bold">
+                    Upload Files
+                  </label>
                   <div className="form-control w-full max-w-xs py-2">
                     <label className="label">
                       <span className="label-text">
                         Choose a thumbnail Max 1MB (this will be used as NFT
-                        Image)
+                        Image) <span className="text-red-600">*</span>
                       </span>
                     </label>
 
@@ -398,7 +406,14 @@ function NftCreateForm({
                         ref={inputFile}
                         onChange={handleChange}
                         className=""
-                      />
+                      />{" "}
+                      {errors.coverImgUrl && (
+                        <div className="label">
+                          <span className="label-text-alt">
+                            {errors.coverImgUrl.message}
+                          </span>
+                        </div>
+                      )}
                       {uploading && (
                         <progress className="progress w-56"></progress>
                       )}
@@ -417,7 +432,10 @@ function NftCreateForm({
 
                     <div className="form-control w-full max-w-xs">
                       <div className="label-text flex items-center justify-between py-2">
-                        <span>Choose your media (required)</span>
+                        <span>
+                          Choose your media{" "}
+                          <span className="text-red-600">*</span>
+                        </span>
                         {mediaUpload && <p>{uploadProgress}%</p>}
                       </div>
 
@@ -481,7 +499,9 @@ function NftCreateForm({
                     <>
                       <div className="w-full max-w-xs ">
                         <label className="label">
-                          <span className="label-text">Asset Name</span>
+                          <span className="label-text">
+                            Asset Name<span className="text-red-600">*</span>
+                          </span>
                           <span className="label-text-alt">
                             You can&apos;t change it later
                           </span>
@@ -504,7 +524,9 @@ function NftCreateForm({
                       </div>
                       <div className=" w-full max-w-xs ">
                         <label className="label">
-                          <span className="label-text">Limit</span>
+                          <span className="label-text">
+                            Limit<span className="text-red-600">*</span>
+                          </span>
                           <span className="label-text-alt">
                             Default limit would be 1
                           </span>
@@ -518,14 +540,57 @@ function NftCreateForm({
                         />
                         {errors.limit && (
                           <div className="label">
-                            <span className="label-text-alt">
+                            <span className="label-text-alt text-warning">
                               {errors.limit.message}
                             </span>
                           </div>
                         )}
                       </div>
+                      <div className=" w-full max-w-xs ">
+                        <label className="label">
+                          <span className="label-text">
+                            Price in $USD<span className="text-red-600">*</span>
+                          </span>
+                        </label>
+                        <input
+                          // disabled={trxdata?.successful ? true : false}
+                          type="number"
+                          {...register("priceUSD", { valueAsNumber: true })}
+                          className="input input-sm input-bordered  w-full"
+                          placeholder="Enter Price in USD"
+                        />
+                        {errors.priceUSD && (
+                          <div className="label">
+                            <span className="label-text-alt text-warning">
+                              {errors.priceUSD.message}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                      <div className=" w-full max-w-xs ">
+                        <label className="label">
+                          <span className="label-text">
+                            Price in {PLATFORM_ASSET.code}
+                            <span className="text-red-600">*</span>
+                          </span>
+                        </label>
+                        <input
+                          // disabled={trxdata?.successful ? true : false}
+                          type="number"
+                          {...register("price", { valueAsNumber: true })}
+                          className="input input-sm input-bordered  w-full"
+                          placeholder={`Enter Price in ${PLATFORM_ASSET.code}`}
+                        />
+                        {errors.price && (
+                          <div className="label">
+                            <span className="label-text-alt text-warning">
+                              {errors.price.message}
+                            </span>
+                          </div>
+                        )}
+                      </div>
                     </>
-                    {!tier ||
+                    {/* {!tier ||
                       (tier != "public" && (
                         <>
                           <div className="w-full max-w-xs">
@@ -553,7 +618,7 @@ function NftCreateForm({
                           <div className="w-full max-w-xs">
                             <label className="label">
                               <span className="label-text">Price in USD</span>
-                              {/* <span className="label-text-alt"></span> */}
+                           
                             </label>
                             <input
                               step="0.1"
@@ -571,7 +636,7 @@ function NftCreateForm({
                             )}
                           </div>
                         </>
-                      ))}
+                      ))} */}
                   </div>
                 </>
               </div>
@@ -592,7 +657,9 @@ function NftCreateForm({
                   <button
                     className="btn btn-primary"
                     disabled={
-                      loading || requiredTokenAmount > platformAssetBalance
+                      loading ||
+                      requiredTokenAmount > platformAssetBalance ||
+                      !isValid
                     }
                   >
                     {loading && (
@@ -619,7 +686,6 @@ function NftCreateForm({
                       </DialogClose>
                       <Button
                         variant="destructive"
-                        type="submit"
                         onClick={() => onSubmit()}
                         disabled={loading}
                         className="w-full"

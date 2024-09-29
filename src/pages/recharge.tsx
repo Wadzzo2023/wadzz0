@@ -10,15 +10,13 @@ import { Button } from "~/components/shadcn/ui/button";
 import { useRecharge } from "~/lib/state/recharge";
 import { api } from "~/utils/api";
 
-const offers: Offer[] = [
-  { num: 10, price: 0.99, xlm: 5 },
-  { num: 500, price: 4.99, xlm: 6 },
-  { num: 500, price: 4.99 },
-  { num: 1150, price: 9.99 },
-  { num: 2300, price: 19.99 },
-  { num: 3000, price: 24.99 },
-  { num: 6000, price: 49.99 },
-  { num: 15000, price: 99.99 },
+const offer: Offer[] = [
+  { num: 500, price: 4.99, xlm: 2 },
+  { num: 1150, price: 9.99, xlm: 2 },
+  { num: 2300, price: 19.99, xlm: 2 },
+  { num: 3000, price: 24.99, xlm: 2 },
+  { num: 6000, price: 49.99, xlm: 2 },
+  { num: 15000, price: 99.99, xlm: 2 },
 ];
 
 function PayPage() {
@@ -82,6 +80,10 @@ function SiteAssetBuy() {
 
   const [selectedIdx, setSelection] = useState<number>(() => 0);
   const offersQ = api.marketplace.pay.getOffers.useQuery();
+
+  const { data } = api.bounty.Bounty.getCurrentUSDFromAsset.useQuery();
+  console.log("data", data);
+
   const xdrMutation = api.marketplace.pay.getRechargeXDR.useMutation({
     onSuccess: (data) => {
       setXDR(data);

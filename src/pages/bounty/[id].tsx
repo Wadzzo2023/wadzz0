@@ -576,7 +576,10 @@ const UserBountyPage = () => {
                   </Badge>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <Avater className="h-8 w-8" />
+                  <Avater
+                    className="h-12 w-12"
+                    url={data?.creator.profileUrl}
+                  />
                   <div>
                     <Link
                       href={`/fans/creator/${data?.creator.id}`}
@@ -1066,6 +1069,7 @@ const AdminBountyPage = () => {
                         <div className="flex items-center">
                           <Avater
                             className="h-12 w-12"
+                            winnerCount={submission.userWinCount}
                             url={submission.user.image}
                           />
                           <div className="flex w-full items-center justify-between">
@@ -1245,7 +1249,12 @@ const AdminBountyPage = () => {
                 </Badge>
               </div>
               <div className="flex items-center space-x-2">
-                <Avater className="h-8 w-8" />
+                <div className="relative">
+                  <Avater
+                    className="h-12 w-12"
+                    url={data?.creator.profileUrl}
+                  />
+                </div>
                 <div>
                   <Link
                     href={`/fans/creator/${data?.creator.id}`}

@@ -54,7 +54,7 @@ export async function getXLMPrice(): Promise<number> {
 export async function getAssetPrice(): Promise<number> {
   try {
     const response = await axios.get<PlatformAssetInfo>(
-      `https://api.stellar.expert/explorer/${env.NEXT_PUBLIC_STELLAR_PUBNET ? "public" : "testnet"}/asset/${PLATFORM_ASSET.code}-${PLATFORM_ASSET.issuer}`,
+      `https://api.stellar.expert/explorer/public/asset/${PLATFORM_ASSET.code}-${PLATFORM_ASSET.issuer}`,
     );
     // console.log(response.data);
 

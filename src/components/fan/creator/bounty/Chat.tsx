@@ -39,6 +39,7 @@ import {
   DialogFooter,
   DialogTitle,
 } from "~/components/shadcn/ui/dialog";
+import Avater from "~/components/ui/avater";
 
 type BountyDoubtListItem = {
   id: number;
@@ -100,12 +101,12 @@ const Chat = ({ bountyId }: { bountyId: number }) => {
                 key={item.user.email}
                 className="flex items-center border-b-2 p-2 "
               >
-                <Avatar>
-                  <AvatarImage src={item.user.image ?? ""} alt="Image" />
-                  <AvatarFallback className="bg-red-300">
-                    {item.user.id.slice(0, 2)}
-                  </AvatarFallback>
-                </Avatar>
+                <Avater
+                  url={item.user.image}
+                  className="h-12 w-12"
+                  winnerCount={item.winnerCount}
+                />
+
                 <div className="ml-2">
                   <p className="text-sm font-medium leading-none">
                     {addrShort(item.user.id, 5)}
@@ -130,7 +131,7 @@ const Chat = ({ bountyId }: { bountyId: number }) => {
             </div>
           )}
 
-          {listBountyDoubt?.map((item: BountyDoubtListItem) => {
+          {listBountyDoubt?.map((item) => {
             return (
               <TabsTrigger
                 key={item.id}
@@ -138,12 +139,11 @@ const Chat = ({ bountyId }: { bountyId: number }) => {
                 onClick={() => setSelectedDoubt(item)} // Update selectedDoubt when tab is clicked
                 className="flex w-full flex-row items-center justify-start gap-4 border-2  p-4  text-[#575759] hover:bg-[#dcdc2c]"
               >
-                <Avatar>
-                  <AvatarImage src={item.user.image ?? ""} alt="Image" />
-                  <AvatarFallback className="bg-red-300">
-                    {item.user.id.slice(0, 2)}
-                  </AvatarFallback>
-                </Avatar>
+                <Avater
+                  url={item.user.image}
+                  className="   h-12  w-12"
+                  winnerCount={item.winnerCount}
+                />
 
                 <div className="flex flex-col items-start ">
                   <p className="text-sm font-bold">
