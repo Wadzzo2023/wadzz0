@@ -160,7 +160,7 @@ export async function SendAssets({
     }
     return false;
   });
-  // console.log('accBalance', accBalance);
+  console.log('accBalance', accBalance);
   if (!accBalance || parseFloat(accBalance.balance) < amount) {
     throw new Error("Balance is not enough to send the asset.");
   }

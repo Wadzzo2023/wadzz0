@@ -137,26 +137,25 @@ export function AssetDetails({
                 </div>
 
                 <DeleteAssetByAdmin id={currentData.id} />
-                {currentData.asset.tierId ? (
-                  <> </>
-                ) : (
-                  <Button
-                    onClick={() =>
-                      setNewTrack({
-                        artist:
-                          currentData?.asset?.creatorId?.substring(0, 4) ??
-                          "creator",
-                        mediaUrl: currentData.asset.mediaUrl,
-                        name: currentData.asset.name,
-                        thumbnail: currentData.asset.thumbnail,
-                        code: currentData.asset.code,
-                      })
-                    }
-                    className="w-full"
-                  >
-                    Play{" "}
-                  </Button>
-                )}
+                {!currentData.asset.tierId &&
+                  currentData.asset.mediaType == "MUSIC" && (
+                    <Button
+                      onClick={() =>
+                        setNewTrack({
+                          artist:
+                            currentData?.asset?.creatorId?.substring(0, 4) ??
+                            "creator",
+                          mediaUrl: currentData.asset.mediaUrl,
+                          name: currentData.asset.name,
+                          thumbnail: currentData.asset.thumbnail,
+                          code: currentData.asset.code,
+                        })
+                      }
+                      className="w-full"
+                    >
+                      Play{" "}
+                    </Button>
+                  )}
               </div>
             </div>
           </div>
