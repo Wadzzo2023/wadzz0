@@ -139,7 +139,7 @@ export function AudioViewer({
   return (
     <div className="flex h-full w-full flex-col items-center justify-center ">
       {loading && <div className="loading absolute" />}
-      <ThumbNailView thumbnailUrl={thumbnailUrl} />
+      {/* <ThumbNailView thumbnailUrl={thumbnailUrl} /> */}
       <Suspense fallback={<VideoOff />}>
         <audio
           className={twMerge("rounded-sm p-2")}
