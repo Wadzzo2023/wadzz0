@@ -25,6 +25,7 @@ import {
 import { Button } from "../shadcn/ui/button";
 
 import { PLATFORM_ASSET } from "~/lib/stellar/constant";
+import { usePlayerStore } from "~/lib/state/music/track";
 
 export type AssetType = Omit<Asset, "issuerPrivate">;
 
@@ -52,6 +53,7 @@ export function AssetDetails({
 }: {
   currentData: MarketAssetType;
 }) {
+  const { setNewTrack } = usePlayerStore();
   const color = "#7ec34e";
   return (
     <div className=" h-full w-full">
@@ -130,12 +132,31 @@ export function AssetDetails({
                 </p>
               </div>
               <div className="space-y-2">
-                {currentData.asset.tierId && (
-                  <div>
-                    <OtherButtons />
-                  </div>
-                )}
+                <div>
+                  <OtherButtons />
+                </div>
+
                 <DeleteAssetByAdmin id={currentData.id} />
+                {currentData.asset.tierId ? (
+                  <> </>
+                ) : (
+                  <Button
+                    onClick={() =>
+                      setNewTrack({
+                        artist:
+                          currentData?.asset?.creatorId?.substring(0, 4) ??
+                          "creator",
+                        mediaUrl: currentData.asset.mediaUrl,
+                        name: currentData.asset.name,
+                        thumbnail: currentData.asset.thumbnail,
+                        code: currentData.asset.code,
+                      })
+                    }
+                    className="w-full"
+                  >
+                    Play{" "}
+                  </Button>
+                )}
               </div>
             </div>
           </div>
@@ -193,7 +214,7 @@ function OtherButtons() {
             issuer={currentData.asset.issuer}
           />
         );
-      } else
+      } else if (currentData.asset.tierId)
         return (
           <>
             <BuyModal
