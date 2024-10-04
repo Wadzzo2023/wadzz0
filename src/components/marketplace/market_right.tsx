@@ -25,6 +25,7 @@ import {
 import { Button } from "../shadcn/ui/button";
 
 import { PLATFORM_ASSET } from "~/lib/stellar/constant";
+import { usePlayerStore } from "~/lib/state/music/track";
 
 export type AssetType = Omit<Asset, "issuerPrivate">;
 
@@ -34,7 +35,7 @@ export type MarketAssetType = MarketAsset & {
 
 export default function MarketRight() {
   const { currentData } = useMarketRightStore();
-  console.log("currentData", currentData);
+
   if (!currentData)
     return (
       <div className="flex h-full w-full  items-start justify-center">
@@ -52,6 +53,8 @@ export function AssetDetails({
 }: {
   currentData: MarketAssetType;
 }) {
+  const { setNewTrack } = usePlayerStore();
+
   const color = "#7ec34e";
   return (
     <div className=" h-full w-full">
@@ -67,7 +70,7 @@ export function AssetDetails({
         <div className="flex h-full flex-col justify-between space-y-2 p-2">
           <div className="flex h-full flex-col gap-2 ">
             <div className="relative flex-1 space-y-2 rounded-xl border-4 border-base-100 p-1 text-sm tracking-wider">
-              <div className="avatar w-full">
+              <div className=" avatar w-full">
                 {currentData.asset.tierId ? (
                   <MediaViewer
                     mediaUrl={currentData.asset.mediaUrl}
@@ -130,12 +133,30 @@ export function AssetDetails({
                 </p>
               </div>
               <div className="space-y-2">
-                {currentData.asset.tierId && (
-                  <div>
-                    <OtherButtons />
-                  </div>
-                )}
+                <div>
+                  <OtherButtons />
+                </div>
+
                 <DeleteAssetByAdmin id={currentData.id} />
+                {!currentData.asset.tierId &&
+                  currentData.asset.mediaType == "MUSIC" && (
+                    <Button
+                      onClick={() =>
+                        setNewTrack({
+                          artist:
+                            currentData?.asset?.creatorId?.substring(0, 4) ??
+                            "creator",
+                          mediaUrl: currentData.asset.mediaUrl,
+                          name: currentData.asset.name,
+                          thumbnail: currentData.asset.thumbnail,
+                          code: currentData.asset.code,
+                        })
+                      }
+                      className="w-full"
+                    >
+                      Play{" "}
+                    </Button>
+                  )}
               </div>
             </div>
           </div>
@@ -193,7 +214,7 @@ function OtherButtons() {
             issuer={currentData.asset.issuer}
           />
         );
-      } else
+      } else if (currentData.asset.tierId)
         return (
           <>
             <BuyModal
@@ -270,7 +291,6 @@ export function DisableFromMarketButton({
     </div>
   );
 }
-
 function MediaViewForPublic(props: {
   color: string;
   thumbnailUrl: string;
@@ -289,7 +309,11 @@ function MediaViewForPublic(props: {
         return <VideoViewer url={mediaUrl} />;
 
       case MediaType.MUSIC:
-        return <AudioViewer url={mediaUrl} thumbnailUrl={thumbnailUrl} />;
+        return (
+          <div className="flex h-full w-full items-center justify-center">
+            <AudioViewer url={mediaUrl} thumbnailUrl={thumbnailUrl} />
+          </div>
+        );
 
       default:
         return <ThumbNailView name={name} thumbnailUrl={thumbnailUrl} />;
@@ -298,7 +322,6 @@ function MediaViewForPublic(props: {
 
   return <MediaPlay />;
 }
-
 function MediaViewer(props: {
   // color: string;
   thumbnailUrl: string;

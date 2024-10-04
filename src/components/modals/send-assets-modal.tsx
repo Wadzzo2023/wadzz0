@@ -364,18 +364,14 @@ const SendAssets = () => {
                         <SelectContent>
                           <SelectGroup>
                             <SelectLabel>Wallets</SelectLabel>
-                            {assetWithBalance?.map(
-                              (wallet, idx) =>
-                                wallet.asset_code.toLocaleLowerCase() !==
-                                  "wadzzo" && (
-                                  <SelectItem
-                                    key={idx}
-                                    value={`${wallet?.asset_code}-${wallet?.asset_type}-${wallet?.asset_issuer}`}
-                                  >
-                                    {wallet?.asset_code}
-                                  </SelectItem>
-                                ),
-                            )}
+                            {assetWithBalance?.map((wallet, idx) => (
+                              <SelectItem
+                                key={idx}
+                                value={`${wallet?.asset_code}-${wallet?.asset_type}-${wallet?.asset_issuer}`}
+                              >
+                                {wallet?.asset_code}
+                              </SelectItem>
+                            ))}
                           </SelectGroup>
                         </SelectContent>
                       </Select>
