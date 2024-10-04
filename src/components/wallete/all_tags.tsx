@@ -57,7 +57,7 @@ export default function AllTags() {
         className="!btn join-item"
         type="radio"
         name="options"
-        aria-label={CREATOR_PLURAL_TERM}
+        aria-label={CREATOR_PLURAL_TERM.toUpperCase()}
         onClick={() => {
           selectTag(AssetVariant.Artists);
           setData(undefined);
