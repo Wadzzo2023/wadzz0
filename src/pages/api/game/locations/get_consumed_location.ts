@@ -25,6 +25,7 @@ export default async function handler(
   const consumedLocations = await db.locationConsumer.findMany({
     where: {
       userId: session.user.id,
+      hidden: false,
     },
     include: { location: { include: { creator: true } } },
   });
