@@ -191,6 +191,15 @@ export const marketRouter = createTRPCRouter({
       const { limit, cursor, skip } = input;
 
       const items = await ctx.db.creatorPageAsset.findMany({
+        include: {
+          creator: {
+            select: {
+              name: true,
+              profileUrl: true
+
+            }
+          }
+        },
         take: limit + 1,
         skip: skip,
         cursor: cursor ? { creatorId: cursor } : undefined,

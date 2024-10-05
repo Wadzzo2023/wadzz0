@@ -82,12 +82,14 @@ const CreateBounty = () => {
     setValue,
     getValues,
     reset,
-
+    trigger,
     formState: { errors, isValid },
   } = useForm<z.infer<typeof BountySchema>>({
     resolver: zodResolver(BountySchema),
     mode: "onChange",
-    defaultValues: {},
+    defaultValues: {
+      content: "",
+    },
   });
 
   const utils = api.useUtils();
@@ -182,7 +184,7 @@ const CreateBounty = () => {
         <Alert
           className="flex  items-center justify-center"
           type="error"
-          content={`You don't have Sufficient Balance ,To create storage account, you need minimum ${RequiredBalance} ${PLATFORM_ASSET.code} `}
+          content={`You don't have Sufficient Balance ,To create bounty , you need minimum ${RequiredBalance} ${PLATFORM_ASSET.code} `}
         />
       ) : (
         <div className="flex  w-full  justify-center">
@@ -336,6 +338,7 @@ const CreateBounty = () => {
 
                         if (data?.url) {
                           addMediaItem(data.url, wantMediaType!);
+                          trigger().catch((e) => console.log(e));
                           setWantMedia(undefined);
                         }
                       }}
@@ -386,7 +389,7 @@ const CreateBounty = () => {
                                     Fees
                                   </dt>
                                   <dd className="text-base font-medium text-green-500">
-                                    5800 {PLATFORM_ASSET.code}
+                                    {totalAmount} {PLATFORM_ASSET.code}
                                   </dd>
                                 </dl>
 
@@ -395,7 +398,8 @@ const CreateBounty = () => {
                                     Total
                                   </dt>
                                   <dd className="text-base font-bold text-gray-900 dark:text-white">
-                                    {prizeInAsset + 5800} {PLATFORM_ASSET.code}
+                                    {prizeInAsset + totalAmount}{" "}
+                                    {PLATFORM_ASSET.code}
                                   </dd>
                                 </dl>
                               </div>
@@ -411,7 +415,6 @@ const CreateBounty = () => {
                               <Button
                                 disabled={loading || !isValid}
                                 variant="destructive"
-                                type="submit"
                                 onClick={handleSubmit(onSubmit)}
                                 className="w-full"
                               >
@@ -425,7 +428,7 @@ const CreateBounty = () => {
                       <Alert
                         type="success"
                         content={`
-                          Note: You will be charged ${prizeInAsset + 5800} ${PLATFORM_ASSET.code} to create this bounty
+                          Note: You will be charged ${prizeInAsset + totalAmount} ${PLATFORM_ASSET.code} to create this bounty
                           `}
                       />
                     </div>

@@ -160,7 +160,7 @@ export async function SendAssets({
     }
     return false;
   });
-  // console.log('accBalance', accBalance);
+  console.log('accBalance', accBalance);
   if (!accBalance || parseFloat(accBalance.balance) < amount) {
     throw new Error("Balance is not enough to send the asset.");
   }
@@ -327,7 +327,7 @@ export async function RecentTransactionHistory({
           asset: operations[0].asset.code,
           issuer: operations[0].asset.issuer,
           destination: operations[0].destination,
-          source: userPubKey,
+          source: operations[0].source,
           createdAt: record.created_at,
         },
       };

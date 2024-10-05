@@ -11,11 +11,11 @@ import { CREATOR_PLURAL_TERM } from "~/utils/term";
 
 export const LeftNavigation = {
   Home: { path: "/", icon: HomeIcon, text: "HOMEPAGE" },
-  // WalletBalance: {
-  //   path: "/walletBalance",
-  //   icon: Wallet,
-  //   text: "MY WALLET",
-  // },
+  WalletBalance: {
+    path: "/walletBalance",
+    icon: Wallet,
+    text: "MY WALLET",
+  },
   MyAssets: { path: "/assets", icon: Bell, text: "COLLECTION" },
   // Search: { path: "/search", icon: Search, text: "Search" },
   Music: { path: "/music", icon: Diamond, text: "MUSIC" },
@@ -36,16 +36,16 @@ export default function LeftBar({ className }: { className?: string }) {
   return (
     <div
       className={cn(
-        "flex h-full max-h-screen w-80 flex-col items-center justify-between gap-4 overflow-auto bg-base-100/80 px-4 pb-4 scrollbar-hide lg:pt-5",
+        "flex h-full max-h-screen w-80 flex-col items-center justify-between gap-4 overflow-auto bg-base-100/80 px-4 pb-4 scrollbar-hide ",
         className,
       )}
     >
-      <div className="flex h-full w-full flex-1 flex-col items-center justify-between gap-2 overflow-auto">
-        <div className="mt-7  w-full flex-1">
+      <div className="flex h-full w-full flex-1 flex-col items-center justify-between gap-2 overflow-auto overflow-x-hidden">
+        <div className="mt-2  w-full flex-1">
           <NavigationButtons />
         </div>
       </div>
-      <div className="flex w-full flex-col items-center">
+      <div className="flex w-full flex-col items-center ">
         <LeftBottom />
       </div>
     </div>
@@ -59,7 +59,6 @@ function NavigationButtons() {
         {Object.entries(LeftNavigation).map(
           ([key, { path, icon: Icon, text }]) => {
             if (text == "MUSIC") return;
-            if (text == "BOUNTY") return;
 
             return (
               <Link href={path} className="w-full" key={key}>

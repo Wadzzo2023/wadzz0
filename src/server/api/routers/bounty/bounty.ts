@@ -1,5 +1,11 @@
-import { BountyStatus, NotificationType, Prisma } from "@prisma/client"; // Assuming you are using Prisma
-import { task } from "@trigger.dev/sdk/v3";
+import { useMutation } from "@tanstack/react-query";
+import {
+  BountyStatus,
+  NotificationType,
+  Prisma,
+  SubmissionViewType,
+  UserRole,
+} from "@prisma/client"; // Assuming you are using Prisma
 import { getAccSecretFromRubyApi } from "package/connect_wallet/src/lib/stellar/get-acc-secret";
 import { z } from "zod";
 import { BountyCommentSchema } from "~/components/fan/creator/bounty/Add-Bounty-Comment";
@@ -9,6 +15,9 @@ import {
 } from "~/components/fan/creator/bounty/BountyList";
 import { MediaInfo } from "~/components/fan/creator/bounty/CreateBounty";
 import {
+  checkXDRSubmitted,
+  getHasMotherTrustOnUSDC,
+  getHasUserHasTrustOnUSDC,
   SendBountyBalanceToMotherAccount,
   SendBountyBalanceToUserAccount,
   SendBountyBalanceToWinner,
@@ -17,6 +26,7 @@ import {
 import {
   getAssetPrice,
   getAssetToUSDCRate,
+  getplatformAssetNumberForXLM,
   getPlatfromAssetPrice,
 } from "~/lib/stellar/fan/get_token_price";
 import { SignUser } from "~/lib/stellar/utils";
@@ -25,8 +35,7 @@ import {
   protectedProcedure,
   publicProcedure,
 } from "~/server/api/trpc";
-import { swapTask } from "~/trigger/swap";
-import { runs } from "@trigger.dev/sdk/v3";
+import { SubmissionMediaInfo } from "~/components/modals/file-upload-modal";
 
 const getAllBountyByUserIdInput = z.object({
   limit: z.number().min(1).max(100).default(10),
@@ -391,7 +400,7 @@ export const BountyRoute = createTRPCRouter({
                   image: true,
                 },
               },
-              attachmentUrl: true,
+              medias: true,
             },
           },
           comments: {
@@ -422,7 +431,7 @@ export const BountyRoute = createTRPCRouter({
       z.object({
         BountyId: z.number(),
         content: z.string().min(2, { message: "Description can't be empty" }),
-        medias: z.array(MediaInfo).optional(),
+        medias: z.array(SubmissionMediaInfo).optional(),
       }),
     )
     .mutation(async ({ input, ctx }) => {
@@ -440,9 +449,13 @@ export const BountyRoute = createTRPCRouter({
           userId: ctx.session.user.id,
           content: input.content,
           bountyId: input.BountyId,
-          attachmentUrl: input.medias
-            ? input.medias.map((media) => media.url)
-            : [],
+          medias: input.medias
+            ? {
+              createMany: {
+                data: input.medias,
+              },
+            }
+            : undefined,
         },
       });
 
@@ -464,6 +477,64 @@ export const BountyRoute = createTRPCRouter({
       });
     }),
 
+  updateBountyAttachment: protectedProcedure
+    .input(
+      z.object({
+        submissionId: z.number(),
+        content: z.string().min(2, { message: "Description can't be empty" }),
+        medias: z.array(SubmissionMediaInfo).optional(),
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      const bounty = await ctx.db.bountySubmission.findUnique({
+        where: {
+          id: input.submissionId,
+        },
+      });
+      console.log(input.medias);
+      if (!bounty) {
+        throw new Error("Bounty not found");
+      }
+      if (bounty.userId !== ctx.session.user.id) {
+        throw new Error("You are not the owner of this bounty");
+      }
+      await ctx.db.bountySubmission.update({
+        where: {
+          id: input.submissionId,
+        },
+        data: {
+          content: input.content,
+          medias: {
+            deleteMany: {}, // Remove existing media
+            createMany: {
+              data: input.medias
+                ? input.medias.map((media) => ({
+                  url: media.url,
+                  name: media.name,
+                  size: media.size,
+                  type: media.type,
+                }))
+                : [],
+            },
+          },
+        },
+      });
+    }),
+
+  getSubmittedAttachmentById: protectedProcedure
+    .input(
+      z.object({
+        submissionId: z.number(),
+      }),
+    )
+    .query(async ({ input, ctx }) => {
+      return await ctx.db.bountySubmission.findUnique({
+        where: { id: input.submissionId },
+        include: {
+          medias: true,
+        },
+      });
+    }),
   getBountyAttachmentByUserId: protectedProcedure
     .input(
       z.object({
@@ -475,6 +546,9 @@ export const BountyRoute = createTRPCRouter({
         where: {
           bountyId: input.BountyId,
           userId: ctx.session.user.id,
+        },
+        include: {
+          medias: true,
         },
       });
 
@@ -539,6 +613,10 @@ export const BountyRoute = createTRPCRouter({
   getAssetToUSDCRate: protectedProcedure.query(async ({ ctx }) => {
     return await getAssetToUSDCRate();
   }),
+  getTrustCost: protectedProcedure.query(async ({ ctx }) => {
+    return await getplatformAssetNumberForXLM(0.5);
+  }),
+
   getSendBalanceToWinnerXdr: protectedProcedure
     .input(
       z.object({
@@ -627,6 +705,58 @@ export const BountyRoute = createTRPCRouter({
         },
       });
     }),
+
+  updateBountySubmissionStatus: protectedProcedure
+    .input(
+      z.object({
+        creatorId: z
+          .string()
+          .min(1, { message: "User ID can't be less than 0" }),
+        submissionId: z.number(),
+        status: z.nativeEnum(SubmissionViewType),
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      const Submission = await ctx.db.bountySubmission.findUnique({
+        where: {
+          id: input.submissionId,
+        },
+      });
+
+      if (!Submission) {
+        throw new Error("Bounty not found");
+      }
+      const submission = await ctx.db.bountySubmission.findUnique({
+        where: {
+          id: input.submissionId,
+        },
+      });
+      if (!submission) {
+        throw new Error("Submission not found");
+      }
+
+      const isUserIsAdmin = await ctx.db.admin.findUnique({
+        where: {
+          id: ctx.session.user.id,
+        },
+      });
+      const isOwner = input.creatorId === ctx.session.user.id;
+      console.log("isOwner", isOwner);
+      if (!isOwner && !isUserIsAdmin) {
+        throw new Error(
+          "You do not have permission to update this submission status",
+        );
+      }
+      await ctx.db.bountySubmission.update({
+        where: {
+          id: input.submissionId,
+        },
+        data: {
+          status: input.status,
+        },
+      });
+    }),
+
   getDeleteXdr: protectedProcedure
     .input(
       z.object({
@@ -795,43 +925,76 @@ export const BountyRoute = createTRPCRouter({
     .input(z.object({ bountyId: z.number(), limit: z.number().optional() }))
     .query(async ({ input, ctx }) => {
       if (input.limit) {
-        return await ctx.db.bountyComment.findMany({
+        const comments = await ctx.db.bountyComment.findMany({
           where: {
             bountyId: input.bountyId,
-            bountyParentBComment: null, // Fetch only top-level comments (not replies)
+            bountyParentBComment: null,
           },
-
           include: {
-            user: { select: { name: true, image: true } }, // Include user details
+            user: { select: { name: true, image: true } },
             bountyChildComments: {
               include: {
-                user: { select: { name: true, image: true } }, // Include user details for child comments
+                user: { select: { name: true, image: true } },
               },
-              orderBy: { createdAt: "asc" }, // Order child comments by createdAt in ascending order
+              orderBy: { createdAt: "asc" },
             },
           },
-          take: input.limit, // Limit the number of comments
-          orderBy: { createdAt: "desc" }, // Order top-level comments by createdAt in descending order
+          take: input.limit,
+          orderBy: { createdAt: "desc" },
         });
+        const detailedComments = await Promise.all(
+          comments.map(async (comment) => {
+
+            const userWins = await ctx.db.bounty.count({
+              where: {
+                winnerId: comment.userId,
+              },
+            });
+
+
+            return {
+              ...comment,
+              userWinCount: userWins,
+            };
+          }),
+        );
+        return detailedComments;
       } else {
-        return await ctx.db.bountyComment.findMany({
+        const comments = await ctx.db.bountyComment.findMany({
           where: {
             bountyId: input.bountyId,
-            bountyParentBComment: null, // Fetch only top-level comments (not replies)
+            bountyParentBComment: null,
           },
 
           include: {
-            user: { select: { name: true, image: true } }, // Include user details
+            user: { select: { name: true, image: true } },
             bountyChildComments: {
               include: {
-                user: { select: { name: true, image: true } }, // Include user details for child comments
+                user: { select: { name: true, image: true } },
               },
-              orderBy: { createdAt: "asc" }, // Order child comments by createdAt in ascending order
+              orderBy: { createdAt: "asc" },
             },
           },
 
-          orderBy: { createdAt: "desc" }, // Order top-level comments by createdAt in descending order
+          orderBy: { createdAt: "desc" },
         });
+        const detailedComments = await Promise.all(
+          comments.map(async (comment) => {
+
+            const userWins = await ctx.db.bounty.count({
+              where: {
+                winnerId: comment.userId,
+              },
+            });
+
+
+            return {
+              ...comment,
+              userWinCount: userWins,
+            };
+          }),
+        );
+        return detailedComments;
       }
     }),
   deleteBountyComment: protectedProcedure
@@ -863,7 +1026,7 @@ export const BountyRoute = createTRPCRouter({
       }),
     )
     .query(async ({ input, ctx }) => {
-      const bounty = await ctx.db.bountySubmission.findMany({
+      const submissions = await ctx.db.bountySubmission.findMany({
         where: {
           bountyId: input.BountyId,
         },
@@ -875,9 +1038,25 @@ export const BountyRoute = createTRPCRouter({
               image: true,
             },
           },
+          medias: true,
         },
       });
-      return bounty;
+
+      const detailedSubmissions = await Promise.all(
+        submissions.map(async (submission) => {
+          const userWins = await ctx.db.bounty.count({
+            where: {
+              winnerId: submission.userId,
+            },
+          });
+
+          return {
+            ...submission,
+            userWinCount: userWins,
+          };
+        }),
+      );
+      return detailedSubmissions;
     }),
   swapAssetToUSDC: protectedProcedure
     .input(
@@ -892,30 +1071,43 @@ export const BountyRoute = createTRPCRouter({
       if (ctx.session.user.email && ctx.session.user.email.length > 0) {
         secretKey = await getAccSecretFromRubyApi(ctx.session.user.email);
       }
+      const findXDR = await ctx.db.bounty.findUnique({
+        where: {
+          id: input.bountyId,
+        },
+        select: {
+          xdr: true,
+        },
+      });
 
-      const xdr = await SwapUserAssetToMotherUSDC({
+      if (findXDR?.xdr) {
+        const prevXDR = findXDR.xdr;
+        const isSubmitted = await checkXDRSubmitted(prevXDR);
+        if (isSubmitted) {
+          throw new Error("You already submitted the XDR");
+        }
+      }
+
+      const res = await SwapUserAssetToMotherUSDC({
         prize: input.price,
         userPubKey: ctx.session.user.id,
         secretKey: secretKey,
         signWith: input.signWith,
       });
-
-      const res = await swapTask.trigger({
-        xdr: xdr.xdr,
-        bountyId: input.bountyId,
-      });
-      if (res.id) {
+      console.log("res", res);
+      if (res.xdr) {
         await ctx.db.bounty.update({
           where: {
             id: input.bountyId,
           },
           data: {
-            taskId: res.id,
+            xdr: res.xdr,
           },
         });
       }
-      return res.id;
+      return res;
     }),
+
   makeSwapUpdate: protectedProcedure
     .input(
       z.object({
@@ -932,16 +1124,358 @@ export const BountyRoute = createTRPCRouter({
         },
       });
     }),
+  hasMotherTrustOnUSDC: protectedProcedure.query(async ({ ctx }) => {
+    return getHasMotherTrustOnUSDC();
+  }),
 
-  getSwapTaskInfo: protectedProcedure
+  hasUserTrustOnUSDC: protectedProcedure.query(async ({ ctx }) => {
+    return await getHasUserHasTrustOnUSDC(ctx.session.user.id);
+  }),
+
+  createUpdateBountyDoubtForCreatorAndUser: protectedProcedure.input(z.object({
+    chatUserId: z.string(),
+    bountyId: z.number(),
+    content: z.string().min(2, { message: "Message can't be empty" }), // The doubt message
+    role: z.nativeEnum(UserRole).optional(),
+    media: z.array(SubmissionMediaInfo).optional(),
+  })).mutation(async ({ input, ctx }) => {
+    const { bountyId, content, role, chatUserId } = input;
+    const creatorId = ctx.session.user.id;
+    const newContent = input.media
+      ? `${content} ${input.media.map((media) => media.url).join(" ")}`
+      : content;
+
+    const existingBountyDoubt = await ctx.db.bountyDoubt.findFirst({
+      where: {
+        bountyId: bountyId,
+        userId: chatUserId, // The user involved in the doubt
+        bounty: {
+          creatorId: creatorId, // Ensure it's the same creator
+        },
+      },
+    });
+    if (!existingBountyDoubt) {
+      await ctx.db.bountyDoubt.create({
+        data: {
+          bountyId: bountyId,
+          userId: chatUserId,
+          messages: {
+            create: {
+              senderId: creatorId,
+              role: role ?? UserRole.CREATOR,
+              content: content,
+            },
+          },
+          updatedAt: new Date(),
+        },
+
+      });
+      await ctx.db.notificationObject.create({
+        data: {
+          actorId: creatorId,
+          entityType: NotificationType.BOUNTY_DOUBT_CREATE,
+          entityId: bountyId,
+          isUser: false,
+          Notification: {
+            create: [
+              {
+                notifierId: chatUserId,
+                isCreator: false,
+              },
+            ],
+          },
+        },
+      });
+
+    }
+    else {
+      await ctx.db.bountyDoubtMessage.create({
+        data: {
+          doubtId: existingBountyDoubt.id,
+          senderId: creatorId,
+          role: role ?? UserRole.CREATOR,
+          content: newContent,
+          createdAt: new Date(),
+        },
+      });
+      await ctx.db.bountyDoubt.update({
+        where: { id: existingBountyDoubt.id },
+        data: {
+          updatedAt: new Date(),
+        },
+      });
+      await ctx.db.notificationObject.create({
+        data: {
+          actorId: creatorId,
+          entityType: NotificationType.BOUNTY_DOUBT_REPLY,
+          entityId: bountyId,
+          isUser: false,
+          Notification: {
+            create: [
+              {
+                notifierId: chatUserId,
+                isCreator: false,
+              },
+            ],
+          },
+        },
+      });
+    }
+  }),
+
+
+  createUpdateBountyDoubtForUserCreator: protectedProcedure
     .input(
       z.object({
-        taskId: z.string(),
+        bountyId: z.number(),
+        content: z.string().min(2, { message: "Message can't be empty" }), // The doubt message
+        role: z.nativeEnum(UserRole).optional(),
+        media: z.array(SubmissionMediaInfo).optional(),
       }),
-    ).query(async ({ input, ctx }) => {
-      const result = await runs.retrieve(input.taskId);
-      console.log("result", result);
-      return result
-    })
+    )
+    .mutation(async ({ input, ctx }) => {
+      const { bountyId, content, role } = input;
+      const userId = ctx.session.user.id;
+      const bounty = await ctx.db.bounty.findUnique({
+        where: { id: bountyId },
+        select: { creatorId: true },
+      });
+      if (!bounty) {
+        throw new Error("Bounty not found");
+      }
+      const newContent = input.media
+        ? `${content} ${input.media.map((media) => media.url).join(" ")}`
+        : content;
+      const creatorId = bounty.creatorId;
+      const existingBountyDoubt = await ctx.db.bountyDoubt.findFirst({
+        where: {
+          bountyId: bountyId,
+          userId: userId,
+          bounty: {
+            creatorId: creatorId,
+          },
+        },
+      });
+      if (!existingBountyDoubt) {
+        await ctx.db.bountyDoubt.create({
+          data: {
+            bountyId: bountyId,
+            userId: userId,
+            messages: {
+              create: {
+                senderId: creatorId,
+                role: role ?? UserRole.CREATOR,
+                content: content,
+              },
+            },
+            updatedAt: new Date(),
+          },
+        });
 
+        await ctx.db.notificationObject.create({
+          data: {
+            actorId: userId,
+            entityType: NotificationType.BOUNTY_DOUBT_CREATE,
+            entityId: bountyId,
+            isUser: false,
+            Notification: {
+              create: [
+                {
+                  notifierId: creatorId,
+                  isCreator: true,
+                },
+              ],
+            },
+          },
+        });
+
+
+      }
+      else {
+        await ctx.db.bountyDoubtMessage.create({
+          data: {
+            doubtId: existingBountyDoubt.id,
+            senderId: creatorId,
+            role: role ?? UserRole.CREATOR,
+            content: newContent,
+            createdAt: new Date(),
+          },
+        });
+        await ctx.db.bountyDoubt.update({
+          where: { id: existingBountyDoubt.id },
+          data: {
+            updatedAt: new Date(),
+          },
+        });
+
+        await ctx.db.notificationObject.create({
+          data: {
+            actorId: userId,
+            entityType: NotificationType.BOUNTY_DOUBT_REPLY,
+            entityId: bountyId,
+            isUser: false,
+            Notification: {
+              create: [
+                {
+                  notifierId: creatorId,
+                  isCreator: true,
+                },
+              ],
+            },
+          },
+
+        });
+      }
+    }),
+
+  listBountyDoubts: protectedProcedure
+    .input(z.object({ bountyId: z.number() }))
+    .query(async ({ input, ctx }) => {
+      const creator = await ctx.db.bounty.findUnique({
+        where: {
+          id: input.bountyId,
+        },
+        select: {
+          creatorId: true,
+        },
+      });
+      const doubts = await ctx.db.bountyDoubt.findMany({
+        where: {
+          bountyId: input.bountyId,
+          userId: { not: creator?.creatorId },
+        },
+        include: {
+          user: {
+            select: {
+              id: true,
+              name: true,
+              image: true,
+              email: true,
+            },
+          },
+        },
+        orderBy: { updatedAt: "desc" },
+        distinct: ["userId"],
+      });
+      const users = doubts.map(doubt => doubt.user.id);
+
+      const winnerCounts = await ctx.db.bounty.groupBy({
+        by: ['winnerId'],
+        _count: {
+          id: true,
+        },
+        where: {
+          winnerId: {
+            in: users,
+          },
+        },
+      });
+      const result = doubts.map(doubt => {
+        const winnerData = winnerCounts.find(w => w.winnerId === doubt.user.id);
+        return {
+          ...doubt,
+          winnerCount: winnerData ? winnerData._count.id : 0,
+        };
+      });
+      return result;
+    }),
+
+
+  getBountyForUserCreator: protectedProcedure
+    .input(
+      z.object({
+        bountyId: z.number(),
+        userId: z.string(),
+      }),
+    )
+    .query(async ({ input, ctx }) => {
+      const bounty = await ctx.db.bounty.findUnique({
+        where: { id: input.bountyId },
+        select: { creatorId: true },
+      });
+
+      if (!bounty) {
+        throw new Error("Bounty not found");
+      }
+
+      // Fetch the doubts between the user and creator
+      const bountyDoubts = await ctx.db.bountyDoubt.findMany({
+        where: {
+          bountyId: input.bountyId,
+          userId: input.userId, // Fetch doubts initiated by the specific user
+        },
+        include: {
+          messages: {
+            where: {
+              senderId: {
+                in: [input.userId, bounty.creatorId], // Ensure both user and creator messages are fetched
+              },
+            },
+            orderBy: { createdAt: "asc" }, // Order messages by creation time
+          },
+        },
+      });
+
+      // Debugging purposes: check the retrieved bounty doubts
+      console.log("bountyDoubts", bountyDoubts);
+
+      // Map messages to extract content and role
+      const messages = bountyDoubts.flatMap((doubt) =>
+        doubt.messages.map((message) => ({
+          message: message.content,
+          role: message.role,
+        })),
+      );
+
+      return messages.length > 0 ? messages : [];
+    }),
+
+  getBountyForCreatorUser: protectedProcedure
+    .input(
+      z.object({
+        bountyId: z.number(),
+      }),
+    )
+    .query(async ({ input, ctx }) => {
+      const userId = ctx.session.user.id;
+      const bounty = await ctx.db.bounty.findUnique({
+        where: { id: input.bountyId },
+        select: { creatorId: true },
+      });
+
+      if (!bounty) {
+        throw new Error("Bounty not found");
+      }
+
+      // Fetch the doubts between the user and creator
+      const bountyDoubts = await ctx.db.bountyDoubt.findMany({
+        where: {
+          bountyId: input.bountyId,
+          userId: userId, // Fetch doubts initiated by the specific user
+        },
+        include: {
+          messages: {
+            where: {
+              senderId: {
+                in: [userId, bounty.creatorId], // Ensure both user and creator messages are fetched
+              },
+            },
+            orderBy: { createdAt: "asc" }, // Order messages by creation time
+          },
+        },
+      });
+
+      // Debugging purposes: check the retrieved bounty doubts
+      console.log("bountyDoubts", bountyDoubts);
+
+      // Map messages to extract content and role
+      const messages = bountyDoubts.flatMap((doubt) =>
+        doubt.messages.map((message) => ({
+          message: message.content,
+          role: message.role,
+        })),
+      );
+
+      return messages.length > 0 ? messages : [];
+    }),
 });

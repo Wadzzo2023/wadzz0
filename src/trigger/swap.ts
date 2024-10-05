@@ -1,4 +1,4 @@
-import { task } from "@trigger.dev/sdk/v3";
+import { logger, task } from "@trigger.dev/sdk/v3";
 import { submitSignedXDRToServer4User } from "package/connect_wallet/src/lib/stellar/trx/payment_fb_g";
 import { db } from "~/server/db";
 
@@ -14,6 +14,8 @@ export const swapTask = task({
   run: async (payload: { xdr: string; bountyId: number }) => {
     const { xdr } = payload;
     const res = await submitSignedXDRToServer4User(xdr);
+    logger.log("Log message", { res });
+
     if (!res) {
       throw new Error("Swap failed");
     }

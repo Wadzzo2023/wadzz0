@@ -7,7 +7,10 @@ import { useMarketRightStore } from "~/lib/state/marketplace/right";
 import { api } from "~/utils/api";
 import { addrShort } from "~/utils/utils";
 import BuyModal from "../music/modal/buy_modal";
-import ImageVideViewer from "../wallete/Image_video_viewer";
+import ImageVideViewer, {
+  AudioViewer,
+  VideoViewer,
+} from "../wallete/Image_video_viewer";
 import MyError from "../wallete/my_error";
 
 import {
@@ -22,6 +25,7 @@ import {
 import { Button } from "../shadcn/ui/button";
 
 import { PLATFORM_ASSET } from "~/lib/stellar/constant";
+import { usePlayerStore } from "~/lib/state/music/track";
 
 export type AssetType = Omit<Asset, "issuerPrivate">;
 
@@ -49,6 +53,7 @@ export function AssetDetails({
 }: {
   currentData: MarketAssetType;
 }) {
+  const { setNewTrack } = usePlayerStore();
   const color = "#7ec34e";
   return (
     <div className=" h-full w-full">
@@ -64,11 +69,23 @@ export function AssetDetails({
         <div className="flex h-full flex-col justify-between space-y-2 p-2">
           <div className="flex h-full flex-col gap-2 ">
             <div className="relative flex-1 space-y-2 rounded-xl border-4 border-base-100 p-1 text-sm tracking-wider">
-              <MediaViewer
-                mediaUrl={currentData.asset.mediaUrl}
-                thumbnailUrl={currentData.asset.thumbnail}
-                name={currentData.asset.name}
-              />
+              <div className="avatar w-full">
+                {currentData.asset.tierId ? (
+                  <MediaViewer
+                    mediaUrl={currentData.asset.mediaUrl}
+                    thumbnailUrl={currentData.asset.thumbnail}
+                    name={currentData.asset.name}
+                  />
+                ) : (
+                  <MediaViewForPublic
+                    mediaUrl={currentData.asset.mediaUrl}
+                    thumbnailUrl={currentData.asset.thumbnail}
+                    name={currentData.asset.name}
+                    type={currentData.asset.mediaType}
+                    color="green"
+                  />
+                )}
+              </div>
             </div>
 
             <div className="relative flex-1 space-y-2 rounded-xl border-4 border-base-100 p-4 text-sm tracking-wider">
@@ -89,16 +106,22 @@ export function AssetDetails({
                 <p className="line-clamp-2">
                   <b>Description: </b> {currentData.asset.description}
                 </p>
-                <p>
-                  <span className="font-semibold">Available:</span>{" "}
-                  <TokenCopies id={currentData.id} /> copy
-                </p>
+                {currentData.asset.tierId ? (
+                  <>
+                    <p>
+                      <span className="font-semibold">Available:</span>{" "}
+                      <TokenCopies id={currentData.id} /> copy
+                    </p>
 
-                <p>
-                  <span className="font-semibold">
-                    Price: {currentData.price} {PLATFORM_ASSET.code}
-                  </span>
-                </p>
+                    <p>
+                      <span className="font-semibold">
+                        Price: {currentData.price} {PLATFORM_ASSET.code}
+                      </span>
+                    </p>
+                  </>
+                ) : (
+                  <></>
+                )}
                 {currentData.placerId && (
                   <p>
                     <b>Seller</b>: <SellerInfo id={currentData.placerId} />
@@ -112,7 +135,27 @@ export function AssetDetails({
                 <div>
                   <OtherButtons />
                 </div>
+
                 <DeleteAssetByAdmin id={currentData.id} />
+                {!currentData.asset.tierId &&
+                  currentData.asset.mediaType == "MUSIC" && (
+                    <Button
+                      onClick={() =>
+                        setNewTrack({
+                          artist:
+                            currentData?.asset?.creatorId?.substring(0, 4) ??
+                            "creator",
+                          mediaUrl: currentData.asset.mediaUrl,
+                          name: currentData.asset.name,
+                          thumbnail: currentData.asset.thumbnail,
+                          code: currentData.asset.code,
+                        })
+                      }
+                      className="w-full"
+                    >
+                      Play{" "}
+                    </Button>
+                  )}
               </div>
             </div>
           </div>
@@ -160,6 +203,7 @@ export function SongTokenCopies({
 function OtherButtons() {
   const { currentData } = useMarketRightStore();
   const session = useSession();
+
   if (session.status == "authenticated")
     if (currentData) {
       if (currentData.asset.creatorId == session.data.user.id) {
@@ -169,7 +213,7 @@ function OtherButtons() {
             issuer={currentData.asset.issuer}
           />
         );
-      } else
+      } else if (currentData.asset.tierId)
         return (
           <>
             <BuyModal
@@ -246,7 +290,33 @@ export function DisableFromMarketButton({
     </div>
   );
 }
+function MediaViewForPublic(props: {
+  color: string;
+  thumbnailUrl: string;
+  mediaUrl: string;
+  name: string;
+  type: MediaType;
+}) {
+  const { color, type } = props;
+  const { thumbnailUrl, mediaUrl, name } = props;
 
+  const [play, setPlay] = useState(true);
+
+  function MediaPlay() {
+    switch (type) {
+      case MediaType.VIDEO:
+        return <VideoViewer url={mediaUrl} />;
+
+      case MediaType.MUSIC:
+        return <AudioViewer url={mediaUrl} thumbnailUrl={thumbnailUrl} />;
+
+      default:
+        return <ThumbNailView name={name} thumbnailUrl={thumbnailUrl} />;
+    }
+  }
+
+  return <MediaPlay />;
+}
 function MediaViewer(props: {
   // color: string;
   thumbnailUrl: string;

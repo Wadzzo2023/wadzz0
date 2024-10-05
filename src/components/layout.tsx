@@ -91,9 +91,10 @@ export default function Layout({
               </div>
 
               {router.pathname !== "/walletBalance" &&
+                router.pathname !== "/notification" &&
+                router.pathname !== "/bounty/[id]" &&
                 router.pathname !== "/settings" &&
                 router.pathname !== "/about" &&
-                router.pathname !== "/bounty/[id]" &&
                 router.pathname !== "/support" &&
                 router.pathname !== "/privacy" &&
                 session.status == "authenticated" && <RightSideBar />}
