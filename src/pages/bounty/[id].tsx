@@ -783,7 +783,8 @@ const UserBountyPage = () => {
                                         {(
                                           data?.priceInBand +
                                           Number(TrxBaseFeeInPlatformAsset) +
-                                          Number(PLATFORM_FEE)
+                                          Number(PLATFORM_FEE) +
+                                          getTrustCost!
                                         ).toFixed(2)}{" "}
                                         {PLATFORM_ASSET.code}
                                       </dd>
