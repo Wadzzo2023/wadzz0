@@ -8,20 +8,20 @@ const PrivacyPage = () => {
           </h1>
 
           <p className="mb-4 text-center">
-            Learn more about how Bandcoin collects and uses data and your rights
-            as a Bandcoin user.
+            Learn more about how Wadzzo collects and uses data and your rights
+            as a Wadzzo user.
           </p>
 
           <p className="mb-2  font-bold">UPDATED MARCH 12, 2024</p>
           <h2 className="mb-2 text-2xl font-bold">Introduction</h2>
           <p className="mb-4">
             Our privacy policy will help you understand what information we
-            collect at Bandcoin.com, how Bandcoin.com uses it, and what choices
-            you have. Bandcoin.io built the Bandcoin.io website as a free app.
-            This SERVICE is provided by Bandcoin.io at no cost and is intended
-            for use as is. If you choose to use our Service, then you agree to
-            the collection and use of information in relation with this policy.
-            The Personal Information that we collect are used for providing and
+            collect at Wadzzo.com, how Wadzzo.com uses it, and what choices you
+            have. Wadzzo.com built the Wadzzo.com website as a free app. This
+            SERVICE is provided by Wadzzo.com at no cost and is intended for use
+            as is. If you choose to use our Service, then you agree to the
+            collection and use of information in relation with this policy. The
+            Personal Information that we collect are used for providing and
             improving the Service. We will not use or share your information
             with anyone except as described in this Privacy Policy. The terms
             used in this Privacy Policy have the same meanings as in our Terms

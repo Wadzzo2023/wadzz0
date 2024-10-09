@@ -94,8 +94,8 @@ export default async function handler(
       title: location.title,
       description: location.description ?? "No description provided",
       brand_name: location.creator.name,
-      url: location.link ?? "https://bandcoin.io/",
-      image_url: location.image ?? location.creator.profileUrl ?? BandcoinIconURL,
+      url: location.link ?? "https://wadzzo.com/",
+      image_url: location.image ?? location.creator.profileUrl ?? WadzzoIconURL,
       collected: location.consumers.length > 0,
       collection_limit_remaining: 3,
       auto_collect: location.autoCollect,
@@ -113,8 +113,8 @@ export default async function handler(
       title: location.title,
       description: location.description ?? "No description provided",
       brand_name: location.creator.name,
-      url: location.link ?? "https://bandcoin.io/",
-      image_url: location.image ?? location.creator.profileUrl ?? BandcoinIconURL,
+      url: location.link ?? "https://wadzzo.com/",
+      image_url: location.image ?? location.creator.profileUrl ?? WadzzoIconURL,
       collected: location.consumers.length > 0,
       collection_limit_remaining: 3,
       auto_collect: location.autoCollect,
@@ -131,4 +131,4 @@ export default async function handler(
   res.status(200).json({ locations: locations });
 }
 
-export const BandcoinIconURL = "https://bandcoin.io/images/logo.png";
+export const WadzzoIconURL = "https://app.wadzzo.com/images/loading.png";

@@ -23,12 +23,12 @@ export default function About() {
         >
           <div className="relative mx-auto max-w-5xl text-center">
             <h2 className="block w-full  text-3xl font-bold  sm:text-4xl">
-              About Bandcoin
+              About Wadzzo
             </h2>
             <p className="mx-auto my-4 w-full max-w-xl  text-center font-medium leading-relaxed tracking-wide ">
-              Bandcoin is the best place for creators to build community with
+              Wadzzo is the best place for creators to build community with
               their biggest fans, share exclusive work, and turn their passions
-              into lasting creative businesses. Starting a Bandcoin account is
+              into lasting creative businesses. Starting a Wadzzo account is
               free for creators and their fans. If they want to start earning an
               income, they can choose to launch their own digital shop or run a
               paid membership. Here, creators get a direct line to their

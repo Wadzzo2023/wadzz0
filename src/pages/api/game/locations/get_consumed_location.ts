@@ -1,9 +1,10 @@
+import { WadzzoIconURL } from './index';
 import type { NextApiRequest, NextApiResponse } from "next";
 import { getSession } from "next-auth/react";
 import { db } from "~/server/db";
 import { ConsumedLocation, Location } from "~/types/game/location";
 import { avaterIconUrl } from "../brands";
-import { BandcoinIconURL } from ".";
+
 
 // import { getSession } from "next-auth/react";
 
@@ -25,6 +26,7 @@ export default async function handler(
   const consumedLocations = await db.locationConsumer.findMany({
     where: {
       userId: session.user.id,
+      hidden: false
     },
     include: { location: { include: { creator: true } } },
   });
@@ -38,11 +40,11 @@ export default async function handler(
       description:
         consumption.location.description ?? "No description provided",
       brand_name: consumption.location.creator.name,
-      url: consumption.location.link ?? "https://bandcoin.io/",
+      url: consumption.location.link ?? "https://app.wadzzo.com/",
       image_url:
         consumption.location.image ??
         consumption.location.creator.profileUrl ??
-        BandcoinIconURL,
+        WadzzoIconURL,
       collected: false,
       collection_limit_remaining: 3,
       auto_collect: true,

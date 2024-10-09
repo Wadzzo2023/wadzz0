@@ -74,7 +74,7 @@ const MyAssetList = () => {
             <h1>No Assets Available</h1>
           ) : (
             data?.map((balance, idx) => {
-              if (balance?.asset_code.toUpperCase() !== "BANDCOIN") {
+              if (balance?.asset_code.toUpperCase() !== "WADZZO") {
                 return (
                   <div
                     key={`${balance?.asset_code}-${idx}`}
