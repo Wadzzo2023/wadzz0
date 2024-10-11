@@ -114,7 +114,7 @@ function App() {
   });
   const handleCenterChange = (center: google.maps.LatLngBoundsLiteral) => {
     if (center) {
-      const data = GetPinMutation.mutate({
+      GetPinMutation.mutate({
         eastLongitude: center.east,
         westLongitude: center.west,
         northLatitude: center.north,
@@ -162,7 +162,7 @@ function App() {
 
   function SideMapItem({ rangedPins }: { rangedPins: pins }) {
     return (
-      <div className="absolute bottom-4 right-4 top-4 flex w-64 items-center justify-center  ">
+      <div className="absolute bottom-4 right-4 top-96 flex max-h-[300px] min-h-[300px] w-64  items-center justify-center">
         <div className="max-h-[300px] min-h-[300px] w-60 overflow-y-auto rounded-lg bg-white p-4  scrollbar-hide ">
           <h2 className="mb-4 text-lg font-semibold">Nearby Locations</h2>
           <div className="space-y-4">

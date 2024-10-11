@@ -3,7 +3,7 @@ import { getSession } from "next-auth/react";
 import { db } from "~/server/db";
 import { ConsumedLocation, Location } from "~/types/game/location";
 import { avaterIconUrl } from "../brands";
-import { wadzzoIconURL } from ".";
+import { WadzzoIconURL } from "./index";
 
 // import { getSession } from "next-auth/react";
 
@@ -43,7 +43,7 @@ export default async function handler(
       image_url:
         consumption.location.image ??
         consumption.location.creator.profileUrl ??
-        wadzzoIconURL,
+        WadzzoIconURL,
       collected: false,
       collection_limit_remaining: 3,
       auto_collect: true,

@@ -35,7 +35,7 @@ export default function AllTags() {
         key={PLATFORM_ASSET.code}
         type="radio"
         name="options"
-        aria-label={PLATFORM_ASSET.code}
+        aria-label={CREATOR_PLURAL_TERM.toUpperCase()}
         onClick={() => {
           selectTag(AssetVariant.ADMIN);
           setData(undefined);

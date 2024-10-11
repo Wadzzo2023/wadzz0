@@ -648,7 +648,7 @@ const UserBountyPage = () => {
                               <Alert
                                 className="flex  items-center justify-center"
                                 type="error"
-                                content={`Please Contact Admin. support@bandcoin.io`}
+                                content={`Please Contact Admin. support@wadzzo.com`}
                               />
                             ) : !getUserHasTrustLine.data &&
                               getTrustCost &&
@@ -783,7 +783,8 @@ const UserBountyPage = () => {
                                         {(
                                           data?.priceInBand +
                                           Number(TrxBaseFeeInPlatformAsset) +
-                                          Number(PLATFORM_FEE)
+                                          Number(PLATFORM_FEE) +
+                                          getTrustCost!
                                         ).toFixed(2)}{" "}
                                         {PLATFORM_ASSET.code}
                                       </dd>
