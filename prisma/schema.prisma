@@ -264,6 +264,10 @@ model User {
 
     joinedAt DateTime? @default(now())
 
+    // Energy
+    energy       Float    @default(0)
+    lastEnergyAt DateTime @default(now())
+
     accounts         Account[]
     sessions         Session[]
     creator          Creator?
