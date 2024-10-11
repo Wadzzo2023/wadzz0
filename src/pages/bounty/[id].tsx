@@ -1,12 +1,8 @@
 import clsx from "clsx";
-import { format, formatDate } from "date-fns";
+import { format } from "date-fns";
 import {
-  ArrowLeft,
-  ArrowLeftRight,
   ArrowRight,
-  Clock,
   Crown,
-  DatabaseZap,
   DollarSign,
   Edit,
   File,
@@ -15,18 +11,8 @@ import {
   Send,
   Trash,
   Trophy,
-  UploadCloud,
   Users,
 } from "lucide-react";
-import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "~/components/shadcn/ui/dialog";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -45,19 +31,28 @@ import {
 import { Badge } from "~/components/shadcn/ui/badge";
 import { Button } from "~/components/shadcn/ui/button";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "~/components/shadcn/ui/select";
-import {
   Card,
   CardContent,
   CardFooter,
   CardHeader,
   CardTitle,
 } from "~/components/shadcn/ui/card";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "~/components/shadcn/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "~/components/shadcn/ui/select";
 import { Separator } from "~/components/shadcn/ui/separator";
 import {
   Tabs,
@@ -68,8 +63,6 @@ import {
 import Alert from "~/components/ui/alert";
 import Avater from "~/components/ui/avater";
 import useNeedSign from "~/lib/hook";
-import { useBountyRightStore } from "~/lib/state/bounty/use-bounty-store";
-import { usePopUpState } from "~/lib/state/right-pop";
 import { useUserStellarAcc } from "~/lib/state/wallete/stellar-balances";
 import {
   PLATFORM_ASSET,
@@ -81,17 +74,13 @@ import { useSession } from "next-auth/react";
 
 import { api } from "~/utils/api";
 
-import { clientsign, WalletType } from "package/connect_wallet";
-import { clientSelect } from "~/lib/stellar/fan/utils";
-import {
-  getAssetPrice,
-  getAssetToUSDCRate,
-} from "~/lib/stellar/fan/get_token_price";
-import Loading from "~/components/wallete/loading";
 import { SubmissionViewType, UserRole } from "@prisma/client";
-import { Input } from "~/components/shadcn/ui/input";
-import { cn } from "~/lib/utils";
+import { clientsign, WalletType } from "package/connect_wallet";
 import Chat from "~/components/fan/creator/bounty/Chat";
+import { Input } from "~/components/shadcn/ui/input";
+import Loading from "~/components/wallete/loading";
+import { clientSelect } from "~/lib/stellar/fan/utils";
+import { cn } from "~/lib/utils";
 import { addrShort } from "~/utils/utils";
 
 const SingleBountyPage = () => {
