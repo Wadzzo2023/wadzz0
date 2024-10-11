@@ -3,6 +3,7 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import { Mode, useMode } from "~/lib/state/fan/left-side-mode";
 import { api } from "~/utils/api";
+import { CREATOR_TERM } from "~/utils/term";
 
 function ProfileComponent({
   avaterUrl,
@@ -23,7 +24,7 @@ function ProfileComponent({
         onClick={handleModeChange}
       >
         <SwitchCamera />
-        <p className="">Switch to {mode}</p>
+        <p className="">Switch to {mode == Mode.Creator ? CREATOR_TERM : mode}</p>
         <Sparkle />
       </div>
     </div>
