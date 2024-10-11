@@ -22,13 +22,78 @@ export default async function handler(
   }
 
   // Return the locations
-  const consumedLocations = await db.locationConsumer.findMany({
-    where: {
-      userId: session.user.id,
-      hidden: false,
+  /*
+    const consumedLocations = await db.locationConsumer.findMany({
+      where: {
+        userId: session.user.id,
+        hidden: false,
+      },
+      include: { location: { include: { creator: true } } },
+    });
+  */
+
+  // location
+  const dbLocations = await db.location.findMany({
+    select: {
+      id: true,
+      link: true,
+      latitude: true,
+      longitude: true,
+      description: true,
+      creatorId: true,
+      title: true,
+      limit: true,
+
+      consumers: {
+        select: { userId: true, viewedAt: true },
+        where: { userId: session.user.id },
+      },
+      image: true,
+      autoCollect: true,
+      creator: true,
+      _count: {
+        select: {
+          consumers: {
+            where: { userId: session.user.id },
+          },
+        },
+      },
     },
-    include: { location: { include: { creator: true } } },
+    where: {
+      consumers: {
+        some: {
+          userId: session.user.id,
+          hidden: false,
+        },
+        none: {
+          userId: session.user.id,
+          hidden: true,
+        },
+      },
+    },
   });
+
+  const locations: ConsumedLocation[] = dbLocations.map((location) => {
+    return {
+      id: location.id,
+      lat: location.latitude,
+      lng: location.longitude,
+      title: location.title,
+      description: location.description ?? "No description provided",
+      viewed: location.consumers.some((el) => el.viewedAt != null),
+      auto_collect: location.autoCollect,
+      brand_image_url: location.creator.profileUrl ?? avaterIconUrl,
+      brand_id: location.creator.id,
+      modal_url: "https://vong.cong/",
+      collected: true,
+      collection_limit_remaining: location.limit - location._count.consumers,
+      brand_name: location.creator.name,
+      image_url: location.image ?? location.creator.profileUrl ?? WadzzoIconURL,
+      url: location.link ?? "https://app.wadzzo.com/",
+    };
+  });
+
+  /*
 
   const locations: ConsumedLocation[] = consumedLocations.map((consumption) => {
     return {
@@ -53,6 +118,7 @@ export default async function handler(
       viewed: consumption.viewedAt != null,
     };
   });
+  */
 
   res.status(200).json({ locations: locations });
 }

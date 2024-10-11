@@ -20,8 +20,8 @@ export const trxRouter = createTRPCRouter({
         where: { id: input.locationId },
         include: { creator: { include: { pageAsset: true } }, asset: true },
       });
-      
-      if (!location.claimAmount) throw new Error("No claimant ammount");
+
+      if (!location.claimAmount) throw new Error("No claimant amount");
 
       if (!location.asset && !location.pageAsset)
         throw new Error("Not claimable");
@@ -44,23 +44,20 @@ export const trxRouter = createTRPCRouter({
 
       const storageSecret = location.creator.storageSecret;
 
-      if (code && issuer)
-      {
+      if (code && issuer) {
         try {
-          const xdr:string  = await ClaimXDR({
-          amount,
-          asset: { code, issuer },
-          receiver: userId,
-          signWith: input.signWith,
-          storageSecret: storageSecret,
+          const xdr: string = await ClaimXDR({
+            amount,
+            asset: { code, issuer },
+            receiver: userId,
+            signWith: input.signWith,
+            storageSecret: storageSecret,
           });
 
           return xdr;
-        }
-        catch (error) {
+        } catch (error) {
           console.error(error);
         }
-      }
-      else throw new Error("Code and Issue not found");
+      } else throw new Error("Code and Issue not found");
     }),
 });
