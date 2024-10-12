@@ -22,10 +22,17 @@ export default async function handler(
 
   // Check if the user is authenticated
   if (!token) {
-    res.status(401).json({
+    return res.status(401).json({
       error: "User is not authenticated",
     });
-    return;
+  }
+
+  const pubkey = token.sub;
+
+  if (!pubkey) {
+    return res.status(404).json({
+      error: "pubkey not found",
+    });
   }
 
   const data = z
@@ -33,35 +40,41 @@ export default async function handler(
     .safeParse(req.body);
 
   if (!data.success) {
-    res.status(400).json({
+    return res.status(400).json({
       error: data.error,
     });
-    return;
   }
   const loc = data.data;
 
   const location = await db.location.findUnique({
+    include: {
+      _count: {
+        select: {
+          consumers: {
+            where: { userId: pubkey },
+          },
+        },
+      },
+    },
     where: { id: loc.location_id },
   });
+
   if (!location) {
-    res.status(422).json({
+    return res.status(422).json({
       success: false,
       data: "Could not find the location",
     });
-    return;
   }
 
-  const pubkey = token.sub;
-
-  if (!pubkey) {
-    res.status(404).json({
-      error: "pubkey not found",
+  if (location._count.consumers < location.limit) {
+    await db.locationConsumer.create({
+      data: { locationId: location.id, userId: pubkey },
     });
-    return;
+    return res.status(200).json({ success: true, data: "Location consumed" });
+  } else {
+    return res.status(422).json({
+      success: false,
+      data: "Location limit reached",
+    });
   }
-  await db.locationConsumer.create({
-    data: { locationId: location.id, userId: pubkey },
-  });
-
-  res.status(200).json({ success: true, data: "Location consumed" });
 }

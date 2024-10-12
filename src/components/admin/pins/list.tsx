@@ -124,7 +124,7 @@ function PinsList({ groups }: { groups: Group }) {
                     <th>ID</th>
                     <th>title</th>
                     <th>Image</th>
-                    <th>Creator Name</th>
+                    <th>{CREATOR_TERM} Name</th>
                     <th>Description</th>
                   </tr>
                 </thead>

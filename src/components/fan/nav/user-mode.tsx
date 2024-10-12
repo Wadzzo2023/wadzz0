@@ -4,6 +4,7 @@ import { api } from "~/utils/api";
 import { Profile } from "./profile-menu";
 import { Button } from "~/components/shadcn/ui/button";
 import Link from "next/link";
+import { CREATOR_PLURAL_TERM } from "~/utils/term";
 
 export function UserMode() {
   return (
@@ -25,7 +26,7 @@ export function AllCreators() {
 
   return (
     <div className="flex w-full  flex-1 flex-col  items-start gap-2 overflow-y-auto rounded-lg border-4 border-base-100  pt-5">
-      <p className="pl-2 text-lg font-bold">All creators</p>
+      <p className="pl-2 text-lg font-bold">All {CREATOR_PLURAL_TERM}</p>
       <div className="w-full flex-1 overflow-auto rounded-lg  p-2 scrollbar-hide ">
         <ul className=" ">
           {creators.data?.pages.map((page) => {

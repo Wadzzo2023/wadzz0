@@ -5,7 +5,6 @@ import Logo from "./logo";
 import { SiteAssetBalance } from "./marketplace/recharge/site_asset_bal";
 
 import Image from "next/image";
-import { ConnectWalletButton } from "package/connect_wallet";
 
 interface HeaderProps {
   key?: React.Key;

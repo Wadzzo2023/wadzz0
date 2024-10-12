@@ -9,7 +9,7 @@ export default defineConfig({
       }),
     ],
   },
-  project: "proj_ifjzghwngjgjtawwycir",
+  project: "proj_tqctixsvibdalqbzewpb",
   runtime: "node",
   logLevel: "log",
   retries: {

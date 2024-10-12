@@ -118,37 +118,41 @@ export const pinRouter = createTRPCRouter({
 
     return pins;
   }),
-  getRangePins: creatorProcedure.input(z.object({
-    northLatitude: z.number(),
-    southLatitude: z.number(),
-    eastLongitude: z.number(),
-    westLongitude: z.number(),
-  })).mutation(async ({ ctx, input }) => {
-    const { northLatitude, southLatitude, eastLongitude, westLongitude } = input;
+  getRangePins: creatorProcedure
+    .input(
+      z.object({
+        northLatitude: z.number(),
+        southLatitude: z.number(),
+        eastLongitude: z.number(),
+        westLongitude: z.number(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { northLatitude, southLatitude, eastLongitude, westLongitude } =
+        input;
 
-    const pins = await ctx.db.location.findMany({
-      where: {
-        creatorId: ctx.session.user.id,
-        endDate: { gte: new Date() },
-        approved: { equals: true },
-        latitude: {
-          gte: southLatitude,
-          lte: northLatitude,
+      const pins = await ctx.db.location.findMany({
+        where: {
+          creatorId: ctx.session.user.id,
+          endDate: { gte: new Date() },
+          approved: { equals: true },
+          latitude: {
+            gte: southLatitude,
+            lte: northLatitude,
+          },
+          longitude: {
+            gte: westLongitude,
+            lte: eastLongitude,
+          },
         },
-        longitude: {
-          gte: westLongitude,
-          lte: eastLongitude,
+        include: {
+          _count: { select: { consumers: true } },
+          creator: { select: { profileUrl: true } },
         },
-      },
-      include: {
-        _count: { select: { consumers: true } },
-        creator: { select: { profileUrl: true } },
-      },
-    });
+      });
 
-    return pins ? pins : [];
-  }),
-
+      return pins ? pins : [];
+    }),
 
   getPins: adminProcedure.query(async ({ ctx, input }) => {
     const pins = await ctx.db.location.findMany({
@@ -236,10 +240,10 @@ export const pinRouter = createTRPCRouter({
         where: {
           createdAt: input
             ? {
-              gte: new Date(
-                new Date().getTime() - input.day * 24 * 60 * 60 * 1000,
-              ),
-            }
+                gte: new Date(
+                  new Date().getTime() - input.day * 24 * 60 * 60 * 1000,
+                ),
+              }
             : {},
         },
         include: {
@@ -266,10 +270,10 @@ export const pinRouter = createTRPCRouter({
         where: {
           createdAt: input
             ? {
-              gte: new Date(
-                new Date().getTime() - input.day * 24 * 60 * 60 * 1000,
-              ),
-            }
+                gte: new Date(
+                  new Date().getTime() - input.day * 24 * 60 * 60 * 1000,
+                ),
+              }
             : {},
           location: {
             creatorId,
@@ -298,10 +302,10 @@ export const pinRouter = createTRPCRouter({
         where: {
           createdAt: input
             ? {
-              gte: new Date(
-                new Date().getTime() - input.day * 24 * 60 * 60 * 1000,
-              ),
-            }
+                gte: new Date(
+                  new Date().getTime() - input.day * 24 * 60 * 60 * 1000,
+                ),
+              }
             : {},
         },
         include: {

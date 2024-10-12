@@ -42,6 +42,7 @@ import {
 import { api } from "~/utils/api";
 import { Location } from "@prisma/client";
 import Link from "next/link";
+import { CREATOR_TERM } from "~/utils/term";
 
 export default function CreatorsPinReports() {
   const pins = api.maps.pin.getCreatorCreatedPin.useQuery();
@@ -51,7 +52,9 @@ export default function CreatorsPinReports() {
     return (
       <div>
         <div className="flex items-center justify-center ">
-          <h2 className="p-4 text-center text-lg font-bold">Creator Pins</h2>
+          <h2 className="p-4 text-center text-lg font-bold">
+            {CREATOR_TERM} Pins
+          </h2>
           <Link href="/maps/pins/creator/report">
             <Button>Collection Reports</Button>
           </Link>

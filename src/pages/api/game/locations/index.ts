@@ -38,9 +38,14 @@ export default async function handler(
       description: true,
       creatorId: true,
       title: true,
-      consumers: {
-        select: { userId: true },
-        where: { userId: session.user.id },
+      limit: true,
+
+      _count: {
+        select: {
+          consumers: {
+            where: { userId: session.user.id },
+          },
+        },
       },
       image: true,
       autoCollect: true,
@@ -103,8 +108,8 @@ export default async function handler(
       brand_name: location.creator.name,
       url: location.link ?? "https://wadzzo.com/",
       image_url: location.image ?? location.creator.profileUrl ?? WadzzoIconURL,
-      collected: location.consumers.length > 0,
-      collection_limit_remaining: 3,
+      collected: location.consumers.length >= location.limit,
+      collection_limit_remaining: location.limit - location.consumers.length,
       auto_collect: location.autoCollect,
       brand_image_url: location.creator.profileUrl ?? abaterIconUrl,
       brand_id: location.creatorId,
@@ -122,8 +127,8 @@ export default async function handler(
       brand_name: location.creator.name,
       url: location.link ?? "https://wadzzo.com/",
       image_url: location.image ?? location.creator.profileUrl ?? WadzzoIconURL,
-      collected: location.consumers.length > 0,
-      collection_limit_remaining: 3,
+      collected: location._count.consumers >= location.limit,
+      collection_limit_remaining: location.limit - location._count.consumers,
       auto_collect: location.autoCollect,
       brand_image_url: location.creator.profileUrl ?? abaterIconUrl,
       brand_id: location.creatorId,

@@ -37,7 +37,7 @@ export default function About() {
             </p>
           </div>
 
-          {/* <div className=" flex flex-col items-center justify-center  gap-10 py-5  md:flex-row ">
+          <div className=" flex flex-col items-center justify-center  gap-10 py-5  md:flex-row ">
             <div className=" flex  rounded-md border ">
               <Image
                 src={"/images/about/explore.png"}
@@ -56,7 +56,7 @@ export default function About() {
                 className="h-full w-full"
               />
             </div>
-          </div> */}
+          </div>
 
           <div className="flex flex-col items-center justify-center py-10">
             <h1 className="mb-2 text-xl font-bold">
@@ -64,7 +64,7 @@ export default function About() {
             </h1>
 
             <div className="flex items-center justify-center gap-4  md:items-start md:justify-start">
-              <Link href="">
+              <Link href="https://apps.apple.com/pk/app/wadzzo/id1639649037">
                 <Button className="inline-flex w-full items-center justify-center rounded-lg bg-gray-800 px-4 py-2.5 text-white hover:bg-gray-700 focus:outline-none focus:ring-4 focus:ring-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 dark:focus:ring-gray-700 sm:w-auto">
                   <svg
                     className="me-3 h-7 w-7"
@@ -89,7 +89,7 @@ export default function About() {
                   </div>
                 </Button>
               </Link>
-              <Link href="">
+              <Link href="https://play.google.com/store/apps/details?id=com.Wadzzo.Wadzzo&pli=1">
                 <Button className="inline-flex w-full items-center justify-center rounded-lg bg-gray-800 px-4 py-2.5 text-white hover:bg-gray-700 focus:outline-none focus:ring-4 focus:ring-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 dark:focus:ring-gray-700 sm:w-auto">
                   <svg
                     className="me-3 h-7 w-7"

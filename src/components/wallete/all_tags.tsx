@@ -35,7 +35,7 @@ export default function AllTags() {
         key={PLATFORM_ASSET.code}
         type="radio"
         name="options"
-        aria-label={CREATOR_PLURAL_TERM.toUpperCase()}
+        aria-label={PLATFORM_ASSET.code.toUpperCase()}
         onClick={() => {
           selectTag(AssetVariant.ADMIN);
           setData(undefined);
@@ -57,7 +57,7 @@ export default function AllTags() {
         className="!btn join-item"
         type="radio"
         name="options"
-        aria-label={CREATOR_PLURAL_TERM}
+        aria-label={CREATOR_TERM.toUpperCase()}
         onClick={() => {
           selectTag(AssetVariant.Artists);
           setData(undefined);

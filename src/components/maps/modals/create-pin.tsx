@@ -287,17 +287,27 @@ export default function CreatePinModal({
 
               <label className="form-control w-full">
                 <div className="label">
-                  <span className="label-text">
-                    How many user can collect a pin?
-                  </span>
+                  <span className="label-text">Collection limit per user</span>
                 </div>
 
                 <input
                   type="number"
+                  defaultValue={1}
                   id="perUserTokenAmount"
-                  {...register("pinCollectionLimit", { valueAsNumber: true })}
+                  {...register("pinCollectionLimit", {
+                    valueAsNumber: true,
+                    min: 1,
+                  })} // default value
                   className="input input-bordered"
                 />
+                {/* {getValues("tokenAmount") && (
+                  <div className="label">
+                    <span className="label-text-al text-sm">
+                      One pin will be collectable by minimum: X, maximum: Y user
+                    </span>
+                  </div>
+                )} */}
+
                 {errors.pinCollectionLimit && (
                   <div className="label">
                     <span className="label-text-alt text-red-500">

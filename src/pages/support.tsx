@@ -1,5 +1,5 @@
-import { SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { SubmitHandler, useForm } from "react-hook-form";
 import { z } from "zod";
 export const TierSchema = z.object({
   name: z
