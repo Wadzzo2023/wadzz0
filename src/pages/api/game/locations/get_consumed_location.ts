@@ -4,6 +4,7 @@ import { getSession } from "next-auth/react";
 import { db } from "~/server/db";
 import { ConsumedLocation, Location } from "~/types/game/location";
 import { avaterIconUrl } from "../brands";
+import NextCors from 'nextjs-cors';
 
 
 // import { getSession } from "next-auth/react";
@@ -12,6 +13,12 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse,
 ) {
+  await NextCors(req, res, {
+    methods: ["GET", "HEAD", "PUT", "PATCH", "POST", "DELETE"],
+    origin: "*",
+    optionsSuccessStatus: 200,
+  });
+
   const session = await getSession({ req });
 
   // Check if the user is authenticated

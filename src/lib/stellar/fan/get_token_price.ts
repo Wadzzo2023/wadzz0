@@ -107,3 +107,5 @@ export async function getAssetToUSDCRate(): Promise<number> {
     throw error;
   }
 }
+
+

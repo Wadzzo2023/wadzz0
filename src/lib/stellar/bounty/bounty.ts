@@ -299,7 +299,7 @@ export async function SwapUserAssetToMotherUSDC({
   }
 
   const oneUSDCEqual = await getAssetToUSDCRate();
-  const oneASSETEqual = await getAssetPrice();
+  const oneASSETEqual = 0.01;
 
   const oneAssetInUSDC = oneASSETEqual / oneUSDCEqual;
 

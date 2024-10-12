@@ -176,8 +176,9 @@ const CreateBounty = () => {
     setMedia((prevMedia) => prevMedia.filter((_, i) => i !== index));
   };
 
-  const { data: prize } = api.bounty.Bounty.getCurrentUSDFromAsset.useQuery();
-  console.log("prize", prize);
+  //OnlyForWadzzo
+  const prize = 0.01;
+
   return (
     <>
       {isCardDisabled ? (
