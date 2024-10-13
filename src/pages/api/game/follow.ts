@@ -9,6 +9,9 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse,
 ) {
+  if (req.method === "OPTIONS") {
+    return res.status(200).end();
+  }
   const token = await getToken({ req });
   // console.log(token, "..");
 
@@ -38,7 +41,6 @@ export default async function handler(
   const follow = await db.follow.create({
     data: { creatorId: creator.id, userId: pubkey },
   });
-
 
   await db.notification.create({
     data: {
