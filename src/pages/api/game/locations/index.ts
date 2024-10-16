@@ -39,7 +39,6 @@ export default async function handler(
       creatorId: true,
       title: true,
       limit: true,
-
       _count: {
         select: {
           consumers: {
