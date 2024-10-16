@@ -12,7 +12,10 @@ import { SignUser, WithSing } from "~/lib/stellar/utils";
 
 import { Keypair } from "@stellar/stellar-sdk";
 import { env } from "~/env";
-import { createStorageTrx } from "~/lib/stellar/fan/create_storage";
+import {
+  createStorageTrx,
+  createStorageTrxWithXLM,
+} from "~/lib/stellar/fan/create_storage";
 import { follow_creator } from "~/lib/stellar/fan/follow_creator";
 import { sendGift } from "~/lib/stellar/fan/send_gift";
 import { createUniAsset } from "~/lib/stellar/uni_create_asset";
@@ -195,12 +198,19 @@ export const trxRouter = createTRPCRouter({
     }),
 
   createStorageAccount: protectedProcedure
-    .input(SignUser)
+    .input(z.object({ signWith: SignUser, native: z.boolean().optional() }))
     .mutation(async ({ ctx, input }) => {
-      return await createStorageTrx({
-        pubkey: ctx.session.user.id,
-        signWith: input,
-      });
+      if (input.native) {
+        return await createStorageTrxWithXLM({
+          pubkey: ctx.session.user.id,
+          signWith: input.signWith,
+        });
+      } else {
+        return await createStorageTrx({
+          pubkey: ctx.session.user.id,
+          signWith: input.signWith,
+        });
+      }
     }),
 
   followCreatorTRX: protectedProcedure

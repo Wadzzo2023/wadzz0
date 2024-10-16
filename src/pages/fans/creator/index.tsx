@@ -19,6 +19,10 @@ import { clientSelect } from "~/lib/stellar/fan/utils";
 import { api } from "~/utils/api";
 import { CREATOR_TERM } from "~/utils/term";
 
+import { RadioGroup, RadioGroupItem } from "~/components/shadcn/ui/radio-group";
+import { Label } from "~/components/shadcn/ui/label";
+import { Coins, DollarSign } from "lucide-react";
+
 import { Button } from "~/components/shadcn/ui/button";
 import {
   Dialog,
@@ -35,6 +39,7 @@ import {
   TrxBaseFee,
   TrxBaseFeeInPlatformAsset,
 } from "~/lib/stellar/constant";
+import { P } from "pino";
 
 export default function CreatorProfile() {
   const { data: session } = useSession();
@@ -144,9 +149,15 @@ export function ValidCreateCreator({ message }: { message?: string }) {
   }
 }
 
+const PaymentMethods = {
+  PLATFORM: PLATFORM_ASSET.code,
+  NATIVE: "XLM",
+} as const;
+
 function CreateCreator({ requiredToken }: { requiredToken: number }) {
   const [isOpen, setIsOpen] = useState(false);
   const { needSign } = useNeedSign();
+  const [paymentMethod, setPaymentMethod] = useState(PaymentMethods.PLATFORM);
 
   const session = useSession();
   const makeCreatorMutation = api.fan.creator.makeMeCreator.useMutation();
@@ -182,50 +193,122 @@ function CreateCreator({ requiredToken }: { requiredToken: number }) {
     },
   });
 
+  const handleConfirm = () => {
+    if (paymentMethod === PaymentMethods.PLATFORM) {
+      xdr.mutate({ signWith: needSign() });
+      return;
+    } else {
+      xdr.mutate({ signWith: needSign(), native: true });
+    }
+  };
+
+  const XLM_EQUIVALENT = 7;
+
   const loading = xdr.isLoading || makeCreatorMutation.isLoading || signLoading;
 
   return (
-    <div className="flex h-full flex-col items-center justify-center gap-2 ">
-      <p className="text-2xl font-bold">You are not a {CREATOR_TERM}</p>
-      <p className="alert alert-info max-w-xl text-center">
-        Your account will be charged {requiredToken} {PLATFORM_ASSET.code} to be
-        a brand.
-      </p>
+    <div className="flex h-screen flex-col items-center justify-center gap-4 bg-gray-100 p-4">
+      <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-lg">
+        <h2 className="mb-4 text-center text-2xl font-bold">
+          You are not a {CREATOR_TERM}
+        </h2>
+        <p className="mb-6 text-center text-gray-600">
+          Your account will be charged {requiredToken} {PLATFORM_ASSET.code} or
+          equivalent XLM to be a {CREATOR_TERM.toLowerCase()}.
+        </p>
 
-      <Dialog open={isOpen} onOpenChange={setIsOpen}>
-        <DialogTrigger asChild>
-          <button className="btn btn-primary">Join as a brand</button>
-        </DialogTrigger>
-        <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle>Confirmation </DialogTitle>
-          </DialogHeader>
-          <div>
-            Your account will be charged {requiredToken}{" "}
-            <span className="text-red-600">{PLATFORM_ASSET.code}</span> to be a
-            brand.
-          </div>
-          <DialogFooter className=" w-full">
-            <div className="flex w-full gap-4  ">
-              <DialogClose className="w-full">
-                <Button variant="outline" className="w-full">
-                  Cancel
-                </Button>
-              </DialogClose>
+        <Dialog open={isOpen} onOpenChange={setIsOpen}>
+          <DialogTrigger asChild>
+            <Button className="w-full">
+              Join as a {CREATOR_TERM.toLowerCase()}
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+              <DialogTitle className="mb-4 text-center text-2xl font-bold">
+                Choose Payment Method
+              </DialogTitle>
+            </DialogHeader>
+            <div className="py-4">
+              <RadioGroup
+                value={paymentMethod}
+                onValueChange={setPaymentMethod}
+                className="space-y-4"
+              >
+                <div className="flex items-center space-x-2 rounded-lg border border-gray-200 p-4 transition-colors hover:bg-gray-50">
+                  <RadioGroupItem
+                    value={PLATFORM_ASSET.code}
+                    id={PLATFORM_ASSET.code}
+                    className="border-primary"
+                  />
+                  <Label
+                    htmlFor={PLATFORM_ASSET.code}
+                    className="flex flex-1 cursor-pointer items-center"
+                  >
+                    <Coins className="mr-3 h-6 w-6 text-primary" />
+                    <div className="flex-grow">
+                      <div className="font-medium">
+                        Pay with {PLATFORM_ASSET.code.toUpperCase()}
+                      </div>
+                      <div className="text-sm text-gray-500">
+                        Use platform tokens
+                      </div>
+                    </div>
+                    <div className="text-right font-medium">
+                      {requiredToken} {PLATFORM_ASSET.code.toUpperCase()}
+                    </div>
+                  </Label>
+                </div>
+                <div className="flex items-center space-x-2 rounded-lg border border-gray-200 p-4 transition-colors hover:bg-gray-50">
+                  <RadioGroupItem
+                    value={PaymentMethods.NATIVE}
+                    id={PaymentMethods.NATIVE}
+                    className="border-primary"
+                  />
+                  <Label
+                    htmlFor={PaymentMethods.NATIVE}
+                    className="flex flex-1 cursor-pointer items-center"
+                  >
+                    <DollarSign className="mr-3 h-6 w-6 text-primary" />
+                    <div className="flex-grow">
+                      <div className="font-medium">Pay with XLM</div>
+                      <div className="text-sm text-gray-500">
+                        Use Stellar Lumens
+                      </div>
+                    </div>
+                    <div className="text-right font-medium">
+                      {XLM_EQUIVALENT} XLM
+                    </div>
+                  </Label>
+                </div>
+              </RadioGroup>
+            </div>
+            <div className="mt-4 text-center text-sm text-gray-500">
+              Your account will be charged{" "}
+              {paymentMethod === PLATFORM_ASSET.code
+                ? `${requiredToken} ${PLATFORM_ASSET.code}`
+                : `${XLM_EQUIVALENT} XLM`}{" "}
+              to be a {CREATOR_TERM.toLowerCase()}.
+            </div>
+            <DialogFooter className="mt-6">
               <Button
-                variant="destructive"
-                type="submit"
-                onClick={() => xdr.mutate(needSign())}
+                variant="outline"
+                onClick={() => setIsOpen(false)}
+                className="mb-2 w-full"
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={handleConfirm}
                 disabled={loading}
                 className="w-full"
               >
-                {loading && <span className="loading loading-spinner" />}
-                Confirm
+                {loading ? "Processing..." : "Confirm Payment"}
               </Button>
-            </div>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </div>
     </div>
   );
 }
