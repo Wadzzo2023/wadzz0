@@ -12,6 +12,8 @@ import { RadioGroup, RadioGroupItem } from "~/components/shadcn/ui/radio-group";
 import { Label } from "~/components/shadcn/ui/label";
 import { Coins, DollarSign } from "lucide-react";
 import { CREATOR_TERM } from "~/utils/term";
+import { PaymentMethods } from "~/pages/fans/creator";
+import { PLATFORM_ASSET } from "~/lib/stellar/constant";
 
 export default function Component() {
   const [loading, setLoading] = useState(false);
@@ -42,34 +44,60 @@ export default function Component() {
           equivalent XLM to be a {CREATOR_TERM.toLowerCase()}.
         </p>
 
-        {PaymentChoose(
-          requiredToken,
-          XLM_EQUIVALENT,
-          PLATFORM_ASSET,
-          handleConfirm,
-          loading,
-        )}
+        <PaymentChoose
+          requiredToken={requiredToken}
+          XLM_EQUIVALENT={XLM_EQUIVALENT}
+          handleConfirm={handleConfirm}
+          loading={loading}
+          trigger={
+            <Button className="w-full">
+              Join as a {CREATOR_TERM.toLowerCase()}
+            </Button>
+          }
+        />
       </div>
     </div>
   );
 }
-function PaymentChoose(
-  requiredToken: number,
-  XLM_EQUIVALENT: number,
-  PLATFORM_ASSET: { code: string },
-  handleConfirm: () => void,
-  loading: boolean,
-) {
+
+/// create zustund store for paymentMethod
+
+import { create } from "zustand";
+
+interface PaymentMethodStore {
+  paymentMethod: string;
+  setPaymentMethod: (method: string) => void;
+}
+
+export const usePaymentMethodStore = create<PaymentMethodStore>((set) => ({
+  paymentMethod: PaymentMethods.PLATFORM,
+  setPaymentMethod: (method) => set({ paymentMethod: method }),
+}));
+
+export function PaymentChoose({
+  XLM_EQUIVALENT,
+  handleConfirm,
+  loading,
+  requiredToken,
+  trigger,
+}: {
+  requiredToken: number;
+  XLM_EQUIVALENT: number;
+  handleConfirm: () => void;
+  loading: boolean;
+  trigger: React.ReactNode;
+}) {
   const [isOpen, setIsOpen] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState("wadzzo");
+  const { paymentMethod, setPaymentMethod } = usePaymentMethodStore();
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>
-        <Button className="w-full">
-          Join as a {CREATOR_TERM.toLowerCase()}
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogTrigger asChild>{trigger}</DialogTrigger>
+      <DialogContent
+        onInteractOutside={(e) => {
+          e.preventDefault();
+        }}
+        className="sm:max-w-[425px]"
+      >
         <DialogHeader>
           <DialogTitle className="mb-4 text-center text-2xl font-bold">
             Choose Payment Method
@@ -83,12 +111,12 @@ function PaymentChoose(
           >
             <div className="flex items-center space-x-2 rounded-lg border border-gray-200 p-4 transition-colors hover:bg-gray-50">
               <RadioGroupItem
-                value="wadzzo"
-                id="wadzzo"
+                value={PLATFORM_ASSET.code}
+                id={PLATFORM_ASSET.code}
                 className="border-primary"
               />
               <Label
-                htmlFor="wadzzo"
+                htmlFor={PLATFORM_ASSET.code}
                 className="flex flex-1 cursor-pointer items-center"
               >
                 <Coins className="mr-3 h-6 w-6 text-primary" />
@@ -104,9 +132,13 @@ function PaymentChoose(
               </Label>
             </div>
             <div className="flex items-center space-x-2 rounded-lg border border-gray-200 p-4 transition-colors hover:bg-gray-50">
-              <RadioGroupItem value="xlm" id="xlm" className="border-primary" />
+              <RadioGroupItem
+                value={PaymentMethods.NATIVE}
+                id={PaymentMethods.NATIVE}
+                className="border-primary"
+              />
               <Label
-                htmlFor="xlm"
+                htmlFor={PaymentMethods.NATIVE}
                 className="flex flex-1 cursor-pointer items-center"
               >
                 <DollarSign className="mr-3 h-6 w-6 text-primary" />

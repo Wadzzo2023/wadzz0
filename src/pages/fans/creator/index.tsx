@@ -40,6 +40,7 @@ import {
   TrxBaseFeeInPlatformAsset,
 } from "~/lib/stellar/constant";
 import { P } from "pino";
+import { createReactProxyDecoration } from "@trpc/react-query/shared";
 
 export default function CreatorProfile() {
   const { data: session } = useSession();
@@ -149,7 +150,7 @@ export function ValidCreateCreator({ message }: { message?: string }) {
   }
 }
 
-const PaymentMethods = {
+export const PaymentMethods = {
   PLATFORM: PLATFORM_ASSET.code,
   NATIVE: "XLM",
 } as const;
@@ -194,12 +195,10 @@ function CreateCreator({ requiredToken }: { requiredToken: number }) {
   });
 
   const handleConfirm = () => {
-    if (paymentMethod === PaymentMethods.PLATFORM) {
-      xdr.mutate({ signWith: needSign() });
-      return;
-    } else {
-      xdr.mutate({ signWith: needSign(), native: true });
-    }
+    xdr.mutate({
+      signWith: needSign(),
+      native: paymentMethod === PaymentMethods.NATIVE,
+    });
   };
 
   const XLM_EQUIVALENT = 7;
