@@ -61,7 +61,7 @@ export default function BuyWithSquire({
             if (token.token) {
               paymentMutation.mutate({
                 sourceId: token.token,
-                assetId: 1,
+                assetId: marketId,
               });
             } else {
               toast.error("Error squire in token");

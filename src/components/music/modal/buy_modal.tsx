@@ -7,13 +7,8 @@ import { WalletType, clientsign } from "package/connect_wallet";
 import toast from "react-hot-toast";
 import { AssetType } from "~/components/marketplace/market_right";
 import BuyWithSquire from "~/components/marketplace/pay/buy_with_squire";
-import Alert from "~/components/ui/alert";
-import useNeedSign from "~/lib/hook";
-import { useUserStellarAcc } from "~/lib/state/wallete/stellar-balances";
-import { PLATFORM_ASSET } from "~/lib/stellar/constant";
-import { clientSelect } from "~/lib/stellar/fan/utils";
-import { addrShort } from "~/utils/utils";
 import RechargeLink from "~/components/marketplace/recharge/link";
+import { Button } from "~/components/shadcn/ui/button";
 import {
   Dialog,
   DialogClose,
@@ -23,7 +18,15 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "~/components/shadcn/ui/dialog";
-import { Button } from "~/components/shadcn/ui/button";
+
+import Alert from "~/components/ui/alert";
+import useNeedSign from "~/lib/hook";
+import { useUserStellarAcc } from "~/lib/state/wallete/stellar-balances";
+import { PLATFORM_ASSET } from "~/lib/stellar/constant";
+import { clientSelect } from "~/lib/stellar/fan/utils";
+import { addrShort } from "~/utils/utils";
+import { PaymentChoose } from "~/components/payment/payment-options";
+
 type BuyModalProps = {
   item: AssetType;
   placerId?: string | null;
@@ -31,6 +34,7 @@ type BuyModalProps = {
   priceUSD: number;
   marketItemId?: number; // undefined will mean it is song
 };
+
 export default function BuyModal({
   item,
   placerId,
@@ -51,13 +55,13 @@ export default function BuyModal({
   // const { asset } = item;
   const { code, issuer } = item;
 
-  // feth the copies from the storage acc.
+  // fetCh the copies from the storage acc.
 
   const copy = api.marketplace.market.getMarketAssetAvailableCopy.useQuery({
     id: marketItemId,
   });
 
-  const xdrMutaion =
+  const xdrMutation =
     api.marketplace.steller.buyFromMarketPaymentXDR.useMutation({
       onSuccess: (data, Variable) => {
         setXdr(data);
@@ -73,7 +77,7 @@ export default function BuyModal({
   };
 
   async function handleXDR() {
-    xdrMutaion.mutate({
+    xdrMutation.mutate({
       placerId,
       assetCode: code,
       issuerPub: issuer,
@@ -109,8 +113,8 @@ export default function BuyModal({
             <div className="flex flex-col items-center">
               {xdr ? (
                 <>
-                  <PaymentOptoins
-                    isWallete={isWallet}
+                  <PaymentOptions
+                    isWallet={isWallet}
                     setIsWallet={setIsWallet}
                   />
                   {isWallet ? (
@@ -160,11 +164,28 @@ export default function BuyModal({
                 </>
               ) : (
                 <div className="flex flex-col gap-2">
+                  <PaymentChoose
+                    requiredToken={11}
+                    XLM_EQUIVALENT={10}
+                    handleConfirm={() => handleXDR()}
+                    loading={false}
+                    trigger={
+                      <Button
+                        disabled={
+                          xdrMutation.isSuccess || !copy.isSuccess
+                          //  || copy.data < 1
+                        }
+                        className="w-full"
+                      >
+                        Buy Now
+                      </Button>
+                    }
+                  />
                   <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                     <DialogTrigger asChild>
                       <Button
                         disabled={
-                          xdrMutaion.isSuccess ||
+                          xdrMutation.isSuccess ||
                           !copy.isSuccess ||
                           copy.data < 1
                         }
@@ -196,7 +217,7 @@ export default function BuyModal({
                           </DialogClose>
                           <Button
                             disabled={
-                              xdrMutaion.isSuccess ||
+                              xdrMutation.isSuccess ||
                               !copy.isSuccess ||
                               copy.data < 1
                             }
@@ -212,20 +233,6 @@ export default function BuyModal({
                     </DialogContent>
                   </Dialog>
                 </div>
-                // <button
-                //   disabled={
-                //     xdrMutaion.isSuccess || !copy.isSuccess || copy.data < 1
-                //   }
-                //   className="btn btn-primary"
-                //   onClick={() => handleXDR()}
-                // >
-                //   {xdrMutaion.isLoading && (
-                //     <div>
-                //       <span className="loading"></span>
-                //     </div>
-                //   )}
-                //   Proceed to checkout
-                // </button>
               )}
             </div>
           </div>
@@ -246,11 +253,11 @@ export default function BuyModal({
   );
 }
 
-function PaymentOptoins({
-  isWallete,
+function PaymentOptions({
+  isWallet,
   setIsWallet,
 }: {
-  isWallete: boolean;
+  isWallet: boolean;
   setIsWallet: (isWallet: boolean) => void;
 }) {
   const session = useSession();
@@ -263,22 +270,22 @@ function PaymentOptoins({
       walletType == WalletType.facebook;
     return (
       <div className="my-2 flex gap-2">
-        <Optoin
+        <Option
           text="Stellar"
           onClick={() => setIsWallet(true)}
-          selected={isWallete}
+          selected={isWallet}
         />
         {showCardOption && (
-          <Optoin
+          <Option
             text="Credit Card"
             onClick={() => setIsWallet(false)}
-            selected={!isWallete}
+            selected={!isWallet}
           />
         )}
       </div>
     );
   }
-  function Optoin({
+  function Option({
     text,
     onClick,
     selected,
