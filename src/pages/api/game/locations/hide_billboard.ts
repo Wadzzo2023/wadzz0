@@ -1,5 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { getToken } from "next-auth/jwt";
+import NextCors from "nextjs-cors";
 import { z } from "zod";
 import { db } from "~/server/db";
 
@@ -9,6 +10,13 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse,
 ) {
+
+  await NextCors(req, res, {
+    // Options
+    methods: ["GET", "HEAD", "PUT", "PATCH", "POST", "DELETE"],
+    origin: "*",
+    optionsSuccessStatus: 200, // some legacy browsers (IE11, various SmartTVs) choke on 204
+  });
   const token = await getToken({ req });
 
   // Check if the user is authenticated
@@ -22,6 +30,7 @@ export default async function handler(
   const data = z
     .object({ location_id: z.string().transform(Number) })
     .safeParse(req.body);
+
   if (!data.success) {
     res.status(400).json({
       error: data.error,

@@ -3,6 +3,7 @@ import { getSession } from "next-auth/react";
 import { db } from "~/server/db";
 import { Location } from "~/types/game/location";
 import { avaterIconUrl as abaterIconUrl } from "../brands";
+import NextCors from "nextjs-cors";
 
 // import { getSession } from "next-auth/react";
 
@@ -10,6 +11,12 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse,
 ) {
+  await NextCors(req, res, {
+    // Options
+    methods: ["GET", "HEAD", "PUT", "PATCH", "POST", "DELETE"],
+    origin: "*",
+    optionsSuccessStatus: 200,
+  });
   const session = await getSession({ req });
 
   // Check if the user is authenticated
@@ -32,7 +39,6 @@ export default async function handler(
       creatorId: true,
       title: true,
       limit: true,
-
       _count: {
         select: {
           consumers: {

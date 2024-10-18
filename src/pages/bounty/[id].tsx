@@ -189,7 +189,8 @@ const UserBountyPage = () => {
   });
   const { data: oneUSDCEqual } =
     api.bounty.Bounty.getAssetToUSDCRate.useQuery();
-  const { data: oneASSETEqual } = api.bounty.Bounty.getPlatformAsset.useQuery();
+  const oneASSETEqual = 0.01;
+
   const { data: getTrustCost } = api.bounty.Bounty.getTrustCost.useQuery();
   const handleSwap = (id: number, price: number) => {
     setLoading(true);
@@ -212,7 +213,7 @@ const UserBountyPage = () => {
 
   const getUserHasTrustLine = api.bounty.Bounty.hasUserTrustOnUSDC.useQuery();
   const getMotherTrustLine = api.bounty.Bounty.hasMotherTrustOnUSDC.useQuery();
-
+  console.log("getUserHasTrustLine", getUserHasTrustLine.data);
   const { data: oldMessage, isSuccess: oldMessageSucess } =
     api.bounty.Bounty.getBountyForCreatorUser.useQuery({
       bountyId: Number(id),
@@ -639,7 +640,7 @@ const UserBountyPage = () => {
                                 type="error"
                                 content={`Please Contact Admin. support@wadzzo.com`}
                               />
-                            ) : !getUserHasTrustLine.data &&
+                            ) : getUserHasTrustLine.data === false &&
                               getTrustCost &&
                               oneUSDCEqual &&
                               oneASSETEqual ? (
@@ -694,7 +695,7 @@ const UserBountyPage = () => {
                                         {(
                                           data.priceInBand *
                                           (oneASSETEqual / oneUSDCEqual)
-                                        ).toFixed(3)}{" "}
+                                        ).toFixed(2)}{" "}
                                         USDC
                                       </dd>
                                     </dl>
@@ -753,15 +754,6 @@ const UserBountyPage = () => {
                                           {PLATFORM_ASSET.code}
                                         </dd>
                                       </dl>
-
-                                      <dl className="flex items-center justify-between gap-4">
-                                        <dt className="text-base font-normal text-gray-500 dark:text-gray-400">
-                                          Trust Cost
-                                        </dt>
-                                        <dd className="text-base font-medium text-green-500">
-                                          {getTrustCost} {PLATFORM_ASSET.code}
-                                        </dd>
-                                      </dl>
                                     </div>
 
                                     <dl className="flex items-center justify-between gap-4 border-t border-gray-200 pt-2 dark:border-gray-700">
@@ -772,8 +764,7 @@ const UserBountyPage = () => {
                                         {(
                                           data?.priceInBand +
                                           Number(TrxBaseFeeInPlatformAsset) +
-                                          Number(PLATFORM_FEE) +
-                                          getTrustCost!
+                                          Number(PLATFORM_FEE)
                                         ).toFixed(2)}{" "}
                                         {PLATFORM_ASSET.code}
                                       </dd>
