@@ -660,10 +660,10 @@ function NftCreateForm({
                 {requiredTokenAmount > platformAssetBalance && <RechargeLink />}
               </div>
               <PaymentChoose
-                XLM_EQUIVALENT={10}
+                XLM_EQUIVALENT={5.5}
                 handleConfirm={() => onSubmit()}
                 loading={loading}
-                requiredToken={100}
+                requiredToken={requiredTokenAmount}
                 trigger={
                   <Button
                     disabled={

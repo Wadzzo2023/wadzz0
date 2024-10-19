@@ -201,7 +201,7 @@ function CreateCreator({ requiredToken }: { requiredToken: number }) {
     });
   };
 
-  const XLM_EQUIVALENT = 7;
+  const XLM_EQUIVALENT = 8;
 
   const loading = xdr.isLoading || makeCreatorMutation.isLoading || signLoading;
 
