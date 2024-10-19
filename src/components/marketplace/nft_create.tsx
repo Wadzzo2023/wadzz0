@@ -31,6 +31,11 @@ import { Button } from "../shadcn/ui/button";
 import { BADWORDS } from "~/utils/banned-word";
 import Link from "next/link";
 import RechargeLink from "./recharge/link";
+import {
+  PaymentChoose,
+  usePaymentMethodStore,
+} from "../payment/payment-options";
+import { PaymentMethods } from "~/pages/fans/creator";
 
 export const ExtraSongInfo = z.object({
   artist: z.string(),
@@ -133,6 +138,8 @@ function NftCreateForm({
   const walletType = isAdmin ? WalletType.isAdmin : connectedWalletType;
   const [uploadProgress, setUploadProgress] = useState<number>(0);
 
+  const { paymentMethod } = usePaymentMethodStore();
+
   const {
     register,
     handleSubmit,
@@ -216,6 +223,7 @@ function NftCreateForm({
         limit: getValues("limit"),
         signWith: needSign(isAdmin),
         ipfsHash: ipfs,
+        native: paymentMethod === PaymentMethods.NATIVE,
       });
   };
 
@@ -323,7 +331,7 @@ function NftCreateForm({
           onInteractOutside={(e) => {
             e.preventDefault();
           }}
-          className=" h-[80%] overflow-auto p-3"
+          className=" h-[90%] max-w-xl overflow-auto p-3"
         >
           <DialogHeader className="text-lg font-bold">Add Asset</DialogHeader>
           {/* <button onClick={handleLoL}> LOL</button> */}
@@ -651,8 +659,27 @@ function NftCreateForm({
                 />
                 {requiredTokenAmount > platformAssetBalance && <RechargeLink />}
               </div>
-
-              <Dialog open={isOpen} onOpenChange={setIsOpen}>
+              <PaymentChoose
+                XLM_EQUIVALENT={5.5}
+                handleConfirm={() => onSubmit()}
+                loading={loading}
+                requiredToken={requiredTokenAmount}
+                trigger={
+                  <Button
+                    disabled={
+                      loading ||
+                      requiredTokenAmount > platformAssetBalance ||
+                      !isValid
+                    }
+                  >
+                    {loading && (
+                      <span className="loading loading-spinner"></span>
+                    )}
+                    Create Asset
+                  </Button>
+                }
+              />
+              {/* <Dialog open={isOpen} onOpenChange={setIsOpen}>
                 <DialogTrigger asChild>
                   <button
                     className="btn btn-primary"
@@ -698,7 +725,7 @@ function NftCreateForm({
                     </div>
                   </DialogFooter>
                 </DialogContent>
-              </Dialog>
+              </Dialog> */}
             </div>
           </form>
         </DialogContent>

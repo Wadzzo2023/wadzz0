@@ -7,13 +7,8 @@ import { WalletType, clientsign } from "package/connect_wallet";
 import toast from "react-hot-toast";
 import { AssetType } from "~/components/marketplace/market_right";
 import BuyWithSquire from "~/components/marketplace/pay/buy_with_squire";
-import Alert from "~/components/ui/alert";
-import useNeedSign from "~/lib/hook";
-import { useUserStellarAcc } from "~/lib/state/wallete/stellar-balances";
-import { PLATFORM_ASSET } from "~/lib/stellar/constant";
-import { clientSelect } from "~/lib/stellar/fan/utils";
-import { addrShort } from "~/utils/utils";
 import RechargeLink from "~/components/marketplace/recharge/link";
+import { Button } from "~/components/shadcn/ui/button";
 import {
   Dialog,
   DialogClose,
@@ -23,7 +18,17 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "~/components/shadcn/ui/dialog";
-import { Button } from "~/components/shadcn/ui/button";
+
+import Alert from "~/components/ui/alert";
+import useNeedSign from "~/lib/hook";
+import { useUserStellarAcc } from "~/lib/state/wallete/stellar-balances";
+import { PLATFORM_ASSET } from "~/lib/stellar/constant";
+import { clientSelect } from "~/lib/stellar/fan/utils";
+import { addrShort } from "~/utils/utils";
+import { PaymentChoose } from "~/components/payment/payment-options";
+import { Loader } from "lucide-react";
+import ConfirmationModal from "./confirmation";
+
 type BuyModalProps = {
   item: AssetType;
   placerId?: string | null;
@@ -31,6 +36,9 @@ type BuyModalProps = {
   priceUSD: number;
   marketItemId?: number; // undefined will mean it is song
 };
+
+type PaymentMethod = "asset" | "xlm" | "card";
+
 export default function BuyModal({
   item,
   placerId,
@@ -40,24 +48,26 @@ export default function BuyModal({
 }: BuyModalProps) {
   const session = useSession();
   const { needSign } = useNeedSign();
-  const { platformAssetBalance, active } = useUserStellarAcc();
+  const { platformAssetBalance, active, getXLMBalance } = useUserStellarAcc();
 
   const modal = useRef<HTMLDialogElement>(null);
   const [xdr, setXdr] = useState<string>();
-  const [isWallet, setIsWallet] = useState(true);
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>();
   const [paymentSuccess, setPaymentSuccess] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isBuyDialogOpen, setIsBuyDialogOpen] = useState(false);
   // const { asset } = item;
   const { code, issuer } = item;
 
-  // feth the copies from the storage acc.
+  const [submitLoading, setSubmitLoading] = useState(false);
+
+  // fetCh the copies from the storage acc.
 
   const copy = api.marketplace.market.getMarketAssetAvailableCopy.useQuery({
     id: marketItemId,
   });
 
-  const xdrMutaion =
+  const xdrMutation =
     api.marketplace.steller.buyFromMarketPaymentXDR.useMutation({
       onSuccess: (data, Variable) => {
         setXdr(data);
@@ -72,15 +82,21 @@ export default function BuyModal({
     modal.current?.showModal();
   };
 
-  async function handleXDR() {
-    xdrMutaion.mutate({
+  async function handleXDR(method: PaymentMethod) {
+    xdrMutation.mutate({
       placerId,
       assetCode: code,
       issuerPub: issuer,
       limit: 1,
       signWith: needSign(),
+      method,
     });
   }
+
+  const changePaymentMethod = (method: PaymentMethod) => {
+    setPaymentMethod(method);
+    handleXDR(method);
+  };
 
   if (!active) return null;
   return (
@@ -107,126 +123,13 @@ export default function BuyModal({
             {/* <BuyWithSquire marketId={item.id} xdr={xdr ?? "xdr"} /> */}
 
             <div className="flex flex-col items-center">
-              {xdr ? (
-                <>
-                  <PaymentOptoins
-                    isWallete={isWallet}
-                    setIsWallet={setIsWallet}
-                  />
-                  {isWallet ? (
-                    <>
-                      {platformAssetBalance >= price ? (
-                        <button
-                          disabled={paymentSuccess}
-                          className="btn btn-primary"
-                          onClick={() => {
-                            clientsign({
-                              presignedxdr: xdr,
-                              pubkey: session.data?.user.id,
-                              walletType: session.data?.user.walletType,
-                              test: clientSelect(),
-                            })
-                              .then((res) => {
-                                if (res) {
-                                  toast.success("Payment Success");
-                                  setPaymentSuccess(true);
-                                  handleModal(true);
-                                }
-                              })
-                              .catch((e) => console.log(e));
-                          }}
-                        >
-                          Confirm Payment
-                        </button>
-                      ) : (
-                        <>
-                          <p className="mt-2">
-                            You have {platformAssetBalance}{" "}
-                            {PLATFORM_ASSET.code}
-                          </p>
-
-                          <p className="mb-2 text-error">
-                            Insufficient Balance
-                          </p>
-                          <RechargeLink />
-                        </>
-                      )}
-                    </>
-                  ) : (
-                    <button>
-                      <BuyWithSquire marketId={item.id} xdr={xdr} />
-                    </button>
-                  )}
-                </>
-              ) : (
-                <div className="flex flex-col gap-2">
-                  <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                    <DialogTrigger asChild>
-                      <Button
-                        disabled={
-                          xdrMutaion.isSuccess ||
-                          !copy.isSuccess ||
-                          copy.data < 1
-                        }
-                        className="w-full"
-                      >
-                        Buy Now
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent className="sm:max-w-[425px]">
-                      <DialogHeader>
-                        <DialogTitle>Confirmation </DialogTitle>
-                      </DialogHeader>
-                      <div className="mt-6 w-full space-y-6 sm:mt-8 lg:mt-0 lg:max-w-xs xl:max-w-md">
-                        <div className="flow-root">
-                          <div className="-my-3 divide-y divide-gray-200 dark:divide-gray-800">
-                            <dl className="flex items-center justify-between gap-4 py-3">
-                              You are about to buy {code} for {price}{" "}
-                              {PLATFORM_ASSET.code}
-                            </dl>
-                          </div>
-                        </div>
-                      </div>
-                      <DialogFooter className=" w-full">
-                        <div className="flex w-full gap-4  ">
-                          <DialogClose className="w-full">
-                            <Button variant="outline" className="w-full">
-                              Cancel
-                            </Button>
-                          </DialogClose>
-                          <Button
-                            disabled={
-                              xdrMutaion.isSuccess ||
-                              !copy.isSuccess ||
-                              copy.data < 1
-                            }
-                            variant="destructive"
-                            type="submit"
-                            onClick={() => handleXDR()}
-                            className="w-full"
-                          >
-                            Confirm
-                          </Button>
-                        </div>
-                      </DialogFooter>
-                    </DialogContent>
-                  </Dialog>
-                </div>
-                // <button
-                //   disabled={
-                //     xdrMutaion.isSuccess || !copy.isSuccess || copy.data < 1
-                //   }
-                //   className="btn btn-primary"
-                //   onClick={() => handleXDR()}
-                // >
-                //   {xdrMutaion.isLoading && (
-                //     <div>
-                //       <span className="loading"></span>
-                //     </div>
-                //   )}
-                //   Proceed to checkout
-                // </button>
-              )}
+              <>
+                <PaymentOptions
+                  method={paymentMethod}
+                  setIsWallet={changePaymentMethod}
+                />
+                <MethodDetails />
+              </>
             </div>
           </div>
           <DialogFooter>
@@ -244,14 +147,138 @@ export default function BuyModal({
       </button>
     </>
   );
+
+  function MethodDetails() {
+    if (xdrMutation.isLoading) return <Loader className="animate-spin" />;
+
+    if (xdrMutation.isError) {
+      return (
+        <Alert
+          type="error"
+          content={
+            xdrMutation.error instanceof Error
+              ? xdrMutation.error.message
+              : "Error"
+          }
+        />
+      );
+    }
+
+    if (xdrMutation.isSuccess) {
+      if (paymentMethod === "asset") {
+        const requiredAssetBalance = price + 1 + 0.5;
+        const isSufficientAssetBalance =
+          platformAssetBalance >= requiredAssetBalance;
+        return (
+          <>
+            {isSufficientAssetBalance ? (
+              <>
+                <p>
+                  You need total {requiredAssetBalance} {PLATFORM_ASSET.code} to
+                  buy this item!
+                </p>
+                <button
+                  disabled={paymentSuccess}
+                  className="btn btn-primary"
+                  onClick={() => {
+                    // toast("hi");
+                    setSubmitLoading(true);
+                    clientsign({
+                      presignedxdr: xdrMutation.data,
+                      pubkey: session.data?.user.id,
+                      walletType: session.data?.user.walletType,
+                      test: clientSelect(),
+                    })
+                      .then((res) => {
+                        if (res) {
+                          toast.success("Payment Success");
+                          setPaymentSuccess(true);
+                          handleModal(true);
+                        }
+                      })
+                      .catch((e) => console.log(e))
+                      .finally(() => setSubmitLoading(false));
+                  }}
+                >
+                  {submitLoading && <Loader className="animate-spin" />}
+                  Confirm Payment
+                </button>
+              </>
+            ) : (
+              <>
+                <p className="mt-2">
+                  You have {platformAssetBalance} {PLATFORM_ASSET.code}
+                </p>
+                <p className="mb-2 text-error">Insufficient Balance</p>
+                <RechargeLink />
+              </>
+            )}
+          </>
+        );
+      }
+      if (paymentMethod === "xlm") {
+        const requiredXlmBalance = price * 0.7 + 1 + 0.5;
+        const isSufficientAssetBalance =
+          getXLMBalance() ?? 0 >= requiredXlmBalance;
+        return (
+          <>
+            {isSufficientAssetBalance ? (
+              <>
+                <p>You need total {requiredXlmBalance} XLM to buy this item!</p>
+                <button
+                  disabled={paymentSuccess}
+                  className="btn btn-primary"
+                  onClick={() => {
+                    // toast("hi");
+                    setSubmitLoading(true);
+                    clientsign({
+                      presignedxdr: xdrMutation.data,
+                      pubkey: session.data?.user.id,
+                      walletType: session.data?.user.walletType,
+                      test: clientSelect(),
+                    })
+                      .then((res) => {
+                        if (res) {
+                          toast.success("Payment Success");
+                          setPaymentSuccess(true);
+                          handleModal(true);
+                        }
+                      })
+                      .catch((e) => console.log(e))
+                      .finally(() => setSubmitLoading(false));
+                  }}
+                >
+                  {submitLoading && <Loader className="animate-spin" />}
+                  Confirm Payment
+                </button>
+              </>
+            ) : (
+              <>
+                <p className="mt-2">You have {getXLMBalance()} XLM</p>
+                <p className="mb-2 text-error">Insufficient Balance</p>
+                <RechargeLink />
+              </>
+            )}
+          </>
+        );
+      }
+      if (paymentMethod === "card") {
+        return (
+          <button>
+            <BuyWithSquire marketId={item.id} xdr={xdrMutation.data} />
+          </button>
+        );
+      }
+    }
+  }
 }
 
-function PaymentOptoins({
-  isWallete,
+function PaymentOptions({
+  method,
   setIsWallet,
 }: {
-  isWallete: boolean;
-  setIsWallet: (isWallet: boolean) => void;
+  method?: PaymentMethod;
+  setIsWallet: (method: PaymentMethod) => void;
 }) {
   const session = useSession();
 
@@ -262,23 +289,31 @@ function PaymentOptoins({
       walletType == WalletType.google ||
       walletType == WalletType.facebook;
     return (
-      <div className="my-2 flex gap-2">
-        <Optoin
-          text="Stellar"
-          onClick={() => setIsWallet(true)}
-          selected={isWallete}
-        />
-        {showCardOption && (
-          <Optoin
-            text="Credit Card"
-            onClick={() => setIsWallet(false)}
-            selected={!isWallete}
+      <div>
+        <h2 className="text-center font-semibold">Choose payment option</h2>
+        <div className="my-2 flex gap-2">
+          <Option
+            text={PLATFORM_ASSET.code}
+            onClick={() => setIsWallet("asset")}
+            selected={method === "asset"}
           />
-        )}
+          <Option
+            text="XLM"
+            onClick={() => setIsWallet("xlm")}
+            selected={method === "xlm"}
+          />
+          {showCardOption && (
+            <Option
+              text="Credit Card"
+              onClick={() => setIsWallet("card")}
+              selected={method === "card"}
+            />
+          )}
+        </div>
       </div>
     );
   }
-  function Optoin({
+  function Option({
     text,
     onClick,
     selected,
