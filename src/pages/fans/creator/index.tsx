@@ -41,6 +41,10 @@ import {
 } from "~/lib/stellar/constant";
 import { P } from "pino";
 import { createReactProxyDecoration } from "@trpc/react-query/shared";
+import {
+  PaymentMethod,
+  PaymentMethodEnum,
+} from "~/components/music/modal/buy_modal";
 
 export default function CreatorProfile() {
   const { data: session } = useSession();
@@ -150,15 +154,12 @@ export function ValidCreateCreator({ message }: { message?: string }) {
   }
 }
 
-export const PaymentMethods = {
-  PLATFORM: PLATFORM_ASSET.code,
-  NATIVE: "XLM",
-} as const;
-
 function CreateCreator({ requiredToken }: { requiredToken: number }) {
   const [isOpen, setIsOpen] = useState(false);
   const { needSign } = useNeedSign();
-  const [paymentMethod, setPaymentMethod] = useState(PaymentMethods.PLATFORM);
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>(
+    PaymentMethodEnum.enum.asset,
+  );
 
   const session = useSession();
   const makeCreatorMutation = api.fan.creator.makeMeCreator.useMutation();
@@ -197,7 +198,7 @@ function CreateCreator({ requiredToken }: { requiredToken: number }) {
   const handleConfirm = () => {
     xdr.mutate({
       signWith: needSign(),
-      native: paymentMethod === PaymentMethods.NATIVE,
+      native: paymentMethod === PaymentMethodEnum.enum.xlm,
     });
   };
 
@@ -231,13 +232,13 @@ function CreateCreator({ requiredToken }: { requiredToken: number }) {
             <div className="py-4">
               <RadioGroup
                 value={paymentMethod}
-                onValueChange={setPaymentMethod}
+                onValueChange={(e) => setPaymentMethod(e as PaymentMethod)}
                 className="space-y-4"
               >
                 <div className="flex items-center space-x-2 rounded-lg border border-gray-200 p-4 transition-colors hover:bg-gray-50">
                   <RadioGroupItem
                     value={PLATFORM_ASSET.code}
-                    id={PLATFORM_ASSET.code}
+                    id={PaymentMethodEnum.enum.asset}
                     className="border-primary"
                   />
                   <Label
@@ -260,12 +261,12 @@ function CreateCreator({ requiredToken }: { requiredToken: number }) {
                 </div>
                 <div className="flex items-center space-x-2 rounded-lg border border-gray-200 p-4 transition-colors hover:bg-gray-50">
                   <RadioGroupItem
-                    value={PaymentMethods.NATIVE}
-                    id={PaymentMethods.NATIVE}
+                    value={PaymentMethodEnum.enum.xlm}
+                    id={PaymentMethodEnum.enum.xlm}
                     className="border-primary"
                   />
                   <Label
-                    htmlFor={PaymentMethods.NATIVE}
+                    htmlFor={PaymentMethodEnum.enum.xlm}
                     className="flex flex-1 cursor-pointer items-center"
                   >
                     <DollarSign className="mr-3 h-6 w-6 text-primary" />
@@ -284,7 +285,7 @@ function CreateCreator({ requiredToken }: { requiredToken: number }) {
             </div>
             <div className="mt-4 text-center text-sm text-gray-500">
               Your account will be charged{" "}
-              {paymentMethod === PLATFORM_ASSET.code
+              {paymentMethod == PaymentMethodEnum.enum.asset
                 ? `${requiredToken} ${PLATFORM_ASSET.code}`
                 : `${XLM_EQUIVALENT} XLM`}{" "}
               to be a {CREATOR_TERM.toLowerCase()}.

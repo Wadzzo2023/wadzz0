@@ -7,6 +7,7 @@ import React from "react";
 import { ThemeProvider } from "./providers/theme-provider";
 import ModalProvider from "./providers/modal-provider";
 import { api } from "~/utils/api";
+import { Toaster } from "~/components/ui/toaster";
 // import Header from "./header";
 // import RightDialog from "./right_dialog";
 
@@ -102,6 +103,7 @@ export default function Layout({
           </div>
           <RightDialog />
           <BottomPlayerContainer />
+          <Toaster />
         </div>
       </ThemeProvider>
     </>

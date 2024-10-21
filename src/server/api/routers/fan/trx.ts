@@ -1,6 +1,9 @@
 import { z } from "zod";
 import { buyAssetTrx } from "~/lib/stellar/fan/buy_asset";
-import { creatorPageAccCreate } from "~/lib/stellar/fan/clawback";
+import {
+  creatorPageAccCreate,
+  creatorPageAccCreateWithXLM,
+} from "~/lib/stellar/fan/clawback";
 import { createAsset } from "~/lib/stellar/fan/create_asset";
 import {
   getPlatfromAssetPrice,
@@ -35,6 +38,7 @@ import {
   PLATFORM_FEE,
   TrxBaseFeeInPlatformAsset,
 } from "~/lib/stellar/constant";
+import { PaymentMethodEnum } from "~/components/music/modal/buy_modal";
 
 export const trxRouter = createTRPCRouter({
   createCreatorPageAsset: protectedProcedure
@@ -44,6 +48,7 @@ export const trxRouter = createTRPCRouter({
         signWith: SignUser,
         limit: z.number().nonnegative().min(1),
         ipfs: z.string(),
+        method: PaymentMethodEnum.optional(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
@@ -57,14 +62,25 @@ export const trxRouter = createTRPCRouter({
 
       const creatorStorageSec = creator.storageSecret;
 
-      return await creatorPageAccCreate({
-        ipfs: input.ipfs,
-        limit: limit.toString(),
-        storageSecret: creatorStorageSec,
-        pubkey: creatorId,
-        assetCode: code,
-        signWith,
-      });
+      if (input.method && input.method === "xlm") {
+        return await creatorPageAccCreateWithXLM({
+          ipfs: input.ipfs,
+          limit: limit.toString(),
+          storageSecret: creatorStorageSec,
+          pubkey: creatorId,
+          assetCode: code,
+          signWith,
+        });
+      } else {
+        return await creatorPageAccCreate({
+          ipfs: input.ipfs,
+          limit: limit.toString(),
+          storageSecret: creatorStorageSec,
+          pubkey: creatorId,
+          assetCode: code,
+          signWith,
+        });
+      }
     }),
 
   clawbackAssetPaymentTrx: protectedProcedure

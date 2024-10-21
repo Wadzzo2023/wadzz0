@@ -23,6 +23,7 @@ import Alert from "../../ui/alert";
 import CustomPageAssetFrom from "./page_asset/custom";
 import NewPageAssetFrom from "./page_asset/new";
 import RechargeLink from "~/components/marketplace/recharge/link";
+import { DialogOverlay } from "@radix-ui/react-dialog";
 
 export default function AddCreatorPageAssetModal({
   creator,
@@ -86,6 +87,7 @@ function AddCreatorPageAssetModalFrom({
           <Plus /> Add Page Asset
         </Button>
       </DialogTrigger>
+      <DialogOverlay className=" bg-black/10 " />
       <DialogContent className="max-h-[700px] overflow-y-auto">
         <div className="">
           <h3 className="mb-4 text-center text-lg font-bold">

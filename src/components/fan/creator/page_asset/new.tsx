@@ -3,16 +3,21 @@ import { useSession } from "next-auth/react";
 import Image from "next/image";
 import { clientsign } from "package/connect_wallet";
 import React, { useState } from "react";
-import { SubmitHandler, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { z } from "zod";
 import { Button } from "~/components/shadcn/ui/button";
 import Alert from "~/components/ui/alert";
 import useNeedSign from "~/lib/hook";
-import { PLATFORM_ASSET, PLATFORM_FEE } from "~/lib/stellar/constant";
+import { PLATFORM_ASSET } from "~/lib/stellar/constant";
 import { clientSelect } from "~/lib/stellar/fan/utils";
 import { api } from "~/utils/api";
 
+import {
+  PaymentChoose,
+  usePaymentMethodStore,
+} from "~/components/payment/payment-options";
+import { useToast } from "~/hooks/use-toast";
 import {
   Dialog,
   DialogClose,
@@ -48,11 +53,11 @@ export const CreatorPageAssetSchema = z.object({
 });
 
 function NewPageAssetFrom({ requiredToken }: { requiredToken: number }) {
-  const [isModalOpen, setIsModalOpen] = React.useState(false);
   const [signLoading, setSignLoading] = React.useState(false);
   const [uploading, setUploading] = useState(false);
   const [coverUrl, setCover] = useState<string>();
-  const [isOpen, setIsOpen] = useState(false);
+  const { isOpen, setIsOpen, paymentMethod } = usePaymentMethodStore();
+  const { toast: shadToast } = useToast();
 
   // pinta upload
   const [file, setFile] = useState<File>();
@@ -105,37 +110,48 @@ function NewPageAssetFrom({ requiredToken }: { requiredToken: number }) {
             });
           } else {
             toast.error("Transaction failed", { id: toastId });
+            shadToast({
+              title: "Transaction failed",
+              description: "Failed to sign transaction",
+            });
           }
         })
         .catch((e) => {
           toast.error("Transaction failed", { id: toastId });
+          shadToast({
+            title: "Transaction failed",
+            description: e.message,
+          });
           console.log(e);
         })
         .finally(() => {
           toast.dismiss(toastId);
           setSignLoading(false);
         });
-      // setIsModalOpen(false);
+    },
+    onError: (e) => {
+      shadToast({
+        title: "Transaction failed",
+        description: e.message,
+      });
     },
   });
 
   const onSubmit = () => {
-    setIsModalOpen(true);
-
     if (ipfs) {
       trxMutation.mutate({
         ipfs,
         code: getValues("code"),
         signWith: needSign(),
         limit: getValues("limit"),
+        method: paymentMethod,
       });
     } else {
       toast.error("Please upload a file");
     }
   };
 
-  const loading =
-    trxMutation.isLoading || isModalOpen || mutation.isLoading || signLoading;
+  const loading = trxMutation.isLoading || mutation.isLoading || signLoading;
 
   const uploadFile = async (fileToUpload: File) => {
     try {
@@ -254,7 +270,19 @@ function NewPageAssetFrom({ requiredToken }: { requiredToken: number }) {
         />
       </div>
 
-      <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <PaymentChoose
+        XLM_EQUIVALENT={5}
+        handleConfirm={() => onSubmit()}
+        loading={loading}
+        requiredToken={requiredToken}
+        trigger={
+          <Button className="w-full" disabled={loading || !ipfs}>
+            Create Page Asset
+          </Button>
+        }
+      />
+
+      <Dialog>
         <DialogTrigger asChild>
           <Button className="w-full" disabled={loading}>
             Create Page Asset

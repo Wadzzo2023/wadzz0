@@ -10,10 +10,13 @@ import {
 } from "~/components/ui/dialog";
 import { RadioGroup, RadioGroupItem } from "~/components/shadcn/ui/radio-group";
 import { Label } from "~/components/shadcn/ui/label";
-import { Coins, DollarSign } from "lucide-react";
+import { Coins, DollarSign, Loader2 } from "lucide-react";
 import { CREATOR_TERM } from "~/utils/term";
-import { PaymentMethods } from "~/pages/fans/creator";
 import { PLATFORM_ASSET } from "~/lib/stellar/constant";
+
+import { create } from "zustand";
+import { env } from "~/env";
+import { PaymentMethod, PaymentMethodEnum } from "../music/modal/buy_modal";
 
 export default function Component() {
   const [loading, setLoading] = useState(false);
@@ -62,16 +65,18 @@ export default function Component() {
 
 /// create zustund store for paymentMethod
 
-import { create } from "zustand";
-
 interface PaymentMethodStore {
-  paymentMethod: string;
-  setPaymentMethod: (method: string) => void;
+  paymentMethod: PaymentMethod;
+  setPaymentMethod: (method: PaymentMethod) => void;
+  isOpen: boolean;
+  setIsOpen: (isOpen: boolean) => void;
 }
 
 export const usePaymentMethodStore = create<PaymentMethodStore>((set) => ({
-  paymentMethod: PaymentMethods.PLATFORM,
+  paymentMethod: "asset",
   setPaymentMethod: (method) => set({ paymentMethod: method }),
+  isOpen: false,
+  setIsOpen: (isOpen) => set({ isOpen }),
 }));
 
 export function PaymentChoose({
@@ -87,8 +92,8 @@ export function PaymentChoose({
   loading: boolean;
   trigger: React.ReactNode;
 }) {
-  const [isOpen, setIsOpen] = useState(false);
-  const { paymentMethod, setPaymentMethod } = usePaymentMethodStore();
+  const { paymentMethod, setPaymentMethod, isOpen, setIsOpen } =
+    usePaymentMethodStore();
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>{trigger}</DialogTrigger>
@@ -111,12 +116,12 @@ export function PaymentChoose({
           >
             <div className="flex items-center space-x-2 rounded-lg border border-gray-200 p-4 transition-colors hover:bg-gray-50">
               <RadioGroupItem
-                value={PLATFORM_ASSET.code}
-                id={PLATFORM_ASSET.code}
+                value={PaymentMethodEnum.enum.asset}
+                id={PaymentMethodEnum.enum.asset}
                 className="border-primary"
               />
               <Label
-                htmlFor={PLATFORM_ASSET.code}
+                htmlFor={PaymentMethodEnum.enum.asset}
                 className="flex flex-1 cursor-pointer items-center"
               >
                 <Coins className="mr-3 h-6 w-6 text-primary" />
@@ -133,12 +138,12 @@ export function PaymentChoose({
             </div>
             <div className="flex items-center space-x-2 rounded-lg border border-gray-200 p-4 transition-colors hover:bg-gray-50">
               <RadioGroupItem
-                value={PaymentMethods.NATIVE}
-                id={PaymentMethods.NATIVE}
+                value={PaymentMethodEnum.enum.xlm}
+                id={PaymentMethodEnum.enum.xlm}
                 className="border-primary"
               />
               <Label
-                htmlFor={PaymentMethods.NATIVE}
+                htmlFor={PaymentMethodEnum.enum.xlm}
                 className="flex flex-1 cursor-pointer items-center"
               >
                 <DollarSign className="mr-3 h-6 w-6 text-primary" />
@@ -157,7 +162,7 @@ export function PaymentChoose({
         </div>
         <div className="mt-4 text-center text-sm text-gray-500">
           Your account will be charged{" "}
-          {paymentMethod === "wadzzo"
+          {paymentMethod === "asset"
             ? `${requiredToken} ${PLATFORM_ASSET.code}`
             : `${XLM_EQUIVALENT} XLM`}{" "}
           to be a {CREATOR_TERM.toLowerCase()}.
@@ -171,7 +176,8 @@ export function PaymentChoose({
             Cancel
           </Button>
           <Button onClick={handleConfirm} disabled={loading} className="w-full">
-            {loading ? "Processing..." : "Confirm Payment"}
+            {loading && <Loader2 className="mr-2 animate-spin" />}
+            Confirm Payment
           </Button>
         </DialogFooter>
       </DialogContent>

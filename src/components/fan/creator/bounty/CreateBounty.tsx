@@ -170,7 +170,7 @@ const CreateBounty = () => {
     setValue("content", value);
   }
 
-  const RequiredBalance = 5000;
+  const RequiredBalance = 5;
   const isCardDisabled = platformAssetBalance < RequiredBalance;
   const removeMediaItem = (index: number) => {
     setMedia((prevMedia) => prevMedia.filter((_, i) => i !== index));

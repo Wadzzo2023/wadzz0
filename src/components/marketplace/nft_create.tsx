@@ -35,7 +35,6 @@ import {
   PaymentChoose,
   usePaymentMethodStore,
 } from "../payment/payment-options";
-import { PaymentMethods } from "~/pages/fans/creator";
 
 export const ExtraSongInfo = z.object({
   artist: z.string(),
@@ -223,7 +222,7 @@ function NftCreateForm({
         limit: getValues("limit"),
         signWith: needSign(isAdmin),
         ipfsHash: ipfs,
-        native: paymentMethod === PaymentMethods.NATIVE,
+        native: paymentMethod === "xlm",
       });
   };
 

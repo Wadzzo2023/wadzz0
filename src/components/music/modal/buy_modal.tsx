@@ -14,20 +14,16 @@ import {
   DialogClose,
   DialogContent,
   DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
 } from "~/components/shadcn/ui/dialog";
 
+import { Loader } from "lucide-react";
+import { z } from "zod";
 import Alert from "~/components/ui/alert";
 import useNeedSign from "~/lib/hook";
 import { useUserStellarAcc } from "~/lib/state/wallete/stellar-balances";
 import { PLATFORM_ASSET } from "~/lib/stellar/constant";
 import { clientSelect } from "~/lib/stellar/fan/utils";
 import { addrShort } from "~/utils/utils";
-import { PaymentChoose } from "~/components/payment/payment-options";
-import { Loader } from "lucide-react";
-import ConfirmationModal from "./confirmation";
 
 type BuyModalProps = {
   item: AssetType;
@@ -37,7 +33,9 @@ type BuyModalProps = {
   marketItemId?: number; // undefined will mean it is song
 };
 
-type PaymentMethod = "asset" | "xlm" | "card";
+export const PaymentMethodEnum = z.enum(["asset", "xlm", "card"]);
+
+export type PaymentMethod = z.infer<typeof PaymentMethodEnum>;
 
 export default function BuyModal({
   item,
