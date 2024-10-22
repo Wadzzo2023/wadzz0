@@ -165,7 +165,7 @@ export function PaymentChoose({
           {paymentMethod === "asset"
             ? `${requiredToken} ${PLATFORM_ASSET.code}`
             : `${XLM_EQUIVALENT} XLM`}{" "}
-          to be a {CREATOR_TERM.toLowerCase()}.
+          to perform this action.
         </div>
         <DialogFooter className="mt-6">
           <Button

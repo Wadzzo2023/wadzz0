@@ -11,6 +11,10 @@ import { SubmitHandler, useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { z } from "zod";
 import { Editor } from "~/components/editor";
+import {
+  PaymentChoose,
+  usePaymentMethodStore,
+} from "~/components/payment/payment-options";
 import { Button } from "~/components/shadcn/ui/button";
 import {
   Card,
@@ -72,6 +76,9 @@ const CreateBounty = () => {
   const [prizeInAsset, setPrizeInAsset] = useState<number>(0);
   const { platformAssetBalance } = useUserStellarAcc();
   const [isDialogOpen, setIsDialogOpen] = useState(false); // State to control modal
+
+  const { isOpen, setIsOpen, paymentMethod } = usePaymentMethodStore();
+
   const totalAmount =
     2 * Number(TrxBaseFeeInPlatformAsset) + Number(PLATFORM_FEE);
 
@@ -106,7 +113,7 @@ const CreateBounty = () => {
 
   const SendBalanceToBountyMother =
     api.bounty.Bounty.sendBountyBalanceToMotherAcc.useMutation({
-      onSuccess: async (data) => {
+      onSuccess: async (data, { method }) => {
         if (data) {
           try {
             setLoading(true);
@@ -123,6 +130,8 @@ const CreateBounty = () => {
                 prizeInUSD: getValues("prizeInUSD"),
                 prize: getValues("prize"),
                 requiredBalance: getValues("requiredBalance") ?? 0,
+                priceInXLM:
+                  method == "xlm" ? getValues("prize") * 0.7 : undefined,
                 content: getValues("content"),
                 medias: getValues("medias"),
               });
@@ -150,6 +159,7 @@ const CreateBounty = () => {
         reset();
         setMedia([]);
         setLoading(false);
+        setIsOpen(false);
       },
     });
   const onSubmit: SubmitHandler<z.infer<typeof BountySchema>> = (data) => {
@@ -159,6 +169,7 @@ const CreateBounty = () => {
     SendBalanceToBountyMother.mutate({
       signWith: needSign(),
       prize: data.prize,
+      method: paymentMethod,
     });
     setLoading(false);
   };
@@ -357,6 +368,21 @@ const CreateBounty = () => {
                     />
                   ) : (
                     <div className="flex flex-col gap-2">
+                      <PaymentChoose
+                        XLM_EQUIVALENT={prizeInAsset * 0.7 + 2 + 1}
+                        handleConfirm={handleSubmit(onSubmit)}
+                        loading={loading}
+                        requiredToken={prizeInAsset + totalAmount}
+                        trigger={
+                          <Button
+                            disabled={loading || !isValid}
+                            className="w-full"
+                          >
+                            Create
+                          </Button>
+                        }
+                      />
+
                       <Dialog
                         open={isDialogOpen}
                         onOpenChange={setIsDialogOpen}

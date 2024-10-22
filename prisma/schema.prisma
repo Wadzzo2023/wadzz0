@@ -527,6 +527,7 @@ model Bounty {
     description     String
     priceInUSD      Float
     priceInBand     Float
+    priceInXLM      Float?
     requiredBalance Float
     imageUrls       String[]
     createdAt       DateTime            @default(now())

@@ -25,8 +25,11 @@ import {
   getplatformAssetNumberForXLM,
 } from "../fan/get_token_price";
 import { env } from "~/env";
-const assetIssuer = env.NEXT_PUBLIC_STELLAR_PUBNET ? "GDEL52F3VNFTARVKRL5NYME54NMLGMRO7MU2ILDEGO2LBAUKKKBQYMV3" : "GB5AVDCDB2DRY6O2GGF4N6JXC6CAIBF7Q4RCQTWDOLFKZDQOKEEKBFEO"
-const assetCode = "Wadzzo"
+import { LucideBookDown } from "lucide-react";
+const assetIssuer = env.NEXT_PUBLIC_STELLAR_PUBNET
+  ? "GDEL52F3VNFTARVKRL5NYME54NMLGMRO7MU2ILDEGO2LBAUKKKBQYMV3"
+  : "GB5AVDCDB2DRY6O2GGF4N6JXC6CAIBF7Q4RCQTWDOLFKZDQOKEEKBFEO";
+const assetCode = PLATFORM_ASSET.code;
 export async function SendBountyBalanceToMotherAccount({
   prize,
   signWith,
@@ -57,6 +60,52 @@ export async function SendBountyBalanceToMotherAccount({
       asset: PLATFORM_ASSET,
       amount: totalAmount.toFixed(7).toString(),
       source: userPubKey,
+    }),
+  );
+  transaction.setTimeout(0);
+
+  const buildTrx = transaction.build();
+  buildTrx.sign(motherAcc);
+
+  if (signWith && "email" in signWith && secretKey) {
+    const xdr = buildTrx.toXDR();
+    const signedXDr = await WithSing({
+      xdr: xdr,
+      signWith: signWith,
+    });
+    return { xdr: signedXDr, pubKey: userPubKey };
+  }
+  return { xdr: buildTrx.toXDR(), pubKey: userPubKey };
+}
+
+export async function SendBountyBalanceToMotherAccountViaXLM({
+  prizeInXLM,
+  signWith,
+  userPubKey,
+  secretKey,
+}: {
+  prizeInXLM: number;
+  signWith: SignUserType;
+  userPubKey: string;
+  secretKey?: string | undefined;
+}) {
+  const server = new Horizon.Server(STELLAR_URL);
+  const motherAcc = Keypair.fromSecret(MOTHER_SECRET);
+
+  const account = await server.loadAccount(userPubKey);
+
+  const transaction = new TransactionBuilder(account, {
+    fee: TrxBaseFee,
+    networkPassphrase,
+  });
+
+  const totalAmount = prizeInXLM + 2 + 1;
+
+  transaction.addOperation(
+    Operation.payment({
+      destination: motherAcc.publicKey(),
+      asset: Asset.native(),
+      amount: totalAmount.toFixed(7).toString(),
     }),
   );
   transaction.setTimeout(0);
@@ -121,6 +170,36 @@ export async function SendBountyBalanceToUserAccount({
       source: motherAcc.publicKey(),
       asset: PLATFORM_ASSET,
       amount: prize.toFixed(7).toString(),
+    }),
+  );
+  transaction.setTimeout(0);
+
+  const buildTrx = transaction.build();
+  buildTrx.sign(motherAcc);
+  return buildTrx.toXDR();
+}
+
+export async function SendBountyBalanceToUserAccountViaXLM({
+  prizeInXLM,
+  userPubKey,
+}: {
+  prizeInXLM: number;
+  userPubKey: string;
+}) {
+  const server = new Horizon.Server(STELLAR_URL);
+  const motherAcc = Keypair.fromSecret(MOTHER_SECRET);
+  const account = await server.loadAccount(motherAcc.publicKey());
+
+  const transaction = new TransactionBuilder(account, {
+    fee: BASE_FEE.toString(),
+    networkPassphrase,
+  });
+
+  transaction.addOperation(
+    Operation.payment({
+      destination: userPubKey,
+      asset: Asset.native(),
+      amount: prizeInXLM.toFixed(7).toString(),
     }),
   );
   transaction.setTimeout(0);
@@ -217,6 +296,47 @@ export async function SendBountyBalanceToWinner({
   return buildTrx.toXDR();
 }
 
+export async function SendBountyBalanceToWinnerViaXLM({
+  prizeInXLM,
+  recipientID,
+}: {
+  prizeInXLM: number;
+  recipientID: string;
+}) {
+  const server = new Horizon.Server(STELLAR_URL);
+  const motherAcc = Keypair.fromSecret(MOTHER_SECRET);
+
+  const account = await server.loadAccount(motherAcc.publicKey());
+
+  const XLMBalance = await NativeBalance({ userPub: motherAcc.publicKey() });
+
+  if (!XLMBalance?.balance || parseFloat(XLMBalance.balance) < 1.0) {
+    throw new Error(
+      "Please make sure you have at least 1 XLM in your account.",
+    );
+  }
+
+  const transaction = new TransactionBuilder(account, {
+    fee: BASE_FEE.toString(),
+    networkPassphrase,
+  });
+
+  transaction.addOperation(
+    Operation.payment({
+      destination: recipientID,
+      source: motherAcc.publicKey(),
+      asset: Asset.native(),
+      amount: prizeInXLM.toFixed(7).toString(),
+    }),
+  );
+
+  transaction.setTimeout(0);
+
+  const buildTrx = transaction.build();
+  buildTrx.sign(motherAcc);
+  return buildTrx.toXDR();
+}
+
 export async function NativeBalance({ userPub }: { userPub: string }) {
   const server = new Horizon.Server(STELLAR_URL);
 
@@ -265,8 +385,6 @@ export async function SwapUserAssetToMotherUSDC({
     return false;
   });
 
-
-
   console.log("assetIssuer", assetIssuer);
   const asset = new Asset(assetCode, assetIssuer);
 
@@ -276,8 +394,7 @@ export async function SwapUserAssetToMotherUSDC({
       balance.asset_type === "credit_alphanum12"
     ) {
       return (
-        balance.asset_code === assetCode &&
-        balance.asset_issuer === assetIssuer
+        balance.asset_code === assetCode && balance.asset_issuer === assetIssuer
       );
     }
     return false;
@@ -288,8 +405,7 @@ export async function SwapUserAssetToMotherUSDC({
       balance.asset_type === "credit_alphanum12"
     ) {
       return (
-        balance.asset_code === assetCode &&
-        balance.asset_issuer === assetIssuer
+        balance.asset_code === assetCode && balance.asset_issuer === assetIssuer
       );
     }
     return false;
@@ -364,9 +480,6 @@ export async function SwapUserAssetToMotherUSDC({
   return { xdr: buildTrx.toXDR(), pubKey: userPubKey };
 }
 
-
-
-
 export async function getHasMotherTrustOnUSDC() {
   const server = new Horizon.Server(STELLAR_URL);
   const motherAcc = Keypair.fromSecret(MOTHER_SECRET);
@@ -377,18 +490,16 @@ export async function getHasMotherTrustOnUSDC() {
       balance.asset_type === "credit_alphanum12"
     ) {
       return (
-        balance.asset_code === assetCode &&
-        balance.asset_issuer === assetIssuer
+        balance.asset_code === assetCode && balance.asset_issuer === assetIssuer
       );
     }
     return false;
   });
   if (motherHasTrust) {
-    return true
+    return true;
   }
-  return false
+  return false;
 }
-
 
 export async function getHasUserHasTrustOnUSDC(userPubKey: string) {
   const server = new Horizon.Server(STELLAR_URL);
@@ -399,26 +510,28 @@ export async function getHasUserHasTrustOnUSDC(userPubKey: string) {
       balance.asset_type === "credit_alphanum12"
     ) {
       return (
-        balance.asset_code === assetCode &&
-        balance.asset_issuer === assetIssuer
+        balance.asset_code === assetCode && balance.asset_issuer === assetIssuer
       );
     }
     return false;
   });
   if (userHasTrust) {
-    return true
+    return true;
   }
-  return false
+  return false;
 }
 
 export async function checkXDRSubmitted(xdr: string) {
   try {
     const server = new Horizon.Server(STELLAR_URL);
     const transaction = new Transaction(xdr, networkPassphrase);
-    const txHash = transaction.hash().toString('hex');
+    const txHash = transaction.hash().toString("hex");
 
     try {
-      const transactionResult = await server.transactions().transaction(txHash).call();
+      const transactionResult = await server
+        .transactions()
+        .transaction(txHash)
+        .call();
       console.log("Transaction already submitted:", transactionResult);
       return true;
     } catch (error) {

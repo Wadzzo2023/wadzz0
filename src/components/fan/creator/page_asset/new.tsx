@@ -120,7 +120,6 @@ function NewPageAssetFrom({ requiredToken }: { requiredToken: number }) {
           toast.error("Transaction failed", { id: toastId });
           shadToast({
             title: "Transaction failed",
-            description: e.message,
           });
           console.log(e);
         })
