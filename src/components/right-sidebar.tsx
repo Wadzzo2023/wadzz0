@@ -52,7 +52,7 @@ export function RightComponent() {
     if (selectedTag == AssetVariant.SONG) return <MarketRight />;
     if (selectedTag == AssetVariant.Other) return <Right />;
     if (selectedTag == AssetVariant.FAN) return <MarketRight />;
-    if (selectedTag == AssetVariant.Artists) return <PageAssetRight />;
+    // if (selectedTag == AssetVariant.Artists) return <PageAssetRight />;
     if (selectedTag === undefined) {
       if (pop.type == AssetVariant.ADMIN) return <MarketRight />;
       if ((pop.type = AssetVariant.Other)) return <PageAssetRight />;

@@ -7,6 +7,7 @@ import { MarketType, CreatorPageAsset } from "@prisma/client";
 import { usePageAssetRightStore } from "~/lib/state/wallete/page_asset_right";
 import { useTagStore } from "~/lib/state/wallete/tag";
 import { AssetVariant } from "../right-sidebar";
+import { useRouter } from "next/router";
 export type CreatorPageAssetType = CreatorPageAsset & {
   creator: {
     name: string;
@@ -18,17 +19,13 @@ function PageAssetComponent({ item }: { item: CreatorPageAssetType }) {
   const { selectedTag } = useTagStore();
   const urs = usePageAssetRightStore();
   const pop = usePopUpState();
+  const router = useRouter();
   console.log(item);
   return (
     <div>
       <button
-        onClick={() => {
-          urs.setData(item);
-          pop.setType("Assets");
-
-          if (!getTailwindScreenSize().includes("xl")) {
-            pop.setOpen(true);
-          }
+        onClick={async () => {
+          await router.push(`/fans/creator/${item.creatorId}`);
         }}
         className="btn relative h-fit w-full overflow-hidden  py-4 "
       >

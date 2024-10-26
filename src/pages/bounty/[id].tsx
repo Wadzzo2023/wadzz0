@@ -764,15 +764,6 @@ const UserBountyPage = () => {
                                           {PLATFORM_ASSET.code}
                                         </dd>
                                       </dl>
-
-                                      <dl className="flex items-center justify-between gap-4">
-                                        <dt className="text-base font-normal text-gray-500 dark:text-gray-400">
-                                          Trust Cost
-                                        </dt>
-                                        <dd className="text-base font-medium text-green-500">
-                                          {getTrustCost} {PLATFORM_ASSET.code}
-                                        </dd>
-                                      </dl>
                                     </div>
 
                                     <dl className="flex items-center justify-between gap-4 border-t border-gray-200 pt-2 dark:border-gray-700">
@@ -783,7 +774,8 @@ const UserBountyPage = () => {
                                         {(
                                           data?.priceInBand +
                                           Number(TrxBaseFeeInPlatformAsset) +
-                                          Number(PLATFORM_FEE)
+                                          Number(PLATFORM_FEE) 
+                                        
                                         ).toFixed(2)}{" "}
                                         {PLATFORM_ASSET.code}
                                       </dd>
