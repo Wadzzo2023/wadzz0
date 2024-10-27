@@ -26,10 +26,10 @@ import {
 } from "../fan/get_token_price";
 import { env } from "~/env";
 import { LucideBookDown } from "lucide-react";
-const assetIssuer = env.NEXT_PUBLIC_STELLAR_PUBNET
-  ? "GDEL52F3VNFTARVKRL5NYME54NMLGMRO7MU2ILDEGO2LBAUKKKBQYMV3"
-  : "GB5AVDCDB2DRY6O2GGF4N6JXC6CAIBF7Q4RCQTWDOLFKZDQOKEEKBFEO";
-const assetCode = PLATFORM_ASSET.code;
+
+const assetIssuer = "GA5ZSEJYB37JRC5AVCIA5MOP4RHTM335X2KGX3IHOJAPP5RE34K4KZVN"
+const assetCode = "USDC";
+
 export async function SendBountyBalanceToMotherAccount({
   prize,
   signWith,

@@ -242,18 +242,15 @@ function App() {
                 setIsAutoCollect(pin.autoCollect); // Set isAutoCollect to true when a pin is clicked
               }}
             >
-              {pin._count.consumers < pin.limit ? (
-                <span>
-                  <Image
-                    src={pin.creator.profileUrl ?? "/favicon.ico"}
-                    width={30}
-                    height={30}
-                    alt="vong cong"
-                  />
-                </span>
-              ) : (
-                <span className="tree">(🌳)</span>
-              )}
+              <Image
+                src={pin.creator.profileUrl ?? "/favicon.ico"}
+                width={30}
+                height={30}
+                alt="Creator"
+                className={`h-10 w-10 bg-white ${
+                  !pin.autoCollect ? "rounded-full " : ""
+                } ${pin._count.consumers <= 0 ? "opacity-50" : "opacity-100"}`}
+              />
             </AdvancedMarker>
           ))}
         </>

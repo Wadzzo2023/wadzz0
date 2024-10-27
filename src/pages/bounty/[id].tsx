@@ -654,11 +654,7 @@ const UserBountyPage = () => {
                                           Transaction Cost
                                         </dt>
                                         <dd className="text-base font-medium text-gray-900 dark:text-white">
-                                          {(
-                                            data?.priceInBand +
-                                            Number(TrxBaseFeeInPlatformAsset) +
-                                            Number(PLATFORM_FEE)
-                                          ).toFixed(2)}{" "}
+                                          {(data?.priceInBand).toFixed(2)}{" "}
                                           {PLATFORM_ASSET.code}
                                         </dd>
                                       </dl>
@@ -679,10 +675,7 @@ const UserBountyPage = () => {
                                       </dt>
                                       <dd className="text-base font-bold text-gray-900 dark:text-white">
                                         {(
-                                          data?.priceInBand +
-                                          Number(TrxBaseFeeInPlatformAsset) +
-                                          Number(PLATFORM_FEE) +
-                                          getTrustCost
+                                          data?.priceInBand + getTrustCost
                                         ).toFixed(2)}{" "}
                                         {PLATFORM_ASSET.code}
                                       </dd>
@@ -746,11 +739,7 @@ const UserBountyPage = () => {
                                           Transaction Cost
                                         </dt>
                                         <dd className="text-base font-medium text-gray-900 dark:text-white">
-                                          {(
-                                            data?.priceInBand +
-                                            Number(TrxBaseFeeInPlatformAsset) +
-                                            Number(PLATFORM_FEE)
-                                          ).toFixed(2)}{" "}
+                                          {(data?.priceInBand).toFixed(2)}{" "}
                                           {PLATFORM_ASSET.code}
                                         </dd>
                                       </dl>
@@ -761,11 +750,7 @@ const UserBountyPage = () => {
                                         Total
                                       </dt>
                                       <dd className="text-base font-bold text-gray-900 dark:text-white">
-                                        {(
-                                          data?.priceInBand +
-                                          Number(TrxBaseFeeInPlatformAsset) +
-                                          Number(PLATFORM_FEE)
-                                        ).toFixed(2)}{" "}
+                                        {(data?.priceInBand).toFixed(2)}{" "}
                                         {PLATFORM_ASSET.code}
                                       </dd>
                                     </dl>
