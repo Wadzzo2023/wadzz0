@@ -1062,7 +1062,8 @@ export const BountyRoute = createTRPCRouter({
     .input(
       z.object({
         bountyId: z.number(),
-        price: z.number(),
+        priceInBand: z.number(),
+        priceInUSD: z.number(),
         signWith: SignUser,
       }),
     )
@@ -1089,7 +1090,8 @@ export const BountyRoute = createTRPCRouter({
       }
 
       const res = await SwapUserAssetToMotherUSDC({
-        prize: input.price,
+        priceInBand: input.priceInBand,
+        priceInUSD: input.priceInUSD,
         userPubKey: ctx.session.user.id,
         secretKey: secretKey,
         signWith: input.signWith,
