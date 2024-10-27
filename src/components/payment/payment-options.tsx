@@ -18,53 +18,6 @@ import { create } from "zustand";
 import { env } from "~/env";
 import { PaymentMethod, PaymentMethodEnum } from "../music/modal/buy_modal";
 
-export default function Component() {
-  const [loading, setLoading] = useState(false);
-
-  // Dummy data
-  const CREATOR_TERM = "Brand";
-  const requiredToken = 100;
-  const PLATFORM_ASSET = { code: "WADZZO" };
-  const XLM_EQUIVALENT = 250; // Dummy XLM equivalent
-
-  const handleConfirm = () => {
-    setLoading(true);
-    // Simulate payment processing
-    setTimeout(() => {
-      setLoading(false);
-      //   setIsOpen(false);
-    }, 2000);
-  };
-
-  return (
-    <div className="flex h-screen flex-col items-center justify-center gap-4 bg-gray-100 p-4">
-      <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-lg">
-        <h2 className="mb-4 text-center text-2xl font-bold">
-          You are not a {CREATOR_TERM}
-        </h2>
-        <p className="mb-6 text-center text-gray-600">
-          Your account will be charged {requiredToken} {PLATFORM_ASSET.code} or
-          equivalent XLM to be a {CREATOR_TERM.toLowerCase()}.
-        </p>
-
-        <PaymentChoose
-          requiredToken={requiredToken}
-          XLM_EQUIVALENT={XLM_EQUIVALENT}
-          handleConfirm={handleConfirm}
-          loading={loading}
-          trigger={
-            <Button className="w-full">
-              Join as a {CREATOR_TERM.toLowerCase()}
-            </Button>
-          }
-        />
-      </div>
-    </div>
-  );
-}
-
-/// create zustund store for paymentMethod
-
 interface PaymentMethodStore {
   paymentMethod: PaymentMethod;
   setPaymentMethod: (method: PaymentMethod) => void;

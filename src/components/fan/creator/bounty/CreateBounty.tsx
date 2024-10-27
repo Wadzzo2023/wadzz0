@@ -144,6 +144,8 @@ const CreateBounty = () => {
               toast.error("Error in signing transaction");
               setMedia([]);
             }
+
+            setIsOpen(false);
           } catch (error) {
             setLoading(false);
             console.error("Error sending balance to bounty mother", error);
@@ -382,75 +384,6 @@ const CreateBounty = () => {
                           </Button>
                         }
                       />
-
-                      <Dialog
-                        open={isDialogOpen}
-                        onOpenChange={setIsDialogOpen}
-                      >
-                        <DialogTrigger asChild>
-                          <Button
-                            disabled={loading || !isValid}
-                            className="w-full"
-                          >
-                            Create
-                          </Button>
-                        </DialogTrigger>
-                        <DialogContent className="sm:max-w-[425px]">
-                          <DialogHeader>
-                            <DialogTitle>Confirmation </DialogTitle>
-                          </DialogHeader>
-                          <div className="mt-6 w-full space-y-6 sm:mt-8 lg:mt-0 lg:max-w-xs xl:max-w-md">
-                            <div className="flow-root">
-                              <div className="-my-3 divide-y divide-gray-200 dark:divide-gray-800">
-                                <dl className="flex items-center justify-between gap-4 py-3">
-                                  <dt className="text-base font-normal text-gray-500 dark:text-gray-400">
-                                    Prize
-                                  </dt>
-                                  <dd className="text-base font-medium text-gray-900 dark:text-white">
-                                    {prizeInAsset} {PLATFORM_ASSET.code}
-                                  </dd>
-                                </dl>
-
-                                <dl className="flex items-center justify-between gap-4 py-3">
-                                  <dt className="text-base font-normal text-gray-500 dark:text-gray-400">
-                                    Fees
-                                  </dt>
-                                  <dd className="text-base font-medium text-green-500">
-                                    {totalAmount} {PLATFORM_ASSET.code}
-                                  </dd>
-                                </dl>
-
-                                <dl className="flex items-center justify-between gap-4 py-3">
-                                  <dt className="text-base font-bold text-gray-900 dark:text-white">
-                                    Total
-                                  </dt>
-                                  <dd className="text-base font-bold text-gray-900 dark:text-white">
-                                    {prizeInAsset + totalAmount}{" "}
-                                    {PLATFORM_ASSET.code}
-                                  </dd>
-                                </dl>
-                              </div>
-                            </div>
-                          </div>
-                          <DialogFooter className=" w-full">
-                            <div className="flex w-full gap-4  ">
-                              <DialogClose className="w-full">
-                                <Button variant="outline" className="w-full">
-                                  Cancel
-                                </Button>
-                              </DialogClose>
-                              <Button
-                                disabled={loading || !isValid}
-                                variant="destructive"
-                                onClick={handleSubmit(onSubmit)}
-                                className="w-full"
-                              >
-                                Confirm
-                              </Button>
-                            </div>
-                          </DialogFooter>
-                        </DialogContent>
-                      </Dialog>
 
                       <Alert
                         type="success"

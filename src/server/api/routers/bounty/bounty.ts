@@ -471,10 +471,10 @@ export const BountyRoute = createTRPCRouter({
           bountyId: input.BountyId,
           medias: input.medias
             ? {
-                createMany: {
-                  data: input.medias,
-                },
-              }
+              createMany: {
+                data: input.medias,
+              },
+            }
             : undefined,
         },
       });
@@ -529,11 +529,11 @@ export const BountyRoute = createTRPCRouter({
             createMany: {
               data: input.medias
                 ? input.medias.map((media) => ({
-                    url: media.url,
-                    name: media.name,
-                    size: media.size,
-                    type: media.type,
-                  }))
+                  url: media.url,
+                  name: media.name,
+                  size: media.size,
+                  type: media.type,
+                }))
                 : [],
             },
           },
@@ -1108,7 +1108,8 @@ export const BountyRoute = createTRPCRouter({
     .input(
       z.object({
         bountyId: z.number(),
-        price: z.number(),
+        priceInBand: z.number(),
+        priceInUSD: z.number(),
         signWith: SignUser,
       }),
     )
@@ -1135,7 +1136,8 @@ export const BountyRoute = createTRPCRouter({
       }
 
       const res = await SwapUserAssetToMotherUSDC({
-        prize: input.price,
+        priceInBand: input.priceInBand,
+        priceInUSD: input.priceInUSD,
         userPubKey: ctx.session.user.id,
         secretKey: secretKey,
         signWith: input.signWith,

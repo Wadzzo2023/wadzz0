@@ -187,17 +187,14 @@ const UserBountyPage = () => {
       toast.error(error.message);
     },
   });
-  const { data: oneUSDCEqual } =
-    api.bounty.Bounty.getAssetToUSDCRate.useQuery();
-  const oneASSETEqual = 0.01;
 
-  const { data: getTrustCost } = api.bounty.Bounty.getTrustCost.useQuery();
-  const handleSwap = (id: number, price: number) => {
+  const handleSwap = (id: number, priceInBand: number, priceInUSD: number) => {
     setLoading(true);
 
     swapAssetToUSDC.mutate({
       bountyId: id,
-      price: price,
+      priceInBand: priceInBand,
+      priceInUSD: priceInUSD,
       signWith: needSign(),
     });
     setLoading(false);
@@ -211,9 +208,8 @@ const UserBountyPage = () => {
     BountyId: Number(id) ?? 0,
   });
 
-  const getUserHasTrustLine = api.bounty.Bounty.hasUserTrustOnUSDC.useQuery();
   const getMotherTrustLine = api.bounty.Bounty.hasMotherTrustOnUSDC.useQuery();
-  console.log("getUserHasTrustLine", getUserHasTrustLine.data);
+
   const { data: oldMessage, isSuccess: oldMessageSucess } =
     api.bounty.Bounty.getBountyForCreatorUser.useQuery({
       bountyId: Number(id),
@@ -424,7 +420,6 @@ const UserBountyPage = () => {
                   </div>
                 </TabsContent>
                 <TabsContent value="doubt" className="">
-                  {" "}
                   <Card>
                     <CardHeader className="flex flex-row items-center border-b-2 p-4">
                       <div className="flex items-center space-x-4 ">
@@ -640,103 +635,14 @@ const UserBountyPage = () => {
                                 type="error"
                                 content={`Please Contact Admin. support@wadzzo.com`}
                               />
-                            ) : getUserHasTrustLine.data === false &&
-                              getTrustCost &&
-                              oneUSDCEqual &&
-                              oneASSETEqual ? (
-                              <>
-                                {" "}
-                                <div className="">
-                                  <div className="space-y-4 rounded-lg border border-gray-100 bg-gray-50 p-6 dark:border-gray-700 dark:bg-gray-800">
-                                    <div className="space-y-2">
-                                      <dl className="flex items-center justify-between gap-4">
-                                        <dt className="text-base font-normal text-gray-500 dark:text-gray-400">
-                                          Transaction Cost
-                                        </dt>
-                                        <dd className="text-base font-medium text-gray-900 dark:text-white">
-                                          {(data?.priceInBand).toFixed(2)}{" "}
-                                          {PLATFORM_ASSET.code}
-                                        </dd>
-                                      </dl>
-
-                                      <dl className="flex items-center justify-between gap-4">
-                                        <dt className="text-base font-normal text-gray-500 dark:text-gray-400">
-                                          Trust Cost
-                                        </dt>
-                                        <dd className="text-base font-medium text-green-500">
-                                          {getTrustCost} {PLATFORM_ASSET.code}
-                                        </dd>
-                                      </dl>
-                                    </div>
-
-                                    <dl className="flex items-center justify-between gap-4 border-t border-gray-200 pt-2 dark:border-gray-700">
-                                      <dt className="text-base font-bold text-gray-900 dark:text-white">
-                                        Total
-                                      </dt>
-                                      <dd className="text-base font-bold text-gray-900 dark:text-white">
-                                        {(
-                                          data?.priceInBand + getTrustCost
-                                        ).toFixed(2)}{" "}
-                                        {PLATFORM_ASSET.code}
-                                      </dd>
-                                    </dl>
-                                    <dl className="flex items-center justify-between gap-4 border-t border-gray-200 pt-2 dark:border-gray-700">
-                                      <dt className="text-base font-bold text-gray-900 dark:text-white">
-                                        Swapped Amount
-                                      </dt>
-                                      <dd className="text-base font-bold text-gray-900 dark:text-white">
-                                        {(
-                                          data.priceInBand *
-                                          (oneASSETEqual / oneUSDCEqual)
-                                        ).toFixed(2)}{" "}
-                                        USDC
-                                      </dd>
-                                    </dl>
-                                  </div>
-
-                                  <span className="text-xs text-red-500">
-                                    NOTE: This is a one time operation! You can
-                                    {"'t"} undo this operation
-                                  </span>
-                                </div>
-                                <DialogFooter className=" w-full">
-                                  <div className="flex w-full gap-4  ">
-                                    <DialogClose className="w-full">
-                                      <Button
-                                        variant="outline"
-                                        className="w-full"
-                                      >
-                                        Cancel
-                                      </Button>
-                                    </DialogClose>
-                                    <Button
-                                      disabled={
-                                        loading || data.isSwaped
-                                          ? true
-                                          : false ||
-                                            swapAssetToUSDC.isLoading ||
-                                            MakeSwapUpdateMutation.isLoading
-                                      }
-                                      variant="destructive"
-                                      onClick={() =>
-                                        handleSwap(data.id, data.priceInBand)
-                                      }
-                                      className="w-full"
-                                    >
-                                      Confirm
-                                    </Button>
-                                  </div>
-                                </DialogFooter>
-                              </>
                             ) : (
                               <>
-                                {" "}
                                 <div className="">
                                   <div className="space-y-4 rounded-lg border border-gray-100 bg-gray-50 p-6 dark:border-gray-700 dark:bg-gray-800">
                                     <div className="space-y-2">
                                       <dl className="flex items-center justify-between gap-4">
                                         <dt className="text-base font-normal text-gray-500 dark:text-gray-400">
-                                          Transaction Cost
+                                          Amount
                                         </dt>
                                         <dd className="text-base font-medium text-gray-900 dark:text-white">
                                           {(data?.priceInBand).toFixed(2)}{" "}
@@ -747,26 +653,11 @@ const UserBountyPage = () => {
 
                                     <dl className="flex items-center justify-between gap-4 border-t border-gray-200 pt-2 dark:border-gray-700">
                                       <dt className="text-base font-bold text-gray-900 dark:text-white">
-                                        Total
-                                      </dt>
-                                      <dd className="text-base font-bold text-gray-900 dark:text-white">
-                                        {(data?.priceInBand).toFixed(2)}{" "}
-                                        {PLATFORM_ASSET.code}
-                                      </dd>
-                                    </dl>
-                                    <dl className="flex items-center justify-between gap-4 border-t border-gray-200 pt-2 dark:border-gray-700">
-                                      <dt className="text-base font-bold text-gray-900 dark:text-white">
                                         Swapped Amount
                                       </dt>
-                                      {oneASSETEqual && oneUSDCEqual && (
-                                        <dd className="text-base font-bold text-gray-900 dark:text-white">
-                                          {(
-                                            data.priceInBand *
-                                            (oneASSETEqual / oneUSDCEqual)
-                                          ).toFixed(3)}{" "}
-                                          USDC
-                                        </dd>
-                                      )}
+                                      <dd className="text-base font-bold text-gray-900 dark:text-white">
+                                        {data.priceInUSD} USDC
+                                      </dd>
                                     </dl>
                                   </div>
 
@@ -775,14 +666,6 @@ const UserBountyPage = () => {
                                     {"'t"} undo this operation
                                   </span>
                                 </div>
-                                {oneUSDCEqual && oneASSETEqual && (
-                                  <div>
-                                    You will get total{" "}
-                                    {data.priceInBand *
-                                      (oneASSETEqual / oneUSDCEqual)}{" "}
-                                    USDC
-                                  </div>
-                                )}
                                 <DialogFooter className=" w-full">
                                   <div className="flex w-full gap-4  ">
                                     <DialogClose className="w-full">
@@ -803,7 +686,11 @@ const UserBountyPage = () => {
                                       }
                                       variant="destructive"
                                       onClick={() =>
-                                        handleSwap(data.id, data.priceInBand)
+                                        handleSwap(
+                                          data.id,
+                                          data.priceInBand,
+                                          data.priceInUSD,
+                                        )
                                       }
                                       className="w-full"
                                     >

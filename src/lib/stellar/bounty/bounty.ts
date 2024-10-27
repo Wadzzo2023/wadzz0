@@ -26,6 +26,7 @@ import {
 } from "../fan/get_token_price";
 import { env } from "~/env";
 import { LucideBookDown } from "lucide-react";
+import { P } from "pino";
 
 const assetIssuer = "GA5ZSEJYB37JRC5AVCIA5MOP4RHTM335X2KGX3IHOJAPP5RE34K4KZVN"
 const assetCode = "USDC";
@@ -268,29 +269,23 @@ export async function SendBountyBalanceToWinner({
   });
 
   if (!hasTrust) {
-    const claimants: Claimant[] = [
-      new Claimant(recipientID, Claimant.predicateUnconditional()),
-    ];
-
+    const asset = new Asset(PLATFORM_ASSET.getCode(), PLATFORM_ASSET.getIssuer());
     transaction.addOperation(
-      Operation.createClaimableBalance({
-        amount: prize.toFixed(7).toString(),
-        asset: PLATFORM_ASSET,
-        claimants: claimants,
-      }),
-    );
-  } else {
-    transaction.addOperation(
-      Operation.payment({
-        destination: recipientID,
-        source: motherAcc.publicKey(),
-        asset: PLATFORM_ASSET,
-        amount: prize.toFixed(7).toString(),
+      Operation.changeTrust({
+        asset: asset,
+        source: recipientID,
       }),
     );
   }
+  transaction.addOperation(
+    Operation.payment({
+      destination: recipientID,
+      source: motherAcc.publicKey(),
+      asset: PLATFORM_ASSET,
+      amount: prize.toFixed(7).toString(),
+    }),
+  );
   transaction.setTimeout(0);
-
   const buildTrx = transaction.build();
   buildTrx.sign(motherAcc);
   return buildTrx.toXDR();
@@ -352,12 +347,14 @@ export async function NativeBalance({ userPub }: { userPub: string }) {
 }
 
 export async function SwapUserAssetToMotherUSDC({
-  prize,
+  priceInBand,
+  priceInUSD,
   userPubKey,
   secretKey,
   signWith,
 }: {
-  prize: number;
+  priceInBand: number;
+  priceInUSD: number;
   userPubKey: string;
   secretKey?: string | undefined;
   signWith: SignUserType;
@@ -371,10 +368,6 @@ export async function SwapUserAssetToMotherUSDC({
     networkPassphrase,
   });
 
-  const trustCost = await getplatformAssetNumberForXLM(0.5);
-  let totalAmount =
-    prize + Number(TrxBaseFeeInPlatformAsset) + Number(PLATFORM_FEE);
-
   const platformAssetBalance = senderAcc.balances.find((balance) => {
     if (
       balance.asset_type === "credit_alphanum4" ||
@@ -385,7 +378,7 @@ export async function SwapUserAssetToMotherUSDC({
     return false;
   });
 
-  console.log("assetIssuer", assetIssuer);
+
   const asset = new Asset(assetCode, assetIssuer);
 
   const senderHasTrustOnUSDC = senderAcc.balances.find((balance) => {
@@ -399,6 +392,8 @@ export async function SwapUserAssetToMotherUSDC({
     }
     return false;
   });
+
+
   const receiverHasTrustOnUSDC = account.balances.find((balance) => {
     if (
       balance.asset_type === "credit_alphanum4" ||
@@ -410,25 +405,21 @@ export async function SwapUserAssetToMotherUSDC({
     }
     return false;
   });
+
+
   if (!receiverHasTrustOnUSDC) {
     throw new Error("Please Contact Admin to add USDC trustline");
   }
 
-  const oneUSDCEqual = await getAssetToUSDCRate();
-  const oneASSETEqual = 0.01;
-
-  const oneAssetInUSDC = oneASSETEqual / oneUSDCEqual;
-
-  const prizeInUSDC = prize * oneAssetInUSDC;
 
   if (!senderHasTrustOnUSDC) {
-    totalAmount += trustCost;
+
     if (
       !platformAssetBalance ||
-      parseFloat(platformAssetBalance.balance) < totalAmount
+      parseFloat(platformAssetBalance.balance) < priceInBand
     ) {
       throw new Error(
-        `You don't have total amount of ${totalAmount} ${PLATFORM_ASSET.code} to send.`,
+        `You don't have total amount of ${priceInBand} ${PLATFORM_ASSET.code} to send.`,
       );
     }
     transaction.addOperation(
@@ -440,10 +431,10 @@ export async function SwapUserAssetToMotherUSDC({
   }
   if (
     !platformAssetBalance ||
-    parseFloat(platformAssetBalance.balance) < totalAmount
+    parseFloat(platformAssetBalance.balance) < priceInBand
   ) {
     throw new Error(
-      `You don't have total amount of ${totalAmount} ${PLATFORM_ASSET.code} to send.`,
+      `You don't have total amount of ${priceInBand} ${PLATFORM_ASSET.code} to send.`,
     );
   }
   transaction
@@ -451,7 +442,7 @@ export async function SwapUserAssetToMotherUSDC({
       Operation.payment({
         destination: motherAcc.publicKey(),
         asset: PLATFORM_ASSET,
-        amount: totalAmount.toFixed(7).toString(),
+        amount: priceInBand.toFixed(7).toString(),
         source: userPubKey,
       }),
     )
@@ -459,7 +450,7 @@ export async function SwapUserAssetToMotherUSDC({
       Operation.payment({
         destination: userPubKey,
         asset: asset,
-        amount: prizeInUSDC.toFixed(7).toString(),
+        amount: priceInUSD.toFixed(7).toString(),
         source: motherAcc.publicKey(),
       }),
     );
