@@ -1,15 +1,22 @@
 import React, { useRef, useEffect, useState } from "react";
 import { useMapsLibrary } from "@vis.gl/react-google-maps";
-import CreatePinModal from "../modals/create-pin";
 import { useSelectedAutoSuggestion } from "~/components/hooks/use-selectedAutoSuggestion";
 
 interface Props {
   onPlaceSelect: (place: google.maps.places.PlaceResult | null) => void;
+  onCenterChange: (latLng: google.maps.LatLngLiteral) => void; // Callback to set map center
+  setIsCordsSearch: (isCordsSearch: boolean) => void;
+  setCordSearchLocation: (location: google.maps.LatLngLiteral) => void;
 }
 
 // This is an example of the classic "Place Autocomplete" widget.
 // https://developers.google.com/maps/documentation/javascript/place-autocomplete
-export const PlaceAutocompleteClassic = ({ onPlaceSelect }: Props) => {
+export const PlaceAutocompleteClassic = ({
+  onPlaceSelect,
+  onCenterChange,
+  setIsCordsSearch,
+  setCordSearchLocation,
+}: Props) => {
   const { setSelectedPlace } = useSelectedAutoSuggestion();
 
   const [placeAutocomplete, setPlaceAutocomplete] =
@@ -34,24 +41,47 @@ export const PlaceAutocompleteClassic = ({ onPlaceSelect }: Props) => {
       const place = placeAutocomplete.getPlace();
       onPlaceSelect(place);
 
-      const latLng = {
-        lat: place.geometry?.location?.lat(),
-        lng: place.geometry?.location?.lng(),
-      };
+      const lat = place.geometry?.location?.lat();
+      const lng = place.geometry?.location?.lng();
 
-      if (latLng.lat && latLng.lng) {
-        setSelectedPlace(latLng as google.maps.LatLngLiteral);
+      if (lat !== undefined && lng !== undefined) {
+        const latLng = { lat, lng };
+        setSelectedPlace(latLng);
+        onCenterChange(latLng); // Center map on selected place
       }
     });
-  }, [onPlaceSelect, placeAutocomplete, setSelectedPlace]);
+  }, [onPlaceSelect, placeAutocomplete, setSelectedPlace, onCenterChange]);
+
+  // Function to check if input is coordinates and set center
+  const handleCoordinatesInput = () => {
+    if (inputRef.current) {
+      const value = inputRef.current.value.trim();
+      const [latStr, lngStr] = value.split(",").map((str) => str.trim());
+      const lat = Number(latStr);
+      const lng = Number(lngStr);
+
+      if (!isNaN(lat) && !isNaN(lng)) {
+        const latLng: google.maps.LatLngLiteral = { lat, lng };
+        onCenterChange(latLng);
+        setSelectedPlace(latLng);
+        setIsCordsSearch(true);
+        setCordSearchLocation(latLng);
+      } else {
+        console.error(
+          "Invalid coordinates. Please enter valid latitude and longitude.",
+        );
+      }
+    }
+  };
 
   return (
     <div className="w-full">
       <input
         ref={inputRef}
-        placeholder="Enter a location"
+        placeholder="Enter a location or coordinates"
         type="text"
-        className="h-8 w-80 rounded-lg border-2 border-gray-300 p-2"
+        className="h-12 w-80 rounded-lg border-2 border-gray-300 p-2"
+        onKeyDown={(e) => e.key === "Enter" && handleCoordinatesInput()}
       />
     </div>
   );
