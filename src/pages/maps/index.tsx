@@ -157,7 +157,7 @@ function App() {
   return (
     <APIProvider apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAP_API_KEY!}>
       <CustomMapControl
-        controlPosition={3}
+        controlPosition={2}
         onPlaceSelect={setSelectedPlace}
         onCenterChange={setMapCenter}
         setIsCordsSearch={setIsCordsSearch}
