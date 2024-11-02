@@ -1,12 +1,10 @@
-import { Loader2 } from "lucide-react";
 import { match } from "ts-pattern";
-import MapApp from "~/components/maps/search/app";
 import { api } from "~/utils/api";
 import { error, loading, success } from "~/utils/trcp/patterns";
 
 export default function TestPage() {
   const offers = api.marketplace.trade.getOffers.useQuery();
-  const auth = api.auth.trx.apple.useMutation();
+  // const auth = api.auth.trx..useMutation();
   const offersComponent = match(offers)
     .with(loading, () => <div>Loading...</div>)
     .with(error, (e) => <div>Error: {e.error?.message}</div>)
@@ -15,7 +13,7 @@ export default function TestPage() {
   return (
     <div>
       {/* TestPage <MapApp /> */}
-      <button
+      {/* <button
         onClick={() =>
           auth.mutate({
             token:
@@ -25,7 +23,7 @@ export default function TestPage() {
       >
         {auth.isLoading && <Loader2 className="animate-spin" />}
         Test Apple jwt verify
-      </button>
+      </button> */}
     </div>
   );
 }

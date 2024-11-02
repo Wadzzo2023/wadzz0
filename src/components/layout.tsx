@@ -44,6 +44,10 @@ export default function Layout({
 
   const creator = api.fan.creator.meCreator.useQuery();
 
+  if (router.pathname.includes("/albedo")) {
+    return <>{children}</>;
+  }
+
   return (
     <>
       <ThemeProvider
