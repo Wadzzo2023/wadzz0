@@ -248,19 +248,13 @@ export async function SendBountyBalanceToWinner({
   }
   console.log("XLMBalance", XLMBalance);
 
-  const hasTrust = receiverAcc.balances.find((balance) => {
-    if (
-      balance.asset_type === "credit_alphanum4" ||
-      balance.asset_type === "credit_alphanum12"
-    ) {
-      return (
-        balance.asset_code === PLATFORM_ASSET.getCode() &&
-        balance.asset_issuer === PLATFORM_ASSET.getIssuer()
-      );
-    } else if (balance.asset_type === "native") {
-      return balance.asset_type === PLATFORM_ASSET.getAssetType();
-    }
-    return false;
+  const hasTrust = receiverAcc.balances.some((balance) => {
+    console.log(balance);
+    return (
+      (balance.asset_type === "credit_alphanum4" || balance.asset_type === "credit_alphanum12") &&
+      balance.asset_code === PLATFORM_ASSET.getCode() &&
+      balance.asset_issuer === PLATFORM_ASSET.getIssuer()
+    );
   });
 
   const transaction = new TransactionBuilder(account, {
@@ -381,29 +375,23 @@ export async function SwapUserAssetToMotherUSDC({
 
   const asset = new Asset(assetCode, assetIssuer);
 
-  const senderHasTrustOnUSDC = senderAcc.balances.find((balance) => {
-    if (
-      balance.asset_type === "credit_alphanum4" ||
-      balance.asset_type === "credit_alphanum12"
-    ) {
-      return (
-        balance.asset_code === assetCode && balance.asset_issuer === assetIssuer
-      );
-    }
-    return false;
+  const senderHasTrustOnUSDC = senderAcc.balances.some((balance) => {
+    console.log(balance);
+    return (
+      (balance.asset_type === "credit_alphanum4" || balance.asset_type === "credit_alphanum12") &&
+      balance.asset_code === assetCode &&
+      balance.asset_issuer === assetIssuer
+    );
   });
 
 
-  const receiverHasTrustOnUSDC = account.balances.find((balance) => {
-    if (
-      balance.asset_type === "credit_alphanum4" ||
-      balance.asset_type === "credit_alphanum12"
-    ) {
-      return (
-        balance.asset_code === assetCode && balance.asset_issuer === assetIssuer
-      );
-    }
-    return false;
+  const receiverHasTrustOnUSDC = account.balances.some((balance) => {
+    console.log(balance);
+    return (
+      (balance.asset_type === "credit_alphanum4" || balance.asset_type === "credit_alphanum12") &&
+      balance.asset_code === assetCode &&
+      balance.asset_issuer === assetIssuer
+    );
   });
 
 
@@ -475,16 +463,13 @@ export async function getHasMotherTrustOnUSDC() {
   const server = new Horizon.Server(STELLAR_URL);
   const motherAcc = Keypair.fromSecret(MOTHER_SECRET);
   const account = await server.loadAccount(motherAcc.publicKey());
-  const motherHasTrust = account.balances.find((balance) => {
-    if (
-      balance.asset_type === "credit_alphanum4" ||
-      balance.asset_type === "credit_alphanum12"
-    ) {
-      return (
-        balance.asset_code === assetCode && balance.asset_issuer === assetIssuer
-      );
-    }
-    return false;
+  const motherHasTrust = account.balances.some((balance) => {
+    console.log(balance);
+    return (
+      (balance.asset_type === "credit_alphanum4" || balance.asset_type === "credit_alphanum12") &&
+      balance.asset_code === assetCode &&
+      balance.asset_issuer === assetIssuer
+    );
   });
   if (motherHasTrust) {
     return true;
@@ -495,21 +480,16 @@ export async function getHasMotherTrustOnUSDC() {
 export async function getHasUserHasTrustOnUSDC(userPubKey: string) {
   const server = new Horizon.Server(STELLAR_URL);
   const account = await server.loadAccount(userPubKey);
-  const userHasTrust = account.balances.find((balance) => {
-    if (
-      balance.asset_type === "credit_alphanum4" ||
-      balance.asset_type === "credit_alphanum12"
-    ) {
-      return (
-        balance.asset_code === assetCode && balance.asset_issuer === assetIssuer
-      );
-    }
-    return false;
+  const userHasTrust = account.balances.some((balance) => {
+    console.log(balance);
+    return (
+      (balance.asset_type === "credit_alphanum4" || balance.asset_type === "credit_alphanum12") &&
+      balance.asset_code === assetCode &&
+      balance.asset_issuer === assetIssuer
+    );
   });
-  if (userHasTrust) {
-    return true;
-  }
-  return false;
+
+  return userHasTrust;
 }
 
 export async function checkXDRSubmitted(xdr: string) {
