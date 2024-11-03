@@ -22,26 +22,27 @@ export default async function handler(
     return res.status(200).end();
   }
   const token = await getToken({ req });
-  // console.log(token, "..");
 
   // Check if the user is authenticated
   if (!token) {
-    res.status(401).json({
+    return res.status(401).json({
       error: "User is not authenticated",
     });
-    return;
   }
 
-  const data = z.object({ brand_id: z.string() }).parse(req.body);
+  const data = z
+    .object({ brand_id: z.string(), wallate: z.string() })
+    .parse(req.body);
 
   const userId = token.sub;
   const userEmail = token.email;
-  if (!userId || !userEmail) {
-    res.status(404).json({
+
+  if (!userId) {
+    return res.status(404).json({
       error: "userID not found",
     });
-    return;
   }
+
   const creator = await db.creator.findUniqueOrThrow({
     where: { id: data.brand_id },
     select: {
@@ -50,10 +51,9 @@ export default async function handler(
     },
   });
   if (!creator) {
-    res.status(404).json({
+    return res.status(404).json({
       error: "creator not found",
     });
-    return;
   }
   if (creator.pageAsset) {
     const { code, issuer } = creator.pageAsset;
@@ -61,12 +61,14 @@ export default async function handler(
     const xdr = await follow_creator({
       creatorPageAsset: { code, issuer },
       userPubkey: userId,
-      signWith: {
-        email: userEmail,
-      },
+      signWith: userEmail
+        ? {
+            email: userEmail,
+          }
+        : undefined,
     });
-    console.log(xdr);
-    res.status(200).json({ xdr });
+    // console.log(xdr);
+    return res.status(200).json({ xdr });
   } else {
     if (creator.customPageAssetCodeIssuer) {
       const [code, issuer] = creator.customPageAssetCodeIssuer.split("-");
@@ -75,19 +77,21 @@ export default async function handler(
         const xdr = await follow_creator({
           creatorPageAsset: { code, issuer: issuerVal.data },
           userPubkey: userId,
-          signWith: {
-            email: userEmail,
-          },
+          signWith: userEmail
+            ? {
+                email: userEmail,
+              }
+            : undefined,
         });
         console.log(xdr);
-        res.status(200).json({ xdr });
+        return res.status(200).json({ xdr });
       } else {
-        res.status(404).json({
+        return res.status(404).json({
           error: "creator has no page asset",
         });
       }
     }
-    res.status(404).json({
+    return res.status(404).json({
       error: "creator has no page asset",
     });
   }
