@@ -14,7 +14,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { WalletType } from "package/connect_wallet";
 import {
-  appleTokenToUserProvideUid,
+  appleTokenToUser,
   verifyIdToken,
 } from "package/connect_wallet/src/lib/firebase/admin/auth";
 import { auth } from "package/connect_wallet/src/lib/firebase/firebase-auth";
@@ -168,10 +168,11 @@ export const authOptions: NextAuthOptions = {
         }
 
         if (cred.walletType == WalletType.apple) {
-          const { appleToken, appleUid, token, email } = cred;
+          const { appleToken, token, email } = cred;
 
-          if (appleUid && token) {
-            const data = await getUserPublicKeyWithAppleUid({ appleUid });
+          if (token) {
+            const { uid } = await verifyIdToken(token);
+            const data = await getUserPublicKey({ uid, email });
             const sessionUser = await dbUser(data.publicKey);
             return {
               ...sessionUser,
@@ -181,9 +182,9 @@ export const authOptions: NextAuthOptions = {
             };
           } else {
             if (appleToken) {
-              const appleUid = await appleTokenToUserProvideUid(appleToken);
+              const { uid } = await appleTokenToUser(appleToken, email);
 
-              const data = await getUserPublicKeyWithAppleUid({ appleUid });
+              const data = await getUserPublicKey({ uid, email });
               const sessionUser = await dbUser(data.publicKey);
               return {
                 ...sessionUser,

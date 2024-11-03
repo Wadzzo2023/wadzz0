@@ -35,10 +35,8 @@ export const providerAuthShema = z.object({
 
 export const appleAuthSchema = z.object({
   walletType: z.literal(WalletType.apple),
-  appleUid: z.string().optional(),
   token: z.string().optional(),
-  email: z.string().optional(),
-
+  email: z.string(),
   appleToken: z.string().optional(),
 });
 

@@ -68,13 +68,11 @@ export async function ProviderNextLogin({
 
 export async function ProviderAppleLogin({
   appleToken,
-  appleUid,
   token,
   walletType,
   email,
 }: z.infer<typeof appleAuthSchema>) {
   const response = await signIn("credentials", {
-    appleUid,
     token,
     email,
     appleToken,
