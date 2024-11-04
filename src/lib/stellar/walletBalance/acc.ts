@@ -524,18 +524,21 @@ export async function PlatformAssetBalance({
   userPubKey: string;
 }) {
   const server = new Horizon.Server(STELLAR_URL);
-  const account = await server.loadAccount(userPubKey);
-  const findAsset = account.balances.find((balance) => {
-    if (
-      (balance.asset_type === "credit_alphanum4" ||
-        balance.asset_type === "credit_alphanum12") &&
-      balance.asset_code === PLATFORM_ASSET.code &&
-      balance.asset_issuer === PLATFORM_ASSET.issuer
-    ) {
-      return balance.balance;
-    }
-    return false;
-  });
-
-  return findAsset ? findAsset.balance : 0;
+ try {
+    const account = await server.loadAccount(userPubKey);
+    const findAsset = account.balances.find((balance) => {
+      if (
+        (balance.asset_type === "credit_alphanum4" ||
+          balance.asset_type === "credit_alphanum12") &&
+        balance.asset_code === PLATFORM_ASSET.code &&
+        balance.asset_issuer === PLATFORM_ASSET.issuer
+      ) {
+        return balance.balance;
+      }
+      return false;
+    });
+    return findAsset ? findAsset.balance : 0;
+  } catch (error) {
+    return 0;
+  }
 }
