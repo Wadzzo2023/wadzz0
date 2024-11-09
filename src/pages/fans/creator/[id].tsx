@@ -17,6 +17,9 @@ import { useSession } from "next-auth/react";
 import useNeedSign from "~/lib/hook";
 import { useUserStellarAcc } from "~/lib/state/wallete/stellar-balances";
 import { CreatorBack } from "~/pages/fans/creator";
+import { MoreAssetsSkeleton } from "~/components/marketplace/platforms_nfts";
+import ViewMediaModal from "~/components/fan/shop/asset_view_modal";
+import ShopAssetComponent from "~/components/fan/shop/shop_asset";
 
 export default function CreatorPage() {
   const router = useRouter();
@@ -106,7 +109,7 @@ function RenderTabs({ creatorId }: { creatorId: string }) {
     case CreatorProfileMenu.Contents:
       return <CreatorPosts creatorId={creatorId} />;
     case CreatorProfileMenu.Shop:
-    // return <AllShopItems creatorId={creatorId} />;
+      return <CreatorStoreItem creatorId={creatorId} />;
   }
 }
 
@@ -310,5 +313,59 @@ function TierCompleted({ subscription }: { subscription: SubscriptionType }) {
         return <div className="btn btn-warning">Completed</div>;
       }
     }
+  }
+}
+
+function CreatorStoreItem({ creatorId }: { creatorId: string }) {
+  const assets =
+    api.marketplace.market.getCreatorNftsByCreatorID.useInfiniteQuery(
+      { limit: 10, creatorId: creatorId },
+      {
+        getNextPageParam: (lastPage) => lastPage.nextCursor,
+      },
+    );
+
+  // const toggleVisibility =
+  //   api.marketplace.market.toggleVisibilityMarketNft.useMutation();
+
+  if (assets.isLoading)
+    return (
+      <MoreAssetsSkeleton className="grid grid-cols-2 gap-2 md:grid-cols-4 lg:grid-cols-5" />
+    );
+
+  if (assets.data?.pages[0]?.nfts.length === 0) {
+    console.log("No assets");
+    return <div>No assets</div>;
+  }
+
+  if (assets.data) {
+    return (
+      <div className="p-2">
+        <div
+          style={{
+            scrollbarGutter: "stable",
+          }}
+          className="grid grid-cols-2 gap-2 md:grid-cols-4 lg:grid-cols-5"
+        >
+          {assets.data.pages.map((page) =>
+            page.nfts.map((item, i) => (
+              <ViewMediaModal
+                key={i}
+                item={item}
+                content={<ShopAssetComponent key={i} item={item} />}
+              />
+            )),
+          )}
+        </div>
+        {assets.hasNextPage && (
+          <button
+            className="btn btn-outline btn-primary"
+            onClick={() => void assets.fetchNextPage()}
+          >
+            Load More
+          </button>
+        )}
+      </div>
+    );
   }
 }

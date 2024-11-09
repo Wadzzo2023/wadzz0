@@ -115,7 +115,9 @@ export default function GiftPage() {
             )}
           </label>
           <div className="label">
-            <span className="label-text">Price in {PLATFORM_ASSET.code}</span>
+            <span className="label-text">
+              Required Amount of {PLATFORM_ASSET.code}
+            </span>
           </div>
           <label className="input input-bordered flex  items-center gap-2">
             <input
