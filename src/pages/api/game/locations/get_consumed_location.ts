@@ -1,9 +1,9 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import { getSession } from "next-auth/react";
+import { getToken } from "next-auth/jwt";
+import { EnableCors } from "~/server/api-cors";
 import { db } from "~/server/db";
-import { ConsumedLocation, Location } from "~/types/game/location";
+import { ConsumedLocation } from "~/types/game/location";
 import { avaterIconUrl } from "../brands";
-import NextCors from 'nextjs-cors';
 import { WadzzoIconURL } from "./index";
 
 // import { getSession } from "next-auth/react";
@@ -12,13 +12,9 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse,
 ) {
-  await NextCors(req, res, {
-    methods: ["GET", "HEAD", "PUT", "PATCH", "POST", "DELETE"],
-    origin: "*",
-    optionsSuccessStatus: 200,
-  });
+  await EnableCors(req, res);
 
-  const session = await getSession({ req });
+  const session = await getToken({ req });
 
   // Check if the user is authenticated
   if (!session) {
@@ -53,7 +49,7 @@ export default async function handler(
 
       consumers: {
         select: { userId: true, viewedAt: true },
-        where: { userId: session.user.id },
+        where: { userId: session.sub },
       },
       image: true,
       autoCollect: true,
@@ -61,7 +57,7 @@ export default async function handler(
       _count: {
         select: {
           consumers: {
-            where: { userId: session.user.id },
+            where: { userId: session.sub },
           },
         },
       },
@@ -69,11 +65,11 @@ export default async function handler(
     where: {
       consumers: {
         some: {
-          userId: session.user.id,
+          userId: session.sub,
           hidden: false,
         },
         none: {
-          userId: session.user.id,
+          userId: session.sub,
           hidden: true,
         },
       },
