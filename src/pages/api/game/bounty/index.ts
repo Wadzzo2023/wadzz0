@@ -1,7 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { getToken } from "next-auth/jwt";
-import { getSession } from "next-auth/react";
-import NextCors from "nextjs-cors";
 import { db } from "~/server/db";
 
 export default async function handler(
@@ -10,7 +8,7 @@ export default async function handler(
 ) {
   // Get the current user session
   const token = await getToken({ req });
-  if (!token || !token.sub) {
+  if (!token?.sub) {
     res.status(401).json({
       error: "User is not authenticated",
     });

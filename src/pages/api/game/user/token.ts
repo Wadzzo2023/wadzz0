@@ -8,10 +8,10 @@ export default async function handler(
   try {
     const decodedData = await getToken({ req });
 
-    if (decodedData) {
+    if (decodedData?.sub) {
       const user = {
         ...decodedData,
-        id: decodedData?.sub,
+        id: decodedData.sub,
         image: decodedData?.picture,
       };
       return res.status(200).json(user);

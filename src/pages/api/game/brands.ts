@@ -10,7 +10,7 @@ export default async function handler(
   const token = await getToken({ req });
 
   // Check if the user is authenticated
-  if (!token || !token.sub) {
+  if (!token?.sub) {
     return res.status(401).json({
       error: "User is not authenticated",
     });
