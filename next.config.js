@@ -71,7 +71,7 @@ const config = {
           { key: "Access-Control-Allow-Credentials", value: "true" },
           {
             key: "Access-Control-Allow-Origin",
-            value: "http://localhost:3000",
+            value: "https://wadzzo-web-ar-public.vercel.app",
           }, // replace this your actual origin
           {
             key: "Access-Control-Allow-Methods",
