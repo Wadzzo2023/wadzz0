@@ -30,8 +30,14 @@ export const providerAuthShema = z.object({
   walletType: z.union([
     z.literal(WalletType.google),
     z.literal(WalletType.facebook),
-    z.literal(WalletType.apple),
   ]),
+});
+
+export const appleAuthSchema = z.object({
+  walletType: z.literal(WalletType.apple),
+  token: z.string().optional(),
+  email: z.string(),
+  appleToken: z.string().optional(),
 });
 
 export const authCredentialSchema = z.union([
@@ -39,6 +45,7 @@ export const authCredentialSchema = z.union([
   emailPassSchema,
   providerAuthShema,
   walleteAuthSchema,
+  appleAuthSchema,
 ]);
 
 export type AuthCredentialType = z.infer<typeof authCredentialSchema>;
