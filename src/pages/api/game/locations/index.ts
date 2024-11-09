@@ -1,11 +1,11 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 
-import NextCors from "nextjs-cors";
-import { z } from "zod";
 import { getToken } from "next-auth/jwt";
+import { z } from "zod";
+import { EnableCors } from "~/server/api-cors";
 import { db } from "~/server/db";
-import { avaterIconUrl as abaterIconUrl } from "../brands";
 import { Location } from "~/types/game/location";
+import { avaterIconUrl as abaterIconUrl } from "../brands";
 
 // import { getSession } from "next-auth/react";
 
@@ -13,12 +13,7 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse,
 ) {
-  await NextCors(req, res, {
-    // Options
-    methods: ["GET", "HEAD", "PUT", "PATCH", "POST", "DELETE"],
-    origin: "*",
-    optionsSuccessStatus: 200,
-  });
+  await EnableCors(req, res);
   const token = await getToken({ req });
 
   if (!token) {

@@ -1,30 +1,19 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import { getSession } from "next-auth/react";
-import NextCors from "nextjs-cors";
-import internal from "stream";
+import { getToken } from "next-auth/jwt";
 import { db } from "~/server/db";
 import { Brand } from "~/types/game/brand";
-
-// import { getSession } from "next-auth/react";
 
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse,
 ) {
-  await NextCors(req, res, {
-    // Options
-    methods: ["GET", "HEAD", "PUT", "PATCH", "POST", "DELETE"],
-    origin: "*",
-    optionsSuccessStatus: 200, // some legacy browsers (IE11, various SmartTVs) choke on 204
-  });
-  const session = await getSession({ req });
+  const token = await getToken({ req });
 
   // Check if the user is authenticated
-  if (!session) {
-    res.status(401).json({
+  if (!token || !token.sub) {
+    return res.status(401).json({
       error: "User is not authenticated",
     });
-    return;
   }
 
   // Return the locations
@@ -45,7 +34,7 @@ export default async function handler(
   });
 
   const follows = await db.follow.findMany({
-    where: { userId: session.user.id },
+    where: { userId: token.sub },
   });
 
   const bands: Brand[] = brands.map((brand) => {
@@ -61,7 +50,7 @@ export default async function handler(
     };
   });
 
-  res.status(200).json({ users: bands });
+  return res.status(200).json({ users: bands });
 }
 
 export const avaterIconUrl =
