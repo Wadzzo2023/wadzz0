@@ -72,7 +72,7 @@ const config = {
           {
             key: "Access-Control-Allow-Origin",
             value: "https://main.d20qrrwbkiopzh.amplifyapp.com",
-          }, // replace this your actual origi
+          }, // replace this your actual
           {
             key: "Access-Control-Allow-Methods",
             value: "GET,DELETE,PATCH,POST,PUT,OPTIONS",
