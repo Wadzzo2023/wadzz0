@@ -6,6 +6,7 @@ import NextCors from "nextjs-cors";
 
 import { z } from "zod";
 import { SubmissionMediaInfo } from "~/components/modals/file-upload-modal";
+import { EnableCors } from "~/server/api-cors";
 
 import { db } from "~/server/db";
 
@@ -15,11 +16,8 @@ export default async function handler(
     req: NextApiRequest,
     res: NextApiResponse,
 ) {
-    await NextCors(req, res, {
-        methods: ["GET", "HEAD", "PUT", "PATCH", "POST", "DELETE"],
-        origin: "*",
-        optionsSuccessStatus: 200,
-    });
+    await EnableCors(req, res);
+
 
     const session = await getToken({ req });
 

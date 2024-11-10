@@ -4,6 +4,7 @@ import internal from "stream";
 import { db } from "~/server/db";
 import { Brand } from "~/types/game/brand";
 import { avaterIconUrl } from "./brands";
+import { EnableCors } from "~/server/api-cors";
 
 // import { getSession } from "next-auth/react";
 
@@ -11,6 +12,8 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse,
 ) {
+  await EnableCors(req, res);
+
   const session = await getSession({ req });
 
   // Check if the user is authenticated

@@ -5,6 +5,7 @@ import { getSession } from "next-auth/react";
 import NextCors from "nextjs-cors";
 
 import { z } from "zod";
+import { EnableCors } from "~/server/api-cors";
 
 import { db } from "~/server/db";
 
@@ -12,6 +13,8 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse,
 ) {
+  await EnableCors(req, res);
+
   const token = await getToken({ req });
 
   if (!token?.sub) {

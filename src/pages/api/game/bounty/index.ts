@@ -1,12 +1,14 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { getToken } from "next-auth/jwt";
+import { EnableCors } from "~/server/api-cors";
 import { db } from "~/server/db";
 
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse,
 ) {
-  // Get the current user session
+  await EnableCors(req, res);
+
   const token = await getToken({ req });
   if (!token?.sub) {
     res.status(401).json({

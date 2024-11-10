@@ -1,10 +1,13 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { getToken } from "next-auth/jwt";
+import { EnableCors } from "~/server/api-cors";
 
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse,
 ) {
+  await EnableCors(req, res);
+
   try {
     const decodedData = await getToken({ req });
 
