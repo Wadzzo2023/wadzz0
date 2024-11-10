@@ -2,6 +2,7 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { getToken } from "next-auth/jwt";
 import NextCors from "nextjs-cors";
 import { z } from "zod";
+import { EnableCors } from "~/server/api-cors";
 import { db } from "~/server/db";
 
 // import { getSession } from "next-auth/react";
@@ -10,7 +11,7 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse,
 ) {
-  await NextCors(req, res);
+  await EnableCors(req, res);
 
   const token = await getToken({ req });
 
@@ -25,6 +26,7 @@ export default async function handler(
   const data = z
     .object({ location_id: z.string().transform(Number) })
     .safeParse(req.body);
+
   if (!data.success) {
     res.status(400).json({
       error: data.error,
@@ -48,17 +50,17 @@ export default async function handler(
     // mark as view
     await db.locationConsumer.update({
       where: { id: consumedLocation.id },
-      data: { viewedAt: new Date() },
+      data: { hidden: true },
     });
     res.status(200).json({
       success: true,
-      data: "Billboard marked as viewed",
+      data: "Billboard hidden successfully",
     });
     return;
   } else {
     res.status(422).json({
       success: false,
-      data: "Could not find billboard",
+      data: "Unable to hide billboard",
     });
     return;
   }

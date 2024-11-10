@@ -3,14 +3,14 @@ import { getToken } from "next-auth/jwt";
 import { z } from "zod";
 import { db } from "~/server/db";
 import NextCors from "nextjs-cors";
+import { EnableCors } from "~/server/api-cors";
 // import { getSession } from "next-auth/react";
 
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse,
 ) {
-  await NextCors(req, res);
-
+  await EnableCors(req, res);
   const token = await getToken({ req });
 
   // Check if the user is authenticated
