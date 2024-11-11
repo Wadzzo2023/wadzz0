@@ -131,7 +131,7 @@ export default function AddTierModal({ creator }: { creator: Creator }) {
 
               <label className="form-control w-full px-2">
                 <div className="label">
-                  <span className="label-text">Price</span>
+                  <span className="label-text">Requirement</span>
                 </div>
                 <input
                   {...register("price", { valueAsNumber: true })}
@@ -139,7 +139,7 @@ export default function AddTierModal({ creator }: { creator: Creator }) {
                   type="number"
                   step="1"
                   min="1"
-                  placeholder={`Price in ${PLATFORM_ASSET.code}`}
+                  placeholder={`Requirement in ${PLATFORM_ASSET.code}`}
                 ></input>
                 {errors.price && (
                   <div className="label">

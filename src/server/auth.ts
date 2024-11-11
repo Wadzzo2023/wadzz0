@@ -13,7 +13,10 @@ import CredentialsProvider from "next-auth/providers/credentials";
 
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { WalletType } from "package/connect_wallet";
-import { verifyIdToken } from "package/connect_wallet/src/lib/firebase/admin/auth";
+import {
+  appleTokenToUser,
+  verifyIdToken,
+} from "package/connect_wallet/src/lib/firebase/admin/auth";
 import { auth } from "package/connect_wallet/src/lib/firebase/firebase-auth";
 import { getPublicKeyAPISchema } from "package/connect_wallet/src/lib/stellar/wallet_clients/type";
 import { z } from "zod";
@@ -21,8 +24,12 @@ import { db } from "~/server/db";
 import { AuthCredentialType } from "~/types/auth";
 import { truncateString } from "~/utils/string";
 
-import { USER_ACCOUNT_URL } from "package/connect_wallet/src/lib/stellar/constant";
+import {
+  USER_ACCOUNT_URL,
+  USER_ACCOUNT_URL_APPLE,
+} from "package/connect_wallet/src/lib/stellar/constant";
 import { verifyXDRsSignature } from "package/connect_wallet/src/lib/stellar/trx/deummy";
+import { app } from "firebase-admin";
 
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
@@ -82,6 +89,8 @@ export const authOptions: NextAuthOptions = {
       credentials: {},
       async authorize(credentials): Promise<User | null> {
         const cred = credentials as AuthCredentialType;
+
+        console.log("cred", cred);
 
         // email pass login
         if (cred.walletType == WalletType.emailPass) {
@@ -143,11 +152,11 @@ export const authOptions: NextAuthOptions = {
         // provider logins
         if (
           cred.walletType == WalletType.google ||
-          cred.walletType == WalletType.facebook ||
-          cred.walletType == WalletType.apple
+          cred.walletType == WalletType.facebook
         ) {
           const { token, email } = cred;
-          const uid = await verifyIdToken(token);
+
+          const { uid } = await verifyIdToken(token);
           const data = await getUserPublicKey({ uid, email });
           const sessionUser = await dbUser(data.publicKey);
           return {
@@ -156,7 +165,34 @@ export const authOptions: NextAuthOptions = {
             email: email,
             emailVerified: true,
           };
-          // return {}
+        }
+
+        if (cred.walletType == WalletType.apple) {
+          const { appleToken, token, email } = cred;
+
+          if (token) {
+            const { uid } = await verifyIdToken(token);
+            const data = await getUserPublicKey({ uid, email });
+            const sessionUser = await dbUser(data.publicKey);
+            return {
+              ...sessionUser,
+              walletType: cred.walletType,
+              emailVerified: true,
+              email: email,
+            };
+          } else {
+            if (appleToken) {
+              const { uid } = await appleTokenToUser(appleToken, email);
+
+              const data = await getUserPublicKey({ uid, email });
+              const sessionUser = await dbUser(data.publicKey);
+              return {
+                ...sessionUser,
+                walletType: cred.walletType,
+                emailVerified: true,
+              };
+            }
+          }
         }
 
         return null;
@@ -232,6 +268,22 @@ async function getUserPublicKey({
       params: {
         uid,
         email,
+      },
+    },
+  );
+  return res.data;
+}
+
+export async function getUserPublicKeyWithAppleUid({
+  appleUid,
+}: {
+  appleUid: string;
+}) {
+  const res = await axios.get<z.infer<typeof getPublicKeyAPISchema>>(
+    USER_ACCOUNT_URL_APPLE,
+    {
+      params: {
+        appleUid,
       },
     },
   );

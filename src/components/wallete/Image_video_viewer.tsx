@@ -47,22 +47,22 @@ export default function ImageVideViewer({
       </Suspense>
     </div>
   ) : (
-    <Image
-      // fill
-      // sizes={sizes ?? "100"}
-      height={1000}
-      width={1000}
-      alt={code ?? "image"}
-      style={{
-        backgroundColor: "#7ec34e",
-        height: "100%",
-        width: "100%",
-      }}
-      className={twMerge("rounded-full p-2", className)}
-      src={url}
-      placeholder={blurData ? "blur" : "empty"}
-      blurDataURL={blurData ?? undefined}
-    />
+    <div className=" h-full w-full p-6">
+      <Image
+        // fill
+        // sizes={sizes ?? "100"}
+        height={1000}
+        width={1000}
+        alt={code}
+        style={{
+          backgroundColor: color ?? undefined,
+        }}
+        className={twMerge("  rounded-full p-2 ")}
+        src={url}
+        // placeholder={blurData ? "blur" : "empty"}
+        // blurDataURL={blurData ?? undefined}
+      />
+    </div>
   );
 }
 
@@ -80,11 +80,8 @@ export function ThumbNailView(props: { thumbnailUrl: string }) {
         alt={code}
         style={{
           backgroundColor: color ?? undefined,
-          height: "100%",
-
-          width: "100%",
         }}
-        className={twMerge("rounded-full p-2")}
+        className={twMerge("  rounded-full p-2 ")}
         src={thumbnailUrl}
         // placeholder={blurData ? "blur" : "empty"}
         // blurDataURL={blurData ?? undefined}
@@ -137,7 +134,7 @@ export function AudioViewer({
   // const url = "https://media.w3.org/2010/05/sintel/trailer_hd.mp4";
 
   return (
-    <div className="flex h-full w-full flex-col items-center justify-center ">
+    <div className="flex h-full w-full items-center justify-center">
       <ThumbNailView thumbnailUrl={thumbnailUrl} />
       {/* {loading && <div className="loading absolute" />}
      <ThumbNailView thumbnailUrl={thumbnailUrl} />

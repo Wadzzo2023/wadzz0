@@ -34,7 +34,7 @@ export async function XDR4BuyAsset({
   const asset = new Asset(code, issuerPub);
   const server = new Horizon.Server(STELLAR_URL);
   const storageAcc = Keypair.fromSecret(storageSecret);
-
+  console.log(buyer, code, issuerPub, price, storageSecret, seller)
   const transactionInializer = await server.loadAccount(buyer);
 
   const balances = transactionInializer.balances;

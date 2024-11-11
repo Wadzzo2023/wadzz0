@@ -55,37 +55,33 @@ export function AssetDetails({
 }) {
   const { setNewTrack } = usePlayerStore();
   const color = "#7ec34e";
+
+  const copy = api.marketplace.market.getMarketAssetAvailableCopy.useQuery({
+    id: currentData.id,
+  });
+
   return (
-    <div className=" h-full w-full">
-      <div className="scrollbar-style relative h-full w-full overflow-y-auto rounded-xl">
-        <div
-          className="absolute h-full w-full bg-base-200/50"
-          style={
-            {
-              // backgroundColor: color,
-            }
-          }
-        />
+    <div className=" h-full w-full ">
+      <div className="scrollbar-style relative   h-full w-full  overflow-y-auto rounded-xl">
+        <div className="absolute h-full w-full bg-base-200/50" />
         <div className="flex h-full flex-col justify-between space-y-2 p-2">
-          <div className="flex h-full flex-col gap-2 ">
-            <div className="relative flex-1 space-y-2 rounded-xl border-4 border-base-100 p-1 text-sm tracking-wider">
-              <div className="avatar w-full">
-                {currentData.asset.tierId ? (
-                  <MediaViewer
-                    mediaUrl={currentData.asset.mediaUrl}
-                    thumbnailUrl={currentData.asset.thumbnail}
-                    name={currentData.asset.name}
-                  />
-                ) : (
-                  <MediaViewForPublic
-                    mediaUrl={currentData.asset.mediaUrl}
-                    thumbnailUrl={currentData.asset.thumbnail}
-                    name={currentData.asset.name}
-                    type={currentData.asset.mediaType}
-                    color="green"
-                  />
-                )}
-              </div>
+          <div className="flex h-full flex-col gap-2  ">
+            <div className="avatar rounded-full">
+              {currentData.asset.tierId ? (
+                <MediaViewer
+                  mediaUrl={currentData.asset.mediaUrl}
+                  thumbnailUrl={currentData.asset.thumbnail}
+                  name={currentData.asset.name}
+                />
+              ) : (
+                <MediaViewForPublic
+                  mediaUrl={currentData.asset.mediaUrl}
+                  thumbnailUrl={currentData.asset.thumbnail}
+                  name={currentData.asset.name}
+                  type={currentData.asset.mediaType}
+                  color="green"
+                />
+              )}
             </div>
 
             <div className="relative flex-1 space-y-2 rounded-xl border-4 border-base-100 p-4 text-sm tracking-wider">
@@ -110,7 +106,11 @@ export function AssetDetails({
                   <>
                     <p>
                       <span className="font-semibold">Available:</span>{" "}
-                      <TokenCopies id={currentData.id} /> copy
+                      {copy.data === 0
+                        ? "Sold out"
+                        : copy.data === 1
+                          ? "1 copy"
+                          : `${copy.data} copies`}
                     </p>
 
                     <p>
@@ -170,17 +170,6 @@ function SellerInfo({ id }: { id: string }) {
   if (seller.isLoading) return <span>{addrShort(id, 5)}</span>;
 
   if (seller.data) return <span>{seller.data.name}</span>;
-}
-
-export function TokenCopies({ id }: { id: number }) {
-  const copy = api.marketplace.market.getMarketAssetAvailableCopy.useQuery({
-    id,
-  });
-
-  if (copy.isLoading)
-    return <span className="loading loading-dots loading-sm" />;
-
-  if (copy.data) return <span>{copy.data}</span>;
 }
 
 export function SongTokenCopies({
@@ -339,7 +328,7 @@ function MediaViewer(props: {
         return (
           <>
             {/* <ReactPlayer url={mediaUrl} controls={true} width={"100%"} />; */}
-            <div className="self-end">
+            <div className="">
               <XCircle onClick={() => setPlay(false)} />
             </div>
           </>
@@ -361,12 +350,16 @@ function MediaViewer(props: {
         );
 
       default:
-        return <ThumbNailView name={name} thumbnailUrl={thumbnailUrl} />;
+        return (
+          <div>
+            <ThumbNailView name={name} thumbnailUrl={thumbnailUrl} />
+          </div>
+        );
     }
   }
 
   return (
-    <div className="avatar w-full">
+    <div className="avatar ">
       {play ? (
         <div className="flex items-center justify-center">
           <div className="flex h-full flex-col items-center justify-center gap-2">
@@ -396,14 +389,8 @@ function MediaViewer(props: {
 function ThumbNailView(props: { name: string; thumbnailUrl: string }) {
   const { name, thumbnailUrl } = props;
   return (
-    <div className="relative m-8 w-full">
-      <ImageVideViewer
-        sizes="100%"
-        className="h-full w-full"
-        code={name}
-        url={thumbnailUrl}
-        blurData={"hi"}
-      />
+    <div className=" m-8 w-full">
+      <ImageVideViewer code={name} url={thumbnailUrl} blurData={"hi"} />
     </div>
   );
 }

@@ -138,6 +138,7 @@ export default function BuyModal({
         </DialogContent>
       </Dialog>
       <button
+        disabled={copy.data === 0}
         className="btn btn-primary btn-sm my-2 w-full transition duration-500 ease-in-out"
         onClick={() => setIsBuyDialogOpen(true)}
       >
