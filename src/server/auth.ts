@@ -29,7 +29,6 @@ import {
   USER_ACCOUNT_URL_APPLE,
 } from "package/connect_wallet/src/lib/stellar/constant";
 import { verifyXDRsSignature } from "package/connect_wallet/src/lib/stellar/trx/deummy";
-import { app } from "firebase-admin";
 
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
