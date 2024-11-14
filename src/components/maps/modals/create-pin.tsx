@@ -247,11 +247,11 @@ export default function CreatePinModal({
               <ManualLatLanInputField />
               {/* <AssetTypeTab /> */}
               <TiersOptions />
-              <div className="flex justify-between">
-                {assetsDropdown}
+              <div className="flex justify-between">{assetsDropdown}</div>
+              <div>
                 {selectedToken && <TokenInStorage bal={selectedToken.bal} />}
               </div>
-              <AvailableTokenField />
+              <AvailableTokenField balance={selectedToken?.bal} />
 
               <div className="flex flex-col space-y-2">
                 <label htmlFor="radius" className="text-sm font-medium">
@@ -483,8 +483,7 @@ export default function CreatePinModal({
 
   // components
 
-  function AvailableTokenField() {
-    // const tokenAmount = watch("tokenAmount");
+  function AvailableTokenField({ balance }: { balance?: number }) {
     return (
       <>
         <label className="form-control w-full">
@@ -503,6 +502,13 @@ export default function CreatePinModal({
             placeholder="eg. 1000"
             className="input input-bordered w-full max-w-xs"
           />
+          {balance ? (
+            <span className="label-text text-xs">
+              *Note: Can{"'t"} more than limit remaining
+            </span>
+          ) : (
+            <></>
+          )}
           {errors.tokenAmount && (
             <div className="label">
               <span className="label-text-alt text-red-500">
@@ -624,5 +630,5 @@ export default function CreatePinModal({
 }
 
 function TokenInStorage({ bal }: { bal: number }) {
-  return <p>{bal}</p>;
+  return <p className="text-sm text-red-400">Limit Remaining : {bal}</p>;
 }
