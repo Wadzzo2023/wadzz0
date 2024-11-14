@@ -362,10 +362,10 @@ function NftCreateForm({
                     </ul>
                   </div>
 
-                  <VisibilityToggle
+                  {/* <VisibilityToggle
                     isVisible={isVisible}
                     toggleVisibility={() => setIsVisible(!isVisible)}
-                  />
+                  /> */}
                   {isAdmin ? <> </> : <TiersOptions />}
                 </div>
 

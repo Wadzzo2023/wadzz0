@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { MarketAssetType } from "~/components/marketplace/market_right";
 
-interface MarketRightState {
+export interface MarketRightState {
   open: boolean;
   currentData?: MarketAssetType;
   setOpen: (value: boolean) => void;

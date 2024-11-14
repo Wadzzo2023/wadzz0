@@ -15,8 +15,8 @@ import {
   adminProcedure,
   createTRPCRouter,
   protectedProcedure,
-
 } from "~/server/api/trpc";
+import { getAssetBalance } from "~/lib/stellar/marketplace/test/acc";
 
 export const AssetSelectAllProperty = {
   code: true,
@@ -195,10 +195,9 @@ export const marketRouter = createTRPCRouter({
           creator: {
             select: {
               name: true,
-              profileUrl: true
-
-            }
-          }
+              profileUrl: true,
+            },
+          },
         },
         take: limit + 1,
         skip: skip,
@@ -399,5 +398,38 @@ export const marketRouter = createTRPCRouter({
         where: { id: input },
         include: { asset: true },
       });
+    }),
+
+  userCanBuyThisMarketAsset: protectedProcedure
+    .input(z.number())
+    .query(async ({ ctx, input }) => {
+      const pubkey = ctx.session.user.id;
+      const marketAsset = await ctx.db.marketAsset.findUnique({
+        where: { id: input },
+        include: {
+          asset: {
+            include: {
+              tier: { include: { creator: { include: { pageAsset: true } } } },
+            },
+          },
+        },
+      });
+
+      const assetTier = marketAsset?.asset.tier;
+
+      if (assetTier) {
+        const pageAsset = assetTier.creator.pageAsset;
+        if (pageAsset) {
+          const { code, issuer } = pageAsset;
+          const price = assetTier.price;
+
+          const bal = await getAssetBalance({ code, issuer, pubkey });
+          if (bal?.balance) {
+            if (price <= Number(bal.balance)) {
+              return true;
+            }
+          }
+        }
+      }
     }),
 });
