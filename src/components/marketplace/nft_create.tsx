@@ -36,6 +36,14 @@ import {
   usePaymentMethodStore,
 } from "../payment/payment-options";
 
+import { Eye, EyeOff } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "~/components/ui/tooltip";
+
 export const ExtraSongInfo = z.object({
   artist: z.string(),
   albumId: z.number(),
@@ -128,6 +136,7 @@ function NftCreateForm({
   const [submitLoading, setSubmitLoading] = useState(false);
   const [mediaUploadSuccess, setMediaUploadSuccess] = useState(false);
   const [mediaType, setMediaType] = useState<MediaType>(MediaType.IMAGE);
+  const [isVisible, setIsVisible] = useState(true);
 
   const [mediaUrl, setMediaUrl] = useState<string>();
   const [coverUrl, setCover] = useState<string>();
@@ -197,7 +206,7 @@ function NftCreateForm({
               const data = getValues();
               // res && addMutation.mutate(data);
 
-              addAsset.mutate(data);
+              addAsset.mutate({ ...data, isVisible2All: isVisible });
             } else {
               toast.error("Transaction Failed");
             }
@@ -353,6 +362,10 @@ function NftCreateForm({
                     </ul>
                   </div>
 
+                  <VisibilityToggle
+                    isVisible={isVisible}
+                    toggleVisibility={() => setIsVisible(!isVisible)}
+                  />
                   {isAdmin ? <> </> : <TiersOptions />}
                 </div>
 
@@ -768,4 +781,38 @@ function PlayableMedia({
         );
     }
   }
+}
+
+interface VisibilityToggleProps {
+  isVisible: boolean;
+  toggleVisibility: () => void;
+}
+
+export function VisibilityToggle({
+  isVisible,
+  toggleVisibility,
+}: VisibilityToggleProps) {
+  return (
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={toggleVisibility}
+            aria-label={isVisible ? "Set to private" : "Set to visible"}
+          >
+            {isVisible ? (
+              <Eye className="h-4 w-4" />
+            ) : (
+              <EyeOff className="h-4 w-4" />
+            )}
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent>
+          <p>{isVisible ? "Visible to all" : "Private"}</p>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+  );
 }
