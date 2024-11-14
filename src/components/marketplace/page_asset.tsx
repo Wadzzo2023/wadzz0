@@ -1,13 +1,11 @@
-import { getTailwindScreenSize } from "~/utils/clientUtils";
-import { MarketAssetType } from "./market_right";
-import { useMarketRightStore } from "~/lib/state/marketplace/right";
-import AssetView from "./asset/asset_view";
+import { CreatorPageAsset } from "@prisma/client";
+import { useRouter } from "next/router";
 import { usePopUpState } from "~/lib/state/right-pop";
-import { MarketType, CreatorPageAsset } from "@prisma/client";
 import { usePageAssetRightStore } from "~/lib/state/wallete/page_asset_right";
 import { useTagStore } from "~/lib/state/wallete/tag";
 import { AssetVariant } from "../right-sidebar";
-import { useRouter } from "next/router";
+import AssetView from "./asset/asset_view";
+
 export type CreatorPageAssetType = CreatorPageAsset & {
   creator: {
     name: string;

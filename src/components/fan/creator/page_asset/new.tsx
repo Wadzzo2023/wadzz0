@@ -281,7 +281,7 @@ function NewPageAssetFrom({ requiredToken }: { requiredToken: number }) {
         }
       />
 
-      <Dialog>
+      {/* <Dialog>
         <DialogTrigger asChild>
           <Button className="w-full" disabled={loading}>
             Create Page Asset
@@ -316,7 +316,7 @@ function NewPageAssetFrom({ requiredToken }: { requiredToken: number }) {
             </div>
           </DialogFooter>
         </DialogContent>
-      </Dialog>
+      </Dialog> */}
     </form>
   );
 }

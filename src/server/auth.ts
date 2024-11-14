@@ -11,7 +11,10 @@ import {
 
 import CredentialsProvider from "next-auth/providers/credentials";
 
-import { signInWithEmailAndPassword } from "firebase/auth";
+import {
+  sendEmailVerification,
+  signInWithEmailAndPassword,
+} from "firebase/auth";
 import { WalletType } from "package/connect_wallet";
 import {
   appleTokenToUser,
@@ -29,7 +32,6 @@ import {
   USER_ACCOUNT_URL_APPLE,
 } from "package/connect_wallet/src/lib/stellar/constant";
 import { verifyXDRsSignature } from "package/connect_wallet/src/lib/stellar/trx/deummy";
-import { app } from "firebase-admin";
 
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
@@ -90,8 +92,6 @@ export const authOptions: NextAuthOptions = {
       async authorize(credentials): Promise<User | null> {
         const cred = credentials as AuthCredentialType;
 
-        console.log("cred", cred);
-
         // email pass login
         if (cred.walletType == WalletType.emailPass) {
           const { email, password } = cred;
@@ -101,6 +101,11 @@ export const authOptions: NextAuthOptions = {
             password,
           );
           const user = userCredential.user;
+
+          if (!user.emailVerified) {
+            await sendEmailVerification(user);
+            throw new Error("Email is not verified");
+          }
           const data = await getUserPublicKey({ email: email, uid: user.uid });
           const sessionUser = await dbUser(data.publicKey);
           return {
@@ -111,7 +116,7 @@ export const authOptions: NextAuthOptions = {
           };
         }
 
-        // wallete
+        // wallet login
 
         if (cred.walletType == WalletType.albedo) {
           const { pubkey, signature, token } = cred;
@@ -127,7 +132,7 @@ export const authOptions: NextAuthOptions = {
           }
           throw new Error("Invalid signature");
         }
-        // wallete rabet and frieghter
+        // wallet rabet and frieghter
         if (
           cred.walletType == WalletType.rabet ||
           cred.walletType == WalletType.frieghter ||
