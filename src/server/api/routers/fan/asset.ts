@@ -11,7 +11,7 @@ import {
 
 export const shopRouter = createTRPCRouter({
   createAsset: protectedProcedure
-    .input(NftFormSchema.extend({ isVisible2All: z.boolean() }))
+    .input(NftFormSchema.extend({ isVisible2All: z.boolean().optional() }))
     .mutation(async ({ ctx, input }) => {
       const {
         code,

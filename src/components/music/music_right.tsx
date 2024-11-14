@@ -1,8 +1,6 @@
-import { PlayerSongCover } from "./player/player_song_cover";
-import AudioPlayer from "react-h5-audio-player";
-import TrackSection from "./track/section";
 import { usePlayerStore } from "~/lib/state/music/track";
 import { api } from "~/utils/api";
+import { PlayerSongCover } from "./player/player_song_cover";
 import RightTrackSection from "./track/right_track";
 
 export function MusicRightSide() {
