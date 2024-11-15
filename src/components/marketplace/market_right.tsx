@@ -203,18 +203,29 @@ function OtherButtons() {
           />
         );
       } else if (currentData.asset.tierId)
-        return (
-          <>
-            <BuyModal
-              priceUSD={currentData.priceUSD}
-              item={currentData.asset}
-              price={currentData.price}
-              placerId={currentData.placerId}
-              marketItemId={currentData.id}
-            />
-          </>
-        );
+        return <CanBuyButton marketData={currentData} />;
     }
+}
+
+function CanBuyButton({ marketData }: { marketData: MarketAssetType }) {
+  const data = api.marketplace.market.userCanBuyThisMarketAsset.useQuery(
+    marketData.id,
+  );
+
+  if (data.isLoading) return <span className="loading loading-spinner" />;
+  if (data.error) return <span>{data.error.message}</span>;
+
+  if (data.data) {
+    return (
+      <BuyModal
+        priceUSD={marketData.priceUSD}
+        item={marketData.asset}
+        price={marketData.price}
+        placerId={marketData.placerId}
+        marketItemId={marketData.id}
+      />
+    );
+  }
 }
 
 export function DisableFromMarketButton({

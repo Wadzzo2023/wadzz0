@@ -337,6 +337,7 @@ enum ItemPrivacy {
     DRAFT
     FOR_SALE // for sell
     NOT_FOR_SALE // for public
+    PRIVATE // only for tier cross of preimium user
 }
 
 // ------------------------Marketplace SCHEMA-------------------------

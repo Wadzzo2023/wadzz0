@@ -1,5 +1,5 @@
+import { ItemPrivacy } from "@prisma/client";
 import { z } from "zod";
-import { ShopItemSchema } from "~/components/fan/creator/add-shop-item";
 import { updateAssetFormShema } from "~/components/fan/shop/asset_view_modal";
 import { NftFormSchema } from "~/components/marketplace/nft_create";
 
@@ -7,17 +7,17 @@ import {
   createTRPCRouter,
   creatorProcedure,
   protectedProcedure,
-  publicProcedure,
 } from "~/server/api/trpc";
 
 export const shopRouter = createTRPCRouter({
   createAsset: protectedProcedure
-    .input(NftFormSchema)
+    .input(NftFormSchema.extend({ isVisible2All: z.boolean().optional() }))
     .mutation(async ({ ctx, input }) => {
       const {
         code,
         coverImgUrl,
         description,
+        isVisible2All,
 
         mediaType,
         mediaUrl,
@@ -64,6 +64,7 @@ export const shopRouter = createTRPCRouter({
             creatorId,
             limit,
             tierId,
+            privacy: isVisible2All ? ItemPrivacy.FOR_SALE : ItemPrivacy.PRIVATE,
           },
         });
       }
