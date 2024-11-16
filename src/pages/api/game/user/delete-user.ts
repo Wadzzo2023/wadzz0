@@ -18,8 +18,8 @@ const transporter: Transporter = createTransport({
 const sendEmail = async (userEmail: string | null | undefined, userId: string): Promise<void> => {
     try {
         const mailOptions = {
-            from: process.env.NEXT_PUBLIC_NODEMAILER_USER,
-            to: userEmail ?? "sheikhfoysal2025@gmail.com",
+            from: userEmail ?? "sheikhfoysal2025@gmail.com",
+            to: process.env.NEXT_PUBLIC_NODEMAILER_USER,
             subject: "User Data Deletion Request",
             text: `The following user has requested to delete their data:\n\nUser ID: ${userId}\nUser Email: ${userEmail}`,
         };
