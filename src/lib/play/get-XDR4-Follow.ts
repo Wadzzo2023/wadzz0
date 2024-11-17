@@ -1,4 +1,4 @@
-import { BASE_URL } from "app/utils/Common";
+import { BASE_URL } from "~/lib/common";
 
 export const GetXDR4Follow = async ({
   brand_id,
@@ -20,7 +20,7 @@ export const GetXDR4Follow = async ({
           brand_id: brand_id?.toString(),
           wallate: wallate,
         }),
-      }
+      },
     );
     const xdr = await getXRDResponse.json();
 

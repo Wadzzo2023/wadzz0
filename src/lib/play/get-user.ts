@@ -1,5 +1,5 @@
-import { BASE_URL } from "app/utils/Common";
-import { User } from "../../auth/Provider";
+import { User } from "next-auth";
+import { BASE_URL } from "~/lib/common";
 
 export const getUser = async () => {
   try {
@@ -8,7 +8,7 @@ export const getUser = async () => {
       {
         method: "GET",
         credentials: "include",
-      }
+      },
     );
     if (!response.ok) {
       console.log("Failed to fetch user");

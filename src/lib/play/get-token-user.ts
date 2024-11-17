@@ -1,5 +1,4 @@
-import { BASE_URL } from "app/utils/Common";
-import { User } from "../../auth/Provider";
+import { BASE_URL } from "~/lib/common";
 
 export const getTokenUser = async () => {
   try {
@@ -8,13 +7,13 @@ export const getTokenUser = async () => {
       {
         method: "GET",
         credentials: "include",
-      }
+      },
     );
     if (!response.ok) {
       console.log("Failed to fetch user");
     }
 
-    const data = (await response.json()) as User;
+    const data = await response.json();
 
     return data;
   } catch (error) {
