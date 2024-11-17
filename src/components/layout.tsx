@@ -8,6 +8,7 @@ import { ThemeProvider } from "./providers/theme-provider";
 import ModalProvider from "./providers/modal-provider";
 import { api } from "~/utils/api";
 import { Toaster } from "~/components/ui/toaster";
+import PlayLayout from "./play/layout";
 // import Header from "./header";
 // import RightDialog from "./right_dialog";
 
@@ -47,6 +48,10 @@ export default function Layout({
 
   if (router.pathname.includes("/albedo")) {
     return <>{children}</>;
+  }
+
+  if (router.pathname.includes("/play")) {
+    return <PlayLayout>{children}</PlayLayout>;
   }
 
   return (
