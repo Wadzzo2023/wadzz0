@@ -1,4 +1,4 @@
-import { BASE_URL } from "app/utils/Common";
+import { BASE_URL } from "~/lib/common";
 
 
 export const getUserPlatformAsset = async () => {
@@ -11,7 +11,7 @@ export const getUserPlatformAsset = async () => {
             }
         );
         if (response.ok) {
-            const data = await response.json();
+            const data = await response.json() as { balance: number };
             return data;
         }
 

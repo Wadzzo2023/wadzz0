@@ -1,5 +1,5 @@
-import { BASE_URL } from "app/utils/Common";
-import { User } from "../../auth/Provider";
+import { User } from "@prisma/client";
+import { BASE_URL } from "~/lib/common";
 
 export const getTokenUser = async () => {
   try {

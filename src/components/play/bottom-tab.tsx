@@ -2,7 +2,7 @@
 
 import { useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Home, Book, Pen, Trophy } from "lucide-react";
+import { Home, Book, Pen, Trophy, User } from "lucide-react";
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -16,7 +16,7 @@ const iconsOne = [
 const iconsTwo = [
   { id: 4, Icon: Trophy, href: "/play/bounty", label: "Bounty" },
 
-  { id: 5, Icon: Pen, href: "/play/profile", label: "Profile" },
+  { id: 5, Icon: User, href: "/play/profile", label: "Profile" },
 ];
 
 export const BottomTab = () => {
