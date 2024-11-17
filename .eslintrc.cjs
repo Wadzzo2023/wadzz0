@@ -18,8 +18,7 @@ const config = {
     "src/components/ui/dialog.tsx",
     "src/components/ui/tooltip.tsx",
     "src/components/fan/nav/profile-menu.tsx",
-    "src/pages/api/file.ts"
-
+    "src/pages/api/file.ts",
   ],
   rules: {
     // These opinionated rules are enabled in stylistic-type-checked above.

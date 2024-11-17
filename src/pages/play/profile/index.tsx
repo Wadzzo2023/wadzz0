@@ -19,7 +19,7 @@ import {
   DialogTitle,
 } from "~/components/shadcn/ui/dialog";
 import { ScrollArea } from "~/components/shadcn/ui/scroll-area";
-import { useAccountAction } from "~/components/hooks/play/useAccountAction";
+import { useAccountAction } from "~/lib/state/play/useAccountAction";
 
 import Loading from "~/components/wallete/loading";
 import { BASE_URL } from "~/lib/common";

@@ -12,7 +12,7 @@ import {
 } from "package/connect_wallet/src/lib/stellar/utils";
 import { useCallback, useEffect, useState } from "react";
 import QRCode from "react-qr-code";
-import { useModal } from "~/components/hooks/use-modal-store";
+import { useModal } from "~/lib/state/play/use-modal-store";
 import TransactionHistory from "~/components/wallet-balance/transactionHistory";
 import CopyToClip from "~/components/wallete/copy_to_Clip";
 import Loading from "~/components/wallete/loading";

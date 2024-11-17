@@ -25,7 +25,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "~/components/shadcn/ui/dialog";
-import { useModal } from "../hooks/use-modal-store";
+import { useModal } from "../../lib/state/play/use-modal-store";
 
 export const ExtraSongInfo = z.object({
   artist: z.string(),

@@ -20,8 +20,8 @@ import {
   CardHeader,
   CardTitle,
 } from "~/components/shadcn/ui/card";
-import { useModal } from "~/components/hooks/play/useModal";
-import { useBounty } from "~/components/hooks/play/useBounty";
+import { useModal } from "~/lib/state/play/useModal";
+import { useBounty } from "~/lib/state/play/useBounty";
 import { JoinBounty } from "~/lib/play/join-bounty";
 
 const JoinBountyModal = () => {
@@ -37,7 +37,7 @@ const JoinBountyModal = () => {
   };
 
   const JoinMutation = useMutation({
-    mutationFn: async ({ bountyId }: { bountyId: string }) => {
+    mutationFn: async ({ bountyId }: { bountyId: number }) => {
       return await JoinBounty({ bountyId });
     },
     onSuccess: async () => {
@@ -52,7 +52,7 @@ const JoinBountyModal = () => {
     },
   });
 
-  const handleJoin = (bountyId: string) => {
+  const handleJoin = (bountyId: number) => {
     JoinMutation.mutate({ bountyId });
   };
   console.log(data);

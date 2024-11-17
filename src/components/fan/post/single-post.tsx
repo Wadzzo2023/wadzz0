@@ -16,7 +16,7 @@ import Image from "next/image";
 import { Button } from "~/components/shadcn/ui/button";
 import { useState } from "react";
 import ReplyCommentView from "./reply";
-import { useModal } from "~/components/hooks/use-modal-store";
+import { useModal } from "~/lib/state/play/use-modal-store";
 
 export function SinglePostView({ postId }: { postId: number }) {
   const post = api.fan.post.getAPost.useQuery(postId, {

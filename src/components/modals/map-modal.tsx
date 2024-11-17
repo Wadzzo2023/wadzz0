@@ -21,7 +21,7 @@ import {
   DialogTitle,
 } from "~/components/shadcn/ui/dialog";
 import { api } from "~/utils/api";
-import { useModal } from "../hooks/use-modal-store";
+import { useModal } from "../../lib/state/play/use-modal-store";
 
 import { Input } from "~/components/shadcn/ui/input";
 import { UploadButton } from "~/utils/uploadthing";

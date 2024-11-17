@@ -18,7 +18,7 @@ import { useState } from "react";
 import CommentView from "../post/comment";
 import { Separator } from "~/components/shadcn/ui/separator";
 import { FacebookShareButton, FacebookIcon } from "next-share";
-import { useModal } from "~/components/hooks/use-modal-store";
+import { useModal } from "~/lib/state/play/use-modal-store";
 export function PostCard({
   post,
   show = false,

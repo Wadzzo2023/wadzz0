@@ -13,7 +13,7 @@ import {
   DialogTitle,
 } from "~/components/shadcn/ui/dialog";
 import { Button } from "~/components/shadcn/ui/button";
-import { useModal } from "~/components/hooks/play/useModal";
+import { useModal } from "~/lib/state/play/useModal";
 import { BASE_URL } from "~/lib/common";
 
 const DeleteCollectionModal = () => {

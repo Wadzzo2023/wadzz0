@@ -1,6 +1,6 @@
+import { Bounty } from "@prisma/client";
 import { create } from "zustand";
-import { ConsumedLocation } from "@app/types/CollectionTypes";
-import { Bounty } from "@app/types/BountyTypes";
+import { ConsumedLocation } from "~/types/game/location";
 
 export type ModalType =
   | "Delete"

@@ -11,7 +11,7 @@ import Image from "next/image";
 import React, { useCallback, useEffect, useState } from "react";
 import { Loading } from "react-daisyui";
 import toast from "react-hot-toast";
-import { useModal } from "~/components/hooks/use-modal-store";
+import { useModal } from "~/lib/state/play/use-modal-store";
 import { useSelectedAutoSuggestion } from "~/components/hooks/use-selectedAutoSuggestion";
 import CreatePinModal from "~/components/maps/modals/create-pin";
 import { CustomMapControl } from "~/components/maps/search/map-control";

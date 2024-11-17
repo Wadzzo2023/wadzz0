@@ -21,7 +21,7 @@ import { MutableRefObject, useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { AddBountyComment } from "~/components/fan/creator/bounty/Add-Bounty-Comment";
 import ViewBountyComment from "~/components/fan/creator/bounty/View-Bounty-Comment";
-import { useModal } from "~/components/hooks/use-modal-store";
+import { useModal } from "~/lib/state/play/use-modal-store";
 import { Preview } from "~/components/preview";
 import {
   Avatar,

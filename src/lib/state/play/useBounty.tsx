@@ -1,6 +1,5 @@
+import { Bounty } from "@prisma/client";
 import { create } from "zustand";
-
-import { Bounty } from "@app/types/BountyTypes";
 
 export interface BountyData {
   item?: Bounty;

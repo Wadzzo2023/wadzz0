@@ -27,7 +27,7 @@ import {
 import { Badge } from "~/components/shadcn/ui/badge";
 import { Progress } from "~/components/shadcn/ui/progress";
 
-import { useBounty } from "~/components/hooks/play/useBounty";
+import { useBounty } from "~/lib/state/play/useBounty";
 import { Bounty } from "~/types/game/bounty";
 import { z } from "zod";
 import { addrShort } from "~/utils/utils";

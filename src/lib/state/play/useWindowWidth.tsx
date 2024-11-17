@@ -1,15 +1,22 @@
 import { useState, useEffect } from "react";
-const useWindowWidth = () => {
-  const [windowWidth, setWindowWidth] = useState(0);
+
+const useWindowDimensions = () => {
+  const [windowDimensions, setWindowDimensions] = useState({
+    width: 0,
+    height: 0,
+  });
 
   useEffect(() => {
     // Check if window is defined (i.e., we are in the browser)
     if (typeof window !== "undefined") {
       const handleResize = () => {
-        setWindowWidth(window.innerWidth);
+        setWindowDimensions({
+          width: window.innerWidth,
+          height: window.innerHeight,
+        });
       };
 
-      // Set initial window width
+      // Set initial window dimensions
       handleResize();
 
       window.addEventListener("resize", handleResize);
@@ -21,7 +28,7 @@ const useWindowWidth = () => {
     }
   }, []);
 
-  return windowWidth;
+  return windowDimensions;
 };
 
-export default useWindowWidth;
+export default useWindowDimensions;

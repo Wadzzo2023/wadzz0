@@ -8,19 +8,20 @@ import {
   DeviceOrientationControls,
   LocationBased,
   WebcamRenderer,
-} from "../../lib/main";
+} from "~/lib/play/locar";
 
-import { Coins, ShoppingBasket, Wallet } from "lucide-react";
-import { ConsumedLocation } from "~/types/game/location";
-import { useNearByPin } from "~/components/hooks/play/useNearbyPin";
-import useWindowWidth from "~/components/hooks/play/useWindowWidth";
+import { Coins, ShoppingBasket } from "lucide-react";
+import ArCard from "~/components/play/ar-card";
 import { BASE_URL } from "~/lib/common";
+import { useNearByPin } from "~/lib/state/play/useNearbyPin";
+import useWindowDimensions from "~/lib/state/play/useWindowWidth";
+import { ConsumedLocation } from "~/types/game/location";
 
 const ARPage = () => {
   const [selectedPin, setPin] = useState<ConsumedLocation>();
   const collectPinRes = useRef();
   const { data } = useNearByPin();
-  const width = useWindowWidth();
+  const winDim = useWindowDimensions();
 
   const [infoBoxVisible, setInfoBoxVisible] = useState(false);
   const [infoBoxPosition, setInfoBoxPosition] = useState({ left: 0, top: 0 });
@@ -95,7 +96,7 @@ const ARPage = () => {
       if (firstLocation) {
         const { latitude, longitude } = pos.coords;
 
-        // alert(`GPS location found! ${latitude}, ${longitude}`);
+        alert(`GPS location found! ${latitude}, ${longitude}`);
 
         // Generate random box positions around initial location
         // const boxPositions = generateRandomBoxPositions(latitude, longitude);
@@ -117,6 +118,7 @@ const ARPage = () => {
         coinGeometry.rotateX(Math.PI / 2);
 
         const color = 0xff0000;
+        const icon = "./assets/images/icon.png";
 
         for (const coin of coinsPositions) {
           // const material = new THREE.MeshBasicMaterial({ color });
@@ -129,22 +131,18 @@ const ARPage = () => {
 
           // Create textures for both sides
           const textureLoader = new THREE.TextureLoader();
-          const headTexture = textureLoader.load(
-            "https://picsum.photos/300/300",
-          ); // Replace with your head image
+          const headTexture = textureLoader.load(icon);
           const tailTexture = textureLoader.load(
-            "https://picsum.photos/300/300",
-          ); // Replace with your tail image
+            coin.brand_image_url ?? "https://picsum.photos/300/300",
+          );
 
           // Create materials for the coin
           const headMaterial = new THREE.MeshStandardMaterial({
             map: headTexture,
-            color: color,
             roughness: 0.3,
           });
           const tailMaterial = new THREE.MeshStandardMaterial({
             map: tailTexture,
-            color: color,
             roughness: 0.3,
           });
           const edgeMaterial = new THREE.MeshStandardMaterial({
@@ -232,112 +230,97 @@ const ARPage = () => {
   return (
     <>
       {infoBoxVisible && (
-        <>
-          <div
-            style={{
-              position: "absolute",
-              left: `${infoBoxPosition.left}px`,
-              top: `${infoBoxPosition.top}px`,
-              padding: "10px",
-              backgroundColor: "rgba(255, 0, 0, 0.8)",
-              color: "white",
-              borderRadius: "5px",
-            }}
-          >
-            {infoText?.brand_name}
-          </div>
-        </>
+        <ArCard
+          brandName={infoText?.brand_name}
+          description={infoText?.description}
+          position={{
+            left: winDim.width / 2 - 208 / 2,
+            top: infoBoxPosition.top,
+          }}
+        />
       )}
 
-      <>
-        {selectedPin && (
-          <button
-            // @ts-ignore
-            onClick={() => collectPinRes.current()}
-            style={{
-              position: "absolute",
-              left: `$100px`,
-              bottom: `10px`,
-              padding: "10px",
-              backgroundColor: "rgba(255, 0, 0, 0.8)",
-              color: "white",
-              borderRadius: "5px",
-            }}
-          >
-            Collect
-          </button>
-        )}
-      </>
       {selectedPin && (
-        <div className="relative h-screen w-full bg-gray-100">
-          {/* Bottom bar */}
+        <div className="absolute bottom-0 left-0 right-0  w-full bg-gray-100">
           <div
-            className={
-              "absolute bottom-2  left-0  right-0 flex h-20 items-center justify-between bg-gray-800 px-4"
-            }
-            style={{ width: width }}
+            className="absolute bottom-0 left-0 right-0 flex items-stretch bg-gray-800 shadow-lg"
+            style={{ width: winDim.width }}
           >
-            <div className="relative">
-              <ShoppingBasket className="h-12 w-12 text-yellow-500" />
-              <div className="absolute bottom-1 right-1 rounded-full bg-yellow-400 p-1">
-                <Coins className="h-4 w-4 text-yellow-800" />
+            <div className="flex flex-1 items-center space-x-4 p-4">
+              <div className="relative">
+                <ShoppingBasket className="h-12 w-12 text-yellow-500" />
+                <div className="absolute bottom-1 right-1 rounded-full bg-yellow-400 p-1">
+                  <Coins className="h-4 w-4 text-yellow-800" />
+                </div>
+              </div>
+              <div className="text-white">
+                <p className="text-sm font-semibold text-yellow-400">
+                  {selectedPin.title}
+                </p>
+                <p className="text-lg font-bold">{selectedPin.brand_name}</p>
               </div>
             </div>
-            <div className="text-center text-white">
-              <p className="text-lg font-bold">{selectedPin?.brand_name}</p>
-              <p className="text-sm">{selectedPin?.brand_name}</p>
-            </div>
-            {/* <ProgressButton className="px-6 py-3 bg-blue-500 text-white rounded-lg focus:outline-none">
-              Capture
-            </ProgressButton> */}
-            {/* <Capture onComplete={simulateApiCall} /> */}
-            <button
-              onClick={simulateApiCall}
-              className="relative overflow-hidden rounded-lg bg-blue-500 px-6 py-3 text-white focus:outline-none"
-            >
-              Capture
-            </button>
-          </div>
 
-          {/* Loading overlay */}
-          {showLoading && (
             <div
-              className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50"
-              style={{ width }}
-            >
-              <div className="rounded-lg bg-white p-6 text-center">
-                <div className="mx-auto mb-4 h-16 w-16 animate-spin rounded-full border-t-4 border-blue-500"></div>
-                <p className="text-xl font-bold">Capturing the coin...</p>
-              </div>
-            </div>
-          )}
+              className="my-2 w-px self-stretch bg-gray-700"
+              aria-hidden="true"
+            ></div>
 
-          {/* Success animation */}
-          {showSuccess && (
+            <div className="flex flex-1 items-center p-4">
+              <p className="line-clamp-2 overflow-hidden text-sm leading-snug text-white">
+                {selectedPin.description}
+              </p>
+            </div>
+
             <div
-              className="absolute inset-0 flex items-center justify-center bg-green-500 bg-opacity-50"
-              style={{ width: width }}
-            >
-              <div className="rounded-lg bg-white p-6 text-center">
-                <div className="mb-4 text-6xl">🎉</div>
-                <p className="mb-2 text-2xl font-bold">Coin Captured!</p>
-                <p className="text-lg">{selectedPin.brand_name}</p>
-              </div>
-            </div>
-          )}
+              className="my-2 w-px self-stretch bg-gray-700"
+              aria-hidden="true"
+            ></div>
 
-          {/* Captured coins display */}
-          <div className="absolute left-4 top-4 rounded-lg bg-white p-4 shadow-md">
-            <div className="flex items-center">
-              <Wallet className="mr-2 h-8 w-8 text-yellow-500" />
-              <span className="text-xl font-bold">
-                {selectedPin.brand_name}
-              </span>
-            </div>
-            <p className="text-sm text-gray-600">Coins Captured</p>
+            {!data.singleAR && (
+              <div className="flex items-center p-4">
+                <button
+                  onClick={simulateApiCall}
+                  className="rounded-lg bg-blue-500 px-6 py-2 font-semibold text-white transition-colors duration-200 hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-50"
+                >
+                  Capture
+                </button>
+              </div>
+            )}
           </div>
         </div>
       )}
+
+      <>
+        {/* Loading overlay */}
+        {showLoading && (
+          <div
+            className="absolute inset-0  flex items-center justify-center bg-black bg-opacity-50"
+            style={{
+              width: winDim.width,
+            }}
+          >
+            <div className="rounded-lg bg-white p-6 text-center">
+              <div className="mx-auto mb-4 h-16 w-16 animate-spin rounded-full border-t-4 border-blue-500"></div>
+              <p className="text-xl font-bold">Capturing the coin...</p>
+            </div>
+          </div>
+        )}
+
+        {/* Success animation */}
+        {showSuccess && (
+          <div
+            className="absolute inset-0 flex items-center justify-center bg-green-500 bg-opacity-50"
+            style={{ width: winDim.width }}
+          >
+            <div className="rounded-lg bg-white p-6 text-center">
+              <div className="mb-4 text-6xl">🎉</div>
+              <p className="mb-2 text-2xl font-bold">Coin Captured!</p>
+              <p className="text-lg">{selectedPin.brand_name}</p>
+            </div>
+          </div>
+        )}
+      </>
     </>
   );
 };

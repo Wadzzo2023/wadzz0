@@ -1,31 +1,29 @@
 "use client";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { BountyStatus } from "@prisma/client";
+import { X } from "lucide-react"; // Import a delete icon
+import Image from "next/image";
+import { useEffect, useMemo, useState } from "react";
+import { SubmitHandler, useForm } from "react-hook-form";
+import toast from "react-hot-toast";
+import { z } from "zod";
+import { Editor } from "~/components/editor";
 import { Button } from "~/components/shadcn/ui/button";
 import {
   Card,
   CardContent,
-  CardDescription,
   CardFooter,
   CardHeader,
-  CardTitle,
 } from "~/components/shadcn/ui/card";
-import { useForm, SubmitHandler } from "react-hook-form";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Editor } from "~/components/editor";
-import { BountyStatus, MediaType } from "@prisma/client";
-import { useCallback, useEffect, useMemo, useState } from "react";
-import Image from "next/image";
-import { UploadButton } from "~/utils/uploadthing";
 import { api } from "~/utils/api";
-import toast from "react-hot-toast";
-import { useModal } from "../hooks/use-modal-store";
+import { UploadButton } from "~/utils/uploadthing";
+import { useModal } from "../../lib/state/play/use-modal-store";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
 } from "../shadcn/ui/dialog";
-import { X } from "lucide-react"; // Import a delete icon
 
 import { PLATFORM_ASSET } from "~/lib/stellar/constant";
 

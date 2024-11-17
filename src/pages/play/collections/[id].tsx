@@ -24,9 +24,9 @@ import {
 } from "~/components/shadcn/ui/card";
 import { Avatar, AvatarImage } from "~/components/shadcn/ui/avatar";
 import { Badge } from "~/components/shadcn/ui/badge";
-import { useCollection } from "~/components/hooks/play/useCollection";
-import { useNearByPin } from "~/components/hooks/play/useNearbyPin";
-import { useModal } from "~/components/hooks/play/useModal";
+import { useCollection } from "~/lib/state/play/useCollection";
+import { useNearByPin } from "~/lib/state/play/useNearbyPin";
+import { useModal } from "~/lib/state/play/useModal";
 import { BASE_URL } from "~/lib/common";
 
 const SingleCollectionItem = () => {

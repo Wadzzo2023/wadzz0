@@ -23,8 +23,8 @@ import {
 } from "~/components/shadcn/ui/dropdown-menu";
 
 import Loading from "~/components/wallete/loading";
-import { useBounty } from "~/components/hooks/play/useBounty";
-import { useModal } from "~/components/hooks/play/useModal";
+import { useBounty } from "~/lib/state/play/useBounty";
+import { useModal } from "~/lib/state/play/useModal";
 
 import { addrShort } from "~/utils/utils";
 import { getUserPlatformAsset } from "~/lib/play/get-user-platformAsset";

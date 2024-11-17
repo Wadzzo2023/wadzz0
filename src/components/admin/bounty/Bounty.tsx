@@ -3,7 +3,7 @@ import Image from "next/image";
 import { submitSignedXDRToServer4User } from "package/connect_wallet/src/lib/stellar/trx/payment_fb_g";
 import { useCallback, useState } from "react";
 import toast from "react-hot-toast";
-import { useModal } from "~/components/hooks/use-modal-store";
+import { useModal } from "~/lib/state/play/use-modal-store";
 import { Preview } from "~/components/preview";
 
 import { api } from "~/utils/api";

@@ -1,6 +1,6 @@
 import { BASE_URL } from "../common";
 
-export const JoinBounty = async ({ bountyId }: { bountyId: string }) => {
+export const JoinBounty = async ({ bountyId }: { bountyId: number }) => {
   try {
     const response = await fetch(
       new URL("api/game/bounty/join_bounty", BASE_URL).toString(),

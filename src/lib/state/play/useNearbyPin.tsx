@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { ConsumedLocation } from "@app/types/CollectionTypes";
+import { ConsumedLocation } from "~/types/game/location";
 
 export interface PinData {
   nearbyPins?: ConsumedLocation[];
@@ -40,13 +40,30 @@ const generateRandomBoxPositions = (lat: number, lon: number) => [
     name: "item 4",
   },
 ];
+const generateMultipleRandomBoxPositions = (
+  lat: number,
+  lon: number,
+  count: number,
+) => {
+  const positions = [];
+  for (let i = 0; i < count; i++) {
+    positions.push({
+      lat: lat + randomOffset(),
+      lon: lon + randomOffset(),
+      color: Math.floor(Math.random() * 16777215), // Random color
+      name: `item ${i + 1}`,
+    });
+  }
+  return positions;
+};
 
-const pins: ConsumedLocation[] = generateRandomBoxPositions(
+const pins: ConsumedLocation[] = generateMultipleRandomBoxPositions(
   currentLocation.lat,
-  currentLocation.lan
+  currentLocation.lan,
+  20,
 ).map((pin, i) => {
   return {
-    id: Math.random().toString(),
+    id: Math.random(),
     lat: pin.lat,
     lng: pin.lon,
     title: `Item ${i}`,

@@ -26,7 +26,7 @@ import {
   DialogTrigger,
 } from "~/components/shadcn/ui/dialog";
 import { InfoIcon, MapPin, Gift } from "lucide-react";
-import { useModal } from "~/components/hooks/play/useModal";
+import { useModal } from "~/lib/state/play/useModal";
 import Image from "next/image";
 
 interface LocationData {

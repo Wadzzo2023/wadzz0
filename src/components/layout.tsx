@@ -48,13 +48,15 @@ export default function Layout({
   const creator = api.fan.creator.meCreator.useQuery();
 
   if (router.pathname.includes("/albedo")) {
-    return <>{children}</>;
+    return <div>{children}</div>;
   }
 
   if (router.pathname.includes("/play")) {
+    if (router.pathname.includes("/play/ar")) {
+      return <>{children}</>;
+    }
     return (
       <PlayLayout>
-        {" "}
         <PlayModalProvider />
         {children}
       </PlayLayout>

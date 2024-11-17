@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { useModal } from "~/components/hooks/play/useModal";
+import { useModal } from "~/lib/state/play/useModal";
 
 import { Button } from "~/components/shadcn/ui/button";
 import { Card, CardContent, CardFooter } from "~/components/shadcn/ui/card";

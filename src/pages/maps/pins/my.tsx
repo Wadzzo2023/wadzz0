@@ -1,7 +1,7 @@
 import { Location, LocationConsumer } from "@prisma/client";
 import { formatDate } from "date-fns";
 import Image from "next/image";
-import { useModal } from "~/components/hooks/use-modal-store";
+import { useModal } from "~/lib/state/play/use-modal-store";
 import { Button } from "~/components/shadcn/ui/button";
 import { api } from "~/utils/api";
 

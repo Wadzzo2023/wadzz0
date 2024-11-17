@@ -1,11 +1,12 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
-import Image from "next/image";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowUpDown, Trash2, Eye, ScanLine } from "lucide-react";
+import { ArrowUpDown, Eye, ScanLine, Trash2 } from "lucide-react";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { useMemo, useState } from "react";
 
+import { Badge } from "~/components/shadcn/ui/badge";
 import { Button } from "~/components/shadcn/ui/button";
 import {
   Card,
@@ -14,19 +15,18 @@ import {
   CardHeader,
   CardTitle,
 } from "~/components/shadcn/ui/card";
-import { Badge } from "~/components/shadcn/ui/badge";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "~/components/shadcn/ui/dropdown-menu";
-import { useModal } from "~/components/hooks/play/useModal";
-import { useCollection } from "~/components/hooks/play/useCollection";
-import { useNearByPin } from "~/components/hooks/play/useNearbyPin";
-import { BASE_URL } from "~/lib/common";
-import { ConsumedLocation } from "~/types/game/location";
 import Loading from "~/components/wallete/loading";
+import { BASE_URL } from "~/lib/common";
+import { useCollection } from "~/lib/state/play/useCollection";
+import { useModal } from "~/lib/state/play/useModal";
+import { useNearByPin } from "~/lib/state/play/useNearbyPin";
+import { ConsumedLocation } from "~/types/game/location";
 
 export default function MyCollectionScreen() {
   const [refreshing, setRefreshing] = useState(false);
