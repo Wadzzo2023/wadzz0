@@ -1,4 +1,4 @@
-import { BASE_URL } from "app/utils/Common";
+import { BASE_URL } from "../common";
 
 
 export const JoinBounty = async ({ bountyId }: { bountyId: string }) => {
@@ -19,7 +19,7 @@ export const JoinBounty = async ({ bountyId }: { bountyId: string }) => {
             throw new Error("Failed to Join Bounty ");
         }
 
-        const data = await response.json();
+        const data = await response.json() as string;
         return data;
     } catch (error) {
         console.error("Error failed to Join Bounty:", error);

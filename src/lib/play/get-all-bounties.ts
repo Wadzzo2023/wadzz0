@@ -1,5 +1,6 @@
-import { Bounty } from "@prisma/client";
+
 import { BASE_URL } from "~/lib/common";
+import { Bounty } from "~/types/game/bounty";
 
 export const getAllBounties = async () => {
     try {
@@ -12,7 +13,7 @@ export const getAllBounties = async () => {
         );
 
         if (response.ok) {
-            const data = await response.json() as { bounty: Bounty[] };
+            const data = await response.json() as { allBounty: Bounty[] };
             return data;
         }
 

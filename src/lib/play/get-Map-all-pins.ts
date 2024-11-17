@@ -4,7 +4,7 @@ import { ConsumedLocation } from "~/types/game/location";
 export const getMapAllPins = async ({ filterID }: { filterID: string }) => {
   try {
     const url = new URL(`api/game/locations`, BASE_URL);
-    url.searchParams.append("filterId", filterID); // Append filterID as a query parameter
+    url.searchParams.append("filterId", filterID);
 
     const response = await fetch(url.toString(), {
       method: "GET",

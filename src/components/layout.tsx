@@ -9,6 +9,7 @@ import ModalProvider from "./providers/modal-provider";
 import { api } from "~/utils/api";
 import { Toaster } from "~/components/ui/toaster";
 import PlayLayout from "./play/layout";
+import PlayModalProvider from "./providers/play/play-modal-provider";
 // import Header from "./header";
 // import RightDialog from "./right_dialog";
 
@@ -51,7 +52,13 @@ export default function Layout({
   }
 
   if (router.pathname.includes("/play")) {
-    return <PlayLayout>{children}</PlayLayout>;
+    return (
+      <PlayLayout>
+        {" "}
+        <PlayModalProvider />
+        {children}
+      </PlayLayout>
+    );
   }
 
   return (
@@ -88,6 +95,7 @@ export default function Layout({
                   {session.status == "authenticated" ? (
                     <>
                       <ModalProvider />
+                      <PlayModalProvider />
                       {children}
                     </>
                   ) : (

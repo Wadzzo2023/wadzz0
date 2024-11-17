@@ -11,7 +11,7 @@ export const getUserPlatformAsset = async () => {
             }
         );
         if (response.ok) {
-            const data = await response.json() as { balance: number };
+            const data = await response.json() as number;
             return data;
         }
 

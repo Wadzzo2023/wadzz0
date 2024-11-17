@@ -1,5 +1,5 @@
-import { Bounty } from "@prisma/client";
 import { create } from "zustand";
+import { Bounty } from "~/types/game/bounty";
 
 export interface BountyData {
   item?: Bounty;

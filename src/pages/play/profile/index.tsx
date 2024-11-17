@@ -20,10 +20,12 @@ import {
 } from "~/components/shadcn/ui/dialog";
 import { ScrollArea } from "~/components/shadcn/ui/scroll-area";
 import { useAccountAction } from "~/components/hooks/play/useAccountAction";
-import { getTokenUser } from "../lib/get-token-user";
+
 import Loading from "~/components/wallete/loading";
 import { BASE_URL } from "~/lib/common";
 import { addrShort } from "~/utils/utils";
+import { getTokenUser } from "~/lib/play/get-token-user";
+import { signOut } from "next-auth/react";
 
 export default function SettingScreen() {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
@@ -161,10 +163,17 @@ export default function SettingScreen() {
                 Delete Data
               </Button>
 
-              {/* <Button className="w-full" onClick={async () => await logout()}>
+              <Button
+                className="w-full"
+                onClick={async () =>
+                  await signOut({
+                    redirect: false,
+                  })
+                }
+              >
                 <LogOut className="mr-2 h-4 w-4" />
                 Logout
-              </Button> */}
+              </Button>
             </CardContent>
           </Card>
         </div>

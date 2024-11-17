@@ -5,12 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import Map, { Marker } from "react-map-gl";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import {
-  MapPin,
-  ViewIcon as ViewInAr,
-  RefreshCcw,
-  Crosshair,
-} from "lucide-react";
+import { MapPin, ScanLine, RefreshCcw, Crosshair } from "lucide-react";
 import { useExtraInfo } from "~/components/hooks/play/useExtraInfo";
 import { useNearByPin } from "~/components/hooks/play/useNearbyPin";
 import {
@@ -281,7 +276,7 @@ export default function HomeScreen() {
               className="absolute bottom-36 right-2 z-10 bg-primary"
               onClick={() => handleARPress(userLocation, locations)}
             >
-              <ViewInAr className="h-6 w-6" />
+              <ScanLine className="h-6 w-6" />
             </Button>
             <Button
               variant="outline"

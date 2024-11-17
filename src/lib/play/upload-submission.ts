@@ -1,5 +1,13 @@
-import { BASE_URL } from "@app/utils/Common";
-import { SubmissionMediaInfoType } from "@app/types/SubmissionTypes";
+import { z } from "zod";
+import { BASE_URL } from "../common";
+export const SubmissionMediaInfo = z.object({
+    url: z.string(),
+    name: z.string(),
+    size: z.number(),
+    type: z.string(),
+});
+
+type SubmissionMediaInfoType = z.TypeOf<typeof SubmissionMediaInfo>;
 
 export const UploadSubmission = async ({ bountyId, content, media }: { bountyId: string, content: string, media?: SubmissionMediaInfoType[] }) => {
     try {
@@ -24,7 +32,7 @@ export const UploadSubmission = async ({ bountyId, content, media }: { bountyId:
             throw new Error("Failed to submit this submission ");
         }
 
-        const data = await response.json();
+        const data = await response.json() as string;
         return data;
     } catch (error) {
         console.error("Error failed to submit this submission:", error);
