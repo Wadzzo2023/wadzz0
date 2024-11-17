@@ -19,11 +19,11 @@ import {
 } from "~/components/hooks/play/useAccountAction";
 import { useModal } from "~/components/hooks/play/useModal";
 import { ConsumedLocation } from "~/types/game/location";
-import { getMapAllPins } from "../lib/get-Map-all-pins";
 import { Button } from "~/components/shadcn/ui/button";
 import { Card } from "~/components/shadcn/ui/card";
 import Loading from "~/components/wallete/loading";
 import { BASE_URL } from "~/lib/common";
+import { getMapAllPins } from "~/lib/play/get-Map-all-pins";
 
 type UserLocationType = {
   lat: number;
