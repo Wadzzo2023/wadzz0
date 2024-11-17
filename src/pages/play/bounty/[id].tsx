@@ -32,8 +32,8 @@ import { Bounty } from "~/types/game/bounty";
 import { z } from "zod";
 import { addrShort } from "~/utils/utils";
 import { UploadSubmission } from "~/lib/play/upload-submission";
-import { storage } from "package/connect_wallet/src/lib/firebase/firebase-auth";
 import { Preview } from "~/components/preview";
+import { storage } from "package/connect_wallet/src/lib/firebase/firebase-auth";
 
 type UploadProgress = Record<string, number>;
 

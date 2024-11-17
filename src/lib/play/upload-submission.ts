@@ -42,7 +42,7 @@ export const UploadSubmission = async ({
       throw new Error("Failed to submit this submission ");
     }
 
-    const data = await response.json();
+    const data = await response.json() as { success: boolean };
     return data;
   } catch (error) {
     console.error("Error failed to submit this submission:", error);

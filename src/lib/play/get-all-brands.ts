@@ -1,4 +1,5 @@
 import { BASE_URL } from "~/lib/common";
+import { Brand } from "~/types/game/brand";
 
 export const getAllBrands = async () => {
   try {
@@ -13,7 +14,7 @@ export const getAllBrands = async () => {
       console.log("Failed to fetch collections");
     }
 
-    const data = await response.json();
+    const data = await response.json() as { users: Brand[] };
 
     return data;
   } catch (error) {

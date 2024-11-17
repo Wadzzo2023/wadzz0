@@ -167,7 +167,7 @@ export default function SettingScreen() {
                 className="w-full"
                 onClick={async () =>
                   await signOut({
-                    redirect: false,
+                    callbackUrl: "https://app.wadzzo.com",
                   })
                 }
               >

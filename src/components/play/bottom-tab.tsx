@@ -51,19 +51,7 @@ export const BottomTab = () => {
                   >
                     <Icon className="h-6 w-6" />
                   </Link>
-                  <AnimatePresence>
-                    {hoveredIndex === id && (
-                      <motion.span
-                        className="absolute -top-8 left-1/2 -translate-x-1/2 whitespace-nowrap rounded bg-black px-2 py-1 text-xs text-white"
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: 10 }}
-                        transition={{ duration: 0.2 }}
-                      >
-                        {label}
-                      </motion.span>
-                    )}
-                  </AnimatePresence>
+
                   {path === href && (
                     <motion.div
                       className="absolute -bottom-2 left-1/2 h-1 w-1 rounded-full bg-white"
@@ -97,19 +85,7 @@ export const BottomTab = () => {
                     height={24}
                   />
                 </Link>
-                <AnimatePresence>
-                  {hoveredIndex === 3 && (
-                    <motion.span
-                      className="absolute -top-8 left-1/2 -translate-x-1/2 whitespace-nowrap rounded bg-black px-2 py-1 text-xs text-white"
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: 10 }}
-                      transition={{ duration: 0.2 }}
-                    >
-                      Creator
-                    </motion.span>
-                  )}
-                </AnimatePresence>
+
                 {path === "/(tabs)/creator" && (
                   <motion.div
                     className="absolute -bottom-2 left-1/2 h-1 w-1 rounded-full bg-white"
@@ -139,19 +115,7 @@ export const BottomTab = () => {
                   >
                     <Icon className="h-6 w-6" />
                   </Link>
-                  <AnimatePresence>
-                    {hoveredIndex === id && (
-                      <motion.span
-                        className="absolute -top-8 left-1/2 -translate-x-1/2 whitespace-nowrap rounded bg-black px-2 py-1 text-xs text-white"
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: 10 }}
-                        transition={{ duration: 0.2 }}
-                      >
-                        {label}
-                      </motion.span>
-                    )}
-                  </AnimatePresence>
+
                   {path === href && (
                     <motion.div
                       className="absolute -bottom-2 left-1/2 h-1 w-1 rounded-full bg-white"

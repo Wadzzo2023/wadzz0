@@ -2,6 +2,7 @@ import { BASE_URL } from "~/lib/common";
 import { ConsumedLocation } from "~/types/game/location";
 
 export const getMapAllPins = async ({ filterID }: { filterID: string }) => {
+  console.log("filterID", filterID);
   try {
     const url = new URL(`api/game/locations`, BASE_URL);
     url.searchParams.append("filterId", filterID);
