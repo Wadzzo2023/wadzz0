@@ -18,7 +18,10 @@ export const JoinBounty = async ({ bountyId }: { bountyId: number }) => {
       throw new Error("Failed to Join Bounty ");
     }
 
-    const data = await response.json();
+    const data = (await response.json()) as {
+      data: string;
+      success: boolean;
+    };
     return data;
   } catch (error) {
     console.error("Error failed to Join Bounty:", error);

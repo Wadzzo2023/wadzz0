@@ -1,3 +1,4 @@
+import { User } from "@prisma/client";
 import { BASE_URL } from "../common";
 
 export const getCurrentUser = async () => {
@@ -14,7 +15,7 @@ export const getCurrentUser = async () => {
       throw new Error("Failed to fetch current user");
     }
 
-    const data = await response.json();
+    const data = (await response.json()) as User;
 
     return data;
   } catch (error) {

@@ -6,17 +6,10 @@ import Map, { Marker } from "react-map-gl";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { MapPin, ScanLine, RefreshCcw, Crosshair } from "lucide-react";
-<<<<<<< HEAD
 import { useExtraInfo } from "~/lib/state/play/useExtraInfo";
 import { useNearByPin } from "~/lib/state/play/useNearbyPin";
-import { BrandMode, useAccountAction } from "~/lib/state/play/useAccountAction";
+import { useAccountAction } from "~/lib/state/play/useAccountAction";
 import { useModal } from "~/lib/state/play/useModal";
-=======
-import { useExtraInfo } from "~/components/hooks/play/useExtraInfo";
-import { useNearByPin } from "~/components/hooks/play/useNearbyPin";
-import { useAccountAction } from "~/components/hooks/play/useAccountAction";
-import { useModal } from "~/components/hooks/play/useModal";
->>>>>>> 675fe7b5e0161ceab618a6404ec334803d1ed9d0
 import { ConsumedLocation } from "~/types/game/location";
 import { Button } from "~/components/shadcn/ui/button";
 import { Card } from "~/components/shadcn/ui/card";

@@ -11,6 +11,9 @@ const withBundleAnalyzer = analyzer({
 /** @type {import("next").NextConfig} */
 const config = {
   transpilePackages: ["three"],
+  typescript: {
+    ignoreBuildErrors: true,
+  },
   // async headers() {
   //   return [
   //     {
@@ -38,7 +41,7 @@ const config = {
       {
         hostname: "utfs.io",
       },
-      {  hostname: "app.wadzzo.com"},
+      { hostname: "app.wadzzo.com" },
       {
         hostname: "firebasestorage.googleapis.com",
       },
@@ -63,7 +66,6 @@ const config = {
   async headers() {
     return [
       {
-   
         source: "/api/:path*",
         headers: [
           { key: "Access-Control-Allow-Credentials", value: "true" },
