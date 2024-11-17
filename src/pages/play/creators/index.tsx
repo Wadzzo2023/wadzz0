@@ -5,7 +5,6 @@ import {
   HasTrustOnPageAsset,
   UnFollowBrand,
 } from "~/lib/play";
-import { BrandMode, useAccountAction } from "~/lib/state/play/useAccountAction";
 // import LoadingScreen from "@/components/Loading";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -24,14 +23,9 @@ import { Switch } from "~/components/shadcn/ui/switch";
 import { Tabs, TabsList, TabsTrigger } from "~/components/shadcn/ui/tabs";
 import Loading from "~/components/wallete/loading";
 import { clientSelect } from "~/lib/stellar/fan/utils";
-
-type Brand = {
-  id: string;
-  first_name: string;
-  followed_by_current_user: boolean;
-  last_name: string;
-  logo: string;
-};
+import { Brand } from "~/types/game/brand";
+import Image from "next/image";
+import { useAccountAction } from "~/components/hooks/play/useAccountAction";
 
 export default function CreatorPage() {
   //   const { user, isAuthenticated } = useAuth();
@@ -52,7 +46,13 @@ export default function CreatorPage() {
 
   const { data: accountActionData, setData: setAccountActionData } =
     useAccountAction();
-  const [refreshing, setRefreshing] = useState(false);
+
+  const toggleBrandMode = () => {
+    setAccountActionData({
+      brandMode: !accountActionData.brandMode,
+    });
+    console.log("accountActionData", accountActionData);
+  };
   const queryClient = useQueryClient();
 
   const { data, isLoading, error, refetch } = useQuery({
@@ -80,7 +80,7 @@ export default function CreatorPage() {
           return;
         }
         setSubmitLoading(true);
-        toast.promise(
+        await toast.promise(
           clientsign({
             presignedxdr: xdr,
             pubkey: session.data?.user.id,
@@ -106,8 +106,8 @@ export default function CreatorPage() {
         return await FollowBrand({ brand_id });
       }
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
         queryKey: ["AllBrands"],
       });
       setFollowLoadingId(null);
@@ -123,8 +123,8 @@ export default function CreatorPage() {
       setUnfollowLoadingId(brand_id);
       return await UnFollowBrand({ brand_id });
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
         queryKey: ["AllBrands"],
       });
       setUnfollowLoadingId(null);
@@ -135,7 +135,7 @@ export default function CreatorPage() {
     },
   });
 
-  const toggleFollow = (brandId: string, isAlreadyFollowed: boolean) => {
+  const toggleFollow = (brandId: string, isAlreadyFollowed?: boolean) => {
     if (isAlreadyFollowed) {
       setUnfollowLoadingId(brandId);
       unfollowMutation.mutate({ brand_id: brandId });
@@ -148,12 +148,6 @@ export default function CreatorPage() {
     }
   };
 
-  const handleRefresh = async () => {
-    setRefreshing(true);
-    await refetch();
-    setRefreshing(false);
-  };
-
   useEffect(() => {
     if (data) {
       setBrands(data.users);
@@ -161,9 +155,11 @@ export default function CreatorPage() {
   }, [data]);
 
   useEffect(() => {
-    queryClient.refetchQueries({
-      queryKey: ["MapsAllPins"],
-    });
+    queryClient
+      .refetchQueries({
+        queryKey: ["MapsAllPins", accountActionData.brandMode],
+      })
+      .catch((e) => console.log(e));
   }, [accountActionData.brandMode]);
 
   const filteredBrands = brands?.filter((brand) => {
@@ -182,31 +178,26 @@ export default function CreatorPage() {
     return <div className="text-center text-red-500">Error loading brands</div>;
 
   return (
-    <div className="container mx-auto p-4">
-      <div className="mb-6 flex items-center justify-between rounded-lg bg-[#FF5A5F] p-4 text-white">
+    <div className="flex h-screen flex-col p-2 pb-16">
+      <div className="mb-4 flex items-center justify-between rounded-b-2xl bg-[#38C02B] p-4">
         <h1 className="text-2xl font-bold">Brands</h1>
         <div className="flex items-center space-x-2 rounded-full bg-white p-1">
           <span
             className={`text-sm ${
-              accountActionData.brandMode !== BrandMode.FOLLOW
-                ? "font-bold text-[#FF5A5F]"
+              !accountActionData.brandMode
+                ? "font-bold text-[#38C02B]"
                 : "text-gray-500"
             }`}
           >
             General
           </span>
           <Switch
-            checked={accountActionData.brandMode === BrandMode.FOLLOW}
-            onCheckedChange={(value) =>
-              setAccountActionData({
-                ...accountActionData,
-                brandMode: value ? BrandMode.FOLLOW : BrandMode.GENERAL,
-              })
-            }
+            checked={accountActionData.brandMode}
+            onCheckedChange={toggleBrandMode}
           />
           <span
             className={`text-sm ${
-              accountActionData.brandMode === BrandMode.FOLLOW
+              accountActionData.brandMode
                 ? "font-bold text-[#FF5A5F]"
                 : "text-gray-500"
             }`}
@@ -235,12 +226,14 @@ export default function CreatorPage() {
       </Tabs>
 
       {filteredBrands?.length ? (
-        <div className="h-[600px] space-y-4 overflow-y-auto ">
+        <div className="flex flex-col gap-2 overflow-y-auto ">
           {filteredBrands.map((brand: Brand) => (
             <Card key={brand.id}>
               <CardContent className="flex items-center justify-between p-4">
                 <div className="flex items-center space-x-4">
-                  <img
+                  <Image
+                    height={400}
+                    width={400}
                     src={brand.logo}
                     alt={brand.first_name}
                     className="h-10 w-10 rounded-full"
@@ -275,7 +268,9 @@ export default function CreatorPage() {
             <Card key={brand.id}>
               <CardContent className="flex items-center justify-between p-4">
                 <div className="flex items-center space-x-4">
-                  <img
+                  <Image
+                    height={400}
+                    width={400}
                     src={brand.logo}
                     alt={brand.first_name}
                     className="h-10 w-10 rounded-full"

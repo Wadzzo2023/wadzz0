@@ -22,7 +22,7 @@ export const GetXDR4Follow = async ({
         }),
       },
     );
-    const xdr = await getXRDResponse.json();
+    const xdr = await getXRDResponse.json() as { xdr: string };
 
     if (getXRDResponse.status === 200) {
       if (xdr.xdr) {

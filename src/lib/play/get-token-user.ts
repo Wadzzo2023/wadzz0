@@ -14,7 +14,7 @@ export const getTokenUser = async () => {
       console.log("Failed to fetch user");
     }
 
-    const data = await response.json();
+    const data = await response.json() as User;
 
     return data;
   } catch (error) {

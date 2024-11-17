@@ -18,7 +18,7 @@ export const UnFollowBrand = async ({ brand_id }: { brand_id: string }) => {
       throw new Error("Failed to unfollow brand");
     }
 
-    const data = await response.json();
+    const data = await response.json() as { success: boolean };
     return data;
   } catch (error) {
     console.error("Error failed to unfollow brand:", error);

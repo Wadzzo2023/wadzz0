@@ -8,10 +8,7 @@ import Image from "next/image";
 import { MapPin, ScanLine, RefreshCcw, Crosshair } from "lucide-react";
 import { useExtraInfo } from "~/components/hooks/play/useExtraInfo";
 import { useNearByPin } from "~/components/hooks/play/useNearbyPin";
-import {
-  BrandMode,
-  useAccountAction,
-} from "~/components/hooks/play/useAccountAction";
+import { useAccountAction } from "~/components/hooks/play/useAccountAction";
 import { useModal } from "~/components/hooks/play/useModal";
 import { ConsumedLocation } from "~/types/game/location";
 import { Button } from "~/components/shadcn/ui/button";
@@ -161,10 +158,10 @@ export default function HomeScreen() {
   };
 
   const response = useQuery({
-    queryKey: ["MapsAllPins"],
+    queryKey: ["MapsAllPins", accountActionData.brandMode],
     queryFn: () =>
       getMapAllPins({
-        filterID: accountActionData.brandMode === BrandMode.FOLLOW ? "1" : "0",
+        filterID: accountActionData.brandMode ? "1" : "0",
       }),
   });
 
@@ -215,6 +212,7 @@ export default function HomeScreen() {
   }, []);
 
   useEffect(() => {
+    console.log("data.mode", data.mode, data.brandMode);
     if (data.mode && userLocation && locations) {
       const autoCollectPins = getAutoCollectPins(userLocation, locations, 100);
       if (autoCollectPins.length > 0) {
