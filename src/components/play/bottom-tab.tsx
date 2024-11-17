@@ -2,7 +2,7 @@
 
 import { useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Home, Book, Pen, Trophy } from "lucide-react";
+import { Home, Book, Pen, Trophy, User } from "lucide-react";
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -11,12 +11,12 @@ import Image from "next/image";
 const iconsOne = [
   { id: 1, Icon: Home, href: "/play/map", label: "Maps" },
 
-  { id: 2, Icon: Book, href: "/play/collection", label: "Collection" },
+  { id: 2, Icon: Book, href: "/play/collections", label: "Collection" },
 ];
 const iconsTwo = [
   { id: 4, Icon: Trophy, href: "/play/bounty", label: "Bounty" },
 
-  { id: 5, Icon: Pen, href: "/play/profile", label: "Profile" },
+  { id: 5, Icon: User, href: "/play/profile", label: "Profile" },
 ];
 
 export const BottomTab = () => {
@@ -25,8 +25,8 @@ export const BottomTab = () => {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
   return (
-    <header className=" absolute -bottom-6 z-50  w-full  py-6">
-      <div className="container">
+    <header className=" absolute bottom-0 z-50  w-full  pt-6">
+      <div className="">
         <div className="flex  items-center justify-between rounded-t-xl bg-[#38C02B] p-2  md:border ">
           <div className="w-full">
             <nav
@@ -86,13 +86,13 @@ export const BottomTab = () => {
                 transition={{ type: "spring", stiffness: 300, damping: 20 }}
               >
                 <Link
-                  href={"/(tabs)/creator"}
+                  href={"/play/creators"}
                   aria-label={"brands"}
                   className="block rounded-full bg-[#38C02B] p-2  transition-colors"
                 >
                   <Image
                     alt="brands"
-                    src="/images/loading.png"
+                    src="/images/wadzzo.png"
                     width={24}
                     height={24}
                   />

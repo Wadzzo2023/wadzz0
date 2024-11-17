@@ -1,5 +1,13 @@
-import { BASE_URL } from "~/lib/common";
-import { SubmissionMediaInfoType } from "@app/types/SubmissionTypes";
+import { z } from "zod";
+import { BASE_URL } from "../common";
+export const SubmissionMediaInfo = z.object({
+  url: z.string(),
+  name: z.string(),
+  size: z.number(),
+  type: z.string(),
+});
+
+type SubmissionMediaInfoType = z.TypeOf<typeof SubmissionMediaInfo>;
 
 export const UploadSubmission = async ({
   bountyId,

@@ -1,5 +1,5 @@
-import { User } from "next-auth";
-import { BASE_URL } from "~/lib/common";
+import { User } from "@prisma/client";
+import { BASE_URL } from "../common";
 
 export const getUser = async () => {
   try {

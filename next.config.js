@@ -38,6 +38,7 @@ const config = {
       {
         hostname: "utfs.io",
       },
+      {  hostname: "app.wadzzo.com"},
       {
         hostname: "firebasestorage.googleapis.com",
       },

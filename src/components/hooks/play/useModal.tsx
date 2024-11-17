@@ -1,6 +1,7 @@
 import { create } from "zustand";
 
-import { Bounty } from "@prisma/client";
+import { Bounty } from "~/types/game/bounty";
+
 import { ConsumedLocation } from "~/types/game/location";
 
 export type ModalType =
@@ -10,7 +11,7 @@ export type ModalType =
   | "NearbyPin";
 
 export interface ModalData {
-  collectionId?: string;
+  collectionId?: number;
   collectionName?: string;
   Collection?: ConsumedLocation;
   userCurrentBalance?: number;

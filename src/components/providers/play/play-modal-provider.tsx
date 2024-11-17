@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
+import DeleteCollectionModal from "~/components/modals/play/Delete-Collection-Modal";
+import JoinBountyModal from "~/components/modals/play/Join-Bounty-Modal";
+import LocationInformationModal from "~/components/modals/play/Location-Info-Modal";
 
-const ModalProvider = () => {
+const PlayModalProvider = () => {
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
@@ -11,12 +14,11 @@ const ModalProvider = () => {
 
   return (
     <>
-      {/* <JoinBountyModal />
+      <JoinBountyModal />
       <DeleteCollectionModal />
       <LocationInformationModal />
-      <NearbyPinModal /> */}
     </>
   );
 };
 
-export default ModalProvider;
+export default PlayModalProvider;

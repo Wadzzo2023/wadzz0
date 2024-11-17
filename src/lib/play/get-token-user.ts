@@ -1,3 +1,4 @@
+import { User } from "@prisma/client";
 import { BASE_URL } from "~/lib/common";
 
 export const getTokenUser = async () => {
