@@ -9,14 +9,14 @@ import { usePathname } from "next/navigation";
 import Image from "next/image";
 
 const iconsOne = [
-  { id: 1, Icon: Home, href: "/(tabs)/map", label: "Maps" },
+  { id: 1, Icon: Home, href: "/play/map", label: "Maps" },
 
-  { id: 2, Icon: Book, href: "/(tabs)/collection", label: "Collection" },
+  { id: 2, Icon: Book, href: "/play/collection", label: "Collection" },
 ];
 const iconsTwo = [
-  { id: 4, Icon: Trophy, href: "/(tabs)/bounty", label: "Bounty" },
+  { id: 4, Icon: Trophy, href: "/play/bounty", label: "Bounty" },
 
-  { id: 5, Icon: Pen, href: "/(tabs)/profile", label: "Profile" },
+  { id: 5, Icon: Pen, href: "/play/profile", label: "Profile" },
 ];
 
 export const BottomTab = () => {
