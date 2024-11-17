@@ -1,25 +1,23 @@
-import { BASE_URL } from "app/utils/Common";
+import { BASE_URL } from "../common";
 
 export const getCurrentUser = async () => {
+  try {
+    const response = await fetch(
+      new URL("api/game/user", BASE_URL).toString(),
+      {
+        method: "GET",
+        credentials: "include",
+      },
+    );
 
-    try {
-        const response = await fetch(
-            new URL("api/game/user", BASE_URL).toString(),
-            {
-                method: "GET",
-                credentials: "include",
-            }
-        );
-
-        if (response.ok) {
-
-            throw new Error("Failed to fetch current user");
-        }
-
-        const data = await response.json();
-
-        return data;
-    } catch (error) {
-        throw error;
+    if (response.ok) {
+      throw new Error("Failed to fetch current user");
     }
+
+    const data = await response.json();
+
+    return data;
+  } catch (error) {
+    throw error;
+  }
 };

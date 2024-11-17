@@ -25,7 +25,7 @@ import Loading from "~/components/wallete/loading";
 import { clientSelect } from "~/lib/stellar/fan/utils";
 import { Brand } from "~/types/game/brand";
 import Image from "next/image";
-import { useAccountAction } from "~/components/hooks/play/useAccountAction";
+import { useAccountAction } from "~/lib/state/play/useAccountAction";
 
 export default function CreatorPage() {
   //   const { user, isAuthenticated } = useAuth();
