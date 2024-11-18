@@ -53,9 +53,6 @@ export default async function handler(
     const xdr = await follow_creator({
       creatorPageAsset: { code, issuer },
       userPubkey: userId,
-      signWith: {
-        email: userEmail,
-      },
     });
     console.log(xdr);
     res.status(200).json({ xdr });
@@ -67,11 +64,8 @@ export default async function handler(
         const xdr = await follow_creator({
           creatorPageAsset: { code, issuer: issuerVal.data },
           userPubkey: userId,
-          signWith: {
-            email: userEmail,
-          },
         });
-        console.log(xdr);
+        // console.log(xdr);
         res.status(200).json({ xdr });
       } else {
         res.status(404).json({

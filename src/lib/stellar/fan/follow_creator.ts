@@ -21,11 +21,11 @@ import { MyAssetType } from "./utils";
 export async function follow_creator({
   userPubkey,
   creatorPageAsset,
-  signWith,
+  // signWith,
 }: {
   userPubkey: string;
   creatorPageAsset: MyAssetType;
-  signWith: SignUserType;
+  // signWith: SignUserType;
 }) {
   const server = new Horizon.Server(STELLAR_URL);
 
@@ -77,7 +77,7 @@ export async function follow_creator({
   buildTrx.sign(motherAccount);
 
   const xdr = buildTrx.toXDR();
-  const singedXdr = WithSing({ xdr, signWith });
+  const singedXdr = WithSing({ xdr, signWith: undefined });
 
   return singedXdr;
 }

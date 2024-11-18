@@ -113,7 +113,12 @@ export default function CreatorPage() {
       setFollowLoadingId(null);
     },
     onError: (error) => {
-      console.error("Error following brand:", error);
+      if (error instanceof Error) {
+        toast.error(error.message);
+        console.error("Error following brand:", error.message);
+      } else {
+        console.error("Error following brand:", error);
+      }
       setFollowLoadingId(null);
     },
   });
