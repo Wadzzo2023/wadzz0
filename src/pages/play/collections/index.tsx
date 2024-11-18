@@ -178,7 +178,7 @@ export default function MyCollectionScreen() {
                     variant="outline"
                     onClick={() =>
                       onOpen("Delete", {
-                        collectionId: item.id,
+                        collectionId: item.id as string,
                         collectionName: item.title,
                       })
                     }
