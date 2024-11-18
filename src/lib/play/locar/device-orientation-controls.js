@@ -26,6 +26,8 @@ import {
     Vector3
 } from 'three';
 */
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-nocheck
 
 import * as THREE from "three";
 

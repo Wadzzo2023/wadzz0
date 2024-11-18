@@ -1,3 +1,5 @@
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-nocheck
 class SphMercProjection {
   constructor() {
     this.EARTH = 40075016.68;

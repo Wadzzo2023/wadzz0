@@ -316,7 +316,7 @@ const ARPage = () => {
             <div className="rounded-lg bg-white p-6 text-center">
               <div className="mb-4 text-6xl">🎉</div>
               <p className="mb-2 text-2xl font-bold">Coin Captured!</p>
-              <p className="text-lg">{selectedPin.brand_name}</p>
+              <p className="text-lg">{selectedPin?.brand_name}</p>
             </div>
           </div>
         )}

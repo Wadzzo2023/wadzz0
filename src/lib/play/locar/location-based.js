@@ -1,3 +1,6 @@
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-nocheck
+
 import { SphMercProjection } from "./sphmerc-projection.js";
 import * as THREE from "three";
 
