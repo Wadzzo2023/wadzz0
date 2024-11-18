@@ -34,6 +34,7 @@ import { addrShort } from "~/utils/utils";
 import { UploadSubmission } from "~/lib/play/upload-submission";
 import { Preview } from "~/components/preview";
 import { storage } from "package/connect_wallet/src/lib/firebase/firebase-auth";
+import { FirebaseStorage } from "firebase/storage";
 
 type UploadProgress = Record<string, number>;
 
@@ -133,8 +134,8 @@ const SingleBountyItem = () => {
         ) {
           return;
         }
-
         const storageRef = ref(
+          // eslint-disable-next-line
           storage,
           `wadzzo/bounty/${bounty.id}/${fileName}/${new Date().getTime()}`,
         );
