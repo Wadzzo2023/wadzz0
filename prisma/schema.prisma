@@ -86,9 +86,9 @@ model Subscription {
     creatorId String
     creator   Creator @relation(fields: [creatorId], references: [id], onDelete: Cascade)
 
-    posts    Post[]
-    assets   Asset[]
-    Location Location[]
+    posts         Post[]
+    assets        Asset[]
+    LocationGroup LocationGroup[]
 
     @@unique([name, creatorId])
 }
@@ -199,7 +199,6 @@ model Creator {
     marketAssets  MarketAsset[]
     pageAsset     CreatorPageAsset?
     followers     Follow[]
-    Location      Location[]
     LocationGroup LocationGroup[]
     Bounty        Bounty[]
 
@@ -365,10 +364,10 @@ model Asset {
     tierId Int?
     tier   Subscription? @relation(fields: [tierId], references: [id], onDelete: SetNull)
 
-    song        Song?
-    buyers      User_Asset[]
-    marketItems MarketAsset[]
-    Location    Location[]
+    song          Song?
+    buyers        User_Asset[]
+    marketItems   MarketAsset[]
+    LocationGroup LocationGroup[]
 
     @@unique([code, issuer])
     @@index([name, description])
@@ -455,48 +454,44 @@ model Admin {
 model LocationGroup {
     id String @id @default(cuid())
 
+    subscriptionId Int?
+    Subscription   Subscription? @relation(fields: [subscriptionId], references: [id])
+
+    assetId Int?
+    asset   Asset? @relation(fields: [assetId], references: [id], onDelete: Cascade)
+
+    pageAsset Boolean? @default(false)
+
     creatorId String
     creator   Creator @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+
+    limit Int @default(0)
+
+    title       String
+    description String?
+
+    startDate DateTime
+    endDate   DateTime
+
+    approved Boolean?
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    image String?
+
+    link String?
 
     locations Location[]
 }
 
 model Location {
-    id Int @id @default(autoincrement())
+    id String @id @default(cuid())
 
     latitude  Float
     longitude Float
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
-
-    assetId Int?
-    asset   Asset? @relation(fields: [assetId], references: [id], onDelete: Cascade)
-
-    tierId Int?
-    tier   Subscription? @relation(fields: [tierId], references: [id], onDelete: SetNull)
-
-    pageAsset Boolean? @default(false)
-
-    claimAmount Float? // how much token each person will claim. if null then it is free
-
-    isActive Boolean // just an field
-    image    String?
-
-    link String?
-
-    limit Int // how many person can claim the Location / pin
-
-    creatorId String
-    creator   Creator @relation(fields: [creatorId], references: [id], onDelete: Cascade)
-
-    title       String
-    description String?
-    startDate   DateTime
-    endDate     DateTime
 
     autoCollect Boolean
-
-    approved Boolean?
 
     locationGroupId String?
     locationGroup   LocationGroup? @relation(fields: [locationGroupId], references: [id], onDelete: Cascade)
@@ -510,7 +505,7 @@ model LocationConsumer {
     userId String
     user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-    locationId Int
+    locationId String
     location   Location @relation(fields: [locationId], references: [id], onDelete: Cascade)
 
     claimedAt DateTime?

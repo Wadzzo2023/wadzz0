@@ -28,9 +28,7 @@ export default async function handler(
     });
   }
 
-  const data = z
-    .object({ location_id: z.string().transform(Number) })
-    .safeParse(req.body);
+  const data = z.object({ location_id: z.string() }).safeParse(req.body);
 
   if (!data.success) {
     return res.status(400).json({

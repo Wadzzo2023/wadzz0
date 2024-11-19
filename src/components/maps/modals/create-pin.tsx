@@ -245,13 +245,50 @@ export default function CreatePinModal({
             <h2 className="mb-2 text-center text-lg font-bold">Create Pin</h2>
             <div className="flex flex-col space-y-4">
               <ManualLatLanInputField />
+
+              <div className="flex flex-col space-y-2">
+                <label htmlFor="title" className="text-sm font-medium">
+                  Title
+                </label>
+                <input
+                  type="text"
+                  id="title"
+                  {...register("title")}
+                  className="input input-bordered"
+                />
+                {errors.title && (
+                  <p className="text-red-500">{errors.title.message}</p>
+                )}
+              </div>
+
+              <div className="flex flex-col space-y-2">
+                <label htmlFor="description" className="text-sm font-medium">
+                  Description
+                </label>
+                <textarea
+                  id="description"
+                  {...register("description")}
+                  className="input input-bordered"
+                />
+                {errors.description && (
+                  <p className="text-red-500">{errors.description.message}</p>
+                )}
+              </div>
               {/* <AssetTypeTab /> */}
-              <TiersOptions />
+              <div>
+                <label
+                  htmlFor="description"
+                  className="mr-2 text-sm font-medium"
+                >
+                  Choose tier
+                </label>
+                <TiersOptions />
+              </div>
               <div className="flex justify-between">{assetsDropdown}</div>
               <div>
                 {selectedToken && <TokenInStorage bal={selectedToken.bal} />}
               </div>
-              <AvailableTokenField balance={selectedToken?.bal} />
+              {/* <AvailableTokenField balance={selectedToken?.bal} /> */}
 
               <div className="flex flex-col space-y-2">
                 <label htmlFor="radius" className="text-sm font-medium">
@@ -287,7 +324,7 @@ export default function CreatePinModal({
 
               <label className="form-control w-full">
                 <div className="label">
-                  <span className="label-text">Collection limit per user</span>
+                  <span className="label-text">Collection limit</span>
                 </div>
 
                 <input
@@ -316,22 +353,9 @@ export default function CreatePinModal({
                   </div>
                 )}
               </label>
-              <div className="flex flex-col space-y-2">
-                <label htmlFor="title" className="text-sm font-medium">
-                  Title
-                </label>
-                <input
-                  type="text"
-                  id="title"
-                  {...register("title")}
-                  className="input input-bordered"
-                />
-                {errors.title && (
-                  <p className="text-red-500">{errors.title.message}</p>
-                )}
-              </div>
 
               <div className="mt ">
+                <label className="text-sm font-medium">Pin Cover Image</label>
                 <UploadButton
                   endpoint="imageUploader"
                   content={{
@@ -366,20 +390,6 @@ export default function CreatePinModal({
                       src={coverUrl}
                     />
                   </>
-                )}
-              </div>
-
-              <div className="flex flex-col space-y-2">
-                <label htmlFor="description" className="text-sm font-medium">
-                  Description
-                </label>
-                <textarea
-                  id="description"
-                  {...register("description")}
-                  className="input input-bordered"
-                />
-                {errors.description && (
-                  <p className="text-red-500">{errors.description.message}</p>
                 )}
               </div>
 

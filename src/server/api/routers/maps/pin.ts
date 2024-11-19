@@ -27,7 +27,6 @@ export const pinRouter = createTRPCRouter({
         radius,
         pinNumber,
         pinCollectionLimit,
-        tokenAmount: totalTokenAmount,
         token: tokenId,
         image,
         url,
@@ -44,12 +43,6 @@ export const pinRouter = createTRPCRouter({
         pageAsset = true;
       }
 
-      let claimAmount: number | undefined = undefined;
-      if (totalTokenAmount) {
-        const amountPerPin = totalTokenAmount / pinNumber;
-        claimAmount = amountPerPin / pinCollectionLimit;
-      }
-
       const locations = Array.from({ length: pinNumber }).map(() => {
         const randomLocatin = getLocationInLatLngRad(
           input.lat,
@@ -57,27 +50,26 @@ export const pinRouter = createTRPCRouter({
           input.radius,
         );
         return {
-          claimAmount,
-          assetId,
-          pageAsset: pageAsset,
-          image,
           autoCollect: input.autoCollect,
-          limit: input.pinCollectionLimit,
-          endDate: input.endDate,
           latitude: randomLocatin.latitude,
           longitude: randomLocatin.longitude,
-          title: input.title,
           creatorId: ctx.session.user.id,
-          isActive: true,
-          startDate: input.startDate,
-          description: input.description,
-          link: url,
         };
       });
 
       await ctx.db.locationGroup.create({
         data: {
           creatorId: ctx.session.user.id,
+          endDate: input.endDate,
+          startDate: input.startDate,
+          title: input.title,
+          description: input.description,
+          approved: false,
+          assetId: tokenId,
+          pageAsset: tokenId == PAGE_ASSET_NUM,
+          limit: pinCollectionLimit,
+          image: input.image,
+          link: input.url,
           locations: {
             createMany: {
               data: locations,
@@ -90,7 +82,7 @@ export const pinRouter = createTRPCRouter({
   updatePin: creatorProcedure
     .input(
       z.object({
-        pinId: z.number(),
+        pinId: z.string(),
         title: z.string(),
         description: z.string(),
         imgUrl: z.string().optional(),
@@ -98,20 +90,28 @@ export const pinRouter = createTRPCRouter({
     )
     .mutation(async ({ ctx, input }) => {
       const { pinId, title, description } = input;
-      await ctx.db.location.update({
+      await ctx.db.locationGroup.update({
         data: { title, description, image: input.imgUrl },
         where: { id: pinId },
       });
     }),
   getMyPins: creatorProcedure.query(async ({ ctx }) => {
-    const pins = await ctx.db.location.findMany({
+    const pins = await ctx.db.locationGroup.findMany({
       where: {
         creatorId: ctx.session.user.id,
         endDate: { gte: new Date() },
         approved: { equals: true },
       },
       include: {
-        _count: { select: { consumers: true } },
+        locations: {
+          include: {
+            _count: {
+              select: {
+                consumers: true,
+              },
+            },
+          },
+        },
         creator: { select: { profileUrl: true } },
       },
     });
@@ -133,9 +133,12 @@ export const pinRouter = createTRPCRouter({
 
       const pins = await ctx.db.location.findMany({
         where: {
-          creatorId: ctx.session.user.id,
-          endDate: { gte: new Date() },
-          approved: { equals: true },
+          locationGroup: {
+            creatorId: ctx.session.user.id,
+            endDate: { gte: new Date() },
+            approved: { equals: true },
+          },
+          // creatorId: ctx.session.user.id,
           latitude: {
             gte: southLatitude,
             lte: northLatitude,
@@ -147,7 +150,11 @@ export const pinRouter = createTRPCRouter({
         },
         include: {
           _count: { select: { consumers: true } },
-          creator: { select: { profileUrl: true } },
+          locationGroup: {
+            include: {
+              creator: { select: { profileUrl: true } },
+            },
+          },
         },
       });
 
@@ -155,13 +162,13 @@ export const pinRouter = createTRPCRouter({
     }),
 
   getPins: adminProcedure.query(async ({ ctx, input }) => {
-    const pins = await ctx.db.location.findMany({
+    const pins = await ctx.db.locationGroup.findMany({
       where: { approved: { equals: null }, endDate: { gte: new Date() } },
       include: { creator: { select: { name: true } } },
       orderBy: { createdAt: "desc" },
     });
 
-    return pins as LocationType[];
+    return pins;
   }),
 
   getPinsGrops: adminProcedure.query(async ({ ctx }) => {
@@ -172,14 +179,12 @@ export const pinRouter = createTRPCRouter({
     return pins;
   }),
 
-  approvePins: adminProcedure
-    .input(z.object({ pins: z.array(z.number()), approved: z.boolean() }))
+  approvePin: adminProcedure
+    .input(z.object({ pinId: z.string(), approved: z.boolean() }))
     .mutation(async ({ ctx, input }) => {
-      await ctx.db.location.updateMany({
+      await ctx.db.locationGroup.update({
         where: {
-          id: {
-            in: input.pins,
-          },
+          id: input.pinId,
         },
         data: {
           approved: input.approved,
@@ -204,27 +209,33 @@ export const pinRouter = createTRPCRouter({
     const consumedLocations = await ctx.db.locationConsumer.findMany({
       where: {
         location: {
-          creatorId,
+          locationGroup: {
+            creatorId,
+          },
         },
       },
       include: {
         location: {
           select: {
-            title: true,
             latitude: true,
             longitude: true,
-            creator: { select: { name: true } },
+            locationGroup: {
+              select: {
+                creator: true,
+              },
+            },
           },
         },
+
         user: { select: { id: true, email: true, name: true } },
       },
       orderBy: { createdAt: "desc" },
     });
-    return consumedLocations as PinLocation[];
+    return consumedLocations;
   }),
   getCreatorCreatedPin: creatorProcedure.query(async ({ ctx }) => {
     const creatorId = ctx.session.user.id;
-    const createdLocations = await ctx.db.location.findMany({
+    const createdLocations = await ctx.db.locationGroup.findMany({
       where: {
         creatorId,
       },
@@ -249,23 +260,52 @@ export const pinRouter = createTRPCRouter({
         include: {
           location: {
             select: {
-              title: true,
+              locationGroup: {
+                select: {
+                  title: true,
+                  creator: { select: { name: true } },
+                  description: true,
+                  approved: true,
+                  id: true,
+                },
+              },
               latitude: true,
               longitude: true,
-              creator: { select: { name: true } },
+              id: true,
             },
           },
           user: { select: { id: true, email: true, name: true } },
         },
         orderBy: { createdAt: "desc" },
       });
-      return consumedLocations as PinLocation[];
+
+      const locations: PinLocation[] = consumedLocations.map((consumer) => {
+        return {
+          user: {
+            name: consumer.user.name,
+            email: consumer.user.email,
+            id: consumer.user.id,
+          },
+
+          location: {
+            latitude: consumer.location.latitude,
+            longitude: consumer.location.longitude,
+            creator: { name: consumer.location.locationGroup?.creator.name },
+            title: consumer.location.locationGroup?.title,
+          },
+          createdAt: consumer.createdAt,
+          id: consumer.location.id,
+        } as PinLocation;
+      });
+
+      return locations;
     }),
 
   downloadAllConsumedLocation: creatorProcedure
     .input(z.object({ day: z.number() }).optional())
     .mutation(async ({ ctx, input }) => {
       const creatorId = ctx.session.user.id;
+
       const consumedLocations = await ctx.db.locationConsumer.findMany({
         where: {
           createdAt: input
@@ -275,24 +315,49 @@ export const pinRouter = createTRPCRouter({
                 ),
               }
             : {},
-          location: {
-            creatorId,
-          },
         },
         include: {
           location: {
             select: {
-              title: true,
+              locationGroup: {
+                select: {
+                  title: true,
+                  creator: { select: { name: true } },
+                  description: true,
+                  approved: true,
+                  id: true,
+                },
+              },
               latitude: true,
               longitude: true,
-              creator: { select: { name: true } },
+              id: true,
             },
           },
           user: { select: { id: true, email: true, name: true } },
         },
         orderBy: { createdAt: "desc" },
       });
-      return consumedLocations as PinLocation[];
+
+      const locations: PinLocation[] = consumedLocations.map((consumer) => {
+        return {
+          user: {
+            name: consumer.user.name,
+            email: consumer.user.email,
+            id: consumer.user.id,
+          },
+
+          location: {
+            latitude: consumer.location.latitude,
+            longitude: consumer.location.longitude,
+            creator: { name: consumer.location.locationGroup?.creator.name },
+            title: consumer.location.locationGroup?.title,
+          },
+          createdAt: consumer.createdAt,
+          id: consumer.location.id,
+        } as PinLocation;
+      });
+
+      return locations;
     }),
 
   downloadCreatorConsumedLocation: adminProcedure
@@ -311,17 +376,21 @@ export const pinRouter = createTRPCRouter({
         include: {
           location: {
             select: {
-              title: true,
+              locationGroup: {
+                select: {
+                  title: true,
+                  creator: { select: { name: true } },
+                },
+              },
               latitude: true,
               longitude: true,
-              creator: { select: { name: true } },
             },
           },
           user: { select: { id: true, email: true, name: true } },
         },
         orderBy: { createdAt: "desc" },
       });
-      return consumedLocations as PinLocation[];
+      return consumedLocations;
     }),
 
   claimAPin: protectedProcedure
@@ -342,7 +411,7 @@ export const pinRouter = createTRPCRouter({
       });
     }),
   toggleAutoCollect: protectedProcedure
-    .input(z.object({ id: z.number(), isAutoCollect: z.boolean() }))
+    .input(z.object({ id: z.string(), isAutoCollect: z.boolean() }))
     .mutation(async ({ ctx, input }) => {
       await ctx.db.location.update({
         where: { id: input.id },
@@ -353,7 +422,7 @@ export const pinRouter = createTRPCRouter({
   paste: publicProcedure
     .input(
       z.object({
-        id: z.number(),
+        id: z.string(),
         lat: z.number(),
         long: z.number(),
         isCut: z.boolean(),
@@ -362,12 +431,14 @@ export const pinRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       const location = await ctx.db.location.findUnique({
         where: { id: input.id },
+        include: { locationGroup: true },
       });
       if (!location) throw new Error("Location not found");
 
       const { lat, long } = input;
-      if (ctx.session?.user.id != location.creatorId)
+      if (ctx.session?.user.id != location.locationGroup?.creatorId)
         throw new Error("You are not the creator of this pin");
+
       if (input.isCut) {
         await ctx.db.location.update({
           where: { id: input.id },
@@ -376,20 +447,9 @@ export const pinRouter = createTRPCRouter({
       } else {
         await ctx.db.location.create({
           data: {
-            claimAmount: location.claimAmount,
-            assetId: location.assetId,
-            pageAsset: location.pageAsset,
-            image: location.image,
             autoCollect: location.autoCollect,
-            limit: location.limit,
-            endDate: location.endDate,
             latitude: lat,
             longitude: long,
-            title: location.title,
-            creatorId: ctx.session?.user.id,
-            isActive: true,
-            startDate: location.startDate,
-            description: location.description,
           },
         });
       }
@@ -402,10 +462,13 @@ export const pinRouter = createTRPCRouter({
     }),
 
   deletePin: protectedProcedure
-    .input(z.object({ id: z.number() }))
+    .input(z.object({ id: z.string() }))
     .mutation(async ({ ctx, input }) => {
       const items = await ctx.db.location.delete({
-        where: { id: input.id, creatorId: ctx.session.user.id },
+        where: {
+          id: input.id,
+          locationGroup: { creatorId: ctx.session.user.id },
+        },
       });
       return {
         item: items.id,
