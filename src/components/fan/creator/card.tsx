@@ -71,9 +71,9 @@ export default function MemberShipCard({
         </div>
       </div>
       <div>
-        <p className="text-sm text-gray-600">
+        {/* <p className="text-sm text-gray-600">
           Forever free plan. Feature availablity subject to change.
-        </p>
+        </p> */}
       </div>
     </div>
   );

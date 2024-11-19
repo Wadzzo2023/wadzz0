@@ -28,6 +28,8 @@ import {
   DialogTrigger,
 } from "~/components/shadcn/ui/dialog";
 
+export const MAX_ASSET_LIMIT = Number("922337203685");
+
 export const CreatorPageAssetSchema = z.object({
   code: z
     .string()
@@ -48,6 +50,9 @@ export const CreatorPageAssetSchema = z.object({
       invalid_type_error: "Limit must be entered as a number",
     })
     .min(1, { message: "Limit must be greater than 0" })
+    .max(MAX_ASSET_LIMIT, {
+      message: `Limit must be less than ${MAX_ASSET_LIMIT} `,
+    })
     .nonnegative(),
   thumbnail: z.string(),
 });

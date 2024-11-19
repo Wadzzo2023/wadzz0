@@ -40,20 +40,20 @@ export default function WBRightSideBar() {
             <TabsTrigger className="w-full" value="asset">
               My Asset
             </TabsTrigger>
-            <TabsTrigger className="w-full" value="pending">
+            {/* <TabsTrigger className="w-full" value="pending">
               Pending Asset
-            </TabsTrigger>
+            </TabsTrigger> */}
           </TabsList>
           <TabsContent value="asset">
             <MyAssetList />
           </TabsContent>
-          <TabsContent value="pending">
+          {/* <TabsContent value="pending">
             <PendingAssetList
               user={session?.user}
               setLoading={setLoading}
               loading={loading}
             />
-          </TabsContent>
+          </TabsContent> */}
         </Tabs>
       </CardContent>
     </Card>

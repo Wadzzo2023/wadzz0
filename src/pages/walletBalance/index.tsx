@@ -227,14 +227,14 @@ const Wallets = () => {
                     >
                       <Send size={14} className="mr-1 md:mr-2 " /> SEND ASSETS
                     </Button>
-                    <Button
+                    {/* <Button
                       size="sm"
                       variant="default"
                       className=" "
                       onClick={() => onOpen("add assets")}
                     >
                       <Plus size={14} className="mr-1 md:mr-2 " /> ADD ASSETS
-                    </Button>
+                    </Button> */}
                   </div>
                 </div>
               </CardContent>

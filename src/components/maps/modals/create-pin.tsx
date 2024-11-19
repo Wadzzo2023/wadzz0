@@ -110,7 +110,7 @@ export default function CreatePinModal({
               className="select select-bordered"
               onChange={handleTokenOptionChange}
             >
-              <option value={NO_ASSET}>Pick one</option>
+              <option value={NO_ASSET}>Pin (No asset)</option>
               <option value={PAGE_ASSET_NUM}>
                 {pageAsset?.code} - Page Asset
               </option>

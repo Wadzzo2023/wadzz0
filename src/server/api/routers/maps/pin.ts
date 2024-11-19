@@ -1,9 +1,11 @@
+import { title } from "process";
 import { z } from "zod";
 import {
   NO_ASSET,
   PAGE_ASSET_NUM,
   createPinFormSchema,
 } from "~/components/maps/modals/create-pin";
+import { LocationWithConsumers } from "~/pages/maps/pins/creator";
 
 import {
   adminProcedure,
@@ -270,13 +272,37 @@ export const pinRouter = createTRPCRouter({
   }),
   getCreatorCreatedPin: creatorProcedure.query(async ({ ctx }) => {
     const creatorId = ctx.session.user.id;
-    const createdLocations = await ctx.db.locationGroup.findMany({
+    const locatoinGroups = await ctx.db.locationGroup.findMany({
       where: {
         creatorId,
       },
+      include: {
+        locations: {
+          include: {
+            _count: { select: { consumers: true } },
+          },
+        },
+      },
       orderBy: { createdAt: "desc" },
     });
-    return createdLocations;
+
+    const locations = locatoinGroups.flatMap((group) => {
+      return group.locations.map((location) => {
+        return {
+          title: group.title,
+          description: group.description,
+          image: group.image,
+          startDate: group.startDate,
+          endDate: group.endDate,
+          approved: group.approved,
+          ...location,
+          consumers: location._count.consumers,
+          createdAt: group.createdAt,
+        } as LocationWithConsumers;
+      });
+    });
+
+    return locations;
   }),
 
   getAllConsumedLocation: adminProcedure

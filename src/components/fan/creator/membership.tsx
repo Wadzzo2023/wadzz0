@@ -18,6 +18,14 @@ import {
   CardTitle,
 } from "~/components/shadcn/ui/card";
 
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "~/components/shadcn/ui/tooltip";
+import { CircleDollarSign, Info } from "lucide-react";
+
 export default function MemberShip({ creator }: { creator: Creator }) {
   const { data: subscriptions, isLoading } =
     api.fan.member.getAllMembership.useQuery();
@@ -77,7 +85,7 @@ function CreatorAssetView({ creator }: { creator: Creator }) {
       return (
         <div>
           <p className="badge badge-secondary  my-4 py-4 font-bold">{code}</p>
-          <PageAssetBalance />
+          <PageAssetBalance code={code} />
           <ReceiveCustomAssetModal
             asset={code}
             issuer={assetIssuer.data}
@@ -92,17 +100,55 @@ function CreatorAssetView({ creator }: { creator: Creator }) {
 
   if (pageAsset)
     return (
-      <div>
-        <p className="badge badge-secondary  my-4 py-4 font-bold">
-          {pageAsset.code}
-        </p>
-        <PageAssetBalance />
-      </div>
+      <Card className="overflow-hidden transition-all hover:shadow-lg">
+        <CardHeader className="pb-2">
+          <CardTitle className="flex items-center justify-between text-xl font-bold">
+            <div className="flex items-center gap-4">
+              <div className="h-12 w-12 overflow-hidden rounded-full">
+                {pageAsset.thumbnail ? (
+                  <img
+                    src={pageAsset.thumbnail}
+                    alt={`${pageAsset.code} icon`}
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  <CircleDollarSign className="h-full w-full object-cover" />
+                )}
+              </div>
+              {pageAsset.code}
+            </div>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button className="text-muted-foreground transition-colors hover:text-primary">
+                    <span className="sr-only">Asset issue log code</span>
+                    <Info className="h-5 w-5" />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Issue Log Code: {pageAsset.issuer}</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <PageAssetBalance code={pageAsset.code} />
+        </CardContent>
+      </Card>
     );
+  // return (
+  //   <div>
+  //     <p className="badge badge-secondary  my-4 py-4 font-bold">
+  //       {pageAsset.code}
+  //     </p>
+  //     <PageAssetBalance />
+  //   </div>
+  // );
   else return <AddCreatorPageAssetModal creator={creator} />;
 }
 
-function PageAssetBalance() {
+function PageAssetBalance({ code }: { code: string }) {
   const bal = api.fan.creator.getCreatorPageAssetBalance.useQuery();
   if (bal.isLoading) return <p>Loading...</p>;
 
@@ -110,8 +156,9 @@ function PageAssetBalance() {
 
   if (bal.data)
     return (
-      <p>
-        You have {bal.data.balance} {bal.data.asset}
+      <p className="text-lg">
+        <span className="font-semibold">Balance:</span> {bal.data.balance}{" "}
+        {code}
       </p>
     );
 }
