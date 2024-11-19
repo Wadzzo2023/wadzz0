@@ -237,7 +237,7 @@ function CreateCreator({ requiredToken }: { requiredToken: number }) {
               >
                 <div className="flex items-center space-x-2 rounded-lg border border-gray-200 p-4 transition-colors hover:bg-gray-50">
                   <RadioGroupItem
-                    value={PLATFORM_ASSET.code}
+                    value={PaymentMethodEnum.enum.asset}
                     id={PaymentMethodEnum.enum.asset}
                     className="border-primary"
                   />
