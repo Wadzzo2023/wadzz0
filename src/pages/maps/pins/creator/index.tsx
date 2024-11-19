@@ -181,7 +181,6 @@ export const columns: ColumnDef<LocationWithConsumers>[] = [
     cell: ({ row }) => {
       const data = row.original;
       const id = row.getValue("id");
-      const router = useRouter();
 
       return (
         <DropdownMenu>
@@ -193,13 +192,11 @@ export const columns: ColumnDef<LocationWithConsumers>[] = [
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem
-              onClick={() => router.push(`/maps/pins/${data.id}`)}
-            >
-              Show pin details
-            </DropdownMenuItem>
+
+            <DropdownMenuClickable id={data.id} text="Show pin details" />
             <DropdownMenuSeparator />
-            <DropdownMenuItem>View collectors</DropdownMenuItem>
+            {/* <DropdownMenuItem>View collectors</DropdownMenuItem> */}
+            <DropdownMenuClickable id={data.id} text="View collectors" />
             {/* <DropdownMenuItem>View payment details</DropdownMenuItem> */}
           </DropdownMenuContent>
         </DropdownMenu>
@@ -208,6 +205,14 @@ export const columns: ColumnDef<LocationWithConsumers>[] = [
   },
 ];
 
+function DropdownMenuClickable({ id, text }: { id: string; text: string }) {
+  const router = useRouter();
+  return (
+    <DropdownMenuItem onClick={() => router.push(`/maps/pins/${id}`)}>
+      {text}
+    </DropdownMenuItem>
+  );
+}
 export function DataTableDemo({ pins }: { pins: LocationWithConsumers[] }) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
