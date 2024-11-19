@@ -137,11 +137,7 @@ export const pinRouter = createTRPCRouter({
         },
       },
       include: {
-        _count: {
-          select: {
-            consumers: true,
-          },
-        },
+        _count: { select: { consumers: true } },
         locationGroup: {
           include: {
             creator: { select: { profileUrl: true } },
@@ -192,7 +188,7 @@ export const pinRouter = createTRPCRouter({
         },
       });
 
-      return pins ?? [];
+      return pins;
     }),
 
   getLocationGroups: adminProcedure.query(async ({ ctx, input }) => {

@@ -8,20 +8,24 @@ import {
 import { format } from "date-fns";
 import { MapPin } from "lucide-react";
 import Image from "next/image";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Loading } from "react-daisyui";
-import toast from "react-hot-toast";
 import CreatePinModal from "~/components/maps/modals/create-pin";
 import { CustomMapControl } from "~/components/maps/search/map-control";
 import { Avatar } from "~/components/shadcn/ui/avatar";
 import { Badge } from "~/components/shadcn/ui/badge";
-import { useModal } from "~/lib/state/play/use-modal-store";
+import {
+  ModalData,
+  ModalType,
+  useModal,
+} from "~/lib/state/play/use-modal-store";
 import { useSelectedAutoSuggestion } from "~/lib/state/play/use-selectedAutoSuggestion";
 import { useCreatorStorageAcc } from "~/lib/state/wallete/stellar-balances";
-
 import { api } from "~/utils/api";
 
-type pins = ({
+import { create } from "zustand";
+
+type Pin = {
   locationGroup:
     | (LocationGroup & {
         creator: { profileUrl: string | null };
@@ -30,7 +34,33 @@ type pins = ({
   _count: {
     consumers: number;
   };
-} & Location)[];
+} & Location;
+
+interface NearbyPinsState {
+  nearbyPins: Pin[];
+  allPins: Pin[];
+  setAllPins: (pins: Pin[]) => void;
+  setNearbyPins: (pins: Pin[]) => void;
+  filterNearbyPins: (center: google.maps.LatLngBoundsLiteral) => void;
+}
+
+const useNearbyPinsStore = create<NearbyPinsState>((set, get) => ({
+  nearbyPins: [],
+  allPins: [], // Store all pins
+  setNearbyPins: (pins: Pin[]) => set({ nearbyPins: pins }),
+  setAllPins: (pins: Pin[]) => set({ allPins: pins }),
+  filterNearbyPins: (center: google.maps.LatLngBoundsLiteral) => {
+    const { allPins } = get();
+    const filtered = allPins.filter(
+      (pin) =>
+        pin.latitude >= center.south &&
+        pin.latitude <= center.north &&
+        pin.longitude >= center.west &&
+        pin.longitude <= center.east,
+    );
+    set({ nearbyPins: filtered });
+  },
+}));
 
 function App() {
   const modal = React.useRef<HTMLDialogElement>(null);
@@ -45,7 +75,7 @@ function App() {
   const [centerChanged, setCenterChanged] =
     useState<google.maps.LatLngBoundsLiteral | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
-  const [RangedPins, setRangedPins] = useState<pins>([]);
+  const [RangedPins, setRangedPins] = useState<Pin[]>([]);
   const [isCordsSearch, setIsCordsSearch] = useState<boolean>(false);
   const {
     selectedPlace: alreadySelectedPlace,
@@ -63,6 +93,7 @@ function App() {
     isPinCut,
     setIsAutoCollect,
   } = useModal();
+  const { filterNearbyPins } = useNearbyPinsStore();
 
   // queries
   const acc = api.wallate.acc.getCreatorStorageBallances.useQuery(undefined, {
@@ -110,48 +141,15 @@ function App() {
     modal.current?.showModal();
   }
 
-  const GetPinMutation = api.maps.pin.getRangePins.useMutation({
-    onSuccess: (data) => {
-      console.log(data);
-      setRangedPins(data);
-      setLoading(false);
-    },
-    onError: (error) => {
-      toast.error(error.message);
-      setLoading(false);
-    },
-  });
-  const handleCenterChange = useCallback(
-    (center: google.maps.LatLngBoundsLiteral) => {
-      if (center) {
-        GetPinMutation.mutate({
-          eastLongitude: center.east,
-          westLongitude: center.west,
-          northLatitude: center.north,
-          southLatitude: center.south,
-        });
-      }
-    },
-    [GetPinMutation],
-  );
+  const handleCenterChange = (center: google.maps.LatLngBoundsLiteral) => {
+    if (center) {
+      filterNearbyPins(center);
+    }
+  };
+
   useEffect(() => {
     if (centerChanged) {
-      setLoading(true);
-
-      // Start a 5-second timer to call handleCenterChange
-      const timer = setTimeout(() => {
-        console.log(
-          "Center hasn't changed for 5 seconds, calling handleCenterChange",
-        );
-        handleCenterChange(centerChanged);
-        setLoading(false);
-      }, 5000); // 5-second delay
-
-      // Clear the timer if centerChanged changes within 5 seconds, preventing handleCenterChange from being called
-      return () => {
-        clearTimeout(timer);
-        setLoading(false); // Reset loading if the center changes again within 5 seconds
-      };
+      handleCenterChange(centerChanged);
     }
   }, [centerChanged]); // Only depends on centerChanged, not handleCenterChange
 
@@ -206,10 +204,10 @@ function App() {
             </svg>
           </AdvancedMarker>
         )}
-        <MyPins />
+        <MyPins onOpen={onOpen} setIsAutoCollect={setIsAutoCollect} />
       </Map>
       <div className="hidden md:block">
-        <SideMapItem rangedPins={RangedPins} />
+        <SideMapItem />
       </div>
       <ManualPinButton handleClick={handleManualPinClick} />
       {(clickedPos ?? manual) && (
@@ -218,7 +216,9 @@ function App() {
     </APIProvider>
   );
 
-  function SideMapItem({ rangedPins }: { rangedPins: pins }) {
+  function SideMapItem() {
+    const { nearbyPins } = useNearbyPinsStore();
+
     return (
       <div className="absolute bottom-4 right-4 top-96 flex max-h-[400px] min-h-[400px] w-80  items-center justify-center">
         <div className="max-h-[400px] min-h-[400px] w-80 overflow-y-auto rounded-lg bg-white p-4  scrollbar-hide ">
@@ -229,15 +229,14 @@ function App() {
                 <Loading />
               </div>
             )}
-            {!loading && rangedPins.length <= 0 ? (
+            {nearbyPins.length <= 0 ? (
               <div>
                 <h3 className="text-center text-gray-500">
                   No nearby locations found
                 </h3>
               </div>
             ) : (
-              !loading &&
-              rangedPins?.map((pin) => (
+              nearbyPins?.map((pin) => (
                 <div
                   onClick={() => {
                     setAlreadySelectedPlace({
@@ -283,55 +282,72 @@ function App() {
       </div>
     );
   }
+}
 
-  function ManualPinButton({ handleClick }: { handleClick: () => void }) {
-    return (
-      <div className="absolute bottom-2 right-2">
-        <div className="btn btn-circle" onClick={handleClick}>
-          <MapPin />
-        </div>
+function ManualPinButton({ handleClick }: { handleClick: () => void }) {
+  return (
+    <div className="absolute bottom-2 right-2">
+      <div className="btn btn-circle" onClick={handleClick}>
+        <MapPin />
       </div>
+    </div>
+  );
+}
+
+function MyPins({
+  onOpen,
+  setIsAutoCollect,
+}: {
+  onOpen: (type: ModalType, data?: ModalData) => void;
+  setIsAutoCollect: (value: boolean) => void;
+}) {
+  const { setAllPins } = useNearbyPinsStore();
+  const pins = api.maps.pin.getMyPins.useQuery();
+
+  useEffect(() => {
+    if (pins.data) {
+      setAllPins(pins.data);
+    }
+  }, [pins.data]);
+
+  if (pins.isLoading) return <Loading />;
+
+  if (pins.data) {
+    // const data = pins.data;
+    // setAllPins(pins.data);
+
+    return (
+      <>
+        {pins.data.map((pin) => (
+          <AdvancedMarker
+            key={pin.id}
+            position={{ lat: pin.latitude, lng: pin.longitude }}
+            onClick={() => {
+              onOpen("map", {
+                pinId: pin.id,
+                long: pin.longitude,
+                lat: pin.latitude,
+                mapTitle: pin.locationGroup?.title,
+                image: pin.locationGroup?.image ?? undefined,
+                mapDescription: pin.locationGroup?.description,
+              });
+              setIsAutoCollect(pin.autoCollect); // Set isAutoCollect to true when a pin is clicked
+            }}
+          >
+            <Image
+              src={pin.locationGroup?.creator.profileUrl ?? "/favicon.ico"}
+              width={30}
+              height={30}
+              alt="Creator"
+              className={`h-10 w-10 bg-white ${
+                !pin.autoCollect ? "rounded-full " : ""
+              } ${pin._count.consumers <= 0 ? "opacity-50" : "opacity-100"}`}
+            />
+          </AdvancedMarker>
+        ))}
+      </>
     );
   }
-
-  function MyPins() {
-    const pins = api.maps.pin.getMyPins.useQuery();
-
-    if (pins.isLoading) return <Loading />;
-
-    if (pins.data) {
-      return (
-        <>
-          {pins.data.map((pin) => (
-            <AdvancedMarker
-              key={pin.id}
-              position={{ lat: pin.latitude, lng: pin.longitude }}
-              onClick={() => {
-                onOpen("map", {
-                  pinId: pin.id,
-                  long: pin.longitude,
-                  lat: pin.latitude,
-                  mapTitle: pin.locationGroup?.title,
-                  image: pin.locationGroup?.image ?? undefined,
-                  mapDescription: pin.locationGroup?.description,
-                });
-                setIsAutoCollect(pin.autoCollect); // Set isAutoCollect to true when a pin is clicked
-              }}
-            >
-              <Image
-                src={pin.locationGroup?.creator.profileUrl ?? "/favicon.ico"}
-                width={30}
-                height={30}
-                alt="Creator"
-                className={`h-10 w-10 bg-white ${
-                  !pin.autoCollect ? "rounded-full " : ""
-                } ${pin._count.consumers <= 0 ? "opacity-50" : "opacity-100"}`}
-              />
-            </AdvancedMarker>
-          ))}
-        </>
-      );
-    }
-  }
 }
+
 export default App;

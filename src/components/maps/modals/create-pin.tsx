@@ -169,7 +169,7 @@ export default function CreatePinModal({
     reset();
   }
 
-  console.log("e", errors);
+  // console.log("e", errors);
 
   const onSubmit: SubmitHandler<z.infer<typeof createPinFormSchema>> = (
     data,
