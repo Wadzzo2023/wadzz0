@@ -31,7 +31,7 @@ export default async function handler(
     });
   }
   const userId = token.sub;
-  let creatorsId: string[] | undefined = [];
+  let creatorsId: string[] | undefined = undefined;
   if (data.data.filterId === "1") {
     const getAllFollowedBrand = await db.creator.findMany({
       where: {
