@@ -28,7 +28,7 @@ export const pinRouter = createTRPCRouter({
       const tierId = tier ? Number(tier) : undefined;
 
       let assetId = tokenId;
-      let pageAsset: boolean = false;
+      let pageAsset = false;
 
       if (tokenId == PAGE_ASSET_NUM) {
         assetId = undefined;

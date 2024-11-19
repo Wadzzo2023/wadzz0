@@ -2,6 +2,7 @@ import {
   CheckCheck,
   Copy,
   Edit3,
+  InfoIcon,
   Loader2,
   Scissors,
   ShieldBan,
@@ -170,11 +171,12 @@ const MapModalComponent = () => {
               <Button
                 className="m-1 w-1/2 "
                 onClick={() => {
-                  handleClose();
-                  router.push(`maps/pins/${data.pinId}`);
+                  router
+                    .push(`maps/pins/${data.pinId}`)
+                    .finally(() => handleClose());
                 }}
               >
-                <Trash2 size={15} className="mr-2" /> Show collectors
+                <InfoIcon size={15} className="mr-2" /> Show collectors
               </Button>
               {isAutoCollect ? (
                 <Button
