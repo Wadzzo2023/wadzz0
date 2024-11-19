@@ -12,7 +12,7 @@ import {
   protectedProcedure,
   publicProcedure,
 } from "~/server/api/trpc";
-import { LocationType, PinLocation } from "~/types/pin";
+import { PinLocation } from "~/types/pin";
 import { randomLocation as getLocationInLatLngRad } from "~/utils/map";
 
 export const pinRouter = createTRPCRouter({
@@ -23,20 +23,12 @@ export const pinRouter = createTRPCRouter({
   createPin: creatorProcedure
     .input(createPinFormSchema)
     .mutation(async ({ ctx, input }) => {
-      const {
-        radius,
-        pinNumber,
-        pinCollectionLimit,
-        token: tokenId,
-        image,
-        url,
-        tier,
-      } = input;
+      const { pinNumber, pinCollectionLimit, token: tokenId, tier } = input;
 
       const tierId = tier ? Number(tier) : undefined;
 
       let assetId = tokenId;
-      let pageAsset: boolean;
+      let pageAsset: boolean = false;
 
       if (tokenId == PAGE_ASSET_NUM) {
         assetId = undefined;
@@ -66,7 +58,7 @@ export const pinRouter = createTRPCRouter({
           description: input.description,
           approved: false,
           assetId: tokenId,
-          pageAsset: tokenId == PAGE_ASSET_NUM,
+          pageAsset: pageAsset,
           limit: pinCollectionLimit,
           image: input.image,
           link: input.url,
@@ -75,6 +67,7 @@ export const pinRouter = createTRPCRouter({
               data: locations,
             },
           },
+          subscriptionId: tierId,
         },
       });
     }),

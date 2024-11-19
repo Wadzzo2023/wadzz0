@@ -337,13 +337,6 @@ export default function CreatePinModal({
                   })} // default value
                   className="input input-bordered"
                 />
-                {/* {getValues("tokenAmount") && (
-                  <div className="label">
-                    <span className="label-text-al text-sm">
-                      One pin will be collectable by minimum: X, maximum: Y user
-                    </span>
-                  </div>
-                )} */}
 
                 {errors.pinCollectionLimit && (
                   <div className="label">
