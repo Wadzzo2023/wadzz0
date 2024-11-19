@@ -22,11 +22,7 @@ export default async function handler(
     });
     return;
   }
-  const data = z
-    .object({ filterId: z.string() })
-    .safeParse(req.query); // Use req.query instead of req.body
-
-
+  const data = z.object({ filterId: z.string() }).safeParse(req.query); // Use req.query instead of req.body
 
   if (!data.success) {
     console.log("data.error", data.error);
@@ -35,49 +31,57 @@ export default async function handler(
     });
   }
   const userId = token.sub;
+  let creatorsId: string[] | undefined = [];
   if (data.data.filterId === "1") {
-
     const getAllFollowedBrand = await db.creator.findMany({
       where: {
         followers: {
           some: {
-            userId: userId
-          }
-        }
-      }
-    })
-    // now i am extracting this brands pins
-    const pins = await db.location.findMany({
-      where: {
-        creatorId: {
-          in: getAllFollowedBrand.map((el) => el.id)
-        },
-        approved: { equals: true },
-        endDate: { gte: new Date() },
-        tier: { is: null },
-      },
-      select: {
-        id: true,
-        link: true,
-        latitude: true,
-        longitude: true,
-        description: true,
-        creatorId: true,
-        title: true,
-        limit: true,
-        _count: {
-          select: {
-            consumers: {
-              where: { userId: userId },
-            },
+            userId: userId,
           },
         },
-        image: true,
-        autoCollect: true,
+      },
+    });
+    creatorsId = getAllFollowedBrand.map((brand) => brand.id);
+  }
+
+  // now i am extracting this brands pins
+
+  async function pinsForCreators(creatorsId?: string[]) {
+    const extraFilter = {} as { creatorId?: { in: string[] } };
+
+    if (creatorsId) {
+      extraFilter.creatorId = { in: creatorsId };
+    }
+
+    const locationGroup = await db.locationGroup.findMany({
+      where: {
+        ...extraFilter,
+        approved: { equals: true },
+        endDate: { gte: new Date() },
+        subscriptionId: { equals: null },
+      },
+      include: {
+        locations: {
+          include: {
+            consumers: { select: { userId: true } },
+          },
+        },
         creator: true,
       },
-    })
-    console.log("pins", pins.length)
+    });
+
+    const pins = locationGroup.flatMap((group) => {
+      const totalGroupConsumers = group.locations.reduce(
+        (sum, location) => sum + location.consumers.length,
+        0,
+      );
+      return group.locations.map((location) => ({
+        ...location,
+        ...group,
+        remaining: group.limit - totalGroupConsumers,
+      }));
+    });
 
     const locations: Location[] = pins.map((location) => {
       return {
@@ -88,74 +92,23 @@ export default async function handler(
         description: location.description ?? "No description provided",
         brand_name: location.creator.name,
         url: location.link ?? "https://wadzzo.com/",
-        image_url: location.image ?? location.creator.profileUrl ?? WadzzoIconURL,
-        collected: location._count.consumers >= location.limit,
-        collection_limit_remaining: location.limit - location._count.consumers,
+        image_url:
+          location.image ?? location.creator.profileUrl ?? WadzzoIconURL,
+        collected: location.consumers.includes({ userId: userId ?? "" }),
+        collection_limit_remaining: location.remaining,
         auto_collect: location.autoCollect,
         brand_image_url: location.creator.profileUrl ?? abaterIconUrl,
         brand_id: location.creatorId,
         public: true,
       };
     });
-    console.log("locations", locations.length)
 
-    res.status(200).json({ locations });
+    return locations;
   }
-  else {
 
-    const all_creator_public_pin = await db.location.findMany({
-      select: {
-        id: true,
-        link: true,
-        latitude: true,
-        longitude: true,
-        description: true,
-        creatorId: true,
-        title: true,
-        limit: true,
-        _count: {
-          select: {
-            consumers: {
-              where: { userId: userId },
-            },
-          },
-        },
-        image: true,
-        autoCollect: true,
-        creator: true,
-      },
-      where: {
-        approved: { equals: true },
-        endDate: { gte: new Date() },
-        tier: { is: null },
-      },
-    });
-    const locations: Location[] = all_creator_public_pin.map((location) => {
-      return {
-        id: location.id,
-        lat: location.latitude,
-        lng: location.longitude,
-        title: location.title,
-        description: location.description ?? "No description provided",
-        brand_name: location.creator.name,
-        url: location.link ?? "https://wadzzo.com/",
-        image_url: location.image ?? location.creator.profileUrl ?? WadzzoIconURL,
-        collected: location._count.consumers >= location.limit,
-        collection_limit_remaining: location.limit - location._count.consumers,
-        auto_collect: location.autoCollect,
-        brand_image_url: location.creator.profileUrl ?? abaterIconUrl,
-        brand_id: location.creatorId,
-        public: true,
-      };
-    });
-    console.log("locations", locations.length)
+  const locations = await pinsForCreators(creatorsId);
 
-    res.status(200).json({
-      locations,
-    });
-  }
+  res.status(200).json({ locations });
 }
 
 export const WadzzoIconURL = "https://app.wadzzo.com/images/loading.png";
-
-

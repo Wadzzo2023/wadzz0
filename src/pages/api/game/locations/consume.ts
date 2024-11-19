@@ -1,10 +1,8 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { getToken } from "next-auth/jwt";
 import { z } from "zod";
-import { db } from "~/server/db";
-import NextCors from "nextjs-cors";
 import { EnableCors } from "~/server/api-cors";
-// import { getSession } from "next-auth/react";
+import { db } from "~/server/db";
 
 export default async function handler(
   req: NextApiRequest,
@@ -46,18 +44,42 @@ export default async function handler(
           },
         },
       },
+      locationGroup: {
+        include: {
+          locations: {
+            include: {
+              _count: {
+                select: {
+                  consumers: {
+                    where: { userId: pubkey },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
     },
     where: { id: loc.location_id },
   });
 
-  if (!location) {
+  if (!location?.locationGroup) {
     return res.status(422).json({
       success: false,
       data: "Could not find the location",
     });
   }
 
-  if (location._count.consumers < location.limit) {
+  const totalGroupConsumers = location.locationGroup.locations.reduce(
+    (sum, location) => sum + location._count.consumers,
+    0,
+  );
+
+  const remainingConsumers = location.locationGroup.limit - totalGroupConsumers;
+
+  // user have not consumed this location
+  if (location._count.consumers < 0 && remainingConsumers > 0) {
+    // also check limit of the group
     await db.locationConsumer.create({
       data: { locationId: location.id, userId: pubkey },
     });

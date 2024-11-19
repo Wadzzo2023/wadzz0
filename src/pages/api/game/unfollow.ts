@@ -1,6 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { getToken } from "next-auth/jwt";
-import NextCors from "nextjs-cors";
 import { z } from "zod";
 import { EnableCors } from "~/server/api-cors";
 import { db } from "~/server/db";

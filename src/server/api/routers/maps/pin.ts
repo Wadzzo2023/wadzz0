@@ -96,23 +96,25 @@ export const pinRouter = createTRPCRouter({
       });
     }),
   getMyPins: creatorProcedure.query(async ({ ctx }) => {
-    const pins = await ctx.db.locationGroup.findMany({
+    const pins = await ctx.db.location.findMany({
       where: {
-        creatorId: ctx.session.user.id,
-        endDate: { gte: new Date() },
-        approved: { equals: true },
+        locationGroup: {
+          creatorId: ctx.session.user.id,
+          endDate: { gte: new Date() },
+          approved: { equals: true },
+        },
       },
       include: {
-        locations: {
-          include: {
-            _count: {
-              select: {
-                consumers: true,
-              },
-            },
+        _count: {
+          select: {
+            consumers: true,
           },
         },
-        creator: { select: { profileUrl: true } },
+        locationGroup: {
+          include: {
+            creator: { select: { profileUrl: true } },
+          },
+        },
       },
     });
 
@@ -158,7 +160,7 @@ export const pinRouter = createTRPCRouter({
         },
       });
 
-      return pins ? pins : [];
+      return pins ?? [];
     }),
 
   getPins: adminProcedure.query(async ({ ctx, input }) => {
@@ -198,7 +200,7 @@ export const pinRouter = createTRPCRouter({
       where: {
         userId,
       },
-      include: { location: true },
+      include: { location: { include: { locationGroup: true } } },
       orderBy: { createdAt: "desc" },
     });
     return consumedLocations;

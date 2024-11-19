@@ -24,44 +24,51 @@ export default async function handler(
     return;
   }
 
+  const userId = session.sub;
+
   // Return the locations
-  /*
-    const consumedLocations = await db.locationConsumer.findMany({
-      where: {
-        userId: session.user.id,
-        hidden: false,
-      },
-      include: { location: { include: { creator: true } } },
-    });
-  */
+
+  // const consumedLocations = await db.locationConsumer.findMany({
+  //   where: {
+  //     userId: userId,
+  //     hidden: false,
+  //   },
+  //   include: {
+  //     location: {
+  //       include: {
+  //         locationGroup: { include: { creator: true } },
+  //       },
+  //     },
+  //   },
+  // });
 
   // location
   const dbLocations = await db.location.findMany({
-    select: {
-      id: true,
-      link: true,
-      latitude: true,
-      longitude: true,
-      description: true,
-      creatorId: true,
-      title: true,
-      limit: true,
-
-      consumers: {
-        select: { userId: true, viewedAt: true },
-        where: { userId: session.sub },
-      },
-      image: true,
-      autoCollect: true,
-      creator: true,
-      _count: {
-        select: {
-          consumers: {
-            where: { userId: session.sub },
+    include: {
+      locationGroup: {
+        include: {
+          creator: true,
+          locations: {
+            include: {
+              _count: {
+                select: {
+                  consumers: {
+                    where: { userId: session.sub },
+                  },
+                },
+              },
+            },
           },
         },
       },
+      consumers: {
+        select: {
+          userId: true,
+          viewedAt: true,
+        },
+      },
     },
+
     where: {
       consumers: {
         some: {
@@ -76,52 +83,60 @@ export default async function handler(
     },
   });
 
-  const locations: ConsumedLocation[] = dbLocations.map((location) => {
-    return {
+  const locations = dbLocations.map((location) => {
+    if (!location.locationGroup) return;
+
+    const totalGroupConsumers = location.locationGroup.locations.reduce(
+      (sum, location) => sum + location._count.consumers,
+      0,
+    );
+
+    const remaining = location.locationGroup.limit - totalGroupConsumers;
+
+    const loc: ConsumedLocation = {
       id: location.id,
       lat: location.latitude,
       lng: location.longitude,
-      title: location.title,
-      description: location.description ?? "No description provided",
+      title: location.locationGroup.title,
+      description:
+        location.locationGroup?.description ?? "No description provided",
       viewed: location.consumers.some((el) => el.viewedAt != null),
       auto_collect: location.autoCollect,
-      brand_image_url: location.creator.profileUrl ?? avaterIconUrl,
-      brand_id: location.creator.id,
+      brand_image_url:
+        location.locationGroup?.creator.profileUrl ?? avaterIconUrl,
+      brand_id: location.locationGroup?.creator.id,
       modal_url: "https://vong.cong/",
       collected: true,
-      collection_limit_remaining: location.limit - location._count.consumers,
-      brand_name: location.creator.name,
-      image_url: location.image ?? location.creator.profileUrl ?? WadzzoIconURL,
-      url: location.link ?? "https://app.wadzzo.com/",
-    };
-  });
-
-  /*
-
-  const locations: ConsumedLocation[] = consumedLocations.map((consumption) => {
-    return {
-      id: consumption.location.id,
-      lat: consumption.location.latitude,
-      lng: consumption.location.longitude,
-      title: consumption.location.title,
-      description:
-        consumption.location.description ?? "No description provided",
-      brand_name: consumption.location.creator.name,
-      url: consumption.location.link ?? "https://app.wadzzo.com/",
+      collection_limit_remaining: remaining,
+      brand_name: location.locationGroup.creator.name,
       image_url:
-        consumption.location.image ??
-        consumption.location.creator.profileUrl ??
+        location.locationGroup.image ??
+        location.locationGroup.creator.profileUrl ??
         WadzzoIconURL,
-      collected: false,
-      collection_limit_remaining: 3,
-      auto_collect: true,
-      brand_image_url: consumption.location.creator.profileUrl ?? avaterIconUrl,
-      brand_id: consumption.location.creator.id,
-      modal_url: "https://vong.cong/",
-      viewed: consumption.viewedAt != null,
+      url: location.locationGroup.link ?? "https://app.wadzzo.com/",
     };
+    return loc;
   });
-  */
+
+  // const locations: ConsumedLocation[] = dbLocations.map((location) => {
+  //   return {
+  //     id: location.id,
+  //     lat: location.latitude,
+  //     lng: location.longitude,
+  //     title: location.title,
+  //     description: location.description ?? "No description provided",
+  //     viewed: location.consumers.some((el) => el.viewedAt != null),
+  //     auto_collect: location.autoCollect,
+  //     brand_image_url: location.creator.profileUrl ?? avaterIconUrl,
+  //     brand_id: location.creator.id,
+  //     modal_url: "https://vong.cong/",
+  //     collected: true,
+  //     collection_limit_remaining: location.limit - location._count.consumers,
+  //     brand_name: location.creator.name,
+  //     image_url: location.image ?? location.creator.profileUrl ?? WadzzoIconURL,
+  //     url: location.link ?? "https://app.wadzzo.com/",
+  //   };
+  // });
 
   res.status(200).json({ locations: locations });
 }

@@ -28,7 +28,7 @@ export const GetXDR4Follow = async ({
       return xdr.xdr;
     }
   } else {
-    const errorData = await getXRDResponse.json();
+    const errorData = (await getXRDResponse.json()) as { error: string };
     throw new Error(errorData.error);
   }
 };

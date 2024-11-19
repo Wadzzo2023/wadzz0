@@ -22,9 +22,7 @@ export default async function handler(
     return;
   }
 
-  const data = z
-    .object({ location_id: z.string().transform(Number) })
-    .safeParse(req.body);
+  const data = z.object({ location_id: z.string() }).safeParse(req.body);
   if (!data.success) {
     res.status(400).json({
       error: data.error,

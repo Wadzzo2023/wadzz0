@@ -1,5 +1,9 @@
 import { create } from "zustand";
-import { SubmissionAttachment, type Location, type LocationConsumer } from "@prisma/client";
+import {
+  SubmissionAttachment,
+  type Location,
+  type LocationConsumer,
+} from "@prisma/client";
 
 export type ModalType =
   | "send assets"
@@ -12,10 +16,10 @@ export type ModalType =
   | "share"
   | "upload file"
   | "edit bounty"
-  | 'view attachment'
+  | "view attachment";
 
 export interface ModalData {
-  pinId?: number;
+  pinId?: string;
   recipientId?: string;
   amount?: string;
   asset_code?: string;

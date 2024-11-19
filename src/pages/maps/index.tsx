@@ -1,31 +1,32 @@
-import { Location } from "@prisma/client";
+import { Location, LocationGroup } from "@prisma/client";
 import {
   APIProvider,
   AdvancedMarker,
   Map,
   MapMouseEvent,
 } from "@vis.gl/react-google-maps";
-import { format, set } from "date-fns";
-import { MapPin, Pin } from "lucide-react";
+import { format } from "date-fns";
+import { MapPin } from "lucide-react";
 import Image from "next/image";
 import React, { useCallback, useEffect, useState } from "react";
 import { Loading } from "react-daisyui";
 import toast from "react-hot-toast";
-import { useModal } from "~/lib/state/play/use-modal-store";
-import { useSelectedAutoSuggestion } from "~/lib/state/play/use-selectedAutoSuggestion";
 import CreatePinModal from "~/components/maps/modals/create-pin";
 import { CustomMapControl } from "~/components/maps/search/map-control";
 import { Avatar } from "~/components/shadcn/ui/avatar";
 import { Badge } from "~/components/shadcn/ui/badge";
-// import { PlacesAutocomplete } from "~/components/maps/place";
+import { useModal } from "~/lib/state/play/use-modal-store";
+import { useSelectedAutoSuggestion } from "~/lib/state/play/use-selectedAutoSuggestion";
 import { useCreatorStorageAcc } from "~/lib/state/wallete/stellar-balances";
 
 import { api } from "~/utils/api";
 
 type pins = ({
-  creator: {
-    profileUrl: string | null;
-  };
+  locationGroup:
+    | (LocationGroup & {
+        creator: { profileUrl: string | null };
+      })
+    | null;
   _count: {
     consumers: number;
   };
@@ -250,10 +251,14 @@ function App() {
                   <MapPin className="h-5 w-5 flex-shrink-0 text-primary" />
                   <div className="flex-1">
                     <h3 className="relative font-medium">
-                      {pin.title}{" "}
+                      {pin.locationGroup?.title}{" "}
                       <span className=" absolute bottom-4 right-0 text-[.60rem]">
                         End At:
-                        {format(new Date(pin.endDate), "dd, yyyy")}
+                        {pin.locationGroup &&
+                          format(
+                            new Date(pin.locationGroup.endDate),
+                            "dd, yyyy",
+                          )}
                       </span>
                     </h3>
                     <div className="mt-1 flex items-center gap-1">
@@ -261,7 +266,7 @@ function App() {
                         <Image
                           width={24}
                           height={24}
-                          src={pin.image ?? "/favicon.ico"}
+                          src={pin.locationGroup?.image ?? "/favicon.ico"}
                           alt="Creator"
                         />
                       </Avatar>
@@ -306,15 +311,15 @@ function App() {
                   pinId: pin.id,
                   long: pin.longitude,
                   lat: pin.latitude,
-                  mapTitle: pin.title,
-                  image: pin.image ?? undefined,
-                  mapDescription: pin?.description,
+                  mapTitle: pin.locationGroup?.title,
+                  image: pin.locationGroup?.image ?? undefined,
+                  mapDescription: pin.locationGroup?.description,
                 });
                 setIsAutoCollect(pin.autoCollect); // Set isAutoCollect to true when a pin is clicked
               }}
             >
               <Image
-                src={pin.creator.profileUrl ?? "/favicon.ico"}
+                src={pin.locationGroup?.creator.profileUrl ?? "/favicon.ico"}
                 width={30}
                 height={30}
                 alt="Creator"
