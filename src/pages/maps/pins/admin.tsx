@@ -17,7 +17,7 @@ export default function AdminPinConsumptionReport() {
   if (pins.isLoading) return <Loader2 className="animate-spin" />;
 
   if (pins.data) {
-    console.log(pins.data);
+    // console.log(pins.data);
     return (
       <div>
         <h2 className="p-4 text-center text-2xl font-bold">

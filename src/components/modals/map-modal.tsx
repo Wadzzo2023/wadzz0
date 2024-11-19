@@ -25,6 +25,7 @@ import { useModal } from "../../lib/state/play/use-modal-store";
 
 import { Input } from "~/components/shadcn/ui/input";
 import { UploadButton } from "~/utils/uploadthing";
+import { useRouter } from "next/router";
 
 const MapModalComponent = () => {
   const {
@@ -40,6 +41,7 @@ const MapModalComponent = () => {
   const [isForm, setIsForm] = React.useState(false);
   // console.log(data.long, data.lat, data.pinId);
   const session = useSession();
+  const router = useRouter();
   const isModalOpen = isOpen && type === "map";
   const handleClose = () => {
     onClose();
@@ -57,7 +59,7 @@ const MapModalComponent = () => {
     },
   });
 
-  const handleToggleAutoCollect = async (pinId: number | undefined) => {
+  const handleToggleAutoCollect = async (pinId: string | undefined) => {
     if (pinId) {
       // console.log(pinId);
       if (isAutoCollect) {
@@ -165,6 +167,15 @@ const MapModalComponent = () => {
               <Button className="m-1 w-1/2 " onClick={handleCopyPin}>
                 <Copy size={15} className="mr-2" /> Copy Pin
               </Button>
+              <Button
+                className="m-1 w-1/2 "
+                onClick={() => {
+                  handleClose();
+                  router.push(`maps/pins/${data.pinId}`);
+                }}
+              >
+                <Trash2 size={15} className="mr-2" /> Show collectors
+              </Button>
               {isAutoCollect ? (
                 <Button
                   className="m-1 w-1/2 "
@@ -234,7 +245,7 @@ function PinInfoUpdate({
   image?: string;
   title: string;
   description: string;
-  id: number;
+  id: string;
 }) {
   const [coverUrl, setCover] = React.useState(image);
   const [titleE, setTitle] = React.useState(title);
