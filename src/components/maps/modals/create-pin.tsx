@@ -101,15 +101,9 @@ export default function CreatePinModal() {
       lng: position?.lng,
       radius: 0,
       pinNumber: 1,
-      title: duplicate ? "vong cong" : "",
       description: prevData?.description,
       startDate: prevData?.startDate ?? new Date(),
       endDate: prevData?.endDate ?? new Date(),
-      autoCollect: prevData?.autoCollect,
-      image: prevData?.image,
-      url: prevData?.url,
-      pinCollectionLimit: prevData?.pinCollectionLimit,
-      token: prevData?.token,
     },
     // mode: "onTouched",
   });
@@ -178,6 +172,8 @@ export default function CreatePinModal() {
       );
     }
   }
+
+  console.log("errors", errors);
 
   const openPopup = () => setIsOpen(true);
   const closePopup = () => {
@@ -259,55 +255,6 @@ export default function CreatePinModal() {
       }
     }
 
-    useEffect(() => {
-      if (isOpen && scrollContainerRef.current) {
-        scrollContainerRef.current.scrollTop = 0;
-      }
-      if (duplicate) {
-        if (prevData) {
-          if (prevData.title) {
-            setValue("title", prevData.title);
-          }
-          if (prevData.description) {
-            setValue("description", prevData.description);
-          }
-          if (prevData.image) {
-            setCover(prevData.image);
-          }
-          if (prevData.startDate) {
-            setValue("startDate", prevData.startDate);
-          }
-          if (prevData.endDate) {
-            setValue("endDate", prevData.endDate);
-          }
-          if (prevData.url) {
-            setValue("url", prevData.url);
-          }
-          if (prevData.autoCollect) {
-            setValue("autoCollect", prevData.autoCollect);
-          }
-          if (prevData.pinCollectionLimit) {
-            setValue("pinCollectionLimit", prevData.pinCollectionLimit);
-          }
-          if (prevData.token) {
-            handleTokenOptionChange({
-              target: { value: prevData.token.toString() },
-            } as ChangeEvent<HTMLSelectElement>);
-          }
-
-          if (prevData.tier) {
-            setValue("tier", prevData.tier);
-          }
-          if (prevData.image) {
-            setCover(prevData.image);
-          }
-
-          if (prevData.pinNumber) {
-            setValue("pinNumber", prevData.pinNumber);
-          }
-        }
-      }
-    }, [isOpen]);
     const selectedAsset = assets.data?.shopAsset.find(
       (asset) => asset.id === selectedAssetId,
     );
@@ -320,6 +267,56 @@ export default function CreatePinModal() {
       setValue("token", selectedAsset.id);
     }
   }
+
+  useEffect(() => {
+    if (isOpen && scrollContainerRef.current) {
+      scrollContainerRef.current.scrollTop = 0;
+    }
+    if (duplicate) {
+      if (prevData) {
+        if (prevData.title) {
+          setValue("title", prevData.title);
+        }
+        if (prevData.description) {
+          setValue("description", prevData.description);
+        }
+        if (prevData.image) {
+          setCover(prevData.image);
+        }
+        if (prevData.startDate) {
+          setValue("startDate", prevData.startDate);
+        }
+        if (prevData.endDate) {
+          setValue("endDate", prevData.endDate);
+        }
+        if (prevData.url) {
+          setValue("url", prevData.url);
+        }
+        if (prevData.autoCollect) {
+          setValue("autoCollect", prevData.autoCollect);
+        }
+        if (prevData.pinCollectionLimit) {
+          setValue("pinCollectionLimit", prevData.pinCollectionLimit);
+        }
+        if (prevData.token) {
+          handleTokenOptionChange({
+            target: { value: prevData.token.toString() },
+          } as ChangeEvent<HTMLSelectElement>);
+        }
+
+        if (prevData.tier) {
+          setValue("tier", prevData.tier);
+        }
+        if (prevData.image) {
+          setCover(prevData.image);
+        }
+
+        if (prevData.pinNumber) {
+          setValue("pinNumber", prevData.pinNumber);
+        }
+      }
+    }
+  }, [isOpen]);
   return (
     <>
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -328,10 +325,9 @@ export default function CreatePinModal() {
         </DialogTrigger> */}
         <DialogContent className=" m-auto flex max-h-[90vh] w-full max-w-2xl flex-col">
           <DialogHeader>
-            <DialogTitle>Popup Title</DialogTitle>
+            <DialogTitle>Create Pin</DialogTitle>
             <DialogDescription>
-              This is the content of the popup. You can put any information or
-              components here.
+              Create manual and specific pin hot spot
             </DialogDescription>
           </DialogHeader>
           <div
@@ -340,12 +336,9 @@ export default function CreatePinModal() {
           >
             <div className="pr-4">
               <form className="mt-5" onSubmit={handleSubmit(onSubmit)}>
-                <h2 className="mb-2 text-center text-lg font-bold">
-                  Create Pin
-                </h2>
+                <h2 className="mb-2 text-center text-lg font-bold"></h2>
                 <div className="flex flex-col space-y-4">
                   <ManualLatLanInputField />
-
                   <div className="flex flex-col space-y-2">
                     <label htmlFor="title" className="text-sm font-medium">
                       Title
@@ -585,7 +578,7 @@ export default function CreatePinModal() {
             </div>
           </div>
 
-          <Button onClick={closePopup}>Close Popup</Button>
+          {/* <Button onClick={closePopup}>Close Popup</Button> */}
         </DialogContent>
       </Dialog>
     </>

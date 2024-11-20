@@ -164,8 +164,9 @@ function App() {
     const position = event.detail.latLng;
     if (position) {
       setPosition(position);
+
       if (!isPinCopied && !isPinCut) {
-        modal.current?.showModal();
+        setIsOpen(true);
       } else if (isPinCopied || isPinCut) {
         onOpen("copied", {
           long: position.lng,
