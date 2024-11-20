@@ -47,13 +47,11 @@ const ClaimPinModal = () => {
   });
 
   async function handleXDR() {
-    if (data?.location?.claimAmount) {
-      await xdrMutation.mutateAsync({
+    if (data.location) {
+      await xdrMutation.mutate({
         signWith: needSign(),
         locationId: data.location.id,
       });
-    } else {
-      toast("Not Claimable");
     }
   }
 
