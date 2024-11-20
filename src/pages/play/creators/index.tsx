@@ -1,10 +1,4 @@
-import {
-  FollowBrand,
-  getAllBrands,
-  GetXDR4Follow,
-  HasTrustOnPageAsset,
-  UnFollowBrand,
-} from "~/lib/play";
+import { getAllBrands, UnFollowBrand } from "~/lib/play";
 // import LoadingScreen from "@/components/Loading";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -14,18 +8,20 @@ import { useEffect, useState } from "react";
 
 import { Loader2, Search } from "lucide-react";
 import { useSession } from "next-auth/react";
+import Image from "next/image";
 import { clientsign, WalletType } from "package/connect_wallet";
 import toast from "react-hot-toast";
+import { useAccountAction } from "~/components/hooks/play/useAccountAction";
 import { Button } from "~/components/shadcn/ui/button";
 import { Card, CardContent } from "~/components/shadcn/ui/card";
 import { Input } from "~/components/shadcn/ui/input";
 import { Switch } from "~/components/shadcn/ui/switch";
 import { Tabs, TabsList, TabsTrigger } from "~/components/shadcn/ui/tabs";
 import Loading from "~/components/wallete/loading";
+import useNeedSign from "~/lib/hook";
 import { clientSelect } from "~/lib/stellar/fan/utils";
 import { Brand } from "~/types/game/brand";
-import Image from "next/image";
-import { useAccountAction } from "~/components/hooks/play/useAccountAction";
+import { api } from "~/utils/api";
 
 export default function CreatorPage() {
   //   const { user, isAuthenticated } = useAuth();
@@ -38,9 +34,12 @@ export default function CreatorPage() {
   const [unfollowLoadingId, setUnfollowLoadingId] = useState<string | null>(
     null,
   );
+
+  const [signLoading, setSingLoading] = useState(false);
   const [submitLoading, setSubmitLoading] = useState(false);
 
   const router = useRouter();
+  const { needSign } = useNeedSign();
 
   const connectedWalletType = session.data?.user.walletType ?? WalletType.none;
 
@@ -60,65 +59,43 @@ export default function CreatorPage() {
     queryFn: getAllBrands,
   });
 
-  const followMutation = useMutation({
-    mutationFn: async ({
-      brand_id,
-      wallate,
-    }: {
-      brand_id: string;
-      wallate: WalletType;
-    }) => {
-      setFollowLoadingId(brand_id);
-      console.log("brand_id", brand_id);
+  const follow = api.fan.member.followCreator.useMutation({
+    onSuccess: () => toast.success("Followed"),
+  });
+  const followXDR = api.fan.trx.followCreatorTRX.useMutation({
+    onSuccess: async (xdr, variables) => {
+      if (xdr) {
+        if (xdr === true) {
+          toast.success("User already has trust in page asset");
+          follow.mutate({ creatorId: variables.creatorId });
+        } else {
+          setSingLoading(true);
+          try {
+            const res = await clientsign({
+              presignedxdr: xdr,
+              pubkey: session.data?.user.id,
+              walletType: session.data?.user.walletType,
+              test: clientSelect(),
+            });
 
-      const hasTrust = await HasTrustOnPageAsset({ brand_id });
-
-      if (!hasTrust) {
-        const xdr = await GetXDR4Follow({ brand_id, wallate });
-        if (!xdr) {
-          toast.error("Failed to get XDR");
-          return;
+            if (res) {
+              follow.mutate({ creatorId: variables.creatorId });
+            } else toast.error("Transaction failed while signing.");
+          } catch (e) {
+            toast.error("Transaction failed while signing.");
+            console.error(e);
+          } finally {
+            setSingLoading(false);
+          }
         }
-        setSubmitLoading(true);
-        await toast.promise(
-          clientsign({
-            presignedxdr: xdr,
-            pubkey: session.data?.user.id,
-            walletType: wallate,
-            test: clientSelect(),
-          })
-            .then(async (res) => {
-              if (res) {
-                await FollowBrand({ brand_id });
-              } else {
-                toast.error("Transaction Failed");
-              }
-            })
-            .catch((e) => console.log(e))
-            .finally(() => setSubmitLoading(false)),
-          {
-            loading: "Signing Transaction",
-            success: "Signed Transaction Successfully",
-            error: "Signing Transaction Failed",
-          },
-        );
       } else {
-        return await FollowBrand({ brand_id });
+        toast.error("Can't get xdr");
       }
-    },
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({
-        queryKey: ["AllBrands"],
-      });
+
       setFollowLoadingId(null);
     },
-    onError: (error) => {
-      if (error instanceof Error) {
-        toast.error(error.message);
-        console.error("Error following brand:", error.message);
-      } else {
-        console.error("Error following brand:", error);
-      }
+    onError: (e) => {
+      toast.error(e.message);
       setFollowLoadingId(null);
     },
   });
@@ -146,9 +123,9 @@ export default function CreatorPage() {
       unfollowMutation.mutate({ brand_id: brandId });
     } else {
       setFollowLoadingId(brandId);
-      followMutation.mutate({
-        brand_id: brandId,
-        wallate: connectedWalletType,
+      followXDR.mutate({
+        creatorId: brandId,
+        signWith: needSign(),
       });
     }
   };

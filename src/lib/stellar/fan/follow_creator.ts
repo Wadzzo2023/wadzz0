@@ -8,24 +8,23 @@ import {
 import { env } from "~/env";
 import {
   PLATFORM_ASSET,
-  PLATFORM_FEE,
   STELLAR_URL,
   TrxBaseFee,
-  TrxBaseFeeInPlatformAsset,
   networkPassphrase,
 } from "../constant";
 import { SignUserType, WithSing } from "../utils";
-import { getplatformAssetNumberForXLM } from "./get_token_price";
 import { MyAssetType } from "./utils";
 
 export async function follow_creator({
   userPubkey,
   creatorPageAsset,
   signWith,
+  totalPlatformFee,
 }: {
   userPubkey: string;
   creatorPageAsset: MyAssetType;
   signWith: SignUserType;
+  totalPlatformFee: number;
 }) {
   const server = new Horizon.Server(STELLAR_URL);
 
@@ -33,12 +32,6 @@ export async function follow_creator({
   const asset = new Asset(creatorPageAsset.code, creatorPageAsset.issuer);
 
   const motherAccount = Keypair.fromSecret(env.MOTHER_SECRET);
-
-  const requiredAsset2refundXlm = await getplatformAssetNumberForXLM(0.5);
-  const totalPlatformFee =
-    requiredAsset2refundXlm +
-    Number(PLATFORM_FEE) +
-    Number(TrxBaseFeeInPlatformAsset);
 
   const transactionInializer = await server.loadAccount(
     motherAccount.publicKey(),

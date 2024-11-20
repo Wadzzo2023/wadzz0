@@ -12,18 +12,16 @@ import {
 } from "~/lib/state/fan/creator-profile-menu";
 import { clientSelect } from "~/lib/stellar/fan/utils";
 import { api } from "~/utils/api";
-// import { ShopItem } from "~/components/fan/creator/shop";
+import { Loader2 } from "lucide-react";
 import { useSession } from "next-auth/react";
+import ViewMediaModal from "~/components/fan/shop/asset_view_modal";
+import ShopAssetComponent from "~/components/fan/shop/shop_asset";
+import { MoreAssetsSkeleton } from "~/components/marketplace/platforms_nfts";
+import { Button } from "~/components/shadcn/ui/button";
 import useNeedSign from "~/lib/hook";
 import { useUserStellarAcc } from "~/lib/state/wallete/stellar-balances";
 import { CreatorBack } from "~/pages/fans/creator";
-import { MoreAssetsSkeleton } from "~/components/marketplace/platforms_nfts";
-import ViewMediaModal from "~/components/fan/shop/asset_view_modal";
-import ShopAssetComponent from "~/components/fan/shop/shop_asset";
 import { CREATOR_TERM } from "~/utils/term";
-import { Button } from "~/components/shadcn/ui/button";
-import { Loader } from "@react-three/drei";
-import { Loader2 } from "lucide-react";
 
 export default function CreatorPage() {
   const router = useRouter();
@@ -189,16 +187,16 @@ export function FollowButton({ creator }: { creator: Creator }) {
 
             if (res) {
               follow.mutate({ creatorId: creator.id });
-            } else toast.error("signing failed");
+            } else toast.error("Transaction failed while signing.");
           } catch (e) {
-            toast.error("Error in signing");
+            toast.error("Transaction failed while signing.");
             console.error(e);
           } finally {
             setSingLoading(false);
           }
         }
       } else {
-        toast.error("XDR undefined");
+        toast.error("Can't get xdr");
       }
     },
     onError: (e) => toast.error(e.message),

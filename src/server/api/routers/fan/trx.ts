@@ -14,13 +14,21 @@ import { AssetSchema } from "~/lib/stellar/fan/utils";
 import { SignUser, WithSing } from "~/lib/stellar/utils";
 
 import { Keypair } from "@stellar/stellar-sdk";
+import { PaymentMethodEnum } from "~/components/music/modal/buy_modal";
 import { env } from "~/env";
+import {
+  PLATFORM_ASSET,
+  PLATFORM_FEE,
+  TrxBaseFeeInPlatformAsset,
+} from "~/lib/stellar/constant";
 import {
   createStorageTrx,
   createStorageTrxWithXLM,
 } from "~/lib/stellar/fan/create_storage";
 import { follow_creator } from "~/lib/stellar/fan/follow_creator";
 import { sendGift } from "~/lib/stellar/fan/send_gift";
+import { trustCustomPageAsset } from "~/lib/stellar/fan/trust_custom_page_asset";
+import { StellarAccount } from "~/lib/stellar/marketplace/test/Account";
 import {
   createUniAsset,
   createUniAssetWithXLM,
@@ -32,14 +40,6 @@ import {
   publicProcedure,
 } from "~/server/api/trpc";
 import { db } from "~/server/db";
-import { trustCustomPageAsset } from "~/lib/stellar/fan/trust_custom_page_asset";
-import { platform } from "os";
-import {
-  PLATFORM_FEE,
-  TrxBaseFeeInPlatformAsset,
-} from "~/lib/stellar/constant";
-import { PaymentMethodEnum } from "~/components/music/modal/buy_modal";
-import { StellarAccount } from "~/lib/stellar/marketplace/test/Account";
 
 export const trxRouter = createTRPCRouter({
   createCreatorPageAsset: protectedProcedure
@@ -258,7 +258,21 @@ export const trxRouter = createTRPCRouter({
         include: { pageAsset: true },
       });
 
+      const requiredAsset2refundXlm = await getplatformAssetNumberForXLM(0.5);
+      const totalPlatformFee =
+        requiredAsset2refundXlm +
+        Number(PLATFORM_FEE) +
+        Number(TrxBaseFeeInPlatformAsset);
+
       const userAcc = await StellarAccount.create(userId);
+      const platformAssetBal = userAcc.getTokenBalance(
+        PLATFORM_ASSET.code,
+        PLATFORM_ASSET.issuer,
+      );
+
+      if (platformAssetBal < totalPlatformFee) {
+        throw new Error("Insufficient balance to follow creator");
+      }
 
       if (creator.pageAsset) {
         const { code, issuer } = creator.pageAsset;
@@ -273,6 +287,7 @@ export const trxRouter = createTRPCRouter({
             creatorPageAsset: { code, issuer },
             userPubkey: userId,
             signWith,
+            totalPlatformFee,
           });
           return xdr;
         }
@@ -289,6 +304,7 @@ export const trxRouter = createTRPCRouter({
                 creatorPageAsset: { code, issuer: issuerVal.data },
                 userPubkey: userId,
                 signWith,
+                totalPlatformFee,
               });
               return xdr;
             }

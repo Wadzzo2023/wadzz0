@@ -25,7 +25,6 @@ import { useBounty } from "~/lib/state/play/useBounty";
 import { JoinBounty } from "~/lib/play/join-bounty";
 
 const JoinBountyModal = () => {
-  console.log("JoinBountyModal");
   const { isOpen, onClose, type, data } = useModal();
   const isModalOpen = isOpen && type === "JoinBounty";
   const router = useRouter();
@@ -55,7 +54,6 @@ const JoinBountyModal = () => {
   const handleJoin = (bountyId: number) => {
     JoinMutation.mutate({ bountyId });
   };
-  console.log(data);
   const { bounty, balance } = data;
 
   if (!balance || !bounty) {
