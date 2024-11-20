@@ -115,6 +115,43 @@ export const pinRouter = createTRPCRouter({
     };
   }),
 
+  getPinM: creatorProcedure
+    .input(z.string())
+    .mutation(async ({ ctx, input }) => {
+      const pin = await ctx.db.location.findUnique({
+        where: { id: input },
+        include: {
+          locationGroup: {
+            include: {
+              creator: { select: { name: true, profileUrl: true } },
+              _count: { select: { locations: true } },
+            },
+          },
+        },
+      });
+
+      if (!pin) throw new Error("Pin not found");
+
+      return {
+        id: pin.id,
+        title: pin.locationGroup?.title,
+        description: pin.locationGroup?.description,
+        image: pin.locationGroup?.image,
+        startDate: pin.locationGroup?.startDate,
+        endDate: pin.locationGroup?.endDate,
+        url: pin.locationGroup?.link,
+        pinCollectionLimit: pin.locationGroup?.limit,
+        pinNumber: pin.locationGroup?._count.locations,
+        autoCollect: pin.autoCollect,
+        lat: pin.latitude,
+        lng: pin.longitude,
+        token: pin.locationGroup?.pageAsset
+          ? PAGE_ASSET_NUM
+          : (pin.locationGroup?.subscriptionId ?? NO_ASSET),
+        tier: pin.locationGroup?.subscriptionId,
+      };
+    }),
+
   updatePin: creatorProcedure
     .input(
       z.object({

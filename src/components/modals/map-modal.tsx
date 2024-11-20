@@ -22,11 +22,13 @@ import {
   DialogTitle,
 } from "~/components/shadcn/ui/dialog";
 import { api } from "~/utils/api";
-import { useModal } from "../../lib/state/play/use-modal-store";
+import { ModalData, useModal } from "../../lib/state/play/use-modal-store";
 
 import { Input } from "~/components/shadcn/ui/input";
 import { UploadButton } from "~/utils/uploadthing";
 import { useRouter } from "next/router";
+import { IPin, useMapModalStore } from "~/pages/maps";
+import { Loader } from "@react-three/drei";
 
 const MapModalComponent = () => {
   const {
@@ -43,10 +45,22 @@ const MapModalComponent = () => {
   // console.log(data.long, data.lat, data.pinId);
   const session = useSession();
   const router = useRouter();
+
+  const { setManual, setDuplicate, setPosition, setIsOpen, setPrevData } =
+    useMapModalStore();
   const isModalOpen = isOpen && type === "map";
   const handleClose = () => {
     onClose();
   };
+
+  const pinM = api.maps.pin.getPinM.useMutation({
+    onSuccess: (data) => {
+      setPrevData(data as IPin);
+      handleDuplicatePin();
+
+      toast.success("Pin duplicated successfully");
+    },
+  });
 
   // const []= useState()
 
@@ -130,7 +144,10 @@ const MapModalComponent = () => {
     return <div>Public Key not found</div>;
   }
   function handleDuplicatePin(): void {
-    console.log("duplicate");
+    handleClose();
+    setManual(true);
+    setDuplicate(true);
+    setIsOpen(true);
   }
 
   if (data)
@@ -171,8 +188,18 @@ const MapModalComponent = () => {
               <Button className="m-1 w-1/2 " onClick={handleCopyPin}>
                 <Copy size={15} className="mr-2" /> Copy Pin
               </Button>
-              <Button className="m-1 w-1/2 " onClick={handleDuplicatePin}>
-                <Copy size={15} className="mr-2" /> Duplicate pins
+              <Button
+                className="m-1 w-1/2 "
+                onClick={() => {
+                  data.pinId && pinM.mutate(data.pinId);
+                }}
+              >
+                {pinM.isLoading ? (
+                  <Loader2 className="animate animate-spin" />
+                ) : (
+                  <Copy size={15} className="mr-2" />
+                )}{" "}
+                Duplicate pins
               </Button>
               <Button
                 className="m-1 w-1/2 "

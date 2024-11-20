@@ -5,7 +5,8 @@ import {
   Map,
   MapMouseEvent,
 } from "@vis.gl/react-google-maps";
-import { format } from "date-fns";
+
+import { format, set } from "date-fns";
 import { MapPin } from "lucide-react";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
@@ -24,6 +25,7 @@ import { useCreatorStorageAcc } from "~/lib/state/wallete/stellar-balances";
 import { api } from "~/utils/api";
 
 import { create } from "zustand";
+import toast from "react-hot-toast";
 
 type Pin = {
   locationGroup:
@@ -62,10 +64,59 @@ const useNearbyPinsStore = create<NearbyPinsState>((set, get) => ({
   },
 }));
 
+export type IPin = {
+  title?: string;
+  lat: number;
+  lng: number;
+  description?: string;
+  startDate?: Date;
+  endDate?: Date;
+  autoCollect: boolean;
+  pinNumber?: number;
+  pinCollectionLimit?: number;
+  tier?: string;
+  url?: string;
+  image?: string;
+  token?: number;
+};
+
+interface IMapPinModal {
+  isOpen: boolean;
+  setIsOpen: (value: boolean) => void;
+  prevData?: IPin;
+  setPrevData: (value?: IPin) => void;
+  manual: boolean;
+  duplicate: boolean;
+  setDuplicate: (value: boolean) => void;
+  position: google.maps.LatLngLiteral | undefined;
+  setManual: (value: boolean) => void;
+  setPosition: (pos: google.maps.LatLngLiteral | undefined) => void;
+}
+
+export const useMapModalStore = create<IMapPinModal>((set) => ({
+  isOpen: false,
+  setPrevData: (value) => set({ prevData: value }),
+
+  setIsOpen: (value) => set({ isOpen: value }),
+  manual: false,
+  duplicate: false,
+  setDuplicate: (value) => set({ duplicate: value }),
+  position: undefined,
+  setManual: (value) => set({ manual: value }),
+  setPosition: (pos) => set({ position: pos }),
+}));
+
 function App() {
   const modal = React.useRef<HTMLDialogElement>(null);
-  const [clickedPos, updatePos] = useState<google.maps.LatLngLiteral>();
-  const [manual, setManual] = useState<boolean>();
+  const {
+    manual,
+    setManual,
+    position,
+    setPosition,
+    duplicate,
+    setIsOpen,
+    setPrevData,
+  } = useMapModalStore();
   const { setBalance } = useCreatorStorageAcc();
   const [mapZoom, setMapZoom] = useState<number>(3);
   const [mapCenter, setMapCenter] = useState<google.maps.LatLngLiteral>({
@@ -74,6 +125,7 @@ function App() {
   });
   const [centerChanged, setCenterChanged] =
     useState<google.maps.LatLngBoundsLiteral | null>(null);
+  const [lastUpdate, setLastUpdate] = useState<Date>(new Date());
   const [loading, setLoading] = useState<boolean>(false);
   const [RangedPins, setRangedPins] = useState<Pin[]>([]);
   const [isCordsSearch, setIsCordsSearch] = useState<boolean>(false);
@@ -111,7 +163,7 @@ function App() {
     setManual(false);
     const position = event.detail.latLng;
     if (position) {
-      updatePos(position);
+      setPosition(position);
       if (!isPinCopied && !isPinCut) {
         modal.current?.showModal();
       } else if (isPinCopied || isPinCut) {
@@ -131,27 +183,22 @@ function App() {
       };
       setMapCenter(latLng);
       setMapZoom(13);
-      updatePos(latLng);
+      setPosition(latLng);
     }
   }, [alreadySelectedPlace]);
 
   function handleManualPinClick() {
     setManual(true);
-    updatePos(undefined);
-    modal.current?.showModal();
+    setPosition(undefined);
+    setPrevData(undefined);
+    setIsOpen(true);
   }
 
-  const handleCenterChange = (center: google.maps.LatLngBoundsLiteral) => {
-    if (center) {
-      filterNearbyPins(center);
+  const handleDragEnd = () => {
+    if (centerChanged) {
+      filterNearbyPins(centerChanged);
     }
   };
-
-  useEffect(() => {
-    if (centerChanged) {
-      handleCenterChange(centerChanged);
-    }
-  }, [centerChanged]); // Only depends on centerChanged, not handleCenterChange
 
   return (
     <APIProvider apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAP_API_KEY!}>
@@ -179,6 +226,7 @@ function App() {
         center={mapCenter}
         gestureHandling={"greedy"}
         disableDefaultUI={true}
+        onDragend={() => handleDragEnd()}
       >
         {isCordsSearch && cordSearchCords && (
           <AdvancedMarker
@@ -207,81 +255,75 @@ function App() {
         <MyPins onOpen={onOpen} setIsAutoCollect={setIsAutoCollect} />
       </Map>
       <div className="hidden md:block">
-        <SideMapItem />
+        <SideMapItem setAlreadySelectedPlace={setAlreadySelectedPlace} />
       </div>
       <ManualPinButton handleClick={handleManualPinClick} />
-      {(clickedPos ?? manual) && (
-        <CreatePinModal modal={modal} position={clickedPos} manual={manual} />
-      )}
+      <CreatePinModal />
     </APIProvider>
   );
+}
 
-  function SideMapItem() {
-    const { nearbyPins } = useNearbyPinsStore();
+function SideMapItem({
+  setAlreadySelectedPlace,
+}: {
+  setAlreadySelectedPlace: (coords: { lat: number; lng: number }) => void;
+}) {
+  const { nearbyPins } = useNearbyPinsStore();
 
-    return (
-      <div className="absolute bottom-4 right-4 top-96 flex max-h-[400px] min-h-[400px] w-80  items-center justify-center">
-        <div className="max-h-[400px] min-h-[400px] w-80 overflow-y-auto rounded-lg bg-white p-4  scrollbar-hide ">
-          <h2 className="mb-4 text-lg font-semibold">Nearby Locations</h2>
-          <div className="space-y-4">
-            {loading && (
-              <div className="flex h-[300px] items-center justify-center">
-                <Loading />
-              </div>
-            )}
-            {nearbyPins.length <= 0 ? (
-              <div>
-                <h3 className="text-center text-gray-500">
-                  No nearby locations found
-                </h3>
-              </div>
-            ) : (
-              nearbyPins?.map((pin) => (
-                <div
-                  onClick={() => {
-                    setAlreadySelectedPlace({
-                      lat: pin.latitude,
-                      lng: pin.longitude,
-                    });
-                  }}
-                  key={pin.id}
-                  className="flex items-start gap-3 rounded-md bg-gray-50 p-3 shadow-lg transition-colors hover:bg-gray-100"
-                >
-                  <MapPin className="h-5 w-5 flex-shrink-0 text-primary" />
-                  <div className="flex-1">
-                    <h3 className="relative font-medium">
-                      {pin.locationGroup?.title}{" "}
-                      <span className=" absolute bottom-4 right-0 text-[.60rem]">
-                        End At:
-                        {pin.locationGroup &&
-                          format(
-                            new Date(pin.locationGroup.endDate),
-                            "dd, yyyy",
-                          )}
-                      </span>
-                    </h3>
-                    <div className="mt-1 flex items-center gap-1">
-                      <Avatar className="h-6 w-6">
-                        <Image
-                          width={24}
-                          height={24}
-                          src={pin.locationGroup?.image ?? "/favicon.ico"}
-                          alt="Creator"
-                        />
-                      </Avatar>
-                      <Badge variant="secondary" className="text-xs">
-                        {pin._count.consumers} visitors
-                      </Badge>
-                    </div>
+  return (
+    <div className="absolute bottom-4 right-4 top-96 flex max-h-[400px] min-h-[400px] w-80  items-center justify-center">
+      <div className="max-h-[400px] min-h-[400px] w-80 overflow-y-auto rounded-lg bg-white p-4  scrollbar-hide ">
+        <h2 className="mb-4 text-lg font-semibold">Nearby Locations</h2>
+        <div className="space-y-4">
+          {nearbyPins.length <= 0 ? (
+            <div>
+              <h3 className="text-center text-gray-500">
+                No nearby locations found
+              </h3>
+            </div>
+          ) : (
+            nearbyPins?.map((pin) => (
+              <div
+                onClick={() => {
+                  setAlreadySelectedPlace({
+                    lat: pin.latitude,
+                    lng: pin.longitude,
+                  });
+                }}
+                key={pin.id}
+                className="flex items-start gap-3 rounded-md bg-gray-50 p-3 shadow-lg transition-colors hover:bg-gray-100"
+              >
+                <MapPin className="h-5 w-5 flex-shrink-0 text-primary" />
+                <div className="flex-1">
+                  <h3 className="relative font-medium">
+                    {pin.locationGroup?.title}{" "}
+                    <span className=" absolute bottom-4 right-0 text-[.60rem]">
+                      End At:
+                      {pin.locationGroup &&
+                        format(new Date(pin.locationGroup.endDate), "dd, yyyy")}
+                    </span>
+                  </h3>
+                  <div className="mt-1 flex items-center gap-1">
+                    <Avatar className="h-6 w-6">
+                      <Image
+                        width={24}
+                        height={24}
+                        src={pin.locationGroup?.image ?? "/favicon.ico"}
+                        alt="Creator"
+                      />
+                    </Avatar>
+                    <Badge variant="secondary" className="text-xs">
+                      {pin._count.consumers} visitors
+                    </Badge>
                   </div>
                 </div>
-              ))
-            )}
-          </div>
+              </div>
+            ))
+          )}
         </div>
       </div>
-    );
-  }
+    </div>
+  );
 }
 
 function ManualPinButton({ handleClick }: { handleClick: () => void }) {
