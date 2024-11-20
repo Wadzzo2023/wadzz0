@@ -1,5 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import clsx from "clsx";
+import { Loader } from "lucide-react";
 import Image from "next/image";
 import React, { ChangeEvent, useState } from "react";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
@@ -175,13 +176,21 @@ export default function CreatePinModal({
     data,
   ) => {
     setValue("token", selectedToken?.id);
-    // console.log(data);
+
+    if (selectedToken) {
+      if (data.pinCollectionLimit > selectedToken.bal) {
+        setError("pinCollectionLimit", {
+          type: "manual",
+          message: "Collection limit can't be more than token balance",
+        });
+        return;
+      }
+    }
 
     if (position) {
       setValue("lat", position.lat);
       setValue("lng", position.lng);
-      // console.log(data);
-      // return;
+
       addPinM.mutate({ ...data, lat: position.lat, lng: position.lng });
     } else {
       // toast.error("Please select a location on the map");
@@ -334,8 +343,10 @@ export default function CreatePinModal({
                   {...register("pinCollectionLimit", {
                     valueAsNumber: true,
                     min: 1,
+                    max: 2147483647,
                   })} // default value
                   className="input input-bordered"
+                  max={2147483647}
                 />
 
                 {errors.pinCollectionLimit && (
@@ -458,13 +469,8 @@ export default function CreatePinModal({
                 className="btn btn-primary"
                 disabled={addPinM.isLoading}
               >
-                {addPinM.isLoading ? (
-                  <div className="flex justify-center">
-                    <div className="spinner"></div>
-                  </div>
-                ) : (
-                  "Submit"
-                )}
+                {addPinM.isLoading && <Loader className="animate-spin" />}
+                Submit
               </button>
               {addPinM.isError && (
                 <p className="text-red-500">{addPinM.failureReason?.message}</p>

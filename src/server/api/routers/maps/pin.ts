@@ -25,14 +25,16 @@ export const pinRouter = createTRPCRouter({
   createPin: creatorProcedure
     .input(createPinFormSchema)
     .mutation(async ({ ctx, input }) => {
-      const { pinNumber, pinCollectionLimit, token: tokenId, tier } = input;
+      const { pinNumber, pinCollectionLimit, token, tier } = input;
 
-      const tierId = tier ? Number(tier) : undefined;
+      const subscriptionId = tier ? Number(tier) : undefined;
+
+      const tokenId = token;
 
       let assetId = tokenId;
       let pageAsset = false;
 
-      if (tokenId == PAGE_ASSET_NUM) {
+      if (token == PAGE_ASSET_NUM) {
         assetId = undefined;
         pageAsset = true;
       }
@@ -57,7 +59,7 @@ export const pinRouter = createTRPCRouter({
           startDate: input.startDate,
           title: input.title,
           description: input.description,
-          assetId: tokenId,
+          assetId: assetId,
           pageAsset: pageAsset,
           limit: pinCollectionLimit,
           image: input.image,
@@ -67,7 +69,7 @@ export const pinRouter = createTRPCRouter({
               data: locations,
             },
           },
-          subscriptionId: tierId,
+          subscriptionId: subscriptionId,
         },
       });
     }),
