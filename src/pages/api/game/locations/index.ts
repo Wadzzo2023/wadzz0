@@ -80,6 +80,7 @@ export default async function handler(
         ...location,
         ...group,
         remaining: group.limit - totalGroupConsumers,
+        id: location.id,
       }));
     });
 

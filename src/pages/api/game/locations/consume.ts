@@ -78,7 +78,7 @@ export default async function handler(
   const remainingConsumers = location.locationGroup.limit - totalGroupConsumers;
 
   // user have not consumed this location
-  if (location._count.consumers < 0 && remainingConsumers > 0) {
+  if (location._count.consumers <= 0 && remainingConsumers > 0) {
     // also check limit of the group
     await db.locationConsumer.create({
       data: { locationId: location.id, userId: pubkey },
