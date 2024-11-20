@@ -52,7 +52,6 @@ export default function BuyModal({
   const [xdr, setXdr] = useState<string>();
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>();
   const [paymentSuccess, setPaymentSuccess] = useState(false);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isBuyDialogOpen, setIsBuyDialogOpen] = useState(false);
   // const { asset } = item;
   const { code, issuer } = item;
@@ -91,9 +90,9 @@ export default function BuyModal({
     });
   }
 
-  const changePaymentMethod = (method: PaymentMethod) => {
+  const changePaymentMethod = async (method: PaymentMethod) => {
     setPaymentMethod(method);
-    handleXDR(method);
+    await handleXDR(method);
   };
 
   if (!active) return null;
@@ -126,7 +125,7 @@ export default function BuyModal({
                   method={paymentMethod}
                   setIsWallet={changePaymentMethod}
                 />
-                <MethodDetails />
+                <MethodDetails setModalClose={setIsBuyDialogOpen} />
               </>
             </div>
           </div>
@@ -147,7 +146,11 @@ export default function BuyModal({
     </>
   );
 
-  function MethodDetails() {
+  function MethodDetails({
+    setModalClose,
+  }: {
+    setModalClose: (isOpen: boolean) => void;
+  }) {
     if (xdrMutation.isLoading) return <Loader className="animate-spin" />;
 
     if (xdrMutation.isError) {
@@ -193,10 +196,14 @@ export default function BuyModal({
                           toast.success("Payment Success");
                           setPaymentSuccess(true);
                           handleModal(true);
+                          setModalClose(false);
                         }
                       })
                       .catch((e) => console.log(e))
-                      .finally(() => setSubmitLoading(false));
+                      .finally(() => {
+                        setSubmitLoading(false);
+                        setModalClose(false);
+                      });
                   }}
                 >
                   {submitLoading && <Loader className="animate-spin" />}

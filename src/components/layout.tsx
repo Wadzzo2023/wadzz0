@@ -12,6 +12,13 @@ import PlayLayout from "./play/layout";
 import PlayModalProvider from "./providers/play/play-modal-provider";
 // import Header from "./header";
 // import RightDialog from "./right_dialog";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "~/components/shadcn/ui/card";
 
 const RightDialog = dynamic(async () => await import("./right_dialog"));
 const ConnectWalletButton = dynamic(
@@ -56,10 +63,28 @@ export default function Layout({
       return <>{children}</>;
     }
     return (
-      <PlayLayout>
-        <PlayModalProvider />
-        {children}
-      </PlayLayout>
+      <>
+        {session.status === "authenticated" ? (
+          <PlayLayout>
+            <PlayModalProvider />
+            {children}
+          </PlayLayout>
+        ) : (
+          <div className="flex h-screen items-center justify-center bg-gray-100">
+            <Card className="w-[350px]">
+              <CardHeader>
+                <CardTitle>Welcome to WadzzoAR</CardTitle>
+                <CardDescription>
+                  Please login/signup to continue
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ConnectWalletButton />
+              </CardContent>
+            </Card>
+          </div>
+        )}
+      </>
     );
   }
 

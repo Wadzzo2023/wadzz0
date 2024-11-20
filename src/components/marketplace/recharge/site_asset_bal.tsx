@@ -63,9 +63,11 @@ export function SiteAssetBalance() {
             />
           </div> */}
           <span className="hidden md:flex">
-            {PLATFORM_ASSET.code.toUpperCase() + " : "}
+            {PLATFORM_ASSET.code.toUpperCase()}
+            {"  "}
           </span>
-          {formatNumber(bal.data?.platformAssetBal?.toString())}
+          {" : "}
+          {bal.data?.platformAssetBal.toFixed(0)}
         </Button>
 
         {/* <Plus className="btn btn-square btn-primary btn-sm -mr-4 " /> */}
