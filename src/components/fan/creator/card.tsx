@@ -11,12 +11,14 @@ export default function MemberShipCard({
   className,
   children,
   priority,
+  pageAsset,
 }: {
   creator: Creator;
   subscription: SubscriptionType;
   className?: string;
   children?: React.ReactNode;
   priority?: number;
+  pageAsset?: string;
 }) {
   return (
     <div className=" m-4 flex    flex-col justify-between rounded border bg-white p-2 shadow-sm">
@@ -24,7 +26,7 @@ export default function MemberShipCard({
         <div className="mb-6 flex items-center justify-between border-b pb-2">
           <div>
             <p className="text-sm font-bold uppercase tracking-wider">
-              Price : {subscription.price}
+              {subscription.price} {pageAsset}
             </p>
             <p className="text-3xl font-extrabold">
               {subscription.name.toLocaleUpperCase()}

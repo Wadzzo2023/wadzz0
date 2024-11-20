@@ -304,7 +304,7 @@ export function SubscriptionGridWrapper({
   return (
     <div
       className={clsx(
-        "grid   justify-items-center gap-2  ",
+        "grid   justify-center gap-2  ",
         getGridColNumber(itemLength),
       )}
     >

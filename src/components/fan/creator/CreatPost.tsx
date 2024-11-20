@@ -3,15 +3,34 @@ import { useForm, SubmitHandler, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { api } from "~/utils/api";
-import toast from "react-hot-toast";
+
 import { MediaType } from "@prisma/client";
-import { Image as ImageIcon, Music, Users2, Video, X } from "lucide-react";
+import { ImageIcon, Music, Users2, Video, X } from "lucide-react";
 import clsx from "clsx";
 import { UploadButton } from "~/utils/uploadthing";
 import Image from "next/image";
 import { PostCard } from "./post";
 import Avater from "../../ui/avater";
+
 import { Editor } from "~/components/editor";
+import { Button } from "~/components/shadcn/ui/button";
+import { Input } from "~/components/shadcn/ui/input";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+} from "~/components/shadcn/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "~/components/shadcn/ui/select";
+import toast from "react-hot-toast";
+import { router } from "@trpc/server";
+import { useRouter } from "next/router";
 
 const mediaTypes = [
   { type: MediaType.IMAGE, icon: ImageIcon },
@@ -41,23 +60,23 @@ export function CreatPost() {
     control,
     getValues,
     setValue,
-
     formState: { errors },
   } = useForm<z.infer<typeof PostSchema>>({
     resolver: zodResolver(PostSchema),
   });
 
-  console.log(errors, "errors");
   const [media, setMedia] = useState<MediaInfoType[]>([]);
   const [wantMediaType, setWantMedia] = useState<MediaType>();
-
+  const router = useRouter();
   const creator = api.fan.creator.meCreator.useQuery();
-
   const createPostMutation = api.fan.post.create.useMutation({
-    onSuccess: () => {
+    onSuccess: async (data) => {
       reset();
       toast.success("Post Created");
       setMedia([]);
+      if (data) {
+        await router.push(`/fans/posts/${data.id}`);
+      }
     },
   });
   const tiers = api.fan.member.getAllMembership.useQuery();
@@ -67,101 +86,128 @@ export function CreatPost() {
     createPostMutation.mutate(data);
   };
 
-  // Function to add media
   const addMediaItem = (url: string, type: MediaType) => {
     setMedia((prevMedia) => [...prevMedia, { url, type }]);
   };
 
   const handleWantMediaType = (type: MediaType) => {
-    if (!wantMediaType) setWantMedia(type);
+    console.log(type);
+    setWantMedia((prevType) => (prevType === type ? undefined : type));
   };
 
   function handleEditorChange(value: string): void {
     setValue("content", value);
-
-    // throw new Error("Function not implemented.");
   }
 
-  if (!creator.data) return <div>You are not creator</div>;
+  if (!creator.data)
+    return (
+      <div className="text-center text-lg font-semibold">
+        You are not a creator
+      </div>
+    );
 
   function TiersOptions() {
-    if (tiers.isLoading) return <div className="skeleton h-10 w-20"></div>;
+    if (tiers.isLoading)
+      return (
+        <div className="h-10 w-full animate-pulse bg-muted sm:w-[180px]"></div>
+      );
     if (tiers.data) {
       return (
         <Controller
           name="subscription"
           control={control}
           render={({ field }) => (
-            <select {...field} className="select select-bordered ">
-              <option selected disabled>
-                Choose Subscription Model
-              </option>
-              <option>Public</option>
-              {tiers.data.map((model) => (
-                <option
-                  key={model.id}
-                  value={model.id}
-                >{`${model.name} - ${model.price}`}</option>
-              ))}
-            </select>
+            <Select onValueChange={field.onChange} defaultValue={field.value}>
+              <SelectTrigger className="w-full sm:w-[180px]">
+                <SelectValue placeholder="Choose Subscription Model" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="public">Public</SelectItem>
+                {tiers.data.map((model) => (
+                  <SelectItem
+                    key={model.id}
+                    value={model.id.toString()}
+                  >{`${model.price} - ${model.name}`}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           )}
         />
       );
     }
   }
+
   return (
-    <div className="w-full ">
-      <form
-        onSubmit={handleSubmit(onSubmit)}
-        className="flex w-full flex-col gap-2 rounded-3xl bg-base-200 p-5"
-      >
-        <div className="mb-5 flex items-end justify-between ">
-          <div className="flex items-center gap-2 ">
-            <Avater className="w-8" url={creator.data.profileUrl} />
-            <p>{creator.data.name}</p>
+    <Card className="mx-auto w-full max-w-2xl">
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <CardHeader className="flex flex-col items-start justify-between space-y-2 pb-2 sm:flex-row sm:items-center sm:space-y-0">
+          <div className="flex items-center space-x-2">
+            <Avater className="h-10 w-10" url={creator.data.profileUrl} />
+            <span className="font-semibold">{creator.data.name}</span>
           </div>
-          <div className="flex items-center gap-2">
-            <Users2 size={30} />
+          <div className="flex w-full items-center space-x-2 sm:w-auto">
+            <Users2 size={20} />
             <TiersOptions />
           </div>
-        </div>
-        <label className="form-control w-full ">
-          <input
-            type="text"
-            placeholder="Add a title..."
-            {...register("heading")}
-            className="input input-bordered w-full "
-          />
-          {errors.heading && (
-            <div className="label">
-              <span className="label-text-alt text-warning">
-                {errors.heading.message}
-              </span>
-            </div>
-          )}
-        </label>
-
-        <label className="form-control">
-          {/* <textarea
-            {...register("content")}
-            className="textarea textarea-bordered h-48"
-            placeholder="How's your next thing comming?"
-          ></textarea> */}
-          <Editor onChange={handleEditorChange} value={getValues("content")} />
-          {errors.content && (
-            <div className="label">
-              <span className="label-text-alt text-warning">
-                {errors.content.message}
-              </span>
-            </div>
-          )}
-        </label>
-
-        <div>
-          <div className="flex h-40 flex-col items-center gap-2">
-            <div className="flex gap-2">
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <Input
+              type="text"
+              placeholder="Add a title..."
+              {...register("heading")}
+              className={clsx(errors.heading && "border-red-500")}
+            />
+            {errors.heading && (
+              <p className="text-sm text-red-500">{errors.heading.message}</p>
+            )}
+          </div>
+          <div className=" space-y-2">
+            <Editor
+              onChange={handleEditorChange}
+              value={getValues("content")}
+            />
+            {errors.content && (
+              <p className="text-sm text-red-500">{errors.content.message}</p>
+            )}
+          </div>
+          <div className=" space-y-2">
+            <div className="mt-20 flex flex-wrap gap-2  ">
               {media.map((el, id) => (
-                <Image key={id} src={el.url} alt="d" height={100} width={100} />
+                <div key={id} className="relative">
+                  <Image
+                    src={el.url}
+                    alt="Uploaded media"
+                    height={100}
+                    width={100}
+                    className="rounded-md object-cover"
+                  />
+                  <Button
+                    size="icon"
+                    variant="destructive"
+                    className="absolute right-0 top-0 h-6 w-6"
+                    onClick={() =>
+                      setMedia(media.filter((_, index) => index !== id))
+                    }
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+              ))}
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {mediaTypes.map(({ type, icon: IconComponent }) => (
+                <Button
+                  key={type}
+                  size="sm"
+                  type="button"
+                  variant={wantMediaType === type ? "default" : "outline"}
+                  onClick={() => handleWantMediaType(type)}
+                  className="flex-1 sm:flex-none"
+                >
+                  <IconComponent className="mr-2 h-4 w-4" />
+                  {type}
+                </Button>
               ))}
             </div>
             {wantMediaType && (
@@ -169,77 +215,36 @@ export function CreatPost() {
                 endpoint="imageUploader"
                 content={{ button: "Add Media", allowedContent: "Max (4MB)" }}
                 onClientUploadComplete={(res) => {
-                  // Do something with the response
-                  // alert("Upload Completed");
                   const data = res[0];
-
                   if (data?.url) {
                     addMediaItem(data.url, wantMediaType);
                     setWantMedia(undefined);
-                    // setMediaUrl(data.url);
-                    // console.log(wantMediaType, "mediaType");
-                    // setValue("mediaType", wantMediaType);
-                    // setValue("mediaUrl", data.url);
-                    // updateProfileMutation.mutate(data.url);
                   }
-                  // updateProfileMutation.mutate(res);
                 }}
                 onUploadError={(error: Error) => {
-                  // Do something with the error.
-                  alert(`ERROR! ${error.message}`);
+                  toast.error(`Upload error: ${error.message}`);
                 }}
               />
             )}
           </div>
-
-          <div className="flex items-center justify-between">
-            <div className="my-4 flex justify-between p-2">
-              <div className="flex gap-4 ">
-                <ImageIcon
-                  className={clsx(
-                    MediaType.IMAGE == wantMediaType && "text-primary",
-                    wantMediaType != undefined &&
-                      MediaType.IMAGE != wantMediaType &&
-                      "text-neutral",
-                  )}
-                  onClick={() => {
-                    handleWantMediaType(MediaType.IMAGE);
-                  }}
-                />
-                {/* {mediaTypes.map(({ type, icon: IconComponent }) => (
-                    <IconComponent
-                      key={type}
-                      className={clsx(
-                        type == wantMediaType && "text-primary",
-                        wantMediaType != undefined &&
-                          type != wantMediaType &&
-                          "text-neutral",
-                      )}
-                      onClick={() => {
-                        handleWantMediaType(type);
-                      }}
-                    />
-                  ))} */}
-              </div>
-
-              {wantMediaType && <X onClick={() => setWantMedia(undefined)} />}
-            </div>
-          </div>
-        </div>
-        <button
-          className="btn btn-primary"
-          type="submit"
-          disabled={createPostMutation.isLoading}
-        >
-          {createPostMutation.isLoading && (
-            <span className="loading loading-spinner"></span>
-          )}
-          Save
-        </button>
+        </CardContent>
+        <CardFooter className="mt-8 flex flex-col items-stretch justify-between space-y-2 ">
+          <Button
+            type="submit"
+            className="w-full sm:w-auto"
+            disabled={createPostMutation.isLoading}
+          >
+            {createPostMutation.isLoading && (
+              <span className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-primary border-r-transparent"></span>
+            )}
+            Save
+          </Button>
+        </CardFooter>
       </form>
-    </div>
+    </Card>
   );
 }
+
 export function PostList(props: { id: string }) {
   const posts = api.fan.post.getPosts.useInfiniteQuery(
     {

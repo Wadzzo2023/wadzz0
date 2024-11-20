@@ -9,7 +9,16 @@ import {
 } from "~/components/marketplace/market_right";
 import { PLATFORM_ASSET } from "~/lib/stellar/constant";
 import { api } from "~/utils/api";
-
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "~/components/shadcn/ui/card";
+import { Label } from "~/components/shadcn/ui/label";
+import { Input } from "~/components/shadcn/ui/input";
+import { Button } from "~/components/shadcn/ui/button";
+import { Loader2 } from "lucide-react";
 type PlaceMarketModalProps = {
   content: ReactNode;
   item: MarketAssetType;
@@ -21,8 +30,8 @@ export default function ViewMediaModal({
   const modal = useRef<HTMLDialogElement>(null);
   const [editing, setEditing] = useState(false);
 
-  function resetState() {
-    // modal.current?.close();
+  function handleClose() {
+    modal.current?.close();
   }
 
   const handleModal = () => {
@@ -37,7 +46,7 @@ export default function ViewMediaModal({
             {/* if there is a button in form, it will close the modal */}
             <button
               className="btn btn-circle btn-ghost btn-sm absolute right-2 top-2"
-              onClick={() => resetState()}
+              onClick={() => handleClose()}
             >
               ✕
             </button>
@@ -48,6 +57,7 @@ export default function ViewMediaModal({
               editing={editing}
               handleEdit={() => setEditing(!editing)}
               item={item}
+              closeModal={handleClose} // Pass the closeModal function
             />
           </div>
 
@@ -70,10 +80,12 @@ function EditItem({
   item,
   editing,
   handleEdit,
+  closeModal,
 }: {
   item: MarketAssetType;
   editing: boolean;
   handleEdit: () => void;
+  closeModal: () => void;
 }) {
   const session = useSession();
 
@@ -82,7 +94,7 @@ function EditItem({
     if (user.id == item.asset.creatorId) {
       return (
         <div>
-          {editing && <EditForm item={item} />}
+          {editing && <EditForm item={item} closeModal={closeModal} />}
           <div className="flex justify-end">
             <ToggleButton />
           </div>
@@ -106,13 +118,16 @@ export const updateAssetFormShema = z.object({
   priceUSD: z.number().nonnegative(),
 });
 
-function EditForm({ item }: { item: MarketAssetType }) {
+function EditForm({
+  item,
+  closeModal,
+}: {
+  item: MarketAssetType;
+  closeModal: () => void;
+}) {
   const {
     register,
-    getValues,
     handleSubmit,
-    reset,
-    control,
     formState: { errors },
   } = useForm<z.infer<typeof updateAssetFormShema>>({
     resolver: zodResolver(updateAssetFormShema),
@@ -124,59 +139,77 @@ function EditForm({ item }: { item: MarketAssetType }) {
   });
 
   // mutation
-  const update = api.fan.asset.updateAsset.useMutation();
+  const update = api.fan.asset.updateAsset.useMutation({
+    onSuccess: (data) => {
+      if (data) {
+        closeModal();
+      }
+    },
+  });
 
   const onSubmit: SubmitHandler<z.infer<typeof updateAssetFormShema>> = (
     data,
   ) => {
-    // commentM.mutate(data);
     update.mutate(data);
   };
 
-  // console.log(item);
-
   return (
-    <div className="flex justify-center">
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <label className="form-control w-full ">
-          <div className="label">
-            <span className="label-text">Price in {PLATFORM_ASSET.code}</span>
+    <Card className="mx-auto w-full max-w-md">
+      <CardHeader>
+        <CardTitle className="text-center text-2xl font-bold">
+          Edit Asset
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+          <div className="space-y-2">
+            <Label htmlFor="price" className="text-sm font-medium">
+              Price in {PLATFORM_ASSET.code}
+            </Label>
+            <Input
+              id="price"
+              type="number"
+              step="0.01"
+              {...register("price", { valueAsNumber: true })}
+              className={`w-full ${errors.price ? "border-red-500" : ""}`}
+            />
+            {errors.price && (
+              <p className="text-sm text-red-500">{errors.price.message}</p>
+            )}
           </div>
-          <input
-            type="number"
-            {...register("price", { valueAsNumber: true })}
-            className="input input-bordered w-full max-w-xs"
-          />
-          {errors.price && (
-            <div className="label">
-              <span className="label-text-alt text-warning">
-                {errors.price.message}
-              </span>
-            </div>
-          )}
-        </label>
-        <label className="form-control w-full ">
-          <div className="label">
-            <span className="label-text">Price in USD</span>
+
+          <div className="space-y-2">
+            <Label htmlFor="priceUSD" className="text-sm font-medium">
+              Price in USD
+            </Label>
+            <Input
+              id="priceUSD"
+              type="number"
+              step="0.01"
+              {...register("priceUSD", { valueAsNumber: true })}
+              className={`w-full ${errors.priceUSD ? "border-red-500" : ""}`}
+            />
+            {errors.priceUSD && (
+              <p className="text-sm text-red-500">{errors.priceUSD.message}</p>
+            )}
           </div>
-          <input
-            type="number"
-            {...register("priceUSD", { valueAsNumber: true })}
-            className="input input-bordered w-full max-w-xs"
-          />
-          {errors.priceUSD && (
-            <div className="label">
-              <span className="label-text-alt text-warning">
-                {errors.priceUSD.message}
-              </span>
-            </div>
-          )}
-        </label>
-        <button className="btn" type="submit">
-          {update.isLoading && <span className="loading loading-spinner" />}
-          Submit
-        </button>
-      </form>
-    </div>
+
+          <Button
+            type="submit"
+            className="w-full transform rounded-md bg-gradient-to-r from-blue-500 to-purple-500 px-4 py-2 font-semibold text-white transition-all duration-300 ease-in-out hover:scale-105 hover:from-blue-600 hover:to-purple-600"
+            disabled={update.isLoading}
+          >
+            {update.isLoading ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Updating...
+              </>
+            ) : (
+              "Update Asset"
+            )}
+          </Button>
+        </form>
+      </CardContent>
+    </Card>
   );
 }
