@@ -316,6 +316,11 @@ export default function CreatePinModal() {
         }
       }
     }
+
+    if (position) {
+      setValue("lat", position.lat);
+      setValue("lng", position.lng);
+    }
   }, [isOpen]);
   return (
     <>
