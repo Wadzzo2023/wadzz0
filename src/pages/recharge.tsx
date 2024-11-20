@@ -87,7 +87,7 @@ function SiteAssetBuy() {
   const xdrMutation = api.marketplace.pay.getRechargeXDR.useMutation({
     onSuccess: (data) => {
       setXDR(data);
-      toast.success("XDR fetched");
+      toast.success("Transaction Ready");
     },
     onError: (e) => toast.error(`${e.message}`),
   });
@@ -142,7 +142,7 @@ function SiteAssetBuy() {
                 {xdrMutation.isLoading && (
                   <span className="loading loading-spinner mr-2" />
                 )}
-                {xdrMutation.isLoading ? "Fetching XDR..." : "Buy Now"}
+                {xdrMutation.isLoading ? "Preparing transaction" : "Buy Now"}
               </Button>
             )}
           </>
