@@ -68,6 +68,7 @@ function NewPageAssetFrom({ requiredToken }: { requiredToken: number }) {
     formState: { errors },
     getValues,
     setValue,
+    trigger,
     reset,
   } = useForm<z.infer<typeof CreatorPageAssetSchema>>({
     resolver: zodResolver(CreatorPageAssetSchema),
@@ -133,7 +134,7 @@ function NewPageAssetFrom({ requiredToken }: { requiredToken: number }) {
     },
   });
 
-  const onSubmit = () => {
+  const onSubmit = async () => {
     if (ipfs) {
       trxMutation.mutate({
         ipfs,
@@ -272,6 +273,10 @@ function NewPageAssetFrom({ requiredToken }: { requiredToken: number }) {
         handleConfirm={() => onSubmit()}
         loading={loading}
         requiredToken={requiredToken}
+        beforeTrigger={async () => {
+          const ok = await trigger();
+          return ok;
+        }}
         trigger={
           <Button className="w-full" disabled={loading || !ipfs}>
             Create Page Asset

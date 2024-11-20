@@ -38,17 +38,32 @@ export function PaymentChoose({
   loading,
   requiredToken,
   trigger,
+  beforeTrigger,
 }: {
   requiredToken: number;
   XLM_EQUIVALENT: number;
   handleConfirm: () => void;
   loading: boolean;
   trigger: React.ReactNode;
+  beforeTrigger?: () => Promise<boolean>;
 }) {
   const { paymentMethod, setPaymentMethod, isOpen, setIsOpen } =
     usePaymentMethodStore();
+
+  function handleOpen(open: boolean): void {
+    if (beforeTrigger) {
+      beforeTrigger().then((result) => {
+        if (result) {
+          setIsOpen(open);
+        }
+      });
+    } else {
+      setIsOpen(open);
+    }
+  }
+
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+    <Dialog open={isOpen} onOpenChange={handleOpen}>
       <DialogTrigger asChild>{trigger}</DialogTrigger>
       <DialogContent
         onInteractOutside={(e) => {

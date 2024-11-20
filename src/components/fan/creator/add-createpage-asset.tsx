@@ -17,13 +17,13 @@ import {
 } from "~/components/shadcn/ui/tabs";
 import { useUserStellarAcc } from "~/lib/state/wallete/stellar-balances";
 
+import { DialogOverlay } from "@radix-ui/react-dialog";
+import RechargeLink from "~/components/marketplace/recharge/link";
 import { PLATFORM_ASSET } from "~/lib/stellar/constant";
 import { api } from "~/utils/api";
 import Alert from "../../ui/alert";
 import CustomPageAssetFrom from "./page_asset/custom";
 import NewPageAssetFrom from "./page_asset/new";
-import RechargeLink from "~/components/marketplace/recharge/link";
-import { DialogOverlay } from "@radix-ui/react-dialog";
 
 export default function AddCreatorPageAssetModal({
   creator,
@@ -68,17 +68,12 @@ export default function AddCreatorPageAssetModal({
 }
 
 function AddCreatorPageAssetModalFrom({
-  creator,
   requiredToken,
 }: {
   creator: Creator;
   requiredToken: number;
 }) {
   const modalRef = useRef<HTMLDialogElement>(null);
-  const handleModal = () => {
-    modalRef.current?.showModal();
-  };
-  const [isNew, setNetAsset] = useState(true);
 
   return (
     <Dialog>
@@ -121,46 +116,4 @@ function AddCreatorPageAssetModalFrom({
       </DialogContent>
     </Dialog>
   );
-  // function PageAssetTab() {
-  //   return (
-  //     <div role="tablist" className="tabs-boxed tabs">
-  //       <a
-  //         role="tab"
-  //         onClick={() => setNetAsset(true)}
-  //         className={clsx("tab", isNew && "tab-active")}
-  //       >
-  //         New
-  //       </a>
-  //       <a
-  //         role="tab"
-  //         onClick={() => setNetAsset(false)}
-  //         className={clsx("tab", !isNew && "tab-active")}
-  //       >
-  //         Custom
-  //       </a>
-  //     </div>
-  //   );
-  // }
-  function PageAssetTab() {
-    return (
-      <Tabs defaultValue="asset">
-        <TabsList className="w-full">
-          <TabsTrigger
-            onClick={() => setNetAsset(true)}
-            className="w-full"
-            value="asset"
-          >
-            New
-          </TabsTrigger>
-          <TabsTrigger
-            onClick={() => setNetAsset(false)}
-            className="w-full"
-            value="pending"
-          >
-            Custom
-          </TabsTrigger>
-        </TabsList>
-      </Tabs>
-    );
-  }
 }
