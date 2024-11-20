@@ -128,6 +128,7 @@ export default function CreatePinModal({
     .otherwise(() => <p>Failed to fetch assets</p>);
 
   function TiersOptions() {
+    console.log("tiers", tiers);
     if (tiers.isLoading) return <div className="skeleton h-10 w-20"></div>;
     if (tiers.data) {
       return (
@@ -142,7 +143,7 @@ export default function CreatePinModal({
                 <option
                   key={model.id}
                   value={model.id}
-                >{`${model.name} - ${model.price}`}</option>
+                >{`${model.name} : ${model.price} ${model.creator.pageAsset?.code}`}</option>
               ))}
             </select>
           )}

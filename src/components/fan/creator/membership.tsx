@@ -43,9 +43,20 @@ export default function MemberShip({ creator }: { creator: Creator }) {
         </div>
       )}
       <SubscriptionGridWrapper itemLength={subscriptions?.length ?? 1}>
-        {subscriptions?.map((el) => (
-          <MemberShipCard key={el.id} creator={creator} subscription={el} />
-        ))}
+        {subscriptions?.map((el) => {
+          const pageCode =
+            pageAsset?.data && typeof pageAsset.data === "object"
+              ? pageAsset.data.code
+              : "";
+          return (
+            <MemberShipCard
+              key={el.id}
+              creator={creator}
+              subscription={el}
+              pageAsset={pageCode}
+            />
+          );
+        })}
       </SubscriptionGridWrapper>
     </div>
   );

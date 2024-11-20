@@ -14,6 +14,15 @@ const selectedColumn = {
   features: true,
   id: true,
   creatorId: true,
+  creator: {
+    select: {
+      pageAsset: {
+        select: {
+          code: true,
+        },
+      },
+    }
+  }
 };
 
 export const membershipRouter = createTRPCRouter({
