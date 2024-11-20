@@ -42,6 +42,8 @@ export default function GiftPage() {
     resolver: zodResolver(FanGitFormSchema),
   });
 
+  const bal = api.fan.creator.getCreatorPageAssetBalance.useQuery();
+
   const xdr = api.fan.trx.giftFollowerXDR.useMutation({
     onSuccess: (xdr) => {
       toast.promise(submitSignedXDRToServer(xdr), {
@@ -81,122 +83,120 @@ export default function GiftPage() {
     }
   }
 
-  return (
-    <div className=" flex h-full flex-col items-center ">
-      <div className="card w-full  max-w-xl bg-base-200 p-4">
-        {/* <h2>Fan email / pubkey</h2> */}
-        <h2 className="mb-4 text-2xl font-bold">Gift your fans</h2>
-        <form onSubmit={handleSubmit(onSubmit)} className="">
-          <label className="form-control w-full py-2">
-            <div className="label">
-              <span className="label-text">Pubkey/Email</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <input
-                type="text"
-                // onChange={(e) => setUserKey(e.target.value)}
-                {...register("pubkey")}
-                placeholder="Email/ Pubkey"
-                className="input input-bordered w-full "
-              />
-              {z.string().email().safeParse(pubkey).success && (
-                <div className="tooltip" data-tip="Fetch Pubkey">
-                  <RefreshCcw onClick={fetchPubKey} />
+  if (bal.isLoading) return <Loading />;
+  if (bal.data)
+    return (
+      <div className=" flex h-full flex-col items-center ">
+        <div className="card w-full  max-w-xl bg-base-200 p-4">
+          {/* <h2>Fan email / pubkey</h2> */}
+          <h2 className="mb-4 text-2xl font-bold">Gift your fans</h2>
+          <form onSubmit={handleSubmit(onSubmit)} className="">
+            <label className="form-control w-full py-2">
+              <div className="label">
+                <span className="label-text">Pubkey/Email</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <input
+                  type="text"
+                  // onChange={(e) => setUserKey(e.target.value)}
+                  {...register("pubkey")}
+                  placeholder="Email/ Pubkey"
+                  className="input input-bordered w-full "
+                />
+                {z.string().email().safeParse(pubkey).success && (
+                  <div className="tooltip" data-tip="Fetch Pubkey">
+                    <RefreshCcw onClick={fetchPubKey} />
+                  </div>
+                )}
+              </div>
+
+              {pubkey && pubkey.length == 56 && (
+                <div className="label">
+                  <span className="label-text">
+                    <p className="text-sm">pubkey: {pubkey}</p>
+                  </span>
                 </div>
               )}
+            </label>
+            <div className="label">
+              <span className="label-text">
+                Amount of {bal.data.asset} to gift
+              </span>
             </div>
-
-            {pubkey && pubkey.length == 56 && (
-              <div className="label">
-                <span className="label-text">
-                  <p className="text-sm">pubkey: {pubkey}</p>
-                </span>
-              </div>
-            )}
-          </label>
-          <div className="label">
-            <span className="label-text">
-              Required Amount of {PLATFORM_ASSET.code}
-            </span>
-          </div>
-          <label className="input input-bordered flex  items-center gap-2">
-            <input
-              type="number"
-              placeholder={`Price in ${PLATFORM_ASSET.code}`}
-              {...register("amount")}
-              className="grow"
-              // className=" input input-bordered w-full "
-            />
-          </label>
-          <div className="flex flex-col gap-2">
-            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-              <DialogTrigger asChild>
-                <Button
-                  className="mt-2 w-full"
-                  disabled={xdr.isLoading || !isValid}
-                >
-                  Gift
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="sm:max-w-[425px]">
-                <DialogHeader>
-                  <DialogTitle>Confirmation </DialogTitle>
-                </DialogHeader>
-                <div className="mt-6 w-full space-y-6 sm:mt-8 lg:mt-0 lg:max-w-xs xl:max-w-md">
-                  <div className="flex flex-col gap-2">
-                    <p className="font-semibold">
-                      Receiver Pubkey :{" "}
-                      {getValues("pubkey")
-                        ? addrShort(getValues("pubkey"))
-                        : ""}
-                    </p>
-                    <p className="font-semibold">
-                      Amount : {getValues("amount")} {PLATFORM_ASSET.code}
-                    </p>
+            <label className="input input-bordered flex  items-center gap-2">
+              <input
+                type="number"
+                placeholder={`Price in ${bal.data.asset}`}
+                {...register("amount")}
+                className="grow"
+                // className=" input input-bordered w-full "
+              />
+            </label>
+            <div className="flex flex-col gap-2">
+              <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button
+                    className="mt-2 w-full"
+                    disabled={xdr.isLoading || !isValid}
+                  >
+                    Gift
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-[425px]">
+                  <DialogHeader>
+                    <DialogTitle>Confirmation </DialogTitle>
+                  </DialogHeader>
+                  <div className="mt-6 w-full space-y-6 sm:mt-8 lg:mt-0 lg:max-w-xs xl:max-w-md">
+                    <div className="flex flex-col gap-2">
+                      <p className="font-semibold">
+                        Receiver Pubkey :{" "}
+                        {getValues("pubkey")
+                          ? addrShort(getValues("pubkey"))
+                          : ""}
+                      </p>
+                      <p className="font-semibold">
+                        Amount : {getValues("amount")} {bal.data.asset}
+                      </p>
+                    </div>
                   </div>
-                </div>
-                <DialogFooter className="w-full">
-                  <div className="flex w-full gap-4">
-                    <DialogClose className="w-full">
+                  <DialogFooter className="w-full">
+                    <div className="flex w-full gap-4">
+                      <DialogClose className="w-full">
+                        <Button
+                          disabled={xdr.isLoading}
+                          variant="outline"
+                          onClick={() => setIsDialogOpen(false)}
+                          className="w-full"
+                        >
+                          Cancel
+                        </Button>
+                      </DialogClose>
                       <Button
-                        disabled={xdr.isLoading}
-                        variant="outline"
-                        onClick={() => setIsDialogOpen(false)}
+                        disabled={xdr.isLoading || !isValid}
+                        onClick={handleSubmit(onSubmit)}
+                        variant="destructive"
+                        type="submit"
                         className="w-full"
                       >
-                        Cancel
+                        Confirm
                       </Button>
-                    </DialogClose>
-                    <Button
-                      disabled={xdr.isLoading || !isValid}
-                      onClick={handleSubmit(onSubmit)}
-                      variant="destructive"
-                      type="submit"
-                      className="w-full"
-                    >
-                      Confirm
-                    </Button>
-                  </div>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
-          </div>
-          {/* <button className="btn btn-primary my-2" type="submit">
-            {xdr.isLoading && <span className="loading loading-spinner" />}
-            Gift
-          </button> */}
+                    </div>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+            </div>
 
-          <div className="mt-2">
-            <CreatorPageBal />
-          </div>
-        </form>
+            <div className="mt-2">
+              <CreatorPageBal />
+            </div>
+          </form>
+        </div>
+        <div className="card mt-4  w-full max-w-xl bg-base-200 p-4">
+          <h2 className="my-3 text-xl font-bold">Your Fans</h2>
+          <FansList />
+        </div>
       </div>
-      <div className="card mt-4  w-full max-w-xl bg-base-200 p-4">
-        <h2 className="my-3 text-xl font-bold">Your Fans</h2>
-        <FansList />
-      </div>
-    </div>
-  );
+    );
 }
 
 function CreatorPageBal() {

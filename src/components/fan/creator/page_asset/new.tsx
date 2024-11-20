@@ -18,15 +18,6 @@ import {
   usePaymentMethodStore,
 } from "~/components/payment/payment-options";
 import { useToast } from "~/hooks/use-toast";
-import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "~/components/shadcn/ui/dialog";
 
 export const MAX_ASSET_LIMIT = Number("922337203685");
 
@@ -98,6 +89,7 @@ function NewPageAssetFrom({ requiredToken }: { requiredToken: number }) {
       setSignLoading(true);
       // sign the transaction for fbgoogle
       const toastId = toast.loading("Signing Transaction");
+
       clientsign({
         walletType: session.data?.user.walletType,
         presignedxdr: data.trx,
@@ -230,6 +222,7 @@ function NewPageAssetFrom({ requiredToken }: { requiredToken: number }) {
           type="number"
           {...register("limit", { valueAsNumber: true })}
           min={1}
+          max={MAX_ASSET_LIMIT}
           step={1}
           className="input input-bordered w-full"
           placeholder="Asset Limit"
@@ -285,43 +278,6 @@ function NewPageAssetFrom({ requiredToken }: { requiredToken: number }) {
           </Button>
         }
       />
-
-      {/* <Dialog>
-        <DialogTrigger asChild>
-          <Button className="w-full" disabled={loading}>
-            Create Page Asset
-          </Button>
-        </DialogTrigger>
-        <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle>Confirmation </DialogTitle>
-          </DialogHeader>
-          <div>
-            Your account will be charged {requiredToken}{" "}
-            <span className="text-red-600">{PLATFORM_ASSET.code}</span> to
-            create this page token;
-          </div>
-          <DialogFooter className=" w-full">
-            <div className="flex w-full gap-4  ">
-              <DialogClose className="w-full">
-                <Button variant="outline" className="w-full">
-                  Cancel
-                </Button>
-              </DialogClose>
-              <Button
-                variant="destructive"
-                type="submit"
-                onClick={() => onSubmit()}
-                disabled={loading}
-                className="w-full"
-              >
-                {loading && <span className="loading loading-spinner" />}
-                Confirm
-              </Button>
-            </div>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog> */}
     </form>
   );
 }

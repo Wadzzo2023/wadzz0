@@ -25,6 +25,7 @@ import {
   TooltipTrigger,
 } from "~/components/shadcn/ui/tooltip";
 import { CircleDollarSign, Info } from "lucide-react";
+import { CREATOR_TERM } from "~/utils/term";
 
 export default function MemberShip({ creator }: { creator: Creator }) {
   const { data: subscriptions, isLoading } =
@@ -55,7 +56,7 @@ function AssetViewCart({ creator }: { creator: Creator }) {
   return (
     <Card className="w-[350px] text-center">
       <CardHeader>
-        <CardTitle>Your Page Asset</CardTitle>
+        <CardTitle>{CREATOR_TERM} Page Asset</CardTitle>
         {/* <CardDescription></CardDescription> */}
       </CardHeader>
       <CardContent>
