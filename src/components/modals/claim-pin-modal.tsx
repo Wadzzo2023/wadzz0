@@ -48,7 +48,7 @@ const ClaimPinModal = () => {
 
   async function handleXDR() {
     if (data.location) {
-      await xdrMutation.mutate({
+      xdrMutation.mutate({
         signWith: needSign(),
         locationId: data.location.id,
       });

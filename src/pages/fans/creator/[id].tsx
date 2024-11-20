@@ -239,7 +239,7 @@ export function UnFollowButton({ creator }: { creator: Creator }) {
       //   creatorId: creator.id,
       // });
       // await utils.fan.member.invalidate();
-      await router.reload();
+      router.reload();
     },
     onError: (e) => toast.error(e.message),
   });

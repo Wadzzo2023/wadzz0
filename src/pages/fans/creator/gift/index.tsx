@@ -3,13 +3,11 @@ import { SubmitHandler, useForm } from "react-hook-form";
 import { z } from "zod";
 import { api } from "~/utils/api";
 
-import { DollarSign, RefreshCcw } from "lucide-react";
+import { RefreshCcw } from "lucide-react";
 import { submitSignedXDRToServer } from "package/connect_wallet";
+import { useState } from "react";
 import toast from "react-hot-toast";
-import Avater from "~/components/ui/avater";
-import Loading from "~/components/wallete/loading";
-import { fetchPubkeyfromEmail } from "~/utils/get-pubkey";
-import { PLATFORM_ASSET } from "~/lib/stellar/constant";
+import { Button } from "~/components/shadcn/ui/button";
 import {
   Dialog,
   DialogClose,
@@ -19,8 +17,9 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "~/components/shadcn/ui/dialog";
-import { useState } from "react";
-import { Button } from "~/components/shadcn/ui/button";
+import Avater from "~/components/ui/avater";
+import Loading from "~/components/wallete/loading";
+import { fetchPubkeyfromEmail } from "~/utils/get-pubkey";
 import { addrShort } from "~/utils/utils";
 export const FanGitFormSchema = z.object({
   pubkey: z.string().length(56),
@@ -82,6 +81,10 @@ export default function GiftPage() {
       console.error(e);
     }
   }
+
+  const handleFanAvatarClick = (pubkey: string) => {
+    setValue("pubkey", pubkey, { shouldValidate: true });
+  };
 
   if (bal.isLoading) return <Loading />;
   if (bal.data)
@@ -193,7 +196,7 @@ export default function GiftPage() {
         </div>
         <div className="card mt-4  w-full max-w-xl bg-base-200 p-4">
           <h2 className="my-3 text-xl font-bold">Your Fans</h2>
-          <FansList />
+          <FansList handleFanAvatarClick={handleFanAvatarClick} />
         </div>
       </div>
     );
@@ -217,7 +220,11 @@ function CreatorPageBal() {
   }
 }
 
-function FansList() {
+function FansList({
+  handleFanAvatarClick,
+}: {
+  handleFanAvatarClick: (pubkey: string) => void;
+}) {
   const fans = api.fan.creator.getFansList.useQuery();
 
   if (fans.isLoading) return <Loading />;
@@ -225,7 +232,12 @@ function FansList() {
     return (
       <div>
         {fans.data.map((fan) => (
-          <FanAvater key={fan.id} name={fan.user.name} pubkey={fan.user.id} />
+          <FanAvater
+            handleFanAvatarClick={handleFanAvatarClick}
+            key={fan.id}
+            name={fan.user.name}
+            pubkey={fan.user.id}
+          />
         ))}
       </div>
     );
@@ -234,12 +246,17 @@ function FansList() {
 export function FanAvater({
   name,
   pubkey,
+  handleFanAvatarClick,
 }: {
   name: string | null;
   pubkey: string;
+  handleFanAvatarClick: (pubkey: string) => void;
 }) {
   return (
-    <div className="flex items-center gap-2  p-2 px-4 hover:rounded-lg hover:bg-base-100">
+    <div
+      className="flex items-center gap-2  p-2 px-4 hover:rounded-lg hover:bg-base-100"
+      onClick={() => handleFanAvatarClick(pubkey)}
+    >
       <div>
         <Avater url={undefined} className="w-8" />
       </div>
