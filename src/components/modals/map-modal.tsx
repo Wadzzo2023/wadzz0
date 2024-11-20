@@ -129,6 +129,9 @@ const MapModalComponent = () => {
   if (!session?.data?.user?.id) {
     return <div>Public Key not found</div>;
   }
+  function handleDuplicatePin(): void {
+    console.log("duplicate");
+  }
 
   if (data)
     return (
@@ -167,6 +170,9 @@ const MapModalComponent = () => {
               </Button>
               <Button className="m-1 w-1/2 " onClick={handleCopyPin}>
                 <Copy size={15} className="mr-2" /> Copy Pin
+              </Button>
+              <Button className="m-1 w-1/2 " onClick={handleDuplicatePin}>
+                <Copy size={15} className="mr-2" /> Duplicate pins
               </Button>
               <Button
                 className="m-1 w-1/2 "

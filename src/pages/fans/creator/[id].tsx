@@ -366,16 +366,12 @@ function CreatorStoreItem({ creatorId }: { creatorId: string }) {
       },
     );
 
-  // const toggleVisibility =
-  //   api.marketplace.market.toggleVisibilityMarketNft.useMutation();
-
   if (assets.isLoading)
     return (
       <MoreAssetsSkeleton className="grid grid-cols-2 gap-2 md:grid-cols-4 lg:grid-cols-5" />
     );
 
   if (assets.data?.pages[0]?.nfts.length === 0) {
-    console.log("No assets");
     return <div>No assets</div>;
   }
 

@@ -213,7 +213,9 @@ function CanBuyButton({ marketData }: { marketData: MarketAssetType }) {
   );
 
   if (data.isLoading) return <span className="loading loading-spinner" />;
-  if (data.error) return <span>{data.error.message}</span>;
+  if (data.error) {
+    console.log("market right error", data.error);
+  }
 
   if (data.data) {
     return (

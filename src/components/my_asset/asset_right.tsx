@@ -60,7 +60,7 @@ export default function AssetRight() {
             </p>
             <p>
               <span className="font-semibold">Available:</span>{" "}
-              {currentData.copies} copy
+              {currentData.copies ?? 0} copy
             </p>
 
             <p>
