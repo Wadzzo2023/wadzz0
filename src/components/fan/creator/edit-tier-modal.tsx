@@ -97,10 +97,10 @@ export default function EditTierModal({ item }: { item: SubscriptionType }) {
             <h3 className="text-center text-lg font-bold">Edit</h3>
             <form
               onSubmit={handleSubmit(onSubmit)}
-              className="flex flex-col items-center  gap-2  py-8"
+              className="flex w-full flex-col  items-center  gap-2 py-8"
             >
-              <div className="rounded-md">
-                <label className="form-control w-full max-w-md">
+              <div className="rounded-md ">
+                <label className="form-control w-full ">
                   <div className="label">
                     <span className="label-text">Tier Name</span>
                   </div>
@@ -108,7 +108,7 @@ export default function EditTierModal({ item }: { item: SubscriptionType }) {
                     type="text"
                     placeholder="Name of the tier"
                     {...register("name")}
-                    className="input input-bordered w-full max-w-xs"
+                    className="input input-bordered w-full "
                   />
                   {errors.name && (
                     <div className="label">
@@ -118,13 +118,13 @@ export default function EditTierModal({ item }: { item: SubscriptionType }) {
                     </div>
                   )}
                 </label>
-                <label className="form-control w-full max-w-xs">
+                <label className="form-control w-full ">
                   <div className="label">
                     <span className="label-text">Price</span>
                   </div>
                   <input
                     {...register("price", { valueAsNumber: true })}
-                    className="input input-bordered w-full max-w-xs"
+                    className="input input-bordered w-full "
                     type="number"
                     step="1"
                     min="1"
@@ -138,7 +138,7 @@ export default function EditTierModal({ item }: { item: SubscriptionType }) {
                     </div>
                   )}
                 </label>
-                <label className="form-control w-full max-w-xs">
+                <label className="form-control w-full ">
                   <div className="label">
                     <span className="label-text">Tier Features</span>
                   </div>
@@ -155,7 +155,7 @@ export default function EditTierModal({ item }: { item: SubscriptionType }) {
                   )}
                 </label>
               </div>
-              <div className="m-auto  mt-16 flex w-full flex-col  items-center gap-2 ">
+              <div className="  mt-16 flex w-full flex-col  items-center gap-2 ">
                 <Button
                   className="w-full max-w-xs"
                   type="submit"
@@ -164,7 +164,7 @@ export default function EditTierModal({ item }: { item: SubscriptionType }) {
                   {mutation.isLoading && (
                     <span className="loading loading-spinner"></span>
                   )}
-                  Edit Tier
+                  Save Changes
                 </Button>
                 <DeleteTier id={item.id} />
               </div>

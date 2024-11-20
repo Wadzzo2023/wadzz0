@@ -127,7 +127,7 @@ export function CreatPost() {
                   <SelectItem
                     key={model.id}
                     value={model.id.toString()}
-                  >{`${model.price} - ${model.name}`}</SelectItem>
+                  >{`${model.name} : ${model.price} ${model.creator.pageAsset?.code}`}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -138,7 +138,7 @@ export function CreatPost() {
   }
 
   return (
-    <Card className="mx-auto w-full max-w-2xl">
+    <Card className="w-full md:px-8">
       <form onSubmit={handleSubmit(onSubmit)}>
         <CardHeader className="flex flex-col items-start justify-between space-y-2 pb-2 sm:flex-row sm:items-center sm:space-y-0">
           <div className="flex items-center space-x-2">
@@ -150,7 +150,7 @@ export function CreatPost() {
             <TiersOptions />
           </div>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-4 ">
           <div className="space-y-2">
             <Input
               type="text"

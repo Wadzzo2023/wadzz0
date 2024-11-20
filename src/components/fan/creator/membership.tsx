@@ -138,7 +138,7 @@ function CreatorAssetView({ creator }: { creator: Creator }) {
                   </button>
                 </TooltipTrigger>
                 <TooltipContent>
-                  <p>Issue Log Code: {pageAsset.issuer}</p>
+                  <p>Issuer address: {pageAsset.issuer}</p>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
