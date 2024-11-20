@@ -101,9 +101,9 @@ function EditItem({
 
 export const updateAssetFormShema = z.object({
   assetId: z.number(),
-  price: z.number().min(1),
+  price: z.number().nonnegative(),
 
-  priceUSD: z.number().min(1),
+  priceUSD: z.number().nonnegative(),
 });
 
 function EditForm({ item }: { item: MarketAssetType }) {

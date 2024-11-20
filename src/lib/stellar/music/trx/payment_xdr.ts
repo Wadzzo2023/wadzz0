@@ -8,8 +8,17 @@ import {
 } from "@stellar/stellar-sdk";
 import { networkPassphrase } from "./create_song_token";
 import { SignUserType, WithSing } from "../../utils";
-import { PLATFORM_ASSET, PLATFORM_FEE, STELLAR_URL } from "../../constant";
+import {
+  PLATFORM_ASSET,
+  PLATFORM_FEE,
+  STELLAR_URL,
+  TrxBaseFee,
+  TrxBaseFeeInPlatformAsset,
+} from "../../constant";
 import { env } from "~/env";
+import { StellarAccount } from "../../marketplace/test/Account";
+import { b } from "vitest/dist/suite-IbNSsUWN";
+import { getplatformAssetNumberForXLM } from "../../fan/get_token_price";
 
 const log = console;
 
@@ -34,27 +43,39 @@ export async function XDR4BuyAsset({
   const asset = new Asset(code, issuerPub);
   const server = new Horizon.Server(STELLAR_URL);
   const storageAcc = Keypair.fromSecret(storageSecret);
-  console.log(buyer, code, issuerPub, price, storageSecret, seller)
-  const transactionInializer = await server.loadAccount(buyer);
 
-  const balances = transactionInializer.balances;
-  const trust = balances.find((balance) => {
-    if (
-      balance.asset_type === "credit_alphanum12" ||
-      balance.asset_type === "credit_alphanum4"
-    ) {
-      if (balance.asset_code === code && balance.asset_issuer === issuerPub) {
-        return true;
-      }
-    }
-  });
+  const motherAcc = Keypair.fromSecret(env.MOTHER_SECRET);
+
+  const transactionInializer = await server.loadAccount(motherAcc.publicKey());
+
+  const buyerAcc = await StellarAccount.create(buyer);
+  const hasTrust = buyerAcc.hasTrustline(code, issuerPub);
+
+  const requiredAsset2refundXlm = hasTrust
+    ? 0
+    : await getplatformAssetNumberForXLM(0.5);
+  const totalPlatformFee =
+    requiredAsset2refundXlm +
+    Number(PLATFORM_FEE) +
+    Number(TrxBaseFeeInPlatformAsset);
 
   const Tx2 = new TransactionBuilder(transactionInializer, {
-    fee: BASE_FEE,
+    fee: TrxBaseFee,
     networkPassphrase,
-  })
-    // pay price to seller
-    .addOperation(
+  });
+
+  Tx2.addOperation(
+    Operation.payment({
+      destination: motherAcc.publicKey(),
+      amount: totalPlatformFee.toString(),
+      asset: PLATFORM_ASSET,
+      source: buyer,
+    }),
+  );
+
+  // pay price to seller
+  if (Number(price) > 0) {
+    Tx2.addOperation(
       Operation.payment({
         destination: seller,
         amount: price,
@@ -62,9 +83,17 @@ export async function XDR4BuyAsset({
         source: buyer,
       }),
     );
+  }
 
-  if (trust === undefined) {
+  if (!hasTrust) {
     Tx2.addOperation(
+      Operation.payment({
+        destination: buyer,
+        amount: "0.5",
+        asset: Asset.native(),
+        source: motherAcc.publicKey(),
+      }),
+    ).addOperation(
       Operation.changeTrust({
         asset: asset,
         source: buyer,
@@ -72,7 +101,7 @@ export async function XDR4BuyAsset({
     );
   }
 
-  // send token to buyyer
+  // send token to buyer
   Tx2.addOperation(
     Operation.payment({
       asset: asset,
@@ -94,11 +123,10 @@ export async function XDR4BuyAsset({
 
   const buildTrx = Tx2.build();
 
-  buildTrx.sign(storageAcc);
+  buildTrx.sign(motherAcc, storageAcc);
 
   const xdr = buildTrx.toXDR();
   const singedXdr = WithSing({ xdr, signWith });
-  // console.log(singedXdr, "singedXdr");
   return singedXdr;
 }
 
@@ -139,11 +167,13 @@ export async function XDR4BuyAssetWithXLM({
   });
 
   const Tx2 = new TransactionBuilder(transactionInializer, {
-    fee: BASE_FEE,
+    fee: TrxBaseFee,
     networkPassphrase,
-  })
+  });
+
+  if (Number(priceInNative) > 0) {
     // pay price to seller
-    .addOperation(
+    Tx2.addOperation(
       Operation.payment({
         destination: seller,
         amount: priceInNative,
@@ -151,6 +181,7 @@ export async function XDR4BuyAssetWithXLM({
         source: buyer,
       }),
     );
+  }
 
   if (trust === undefined) {
     Tx2.addOperation(

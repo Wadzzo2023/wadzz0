@@ -20,10 +20,10 @@ export default function AllTags() {
     >
       <input
         className="!btn join-item"
-        key={"All"}
+        key={"ALL"}
         type="radio"
         name="options"
-        aria-label="All"
+        aria-label="ALL"
         onClick={() => {
           selectTag(undefined);
           setData(undefined);
