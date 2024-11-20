@@ -20,6 +20,10 @@ import { CreatorBack } from "~/pages/fans/creator";
 import { MoreAssetsSkeleton } from "~/components/marketplace/platforms_nfts";
 import ViewMediaModal from "~/components/fan/shop/asset_view_modal";
 import ShopAssetComponent from "~/components/fan/shop/shop_asset";
+import { CREATOR_TERM } from "~/utils/term";
+import { Button } from "~/components/shadcn/ui/button";
+import { Loader } from "@react-three/drei";
+import { Loader2 } from "lucide-react";
 
 export default function CreatorPage() {
   const router = useRouter();
@@ -170,23 +174,28 @@ export function FollowButton({ creator }: { creator: Creator }) {
   const followXDR = api.fan.trx.followCreatorTRX.useMutation({
     onSuccess: async (xdr) => {
       if (xdr) {
-        setSingLoading(true);
-        try {
-          const res = await clientsign({
-            presignedxdr: xdr,
-            pubkey: session.data?.user.id,
-            walletType: session.data?.user.walletType,
-            test: clientSelect(),
-          });
+        if (xdr === true) {
+          toast.success("User already has trust in page asset");
+          follow.mutate({ creatorId: creator.id });
+        } else {
+          setSingLoading(true);
+          try {
+            const res = await clientsign({
+              presignedxdr: xdr,
+              pubkey: session.data?.user.id,
+              walletType: session.data?.user.walletType,
+              test: clientSelect(),
+            });
 
-          if (res) {
-            follow.mutate({ creatorId: creator.id });
-          } else toast.error("signing failed");
-        } catch (e) {
-          toast.error("Error in signing");
-          console.error(e);
-        } finally {
-          setSingLoading(false);
+            if (res) {
+              follow.mutate({ creatorId: creator.id });
+            } else toast.error("signing failed");
+          } catch (e) {
+            toast.error("Error in signing");
+            console.error(e);
+          } finally {
+            setSingLoading(false);
+          }
         }
       } else {
         toast.error("XDR undefined");
@@ -196,8 +205,14 @@ export function FollowButton({ creator }: { creator: Creator }) {
   });
   const loading = followXDR.isLoading || signLoading || follow.isLoading;
   // console.log("Session User, Creator", session.data?.user.id, creator.id);
-  if (session.data?.user.id === creator.id) return <p>Creator</p>;
-  if (isFollower.data ?? follow.isSuccess) return <p>You are a follower</p>;
+  if (session.data?.user.id === creator.id) return <p>{CREATOR_TERM}</p>;
+  if (isFollower.data ?? follow.isSuccess)
+    return (
+      <div className="flex flex-col justify-center p-2">
+        <p>You are a follower</p>
+        <UnFollowButton creator={creator} />
+      </div>
+    );
   else if (isFollower.isSuccess || isFollower.data === undefined)
     return (
       <div>
@@ -215,6 +230,34 @@ export function FollowButton({ creator }: { creator: Creator }) {
     );
 }
 
+export function UnFollowButton({ creator }: { creator: Creator }) {
+  const router = useRouter();
+  const utils = api.useUtils();
+  const unFollow = api.fan.member.unFollowCreator.useMutation({
+    onSuccess: async () => {
+      toast.success("Un follow success");
+
+      // await utils.fan.member.isFollower.refetch({
+      //   creatorId: creator.id,
+      // });
+      // await utils.fan.member.invalidate();
+      await router.reload();
+    },
+    onError: (e) => toast.error(e.message),
+  });
+  return (
+    <Button
+      disabled={unFollow.isLoading}
+      onClick={() => {
+        unFollow.mutate({ creatorId: creator.id });
+      }}
+    >
+      {unFollow.isLoading && <Loader2 className="animate mr-2 animate-spin" />}{" "}
+      Un follow
+    </Button>
+  );
+}
+
 export function ChooseMemberShip({ creator }: { creator: Creator }) {
   const { data: subscriptonModel, isLoading } =
     api.fan.member.getCreatorMembership.useQuery(creator.id);
@@ -222,7 +265,7 @@ export function ChooseMemberShip({ creator }: { creator: Creator }) {
   if (subscriptonModel && subscriptonModel.length > 0) {
     return (
       <div className="mb-10 flex flex-col gap-4">
-        <h2 className="text-center text-2xl font-bold">Your Tier</h2>
+        <h2 className="text-center text-2xl font-bold">{CREATOR_TERM} Tiers</h2>
         {isLoading && <div>Loading...</div>}
 
         <SubscriptionGridWrapper itemLength={subscriptonModel.length}>

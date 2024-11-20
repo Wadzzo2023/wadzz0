@@ -22,7 +22,6 @@ const ClaimPinModal = () => {
   const { needSign } = useNeedSign();
   const [paymentSuccesfull, setpaymetSucess] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [hasXdr, setHasXdr] = useState(false);
 
   const isModalOpen = isOpen && type === "claim pin";
   const handleClose = () => {

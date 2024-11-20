@@ -39,6 +39,7 @@ import {
   TrxBaseFeeInPlatformAsset,
 } from "~/lib/stellar/constant";
 import { PaymentMethodEnum } from "~/components/music/modal/buy_modal";
+import { StellarAccount } from "~/lib/stellar/marketplace/test/Account";
 
 export const trxRouter = createTRPCRouter({
   createCreatorPageAsset: protectedProcedure
@@ -257,26 +258,40 @@ export const trxRouter = createTRPCRouter({
         include: { pageAsset: true },
       });
 
+      const userAcc = await StellarAccount.create(userId);
+
       if (creator.pageAsset) {
         const { code, issuer } = creator.pageAsset;
-        // creat trust with userId
-        const xdr = await follow_creator({
-          creatorPageAsset: { code, issuer },
-          userPubkey: userId,
-          signWith,
-        });
-        return xdr;
+
+        const hasTrust = userAcc.hasTrustline(code, issuer);
+
+        if (hasTrust) {
+          return true;
+        } else {
+          // creat trust with userId
+          const xdr = await follow_creator({
+            creatorPageAsset: { code, issuer },
+            userPubkey: userId,
+            signWith,
+          });
+          return xdr;
+        }
       } else {
         if (creator.customPageAssetCodeIssuer) {
           const [code, issuer] = creator.customPageAssetCodeIssuer.split("-");
           const issuerVal = z.string().length(56).safeParse(issuer);
           if (issuerVal.success && code) {
-            const xdr = await follow_creator({
-              creatorPageAsset: { code, issuer: issuerVal.data },
-              userPubkey: userId,
-              signWith,
-            });
-            return xdr;
+            const hasTrust = userAcc.hasTrustline(code, issuerVal.data);
+            if (hasTrust) {
+              return true;
+            } else {
+              const xdr = await follow_creator({
+                creatorPageAsset: { code, issuer: issuerVal.data },
+                userPubkey: userId,
+                signWith,
+              });
+              return xdr;
+            }
           } else {
             throw new Error("Issuer is invalid");
           }
