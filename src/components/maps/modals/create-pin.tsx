@@ -101,8 +101,8 @@ export default function CreatePinModal() {
       radius: 0,
       pinNumber: 1,
       description: prevData?.description,
-      startDate: prevData?.startDate ?? new Date(),
-      endDate: prevData?.endDate ?? new Date(),
+      // startDate: new Date(),
+      // endDate: new Date(),
     },
     // mode: "onTouched",
   });
