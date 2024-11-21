@@ -201,7 +201,7 @@ export default function GiftPage() {
       </div>
     );
   } else if (bal.data === undefined) {
-    return <div>You don't have page asset to gift.</div>;
+    return <div>You don&apos;t have page asset to gift.</div>;
   }
 }
 

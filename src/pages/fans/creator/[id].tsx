@@ -275,6 +275,7 @@ export function ChooseMemberShip({ creator }: { creator: Creator }) {
                 key={el.id}
                 creator={creator}
                 subscription={el}
+                // pageAsset={creator        }
               />
             ))}
         </SubscriptionGridWrapper>
