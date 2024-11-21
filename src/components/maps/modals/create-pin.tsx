@@ -14,7 +14,6 @@ import { BADWORDS } from "~/utils/banned-word";
 import { error, loading, success } from "~/utils/trcp/patterns";
 import { UploadButton } from "~/utils/uploadthing";
 
-import { Button } from "~/components/shadcn/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -159,7 +158,8 @@ export default function CreatePinModal() {
           render={({ field }) => (
             <select {...field} className="select select-bordered ">
               <option disabled>Choose Tier</option>
-              <option>Public</option>
+              <option value="public">Public</option>
+              <option value="private">Only Followers</option>
               {tiers.data.map((model) => (
                 <option
                   key={model.id}

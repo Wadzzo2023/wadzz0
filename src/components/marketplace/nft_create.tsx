@@ -7,34 +7,30 @@ import Image from "next/image";
 import { clientsign } from "package/connect_wallet";
 import { WalletType } from "package/connect_wallet/src/lib/enums";
 import { ChangeEvent, useRef, useState } from "react";
-import { SubmitHandler, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { z } from "zod";
 import {
   Dialog,
-  DialogClose,
   DialogContent,
-  DialogFooter,
   DialogHeader,
-  DialogTitle,
   DialogTrigger,
 } from "~/components/shadcn/ui/dialog";
 import useNeedSign from "~/lib/hook";
 import { useUserStellarAcc } from "~/lib/state/wallete/stellar-balances";
-import { PLATFORM_ASSET, PLATFORM_FEE } from "~/lib/stellar/constant";
+import { PLATFORM_ASSET } from "~/lib/stellar/constant";
 import { AccountSchema, clientSelect } from "~/lib/stellar/fan/utils";
 import { api } from "~/utils/api";
-import { UploadButton } from "~/utils/uploadthing";
-import Alert from "../ui/alert";
-import Loading from "../wallete/loading";
-import { Button } from "../shadcn/ui/button";
 import { BADWORDS } from "~/utils/banned-word";
-import Link from "next/link";
-import RechargeLink from "./recharge/link";
+import { UploadButton } from "~/utils/uploadthing";
 import {
   PaymentChoose,
   usePaymentMethodStore,
 } from "../payment/payment-options";
+import { Button } from "../shadcn/ui/button";
+import Alert from "../ui/alert";
+import Loading from "../wallete/loading";
+import RechargeLink from "./recharge/link";
 
 import { Eye, EyeOff } from "lucide-react";
 import {
@@ -136,7 +132,6 @@ function NftCreateForm({
   const [submitLoading, setSubmitLoading] = useState(false);
   const [mediaUploadSuccess, setMediaUploadSuccess] = useState(false);
   const [mediaType, setMediaType] = useState<MediaType>(MediaType.IMAGE);
-  const [isVisible, setIsVisible] = useState(true);
 
   const [mediaUrl, setMediaUrl] = useState<string>();
   const [coverUrl, setCover] = useState<string>();
@@ -206,9 +201,7 @@ function NftCreateForm({
               setValue("isAdmin", isAdmin);
               setValue("tier", tier);
               const data = getValues();
-              // res && addMutation.mutate(data);
-
-              addAsset.mutate({ ...data, isVisible2All: isVisible });
+              addAsset.mutate({ ...data });
             } else {
               toast.error("Transaction Failed");
             }
@@ -310,6 +303,7 @@ function NftCreateForm({
         <select className="select select-bordered" onChange={onChangeHandler}>
           <option disabled>Choose Tier</option>
           <option value="public">Public</option>
+          <option value="private">Only Followers</option>
           {tiers.data.map((model) => (
             <option
               key={model.id}

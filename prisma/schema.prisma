@@ -334,9 +334,13 @@ model User_Song {
 
 enum ItemPrivacy {
     DRAFT
-    FOR_SALE // for sell
-    NOT_FOR_SALE // for public
-    PRIVATE // only for tier cross of preimium user
+    FOR_SALE
+    NOT_FOR_SALE
+
+    //
+    PUBLIC
+    PRIVATE // only for followers
+    TIER // tier based
 }
 
 // ------------------------Marketplace SCHEMA-------------------------
@@ -356,7 +360,7 @@ model Asset {
     mediaUrl  String
     thumbnail String
 
-    privacy ItemPrivacy @default(FOR_SALE)
+    privacy ItemPrivacy @default(PUBLIC)
 
     creatorId String? // if null then it is admin asset
     creator   Creator? @relation(fields: [creatorId], references: [id], onDelete: Cascade)
@@ -453,6 +457,8 @@ model Admin {
 
 model LocationGroup {
     id String @id @default(cuid())
+
+    privacy ItemPrivacy @default(PUBLIC)
 
     subscriptionId Int?
     Subscription   Subscription? @relation(fields: [subscriptionId], references: [id])

@@ -11,13 +11,12 @@ import {
 
 export const shopRouter = createTRPCRouter({
   createAsset: protectedProcedure
-    .input(NftFormSchema.extend({ isVisible2All: z.boolean().optional() }))
+    .input(NftFormSchema)
     .mutation(async ({ ctx, input }) => {
       const {
         code,
         coverImgUrl,
         description,
-        isVisible2All,
 
         mediaType,
         mediaUrl,
@@ -37,9 +36,17 @@ export const shopRouter = createTRPCRouter({
         const nftType = isAdmin ? "ADMIN" : "FAN";
 
         let tierId: number | undefined;
+        let privacy: ItemPrivacy = ItemPrivacy.PUBLIC;
 
-        if (tier != "public") {
+        if (!tier) {
+          privacy = ItemPrivacy.PUBLIC;
+        } else if (tier == "public") {
+          privacy = ItemPrivacy.PUBLIC;
+        } else if (tier == "private") {
+          privacy = ItemPrivacy.PRIVATE;
+        } else {
           tierId = Number(tier);
+          privacy = ItemPrivacy.TIER;
         }
 
         // console.log("mediaType", mediaType, mediaUrl);
@@ -64,7 +71,7 @@ export const shopRouter = createTRPCRouter({
             creatorId,
             limit,
             tierId,
-            privacy: isVisible2All ? ItemPrivacy.FOR_SALE : ItemPrivacy.PRIVATE,
+            privacy: privacy,
           },
         });
       }

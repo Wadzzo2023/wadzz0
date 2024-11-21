@@ -1,3 +1,4 @@
+import { ItemPrivacy } from "@prisma/client";
 import { title } from "process";
 import { z } from "zod";
 import {
@@ -27,11 +28,21 @@ export const pinRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       const { pinNumber, pinCollectionLimit, token, tier } = input;
 
-      const subscriptionId = tier ? Number(tier) : undefined;
+      let tierId: number | undefined;
+      let privacy: ItemPrivacy = ItemPrivacy.PUBLIC;
 
-      const tokenId = token;
+      if (!tier) {
+        privacy = ItemPrivacy.PUBLIC;
+      } else if (tier == "public") {
+        privacy = ItemPrivacy.PUBLIC;
+      } else if (tier == "private") {
+        privacy = ItemPrivacy.PRIVATE;
+      } else {
+        tierId = Number(tier);
+        privacy = ItemPrivacy.TIER;
+      }
 
-      let assetId = tokenId;
+      let assetId = token;
       let pageAsset = false;
 
       if (token == PAGE_ASSET_NUM) {
@@ -69,7 +80,8 @@ export const pinRouter = createTRPCRouter({
               data: locations,
             },
           },
-          subscriptionId: subscriptionId,
+          subscriptionId: tierId,
+          privacy: privacy,
         },
       });
     }),
