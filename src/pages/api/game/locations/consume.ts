@@ -44,21 +44,7 @@ export default async function handler(
           },
         },
       },
-      locationGroup: {
-        include: {
-          locations: {
-            include: {
-              _count: {
-                select: {
-                  consumers: {
-                    where: { userId: pubkey },
-                  },
-                },
-              },
-            },
-          },
-        },
-      },
+      locationGroup: true,
     },
     where: { id: loc.location_id },
   });
@@ -70,19 +56,18 @@ export default async function handler(
     });
   }
 
-  const totalGroupConsumers = location.locationGroup.locations.reduce(
-    (sum, location) => sum + location._count.consumers,
-    0,
-  );
-
-  const remainingConsumers = location.locationGroup.limit - totalGroupConsumers;
-
   // user have not consumed this location
-  if (location._count.consumers <= 0 && remainingConsumers > 0) {
+  if (location._count.consumers <= 0 && location.locationGroup.remaining > 0) {
     // also check limit of the group
+
     await db.locationConsumer.create({
       data: { locationId: location.id, userId: pubkey },
     });
+    await db.locationGroup.update({
+      where: { id: location.locationGroup.id },
+      data: { remaining: { decrement: 1 } },
+    });
+
     return res.status(200).json({ success: true, data: "Location consumed" });
   } else {
     return res.status(422).json({

@@ -1,6 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { getToken } from "next-auth/jwt";
-import NextCors from "nextjs-cors";
 import { z } from "zod";
 import { follow_creator } from "~/lib/stellar/fan/follow_creator";
 import { EnableCors } from "~/server/api-cors";

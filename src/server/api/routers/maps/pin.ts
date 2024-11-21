@@ -1,5 +1,4 @@
 import { ItemPrivacy } from "@prisma/client";
-import { title } from "process";
 import { z } from "zod";
 import {
   NO_ASSET,
@@ -82,6 +81,7 @@ export const pinRouter = createTRPCRouter({
           },
           subscriptionId: tierId,
           privacy: privacy,
+          remaining: pinCollectionLimit,
         },
       });
     }),

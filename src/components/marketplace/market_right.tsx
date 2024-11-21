@@ -1,6 +1,5 @@
 import { Play, XCircle } from "lucide-react";
 import { useEffect, useState } from "react";
-// import ReactPlayer from "react-player";
 import { Asset, MarketAsset, MediaType } from "@prisma/client";
 import { useSession } from "next-auth/react";
 import { useMarketRightStore } from "~/lib/state/marketplace/right";
@@ -44,8 +43,6 @@ export default function MarketRight() {
     );
 
   return <AssetDetails currentData={currentData} />;
-  // const { name, description, type, mediaUrl } = currentData;
-  // const issuer = nftAsset.issuer.pub;
 }
 
 export function AssetDetails({
@@ -53,9 +50,6 @@ export function AssetDetails({
 }: {
   currentData: MarketAssetType;
 }) {
-  const { setNewTrack } = usePlayerStore();
-  const color = "#7ec34e";
-
   const copy = api.marketplace.market.getMarketAssetAvailableCopy.useQuery({
     id: currentData.id,
   });
@@ -375,7 +369,7 @@ function MediaViewer(props: {
   }
 
   return (
-    <div className="avatar ">
+    <div className="avatar">
       {play ? (
         <div className="flex items-center justify-center">
           <div className="flex h-full flex-col items-center justify-center gap-2">
@@ -405,7 +399,7 @@ function MediaViewer(props: {
 function ThumbNailView(props: { name: string; thumbnailUrl: string }) {
   const { name, thumbnailUrl } = props;
   return (
-    <div className=" m-8 w-full">
+    <div className="w-full">
       <ImageVideViewer code={name} url={thumbnailUrl} blurData={"hi"} />
     </div>
   );

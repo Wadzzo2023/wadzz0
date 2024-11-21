@@ -108,7 +108,6 @@ export const marketRouter = createTRPCRouter({
 
       const asset = await ctx.db.asset.findUnique({
         where: { code_issuer: { code, issuer } },
-        select: { id: true, creatorId: true },
       });
 
       if (!asset) throw new Error("asset not found");
@@ -121,6 +120,7 @@ export const marketRouter = createTRPCRouter({
           price,
           assetId: asset.id,
           priceUSD,
+          privacy: asset.privacy,
         },
       });
     }),

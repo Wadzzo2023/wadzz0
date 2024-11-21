@@ -314,13 +314,6 @@ function NftCreateForm({
       );
     }
   }
-  // console.log("CoverURL", getValues("tier"));
-  const handleLoL = () => {
-    toast.success("NFT Created", {
-      position: "top-center",
-      duration: 4000,
-    });
-  };
 
   const loading = xdrMutation.isLoading || addAsset.isLoading || submitLoading;
   return (

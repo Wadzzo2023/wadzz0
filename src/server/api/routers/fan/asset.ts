@@ -64,6 +64,7 @@ export const shopRouter = createTRPCRouter({
                 priceUSD,
                 placerId: creatorId,
                 type: nftType,
+                privacy: privacy,
               },
             },
             description,

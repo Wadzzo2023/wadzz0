@@ -333,11 +333,6 @@ model User_Song {
 }
 
 enum ItemPrivacy {
-    DRAFT
-    FOR_SALE
-    NOT_FOR_SALE
-
-    //
     PUBLIC
     PRIVATE // only for followers
     TIER // tier based
@@ -387,6 +382,8 @@ enum MarketType {
 // this for creators;
 model MarketAsset {
     id Int @id @default(autoincrement())
+
+    privacy ItemPrivacy @default(PUBLIC)
 
     price    Float
     priceUSD Float @default(1)
@@ -471,7 +468,8 @@ model LocationGroup {
     creatorId String
     creator   Creator @relation(fields: [creatorId], references: [id], onDelete: Cascade)
 
-    limit Int @default(0)
+    limit     Int @default(0)
+    remaining Int @default(0)
 
     title       String
     description String?

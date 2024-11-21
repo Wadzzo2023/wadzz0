@@ -45,6 +45,7 @@ const MapModalComponent = () => {
   // console.log(data.long, data.lat, data.pinId);
   const session = useSession();
   const router = useRouter();
+  const [pinData, setPinData] = React.useState<IPin>();
 
   const { setManual, setDuplicate, setPosition, setIsOpen, setPrevData } =
     useMapModalStore();
@@ -59,6 +60,13 @@ const MapModalComponent = () => {
       handleDuplicatePin();
 
       toast.success("Pin duplicated successfully");
+    },
+  });
+
+  const pinE = api.maps.pin.getPinM.useMutation({
+    onSuccess: (data) => {
+      setPinData(data as IPin);
+      setIsForm(!isForm);
     },
   });
 
@@ -170,7 +178,7 @@ const MapModalComponent = () => {
                   </Button>
                 </DialogTitle>
               </DialogHeader>
-              {isForm && data.pinId ? (
+              {isForm && data.pinId && pinData ? (
                 <PinInfoUpdate
                   id={data.pinId}
                   image={data.image}
@@ -181,56 +189,58 @@ const MapModalComponent = () => {
                 <PinInfo data={data} />
               )}
             </>
-            <div className="mt-4 flex flex-col items-center justify-center md:mt-0">
-              <Button className="m-1 w-1/2 " onClick={handleCutPin}>
-                <Scissors size={15} className="mr-2" /> Cut Pin
-              </Button>
-              <Button className="m-1 w-1/2 " onClick={handleCopyPin}>
-                <Copy size={15} className="mr-2" /> Copy Pin
-              </Button>
-              <Button
-                className="m-1 w-1/2 "
-                onClick={() => {
-                  data.pinId && pinM.mutate(data.pinId);
-                }}
-              >
-                {pinM.isLoading ? (
-                  <Loader2 className="animate animate-spin" />
+            {!isForm && (
+              <div className="mt-4 flex flex-col items-center justify-center md:mt-0">
+                <Button className="m-1 w-1/2 " onClick={handleDelete}>
+                  <Trash2 size={15} className="mr-2" /> Delete Pin
+                </Button>
+                <Button
+                  className="m-1 w-1/2 "
+                  onClick={() => {
+                    data.pinId && pinM.mutate(data.pinId);
+                  }}
+                >
+                  {pinM.isLoading ? (
+                    <Loader2 className="animate animate-spin" />
+                  ) : (
+                    <Copy size={15} className="mr-2" />
+                  )}{" "}
+                  Duplicate pins
+                </Button>
+                <Button className="m-1 w-1/2 " onClick={handleCopyPin}>
+                  <Copy size={15} className="mr-2" /> Copy Pin
+                </Button>
+                <Button className="m-1 w-1/2 " onClick={handleCutPin}>
+                  <Scissors size={15} className="mr-2" /> Cut Pin
+                </Button>
+                <Button
+                  className="m-1 w-1/2 "
+                  onClick={() => {
+                    router
+                      .push(`maps/pins/${data.pinId}`)
+                      .finally(() => handleClose());
+                  }}
+                >
+                  <InfoIcon size={15} className="mr-2" /> Show collectors
+                </Button>
+                {isAutoCollect ? (
+                  <Button
+                    className="m-1 w-1/2 "
+                    onClick={() => handleToggleAutoCollect(data.pinId)}
+                  >
+                    <ShieldCheck size={15} className="mr-2" /> Disable Auto
+                    Collect
+                  </Button>
                 ) : (
-                  <Copy size={15} className="mr-2" />
-                )}{" "}
-                Duplicate pins
-              </Button>
-              <Button
-                className="m-1 w-1/2 "
-                onClick={() => {
-                  router
-                    .push(`maps/pins/${data.pinId}`)
-                    .finally(() => handleClose());
-                }}
-              >
-                <InfoIcon size={15} className="mr-2" /> Show collectors
-              </Button>
-              {isAutoCollect ? (
-                <Button
-                  className="m-1 w-1/2 "
-                  onClick={() => handleToggleAutoCollect(data.pinId)}
-                >
-                  <ShieldCheck size={15} className="mr-2" /> Disable Auto
-                  Collect
-                </Button>
-              ) : (
-                <Button
-                  className="m-1 w-1/2 "
-                  onClick={() => handleToggleAutoCollect(data.pinId)}
-                >
-                  <ShieldBan size={15} className="mr-1" /> Enable Auto Collect
-                </Button>
-              )}
-              <Button className="m-1 w-1/2 " onClick={handleDelete}>
-                <Trash2 size={15} className="mr-2" /> Delete Pin
-              </Button>
-            </div>
+                  <Button
+                    className="m-1 w-1/2 "
+                    onClick={() => handleToggleAutoCollect(data.pinId)}
+                  >
+                    <ShieldBan size={15} className="mr-1" /> Enable Auto Collect
+                  </Button>
+                )}
+              </div>
+            )}
             <DialogFooter className=" px-6 py-4"></DialogFooter>
           </DialogContent>
         </Dialog>

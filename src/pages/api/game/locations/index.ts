@@ -1,13 +1,13 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 
+import { ItemPrivacy } from "@prisma/client";
 import { getToken } from "next-auth/jwt";
 import { z } from "zod";
 import { EnableCors } from "~/server/api-cors";
 import { db } from "~/server/db";
 import { Location } from "~/types/game/location";
 import { avaterIconUrl as abaterIconUrl } from "../brands";
-
-// import { getSession } from "next-auth/react";
+import { StellarAccount } from "~/lib/stellar/marketplace/test/Account";
 
 export default async function handler(
   req: NextApiRequest,
@@ -30,7 +30,17 @@ export default async function handler(
       error: data.error,
     });
   }
+
   const userId = token.sub;
+
+  if (!userId) {
+    return res.status(401).json({
+      error: "User is not authenticated",
+    });
+  }
+
+  // const userAcc = await StellarAccount.create(userId);
+
   let creatorsId: string[] | undefined = undefined;
   if (data.data.filterId === "1") {
     const getAllFollowedBrand = await db.creator.findMany({
@@ -41,17 +51,53 @@ export default async function handler(
           },
         },
       },
+      include: {
+        pageAsset: true,
+        subscriptions: true,
+      },
     });
+
+    // type Creator = {
+    //   id: string;
+    //   pageAsset: {
+    //     code: string;
+    //     issuer: string;
+    //   };
+    // };
+
+    // const creators: Creator[] = getAllFollowedBrand
+    //   .map((brand) => {
+    //     if (brand.pageAsset) {
+    //       const { code, issuer } = brand.pageAsset;
+
+    //       return {
+    //         id: brand.id,
+    //         pageAsset: {
+    //           code,
+    //           issuer,
+    //         },
+    //       };
+    //     }
+    //     return null;
+    //   })
+    //   .filter((creator): creator is Creator => creator !== null);
+
     creatorsId = getAllFollowedBrand.map((brand) => brand.id);
   }
 
   // now i am extracting this brands pins
 
   async function pinsForCreators(creatorsId?: string[]) {
-    const extraFilter = {} as { creatorId?: { in: string[] } };
+    const extraFilter = {
+      privacy: { equals: ItemPrivacy.PUBLIC },
+    } as {
+      creatorId?: { in: string[] };
+      privacy: { equals: ItemPrivacy };
+    };
 
     if (creatorsId) {
       extraFilter.creatorId = { in: creatorsId };
+      extraFilter.privacy = { equals: ItemPrivacy.PRIVATE };
     }
 
     const locationGroup = await db.locationGroup.findMany({
@@ -60,26 +106,29 @@ export default async function handler(
         approved: { equals: true },
         endDate: { gte: new Date() },
         subscriptionId: { equals: null },
+        remaining: { gt: 0 },
       },
       include: {
         locations: {
           include: {
-            consumers: { select: { userId: true } },
+            _count: {
+              select: {
+                consumers: {
+                  where: { userId },
+                },
+              },
+            },
           },
         },
+        Subscription: true,
         creator: true,
       },
     });
 
     const pins = locationGroup.flatMap((group) => {
-      const totalGroupConsumers = group.locations.reduce(
-        (sum, location) => sum + location.consumers.length,
-        0,
-      );
       return group.locations.map((location) => ({
         ...location,
         ...group,
-        remaining: group.limit - totalGroupConsumers,
         id: location.id,
       }));
     });
@@ -95,7 +144,7 @@ export default async function handler(
         url: location.link ?? "https://wadzzo.com/",
         image_url:
           location.image ?? location.creator.profileUrl ?? WadzzoIconURL,
-        collected: location.consumers.includes({ userId: userId ?? "" }),
+        collected: location._count.consumers > 0,
         collection_limit_remaining: location.remaining,
         auto_collect: location.autoCollect,
         brand_image_url: location.creator.profileUrl ?? abaterIconUrl,
