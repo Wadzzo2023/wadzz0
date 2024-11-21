@@ -59,13 +59,16 @@ export const TierSchema = z.object({
 export default function AddTierModal({ creator }: { creator: Creator }) {
   const modalRef = useRef<HTMLDialogElement>(null);
   const [isModalOpen, setIsModalOpen] = React.useState(false);
+  const [isOpen, setIsOpen] = React.useState(false);
 
   const mutation = api.fan.member.createMembership.useMutation({
     onSuccess: () => {
       toast.success("Tier created successfully");
+      setIsOpen(false);
       reset();
     },
   });
+
   const assetAmount = api.fan.trx.getAssetNumberforXlm.useQuery();
 
   const {
@@ -84,16 +87,12 @@ export default function AddTierModal({ creator }: { creator: Creator }) {
     mutation.mutate(data);
   };
 
-  const handleModal = () => {
-    modalRef.current?.showModal();
-  };
-
   function handleEditorChange(value: string): void {
     setValue("featureDescription", value);
   }
 
   return (
-    <Dialog>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <Button variant="destructive">
           <PlusIcon size={16} />

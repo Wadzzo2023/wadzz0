@@ -87,7 +87,7 @@ export default function GiftPage() {
   };
 
   if (bal.isLoading) return <Loading />;
-  if (bal.data)
+  if (bal.data) {
     return (
       <div className=" flex h-full flex-col items-center ">
         <div className="card w-full  max-w-xl bg-base-200 p-4">
@@ -200,6 +200,9 @@ export default function GiftPage() {
         </div>
       </div>
     );
+  } else if (bal.data === undefined) {
+    return <div>You don't have page asset to gift.</div>;
+  }
 }
 
 function CreatorPageBal() {

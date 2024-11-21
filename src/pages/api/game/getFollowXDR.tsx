@@ -30,7 +30,7 @@ export default async function handler(
   const userEmail = token.email;
   if (!userId || !userEmail) {
     res.status(404).json({
-      error: "userID not found",
+      error: "userID/email not found",
     });
     return;
   }
@@ -53,6 +53,7 @@ export default async function handler(
     const xdr = await follow_creator({
       creatorPageAsset: { code, issuer },
       userPubkey: userId,
+      signWith: { email: userEmail },
     });
     console.log(xdr);
     res.status(200).json({ xdr });
@@ -64,6 +65,7 @@ export default async function handler(
         const xdr = await follow_creator({
           creatorPageAsset: { code, issuer: issuerVal.data },
           userPubkey: userId,
+          signWith: { email: userEmail },
         });
         // console.log(xdr);
         res.status(200).json({ xdr });

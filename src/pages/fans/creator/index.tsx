@@ -19,32 +19,24 @@ import { clientSelect } from "~/lib/stellar/fan/utils";
 import { api } from "~/utils/api";
 import { CREATOR_TERM } from "~/utils/term";
 
-import { RadioGroup, RadioGroupItem } from "~/components/shadcn/ui/radio-group";
-import { Label } from "~/components/shadcn/ui/label";
 import { Coins, DollarSign, Loader } from "lucide-react";
+import { Label } from "~/components/shadcn/ui/label";
+import { RadioGroup, RadioGroupItem } from "~/components/shadcn/ui/radio-group";
 
+import {
+  PaymentMethod,
+  PaymentMethodEnum,
+} from "~/components/music/modal/buy_modal";
 import { Button } from "~/components/shadcn/ui/button";
 import {
   Dialog,
-  DialogClose,
   DialogContent,
   DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "~/components/shadcn/ui/dialog";
-import {
-  PLATFORM_ASSET,
-  PLATFORM_FEE,
-  TrxBaseFee,
-  TrxBaseFeeInPlatformAsset,
-} from "~/lib/stellar/constant";
-import { P } from "pino";
-import { createReactProxyDecoration } from "@trpc/react-query/shared";
-import {
-  PaymentMethod,
-  PaymentMethodEnum,
-} from "~/components/music/modal/buy_modal";
+import { PLATFORM_ASSET } from "~/lib/stellar/constant";
 
 export default function CreatorProfile() {
   const { data: session } = useSession();

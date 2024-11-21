@@ -258,21 +258,7 @@ export const trxRouter = createTRPCRouter({
         include: { pageAsset: true },
       });
 
-      const requiredAsset2refundXlm = await getplatformAssetNumberForXLM(0.5);
-      const totalPlatformFee =
-        requiredAsset2refundXlm +
-        Number(PLATFORM_FEE) +
-        Number(TrxBaseFeeInPlatformAsset);
-
       const userAcc = await StellarAccount.create(userId);
-      const platformAssetBal = userAcc.getTokenBalance(
-        PLATFORM_ASSET.code,
-        PLATFORM_ASSET.issuer,
-      );
-
-      if (platformAssetBal < totalPlatformFee) {
-        throw new Error("Insufficient balance to follow creator");
-      }
 
       if (creator.pageAsset) {
         const { code, issuer } = creator.pageAsset;
@@ -287,7 +273,6 @@ export const trxRouter = createTRPCRouter({
             creatorPageAsset: { code, issuer },
             userPubkey: userId,
             signWith,
-            totalPlatformFee,
           });
           return xdr;
         }
@@ -304,7 +289,6 @@ export const trxRouter = createTRPCRouter({
                 creatorPageAsset: { code, issuer: issuerVal.data },
                 userPubkey: userId,
                 signWith,
-                totalPlatformFee,
               });
               return xdr;
             }
