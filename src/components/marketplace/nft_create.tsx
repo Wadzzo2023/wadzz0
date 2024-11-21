@@ -146,7 +146,8 @@ function NftCreateForm({
   const walletType = isAdmin ? WalletType.isAdmin : connectedWalletType;
   const [uploadProgress, setUploadProgress] = useState<number>(0);
 
-  const { paymentMethod } = usePaymentMethodStore();
+  const { paymentMethod, setIsOpen: setPaymentModalOpen } =
+    usePaymentMethodStore();
 
   const {
     register,
@@ -178,6 +179,7 @@ function NftCreateForm({
         position: "top-center",
         duration: 4000,
       });
+      setPaymentModalOpen(false);
       setIsOpen(false);
       setMediaUploadSuccess(false);
       reset();
@@ -215,7 +217,7 @@ function NftCreateForm({
           .finally(() => setSubmitLoading(false)),
         {
           loading: "Signing Transaction",
-          success: "Signed Transaction Successfully",
+          success: "",
           error: "Signing Transaction Failed",
         },
       );
@@ -610,53 +612,6 @@ function NftCreateForm({
                         )}
                       </div>
                     </>
-                    {/* {!tier ||
-                      (tier != "public" && (
-                        <>
-                          <div className="w-full max-w-xs">
-                            <label className="label">
-                              <span className="label-text">Price</span>
-                              <span className="label-text-alt">
-                                Default price is 2 {PLATFORM_ASSET.code}
-                              </span>
-                            </label>
-                            <input
-                              step="0.1"
-                              type="number"
-                              {...register("price", { valueAsNumber: true })}
-                              className="input input-sm input-bordered  w-full"
-                              placeholder="Price"
-                            />
-                            {errors.price && (
-                              <div className="label">
-                                <span className="label-text-alt">
-                                  {errors.price.message}
-                                </span>
-                              </div>
-                            )}
-                          </div>
-                          <div className="w-full max-w-xs">
-                            <label className="label">
-                              <span className="label-text">Price in USD</span>
-                           
-                            </label>
-                            <input
-                              step="0.1"
-                              type="number"
-                              {...register("priceUSD", { valueAsNumber: true })}
-                              className="input input-sm input-bordered  w-full"
-                              placeholder="Price"
-                            />
-                            {errors.priceUSD && (
-                              <div className="label">
-                                <span className="label-text-alt">
-                                  {errors.priceUSD.message}
-                                </span>
-                              </div>
-                            )}
-                          </div>
-                        </>
-                      ))} */}
                   </div>
                 </>
               </div>
@@ -691,53 +646,6 @@ function NftCreateForm({
                   </Button>
                 }
               />
-              {/* <Dialog open={isOpen} onOpenChange={setIsOpen}>
-                <DialogTrigger asChild>
-                  <button
-                    className="btn btn-primary"
-                    disabled={
-                      loading ||
-                      requiredTokenAmount > platformAssetBalance ||
-                      !isValid
-                    }
-                  >
-                    {loading && (
-                      <span className="loading loading-spinner"></span>
-                    )}
-                    Create Asset
-                  </button>
-                </DialogTrigger>
-                <DialogContent className="sm:max-w-[425px]">
-                  <DialogHeader>
-                    <DialogTitle>Confirmation </DialogTitle>
-                  </DialogHeader>
-                  <div>
-                    Your account will be charged {requiredTokenAmount}{" "}
-                    <span className="text-red-600">{PLATFORM_ASSET.code}</span>{" "}
-                    to create this NFT
-                  </div>
-                  <DialogFooter className=" w-full">
-                    <div className="flex w-full gap-4  ">
-                      <DialogClose className="w-full">
-                        <Button variant="outline" className="w-full">
-                          Cancel
-                        </Button>
-                      </DialogClose>
-                      <Button
-                        variant="destructive"
-                        onClick={() => onSubmit()}
-                        disabled={loading}
-                        className="w-full"
-                      >
-                        {loading && (
-                          <span className="loading loading-spinner" />
-                        )}
-                        Confirm
-                      </Button>
-                    </div>
-                  </DialogFooter>
-                </DialogContent>
-              </Dialog> */}
             </div>
           </form>
         </DialogContent>

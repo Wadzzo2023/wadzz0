@@ -94,10 +94,15 @@ export const marketRouter = createTRPCRouter({
 
   placeToMarketDB: protectedProcedure
     .input(
-      z.object({ code: z.string(), issuer: z.string(), price: z.number() }),
+      z.object({
+        code: z.string(),
+        issuer: z.string(),
+        price: z.number(),
+        priceUSD: z.number(),
+      }),
     )
     .mutation(async ({ input, ctx }) => {
-      const { code, issuer, price } = input;
+      const { code, issuer, price, priceUSD } = input;
 
       const userId = ctx.session.user.id;
 
@@ -115,6 +120,7 @@ export const marketRouter = createTRPCRouter({
           placerId,
           price,
           assetId: asset.id,
+          priceUSD,
         },
       });
     }),
@@ -430,6 +436,8 @@ export const marketRouter = createTRPCRouter({
             }
           }
         }
+      } else {
+        return true;
       }
     }),
 });

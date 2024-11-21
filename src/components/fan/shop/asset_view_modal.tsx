@@ -41,11 +41,11 @@ export default function ViewMediaModal({
   return (
     <>
       <dialog className="modal" ref={modal}>
-        <div className="modal-box">
-          <form method="dialog">
+        <div className="modal-box max-w-2xl">
+          <form method="dialog p-2 mt-4">
             {/* if there is a button in form, it will close the modal */}
             <button
-              className="btn btn-circle btn-ghost btn-sm absolute right-2 top-2"
+              className="btn btn-circle btn-outline btn-sm absolute right-2 top-2 p-2 "
               onClick={() => handleClose()}
             >
               ✕
@@ -61,13 +61,13 @@ export default function ViewMediaModal({
             />
           </div>
 
-          {/* <div className="modal-action">
+          <div className="modal-action">
             <form method="dialog">
-              <button className="btn" onClick={() => resetState()}>
+              <button className="btn" onClick={() => handleClose()}>
                 Close
               </button>
             </form>
-          </div> */}
+          </div>
         </div>
       </dialog>
 

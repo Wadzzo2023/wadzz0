@@ -102,7 +102,7 @@ export function AssetDetails({
                 <p className="line-clamp-2">
                   <b>Description: </b> {currentData.asset.description}
                 </p>
-                {currentData.asset.tierId ? (
+                {currentData.asset ? (
                   <>
                     <p>
                       <span className="font-semibold">Available:</span>{" "}
@@ -110,7 +110,9 @@ export function AssetDetails({
                         ? "Sold out"
                         : copy.data === 1
                           ? "1 copy"
-                          : `${copy.data} copies`}
+                          : copy.data !== undefined
+                            ? `${copy.data} copies`
+                            : "..."}
                     </p>
 
                     <p>
@@ -137,7 +139,7 @@ export function AssetDetails({
                 </div>
 
                 <DeleteAssetByAdmin id={currentData.id} />
-                {!currentData.asset.tierId &&
+                {/* {!currentData.asset.tierId &&
                   currentData.asset.mediaType == "MUSIC" && (
                     <Button
                       onClick={() =>
@@ -155,7 +157,7 @@ export function AssetDetails({
                     >
                       Play{" "}
                     </Button>
-                  )}
+                  )} */}
               </div>
             </div>
           </div>
@@ -202,8 +204,9 @@ function OtherButtons() {
             issuer={currentData.asset.issuer}
           />
         );
-      } else if (currentData.asset.tierId)
+      } else if (currentData.asset) {
         return <CanBuyButton marketData={currentData} />;
+      }
     }
 }
 
@@ -430,7 +433,7 @@ function DeleteAssetByAdmin({ id }: { id: number }) {
           <DialogTrigger asChild>
             <button className="btn btn-primary btn-sm w-full">
               {del.isLoading && <span className="loading loading-spinner" />}
-              Delete
+              Delete (Admin)
             </button>
           </DialogTrigger>
           <DialogContent className="sm:max-w-[425px]">

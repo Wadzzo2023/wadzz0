@@ -173,8 +173,6 @@ export default function CreatePinModal() {
     }
   }
 
-  console.log("errors", errors);
-
   const openPopup = () => setIsOpen(true);
   const closePopup = () => {
     setIsOpen(false);

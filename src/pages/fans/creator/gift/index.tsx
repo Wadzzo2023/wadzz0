@@ -237,6 +237,7 @@ function FansList({
             key={fan.id}
             name={fan.user.name}
             pubkey={fan.user.id}
+            url={fan.user.image}
           />
         ))}
       </div>
@@ -247,10 +248,12 @@ export function FanAvater({
   name,
   pubkey,
   handleFanAvatarClick,
+  url,
 }: {
   name: string | null;
   pubkey: string;
   handleFanAvatarClick: (pubkey: string) => void;
+  url: string | null;
 }) {
   return (
     <div
@@ -258,7 +261,7 @@ export function FanAvater({
       onClick={() => handleFanAvatarClick(pubkey)}
     >
       <div>
-        <Avater url={undefined} className="w-8" />
+        <Avater url={url ?? undefined} className="w-8" />
       </div>
       <div>
         {name}

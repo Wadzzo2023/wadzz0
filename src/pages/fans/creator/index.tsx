@@ -21,7 +21,7 @@ import { CREATOR_TERM } from "~/utils/term";
 
 import { RadioGroup, RadioGroupItem } from "~/components/shadcn/ui/radio-group";
 import { Label } from "~/components/shadcn/ui/label";
-import { Coins, DollarSign } from "lucide-react";
+import { Coins, DollarSign, Loader } from "lucide-react";
 
 import { Button } from "~/components/shadcn/ui/button";
 import {
@@ -162,7 +162,12 @@ function CreateCreator({ requiredToken }: { requiredToken: number }) {
   );
 
   const session = useSession();
-  const makeCreatorMutation = api.fan.creator.makeMeCreator.useMutation();
+  const makeCreatorMutation = api.fan.creator.makeMeCreator.useMutation({
+    onSuccess: () => {
+      toast.success("You are now a creator");
+      setIsOpen(false);
+    },
+  });
   const [signLoading, setSingLoading] = useState(false);
 
   const xdr = api.fan.trx.createStorageAccount.useMutation({
@@ -180,7 +185,6 @@ function CreateCreator({ requiredToken }: { requiredToken: number }) {
       })
         .then((isSucces) => {
           if (isSucces) {
-            toast.success("You are now a creator");
             makeCreatorMutation.mutate(storage);
           } else {
             toast.error("Failed to create account");
@@ -190,7 +194,6 @@ function CreateCreator({ requiredToken }: { requiredToken: number }) {
         .finally(() => {
           toast.dismiss(toastId);
           setSingLoading(false);
-          setIsOpen(false);
         });
     },
   });
@@ -220,6 +223,7 @@ function CreateCreator({ requiredToken }: { requiredToken: number }) {
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
           <DialogTrigger asChild>
             <Button className="w-full">
+              {loading && <Loader className="animate mr-2 animate-spin" />}
               Join as a {CREATOR_TERM.toLowerCase()}
             </Button>
           </DialogTrigger>
