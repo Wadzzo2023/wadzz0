@@ -39,7 +39,7 @@ export default async function handler(
     });
   }
 
-  // const userAcc = await StellarAccount.create(userId);
+  const userAcc = await StellarAccount.create(userId);
 
   let creatorsId: string[] | undefined = undefined;
   if (data.data.filterId === "1") {
@@ -89,15 +89,15 @@ export default async function handler(
 
   async function pinsForCreators(creatorsId?: string[]) {
     const extraFilter = {
-      privacy: { equals: ItemPrivacy.PUBLIC },
+      privacy: { in: [ItemPrivacy.PUBLIC] },
     } as {
       creatorId?: { in: string[] };
-      privacy: { equals: ItemPrivacy };
+      privacy: { in: ItemPrivacy[] };
     };
 
     if (creatorsId) {
       extraFilter.creatorId = { in: creatorsId };
-      extraFilter.privacy = { equals: ItemPrivacy.PRIVATE };
+      extraFilter.privacy = { in: [ItemPrivacy.PRIVATE, ItemPrivacy.TIER] };
     }
 
     const locationGroup = await db.locationGroup.findMany({
@@ -121,17 +121,46 @@ export default async function handler(
           },
         },
         Subscription: true,
-        creator: true,
+        creator: {
+          include: {
+            pageAsset: {
+              select: {
+                code: true,
+                issuer: true,
+              },
+            },
+          },
+        },
       },
     });
 
-    const pins = locationGroup.flatMap((group) => {
-      return group.locations.map((location) => ({
-        ...location,
-        ...group,
-        id: location.id,
-      }));
-    });
+    const pins = locationGroup
+      .flatMap((group) => {
+        if (group.privacy === ItemPrivacy.TIER) {
+          const creatorPageAsset = group.creator.pageAsset;
+          const subscription = group.Subscription;
+          if (creatorPageAsset && subscription) {
+            const bal = userAcc.getTokenBalance(
+              creatorPageAsset.code,
+              creatorPageAsset.issuer,
+            );
+            if (bal >= subscription.price) {
+              return group.locations.map((location) => ({
+                ...location,
+                ...group,
+                id: location.id,
+              }));
+            }
+          }
+        } else {
+          return group.locations.map((location) => ({
+            ...location,
+            ...group,
+            id: location.id,
+          }));
+        }
+      })
+      .filter((location) => location !== undefined);
 
     const locations: Location[] = pins.map((location) => {
       return {
