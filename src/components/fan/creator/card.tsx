@@ -20,6 +20,7 @@ export default function MemberShipCard({
   priority?: number;
   pageAsset?: string;
 }) {
+
   return (
     <div className=" m-4 flex    flex-col justify-between rounded border bg-white p-2 shadow-sm">
       <div className="mb-6">

@@ -44,7 +44,8 @@ const JoinBountyModal = () => {
         queryKey: ["bounties"],
       });
       setData({ item: data.bounty });
-      router.push(`/bounty/${data.bounty?.id}`);
+      onClose();
+      router.push(`/play/bounty/${data.bounty?.id}`);
     },
     onError: () => {
       toast.error("Failed to join bounty");
@@ -103,7 +104,7 @@ const JoinBountyModal = () => {
             </Button>
             <Button
               variant="destructive"
-              onClick={() => handleJoin(bounty.id)}
+              onClick={() => handleJoin(Number(bounty.id))}
               disabled={
                 bounty.requiredBalance > balance || JoinMutation.isLoading
               }

@@ -308,8 +308,8 @@ export async function RecentTransactionHistory({
 
   const items = await transactionCall.call();
 
-  const newItem = items.records.map((record) => {
-    const tx = new Transaction(record.envelope_xdr, Networks.TESTNET);
+  const newItem = items.records.map((record: Horizon.ServerApi.TransactionRecord) => {
+    const tx = new Transaction(record.envelope_xdr, networkPassphrase);
     const operations = tx.operations;
     // console.log("Operations", operations);
     if (operations[0]?.type === "payment") {

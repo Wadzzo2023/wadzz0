@@ -10,6 +10,7 @@ import ShareModal from "../modals/share-modal";
 import FileUploadModal from "../modals/file-upload-modal";
 import EditBountyModal from "../modals/edit-bounty-modal";
 import ViewAttachmentModal from "../modals/view-attachment-modal";
+import TransactionDetails from "../modals/transaction-history-modal";
 
 const ModalProvider = () => {
   const [isMounted, setIsMounted] = useState(false);
@@ -32,6 +33,7 @@ const ModalProvider = () => {
       <FileUploadModal />
       <EditBountyModal />
       <ViewAttachmentModal />
+      <TransactionDetails/>
     </>
   );
 };
