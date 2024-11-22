@@ -63,7 +63,7 @@ export default function BountyScreen() {
 
   const toggleJoin = (id: string, isAlreadyJoin: boolean, bounty: Bounty) => {
     console.log("toggleJoin", id, isAlreadyJoin, bounty);
-    if (isAlreadyJoin) {
+    if (isAlreadyJoin || bounty.isOwner) {
       setData({ item: bounty });
       router.push(`/play/bounty/${bounty.id}`);
     } else {
@@ -143,14 +143,18 @@ export default function BountyScreen() {
                     <p>Prize: {bounty.priceInBand.toFixed(2)} Wadzzo</p>
                   </div>
                 </div>
-                <p className="text-sm">
-                  Participants: {bounty._count.participants}
-                </p>
-                {bounty.winnerId && (
-                  <p className="text-sm font-bold text-green-600">
-                    Winner: {addrShort(bounty.winnerId, 15)}
+                <div className="flex justify-between">
+                  <p className="text-sm">
+                    Participants: {bounty._count.participants}
                   </p>
-                )}
+                  <Badge
+                    variant={bounty._count.BountyWinner === 0 ? "destructive" : "default"}
+                  >
+                    {bounty.totalWinner === bounty._count.BountyWinner ? "Finished" : (bounty.totalWinner - bounty._count.BountyWinner) + " Winner Left"}
+                  </Badge>
+                </div>
+
+
               </CardContent>
               <CardFooter>
                 <Button
@@ -159,7 +163,7 @@ export default function BountyScreen() {
                   variant={bounty.isJoined ? "outline" : "default"}
                   onClick={() => toggleJoin(bounty.id, bounty.isJoined, bounty)}
                 >
-                  {bounty.isJoined ? "View Bounty" : "Join Bounty"}
+                  {bounty.isJoined || bounty.isOwner ? "View Bounty" : "Join Bounty"}
                 </Button>
               </CardFooter>
             </Card>

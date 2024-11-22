@@ -196,22 +196,11 @@ const Bounty = () => {
                         </Badge>
                         <div className="flex items-center justify-between">
                           <Badge
-                            variant={bounty.winner ? "destructive" : "default"}
+                            variant={bounty._count.BountyWinner === 0 ? "destructive" : "default"}
                           >
-                            {bounty.winner ? "Finished" : "Active"}
+                            {bounty.totalWinner === bounty._count.BountyWinner ? "Finished" : (bounty.totalWinner - bounty._count.BountyWinner) + " Winner Left"}
                           </Badge>
-                          {bounty.winner && (
-                            <div className="flex items-center">
-                              <Award className="mr-1 h-4 w-4 text-yellow-500" />
-                              <span className="mr-2 text-sm font-medium">
-                                Winner:
-                              </span>
 
-                              <span className="text-sm">
-                                {bounty.winner.name}
-                              </span>
-                            </div>
-                          )}
                         </div>
                       </div>
                     </CardFooter>

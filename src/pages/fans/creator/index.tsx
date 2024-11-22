@@ -184,6 +184,7 @@ function CreateCreator({ requiredToken }: { requiredToken: number }) {
         })
         .catch((e) => console.log(e))
         .finally(() => {
+          setIsOpen(false);
           toast.dismiss(toastId);
           setSingLoading(false);
         });

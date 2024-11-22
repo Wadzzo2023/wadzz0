@@ -281,6 +281,8 @@ model User {
     Bounty                   Bounty[]
     BountyDoubt              BountyDoubt[]
     BountyDoubtMessage       BountyDoubtMessage[]
+
+    BountyWinner BountyWinner[]
 }
 
 model VerificationToken {
@@ -527,6 +529,7 @@ model Bounty {
     description     String
     priceInUSD      Float
     priceInBand     Float
+    totalWinner     Int
     priceInXLM      Float?
     requiredBalance Float
     imageUrls       String[]
@@ -535,18 +538,26 @@ model Bounty {
     status          BountyStatus        @default(PENDING)
     creatorId       String
     creator         Creator             @relation(fields: [creatorId], references: [id], onDelete: Cascade)
-    isSwaped        Boolean?            @default(false)
     participants    BountyParticipant[] // Users who join the bounty
     comments        BountyComment[] // Comments on the bounty
     submissions     BountySubmission[] // Submissions to the bounty
     doubts          BountyDoubt[]
-    // New field to reference the winner
-    winnerId        String? // Optional: Can be null until a winner is selected
-    winner          User?               @relation(fields: [winnerId], references: [id], onDelete: SetNull)
-
-    xdr String?
+    BountyWinner    BountyWinner[]
+    User            User?               @relation(fields: [userId], references: [id])
+    userId          String?
 
     @@index([title, description])
+}
+
+model BountyWinner {
+    id        Int      @id @default(autoincrement())
+    bountyId  Int
+    xdr       String?
+    isSwaped  Boolean? @default(false)
+    bounty    Bounty   @relation(fields: [bountyId], references: [id], onDelete: Cascade)
+    userId    String
+    user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+    awardedAt DateTime @default(now()) // Timestamp of when the user was awarded as a winner
 }
 
 model BountyDoubt {

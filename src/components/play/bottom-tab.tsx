@@ -25,7 +25,7 @@ export const BottomTab = () => {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
   return (
-    <header className=" absolute bottom-4 z-50  w-full  pt-6">
+    <header className=" absolute bottom-0 z-50  w-full  pt-6">
       <div className="">
         <div className="flex  items-center justify-between rounded-t-xl bg-[#38C02B] p-2  md:border ">
           <div className="w-full">

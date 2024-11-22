@@ -92,6 +92,7 @@ export const BountyRoute = createTRPCRouter({
     .input(
       z.object({
         title: z.string().min(1, { message: "Title can't be empty" }),
+        totalWinner: z.number().min(1, { message: "Please select at least 1 winner" }),
         prizeInUSD: z
           .number()
           .min(0.00001, { message: "Prize can't less than 0" }),
@@ -115,7 +116,7 @@ export const BountyRoute = createTRPCRouter({
           priceInBand: input.prize,
           creatorId: ctx.session.user.id,
           priceInXLM: input.priceInXLM,
-
+          totalWinner: input.totalWinner,
           requiredBalance: input.requiredBalance,
           imageUrls: input.medias ? input.medias.map((media) => media.url) : [],
         },
@@ -203,6 +204,7 @@ export const BountyRoute = createTRPCRouter({
           _count: {
             select: {
               participants: true,
+              BountyWinner: true,
             },
           },
           creator: {
@@ -210,9 +212,16 @@ export const BountyRoute = createTRPCRouter({
               name: true,
             },
           },
-          winner: {
+
+          BountyWinner: {
             select: {
-              name: true,
+              user: {
+                select: {
+                  id: true,
+
+                }
+              },
+              isSwaped: true,
             },
           },
         },
@@ -354,11 +363,18 @@ export const BountyRoute = createTRPCRouter({
           _count: {
             select: {
               participants: true,
+              BountyWinner: true,
             },
           },
-          winner: {
+          BountyWinner: {
             select: {
-              name: true,
+              user: {
+                select: {
+                  id: true,
+
+                }
+              },
+              isSwaped: true,
             },
           },
           creator: {
@@ -406,11 +422,17 @@ export const BountyRoute = createTRPCRouter({
               profileUrl: true,
             },
           },
-          winner: {
+          BountyWinner: {
             select: {
-              name: true,
+              user: {
+                select: {
+                  id: true,
+                }
+              },
+              isSwaped: true,
             },
           },
+
           submissions: {
             select: {
               user: {
@@ -440,6 +462,7 @@ export const BountyRoute = createTRPCRouter({
               participants: true,
               submissions: true,
               comments: true,
+              BountyWinner: true,
             },
           },
         },
@@ -653,44 +676,40 @@ export const BountyRoute = createTRPCRouter({
     )
     .mutation(async ({ input, ctx }) => {
       const userPubKey = input.userId;
-      const hasBountyWinner = await ctx.db.bounty.findUnique({
+      const winners = await ctx.db.bounty.findUnique({
         where: {
           id: input.BountyId,
-          winnerId: {
-            not: null,
-          },
+
         },
         select: {
-          id: true,
-          title: true,
-          winnerId: true,
+          _count: {
+            select: {
+              BountyWinner: true
+            }
+          },
+          totalWinner: true,
+          priceInXLM: true
         },
       });
+      if (!winners) {
+        throw new Error("Bounty not found");
+      }
 
-      if (hasBountyWinner) {
+      if (winners._count.BountyWinner === winners.totalWinner) {
         throw new Error(
           "Bounty has a winner, you can't send balance to winner",
         );
       }
 
-      const bounty = await ctx.db.bounty.findUnique({
-        where: {
-          id: input.BountyId,
-        },
-      });
-      if (!bounty) {
-        throw new Error("Bounty not found");
-      }
-
-      if (bounty.priceInXLM) {
+      if (winners.priceInXLM) {
         return await SendBountyBalanceToWinnerViaXLM({
           recipientID: userPubKey,
-          prizeInXLM: bounty.priceInXLM,
+          prizeInXLM: winners.priceInXLM,
         });
       } else {
         return await SendBountyBalanceToWinner({
           recipientID: userPubKey,
-          prize: input.prize,
+          prize: input.prize / winners.totalWinner,
         });
       }
     }),
@@ -708,20 +727,36 @@ export const BountyRoute = createTRPCRouter({
         where: {
           id: input.BountyId,
         },
+        select: {
+          _count: {
+            select: {
+              BountyWinner: true
+            }
+          },
+          totalWinner: true,
+          creatorId: true
+        }
       });
       if (!bounty) {
         throw new Error("Bounty not found");
+      }
+      if (bounty._count.BountyWinner === bounty.totalWinner) {
+        throw new Error("Bounty has reached the maximum number of winners");
       }
       if (bounty.creatorId !== ctx.session.user.id) {
         throw new Error("You are not the owner of this bounty");
       }
       await ctx.db.bounty.update({
         where: {
-          id: input.BountyId,
+          id: input.BountyId
         },
         data: {
-          winnerId: input.userId,
-        },
+          BountyWinner: {
+            create: {
+              userId: input.userId,
+            }
+          }
+        }
       });
 
       await ctx.db.notificationObject.create({
@@ -808,22 +843,15 @@ export const BountyRoute = createTRPCRouter({
     )
     .mutation(async ({ input, ctx }) => {
       const userPubKey = ctx.session.user.id;
-      const hasBountyWinner = await ctx.db.bounty.findUnique({
+      const hasBountyWinner = await ctx.db.bountyWinner.findFirst({
         where: {
-          id: input.bountyId,
-          winnerId: {
-            not: null,
-          },
-        },
-        select: {
-          id: true,
-          title: true,
-          winnerId: true,
+          bountyId: input.bountyId,
         },
       });
       if (hasBountyWinner) {
         throw new Error("Bounty has a winner, you can't delete this bounty");
       }
+
 
       const bounty = await ctx.db.bounty.findUnique({
         where: {
@@ -994,9 +1022,9 @@ export const BountyRoute = createTRPCRouter({
         });
         const detailedComments = await Promise.all(
           comments.map(async (comment) => {
-            const userWins = await ctx.db.bounty.count({
+            const userWins = await ctx.db.bountyWinner.count({
               where: {
-                winnerId: comment.userId,
+                userId: comment.userId,
               },
             });
 
@@ -1028,9 +1056,9 @@ export const BountyRoute = createTRPCRouter({
         });
         const detailedComments = await Promise.all(
           comments.map(async (comment) => {
-            const userWins = await ctx.db.bounty.count({
+            const userWins = await ctx.db.bountyWinner.count({
               where: {
-                winnerId: comment.userId,
+                userId: comment.userId,
               },
             });
 
@@ -1090,9 +1118,9 @@ export const BountyRoute = createTRPCRouter({
 
       const detailedSubmissions = await Promise.all(
         submissions.map(async (submission) => {
-          const userWins = await ctx.db.bounty.count({
+          const userWins = await ctx.db.bountyWinner.count({
             where: {
-              winnerId: submission.userId,
+              userId: submission.userId,
             },
           });
 
@@ -1102,6 +1130,8 @@ export const BountyRoute = createTRPCRouter({
           };
         }),
       );
+
+      console.log("detailedSubmissions", detailedSubmissions);
       return detailedSubmissions;
     }),
   swapAssetToUSDC: protectedProcedure
@@ -1118,13 +1148,14 @@ export const BountyRoute = createTRPCRouter({
       if (ctx.session.user.email && ctx.session.user.email.length > 0) {
         secretKey = await getAccSecretFromRubyApi(ctx.session.user.email);
       }
-      const findXDR = await ctx.db.bounty.findUnique({
+      const findXDR = await ctx.db.bountyWinner.findFirst({
         where: {
-          id: input.bountyId,
+          bountyId: input.bountyId,
+          userId: ctx.session.user.id
         },
         select: {
-          xdr: true,
-        },
+          xdr: true
+        }
       });
 
       if (findXDR?.xdr) {
@@ -1149,7 +1180,12 @@ export const BountyRoute = createTRPCRouter({
             id: input.bountyId,
           },
           data: {
-            xdr: res.xdr,
+            BountyWinner: {
+              create: {
+                userId: ctx.session.user.id,
+                xdr: res.xdr
+              }
+            },
           },
         });
       }
@@ -1168,7 +1204,12 @@ export const BountyRoute = createTRPCRouter({
           id: input.bountyId,
         },
         data: {
-          isSwaped: true,
+          BountyWinner: {
+            create: {
+              userId: ctx.session.user.id,
+              isSwaped: true,
+            }
+          }
         },
       });
     }),
@@ -1401,26 +1442,27 @@ export const BountyRoute = createTRPCRouter({
         orderBy: { updatedAt: "desc" },
         distinct: ["userId"],
       });
+      console.log("doubts", doubts);
       const users = doubts.map((doubt) => doubt.user.id);
 
-      const winnerCounts = await ctx.db.bounty.groupBy({
-        by: ["winnerId"],
+      const winnerCounts = await ctx.db.bountyWinner.groupBy({
+        by: ["userId"],
         _count: {
-          id: true,
+          userId: true,
         },
         where: {
-          winnerId: {
+          userId: {
             in: users,
           },
         },
       });
       const result = doubts.map((doubt) => {
         const winnerData = winnerCounts.find(
-          (w) => w.winnerId === doubt.user.id,
+          (w) => w.userId === doubt.user.id
         );
         return {
           ...doubt,
-          winnerCount: winnerData ? winnerData._count.id : 0,
+          winnerCount: winnerData ? winnerData._count.userId : 0,
         };
       });
       return result;

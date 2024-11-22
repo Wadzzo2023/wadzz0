@@ -256,7 +256,9 @@ const UserBountyPage = () => {
   }, [messages]);
 
   if (bountyLoading || isAlreadyJoin.isLoading) return <Loading />;
+
   if (data && isAlreadyJoin.data) {
+
     return (
       <div className="p-2">
         {isAlreadyJoin.isLoading ? (
@@ -404,7 +406,10 @@ const UserBountyPage = () => {
                                 <Edit />
                               </Button>
                               <Button
-                                disabled={data?.winner?.name ? true : false}
+                                disabled={data.BountyWinner.some(
+                                  (winner) => winner.user.id === session.data?.user.id,
+                                )
+                                }
                                 variant="destructive"
                                 onClick={() =>
                                   handleSubmissionDelete(submission.id)
@@ -456,24 +461,24 @@ const UserBountyPage = () => {
                           >
                             {sanitizeInput(message.message).sanitizedInput}
                             {// Display all matched URLs as links
-                            sanitizeInput(message.message).urls?.map(
-                              (url, index) => (
-                                <div
-                                  key={index}
-                                  className=" w-full rounded-md bg-[#F5F7FB] py-2  shadow-sm"
-                                >
-                                  <Link
-                                    href={url}
-                                    className="flex items-center justify-start gap-2"
+                              sanitizeInput(message.message).urls?.map(
+                                (url, index) => (
+                                  <div
+                                    key={index}
+                                    className=" w-full rounded-md bg-[#F5F7FB] py-2  shadow-sm"
                                   >
-                                    <File color="black" />{" "}
-                                    <span className="text-base font-medium text-[#07074D]">
-                                      {url}
-                                    </span>
-                                  </Link>
-                                </div>
-                              ),
-                            )}
+                                    <Link
+                                      href={url}
+                                      className="flex items-center justify-start gap-2"
+                                    >
+                                      <File color="black" />{" "}
+                                      <span className="text-base font-medium text-[#07074D]">
+                                        {url}
+                                      </span>
+                                    </Link>
+                                  </div>
+                                ),
+                              )}
                             <div ref={messagesEndRef} />
                           </div>
                         ))}
@@ -584,7 +589,7 @@ const UserBountyPage = () => {
               <div className="flex   space-x-4">
                 <Button
                   variant="destructive"
-                  disabled={data?.winner?.name ? true : false}
+                  disabled={data._count.BountyWinner === data.totalWinner}
                   className=""
                   onClick={() =>
                     onOpen("upload file", {
@@ -595,117 +600,111 @@ const UserBountyPage = () => {
                   Submit Solution
                 </Button>
               </div>
-              {data.winnerId &&
-                data.winnerId === session.data?.user.id &&
-                (session.data?.user?.walletType === WalletType.emailPass ||
-                  session.data?.user?.walletType === WalletType.apple ||
-                  session.data?.user?.walletType === WalletType.google) && (
-                  <>
-                    <div className="flex flex-col gap-2">
-                      <div className="">
-                        <Dialog
-                          open={isDialogOpen}
-                          onOpenChange={setIsDialogOpen}
-                        >
-                          <DialogTrigger asChild>
-                            <Button
-                              className=""
-                              disabled={
-                                loading || data.isSwaped
-                                  ? true
-                                  : false ||
-                                    swapAssetToUSDC.isLoading ||
-                                    MakeSwapUpdateMutation.isLoading
-                              }
-                            >
-                              <span className="flex items-center">
-                                {PLATFORM_ASSET.code}{" "}
-                                <ArrowRight className="ml-2 mr-2" size={16} />{" "}
-                                USDC
-                              </span>
-                            </Button>
-                          </DialogTrigger>
-                          <DialogContent className="sm:max-w-[425px]">
-                            <DialogHeader>
-                              <DialogTitle>Confirmation </DialogTitle>
-                            </DialogHeader>
-                            {!getMotherTrustLine.data ? (
-                              <Alert
-                                className="flex  items-center justify-center"
-                                type="error"
-                                content={`Please Contact Admin. support@wadzzo.com`}
-                              />
-                            ) : (
-                              <>
-                                <div className="">
-                                  <div className="space-y-4 rounded-lg border border-gray-100 bg-gray-50 p-6 dark:border-gray-700 dark:bg-gray-800">
-                                    <div className="space-y-2">
-                                      <dl className="flex items-center justify-between gap-4">
-                                        <dt className="text-base font-normal text-gray-500 dark:text-gray-400">
-                                          Amount
-                                        </dt>
-                                        <dd className="text-base font-medium text-gray-900 dark:text-white">
-                                          {(data?.priceInBand).toFixed(2)}{" "}
-                                          {PLATFORM_ASSET.code}
-                                        </dd>
-                                      </dl>
-                                    </div>
-
-                                    <dl className="flex items-center justify-between gap-4 border-t border-gray-200 pt-2 dark:border-gray-700">
-                                      <dt className="text-base font-bold text-gray-900 dark:text-white">
-                                        Swapped Amount
+              {data.BountyWinner.some((winner) => winner.user.id === session.data?.user.id) && (
+                <>
+                  <div className="flex flex-col gap-2">
+                    <div className="">
+                      <Dialog
+                        open={isDialogOpen}
+                        onOpenChange={setIsDialogOpen}
+                      >
+                        <DialogTrigger asChild>
+                          <Button
+                            className=""
+                            disabled={
+                              loading || data.BountyWinner.some((winner) => winner.user.id === session.data?.user.id && winner?.isSwaped === true)
+                              ||
+                              swapAssetToUSDC.isLoading ||
+                              MakeSwapUpdateMutation.isLoading
+                            }
+                          >
+                            <span className="flex items-center">
+                              {PLATFORM_ASSET.code}{" "}
+                              <ArrowRight className="ml-2 mr-2" size={16} />{" "}
+                              USDC
+                            </span>
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent className="sm:max-w-[425px]">
+                          <DialogHeader>
+                            <DialogTitle>Confirmation </DialogTitle>
+                          </DialogHeader>
+                          {!getMotherTrustLine.data ? (
+                            <Alert
+                              className="flex  items-center justify-center"
+                              type="error"
+                              content={`Please Contact Admin. support@wadzzo.com`}
+                            />
+                          ) : (
+                            <>
+                              <div className="">
+                                <div className="space-y-4 rounded-lg border border-gray-100 bg-gray-50 p-6 dark:border-gray-700 dark:bg-gray-800">
+                                  <div className="space-y-2">
+                                    <dl className="flex items-center justify-between gap-4">
+                                      <dt className="text-base font-normal text-gray-500 dark:text-gray-400">
+                                        Amount
                                       </dt>
-                                      <dd className="text-base font-bold text-gray-900 dark:text-white">
-                                        {data.priceInUSD} USDC
+                                      <dd className="text-base font-medium text-gray-900 dark:text-white">
+                                        {(data?.priceInBand / data.totalWinner).toFixed(2)}{" "}
+                                        {PLATFORM_ASSET.code}
                                       </dd>
                                     </dl>
                                   </div>
 
-                                  <span className="text-xs text-red-500">
-                                    NOTE: This is a one time operation! You can
-                                    {"'t"} undo this operation
-                                  </span>
+                                  <dl className="flex items-center justify-between gap-4 border-t border-gray-200 pt-2 dark:border-gray-700">
+                                    <dt className="text-base font-bold text-gray-900 dark:text-white">
+                                      Swapped Amount
+                                    </dt>
+                                    <dd className="text-base font-bold text-gray-900 dark:text-white">
+                                      {data.priceInUSD / data.totalWinner} USDC
+                                    </dd>
+                                  </dl>
                                 </div>
-                                <DialogFooter className=" w-full">
-                                  <div className="flex w-full gap-4  ">
-                                    <DialogClose className="w-full">
-                                      <Button
-                                        variant="outline"
-                                        className="w-full"
-                                      >
-                                        Cancel
-                                      </Button>
-                                    </DialogClose>
+
+                                <span className="text-xs text-red-500">
+                                  NOTE: This is a one time operation! You can
+                                  {"'t"} undo this operation
+                                </span>
+                              </div>
+                              <DialogFooter className=" w-full">
+                                <div className="flex w-full gap-4  ">
+                                  <DialogClose className="w-full">
                                     <Button
-                                      disabled={
-                                        loading || data.isSwaped
-                                          ? true
-                                          : false ||
-                                            swapAssetToUSDC.isLoading ||
-                                            MakeSwapUpdateMutation.isLoading
-                                      }
-                                      variant="destructive"
-                                      onClick={() =>
-                                        handleSwap(
-                                          data.id,
-                                          data.priceInBand,
-                                          data.priceInUSD,
-                                        )
-                                      }
+                                      variant="outline"
                                       className="w-full"
                                     >
-                                      Confirm
+                                      Cancel
                                     </Button>
-                                  </div>
-                                </DialogFooter>
-                              </>
-                            )}
-                          </DialogContent>
-                        </Dialog>
-                      </div>
+                                  </DialogClose>
+                                  <Button
+                                    disabled={
+                                      loading || data.BountyWinner.some((winner) => winner.user.id === session.data?.user.id && winner?.isSwaped === true)
+                                      ||
+                                      swapAssetToUSDC.isLoading ||
+                                      MakeSwapUpdateMutation.isLoading
+                                    }
+                                    variant="destructive"
+                                    onClick={() =>
+                                      handleSwap(
+                                        data.id,
+                                        data.priceInBand / data.totalWinner,
+                                        data.priceInUSD / data.totalWinner,
+                                      )
+                                    }
+                                    className="w-full"
+                                  >
+                                    Confirm
+                                  </Button>
+                                </div>
+                              </DialogFooter>
+                            </>
+                          )}
+                        </DialogContent>
+                      </Dialog>
                     </div>
-                  </>
-                )}
+                  </div>
+                </>
+              )}
             </CardFooter>
           </Card>
         ) : data.requiredBalance > platformAssetBalance ? (
@@ -786,6 +785,10 @@ const AdminBountyPage = () => {
           });
         }
       }
+      setLoadingBountyId(null);
+    },
+    onError: (error) => {
+      toast.error(error.message);
       setLoadingBountyId(null);
     },
   });
@@ -966,11 +969,8 @@ const AdminBountyPage = () => {
                                 <DialogTrigger asChild>
                                   <Button
                                     disabled={
-                                      loadingBountyId === data.id ||
-                                      data.winner?.name
-                                        ? true
-                                        : false ||
-                                          GetSendBalanceToWinnerXdr.isLoading
+                                      loadingBountyId === data.id || data.totalWinner === data._count.BountyWinner || data.BountyWinner.some((winner) => winner.user.id === submission.user.name) ||
+                                      GetSendBalanceToWinnerXdr.isLoading
                                     }
                                     className=" me-2  bg-purple-100 px-2.5 py-0.5 text-xs font-medium text-purple-800 dark:bg-purple-900 dark:text-purple-300 "
                                     variant="outline"
@@ -1020,11 +1020,8 @@ const AdminBountyPage = () => {
                                     </DialogClose>
                                     <Button
                                       disabled={
-                                        loadingBountyId === data.id ||
-                                        data.winner?.name
-                                          ? true
-                                          : false ||
-                                            GetSendBalanceToWinnerXdr.isLoading
+                                        loadingBountyId === data.id || data.totalWinner === data._count.BountyWinner || data.BountyWinner.some((winner) => winner.user.id === submission.user.name) ||
+                                        GetSendBalanceToWinnerXdr.isLoading
                                       }
                                       variant="destructive"
                                       type="submit"
@@ -1136,7 +1133,7 @@ const AdminBountyPage = () => {
                     <DialogTrigger asChild>
                       <Button
                         disabled={
-                          loadingBountyId === data.id || data.winner?.name
+                          loadingBountyId === data.id || data._count.BountyWinner > 0
                             ? true
                             : false
                         }
@@ -1163,7 +1160,7 @@ const AdminBountyPage = () => {
                           </DialogClose>
                           <Button
                             disabled={
-                              loadingBountyId === data.id || data.winner?.name
+                              loadingBountyId === data.id || data._count.BountyWinner > 0
                                 ? true
                                 : false
                             }

@@ -53,7 +53,7 @@ export async function SendBountyBalanceToMotherAccount({
   });
 
   const totalAmount =
-    prize + 2 * Number(TrxBaseFeeInPlatformAsset) + Number(PLATFORM_FEE);
+    prize + (2 * Number(TrxBaseFeeInPlatformAsset) + Number(PLATFORM_FEE));
 
   transaction.addOperation(
     Operation.payment({
@@ -220,7 +220,7 @@ export async function SendBountyBalanceToWinner({
   const server = new Horizon.Server(STELLAR_URL);
   const motherAcc = Keypair.fromSecret(MOTHER_SECRET);
   const account = await server.loadAccount(motherAcc.publicKey());
-
+  console.log("account", account);
   const receiverAcc = await server.loadAccount(recipientID);
 
   const platformAssetBalance = account.balances.find((balance) => {
@@ -263,14 +263,9 @@ export async function SendBountyBalanceToWinner({
   });
 
   if (!hasTrust) {
-    const asset = new Asset(PLATFORM_ASSET.getCode(), PLATFORM_ASSET.getIssuer());
-    transaction.addOperation(
-      Operation.changeTrust({
-        asset: asset,
-        source: recipientID,
-      }),
-    );
+    throw new Error(`Please trust the ${PLATFORM_ASSET.code} first.`);
   }
+
   transaction.addOperation(
     Operation.payment({
       destination: recipientID,
