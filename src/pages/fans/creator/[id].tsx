@@ -275,7 +275,8 @@ export function ChooseMemberShip({ creator }: { creator: Creator }) {
                 key={el.id}
                 creator={creator}
                 subscription={el}
-                // pageAsset={creator        }
+                pageAsset={el.creator.pageAsset?.code}
+               
               />
             ))}
         </SubscriptionGridWrapper>
@@ -320,10 +321,12 @@ function SubscriptionCard({
   subscription,
   creator,
   priority,
+  pageAsset,
 }: {
   subscription: SubscriptionType;
   creator: Creator;
   priority?: number;
+  pageAsset?:string
 }) {
   return (
     <MemberShipCard
@@ -332,6 +335,7 @@ function SubscriptionCard({
       creator={creator}
       priority={priority}
       subscription={subscription}
+      pageAsset={pageAsset}
     >
       <TierCompleted subscription={subscription} />
     </MemberShipCard>

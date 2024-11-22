@@ -171,7 +171,7 @@ export function CreatPost() {
               <p className="text-sm text-red-500">{errors.content.message}</p>
             )}
           </div>
-          <div className=" space-y-2">
+          <div className="">
             <div className="mt-20 flex flex-wrap gap-2  ">
               {media.map((el, id) => (
                 <div key={id} className="relative">
@@ -214,6 +214,7 @@ export function CreatPost() {
               <UploadButton
                 endpoint="imageUploader"
                 content={{ button: "Add Media", allowedContent: "Max (4MB)" }}
+                className=" mt-10"
                 onClientUploadComplete={(res) => {
                   const data = res[0];
                   if (data?.url) {

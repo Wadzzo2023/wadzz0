@@ -579,7 +579,7 @@ function NftCreateForm({
                       <div className=" w-full max-w-xs ">
                         <label className="label">
                           <span className="label-text">
-                            Required Amount of {PLATFORM_ASSET.code}
+                            Price in {PLATFORM_ASSET.code}
                             <span className="text-red-600">*</span>
                           </span>
                         </label>
@@ -588,7 +588,7 @@ function NftCreateForm({
                           type="number"
                           {...register("price", { valueAsNumber: true })}
                           className="input input-sm input-bordered  w-full"
-                          placeholder={`Required Amount of ${PLATFORM_ASSET.code}`}
+                          placeholder={`Price in ${PLATFORM_ASSET.code}`}
                         />
                         {errors.price && (
                           <div className="label">
