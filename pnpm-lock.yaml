@@ -267,7 +267,7 @@ importers:
         specifier: ^2.5.0
         version: 2.5.0(sharp@0.33.5)
       prisma:
-        specifier: ^5.19.1
+        specifier: ^5.22.0
         version: 5.22.0
       react:
         specifier: 18.2.0
