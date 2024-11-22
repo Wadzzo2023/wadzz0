@@ -25,6 +25,7 @@ import { Button } from "../shadcn/ui/button";
 
 import { PLATFORM_ASSET } from "~/lib/stellar/constant";
 import { usePlayerStore } from "~/lib/state/music/track";
+import { useToast } from "~/hooks/use-toast";
 
 export type AssetType = Omit<Asset, "issuerPrivate">;
 
@@ -205,6 +206,7 @@ function OtherButtons() {
 }
 
 function CanBuyButton({ marketData }: { marketData: MarketAssetType }) {
+  const { toast: shadToast } = useToast();
   const data = api.marketplace.market.userCanBuyThisMarketAsset.useQuery(
     marketData.id,
   );
@@ -214,16 +216,20 @@ function CanBuyButton({ marketData }: { marketData: MarketAssetType }) {
     console.log("market right error", data.error);
   }
 
-  if (data.data) {
-    return (
-      <BuyModal
-        priceUSD={marketData.priceUSD}
-        item={marketData.asset}
-        price={marketData.price}
-        placerId={marketData.placerId}
-        marketItemId={marketData.id}
-      />
-    );
+  if (typeof data.data == "boolean") {
+    if (data.data) {
+      return (
+        <BuyModal
+          priceUSD={marketData.priceUSD}
+          item={marketData.asset}
+          price={marketData.price}
+          placerId={marketData.placerId}
+          marketItemId={marketData.id}
+        />
+      );
+    } else {
+      console.log("you don't have permission");
+    }
   }
 }
 

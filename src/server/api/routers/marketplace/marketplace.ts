@@ -17,6 +17,7 @@ import {
   protectedProcedure,
 } from "~/server/api/trpc";
 import { getAssetBalance } from "~/lib/stellar/marketplace/test/acc";
+import { ItemPrivacy } from "@prisma/client";
 
 export const AssetSelectAllProperty = {
   code: true,
@@ -411,8 +412,9 @@ export const marketRouter = createTRPCRouter({
     .query(async ({ ctx, input }) => {
       const pubkey = ctx.session.user.id;
 
-      // check
+      const stellarAcc = await StellarAccount.create(pubkey);
 
+      // check
       const marketAsset = await ctx.db.marketAsset.findUnique({
         where: { id: input },
         include: {
@@ -424,23 +426,38 @@ export const marketRouter = createTRPCRouter({
         },
       });
 
-      const assetTier = marketAsset?.asset.tier;
+      if (!marketAsset) return false;
 
-      if (assetTier) {
-        const pageAsset = assetTier.creator.pageAsset;
+      if (marketAsset.privacy === ItemPrivacy.PUBLIC) {
+        return true;
+      }
+
+      // secondary market if placerId is not the creatorId
+      if (marketAsset.placerId !== marketAsset.asset.creatorId) {
+        return true;
+      }
+
+      const tier = marketAsset.asset.tier;
+
+      if (tier) {
+        const pageAsset = tier.creator.pageAsset;
+
         if (pageAsset) {
-          const { code, issuer } = pageAsset;
-          const price = assetTier.price;
+          if (marketAsset.privacy === ItemPrivacy.PRIVATE) {
+            const { code, issuer } = pageAsset;
+            const hasTrust = stellarAcc.hasTrustline(code, issuer);
 
-          const bal = await getAssetBalance({ code, issuer, pubkey });
-          if (bal?.balance) {
-            if (price <= Number(bal.balance)) {
+            if (hasTrust) {
+              return true;
+            }
+          } else if (marketAsset.privacy === ItemPrivacy.TIER) {
+            const { code, issuer } = pageAsset;
+            const bal = stellarAcc.getTokenBalance(code, issuer);
+            if (bal >= tier.price) {
               return true;
             }
           }
         }
-      } else {
-        return true;
       }
     }),
 });
