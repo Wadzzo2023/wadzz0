@@ -410,6 +410,9 @@ export const marketRouter = createTRPCRouter({
     .input(z.number())
     .query(async ({ ctx, input }) => {
       const pubkey = ctx.session.user.id;
+
+      // check
+
       const marketAsset = await ctx.db.marketAsset.findUnique({
         where: { id: input },
         include: {
