@@ -8,6 +8,7 @@ import Image from "next/image";
 import { cn } from "~/utils/utils";
 import { env } from "~/env";
 import { useDrawerOpenStore } from "~/lib/state/fan/drawer_open";
+import { CREATOR_PLURAL_TERM } from "~/utils/term";
 
 export const LeftNavigation = {
   Home: { path: "/", icon: HomeIcon, text: "HOMEPAGE" },
@@ -21,7 +22,11 @@ export const LeftNavigation = {
   Music: { path: "/music", icon: Diamond, text: "MUSIC" },
   Marketplace: { path: "/marketplace", icon: Bell, text: "MARKETPLACE" },
   Bounty: { path: "/bounty", icon: Bell, text: "BOUNTY" },
-  Fan: { path: "/fans/home", icon: Bell, text: "ARTISTS" },
+  Fan: {
+    path: "/fans/home",
+    icon: Bell,
+    text: CREATOR_PLURAL_TERM.toLocaleUpperCase(),
+  },
   Settings: { path: "/settings", icon: Settings2, text: "SETTINGS" },
 } as const;
 export const BottomNavigation = {
