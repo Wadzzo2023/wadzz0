@@ -5,6 +5,7 @@ import { Mode, useMode } from "~/lib/state/fan/left-side-mode";
 import { useRouter } from "next/router";
 import { ConnectWalletButton } from "package/connect_wallet";
 import Link from "next/link";
+import { CREATOR_TERM } from "~/utils/term";
 
 export default function TopNav() {
   return (
@@ -56,7 +57,9 @@ export function MobileHeaderAvater() {
           className="menu dropdown-content menu-sm z-[1] mt-3 w-64 rounded-box bg-base-300 p-2 shadow"
         >
           <li onClick={toggleMode}>
-            <a className="justify-between">Switch To {opMode}</a>
+            <a className="justify-between">
+              Switch To {opMode == Mode.Creator ? CREATOR_TERM : opMode}
+            </a>
           </li>
 
           <li>

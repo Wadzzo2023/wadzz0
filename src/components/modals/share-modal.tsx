@@ -5,7 +5,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "~/components/shadcn/ui/dialog";
-import { useModal } from "../hooks/use-modal-store";
+import { useModal } from "../../lib/state/play/use-modal-store";
 import {
   FacebookShareButton,
   FacebookIcon,
@@ -37,8 +37,8 @@ const ShareModal = () => {
           <div className="my-4 flex justify-around">
             <FacebookShareButton
               url={`${process.env.NEXT_PUBLIC_URL}${postUrl}`}
-              quote={"Checkout my post on Bandcoin"}
-              hashtag={"#Bandcoin"}
+              quote={"Checkout my post on Wadzzo"}
+              hashtag={"#Wadzzo"}
             >
               <div className="flex h-12 w-12 cursor-pointer items-center justify-center rounded-full border border-blue-200 fill-[#1877f2] shadow-xl hover:bg-[#1877f2] hover:fill-white hover:shadow-blue-500/50">
                 <svg
@@ -53,7 +53,7 @@ const ShareModal = () => {
             </FacebookShareButton>
             <TwitterShareButton
               url={`${process.env.NEXT_PUBLIC_URL}${postUrl}`}
-              title={"Checkout my post on Bandcoin"}
+              title={"Checkout my post on Wadzzo"}
             >
               <div className="flex h-12 w-12 cursor-pointer items-center justify-center rounded-full border border-blue-200 fill-[#1d9bf0] shadow-xl hover:bg-[#1d9bf0] hover:fill-white hover:shadow-sky-500/50">
                 <svg
@@ -68,7 +68,7 @@ const ShareModal = () => {
             </TwitterShareButton>
             <WhatsappShareButton
               url={`${process.env.NEXT_PUBLIC_URL}${postUrl}`}
-              title={"Checkout my post on Bandcoin"}
+              title={"Checkout my post on Wadzzo"}
               separator=":: "
             >
               <div className="flex h-12 w-12 cursor-pointer items-center justify-center rounded-full border border-green-200 fill-[#25D366] shadow-xl hover:bg-[#25D366] hover:fill-white hover:shadow-green-500/50">
@@ -88,7 +88,7 @@ const ShareModal = () => {
             </WhatsappShareButton>
             <TelegramShareButton
               url={`${process.env.NEXT_PUBLIC_URL}${postUrl}`}
-              title={"Checkout my post on Bandcoin"}
+              title={"Checkout my post on Wadzzo"}
             >
               <div className="flex h-12 w-12 cursor-pointer items-center justify-center rounded-full border border-sky-200 fill-[#229ED9] shadow-xl hover:bg-[#229ED9] hover:fill-white hover:shadow-sky-500/50">
                 <svg

@@ -10,22 +10,16 @@ import { ChangeEvent, useRef, useState } from "react";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { z } from "zod";
+import { Dialog, DialogContent } from "~/components/shadcn/ui/dialog";
 import useNeedSign from "~/lib/hook";
 import { useUserStellarAcc } from "~/lib/state/wallete/stellar-balances";
 import { PLATFORM_ASSET, PLATFORM_FEE } from "~/lib/stellar/constant";
 import { AccountSchema, clientSelect } from "~/lib/stellar/fan/utils";
 import { api } from "~/utils/api";
 import { UploadButton } from "~/utils/uploadthing";
+import { useModal } from "../../lib/state/play/use-modal-store";
 import Alert from "../ui/alert";
 import Loading from "../wallete/loading";
-import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "~/components/shadcn/ui/dialog";
-import { useModal } from "../hooks/use-modal-store";
 
 export const ExtraSongInfo = z.object({
   artist: z.string(),
@@ -66,7 +60,7 @@ export const NftFormSchema = z.object({
   tier: z.string().optional(),
 });
 
-export default function NftCreate({ admin: isAdmin }: { admin?: true }) {
+export default function NftCreateOld({ admin: isAdmin }: { admin?: true }) {
   const requiredToken = api.fan.trx.getRequiredPlatformAsset.useQuery({
     xlm: 2.5,
   });
@@ -155,7 +149,6 @@ function NftCreateForm({
   const xdrMutation = api.fan.trx.createUniAssetTrx.useMutation({
     onSuccess(data, variables, context) {
       const { issuer, xdr } = data;
-      // console.log(xdr, "xdr");
       setValue("issuer", issuer);
 
       setSubmitLoading(true);
@@ -182,7 +175,7 @@ function NftCreateForm({
           .finally(() => setSubmitLoading(false)),
         {
           loading: "Signing Transaction",
-          success: "Signed Transaction Successfully",
+          success: "",
           error: "Signing Transaction Failed",
         },
       );
@@ -289,19 +282,7 @@ function NftCreateForm({
       );
     }
   }
-  //   function lolClick() {
-  //     toast.success("NFT Created", {
-  //       position: "top-center",
-  //       duration: 4000,
-  //       style: {
-  //         backgroundColor: "green",
-  //         color: "white",
-  //         width: "100%",
-  //         padding: "0.5rem 1rem",
-  //         margin: "1rem 1rem",
-  //       },
-  //     });
-  //   }
+
   const handleClose = () => {
     reset();
     onClose();
@@ -380,29 +361,6 @@ function NftCreateForm({
                     </label>
 
                     <div className="mt  ">
-                      {/* <UploadButton
-                        endpoint="imageUploader"
-                        content={{
-                          button: "Add Thumbnail",
-                          allowedContent: "Max (4MB)",
-                        }}
-                        onClientUploadComplete={(res) => {
-                          // Do something with the response
-                          // alert("Upload Completed");
-                          const data = res[0];
-
-                          if (data?.url) {
-                            setCover(data.url);
-                            setValue("coverImgUrl", data.url);
-                          }
-                          // updateProfileMutation.mutate(res);
-                        }}
-                        onUploadError={(error: Error) => {
-                          // Do something with the error.
-                          alert(`ERROR! ${error.message}`);
-                        }}
-                      /> */}
-
                       <input
                         type="file"
                         id="file"
@@ -594,7 +552,6 @@ function NftCreateForm({
                 )}
                 Create Asset
               </button>
-              {/* <input className="btn btn-primary btn-sm mt-4" type="submit" /> */}
             </div>
           </form>
         </DialogContent>

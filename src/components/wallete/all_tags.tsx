@@ -20,10 +20,10 @@ export default function AllTags() {
     >
       <input
         className="!btn join-item"
-        key={"All"}
+        key={"ALL"}
         type="radio"
         name="options"
-        aria-label="All"
+        aria-label="ALL"
         onClick={() => {
           selectTag(undefined);
           setData(undefined);
@@ -35,7 +35,7 @@ export default function AllTags() {
         key={PLATFORM_ASSET.code}
         type="radio"
         name="options"
-        aria-label={PLATFORM_ASSET.code}
+        aria-label={PLATFORM_ASSET.code.toUpperCase()}
         onClick={() => {
           selectTag(AssetVariant.ADMIN);
           setData(undefined);
@@ -57,7 +57,7 @@ export default function AllTags() {
         className="!btn join-item"
         type="radio"
         name="options"
-        aria-label={CREATOR_PLURAL_TERM.toUpperCase()}
+        aria-label={CREATOR_TERM.toUpperCase()}
         onClick={() => {
           selectTag(AssetVariant.Artists);
           setData(undefined);

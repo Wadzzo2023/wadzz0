@@ -7,30 +7,38 @@ import Image from "next/image";
 import { clientsign } from "package/connect_wallet";
 import { WalletType } from "package/connect_wallet/src/lib/enums";
 import { ChangeEvent, useRef, useState } from "react";
-import { SubmitHandler, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { z } from "zod";
 import {
   Dialog,
-  DialogClose,
   DialogContent,
-  DialogFooter,
   DialogHeader,
-  DialogTitle,
   DialogTrigger,
 } from "~/components/shadcn/ui/dialog";
 import useNeedSign from "~/lib/hook";
 import { useUserStellarAcc } from "~/lib/state/wallete/stellar-balances";
-import { PLATFORM_ASSET, PLATFORM_FEE } from "~/lib/stellar/constant";
+import { PLATFORM_ASSET } from "~/lib/stellar/constant";
 import { AccountSchema, clientSelect } from "~/lib/stellar/fan/utils";
 import { api } from "~/utils/api";
+import { BADWORDS } from "~/utils/banned-word";
 import { UploadButton } from "~/utils/uploadthing";
+import {
+  PaymentChoose,
+  usePaymentMethodStore,
+} from "../payment/payment-options";
+import { Button } from "../shadcn/ui/button";
 import Alert from "../ui/alert";
 import Loading from "../wallete/loading";
-import { Button } from "../shadcn/ui/button";
-import { BADWORDS } from "~/utils/banned-word";
-import Link from "next/link";
 import RechargeLink from "./recharge/link";
+
+import { Eye, EyeOff } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "~/components/ui/tooltip";
 
 export const ExtraSongInfo = z.object({
   artist: z.string(),
@@ -133,6 +141,9 @@ function NftCreateForm({
   const walletType = isAdmin ? WalletType.isAdmin : connectedWalletType;
   const [uploadProgress, setUploadProgress] = useState<number>(0);
 
+  const { paymentMethod, setIsOpen: setPaymentModalOpen } =
+    usePaymentMethodStore();
+
   const {
     register,
     handleSubmit,
@@ -163,6 +174,7 @@ function NftCreateForm({
         position: "top-center",
         duration: 4000,
       });
+      setPaymentModalOpen(false);
       setIsOpen(false);
       setMediaUploadSuccess(false);
       reset();
@@ -189,9 +201,7 @@ function NftCreateForm({
               setValue("isAdmin", isAdmin);
               setValue("tier", tier);
               const data = getValues();
-              // res && addMutation.mutate(data);
-
-              addAsset.mutate(data);
+              addAsset.mutate({ ...data });
             } else {
               toast.error("Transaction Failed");
             }
@@ -200,7 +210,7 @@ function NftCreateForm({
           .finally(() => setSubmitLoading(false)),
         {
           loading: "Signing Transaction",
-          success: "Signed Transaction Successfully",
+          success: "",
           error: "Signing Transaction Failed",
         },
       );
@@ -216,6 +226,7 @@ function NftCreateForm({
         limit: getValues("limit"),
         signWith: needSign(isAdmin),
         ipfsHash: ipfs,
+        native: paymentMethod === "xlm",
       });
   };
 
@@ -292,6 +303,7 @@ function NftCreateForm({
         <select className="select select-bordered" onChange={onChangeHandler}>
           <option disabled>Choose Tier</option>
           <option value="public">Public</option>
+          <option value="private">Only Followers</option>
           {tiers.data.map((model) => (
             <option
               key={model.id}
@@ -302,13 +314,6 @@ function NftCreateForm({
       );
     }
   }
-  // console.log("CoverURL", getValues("tier"));
-  const handleLoL = () => {
-    toast.success("NFT Created", {
-      position: "top-center",
-      duration: 4000,
-    });
-  };
 
   const loading = xdrMutation.isLoading || addAsset.isLoading || submitLoading;
   return (
@@ -323,7 +328,7 @@ function NftCreateForm({
           onInteractOutside={(e) => {
             e.preventDefault();
           }}
-          className=" h-[80%] overflow-auto p-3"
+          className=" h-[90%] max-w-xl overflow-auto p-3"
         >
           <DialogHeader className="text-lg font-bold">Add Asset</DialogHeader>
           {/* <button onClick={handleLoL}> LOL</button> */}
@@ -346,6 +351,10 @@ function NftCreateForm({
                     </ul>
                   </div>
 
+                  {/* <VisibilityToggle
+                    isVisible={isVisible}
+                    toggleVisibility={() => setIsVisible(!isVisible)}
+                  /> */}
                   {isAdmin ? <> </> : <TiersOptions />}
                 </div>
 
@@ -579,7 +588,7 @@ function NftCreateForm({
                           type="number"
                           {...register("price", { valueAsNumber: true })}
                           className="input input-sm input-bordered  w-full"
-                          placeholder={`Enter Price in ${PLATFORM_ASSET.code}`}
+                          placeholder={`Price in ${PLATFORM_ASSET.code}`}
                         />
                         {errors.price && (
                           <div className="label">
@@ -590,53 +599,6 @@ function NftCreateForm({
                         )}
                       </div>
                     </>
-                    {/* {!tier ||
-                      (tier != "public" && (
-                        <>
-                          <div className="w-full max-w-xs">
-                            <label className="label">
-                              <span className="label-text">Price</span>
-                              <span className="label-text-alt">
-                                Default price is 2 {PLATFORM_ASSET.code}
-                              </span>
-                            </label>
-                            <input
-                              step="0.1"
-                              type="number"
-                              {...register("price", { valueAsNumber: true })}
-                              className="input input-sm input-bordered  w-full"
-                              placeholder="Price"
-                            />
-                            {errors.price && (
-                              <div className="label">
-                                <span className="label-text-alt">
-                                  {errors.price.message}
-                                </span>
-                              </div>
-                            )}
-                          </div>
-                          <div className="w-full max-w-xs">
-                            <label className="label">
-                              <span className="label-text">Price in USD</span>
-                           
-                            </label>
-                            <input
-                              step="0.1"
-                              type="number"
-                              {...register("priceUSD", { valueAsNumber: true })}
-                              className="input input-sm input-bordered  w-full"
-                              placeholder="Price"
-                            />
-                            {errors.priceUSD && (
-                              <div className="label">
-                                <span className="label-text-alt">
-                                  {errors.priceUSD.message}
-                                </span>
-                              </div>
-                            )}
-                          </div>
-                        </>
-                      ))} */}
                   </div>
                 </>
               </div>
@@ -651,11 +613,13 @@ function NftCreateForm({
                 />
                 {requiredTokenAmount > platformAssetBalance && <RechargeLink />}
               </div>
-
-              <Dialog open={isOpen} onOpenChange={setIsOpen}>
-                <DialogTrigger asChild>
-                  <button
-                    className="btn btn-primary"
+              <PaymentChoose
+                XLM_EQUIVALENT={5.5}
+                handleConfirm={() => onSubmit()}
+                loading={loading}
+                requiredToken={requiredTokenAmount}
+                trigger={
+                  <Button
                     disabled={
                       loading ||
                       requiredTokenAmount > platformAssetBalance ||
@@ -666,39 +630,9 @@ function NftCreateForm({
                       <span className="loading loading-spinner"></span>
                     )}
                     Create Asset
-                  </button>
-                </DialogTrigger>
-                <DialogContent className="sm:max-w-[425px]">
-                  <DialogHeader>
-                    <DialogTitle>Confirmation </DialogTitle>
-                  </DialogHeader>
-                  <div>
-                    Your account will be charged {requiredTokenAmount}{" "}
-                    <span className="text-red-600">{PLATFORM_ASSET.code}</span>{" "}
-                    to create this NFT
-                  </div>
-                  <DialogFooter className=" w-full">
-                    <div className="flex w-full gap-4  ">
-                      <DialogClose className="w-full">
-                        <Button variant="outline" className="w-full">
-                          Cancel
-                        </Button>
-                      </DialogClose>
-                      <Button
-                        variant="destructive"
-                        onClick={() => onSubmit()}
-                        disabled={loading}
-                        className="w-full"
-                      >
-                        {loading && (
-                          <span className="loading loading-spinner" />
-                        )}
-                        Confirm
-                      </Button>
-                    </div>
-                  </DialogFooter>
-                </DialogContent>
-              </Dialog>
+                  </Button>
+                }
+              />
             </div>
           </form>
         </DialogContent>
@@ -742,4 +676,38 @@ function PlayableMedia({
         );
     }
   }
+}
+
+interface VisibilityToggleProps {
+  isVisible: boolean;
+  toggleVisibility: () => void;
+}
+
+export function VisibilityToggle({
+  isVisible,
+  toggleVisibility,
+}: VisibilityToggleProps) {
+  return (
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={toggleVisibility}
+            aria-label={isVisible ? "Set to private" : "Set to visible"}
+          >
+            {isVisible ? (
+              <Eye className="h-4 w-4" />
+            ) : (
+              <EyeOff className="h-4 w-4" />
+            )}
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent>
+          <p>{isVisible ? "Visible to all" : "Private"}</p>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+  );
 }

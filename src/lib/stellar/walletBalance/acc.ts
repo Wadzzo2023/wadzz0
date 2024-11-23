@@ -160,25 +160,19 @@ export async function SendAssets({
     }
     return false;
   });
-  // console.log('accBalance', accBalance);
+  console.log('accBalance', accBalance);
   if (!accBalance || parseFloat(accBalance.balance) < amount) {
     throw new Error("Balance is not enough to send the asset.");
   }
 
   const receiverAccount = await server.loadAccount(recipientId);
-  const hasTrust = receiverAccount.balances.find((balance) => {
-    if (
-      balance.asset_type === "credit_alphanum4" ||
-      balance.asset_type === "credit_alphanum12"
-    ) {
-      return (
-        balance.asset_code === asset_code &&
-        balance.asset_issuer === asset_issuer
-      );
-    } else if (balance.asset_type === "native") {
-      return balance.asset_type === asset_type;
-    }
-    return false;
+  const hasTrust = receiverAccount.balances.some((balance) => {
+    console.log(balance);
+    return (
+      (balance.asset_type === "credit_alphanum4" || balance.asset_type === "credit_alphanum12") &&
+      balance.asset_code === asset_code &&
+      balance.asset_issuer === asset_issuer
+    );
   });
 
   const asset =
@@ -314,8 +308,8 @@ export async function RecentTransactionHistory({
 
   const items = await transactionCall.call();
 
-  const newItem = items.records.map((record) => {
-    const tx = new Transaction(record.envelope_xdr, Networks.TESTNET);
+  const newItem = items.records.map((record: Horizon.ServerApi.TransactionRecord) => {
+    const tx = new Transaction(record.envelope_xdr, networkPassphrase);
     const operations = tx.operations;
     // console.log("Operations", operations);
     if (operations[0]?.type === "payment") {
@@ -524,18 +518,23 @@ export async function PlatformAssetBalance({
   userPubKey: string;
 }) {
   const server = new Horizon.Server(STELLAR_URL);
-  const account = await server.loadAccount(userPubKey);
-  const findAsset = account.balances.find((balance) => {
-    if (
-      (balance.asset_type === "credit_alphanum4" ||
-        balance.asset_type === "credit_alphanum12") &&
-      balance.asset_code === PLATFORM_ASSET.code &&
-      balance.asset_issuer === PLATFORM_ASSET.issuer
-    ) {
-      return balance.balance;
-    }
-    return false;
-  });
+  try {
+    const account = await server.loadAccount(userPubKey);
+    const findAsset = account.balances.find((balance) => {
+      if (
+        (balance.asset_type === "credit_alphanum4" ||
+          balance.asset_type === "credit_alphanum12") &&
+        balance.asset_code === PLATFORM_ASSET.code &&
+        balance.asset_issuer === PLATFORM_ASSET.issuer
+      ) {
+        return balance.balance;
+      }
+      return false;
+    });
+    return findAsset ? findAsset.balance : 0;
+  } catch (e) {
+    return -1
+  }
 
-  return findAsset ? findAsset.balance : 0;
+
 }

@@ -11,56 +11,53 @@ export const trxRouter = createTRPCRouter({
     .input(
       z.object({
         signWith: SignUser,
-        locationId: z.number(),
+        locationId: z.string(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
       const userId = ctx.session.user.id;
       const location = await ctx.db.location.findUniqueOrThrow({
         where: { id: input.locationId },
-        include: { creator: { include: { pageAsset: true } }, asset: true },
+        include: {
+          locationGroup: {
+            include: { creator: { include: { pageAsset: true } }, asset: true },
+          },
+        },
       });
-      
-      if (!location.claimAmount) throw new Error("No claimant ammount");
 
-      if (!location.asset && !location.pageAsset)
+      if (!location.locationGroup?.asset && !location.locationGroup?.pageAsset)
         throw new Error("Not claimable");
 
       let code: string | undefined = undefined;
       let issuer: string | undefined = undefined;
 
-      if (location.pageAsset) {
-        if (!location.creator.pageAsset)
+      if (location.locationGroup.pageAsset) {
+        if (!location.locationGroup.creator.pageAsset)
           throw new Error("No page Asset, found!");
 
-        code = location.creator.pageAsset.code;
-        issuer = location.creator.pageAsset.issuer;
-      } else if (location.asset) {
-        code = location.asset.code;
-        issuer = location.asset.issuer;
+        code = location.locationGroup.creator.pageAsset.code;
+        issuer = location.locationGroup.creator.pageAsset.issuer;
+      } else if (location.locationGroup.asset) {
+        code = location.locationGroup.asset.code;
+        issuer = location.locationGroup.asset.issuer;
       }
 
-      const amount = location.claimAmount.toFixed(7);
+      const storageSecret = location.locationGroup.creator.storageSecret;
 
-      const storageSecret = location.creator.storageSecret;
-
-      if (code && issuer)
-      {
+      if (code && issuer) {
         try {
-          const xdr:string  = await ClaimXDR({
-          amount,
-          asset: { code, issuer },
-          receiver: userId,
-          signWith: input.signWith,
-          storageSecret: storageSecret,
+          const xdr: string = await ClaimXDR({
+            amount: "1",
+            asset: { code, issuer },
+            receiver: userId,
+            signWith: input.signWith,
+            storageSecret: storageSecret,
           });
 
           return xdr;
-        }
-        catch (error) {
+        } catch (error) {
           console.error(error);
         }
-      }
-      else throw new Error("Code and Issue not found");
+      } else throw new Error("Code and Issue not found");
     }),
 });

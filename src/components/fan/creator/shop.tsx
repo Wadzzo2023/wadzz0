@@ -1,15 +1,9 @@
-import { Asset, Creator } from "@prisma/client";
-import React from "react";
-import AddItem2Shop from "./add-shop-item";
-import { api } from "~/utils/api";
-import BuyItemModal from "../shop/buy-item-modal";
-import { useSession } from "next-auth/react";
-import ContextMenu from "../../ui/context-menu";
+import { Creator } from "@prisma/client";
 import NftCreate from "~/components/marketplace/nft_create";
-import MarketAssetComponent from "~/components/marketplace/market_asset";
+import { MoreAssetsSkeleton } from "~/components/marketplace/platforms_nfts";
+import { api } from "~/utils/api";
 import ViewMediaModal from "../shop/asset_view_modal";
 import ShopAssetComponent from "../shop/shop_asset";
-import { MoreAssetsSkeleton } from "~/components/marketplace/platforms_nfts";
 
 export default function Shop({ creator }: { creator?: Creator }) {
   return (

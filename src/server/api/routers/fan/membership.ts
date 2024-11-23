@@ -14,6 +14,15 @@ const selectedColumn = {
   features: true,
   id: true,
   creatorId: true,
+  creator: {
+    select: {
+      pageAsset: {
+        select: {
+          code: true,
+        },
+      },
+    }
+  }
 };
 
 export const membershipRouter = createTRPCRouter({
@@ -49,8 +58,7 @@ export const membershipRouter = createTRPCRouter({
             issuerPrivate: issuer.secretKey,
           },
         });
-      }
-      else {
+      } else {
         await ctx.db.creatorPageAsset.create({
           data: {
             creatorId,
@@ -61,8 +69,6 @@ export const membershipRouter = createTRPCRouter({
           },
         });
       }
-
-
     }),
 
   createCustomPageAsset: protectedProcedure
@@ -228,7 +234,6 @@ export const membershipRouter = createTRPCRouter({
         data: { creatorId: input.creatorId, userId },
       });
 
-
       await ctx.db.notificationObject.create({
         data: {
           actorId: ctx.session.user.id,
@@ -245,7 +250,26 @@ export const membershipRouter = createTRPCRouter({
           },
         },
       });
+    }),
 
+  unFollowCreator: protectedProcedure
+    .input(z.object({ creatorId: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      const userId = ctx.session.user.id;
+      if (userId === input.creatorId) {
+        throw new Error("You can't un follow yourself");
+      }
+      const fol = await ctx.db.follow.findFirst({
+        where: { creatorId: input.creatorId, userId },
+      });
 
+      if (!fol) {
+        throw new Error("You are not following this creator");
+      }
+
+      // delete his follow
+      await ctx.db.follow.delete({
+        where: { id: fol.id },
+      });
     }),
 });

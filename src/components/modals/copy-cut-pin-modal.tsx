@@ -1,7 +1,6 @@
-import QRCode from "react-qr-code";
-import { useModal } from "../hooks/use-modal-store";
-import CopyToClip from "../wallete/copy_to_Clip";
-import { Button } from "../shadcn/ui/button";
+import { BadgeMinus, BadgePlus, ClipboardCheck } from "lucide-react";
+import { useSession } from "next-auth/react";
+import toast from "react-hot-toast";
 import {
   Dialog,
   DialogContent,
@@ -9,22 +8,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from "~/components/shadcn/ui/dialog";
-import { useSession } from "next-auth/react";
-import { addrShort } from "~/utils/utils";
 import { api } from "~/utils/api";
-import toast from "react-hot-toast";
-import {
-  BadgeMinus,
-  BadgePlus,
-  CircleDashed,
-  CircleIcon,
-  CircleOff,
-  ClipboardCheck,
-  Copy,
-  LayersIcon,
-  Plus,
-  X,
-} from "lucide-react";
+import { useModal } from "../../lib/state/play/use-modal-store";
+import { Button } from "../shadcn/ui/button";
 
 const CopyCutPinModal = () => {
   const {

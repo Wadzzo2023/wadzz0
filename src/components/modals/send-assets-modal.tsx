@@ -40,7 +40,7 @@ import { Loader2, RefreshCcw, RotateCw, Send } from "lucide-react";
 import { WalletType, clientsign } from "package/connect_wallet";
 import { useSession } from "next-auth/react";
 import { Toaster } from "react-hot-toast";
-import { useModal } from "../hooks/use-modal-store";
+import { useModal } from "../../lib/state/play/use-modal-store";
 import useNeedSign from "~/lib/hook";
 import { clientSelect } from "~/lib/stellar/fan/utils";
 import { useRouter } from "next/router";

@@ -114,10 +114,14 @@ const BountyList = () => {
               onChange={handleSortChange}
               className="mb-6 block w-full rounded-lg border border-gray-300 bg-gray-50 p-4 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
             >
-              <option value="DATE_ASC">Date Ascending</option>
-              <option value="DATE_DESC">Date Descending</option>
-              <option value="PRICE_ASC">Prize Ascending</option>
-              <option value="PRICE_DESC">Prize Descending</option>
+              <option value="DATE_ASC">Date (Oldest to Newest)</option>
+              <option value="DATE_DESC">Date (Newest to Oldest)</option>
+              <option value="PRICE_ASC">
+                Prize Size (Smallest to Largest)
+              </option>
+              <option value="PRICE_DESC">
+                Prize Size (Largest to Smallest)
+              </option>
             </select>
           </div>
         </div>
@@ -284,27 +288,11 @@ const BountyList = () => {
                           <Badge variant="secondary" className="mr-2">
                             {bounty._count.participants} participants
                           </Badge>
-                          <div className="flex items-center justify-between">
-                            <Badge
-                              variant={
-                                bounty.winner ? "destructive" : "default"
-                              }
-                            >
-                              {bounty.winner ? "Finished" : "Active"}
-                            </Badge>
-                            {bounty.winner && (
-                              <div className="flex items-center">
-                                <Award className="mr-1 h-4 w-4 text-yellow-500" />
-                                <span className="mr-2 text-sm font-medium">
-                                  Winner:
-                                </span>
-
-                                <span className="text-sm">
-                                  {bounty.winner.name}
-                                </span>
-                              </div>
-                            )}
-                          </div>
+                          <Badge
+                            variant={bounty._count.BountyWinner === 0 ? "destructive" : "default"}
+                          >
+                            {bounty.totalWinner === bounty._count.BountyWinner ? "Finished" : (bounty.totalWinner - bounty._count.BountyWinner) + " Winner Left"}
+                          </Badge>
                         </div>
                       </CardFooter>
                     </Card>

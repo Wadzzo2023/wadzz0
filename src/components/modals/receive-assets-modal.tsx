@@ -1,5 +1,5 @@
 import QRCode from "react-qr-code";
-import { useModal } from "../hooks/use-modal-store";
+import { useModal } from "../../lib/state/play/use-modal-store";
 import CopyToClip from "../wallete/copy_to_Clip";
 import { Button } from "../shadcn/ui/button";
 import {

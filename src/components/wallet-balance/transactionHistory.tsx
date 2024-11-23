@@ -17,10 +17,12 @@ import { useRef } from "react";
 import { InfiniteScroll } from "../wallete/infinite-scroll";
 import { addrShort, delay } from "~/utils/utils";
 import { Skeleton } from "../shadcn/ui/skeleton";
+import { useModal } from "~/lib/state/play/use-modal-store";
 
 const BatchLimit = 10;
 
 const TransactionHistory = () => {
+  const {onOpen} = useModal();
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
     api.walletBalance.wallBalance.getTransactionHistory.useInfiniteQuery(
       {
@@ -40,7 +42,7 @@ const TransactionHistory = () => {
     }
   };
 
-  // console.log("transactions", transactions); // Verify the transactions length and data here
+   console.log("transactions", transactions); // Verify the transactions length and data here
 
   return (
     <Card>
@@ -60,7 +62,9 @@ const TransactionHistory = () => {
             <Table>
               <TableBody>
                 {transactions?.map((item, index) => (
-                  <TableRow key={index}>
+                  <TableRow key={index} onClick={()=> onOpen('transaction history',{
+                      transaction: item
+                  })}>
                     <TableCell>
                       {item?.parseDetails?.createdAt
                         ? new Date(item.parseDetails.createdAt).toLocaleString()

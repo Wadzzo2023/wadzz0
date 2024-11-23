@@ -7,6 +7,7 @@ import { addrShort } from "~/utils/utils";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import toast from "react-hot-toast";
+import { PLATFORM_ASSET } from "~/lib/stellar/constant";
 
 export const PlaceMarketFormSchema = z.object({
   code: z
@@ -20,6 +21,7 @@ export const PlaceMarketFormSchema = z.object({
       invalid_type_error: "Limit must be entered as a number",
     })
     .nonnegative(),
+  priceUSD: z.number().nonnegative(),
 });
 
 export type PlaceMarketFormType = z.TypeOf<typeof PlaceMarketFormSchema>;
@@ -95,16 +97,46 @@ export default function EnableInMarket({
               <div className="w-full max-w-sm">
                 <label className="label">
                   <span className="label-text">Price</span>
-                  <span className="label-text-alt">Price will be set in</span>
+                  <span className="label-text-alt">
+                    Price will be set in {PLATFORM_ASSET.code}
+                  </span>
                 </label>
                 <input
                   type="number"
-                  min={1}
+                  min={0}
                   {...register("price", { valueAsNumber: true })}
                   required={true}
                   className="input input-sm input-bordered  w-full"
                   placeholder="Price"
                 />
+                {errors.price && (
+                  <label className="label">
+                    <span className="label-text">{errors.price.message}</span>
+                  </label>
+                )}
+              </div>
+              <div className="w-full max-w-sm">
+                <label className="label">
+                  <span className="label-text">Price in USD</span>
+                  <span className="label-text-alt">
+                    Price will be set in USD
+                  </span>
+                </label>
+                <input
+                  type="number"
+                  min={0}
+                  {...register("priceUSD", { valueAsNumber: true })}
+                  required={true}
+                  className="input input-sm input-bordered  w-full"
+                  placeholder="Price"
+                />
+                {errors.priceUSD && (
+                  <label className="label">
+                    <span className="label-text">
+                      {errors.priceUSD.message}
+                    </span>
+                  </label>
+                )}
               </div>
 
               <div className="flex w-full max-w-sm flex-col items-center">

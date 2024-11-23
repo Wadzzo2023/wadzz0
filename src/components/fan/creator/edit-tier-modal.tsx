@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Pencil } from "lucide-react";
+import { Pencil, PencilIcon } from "lucide-react";
 import { useRouter } from "next/router";
 import React, { useRef } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
@@ -89,93 +89,95 @@ export default function EditTierModal({ item }: { item: SubscriptionType }) {
   if (router.pathname == "/fans/creator")
     return (
       <>
-        <button className="btn btn-circle btn-primary" onClick={handleModal}>
-          <Pencil className="" />
-        </button>
-        <dialog id="my_modal_1" className="modal" ref={modalRef}>
-          <div className="modal-box">
-            <h3 className="text-center text-lg font-bold">Edit</h3>
-            <form
-              onSubmit={handleSubmit(onSubmit)}
-              className="flex flex-col items-center  gap-2  py-8"
-            >
-              <div className="rounded-md">
-                <label className="form-control w-full max-w-md">
-                  <div className="label">
-                    <span className="label-text">Tier Name</span>
-                  </div>
-                  <input
-                    type="text"
-                    placeholder="Name of the tier"
-                    {...register("name")}
-                    className="input input-bordered w-full max-w-xs"
-                  />
-                  {errors.name && (
+        <Dialog>
+          <DialogTrigger asChild>
+            <Button variant="outline" className="rounded-full">
+              <PencilIcon size={16} />
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="max-h-[700px] overflow-y-auto">
+            <div className="">
+              <h3 className="text-center text-lg font-bold">Edit</h3>
+              <form
+                onSubmit={handleSubmit(onSubmit)}
+                className="flex w-full flex-col  items-center  gap-2 py-8"
+              >
+                <div className="rounded-md ">
+                  <label className="form-control w-full ">
                     <div className="label">
-                      <span className="label-text-alt text-warning">
-                        {errors.name.message}
-                      </span>
+                      <span className="label-text">Tier Name</span>
                     </div>
-                  )}
-                </label>
-                <label className="form-control w-full max-w-xs">
-                  <div className="label">
-                    <span className="label-text">Price</span>
-                  </div>
-                  <input
-                    {...register("price", { valueAsNumber: true })}
-                    className="input input-bordered w-full max-w-xs"
-                    type="number"
-                    step="1"
-                    min="1"
-                    placeholder="Price"
-                  ></input>
-                  {errors.price && (
+                    <input
+                      type="text"
+                      placeholder="Name of the tier"
+                      {...register("name")}
+                      className="input input-bordered w-full "
+                    />
+                    {errors.name && (
+                      <div className="label">
+                        <span className="label-text-alt text-warning">
+                          {errors.name.message}
+                        </span>
+                      </div>
+                    )}
+                  </label>
+                  <label className="form-control w-full ">
                     <div className="label">
-                      <span className="label-text-alt text-warning">
-                        {errors.price.message}
-                      </span>
+                      <span className="label-text">Price</span>
                     </div>
-                  )}
-                </label>
-                <label className="form-control w-full max-w-xs">
-                  <div className="label">
-                    <span className="label-text">Tier Features</span>
-                  </div>
-                  <Editor
-                    onChange={handleEditorChange}
-                    value={getValues("featureDescription")}
-                  />
-                  {errors.featureDescription && (
+                    <input
+                      {...register("price", { valueAsNumber: true })}
+                      className="input input-bordered w-full "
+                      type="number"
+                      step="1"
+                      min="1"
+                      placeholder="Price"
+                    ></input>
+                    {errors.price && (
+                      <div className="label">
+                        <span className="label-text-alt text-warning">
+                          {errors.price.message}
+                        </span>
+                      </div>
+                    )}
+                  </label>
+                  <label className="form-control w-full ">
                     <div className="label">
-                      <span className="label-text-alt text-warning">
-                        {errors.featureDescription.message}
-                      </span>
+                      <span className="label-text">Tier Features</span>
                     </div>
-                  )}
-                </label>
-              </div>
-              <div className="m-auto  mt-16 flex w-full flex-col  items-center gap-2 ">
-                <Button
-                  className="w-full max-w-xs"
-                  type="submit"
-                  disabled={mutation.isLoading}
-                >
-                  {mutation.isLoading && (
-                    <span className="loading loading-spinner"></span>
-                  )}
-                  Edit Tier
-                </Button>
-                <DeleteTier id={item.id} />
-              </div>
-            </form>
-            <div className="modal-action">
-              <form method="dialog">
-                <button className="btn">Close</button>
+                    <Editor
+                      onChange={handleEditorChange}
+                      value={getValues("featureDescription")}
+                    />
+                    {errors.featureDescription && (
+                      <div className="label">
+                        <span className="label-text-alt text-warning">
+                          {errors.featureDescription.message}
+                        </span>
+                      </div>
+                    )}
+                  </label>
+                </div>
+                <div className="  mt-16 flex w-full flex-col  items-center gap-2 ">
+                  <Button
+                    className="w-full max-w-xs"
+                    type="submit"
+                    disabled={mutation.isLoading}
+                  >
+                    {mutation.isLoading && (
+                      <span className="loading loading-spinner"></span>
+                    )}
+                    Save Changes
+                  </Button>
+                  <DeleteTier id={item.id} />
+                </div>
               </form>
             </div>
-          </div>
-        </dialog>
+            <DialogClose asChild>
+              <Button variant="outline">Close</Button>
+            </DialogClose>
+          </DialogContent>
+        </Dialog>
       </>
     );
 }

@@ -1,13 +1,20 @@
 import {
   Asset,
-  Operation,
   Horizon,
+  Keypair,
+  Operation,
   TransactionBuilder,
 } from "@stellar/stellar-sdk";
+import { env } from "~/env";
+import { STELLAR_URL, TrxBaseFee, networkPassphrase } from "../constant";
 import { SignUserType, WithSing } from "../utils";
-import { STELLAR_URL, networkPassphrase } from "../constant";
 import { MyAssetType } from "./utils";
 
+/**
+ * Following a creator don't need fee from user.
+ * All fee will be paid by platform.
+ *
+ */
 export async function follow_creator({
   userPubkey,
   creatorPageAsset,
@@ -19,30 +26,40 @@ export async function follow_creator({
 }) {
   const server = new Horizon.Server(STELLAR_URL);
 
-  // const creatorStorageAcc = Keypair.fromSecret(creatorStorageSec);
   const asset = new Asset(creatorPageAsset.code, creatorPageAsset.issuer);
 
-  // const motherAccount = Keypair.fromSecret(env.MOTHER_SECRET);
+  const motherAccount = Keypair.fromSecret(env.MOTHER_SECRET);
 
-  const transactionInializer = await server.loadAccount(userPubkey);
+  const transactionInializer = await server.loadAccount(
+    motherAccount.publicKey(),
+  );
 
   const Tx1 = new TransactionBuilder(transactionInializer, {
-    fee: "200",
+    fee: "200", // mother paying fee but no return
     networkPassphrase,
   });
 
   Tx1.addOperation(
-    Operation.changeTrust({
-      asset,
+    Operation.payment({
+      destination: userPubkey,
+      asset: Asset.native(),
+      amount: "0.5",
     }),
   )
-
+    .addOperation(
+      Operation.changeTrust({
+        asset,
+        source: userPubkey,
+      }),
+    )
     .setTimeout(0);
 
   const buildTrx = Tx1.build();
 
+  buildTrx.sign(motherAccount);
+
   const xdr = buildTrx.toXDR();
-  const singedXdr = WithSing({ xdr, signWith });
+  const singedXdr = WithSing({ xdr, signWith: signWith });
 
   return singedXdr;
 }

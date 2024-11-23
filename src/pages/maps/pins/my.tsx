@@ -1,7 +1,7 @@
-import { Location, LocationConsumer } from "@prisma/client";
+import { Location, LocationConsumer, LocationGroup } from "@prisma/client";
 import { formatDate } from "date-fns";
 import Image from "next/image";
-import { useModal } from "~/components/hooks/use-modal-store";
+import { useModal } from "~/lib/state/play/use-modal-store";
 import { Button } from "~/components/shadcn/ui/button";
 import { api } from "~/utils/api";
 
@@ -62,10 +62,13 @@ function ClaimConsumedPin({
   key,
 }: {
   pin: LocationConsumer;
-  location: Location;
+  location: Location & {
+    locationGroup: LocationGroup | null;
+  };
   key: number;
 }) {
   const { onOpen } = useModal();
+  if (!location.locationGroup) return;
   return (
     <>
       <tr>
@@ -76,19 +79,19 @@ function ClaimConsumedPin({
                 height={1000}
                 width={1000}
                 className="h-full w-full rounded-full object-contain"
-                src={location.image ?? "/images/icons/wadzzo.svg"}
+                src={location.locationGroup.image ?? "/images/icons/wadzzo.svg"}
                 alt=""
               />
             </div>
             <div className="ml-3">
               <p className="whitespace-no-wrap text-gray-900">
-                {formatTitle(location.title)}
+                {formatTitle(location.locationGroup.title)}
               </p>
             </div>
           </div>
         </td>
         <td className="border-b border-gray-200 bg-white px-5 py-5 text-sm">
-          {location.approved ? (
+          {location.locationGroup.approved ? (
             <span className="relative me-2 inline-block rounded border border-green-400 bg-green-100 px-2.5 py-0.5  text-xs font-medium leading-tight text-green-800 dark:bg-gray-700 dark:text-green-400">
               <span
                 aria-hidden
@@ -108,7 +111,7 @@ function ClaimConsumedPin({
         </td>
         <td className="border-b border-gray-200 bg-white px-5 py-5 text-sm">
           <p className="whitespace-no-wrap text-gray-900">
-            {formatDate(new Date(location.endDate), "dd/MM/yyyy")}
+            {formatDate(new Date(location.locationGroup.endDate), "dd/MM/yyyy")}
           </p>
         </td>
         <td className="border-b border-gray-200 bg-white px-5 py-5 text-sm">
@@ -126,13 +129,17 @@ function ClaimConsumedPin({
   );
 
   function ClaimButton() {
+    if (!location.locationGroup) return;
     if (pin.claimedAt) {
       return (
         <Button variant="secondary" className="" disabled>
           Claimed
         </Button>
       );
-    } else if (location.assetId ?? location.pageAsset) {
+    } else if (
+      location.locationGroup.assetId ??
+      location.locationGroup.pageAsset
+    ) {
       return (
         <Button
           variant="destructive"

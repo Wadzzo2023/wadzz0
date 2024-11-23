@@ -2,6 +2,7 @@ import {
   CheckCheck,
   Copy,
   Edit3,
+  InfoIcon,
   Loader2,
   Scissors,
   ShieldBan,
@@ -21,10 +22,13 @@ import {
   DialogTitle,
 } from "~/components/shadcn/ui/dialog";
 import { api } from "~/utils/api";
-import { useModal } from "../hooks/use-modal-store";
+import { ModalData, useModal } from "../../lib/state/play/use-modal-store";
 
 import { Input } from "~/components/shadcn/ui/input";
 import { UploadButton } from "~/utils/uploadthing";
+import { useRouter } from "next/router";
+import { IPin, useMapModalStore } from "~/pages/maps";
+import { Loader } from "@react-three/drei";
 
 const MapModalComponent = () => {
   const {
@@ -40,10 +44,31 @@ const MapModalComponent = () => {
   const [isForm, setIsForm] = React.useState(false);
   // console.log(data.long, data.lat, data.pinId);
   const session = useSession();
+  const router = useRouter();
+  const [pinData, setPinData] = React.useState<IPin>();
+
+  const { setManual, setDuplicate, setPosition, setIsOpen, setPrevData } =
+    useMapModalStore();
   const isModalOpen = isOpen && type === "map";
   const handleClose = () => {
     onClose();
   };
+
+  const pinM = api.maps.pin.getPinM.useMutation({
+    onSuccess: (data) => {
+      setPrevData(data as IPin);
+      handleDuplicatePin();
+
+      toast.success("Pin duplicated successfully");
+    },
+  });
+
+  const pinE = api.maps.pin.getPinM.useMutation({
+    onSuccess: (data) => {
+      setPinData(data as IPin);
+      setIsForm(!isForm);
+    },
+  });
 
   // const []= useState()
 
@@ -57,7 +82,7 @@ const MapModalComponent = () => {
     },
   });
 
-  const handleToggleAutoCollect = async (pinId: number | undefined) => {
+  const handleToggleAutoCollect = async (pinId: string | undefined) => {
     if (pinId) {
       // console.log(pinId);
       if (isAutoCollect) {
@@ -126,6 +151,12 @@ const MapModalComponent = () => {
   if (!session?.data?.user?.id) {
     return <div>Public Key not found</div>;
   }
+  function handleDuplicatePin(): void {
+    handleClose();
+    setManual(true);
+    setDuplicate(true);
+    setIsOpen(true);
+  }
 
   if (data)
     return (
@@ -147,7 +178,7 @@ const MapModalComponent = () => {
                   </Button>
                 </DialogTitle>
               </DialogHeader>
-              {isForm && data.pinId ? (
+              {isForm && data.pinId && pinData ? (
                 <PinInfoUpdate
                   id={data.pinId}
                   image={data.image}
@@ -158,33 +189,58 @@ const MapModalComponent = () => {
                 <PinInfo data={data} />
               )}
             </>
-            <div className="mt-4 flex flex-col items-center justify-center md:mt-0">
-              <Button className="m-1 w-1/2 " onClick={handleCutPin}>
-                <Scissors size={15} className="mr-2" /> Cut Pin
-              </Button>
-              <Button className="m-1 w-1/2 " onClick={handleCopyPin}>
-                <Copy size={15} className="mr-2" /> Copy Pin
-              </Button>
-              {isAutoCollect ? (
+            {!isForm && (
+              <div className="mt-4 flex flex-col items-center justify-center md:mt-0">
+                <Button className="m-1 w-1/2 " onClick={handleDelete}>
+                  <Trash2 size={15} className="mr-2" /> Delete Pin
+                </Button>
                 <Button
                   className="m-1 w-1/2 "
-                  onClick={() => handleToggleAutoCollect(data.pinId)}
+                  onClick={() => {
+                    data.pinId && pinM.mutate(data.pinId);
+                  }}
                 >
-                  <ShieldCheck size={15} className="mr-2" /> Disable Auto
-                  Collect
+                  {pinM.isLoading ? (
+                    <Loader2 className="animate animate-spin" />
+                  ) : (
+                    <Copy size={15} className="mr-2" />
+                  )}{" "}
+                  Duplicate pins
                 </Button>
-              ) : (
+                <Button className="m-1 w-1/2 " onClick={handleCopyPin}>
+                  <Copy size={15} className="mr-2" /> Copy Pin
+                </Button>
+                <Button className="m-1 w-1/2 " onClick={handleCutPin}>
+                  <Scissors size={15} className="mr-2" /> Cut Pin
+                </Button>
                 <Button
                   className="m-1 w-1/2 "
-                  onClick={() => handleToggleAutoCollect(data.pinId)}
+                  onClick={() => {
+                    router
+                      .push(`maps/pins/${data.pinId}`)
+                      .finally(() => handleClose());
+                  }}
                 >
-                  <ShieldBan size={15} className="mr-1" /> Enable Auto Collect
+                  <InfoIcon size={15} className="mr-2" /> Show collectors
                 </Button>
-              )}
-              <Button className="m-1 w-1/2 " onClick={handleDelete}>
-                <Trash2 size={15} className="mr-2" /> Delete Pin
-              </Button>
-            </div>
+                {isAutoCollect ? (
+                  <Button
+                    className="m-1 w-1/2 "
+                    onClick={() => handleToggleAutoCollect(data.pinId)}
+                  >
+                    <ShieldCheck size={15} className="mr-2" /> Disable Auto
+                    Collect
+                  </Button>
+                ) : (
+                  <Button
+                    className="m-1 w-1/2 "
+                    onClick={() => handleToggleAutoCollect(data.pinId)}
+                  >
+                    <ShieldBan size={15} className="mr-1" /> Enable Auto Collect
+                  </Button>
+                )}
+              </div>
+            )}
             <DialogFooter className=" px-6 py-4"></DialogFooter>
           </DialogContent>
         </Dialog>
@@ -234,7 +290,7 @@ function PinInfoUpdate({
   image?: string;
   title: string;
   description: string;
-  id: number;
+  id: string;
 }) {
   const [coverUrl, setCover] = React.useState(image);
   const [titleE, setTitle] = React.useState(title);

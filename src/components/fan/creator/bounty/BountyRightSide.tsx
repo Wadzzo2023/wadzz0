@@ -64,7 +64,7 @@ const BountyRightBar = () => {
 
                 <p>
                   <span className="font-semibold uppercase">
-                    Prize in USD $: {currentData.priceInUSD}
+                    Prize in USD $: {currentData.priceInUSD.toFixed(2)}
                   </span>
                 </p>
                 <p>

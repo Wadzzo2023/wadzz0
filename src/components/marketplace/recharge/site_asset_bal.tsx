@@ -53,19 +53,21 @@ export function SiteAssetBalance() {
     <div className=" flex items-center justify-center gap-1 ">
       <Link href="/walletBalance" className="">
         <Button className="">
-          <div className="flex md:hidden">
+          {/* <div className="flex h-6 w-6 rounded-full  bg-white md:hidden">
             <Image
               alt="logo"
-              src="/images/logo.png"
-              className=" mr-2 h-6 w-6"
+              src="/images/icons/wadzzo.svg"
+              className=" mr-2   object-cover"
               width={100}
               height={100}
             />
-          </div>
+          </div> */}
           <span className="hidden md:flex">
-            {PLATFORM_ASSET.code.toUpperCase() + " : "}
+            {PLATFORM_ASSET.code.toUpperCase()}
+            {"  "}
           </span>
-          {formatNumber(bal.data?.platformAssetBal?.toString())}
+          {" : "}
+          {bal.data?.platformAssetBal.toFixed(0)}
         </Button>
 
         {/* <Plus className="btn btn-square btn-primary btn-sm -mr-4 " /> */}

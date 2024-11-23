@@ -1,7 +1,6 @@
-import QRCode from "react-qr-code";
-import { useModal } from "../hooks/use-modal-store";
-import CopyToClip from "../wallete/copy_to_Clip";
-import { Button } from "../shadcn/ui/button";
+import { useSession } from "next-auth/react";
+import { useState } from "react";
+import toast from "react-hot-toast";
 import {
   Dialog,
   DialogContent,
@@ -9,27 +8,11 @@ import {
   DialogHeader,
   DialogTitle,
 } from "~/components/shadcn/ui/dialog";
-import { useSession } from "next-auth/react";
-import { addrShort } from "~/utils/utils";
-import { api } from "~/utils/api";
-import toast from "react-hot-toast";
 import useNeedSign from "~/lib/hook";
-import {
-  CircleOff,
-  Copy,
-  LayersIcon,
-  PinIcon,
-  Scissors,
-  ScissorsSquare,
-  ShieldBan,
-  ShieldCheck,
-  ShieldMinus,
-  Trash2,
-} from "lucide-react";
-import { ExclamationTriangleIcon } from "@heroicons/react/24/solid";
-import { useEffect, useState } from "react";
-import { set } from "date-fns";
 import { clientSelect } from "~/lib/stellar/fan/utils";
+import { api } from "~/utils/api";
+import { useModal } from "../../lib/state/play/use-modal-store";
+import { Button } from "../shadcn/ui/button";
 
 import { clientsign } from "package/connect_wallet";
 
@@ -39,7 +22,6 @@ const ClaimPinModal = () => {
   const { needSign } = useNeedSign();
   const [paymentSuccesfull, setpaymetSucess] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [hasXdr, setHasXdr] = useState(false);
 
   const isModalOpen = isOpen && type === "claim pin";
   const handleClose = () => {
@@ -65,13 +47,11 @@ const ClaimPinModal = () => {
   });
 
   async function handleXDR() {
-    if (data?.location?.claimAmount) {
-      await xdrMutation.mutateAsync({
+    if (data.location) {
+      xdrMutation.mutate({
         signWith: needSign(),
         locationId: data.location.id,
       });
-    } else {
-      toast("Not Claimable");
     }
   }
 

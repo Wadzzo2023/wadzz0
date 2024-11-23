@@ -3,6 +3,7 @@ import { z } from "zod";
 import {
   AuthCredentialType,
   albedoSchema,
+  appleAuthSchema,
   providerAuthShema,
   walleteAuthSchema,
 } from "~/types/auth";
@@ -59,6 +60,22 @@ export async function ProviderNextLogin({
   const response = await signIn("credentials", {
     email,
     token,
+    walletType,
+    redirect: false,
+  } as AuthCredentialType);
+  return response;
+}
+
+export async function ProviderAppleLogin({
+  appleToken,
+  token,
+  walletType,
+  email,
+}: z.infer<typeof appleAuthSchema>) {
+  const response = await signIn("credentials", {
+    token,
+    email,
+    appleToken,
     walletType,
     redirect: false,
   } as AuthCredentialType);

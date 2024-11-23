@@ -1,14 +1,14 @@
-import { ConnectWalletButton } from "package/connect_wallet";
 import { Facebook, Instagram, Wallet } from "lucide-react";
+import { ConnectWalletButton } from "package/connect_wallet";
 
-import Button from "./ui/button";
-import Link from "next/link";
-import { HomeIcon, Settings2, Diamond, Bell } from "lucide-react";
+import { Bell, Diamond, HomeIcon, Settings2 } from "lucide-react";
 import Image from "next/image";
-import { cn } from "~/utils/utils";
+import Link from "next/link";
 import { env } from "~/env";
 import { useDrawerOpenStore } from "~/lib/state/fan/drawer_open";
 import { CREATOR_PLURAL_TERM } from "~/utils/term";
+import { cn } from "~/utils/utils";
+import Button from "./ui/button";
 
 export const LeftNavigation = {
   Home: { path: "/", icon: HomeIcon, text: "HOMEPAGE" },
@@ -30,23 +30,23 @@ export const LeftNavigation = {
   Settings: { path: "/settings", icon: Settings2, text: "SETTINGS" },
 } as const;
 export const BottomNavigation = {
-  Home: { path: "/maps/pins", icon: HomeIcon, text: "CLAIM" },
+  Claim: { path: "/maps/pins/my", icon: HomeIcon, text: "CLAIM" },
 } as const;
 
 export default function LeftBar({ className }: { className?: string }) {
   return (
     <div
       className={cn(
-        "flex h-full max-h-screen w-80 flex-col items-center justify-between gap-4 overflow-hidden overflow-y-auto bg-base-100/80 px-4 pb-4 scrollbar-hide ",
+        "flex h-full max-h-screen w-80 flex-col items-center justify-between gap-4 overflow-auto bg-base-100/80 px-4 pb-4 scrollbar-hide ",
         className,
       )}
     >
-      <div className="flex h-full w-full flex-1 flex-col items-center justify-between gap-2 overflow-hidden overflow-y-auto">
-        <div className="mt-7  w-full flex-1">
+      <div className="flex h-full w-full flex-1 flex-col items-center justify-between gap-2 overflow-auto overflow-x-hidden">
+        <div className="mt-2  w-full flex-1">
           <NavigationButtons />
         </div>
       </div>
-      <div className="flex w-full flex-col items-center">
+      <div className="flex w-full flex-col items-center ">
         <LeftBottom />
       </div>
     </div>

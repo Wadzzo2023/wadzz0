@@ -3,12 +3,13 @@ import Image from "next/image";
 import { submitSignedXDRToServer4User } from "package/connect_wallet/src/lib/stellar/trx/payment_fb_g";
 import { useCallback, useState } from "react";
 import toast from "react-hot-toast";
-import { useModal } from "~/components/hooks/use-modal-store";
+import { useModal } from "~/lib/state/play/use-modal-store";
 import { Preview } from "~/components/preview";
 
 import { api } from "~/utils/api";
 
 import { addrShort } from "~/utils/utils";
+import { Badge } from "~/components/shadcn/ui/badge";
 
 const Bounty = () => {
   const getAllBounty = api.bounty.Bounty.getAllBounties.useInfiniteQuery(
@@ -62,7 +63,7 @@ const Bounty = () => {
       <div className="w-full bg-white p-4">
         <div className="flex flex-col gap-2">
           {getAllBounty.data.pages[0]?.bounties.length === 0 ||
-          getAllBounty.data.pages[0]?.bounties === undefined ? (
+            getAllBounty.data.pages[0]?.bounties === undefined ? (
             <p className="w-full text-center text-xl">
               There is no Bounty yet!!
             </p>
@@ -231,17 +232,11 @@ const Bounty = () => {
                           </td>
                           <td className="border-b border-slate-200 p-4">
                             <div className="w-max">
-                              {bounty.winnerId ? (
-                                <div className="relative grid select-none items-center whitespace-nowrap rounded-md bg-indigo-500/20 px-2 py-1 font-sans text-xs font-bold uppercase text-indigo-900">
-                                  <span className="">
-                                    {addrShort(bounty.winnerId, 10)}
-                                  </span>
-                                </div>
-                              ) : (
-                                <div className="relative grid select-none items-center whitespace-nowrap rounded-md bg-green-500/20 px-2 py-1 font-sans text-xs font-bold uppercase text-green-900">
-                                  <span className="">NOT ANNOUNCED</span>
-                                </div>
-                              )}
+                              <Badge
+                                variant={bounty._count.BountyWinner === 0 ? "destructive" : "default"}
+                              >
+                                {bounty.totalWinner === bounty._count.BountyWinner ? "Finished" : "Active"}
+                              </Badge>
                             </div>
                           </td>
                           <td className="border-b border-slate-200 p-4">
@@ -268,7 +263,7 @@ const Bounty = () => {
                             </button>
                             <button
                               disabled={
-                                loadingBountyId === bounty.id || bounty.winnerId
+                                loadingBountyId === bounty.id || bounty.BountyWinner.length > 0
                                   ? true
                                   : false
                               }

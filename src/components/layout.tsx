@@ -7,8 +7,18 @@ import React from "react";
 import { ThemeProvider } from "./providers/theme-provider";
 import ModalProvider from "./providers/modal-provider";
 import { api } from "~/utils/api";
+import { Toaster } from "~/components/ui/toaster";
+import PlayLayout from "./play/layout";
+import PlayModalProvider from "./providers/play/play-modal-provider";
 // import Header from "./header";
 // import RightDialog from "./right_dialog";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "~/components/shadcn/ui/card";
 
 const RightDialog = dynamic(async () => await import("./right_dialog"));
 const ConnectWalletButton = dynamic(
@@ -44,6 +54,40 @@ export default function Layout({
 
   const creator = api.fan.creator.meCreator.useQuery();
 
+  if (router.pathname.includes("/albedo")) {
+    return <div>{children}</div>;
+  }
+
+  if (router.pathname.includes("/play")) {
+    if (router.pathname.includes("/play/ar")) {
+      return <>{children}</>;
+    }
+    return (
+      <>
+        {session.status === "authenticated" ? (
+          <PlayLayout>
+            <PlayModalProvider />
+            {children}
+          </PlayLayout>
+        ) : (
+          <div className="flex h-screen items-center justify-center bg-gray-100">
+            <Card className="w-[350px]">
+              <CardHeader>
+                <CardTitle>Welcome to WadzzoAR</CardTitle>
+                <CardDescription>
+                  Please login/signup to continue
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ConnectWalletButton />
+              </CardContent>
+            </Card>
+          </div>
+        )}
+      </>
+    );
+  }
+
   return (
     <>
       <ThemeProvider
@@ -54,9 +98,9 @@ export default function Layout({
         <div className={clsx(" flex h-screen w-full flex-col", className)}>
           <Header />
 
-          <div className="flex-1 overflow-auto bg-base-100/50 ">
+          <div className="flex-1 overflow-auto bg-base-100/50">
             <div className="flex h-full border-t-2">
-              <LeftBar className="hidden lg:flex" />
+              <LeftBar className="hidden xl:flex" />
               <div
                 id="ih"
                 className="flex-1 border-x-2"
@@ -78,6 +122,7 @@ export default function Layout({
                   {session.status == "authenticated" ? (
                     <>
                       <ModalProvider />
+                      <PlayModalProvider />
                       {children}
                     </>
                   ) : (
@@ -92,9 +137,9 @@ export default function Layout({
 
               {router.pathname !== "/walletBalance" &&
                 router.pathname !== "/notification" &&
+                router.pathname !== "/bounty/[id]" &&
                 router.pathname !== "/settings" &&
                 router.pathname !== "/about" &&
-                router.pathname !== "/bounty/[id]" &&
                 router.pathname !== "/support" &&
                 router.pathname !== "/privacy" &&
                 session.status == "authenticated" && <RightSideBar />}
@@ -102,6 +147,7 @@ export default function Layout({
           </div>
           <RightDialog />
           <BottomPlayerContainer />
+          <Toaster />
         </div>
       </ThemeProvider>
     </>

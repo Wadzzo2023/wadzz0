@@ -15,8 +15,9 @@ import {
   adminProcedure,
   createTRPCRouter,
   protectedProcedure,
-
 } from "~/server/api/trpc";
+import { getAssetBalance } from "~/lib/stellar/marketplace/test/acc";
+import { ItemPrivacy } from "@prisma/client";
 
 export const AssetSelectAllProperty = {
   code: true,
@@ -94,16 +95,20 @@ export const marketRouter = createTRPCRouter({
 
   placeToMarketDB: protectedProcedure
     .input(
-      z.object({ code: z.string(), issuer: z.string(), price: z.number() }),
+      z.object({
+        code: z.string(),
+        issuer: z.string(),
+        price: z.number(),
+        priceUSD: z.number(),
+      }),
     )
     .mutation(async ({ input, ctx }) => {
-      const { code, issuer, price } = input;
+      const { code, issuer, price, priceUSD } = input;
 
       const userId = ctx.session.user.id;
 
       const asset = await ctx.db.asset.findUnique({
         where: { code_issuer: { code, issuer } },
-        select: { id: true, creatorId: true },
       });
 
       if (!asset) throw new Error("asset not found");
@@ -115,6 +120,8 @@ export const marketRouter = createTRPCRouter({
           placerId,
           price,
           assetId: asset.id,
+          priceUSD,
+          privacy: asset.privacy,
         },
       });
     }),
@@ -195,10 +202,9 @@ export const marketRouter = createTRPCRouter({
           creator: {
             select: {
               name: true,
-              profileUrl: true
-
-            }
-          }
+              profileUrl: true,
+            },
+          },
         },
         take: limit + 1,
         skip: skip,
@@ -240,6 +246,44 @@ export const marketRouter = createTRPCRouter({
           },
         },
         where: { type: "ADMIN" },
+      });
+
+      let nextCursor: typeof cursor | undefined = undefined;
+      if (items.length > limit) {
+        const nextItem = items.pop(); // return the last item from the array
+        nextCursor = nextItem?.id;
+      }
+
+      return {
+        nfts: items,
+        nextCursor,
+      };
+    }),
+
+  getCreatorNftsByCreatorID: protectedProcedure
+    .input(
+      z.object({
+        limit: z.number(),
+        // cursor is a reference to the last item in the previous batch
+        // it's used to fetch the next batch
+        cursor: z.number().nullish(),
+        skip: z.number().optional(),
+        creatorId: z.string(),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      const { limit, cursor, skip, creatorId } = input;
+
+      const items = await ctx.db.marketAsset.findMany({
+        take: limit + 1,
+        skip: skip,
+        cursor: cursor ? { id: cursor } : undefined,
+        include: {
+          asset: {
+            select: AssetSelectAllProperty,
+          },
+        },
+        where: { asset: { creatorId: creatorId } },
       });
 
       let nextCursor: typeof cursor | undefined = undefined;
@@ -361,5 +405,59 @@ export const marketRouter = createTRPCRouter({
         where: { id: input },
         include: { asset: true },
       });
+    }),
+
+  userCanBuyThisMarketAsset: protectedProcedure
+    .input(z.number())
+    .query(async ({ ctx, input }) => {
+      const pubkey = ctx.session.user.id;
+
+      const stellarAcc = await StellarAccount.create(pubkey);
+
+      // check
+      const marketAsset = await ctx.db.marketAsset.findUnique({
+        where: { id: input },
+        include: {
+          asset: {
+            include: {
+              tier: { include: { creator: { include: { pageAsset: true } } } },
+            },
+          },
+        },
+      });
+
+      if (!marketAsset) return false;
+
+      if (marketAsset.privacy === ItemPrivacy.PUBLIC) {
+        return true;
+      }
+
+      // secondary market if placerId is not the creatorId
+      if (marketAsset.placerId !== marketAsset.asset.creatorId) {
+        return true;
+      }
+
+      const tier = marketAsset.asset.tier;
+
+      if (tier) {
+        const pageAsset = tier.creator.pageAsset;
+
+        if (pageAsset) {
+          if (marketAsset.privacy === ItemPrivacy.PRIVATE) {
+            const { code, issuer } = pageAsset;
+            const hasTrust = stellarAcc.hasTrustline(code, issuer);
+
+            if (hasTrust) {
+              return true;
+            }
+          } else if (marketAsset.privacy === ItemPrivacy.TIER) {
+            const { code, issuer } = pageAsset;
+            const bal = stellarAcc.getTokenBalance(code, issuer);
+            if (bal >= tier.price) {
+              return true;
+            }
+          }
+        }
+      }
     }),
 });

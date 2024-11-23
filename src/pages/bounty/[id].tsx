@@ -1,12 +1,8 @@
 import clsx from "clsx";
-import { format, formatDate } from "date-fns";
+import { format } from "date-fns";
 import {
-  ArrowLeft,
-  ArrowLeftRight,
   ArrowRight,
-  Clock,
   Crown,
-  DatabaseZap,
   DollarSign,
   Edit,
   File,
@@ -15,18 +11,8 @@ import {
   Send,
   Trash,
   Trophy,
-  UploadCloud,
   Users,
 } from "lucide-react";
-import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "~/components/shadcn/ui/dialog";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -35,7 +21,7 @@ import { MutableRefObject, useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { AddBountyComment } from "~/components/fan/creator/bounty/Add-Bounty-Comment";
 import ViewBountyComment from "~/components/fan/creator/bounty/View-Bounty-Comment";
-import { useModal } from "~/components/hooks/use-modal-store";
+import { useModal } from "~/lib/state/play/use-modal-store";
 import { Preview } from "~/components/preview";
 import {
   Avatar,
@@ -45,19 +31,28 @@ import {
 import { Badge } from "~/components/shadcn/ui/badge";
 import { Button } from "~/components/shadcn/ui/button";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "~/components/shadcn/ui/select";
-import {
   Card,
   CardContent,
   CardFooter,
   CardHeader,
   CardTitle,
 } from "~/components/shadcn/ui/card";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "~/components/shadcn/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "~/components/shadcn/ui/select";
 import { Separator } from "~/components/shadcn/ui/separator";
 import {
   Tabs,
@@ -68,8 +63,6 @@ import {
 import Alert from "~/components/ui/alert";
 import Avater from "~/components/ui/avater";
 import useNeedSign from "~/lib/hook";
-import { useBountyRightStore } from "~/lib/state/bounty/use-bounty-store";
-import { usePopUpState } from "~/lib/state/right-pop";
 import { useUserStellarAcc } from "~/lib/state/wallete/stellar-balances";
 import {
   PLATFORM_ASSET,
@@ -81,17 +74,13 @@ import { useSession } from "next-auth/react";
 
 import { api } from "~/utils/api";
 
-import { clientsign, WalletType } from "package/connect_wallet";
-import { clientSelect } from "~/lib/stellar/fan/utils";
-import {
-  getAssetPrice,
-  getAssetToUSDCRate,
-} from "~/lib/stellar/fan/get_token_price";
-import Loading from "~/components/wallete/loading";
 import { SubmissionViewType, UserRole } from "@prisma/client";
-import { Input } from "~/components/shadcn/ui/input";
-import { cn } from "~/lib/utils";
+import { clientsign, WalletType } from "package/connect_wallet";
 import Chat from "~/components/fan/creator/bounty/Chat";
+import { Input } from "~/components/shadcn/ui/input";
+import Loading from "~/components/wallete/loading";
+import { clientSelect } from "~/lib/stellar/fan/utils";
+import { cn } from "~/lib/utils";
 import { addrShort } from "~/utils/utils";
 
 const SingleBountyPage = () => {
@@ -219,7 +208,6 @@ const UserBountyPage = () => {
     BountyId: Number(id) ?? 0,
   });
 
-  const getUserHasTrustLine = api.bounty.Bounty.hasUserTrustOnUSDC.useQuery();
   const getMotherTrustLine = api.bounty.Bounty.hasMotherTrustOnUSDC.useQuery();
 
   const { data: oldMessage, isSuccess: oldMessageSucess } =
@@ -268,6 +256,7 @@ const UserBountyPage = () => {
   }, [messages]);
 
   if (bountyLoading || isAlreadyJoin.isLoading) return <Loading />;
+
   if (data && isAlreadyJoin.data) {
     return (
       <div className="p-2">
@@ -416,7 +405,10 @@ const UserBountyPage = () => {
                                 <Edit />
                               </Button>
                               <Button
-                                disabled={data?.winner?.name ? true : false}
+                                disabled={data.BountyWinner.some(
+                                  (winner) =>
+                                    winner.user.id === session.data?.user.id,
+                                )}
                                 variant="destructive"
                                 onClick={() =>
                                   handleSubmissionDelete(submission.id)
@@ -432,7 +424,6 @@ const UserBountyPage = () => {
                   </div>
                 </TabsContent>
                 <TabsContent value="doubt" className="">
-                  {" "}
                   <Card>
                     <CardHeader className="flex flex-row items-center border-b-2 p-4">
                       <div className="flex items-center space-x-4 ">
@@ -597,7 +588,7 @@ const UserBountyPage = () => {
               <div className="flex   space-x-4">
                 <Button
                   variant="destructive"
-                  disabled={data?.winner?.name ? true : false}
+                  disabled={data._count.BountyWinner === data.totalWinner}
                   className=""
                   onClick={() =>
                     onOpen("upload file", {
@@ -608,117 +599,124 @@ const UserBountyPage = () => {
                   Submit Solution
                 </Button>
               </div>
-              {data.winnerId &&
-                data.winnerId === session.data?.user.id &&
-                (session.data?.user?.walletType === WalletType.emailPass ||
-                  session.data?.user?.walletType === WalletType.apple ||
-                  session.data?.user?.walletType === WalletType.google) && (
-                  <>
-                    <div className="flex flex-col gap-2">
-                      <div className="">
-                        <Dialog
-                          open={isDialogOpen}
-                          onOpenChange={setIsDialogOpen}
-                        >
-                          <DialogTrigger asChild>
-                            <Button
-                              className=""
-                              disabled={
-                                loading || data.isSwaped
-                                  ? true
-                                  : false ||
-                                    swapAssetToUSDC.isLoading ||
-                                    MakeSwapUpdateMutation.isLoading
-                              }
-                            >
-                              <span className="flex items-center">
-                                {PLATFORM_ASSET.code}{" "}
-                                <ArrowRight className="ml-2 mr-2" size={16} />{" "}
-                                USDC
-                              </span>
-                            </Button>
-                          </DialogTrigger>
-                          <DialogContent className="sm:max-w-[425px]">
-                            <DialogHeader>
-                              <DialogTitle>Confirmation </DialogTitle>
-                            </DialogHeader>
-                            {!getMotherTrustLine.data ? (
-                              <Alert
-                                className="flex  items-center justify-center"
-                                type="error"
-                                content={`Please Contact Admin. support@wadzzo.com`}
-                              />
-                            ) : (
-                              <>
-                                <div className="">
-                                  <div className="space-y-4 rounded-lg border border-gray-100 bg-gray-50 p-6 dark:border-gray-700 dark:bg-gray-800">
-                                    <div className="space-y-2">
-                                      <dl className="flex items-center justify-between gap-4">
-                                        <dt className="text-base font-normal text-gray-500 dark:text-gray-400">
-                                          Amount
-                                        </dt>
-                                        <dd className="text-base font-medium text-gray-900 dark:text-white">
-                                          {(data?.priceInBand).toFixed(2)}{" "}
-                                          {PLATFORM_ASSET.code}
-                                        </dd>
-                                      </dl>
-                                    </div>
-
-                                    <dl className="flex items-center justify-between gap-4 border-t border-gray-200 pt-2 dark:border-gray-700">
-                                      <dt className="text-base font-bold text-gray-900 dark:text-white">
-                                        Swapped Amount
+              {data.BountyWinner.some(
+                (winner) => winner.user.id === session.data?.user.id,
+              ) && (
+                <>
+                  <div className="flex flex-col gap-2">
+                    <div className="">
+                      <Dialog
+                        open={isDialogOpen}
+                        onOpenChange={setIsDialogOpen}
+                      >
+                        <DialogTrigger asChild>
+                          <Button
+                            className=""
+                            disabled={
+                              loading ||
+                              data.BountyWinner.some(
+                                (winner) =>
+                                  winner.user.id === session.data?.user.id &&
+                                  winner?.isSwaped === true,
+                              ) ||
+                              swapAssetToUSDC.isLoading ||
+                              MakeSwapUpdateMutation.isLoading
+                            }
+                          >
+                            <span className="flex items-center">
+                              {PLATFORM_ASSET.code}{" "}
+                              <ArrowRight className="ml-2 mr-2" size={16} />{" "}
+                              USDC
+                            </span>
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent className="sm:max-w-[425px]">
+                          <DialogHeader>
+                            <DialogTitle>Confirmation </DialogTitle>
+                          </DialogHeader>
+                          {!getMotherTrustLine.data ? (
+                            <Alert
+                              className="flex  items-center justify-center"
+                              type="error"
+                              content={`Please Contact Admin. support@wadzzo.com`}
+                            />
+                          ) : (
+                            <>
+                              <div className="">
+                                <div className="space-y-4 rounded-lg border border-gray-100 bg-gray-50 p-6 dark:border-gray-700 dark:bg-gray-800">
+                                  <div className="space-y-2">
+                                    <dl className="flex items-center justify-between gap-4">
+                                      <dt className="text-base font-normal text-gray-500 dark:text-gray-400">
+                                        Amount
                                       </dt>
-                                      <dd className="text-base font-bold text-gray-900 dark:text-white">
-                                        {data.priceInUSD} USDC
+                                      <dd className="text-base font-medium text-gray-900 dark:text-white">
+                                        {(
+                                          data?.priceInBand / data.totalWinner
+                                        ).toFixed(2)}{" "}
+                                        {PLATFORM_ASSET.code}
                                       </dd>
                                     </dl>
                                   </div>
 
-                                  <span className="text-xs text-red-500">
-                                    NOTE: This is a one time operation! You can
-                                    {"'t"} undo this operation
-                                  </span>
+                                  <dl className="flex items-center justify-between gap-4 border-t border-gray-200 pt-2 dark:border-gray-700">
+                                    <dt className="text-base font-bold text-gray-900 dark:text-white">
+                                      Swapped Amount
+                                    </dt>
+                                    <dd className="text-base font-bold text-gray-900 dark:text-white">
+                                      {data.priceInUSD / data.totalWinner} USDC
+                                    </dd>
+                                  </dl>
                                 </div>
-                                <DialogFooter className=" w-full">
-                                  <div className="flex w-full gap-4  ">
-                                    <DialogClose className="w-full">
-                                      <Button
-                                        variant="outline"
-                                        className="w-full"
-                                      >
-                                        Cancel
-                                      </Button>
-                                    </DialogClose>
+
+                                <span className="text-xs text-red-500">
+                                  NOTE: This is a one time operation! You can
+                                  {"'t"} undo this operation
+                                </span>
+                              </div>
+                              <DialogFooter className=" w-full">
+                                <div className="flex w-full gap-4  ">
+                                  <DialogClose className="w-full">
                                     <Button
-                                      disabled={
-                                        loading || data.isSwaped
-                                          ? true
-                                          : false ||
-                                            swapAssetToUSDC.isLoading ||
-                                            MakeSwapUpdateMutation.isLoading
-                                      }
-                                      variant="destructive"
-                                      onClick={() =>
-                                        handleSwap(
-                                          data.id,
-                                          data.priceInBand,
-                                          data.priceInUSD,
-                                        )
-                                      }
+                                      variant="outline"
                                       className="w-full"
                                     >
-                                      Confirm
+                                      Cancel
                                     </Button>
-                                  </div>
-                                </DialogFooter>
-                              </>
-                            )}
-                          </DialogContent>
-                        </Dialog>
-                      </div>
+                                  </DialogClose>
+                                  <Button
+                                    disabled={
+                                      loading ||
+                                      data.BountyWinner.some(
+                                        (winner) =>
+                                          winner.user.id ===
+                                            session.data?.user.id &&
+                                          winner?.isSwaped === true,
+                                      ) ||
+                                      swapAssetToUSDC.isLoading ||
+                                      MakeSwapUpdateMutation.isLoading
+                                    }
+                                    variant="destructive"
+                                    onClick={() =>
+                                      handleSwap(
+                                        data.id,
+                                        data.priceInBand / data.totalWinner,
+                                        data.priceInUSD / data.totalWinner,
+                                      )
+                                    }
+                                    className="w-full"
+                                  >
+                                    Confirm
+                                  </Button>
+                                </div>
+                              </DialogFooter>
+                            </>
+                          )}
+                        </DialogContent>
+                      </Dialog>
                     </div>
-                  </>
-                )}
+                  </div>
+                </>
+              )}
             </CardFooter>
           </Card>
         ) : data.requiredBalance > platformAssetBalance ? (
@@ -799,6 +797,10 @@ const AdminBountyPage = () => {
           });
         }
       }
+      setLoadingBountyId(null);
+    },
+    onError: (error) => {
+      toast.error(error.message);
       setLoadingBountyId(null);
     },
   });
@@ -980,10 +982,14 @@ const AdminBountyPage = () => {
                                   <Button
                                     disabled={
                                       loadingBountyId === data.id ||
-                                      data.winner?.name
-                                        ? true
-                                        : false ||
-                                          GetSendBalanceToWinnerXdr.isLoading
+                                      data.totalWinner ===
+                                        data._count.BountyWinner ||
+                                      data.BountyWinner.some(
+                                        (winner) =>
+                                          winner.user.id ===
+                                          submission.user.name,
+                                      ) ||
+                                      GetSendBalanceToWinnerXdr.isLoading
                                     }
                                     className=" me-2  bg-purple-100 px-2.5 py-0.5 text-xs font-medium text-purple-800 dark:bg-purple-900 dark:text-purple-300 "
                                     variant="outline"
@@ -1034,10 +1040,14 @@ const AdminBountyPage = () => {
                                     <Button
                                       disabled={
                                         loadingBountyId === data.id ||
-                                        data.winner?.name
-                                          ? true
-                                          : false ||
-                                            GetSendBalanceToWinnerXdr.isLoading
+                                        data.totalWinner ===
+                                          data._count.BountyWinner ||
+                                        data.BountyWinner.some(
+                                          (winner) =>
+                                            winner.user.id ===
+                                            submission.user.name,
+                                        ) ||
+                                        GetSendBalanceToWinnerXdr.isLoading
                                       }
                                       variant="destructive"
                                       type="submit"
@@ -1149,7 +1159,8 @@ const AdminBountyPage = () => {
                     <DialogTrigger asChild>
                       <Button
                         disabled={
-                          loadingBountyId === data.id || data.winner?.name
+                          loadingBountyId === data.id ||
+                          data._count.BountyWinner > 0
                             ? true
                             : false
                         }
@@ -1176,7 +1187,8 @@ const AdminBountyPage = () => {
                           </DialogClose>
                           <Button
                             disabled={
-                              loadingBountyId === data.id || data.winner?.name
+                              loadingBountyId === data.id ||
+                              data._count.BountyWinner > 0
                                 ? true
                                 : false
                             }

@@ -1,9 +1,10 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import { getSession } from "next-auth/react";
+import { getToken } from "next-auth/jwt";
+import { EnableCors } from "~/server/api-cors";
 import { db } from "~/server/db";
-import { ConsumedLocation, Location } from "~/types/game/location";
+import { ConsumedLocation } from "~/types/game/location";
 import { avaterIconUrl } from "../brands";
-import { BandcoinIconURL } from ".";
+import { WadzzoIconURL } from "./index";
 
 // import { getSession } from "next-auth/react";
 
@@ -11,7 +12,9 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse,
 ) {
-  const session = await getSession({ req });
+  await EnableCors(req, res);
+
+  const session = await getToken({ req });
 
   // Check if the user is authenticated
   if (!session) {
@@ -21,37 +24,119 @@ export default async function handler(
     return;
   }
 
+  const userId = session.sub;
+
   // Return the locations
-  const consumedLocations = await db.locationConsumer.findMany({
-    where: {
-      userId: session.user.id,
+
+  // const consumedLocations = await db.locationConsumer.findMany({
+  //   where: {
+  //     userId: userId,
+  //     hidden: false,
+  //   },
+  //   include: {
+  //     location: {
+  //       include: {
+  //         locationGroup: { include: { creator: true } },
+  //       },
+  //     },
+  //   },
+  // });
+
+  // location
+  const dbLocations = await db.location.findMany({
+    include: {
+      locationGroup: {
+        include: {
+          creator: true,
+          locations: {
+            include: {
+              _count: {
+                select: {
+                  consumers: {
+                    where: { userId: session.sub },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      consumers: {
+        select: {
+          userId: true,
+          viewedAt: true,
+        },
+      },
     },
-    include: { location: { include: { creator: true } } },
+
+    where: {
+      consumers: {
+        some: {
+          userId: session.sub,
+          hidden: false,
+        },
+        none: {
+          userId: session.sub,
+          hidden: true,
+        },
+      },
+    },
   });
 
-  const locations: ConsumedLocation[] = consumedLocations.map((consumption) => {
-    return {
-      id: consumption.location.id,
-      lat: consumption.location.latitude,
-      lng: consumption.location.longitude,
-      title: consumption.location.title,
+  const locations = dbLocations.map((location) => {
+    if (!location.locationGroup) return;
+
+    const totalGroupConsumers = location.locationGroup.locations.reduce(
+      (sum, location) => sum + location._count.consumers,
+      0,
+    );
+
+    const remaining = location.locationGroup.limit - totalGroupConsumers;
+
+    const loc: ConsumedLocation = {
+      id: location.id,
+      lat: location.latitude,
+      lng: location.longitude,
+      title: location.locationGroup.title,
       description:
-        consumption.location.description ?? "No description provided",
-      brand_name: consumption.location.creator.name,
-      url: consumption.location.link ?? "https://bandcoin.io/",
-      image_url:
-        consumption.location.image ??
-        consumption.location.creator.profileUrl ??
-        BandcoinIconURL,
-      collected: false,
-      collection_limit_remaining: 3,
-      auto_collect: true,
-      brand_image_url: consumption.location.creator.profileUrl ?? avaterIconUrl,
-      brand_id: consumption.location.creator.id,
+        location.locationGroup?.description ?? "No description provided",
+      viewed: location.consumers.some((el) => el.viewedAt != null),
+      auto_collect: location.autoCollect,
+      brand_image_url:
+        location.locationGroup?.creator.profileUrl ?? avaterIconUrl,
+      brand_id: location.locationGroup?.creator.id,
       modal_url: "https://vong.cong/",
-      viewed: consumption.viewedAt != null,
+      collected: true,
+      collection_limit_remaining: remaining,
+      brand_name: location.locationGroup.creator.name,
+      image_url:
+        location.locationGroup.image ??
+        location.locationGroup.creator.profileUrl ??
+        WadzzoIconURL,
+      url: location.locationGroup.link ?? "https://app.wadzzo.com/",
     };
+    return loc;
   });
+
+  // const locations: ConsumedLocation[] = dbLocations.map((location) => {
+  //   return {
+  //     id: location.id,
+  //     lat: location.latitude,
+  //     lng: location.longitude,
+  //     title: location.title,
+  //     description: location.description ?? "No description provided",
+  //     viewed: location.consumers.some((el) => el.viewedAt != null),
+  //     auto_collect: location.autoCollect,
+  //     brand_image_url: location.creator.profileUrl ?? avaterIconUrl,
+  //     brand_id: location.creator.id,
+  //     modal_url: "https://vong.cong/",
+  //     collected: true,
+  //     collection_limit_remaining: location.limit - location._count.consumers,
+  //     brand_name: location.creator.name,
+  //     image_url: location.image ?? location.creator.profileUrl ?? WadzzoIconURL,
+  //     url: location.link ?? "https://app.wadzzo.com/",
+  //   };
+  // });
 
   res.status(200).json({ locations: locations });
 }
