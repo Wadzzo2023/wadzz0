@@ -39,6 +39,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "~/components/ui/tooltip";
+import { ipfsHashToUrl } from "~/utils/ipfs";
 
 export const ExtraSongInfo = z.object({
   artist: z.string(),
@@ -259,7 +260,7 @@ function NftCreateForm({
         body: formData,
       });
       const ipfsHash = await res.text();
-      const thumbnail = "https://ipfs.io/ipfs/" + ipfsHash;
+      const thumbnail = ipfsHashToUrl(ipfsHash);
       setCover(thumbnail);
       setValue("coverImgUrl", thumbnail);
       setCid(ipfsHash);

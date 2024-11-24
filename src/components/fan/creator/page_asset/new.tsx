@@ -18,6 +18,7 @@ import {
   usePaymentMethodStore,
 } from "~/components/payment/payment-options";
 import { useToast } from "~/hooks/use-toast";
+import { ipfsHashToUrl } from "~/utils/ipfs";
 
 export const MAX_ASSET_LIMIT = Number("922337203685");
 
@@ -161,7 +162,7 @@ function NewPageAssetFrom({ requiredToken }: { requiredToken: number }) {
         body: formData,
       });
       const ipfsHash = await res.text();
-      const thumbnail = "https://ipfs.io/ipfs/" + ipfsHash;
+      const thumbnail = ipfsHashToUrl(ipfsHash);
       setCover(thumbnail);
       setValue("thumbnail", thumbnail);
       setCid(ipfsHash);

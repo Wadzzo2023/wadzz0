@@ -55,6 +55,7 @@ export const shopRouter = createTRPCRouter({
           data: {
             code,
             issuer: issuer.publicKey,
+            issuerPrivate: issuer.secretKey,
             name,
             mediaType,
             mediaUrl,
