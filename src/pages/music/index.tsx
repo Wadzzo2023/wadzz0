@@ -7,6 +7,8 @@ import TrackSection, {
 import { api } from "~/utils/api";
 import { getAssetBalanceFromBalance } from "~/lib/stellar/marketplace/test/acc";
 import BuyModal from "~/components/music/modal/buy_modal";
+import { Loader2 } from "lucide-react";
+import toast from "react-hot-toast";
 
 export default function Home() {
   return (
@@ -68,6 +70,7 @@ function MySongs() {
 
 function CreatorPublicSongs() {
   const creatorSongs = api.music.song.getCreatorPublicSong.useQuery();
+  const admin = api.wallate.admin.checkAdmin.useQuery();
 
   const header = "Public Songs";
 
@@ -80,20 +83,47 @@ function CreatorPublicSongs() {
         <h3 className="py-2 text-2xl font-bold">{header}</h3>
         {creatorSongs.data.map((song) => {
           return (
-            <CreatorTrack
-              key={song.id}
-              // choose first 4 characters of the creator
-              playable={true}
-              item={{
-                ...song,
-                artist: song.creatorId?.substring(0, 4) ?? "creator",
-              }}
-            />
+            <div className="flex w-full " key={song.id}>
+              <div className="w-full">
+                <CreatorTrack
+                  key={song.id}
+                  // choose first 4 characters of the creator
+                  playable={true}
+                  item={{
+                    ...song,
+                    artist: song.creatorId?.substring(0, 4) ?? "creator",
+                  }}
+                />
+              </div>
+              {admin.data && <DeletePublicSong key={song.id} id={song.id} />}
+            </div>
           );
         })}
       </div>
     );
   }
+}
+
+function DeletePublicSong({ id }: { id: number }) {
+  const deletM = api.music.song.deleteCreatorPublicSong.useMutation({
+    onSuccess(data, variables, context) {
+      toast.success("Song deleted successfully");
+    },
+  });
+
+  return (
+    <button
+      className="btn btn-primary"
+      onClick={() =>
+        deletM.mutate({
+          songId: id,
+        })
+      }
+    >
+      {deletM.isLoading && <Loader2 className="animate animate-spin" />}
+      Delete
+    </button>
+  );
 }
 
 function CreatorMarketSongs() {

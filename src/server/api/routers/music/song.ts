@@ -1,15 +1,14 @@
 import { z } from "zod";
 
+import { SongFormSchema } from "~/components/music/modal/song_create";
+import { accountDetailsWithHomeDomain } from "~/lib/stellar/marketplace/test/acc";
 import {
   adminProcedure,
   createTRPCRouter,
   protectedProcedure,
   publicProcedure,
 } from "~/server/api/trpc";
-import { SongFormSchema } from "~/components/music/modal/song_create";
 import { AssetSelectAllProperty } from "../marketplace/marketplace";
-import { accountDetailsWithHomeDomain } from "~/lib/stellar/marketplace/test/acc";
-import { where } from "firebase/firestore";
 
 export const songRouter = createTRPCRouter({
   getAllSong: publicProcedure.query(async ({ ctx }) => {
@@ -28,6 +27,18 @@ export const songRouter = createTRPCRouter({
 
     return assets;
   }),
+
+  deleteCreatorPublicSong: adminProcedure
+    .input(
+      z.object({
+        songId: z.number(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      await ctx.db.asset.delete({
+        where: { id: input.songId },
+      });
+    }),
 
   getCreatorMarketSong: protectedProcedure.query(async ({ ctx }) => {
     const songs = await ctx.db.marketAsset.findMany({
