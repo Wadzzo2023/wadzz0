@@ -72,7 +72,6 @@ function AllRecentPost() {
   //     <PostSkeleton />
   //   </div>
   // );
-  console.log("POST", posts.data);
 
   if (posts.data) {
     return (
