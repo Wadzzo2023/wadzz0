@@ -687,6 +687,7 @@ function TiersOptions({
             <SelectItem value="private">Only Followers</SelectItem>
             {tiers.map((model) => (
               <SelectItem
+                key={model.id}
                 value={model.id.toString()}
               >{`${model.name} - ${model.price}`}</SelectItem>
             ))}
