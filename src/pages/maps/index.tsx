@@ -29,10 +29,10 @@ import toast from "react-hot-toast";
 
 type Pin = {
   locationGroup:
-    | (LocationGroup & {
-        creator: { profileUrl: string | null };
-      })
-    | null;
+  | (LocationGroup & {
+    creator: { profileUrl: string | null };
+  })
+  | null;
   _count: {
     consumers: number;
   };
@@ -376,7 +376,7 @@ function MyPins({
                 endDate: pin.locationGroup?.endDate,
                 startDate: pin.locationGroup?.startDate,
                 pinCollectionLimit: pin.locationGroup?.limit
-       
+
               });
               setIsAutoCollect(pin.autoCollect); // Set isAutoCollect to true when a pin is clicked
             }}
@@ -386,9 +386,8 @@ function MyPins({
               width={30}
               height={30}
               alt="Creator"
-              className={`h-10 w-10 bg-white ${
-                !pin.autoCollect ? "rounded-full " : ""
-              } ${pin._count.consumers <= 0 ? "opacity-50" : "opacity-100"}`}
+              className={`h-10 w-10 bg-white ${!pin.autoCollect ? "rounded-full " : ""
+                } ${pin._count.consumers <= 0 ? "opacity-100" : "opacity-50 "}`}
             />
           </AdvancedMarker>
         ))}

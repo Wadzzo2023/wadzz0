@@ -162,7 +162,7 @@ const MapModalComponent = () => {
     setDuplicate(true);
     setIsOpen(true);
   }
-  console.log("data",data)
+  console.log("data", data)
   if (data)
     return (
       <>
@@ -179,25 +179,25 @@ const MapModalComponent = () => {
                     size="icon"
                     onClick={() => {
                       setIsForm(!isForm)
-                     
+
                     }}
                   >
                     <Edit3 />
                   </Button>
                 </DialogTitle>
               </DialogHeader>
-              {isForm && data.pinId  ? (
+              {isForm && data.pinId ? (
                 <div className="px-3">
                   <PinInfoUpdate
-                  id={data.pinId}
-                  image={data.image}
-                  description={data.mapDescription ?? "Description"}
-                  title={data.mapTitle ?? "No Title"}
-                  startDate={data?.startDate}
-                  endDate={data?.endDate}
-                  collectionLimit={data?.pinCollectionLimit}
+                    id={data.pinId}
+                    image={data.image}
+                    description={data.mapDescription ?? "Description"}
+                    title={data.mapTitle ?? "No Title"}
+                    startDate={data?.startDate}
+                    endDate={data?.endDate}
+                    collectionLimit={data?.pinCollectionLimit}
 
-                />
+                  />
                 </div>
               ) : (
                 <PinInfo data={data} />
@@ -299,7 +299,7 @@ const formSchema = z.object({
   description: z.string().min(1, "Description is required"),
   startDate: z.date().optional(),
   endDate: z.date().optional(),
-  collectionLimit:z.number().optional()
+  collectionLimit: z.number().optional()
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -323,7 +323,7 @@ function PinInfoUpdate({
   const [coverUrl, setCover] = React.useState(image);
   const { data, updateData } = useModal();
   const utils = api.useUtils();
-  console.log('collectionrm',collectionLimit)
+  console.log('collectionrm', collectionLimit)
 
   const formSchema = z.object({
     title: z.string().min(1, "Title is required"),
@@ -339,10 +339,10 @@ function PinInfoUpdate({
     defaultValues: {
       title,
       description,
-      collectionLimit: collectionLimit ?? 0, 
+      collectionLimit: collectionLimit ?? 0,
       startDate: startDate ?? undefined,
-      endDate: endDate ?? undefined, 
-      image:image
+      endDate: endDate ?? undefined,
+      image: image
     },
   });
 
@@ -350,14 +350,14 @@ function PinInfoUpdate({
     onSuccess: async (updatedData) => {
       updateData({
         ...data,
-       
+
       });
 
       await utils.maps.pin.getMyPins.refetch();
     },
   });
 
-  const onSubmit = (formData:FormData) => {
+  const onSubmit = (formData: FormData) => {
     console.log(formData)
     update.mutate({
       pinId: id,
@@ -365,7 +365,8 @@ function PinInfoUpdate({
       description: formData.description,
       endDate: formData.endDate,
       startDate: formData.startDate,
-      imgUrl: coverUrl ,
+      collectionLimit: formData.collectionLimit,
+      imgUrl: coverUrl,
     });
   };
 
