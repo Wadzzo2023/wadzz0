@@ -21,6 +21,7 @@ interface Balance {
   active: boolean;
   setActive: (active: boolean) => void;
   getXLMBalance: () => string | undefined;
+  hasTrust: (code: string, issuer: string) => boolean | undefined;
 }
 
 export const useUserStellarAcc = create<Balance>((set, get) => ({
@@ -82,6 +83,21 @@ export const useUserStellarAcc = create<Balance>((set, get) => ({
   },
 
   userAssetsCodeIssuer: [],
+  hasTrust: (code, issuer) => {
+    const { balances } = get();
+    if (!balances) return undefined;
+    const trustline = balances.find((balance) => {
+      if (
+        (balance.asset_type === "credit_alphanum12" ||
+          balance.asset_type === "credit_alphanum4") &&
+        balance.asset_code === code &&
+        balance.asset_issuer === issuer
+      ) {
+        return true;
+      }
+    });
+    return false;
+  },
 }));
 
 interface CreatorBalance {

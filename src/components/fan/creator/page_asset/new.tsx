@@ -84,7 +84,7 @@ function NewPageAssetFrom({ requiredToken }: { requiredToken: number }) {
     },
   });
 
-  // const assetAmount = api.fan.trx.getAssetNumberforXlm.useQuery();a
+  // const assetAmount = api.fan.trx.getAssetNumberforXlm.useQuery();
 
   const trxMutation = api.fan.trx.createCreatorPageAsset.useMutation({
     onSuccess: async (data) => {
@@ -270,7 +270,7 @@ function NewPageAssetFrom({ requiredToken }: { requiredToken: number }) {
       </div>
 
       <PaymentChoose
-        XLM_EQUIVALENT={5}
+        XLM_EQUIVALENT={2 + 2}
         handleConfirm={() => onSubmit()}
         loading={loading}
         requiredToken={requiredToken}

@@ -91,7 +91,7 @@ export const NftFormSchema = z.object({
 
 export default function NftCreate({ admin: isAdmin }: { admin?: true }) {
   const requiredToken = api.fan.trx.getRequiredPlatformAsset.useQuery({
-    xlm: 2.5,
+    xlm: 2,
   });
 
   if (requiredToken.isLoading) return <Loading />;
@@ -615,7 +615,7 @@ function NftCreateForm({
                 {requiredTokenAmount > platformAssetBalance && <RechargeLink />}
               </div>
               <PaymentChoose
-                XLM_EQUIVALENT={5.5}
+                XLM_EQUIVALENT={2 + 2}
                 handleConfirm={() => onSubmit()}
                 loading={loading}
                 requiredToken={requiredTokenAmount}

@@ -50,8 +50,8 @@ export async function createUniAsset({
   const asset = new Asset(code, issuerAcc.publicKey());
 
   // get total platform token
-  const requiredAsset2refundXlm = await getplatformAssetNumberForXLM(2.5);
-  const totalAction =
+  const requiredAsset2refundXlm = await getplatformAssetNumberForXLM(2);
+  const total =
     requiredAsset2refundXlm +
     Number(PLATFORM_FEE) +
     Number(TrxBaseFeeInPlatformAsset);
@@ -74,20 +74,10 @@ export async function createUniAsset({
       Operation.payment({
         destination: PLATFORM_MOTHER_ACC.publicKey(),
         asset: PLATFORM_ASSET,
-        amount: totalAction.toString(),
+        amount: total.toString(),
         source: pubkey,
       }),
-    )
-
-      // send this required xlm to creator puby so that it can lock new  trusting asset (0.5xlm)
-      .addOperation(
-        Operation.payment({
-          destination: pubkey,
-          asset: Asset.native(),
-          amount: "0.5",
-          source: PLATFORM_MOTHER_ACC.publicKey(),
-        }),
-      );
+    );
   }
 
   // send this required xlm to storage so that it can lock new  trusting asset (0.5xlm)
@@ -106,14 +96,6 @@ export async function createUniAsset({
         destination: issuerAcc.publicKey(),
         startingBalance: "1.5",
         source: asesetStorage.publicKey(),
-      }),
-    )
-    //
-    .addOperation(
-      Operation.changeTrust({
-        asset,
-        limit: limit,
-        source: pubkey,
       }),
     )
     // 2
@@ -225,7 +207,6 @@ export async function createUniAssetWithXLM({
       amount: "2",
     }),
   )
-
     // create issuer account
     .addOperation(
       Operation.createAccount({
@@ -234,13 +215,7 @@ export async function createUniAssetWithXLM({
         source: asesetStorage.publicKey(),
       }),
     )
-    //
-    .addOperation(
-      Operation.changeTrust({
-        asset,
-        limit: limit,
-      }),
-    )
+
     // 2
     .addOperation(
       Operation.changeTrust({

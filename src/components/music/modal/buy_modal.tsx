@@ -21,7 +21,11 @@ import { z } from "zod";
 import Alert from "~/components/ui/alert";
 import useNeedSign from "~/lib/hook";
 import { useUserStellarAcc } from "~/lib/state/wallete/stellar-balances";
-import { PLATFORM_ASSET } from "~/lib/stellar/constant";
+import {
+  PLATFORM_ASSET,
+  PLATFORM_FEE,
+  TrxBaseFeeInPlatformAsset,
+} from "~/lib/stellar/constant";
 import { clientSelect } from "~/lib/stellar/fan/utils";
 import { addrShort } from "~/utils/utils";
 
@@ -46,7 +50,8 @@ export default function BuyModal({
 }: BuyModalProps) {
   const session = useSession();
   const { needSign } = useNeedSign();
-  const { platformAssetBalance, active, getXLMBalance } = useUserStellarAcc();
+  const { platformAssetBalance, active, getXLMBalance, balances, hasTrust } =
+    useUserStellarAcc();
 
   const modal = useRef<HTMLDialogElement>(null);
   const [xdr, setXdr] = useState<string>();
@@ -151,6 +156,7 @@ export default function BuyModal({
   }: {
     setModalClose: (isOpen: boolean) => void;
   }) {
+    const hasTurst = hasTrust(code, issuer);
     if (xdrMutation.isLoading) return <Loader className="animate-spin" />;
 
     if (xdrMutation.isError) {
@@ -168,7 +174,8 @@ export default function BuyModal({
 
     if (xdrMutation.isSuccess) {
       if (paymentMethod === "asset") {
-        const requiredAssetBalance = price + 1 + 0.5;
+        const requiredAssetBalance =
+          price + Number(PLATFORM_FEE) + Number(TrxBaseFeeInPlatformAsset);
         const isSufficientAssetBalance =
           platformAssetBalance >= requiredAssetBalance;
         return (
@@ -223,7 +230,7 @@ export default function BuyModal({
         );
       }
       if (paymentMethod === "xlm") {
-        const requiredXlmBalance = price * 0.7 + 1 + 0.5;
+        const requiredXlmBalance = priceUSD + 2 + 0.5;
         const isSufficientAssetBalance =
           getXLMBalance() ?? 0 >= requiredXlmBalance;
         return (
