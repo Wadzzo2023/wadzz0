@@ -107,6 +107,38 @@ export default function NftCreate({ admin: isAdmin }: { admin?: true }) {
   }
 }
 
+import * as React from "react";
+
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "~/components/shadcn/ui/select";
+
+export function SelectDemo() {
+  return (
+    <Select>
+      <SelectTrigger className="w-[180px]">
+        <SelectValue placeholder="Select a fruit" />
+      </SelectTrigger>
+      <SelectContent>
+        <SelectGroup>
+          <SelectLabel>Fruits</SelectLabel>
+          <SelectItem value="apple">Apple</SelectItem>
+          <SelectItem value="banana">Banana</SelectItem>
+          <SelectItem value="blueberry">Blueberry</SelectItem>
+          <SelectItem value="grapes">Grapes</SelectItem>
+          <SelectItem value="pineapple">Pineapple</SelectItem>
+        </SelectGroup>
+      </SelectContent>
+    </Select>
+  );
+}
+
 function NftCreateForm({
   admin: isAdmin,
   requiredTokenAmount,
@@ -293,27 +325,8 @@ function NftCreateForm({
   };
 
   function onChangeHandler(event: ChangeEvent<HTMLSelectElement>): void {
-    // toast.success(`${event.currentTarget.value}`);
+    toast.success(`${event.currentTarget.value}`);
     setTier(event.currentTarget.value);
-  }
-
-  function TiersOptions() {
-    if (tiers.isLoading) return <div className="skeleton h-10 w-20"></div>;
-    if (tiers.data) {
-      return (
-        <select className="select select-bordered" onChange={onChangeHandler}>
-          <option disabled>Choose Tier</option>
-          <option value="public">Public</option>
-          <option value="private">Only Followers</option>
-          {tiers.data.map((model) => (
-            <option
-              key={model.id}
-              value={model.id}
-            >{`${model.name} - ${model.price}`}</option>
-          ))}
-        </select>
-      );
-    }
   }
 
   const loading = xdrMutation.isLoading || addAsset.isLoading || submitLoading;
@@ -356,7 +369,19 @@ function NftCreateForm({
                     isVisible={isVisible}
                     toggleVisibility={() => setIsVisible(!isVisible)}
                   /> */}
-                  {isAdmin ? <> </> : <TiersOptions />}
+                  {isAdmin ? (
+                    <></>
+                  ) : (
+                    tiers.data && (
+                      <TiersOptions
+                        handleTierChange={(value: string) => {
+                          toast.success(`${value}`);
+                          setTier(value);
+                        }}
+                        tiers={tiers.data}
+                      />
+                    )
+                  )}
                 </div>
 
                 <div className="rounded-md bg-base-200 p-2">
@@ -638,6 +663,36 @@ function NftCreateForm({
           </form>
         </DialogContent>
       </Dialog>
+    </>
+  );
+}
+
+function TiersOptions({
+  tiers,
+  handleTierChange,
+}: {
+  tiers: { id: number; name: string; price: number }[];
+  handleTierChange: (value: string) => void;
+}) {
+  return (
+    <>
+      <Select onValueChange={handleTierChange}>
+        <SelectTrigger className="w-[180px]">
+          <SelectValue placeholder="Select a tier" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectGroup>
+            <SelectLabel>Choose Tier</SelectLabel>
+            <SelectItem value="public">Public</SelectItem>
+            <SelectItem value="private">Only Followers</SelectItem>
+            {tiers.map((model) => (
+              <SelectItem
+                value={model.id.toString()}
+              >{`${model.name} - ${model.price}`}</SelectItem>
+            ))}
+          </SelectGroup>
+        </SelectContent>
+      </Select>
     </>
   );
 }
