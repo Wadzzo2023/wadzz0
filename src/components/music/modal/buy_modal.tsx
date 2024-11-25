@@ -50,8 +50,13 @@ export default function BuyModal({
 }: BuyModalProps) {
   const session = useSession();
   const { needSign } = useNeedSign();
+  const { code, issuer } = item;
   const { platformAssetBalance, active, getXLMBalance, balances, hasTrust } =
     useUserStellarAcc();
+
+  const requiredFee = api.fan.trx.getRequiredPlatformAsset.useQuery({
+    xlm: hasTrust(code, issuer) ? 0 : 0.5,
+  });
 
   const modal = useRef<HTMLDialogElement>(null);
   const [xdr, setXdr] = useState<string>();
@@ -59,7 +64,6 @@ export default function BuyModal({
   const [paymentSuccess, setPaymentSuccess] = useState(false);
   const [isBuyDialogOpen, setIsBuyDialogOpen] = useState(false);
   // const { asset } = item;
-  const { code, issuer } = item;
 
   const [submitLoading, setSubmitLoading] = useState(false);
 
@@ -156,7 +160,6 @@ export default function BuyModal({
   }: {
     setModalClose: (isOpen: boolean) => void;
   }) {
-    const hasTurst = hasTrust(code, issuer);
     if (xdrMutation.isLoading) return <Loader className="animate-spin" />;
 
     if (xdrMutation.isError) {
@@ -172,10 +175,9 @@ export default function BuyModal({
       );
     }
 
-    if (xdrMutation.isSuccess) {
+    if (xdrMutation.isSuccess && requiredFee.data) {
       if (paymentMethod === "asset") {
-        const requiredAssetBalance =
-          price + Number(PLATFORM_FEE) + Number(TrxBaseFeeInPlatformAsset);
+        const requiredAssetBalance = price + requiredFee.data;
         const isSufficientAssetBalance =
           platformAssetBalance >= requiredAssetBalance;
         return (
@@ -183,14 +185,14 @@ export default function BuyModal({
             {isSufficientAssetBalance ? (
               <>
                 <p>
-                  You need total {requiredAssetBalance} {PLATFORM_ASSET.code} to
-                  buy this item!
+                  You need total: {price} + {requiredFee.data} {" Fee "} ={" "}
+                  {requiredAssetBalance}
+                  {PLATFORM_ASSET.code} to buy this item!
                 </p>
                 <button
                   disabled={paymentSuccess}
                   className="btn btn-primary"
                   onClick={() => {
-                    // toast("hi");
                     setSubmitLoading(true);
                     clientsign({
                       presignedxdr: xdrMutation.data,
@@ -230,7 +232,8 @@ export default function BuyModal({
         );
       }
       if (paymentMethod === "xlm") {
-        const requiredXlmBalance = priceUSD + 2 + 0.5;
+        const requiredXlmBalance =
+          priceUSD + 2 + (hasTrust(code, issuer) ? 0 : 0.5);
         const isSufficientAssetBalance =
           getXLMBalance() ?? 0 >= requiredXlmBalance;
         return (

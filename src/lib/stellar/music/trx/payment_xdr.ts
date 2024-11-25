@@ -248,34 +248,27 @@ export async function XDR4BuyAssetWithSquire({
 
   const transactionInializer = await server.loadAccount(mother.publicKey());
 
+  const buyerAcc = await StellarAccount.create(buyer);
+  const hasTrust = buyerAcc.hasTrustline(code, issuerPub);
+
   const Tx2 = new TransactionBuilder(transactionInializer, {
     fee: BASE_FEE,
     networkPassphrase,
-  })
-    // pay price to seller
-    .addOperation(
-      Operation.payment({
-        destination: seller,
-        amount: price,
-        asset: PLATFORM_ASSET,
-      }),
-    );
-
-  const buyerAcc = await server.loadAccount(buyer);
-
-  const balances = buyerAcc.balances;
-  const trust = balances.find((balance) => {
-    if (
-      balance.asset_type === "credit_alphanum12" ||
-      balance.asset_type === "credit_alphanum4"
-    ) {
-      if (balance.asset_code === code && balance.asset_issuer === issuerPub) {
-        return true;
-      }
-    }
   });
 
-  if (trust === undefined) {
+  if (Number(price) > 0) {
+    Tx2
+      // pay price to seller
+      .addOperation(
+        Operation.payment({
+          destination: seller,
+          amount: price,
+          asset: PLATFORM_ASSET,
+        }),
+      );
+  }
+
+  if (!hasTrust) {
     Tx2.addOperation(
       Operation.payment({
         destination: buyer,
