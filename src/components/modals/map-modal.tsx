@@ -24,11 +24,16 @@ import {
 import { api } from "~/utils/api";
 import { ModalData, useModal } from "../../lib/state/play/use-modal-store";
 
-import { Input } from "~/components/shadcn/ui/input";
-import { UploadButton } from "~/utils/uploadthing";
+
 import { useRouter } from "next/router";
 import { IPin, useMapModalStore } from "~/pages/maps";
-import { Loader } from "@react-three/drei";
+import { useForm, Controller } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { Input } from "~/components/shadcn/ui/input";
+
+import { Label } from "~/components/shadcn/ui/label";
+import { UploadButton } from "~/utils/uploadthing";
 
 const MapModalComponent = () => {
   const {
@@ -157,7 +162,7 @@ const MapModalComponent = () => {
     setDuplicate(true);
     setIsOpen(true);
   }
-
+  console.log("data",data)
   if (data)
     return (
       <>
@@ -172,19 +177,28 @@ const MapModalComponent = () => {
                   <Button
                     variant="outline"
                     size="icon"
-                    onClick={() => setIsForm(!isForm)}
+                    onClick={() => {
+                      setIsForm(!isForm)
+                     
+                    }}
                   >
                     <Edit3 />
                   </Button>
                 </DialogTitle>
               </DialogHeader>
-              {isForm && data.pinId && pinData ? (
-                <PinInfoUpdate
+              {isForm && data.pinId  ? (
+                <div className="px-3">
+                  <PinInfoUpdate
                   id={data.pinId}
                   image={data.image}
                   description={data.mapDescription ?? "Description"}
                   title={data.mapTitle ?? "No Title"}
+                  startDate={data?.startDate}
+                  endDate={data?.endDate}
+                  collectionLimit={data?.pinCollectionLimit}
+
                 />
+                </div>
               ) : (
                 <PinInfo data={data} />
               )}
@@ -280,55 +294,153 @@ function PinInfo({
     </div>
   );
 }
+const formSchema = z.object({
+  title: z.string().min(1, "Title is required"),
+  description: z.string().min(1, "Description is required"),
+  startDate: z.date().optional(),
+  endDate: z.date().optional(),
+  collectionLimit:z.number().optional()
+});
 
+type FormData = z.infer<typeof formSchema>;
 function PinInfoUpdate({
   image,
   description,
   title,
   id,
+  startDate,
+  endDate,
+  collectionLimit
 }: {
   image?: string;
   title: string;
   description: string;
   id: string;
+  startDate?: Date;
+  endDate?: Date;
+  collectionLimit?: number;
 }) {
   const [coverUrl, setCover] = React.useState(image);
-  const [titleE, setTitle] = React.useState(title);
-  const [descriptionE, setDescription] = React.useState(description);
   const { data, updateData } = useModal();
-
   const utils = api.useUtils();
+  console.log('collectionrm',collectionLimit)
+
+  const formSchema = z.object({
+    title: z.string().min(1, "Title is required"),
+    description: z.string().min(1, "Description is required"),
+    collectionLimit: z.number().min(0, "Collection limit must be non-negative"),
+    startDate: z.date(),
+    endDate: z.date().min(new Date(), "End date must be in the future"),
+    image: z.string().optional()
+  });
+
+  const { control, handleSubmit, formState: { errors } } = useForm({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      title,
+      description,
+      collectionLimit: collectionLimit ?? 0, 
+      startDate: startDate ?? undefined,
+      endDate: endDate ?? undefined, 
+      image:image
+    },
+  });
 
   const update = api.maps.pin.updatePin.useMutation({
-    onSuccess: async () => {
-      // toast.success("Pin updated successfully");
+    onSuccess: async (updatedData) => {
       updateData({
         ...data,
-        mapTitle: titleE,
-        mapDescription: descriptionE,
-        image: coverUrl,
+       
       });
 
       await utils.maps.pin.getMyPins.refetch();
     },
   });
 
-  return (
-    <div className="m-auto max-w-sm rounded bg-slate-200 p-3">
-      <Input
-        className="mb-2"
-        placeholder="Edit Title"
-        value={titleE}
-        onChange={(e) => setTitle(e.target.value)}
-      />
-      <Input
-        className="mb-2"
-        placeholder="Edit Description"
-        value={descriptionE}
-        onChange={(e) => setDescription(e.target.value)}
-      />
+  const onSubmit = (formData:FormData) => {
+    console.log(formData)
+    update.mutate({
+      pinId: id,
+      title: formData.title,
+      description: formData.description,
+      endDate: formData.endDate,
+      startDate: formData.startDate,
+      imgUrl: coverUrl ,
+    });
+  };
 
-      <div className="mt ">
+  return (
+    <form onSubmit={handleSubmit(onSubmit)} className="rounded bg-slate-200 p-3 space-y-4">
+      <div className="space-y-2 ">
+        <Label htmlFor="title">Title</Label>
+        <Controller
+          name="title"
+          control={control}
+          render={({ field }) => <Input {...field} placeholder="Edit Title" />}
+        />
+        {errors.title && <p className="text-red-500 text-sm">{errors.title.message}</p>}
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="description">Description</Label>
+        <Controller
+          name="description"
+          control={control}
+          render={({ field }) => <Input {...field} placeholder="Edit Description" />}
+        />
+        {errors.description && <p className="text-red-500 text-sm">{errors.description.message}</p>}
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="collectionLimit">Collection Limit</Label>
+        <Controller
+          name="collectionLimit"
+          control={control}
+          render={({ field }) => (
+            <Input
+              type="number"
+              {...field}
+              onChange={(e) => field.onChange(Number(e.target.value))}
+            />
+          )}
+        />
+        {errors.collectionLimit && <p className="text-red-500 text-sm">{errors.collectionLimit.message}</p>}
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="startDate">Start Date</Label>
+        <Controller
+          name="startDate"
+          control={control}
+          render={({ field: { onChange, value } }) => (
+            <Input
+              type="date"
+              onChange={(e) => onChange(new Date(e.target.value))}
+              value={value instanceof Date ? value.toISOString().split('T')[0] : ''}
+            />
+          )}
+        />
+        {errors.startDate && <p className="text-red-500 text-sm">{errors.startDate.message}</p>}
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="endDate">End Date</Label>
+        <Controller
+          name="endDate"
+          control={control}
+          render={({ field: { onChange, value } }) => (
+            <Input
+              type="date"
+              onChange={(e) => onChange(new Date(e.target.value))}
+              value={value instanceof Date ? value.toISOString().split('T')[0] : ''}
+            />
+          )}
+        />
+        {errors.endDate && <p className="text-red-500 text-sm">{errors.endDate.message}</p>}
+      </div>
+
+      <div className="space-y-2">
+        <Label>Cover Image</Label>
         <UploadButton
           endpoint="imageUploader"
           content={{
@@ -337,7 +449,6 @@ function PinInfoUpdate({
           }}
           onClientUploadComplete={(res) => {
             const data = res[0];
-
             if (data?.url) {
               setCover(data.url);
             }
@@ -346,35 +457,27 @@ function PinInfoUpdate({
             alert(`ERROR! ${error.message}`);
           }}
         />
-
         {coverUrl && (
-          <>
-            <Image
-              className="p-2"
-              width={120}
-              height={120}
-              alt="preview image"
-              src={coverUrl}
-            />
-          </>
+          <Image
+            className="mt-2"
+            width={120}
+            height={120}
+            alt="preview image"
+            src={coverUrl}
+          />
         )}
       </div>
 
       <Button
+        type="submit"
         disabled={update.isLoading || update.isSuccess}
-        className="m-1 w-full"
-        onClick={() => {
-          update.mutate({
-            pinId: id,
-            title: titleE,
-            description: descriptionE,
-            imgUrl: coverUrl,
-          });
-        }}
+        className="w-full"
       >
-        {update.isLoading && <Loader2 className="animate-spin" />}
-        {update.isSuccess && <CheckCheck className="mr-2" />} Update
+        {update.isLoading && <Loader2 className="animate-spin mr-2" />}
+        {update.isSuccess && <CheckCheck className="mr-2" />}
+        Update
       </Button>
-    </div>
+    </form>
   );
 }
+

@@ -373,6 +373,10 @@ function MyPins({
                 mapTitle: pin.locationGroup?.title,
                 image: pin.locationGroup?.image ?? undefined,
                 mapDescription: pin.locationGroup?.description,
+                endDate: pin.locationGroup?.endDate,
+                startDate: pin.locationGroup?.startDate,
+                pinCollectionLimit: pin.locationGroup?.limit
+       
               });
               setIsAutoCollect(pin.autoCollect); // Set isAutoCollect to true when a pin is clicked
             }}
