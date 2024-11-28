@@ -21,14 +21,14 @@ export default function CreatorsPost() {
   const creator = api.fan.creator.meCreator.useQuery();
   if (creator.data)
     return (
-      <div className="min-h-screen bg-gradient-to-b from-background to-secondary/10 p-4 md:p-8">
+      <div className="min-h-screen bg-gradient-to-b from-background to-secondary/10 p-1 md:p-8">
         <Card className=" shadow-lg">
           <CardHeader>
             <CardTitle className="text-center text-3xl font-bold text-primary">
               Contents
             </CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="px-2">
             <div className="flex w-full flex-col items-center justify-center space-y-8">
               <CreateTabs />
               <div className="w-full">

@@ -257,7 +257,7 @@ export const membershipRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       const userId = ctx.session.user.id;
       if (userId === input.creatorId) {
-        throw new Error("You can't un follow yourself");
+        throw new Error("You can't unfollow yourself");
       }
       const fol = await ctx.db.follow.findFirst({
         where: { creatorId: input.creatorId, userId },

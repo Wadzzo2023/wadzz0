@@ -394,6 +394,27 @@ const CreateBounty = () => {
                   ) : (
                     <div className="flex flex-col w-full gap-2">
                       <PaymentChoose
+                        costBreakdown={[
+                          {
+                            label: "Cost",
+                            amount: paymentMethod === "asset" ? prizeInAsset : prizeInAsset * 0.7,
+                            highlighted: true,
+                            type: "cost",
+                          },
+                          {
+                            label: "Platform Fee",
+                            amount: totalFeees,
+                            highlighted: false,
+                            type: "fee",
+                          },
+                          {
+                            label: "Total Cost",
+                            amount: paymentMethod === "asset" ? prizeInAsset : prizeInAsset * 0.7 + totalFeees,
+                            highlighted: false,
+                            type: "total",
+                          },
+                        ]}
+
                         XLM_EQUIVALENT={prizeInAsset * 0.7 + 2 + 1}
                         handleConfirm={handleSubmit(onSubmit)}
                         loading={loading}

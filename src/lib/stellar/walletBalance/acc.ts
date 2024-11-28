@@ -203,6 +203,7 @@ export async function SendAssets({
         destination: recipientId,
         asset: asset,
         amount: amount.toString(),
+        source: userPubKey,
       }),
     );
   }
@@ -311,7 +312,6 @@ export async function RecentTransactionHistory({
   const newItem = items.records.map((record: Horizon.ServerApi.TransactionRecord) => {
     const tx = new Transaction(record.envelope_xdr, networkPassphrase);
     const operations = tx.operations;
-    // console.log("Operations", operations);
     if (operations[0]?.type === "payment") {
       return {
         ...record,

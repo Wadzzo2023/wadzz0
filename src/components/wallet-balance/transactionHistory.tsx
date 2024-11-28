@@ -22,7 +22,7 @@ import { useModal } from "~/lib/state/play/use-modal-store";
 const BatchLimit = 10;
 
 const TransactionHistory = () => {
-  const {onOpen} = useModal();
+  const { onOpen } = useModal();
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
     api.walletBalance.wallBalance.getTransactionHistory.useInfiniteQuery(
       {
@@ -42,7 +42,7 @@ const TransactionHistory = () => {
     }
   };
 
-   console.log("transactions", transactions); // Verify the transactions length and data here
+  console.log("transactions", transactions); // Verify the transactions length and data here
 
   return (
     <Card>
@@ -62,8 +62,8 @@ const TransactionHistory = () => {
             <Table>
               <TableBody>
                 {transactions?.map((item, index) => (
-                  <TableRow key={index} onClick={()=> onOpen('transaction history',{
-                      transaction: item
+                  <TableRow key={index} onClick={() => onOpen('transaction history', {
+                    transaction: item
                   })}>
                     <TableCell>
                       {item?.parseDetails?.createdAt
@@ -72,17 +72,17 @@ const TransactionHistory = () => {
                     </TableCell>
                     {item?.parseDetails?.type === "payment" ? (
                       <TableCell>
-                        {item.parseDetails.source &&
-                          addrShort(item.parseDetails.source, 5)}{" "}
+                        {item.parseDetails.source ?
+                          addrShort(item.parseDetails.source, 5) : addrShort(item.fee_account)}{" "}
                         payment {item.parseDetails.amount}{" "}
                         {item.parseDetails.asset} to{" "}
-                        {item.parseDetails.destination &&
-                          addrShort(item.parseDetails.destination, 5)}
+                        {item.source_account &&
+                          addrShort(item.source_account, 5)}
                       </TableCell>
                     ) : item?.parseDetails?.type === "createAccount" ? (
                       <TableCell>
-                        {item.parseDetails.source &&
-                          addrShort(item.parseDetails.source, 5)}{" "}
+                        {item.source_account &&
+                          addrShort(item.source_account, 5)}{" "}
                         created an account with{" "}
                         {item.parseDetails.startingBalance} XLM
                       </TableCell>
@@ -98,16 +98,16 @@ const TransactionHistory = () => {
                       </TableCell>
                     ) : item?.parseDetails?.type === "claimClaimableBalance" ? (
                       <TableCell>
-                        {item.parseDetails.source &&
-                          addrShort(item.parseDetails.source, 5)}{" "}
+                        {item.source_account &&
+                          addrShort(item.source_account, 5)}{" "}
                         claimed balance ID{" "}
                         {item.parseDetails.balanceId &&
                           addrShort(item.parseDetails.balanceId, 5)}
                       </TableCell>
                     ) : item?.parseDetails?.type === "changeTrust" ? (
                       <TableCell>
-                        {item.parseDetails.source &&
-                          addrShort(item.parseDetails.source, 5)}{" "}
+                        {item.source_account &&
+                          addrShort(item.source_account, 5)}{" "}
                         changed trustline
                       </TableCell>
                     ) : (

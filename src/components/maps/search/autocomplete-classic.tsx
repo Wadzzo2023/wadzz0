@@ -7,6 +7,7 @@ interface Props {
   onCenterChange: (latLng: google.maps.LatLngLiteral) => void; // Callback to set map center
   setIsCordsSearch: (isCordsSearch: boolean) => void;
   setCordSearchLocation: (location: google.maps.LatLngLiteral) => void;
+  setSearchCoordinates: (searchCoordinates: google.maps.LatLngLiteral) => void;
 }
 
 // This is an example of the classic "Place Autocomplete" widget.
@@ -16,6 +17,7 @@ export const PlaceAutocompleteClassic = ({
   onCenterChange,
   setIsCordsSearch,
   setCordSearchLocation,
+  setSearchCoordinates,
 }: Props) => {
   const { setSelectedPlace } = useSelectedAutoSuggestion();
 
@@ -47,12 +49,13 @@ export const PlaceAutocompleteClassic = ({
       if (lat !== undefined && lng !== undefined) {
         const latLng = { lat, lng };
         setSelectedPlace(latLng);
+        setSearchCoordinates(latLng);
+        console.log("Place selected:", latLng);
         onCenterChange(latLng); // Center map on selected place
       }
     });
   }, [onPlaceSelect, placeAutocomplete, setSelectedPlace, onCenterChange]);
 
-  // Function to check if input is coordinates and set center
   const handleCoordinatesInput = () => {
     if (inputRef.current) {
       const value = inputRef.current.value.trim();
@@ -62,6 +65,7 @@ export const PlaceAutocompleteClassic = ({
 
       if (!isNaN(lat) && !isNaN(lng)) {
         const latLng: google.maps.LatLngLiteral = { lat, lng };
+        console.log("Coordinates entered:", latLng);
         onCenterChange(latLng);
         setSelectedPlace(latLng);
         setIsCordsSearch(true);
@@ -81,7 +85,7 @@ export const PlaceAutocompleteClassic = ({
         placeholder="Enter a location or coordinates"
         type="text"
         className="h-12 w-80 rounded-lg border-2 border-gray-300 p-2"
-        onKeyDown={(e) => e.key === "Enter" && handleCoordinatesInput()}
+        onKeyDown={() => handleCoordinatesInput()}
       />
     </div>
   );
