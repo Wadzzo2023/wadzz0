@@ -123,7 +123,25 @@ body {
   -o-background-size: cover;
   background-size: cover;
 }
+.ql-editor {
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  word-break: break-word;
+  white-space: pre-wrap;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
 
+.ql-editor img,
+.ql-editor .ql-video {
+  max-width: 100%;
+  height: auto;
+}
+
+.ql-editor * {
+  word-wrap: break-word;
+}
 #ihx {
   background: url("/images/guitar.svg");
   background-size: 10%;

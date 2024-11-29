@@ -38,7 +38,7 @@ export async function creatorPageAccCreate({
   const server = new Horizon.Server(STELLAR_URL);
 
   const requiredAsset2refundXlm = await getplatformAssetNumberForXLM(2);
-  const totalAction =
+  const total =
     requiredAsset2refundXlm +
     Number(PLATFORM_FEE) +
     Number(TrxBaseFeeInPlatformAsset);
@@ -62,7 +62,7 @@ export async function creatorPageAccCreate({
       Operation.payment({
         destination: PLATFORM_MOTHER_ACC.publicKey(),
         asset: PLATFORM_ASSET,
-        amount: totalAction.toString(),
+        amount: total.toString(),
         source: pubkey,
       }),
     )

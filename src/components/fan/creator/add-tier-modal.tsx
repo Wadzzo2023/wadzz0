@@ -99,16 +99,16 @@ export default function AddTierModal({ creator }: { creator: Creator }) {
           Add Tier
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-h-[700px] overflow-y-auto">
+      <DialogContent className="p-2">
         <h3 className="mb-4 text-center text-lg font-bold">
           Create a subscription tier!
         </h3>
-        <div className="w-full">
+        <div className="w-full  ">
           <form
             onSubmit={handleSubmit(onSubmit)}
-            className="flex flex-col   gap-2   "
+            className="flex flex-col   gap-2  "
           >
-            <div className="rounded-md bg-base-300">
+            <div className="rounded-md bg-base-300 h-full">
               <label className="form-control w-full px-2">
                 <div className="label">
                   <span className="label-text">Tier Name</span>
@@ -150,7 +150,7 @@ export default function AddTierModal({ creator }: { creator: Creator }) {
                 )}
               </label>
 
-              <label className="form-control  h-[200px] w-full px-2 ">
+              <div className="h-[330px]">
                 <div className="label">
                   <span className="label-text">Tier Features</span>
                 </div>
@@ -161,7 +161,7 @@ export default function AddTierModal({ creator }: { creator: Creator }) {
                 /> */}
 
                 <Editor
-                  height={"110px"}
+                  height="200px"
                   onChange={handleEditorChange}
                   value={getValues("featureDescription")}
                 />
@@ -173,7 +173,7 @@ export default function AddTierModal({ creator }: { creator: Creator }) {
                     </span>
                   </div>
                 )}
-              </label>
+              </div>
             </div>
             <DialogFooter className="flex w-full">
               <DialogClose asChild>

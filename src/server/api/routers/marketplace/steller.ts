@@ -50,7 +50,7 @@ export const stellarRouter = createTRPCRouter({
 
       const marketAsset = await ctx.db.marketAsset.findFirst({
         where: { AND: [{ assetId: dbAsset.id }, { placerId: placerId }] },
-        select: { price: true },
+        select: { price: true, priceUSD: true },
       });
 
       if (!marketAsset) throw new Error("asset is not in market");
@@ -77,11 +77,9 @@ export const stellarRouter = createTRPCRouter({
         sellerStorageSec = env.STORAGE_SECRET;
       }
 
-      const limit = l.toString();
-
       switch (input.method) {
         case "xlm": {
-          const nativePrice = marketAsset.price * 0.7;
+          const nativePrice = marketAsset.priceUSD;
           return await XDR4BuyAssetWithXLM({
             seller: seller,
             storageSecret: sellerStorageSec,
@@ -110,7 +108,7 @@ export const stellarRouter = createTRPCRouter({
             code: assetCode,
             issuerPub,
             buyer,
-            price: marketAsset.price.toString(),
+            price: marketAsset.priceUSD.toString(),
             signWith,
           });
         }

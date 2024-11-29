@@ -21,7 +21,11 @@ import { z } from "zod";
 import Alert from "~/components/ui/alert";
 import useNeedSign from "~/lib/hook";
 import { useUserStellarAcc } from "~/lib/state/wallete/stellar-balances";
-import { PLATFORM_ASSET } from "~/lib/stellar/constant";
+import {
+  PLATFORM_ASSET,
+  PLATFORM_FEE,
+  TrxBaseFeeInPlatformAsset,
+} from "~/lib/stellar/constant";
 import { clientSelect } from "~/lib/stellar/fan/utils";
 import { addrShort } from "~/utils/utils";
 
@@ -46,7 +50,13 @@ export default function BuyModal({
 }: BuyModalProps) {
   const session = useSession();
   const { needSign } = useNeedSign();
-  const { platformAssetBalance, active, getXLMBalance } = useUserStellarAcc();
+  const { code, issuer } = item;
+  const { platformAssetBalance, active, getXLMBalance, balances, hasTrust } =
+    useUserStellarAcc();
+
+  const requiredFee = api.fan.trx.getRequiredPlatformAsset.useQuery({
+    xlm: hasTrust(code, issuer) ? 0 : 0.5,
+  });
 
   const modal = useRef<HTMLDialogElement>(null);
   const [xdr, setXdr] = useState<string>();
@@ -54,7 +64,6 @@ export default function BuyModal({
   const [paymentSuccess, setPaymentSuccess] = useState(false);
   const [isBuyDialogOpen, setIsBuyDialogOpen] = useState(false);
   // const { asset } = item;
-  const { code, issuer } = item;
 
   const [submitLoading, setSubmitLoading] = useState(false);
 
@@ -166,9 +175,9 @@ export default function BuyModal({
       );
     }
 
-    if (xdrMutation.isSuccess) {
+    if (xdrMutation.isSuccess && requiredFee.data) {
       if (paymentMethod === "asset") {
-        const requiredAssetBalance = price + 1 + 0.5;
+        const requiredAssetBalance = price + requiredFee.data;
         const isSufficientAssetBalance =
           platformAssetBalance >= requiredAssetBalance;
         return (
@@ -176,14 +185,14 @@ export default function BuyModal({
             {isSufficientAssetBalance ? (
               <>
                 <p>
-                  You need total {requiredAssetBalance} {PLATFORM_ASSET.code} to
-                  buy this item!
+                  You need total: {price} + {requiredFee.data} {" Fee "} ={" "}
+                  {requiredAssetBalance}
+                  {PLATFORM_ASSET.code} to buy this item!
                 </p>
                 <button
                   disabled={paymentSuccess}
                   className="btn btn-primary"
                   onClick={() => {
-                    // toast("hi");
                     setSubmitLoading(true);
                     clientsign({
                       presignedxdr: xdrMutation.data,
@@ -223,7 +232,8 @@ export default function BuyModal({
         );
       }
       if (paymentMethod === "xlm") {
-        const requiredXlmBalance = price * 0.7 + 1 + 0.5;
+        const requiredXlmBalance =
+          priceUSD + 2 + (hasTrust(code, issuer) ? 0 : 0.5);
         const isSufficientAssetBalance =
           getXLMBalance() ?? 0 >= requiredXlmBalance;
         return (

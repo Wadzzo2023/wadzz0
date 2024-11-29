@@ -9,7 +9,7 @@ import { z } from "zod";
 import { Button } from "~/components/shadcn/ui/button";
 import Alert from "~/components/ui/alert";
 import useNeedSign from "~/lib/hook";
-import { PLATFORM_ASSET } from "~/lib/stellar/constant";
+import { PLATFORM_ASSET, PLATFORM_FEE, TrxBaseFeeInPlatformAsset } from "~/lib/stellar/constant";
 import { clientSelect } from "~/lib/stellar/fan/utils";
 import { api } from "~/utils/api";
 
@@ -18,6 +18,7 @@ import {
   usePaymentMethodStore,
 } from "~/components/payment/payment-options";
 import { useToast } from "~/hooks/use-toast";
+import { ipfsHashToUrl } from "~/utils/ipfs";
 
 export const MAX_ASSET_LIMIT = Number("922337203685");
 
@@ -54,6 +55,7 @@ function NewPageAssetFrom({ requiredToken }: { requiredToken: number }) {
   const [coverUrl, setCover] = useState<string>();
   const { isOpen, setIsOpen, paymentMethod } = usePaymentMethodStore();
   const { toast: shadToast } = useToast();
+  const totalFeees = Number(TrxBaseFeeInPlatformAsset) + Number(PLATFORM_FEE);
 
   // pinta upload
   const [file, setFile] = useState<File>();
@@ -83,7 +85,7 @@ function NewPageAssetFrom({ requiredToken }: { requiredToken: number }) {
     },
   });
 
-  // const assetAmount = api.fan.trx.getAssetNumberforXlm.useQuery();a
+  // const assetAmount = api.fan.trx.getAssetNumberforXlm.useQuery();
 
   const trxMutation = api.fan.trx.createCreatorPageAsset.useMutation({
     onSuccess: async (data) => {
@@ -161,7 +163,7 @@ function NewPageAssetFrom({ requiredToken }: { requiredToken: number }) {
         body: formData,
       });
       const ipfsHash = await res.text();
-      const thumbnail = "https://ipfs.io/ipfs/" + ipfsHash;
+      const thumbnail = ipfsHashToUrl(ipfsHash);
       setCover(thumbnail);
       setValue("thumbnail", thumbnail);
       setCid(ipfsHash);
@@ -269,7 +271,27 @@ function NewPageAssetFrom({ requiredToken }: { requiredToken: number }) {
       </div>
 
       <PaymentChoose
-        XLM_EQUIVALENT={5}
+        costBreakdown={[
+          {
+            label: "Cost",
+            amount: paymentMethod === "asset" ? requiredToken : 2,
+            type: "cost",
+            highlighted: true,
+          },
+          {
+            label: "Platform Fee",
+            amount: paymentMethod === "asset" ? totalFeees : 2,
+            highlighted: false,
+            type: "fee",
+          },
+          {
+            label: "Total Cost",
+            amount: paymentMethod === "asset" ? requiredToken : 2 + 2,
+            highlighted: false,
+            type: "total",
+          },
+        ]}
+        XLM_EQUIVALENT={2 + 2}
         handleConfirm={() => onSubmit()}
         loading={loading}
         requiredToken={requiredToken}

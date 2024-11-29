@@ -18,7 +18,7 @@ import {
 } from "~/components/shadcn/ui/dialog";
 import useNeedSign from "~/lib/hook";
 import { useUserStellarAcc } from "~/lib/state/wallete/stellar-balances";
-import { PLATFORM_ASSET } from "~/lib/stellar/constant";
+import { PLATFORM_ASSET, PLATFORM_FEE, TrxBaseFeeInPlatformAsset } from "~/lib/stellar/constant";
 import { AccountSchema, clientSelect } from "~/lib/stellar/fan/utils";
 import { api } from "~/utils/api";
 import { BADWORDS } from "~/utils/banned-word";
@@ -27,6 +27,7 @@ import {
   PaymentChoose,
   usePaymentMethodStore,
 } from "../payment/payment-options";
+
 import { Button } from "../shadcn/ui/button";
 import Alert from "../ui/alert";
 import Loading from "../wallete/loading";
@@ -39,6 +40,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "~/components/ui/tooltip";
+import { ipfsHashToUrl } from "~/utils/ipfs";
 
 export const ExtraSongInfo = z.object({
   artist: z.string(),
@@ -90,7 +92,7 @@ export const NftFormSchema = z.object({
 
 export default function NftCreate({ admin: isAdmin }: { admin?: true }) {
   const requiredToken = api.fan.trx.getRequiredPlatformAsset.useQuery({
-    xlm: 2.5,
+    xlm: 2,
   });
 
   if (requiredToken.isLoading) return <Loading />;
@@ -105,6 +107,18 @@ export default function NftCreate({ admin: isAdmin }: { admin?: true }) {
     );
   }
 }
+
+import * as React from "react";
+
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "~/components/shadcn/ui/select";
 
 function NftCreateForm({
   admin: isAdmin,
@@ -141,6 +155,7 @@ function NftCreateForm({
   const walletType = isAdmin ? WalletType.isAdmin : connectedWalletType;
   const [uploadProgress, setUploadProgress] = useState<number>(0);
 
+  const totalFeees = Number(TrxBaseFeeInPlatformAsset) + Number(PLATFORM_FEE);
   const { paymentMethod, setIsOpen: setPaymentModalOpen } =
     usePaymentMethodStore();
 
@@ -259,7 +274,7 @@ function NftCreateForm({
         body: formData,
       });
       const ipfsHash = await res.text();
-      const thumbnail = "https://ipfs.io/ipfs/" + ipfsHash;
+      const thumbnail = ipfsHashToUrl(ipfsHash);
       setCover(thumbnail);
       setValue("coverImgUrl", thumbnail);
       setCid(ipfsHash);
@@ -292,27 +307,8 @@ function NftCreateForm({
   };
 
   function onChangeHandler(event: ChangeEvent<HTMLSelectElement>): void {
-    // toast.success(`${event.currentTarget.value}`);
+    toast.success(`${event.currentTarget.value}`);
     setTier(event.currentTarget.value);
-  }
-
-  function TiersOptions() {
-    if (tiers.isLoading) return <div className="skeleton h-10 w-20"></div>;
-    if (tiers.data) {
-      return (
-        <select className="select select-bordered" onChange={onChangeHandler}>
-          <option disabled>Choose Tier</option>
-          <option value="public">Public</option>
-          <option value="private">Only Followers</option>
-          {tiers.data.map((model) => (
-            <option
-              key={model.id}
-              value={model.id}
-            >{`${model.name} - ${model.price}`}</option>
-          ))}
-        </select>
-      );
-    }
   }
 
   const loading = xdrMutation.isLoading || addAsset.isLoading || submitLoading;
@@ -355,7 +351,19 @@ function NftCreateForm({
                     isVisible={isVisible}
                     toggleVisibility={() => setIsVisible(!isVisible)}
                   /> */}
-                  {isAdmin ? <> </> : <TiersOptions />}
+                  {isAdmin ? (
+                    <></>
+                  ) : (
+                    tiers.data && (
+                      <TiersOptions
+                        handleTierChange={(value: string) => {
+                          // toast.success(`${value}`);
+                          setTier(value);
+                        }}
+                        tiers={tiers.data}
+                      />
+                    )
+                  )}
                 </div>
 
                 <div className="rounded-md bg-base-200 p-2">
@@ -614,7 +622,27 @@ function NftCreateForm({
                 {requiredTokenAmount > platformAssetBalance && <RechargeLink />}
               </div>
               <PaymentChoose
-                XLM_EQUIVALENT={5.5}
+                costBreakdown={[
+                  {
+                    label: "Cost",
+                    amount: paymentMethod === "asset" ? requiredTokenAmount - totalFeees : 2,
+                    type: "cost",
+                    highlighted: true,
+                  },
+                  {
+                    label: "Platform Fee",
+                    amount: paymentMethod === "asset" ? totalFeees : 2,
+                    highlighted: false,
+                    type: "fee",
+                  },
+                  {
+                    label: "Total Cost",
+                    amount: paymentMethod === "asset" ? requiredTokenAmount : 2 + 2,
+                    highlighted: false,
+                    type: "total",
+                  },
+                ]}
+                XLM_EQUIVALENT={2 + 2}
                 handleConfirm={() => onSubmit()}
                 loading={loading}
                 requiredToken={requiredTokenAmount}
@@ -637,6 +665,37 @@ function NftCreateForm({
           </form>
         </DialogContent>
       </Dialog>
+    </>
+  );
+}
+
+function TiersOptions({
+  tiers,
+  handleTierChange,
+}: {
+  tiers: { id: number; name: string; price: number }[];
+  handleTierChange: (value: string) => void;
+}) {
+  return (
+    <>
+      <Select onValueChange={handleTierChange}>
+        <SelectTrigger className="w-[180px]">
+          <SelectValue placeholder="Select a tier" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectGroup>
+            <SelectLabel>Choose Tier</SelectLabel>
+            <SelectItem value="public">Public</SelectItem>
+            <SelectItem value="private">Only Followers</SelectItem>
+            {tiers.map((model) => (
+              <SelectItem
+                key={model.id}
+                value={model.id.toString()}
+              >{`${model.name} - ${model.price}`}</SelectItem>
+            ))}
+          </SelectGroup>
+        </SelectContent>
+      </Select>
     </>
   );
 }

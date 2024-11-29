@@ -69,7 +69,7 @@ function AssetViewCart({ creator }: { creator: Creator }) {
   return (
     <Card className="w-[350px] text-center">
       <CardHeader>
-        <CardTitle>{CREATOR_TERM} Page Asset</CardTitle>
+        <CardTitle>Membership Asset</CardTitle>
         {/* <CardDescription></CardDescription> */}
       </CardHeader>
       <CardContent>

@@ -66,8 +66,11 @@ export function SiteAssetBalance() {
             {PLATFORM_ASSET.code.toUpperCase()}
             {"  "}
           </span>
-          {" : "}
-          {bal.data?.platformAssetBal.toFixed(0)}
+
+          <span className="flex">
+            <span className="hidden md:flex" >{" : "}</span>
+            {bal.data?.platformAssetBal.toFixed(0)}
+          </span>
         </Button>
 
         {/* <Plus className="btn btn-square btn-primary btn-sm -mr-4 " /> */}
@@ -76,7 +79,7 @@ export function SiteAssetBalance() {
       <Link
         className=" "
         href={isFBorGoogle ? "/recharge" : "/"}
-        // href="/recharge"
+      // href="/recharge"
       >
         <Button className="">
           <ShoppingCart />

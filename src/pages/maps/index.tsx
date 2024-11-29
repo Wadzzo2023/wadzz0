@@ -30,10 +30,10 @@ import toast from "react-hot-toast";
 
 type Pin = {
   locationGroup:
-    | (LocationGroup & {
-        creator: { profileUrl: string | null };
-      })
-    | null;
+  | (LocationGroup & {
+    creator: { profileUrl: string | null };
+  })
+  | null;
   _count: {
     consumers: number;
   };
@@ -130,6 +130,11 @@ function App() {
   const [loading, setLoading] = useState<boolean>(false);
   const [RangedPins, setRangedPins] = useState<Pin[]>([]);
   const [isCordsSearch, setIsCordsSearch] = useState<boolean>(false);
+  const [searchCoordinates, setSearchCoordinates] = useState<google.maps.LatLngLiteral>({
+    lat: 22.54992,
+    lng: 0,
+  });
+
   const {
     selectedPlace: alreadySelectedPlace,
     setSelectedPlace: setAlreadySelectedPlace,
@@ -209,6 +214,7 @@ function App() {
         onPlaceSelect={setSelectedPlace}
         onCenterChange={setMapCenter}
         setIsCordsSearch={setIsCordsSearch}
+        setSearchCoordinates={setSearchCoordinates}
         setCordSearchLocation={setCordSearchLocation}
       />
       <Map
@@ -230,6 +236,31 @@ function App() {
         disableDefaultUI={true}
         onDragend={() => handleDragEnd()}
       >
+        {centerChanged && searchCoordinates && (
+          <AdvancedMarker
+            style={{
+              color: "red",
+            }}
+            position={{
+              lat: searchCoordinates.lat,
+              lng: searchCoordinates.lng,
+            }}
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 16 16"
+              fill="currentColor"
+              className="size-8"
+            >
+              <path
+                fillRule="evenodd"
+                d="m7.539 14.841.003.003.002.002a.755.755 0 0 0 .912 0l.002-.002.003-.003.012-.009a5.57 5.57 0 0 0 .19-.153 15.588 15.588 0 0 0 2.046-2.082c1.101-1.362 2.291-3.342 2.291-5.597A5 5 0 0 0 3 7c0 2.255 1.19 4.235 2.292 5.597a15.591 15.591 0 0 0 2.046 2.082 8.916 8.916 0 0 0 .189.153l.012.01ZM8 8.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z"
+                clipRule="evenodd"
+              />
+            </svg>
+          </AdvancedMarker>
+        )}
+
         {isCordsSearch && cordSearchCords && (
           <AdvancedMarker
             style={{
@@ -374,6 +405,10 @@ function MyPins({
                 mapTitle: pin.locationGroup?.title,
                 image: pin.locationGroup?.image ?? undefined,
                 mapDescription: pin.locationGroup?.description,
+                endDate: pin.locationGroup?.endDate,
+                startDate: pin.locationGroup?.startDate,
+                pinCollectionLimit: pin.locationGroup?.limit
+
               });
               setIsAutoCollect(pin.autoCollect); // Set isAutoCollect to true when a pin is clicked
             }}
@@ -383,9 +418,8 @@ function MyPins({
               width={30}
               height={30}
               alt="Creator"
-              className={`h-10 w-10 bg-white ${
-                !pin.autoCollect ? "rounded-full " : ""
-              } ${pin._count.consumers <= 0 ? "opacity-50" : "opacity-100"}`}
+              className={`h-10 w-10 bg-white ${!pin.autoCollect ? "rounded-full " : ""
+                } ${pin._count.consumers <= 0 ? "opacity-100" : "opacity-50 "}`}
             />
           </AdvancedMarker>
         ))}

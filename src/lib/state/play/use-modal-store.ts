@@ -38,6 +38,9 @@ export interface ModalData {
   attachment?: SubmissionAttachment[];
   submissionId?: number;
   transaction?: Horizon.ServerApi.TransactionRecord
+  startDate?:Date,
+  endDate?:Date,
+  pinCollectionLimit?:number
 }
 
 interface ModalStore {

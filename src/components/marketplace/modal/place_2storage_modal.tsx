@@ -193,7 +193,7 @@ export default function PlaceNFT2Storage({
         className="btn btn-primary btn-sm my-2 w-full transition duration-500 ease-in-out"
         onClick={handleModal}
       >
-        Place to storage
+        Place item for sale
       </button>
     </>
   );

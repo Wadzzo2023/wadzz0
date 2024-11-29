@@ -95,7 +95,7 @@ export default function EditTierModal({ item }: { item: SubscriptionType }) {
               <PencilIcon size={16} />
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-h-[700px] overflow-y-auto">
+          <DialogContent className="overflow-y-auto">
             <div className="">
               <h3 className="text-center text-lg font-bold">Edit</h3>
               <form
@@ -141,11 +141,12 @@ export default function EditTierModal({ item }: { item: SubscriptionType }) {
                       </div>
                     )}
                   </label>
-                  <label className="form-control w-full ">
+                  <div className="form-control w-full h-[330px] ">
                     <div className="label">
                       <span className="label-text">Tier Features</span>
                     </div>
                     <Editor
+                      height="200px"
                       onChange={handleEditorChange}
                       value={getValues("featureDescription")}
                     />
@@ -156,7 +157,7 @@ export default function EditTierModal({ item }: { item: SubscriptionType }) {
                         </span>
                       </div>
                     )}
-                  </label>
+                  </div>
                 </div>
                 <div className="  mt-16 flex w-full flex-col  items-center gap-2 ">
                   <Button

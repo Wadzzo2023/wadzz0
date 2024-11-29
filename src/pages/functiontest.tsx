@@ -5,6 +5,7 @@ import { PresentationControls, Stage, OrbitControls } from "@react-three/drei";
 import { Button } from "~/components/shadcn/ui/button";
 import { Group } from "three";
 import * as THREE from "three";
+import { ipfsHashToUrl } from "~/utils/ipfs";
 const Model: React.FC = () => {
   const [model, setModel] = useState<Group | null>(null);
 
@@ -12,7 +13,7 @@ const Model: React.FC = () => {
     const loader = new OBJLoader();
 
     loader.load(
-      "https://ipfs.io/ipfs/QmdBWAd58rkZzfPf28M1fegvTNtWrzABnV2M9qiEAfXCsx",
+      ipfsHashToUrl("QmdBWAd58rkZzfPf28M1fegvTNtWrzABnV2M9qiEAfXCsx"),
       (object: Group) => {
         // Center the model
         const box = new THREE.Box3().setFromObject(object);

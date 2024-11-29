@@ -13,6 +13,7 @@ import { PLATFORM_ASSET } from "~/lib/stellar/constant";
 import { AccountSchema } from "~/lib/stellar/fan/utils";
 import { api } from "~/utils/api";
 import { UploadButton } from "~/utils/uploadthing";
+import { ipfsHashToUrl } from "~/utils/ipfs";
 
 export const SongFormSchema = z.object({
   name: z.string(),
@@ -145,7 +146,7 @@ export default function SongCreate({ albumId }: { albumId: number }) {
         body: formData,
       });
       const ipfsHash = await res.text();
-      const thumbnail = "https://ipfs.io/ipfs/" + ipfsHash;
+      const thumbnail = ipfsHashToUrl(ipfsHash);
       setCover(thumbnail);
       setIpfs(ipfsHash);
       setValue("coverImgUrl", thumbnail);

@@ -6,19 +6,18 @@ import {
   TransactionBuilder,
 } from "@stellar/stellar-sdk";
 
-import {
-  PLATFORM_ASSET,
-  TrxBaseFee,
-  STELLAR_URL,
-  networkPassphrase,
-  TrxBaseFeeInPlatformAsset,
-  PLATFORM_FEE,
-} from "../constant";
-import { AccountType } from "./utils";
-import { SignUserType, WithSing } from "../utils";
 import { env } from "~/env";
+import {
+  networkPassphrase,
+  PLATFORM_ASSET,
+  PLATFORM_FEE,
+  STELLAR_URL,
+  TrxBaseFee,
+  TrxBaseFeeInPlatformAsset,
+} from "../constant";
+import { SignUserType, WithSing } from "../utils";
 import { getplatformAssetNumberForXLM as getPlatformAssetNumberForXLM } from "./get_token_price";
-import { use } from "react";
+import { AccountType } from "./utils";
 
 const log = console;
 
@@ -43,8 +42,8 @@ export async function createStorageTrx({
 
   // total platform token r
 
-  const requiredAsset2refundXlm = await getPlatformAssetNumberForXLM(5);
-  const totalAction =
+  const requiredAsset2refundXlm = await getPlatformAssetNumberForXLM(1);
+  const total =
     requiredAsset2refundXlm +
     Number(TrxBaseFeeInPlatformAsset) +
     Number(PLATFORM_FEE);
@@ -57,7 +56,7 @@ export async function createStorageTrx({
     .addOperation(
       Operation.payment({
         destination: motherAcc.publicKey(),
-        amount: totalAction.toString(),
+        amount: total.toString(),
         asset: PLATFORM_ASSET,
         source: pubkey,
       }),
@@ -67,7 +66,7 @@ export async function createStorageTrx({
     .addOperation(
       Operation.payment({
         destination: pubkey,
-        amount: "5", // 0.5 for pubkey and .5 for storage trust, and 4 for storage bal
+        amount: "1", // 0.5 for pubkey and .5 for storage trust, and 4 for storage bal
         asset: Asset.native(),
         source: motherAcc.publicKey(),
       }),
@@ -77,28 +76,15 @@ export async function createStorageTrx({
     .addOperation(
       Operation.createAccount({
         destination: storageAcc.publicKey(),
-        startingBalance: "4.5", // 4 for escrow and 0.5 for trust
+        startingBalance: "1", // 4 for escrow and 0.5 for trust
         source: pubkey,
-      }),
-    )
-    .addOperation(
-      Operation.changeTrust({
-        asset: PLATFORM_ASSET,
-        source: pubkey,
-      }),
-    )
-    .addOperation(
-      Operation.changeTrust({
-        asset: PLATFORM_ASSET,
-        source: storageAcc.publicKey(),
       }),
     )
     // pay the creator the price amount
-
     .setTimeout(0)
     .build();
 
-  Tx1.sign(storageAcc, motherAcc);
+  Tx1.sign(motherAcc);
 
   const storage: AccountType = {
     publicKey: storageAcc.publicKey(),
@@ -141,19 +127,7 @@ export async function createStorageTrxWithXLM({
     .addOperation(
       Operation.createAccount({
         destination: storageAcc.publicKey(),
-        startingBalance: "4.5", // 4 for escrow and 0.5 for trust
-      }),
-    )
-    .addOperation(
-      Operation.changeTrust({
-        asset: PLATFORM_ASSET,
-        source: pubkey,
-      }),
-    )
-    .addOperation(
-      Operation.changeTrust({
-        asset: PLATFORM_ASSET,
-        source: storageAcc.publicKey(),
+        startingBalance: "1", // 4 for escrow and 0.5 for trust
       }),
     )
     .setTimeout(0)

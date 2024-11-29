@@ -117,7 +117,7 @@ function ConditionallyRenderMenuPage({ creator }: { creator: Creator }) {
 export function ValidCreateCreator({ message }: { message?: string }) {
   const { platformAssetBalance } = useUserStellarAcc();
   const requiredToken = api.fan.trx.getRequiredPlatformAsset.useQuery({
-    xlm: 5,
+    xlm: 1,
   });
 
   if (requiredToken.isLoading) return <Loading />;
@@ -198,7 +198,7 @@ function CreateCreator({ requiredToken }: { requiredToken: number }) {
     });
   };
 
-  const XLM_EQUIVALENT = 8;
+  const XLM_EQUIVALENT = 3;
 
   const loading = xdr.isLoading || makeCreatorMutation.isLoading || signLoading;
 
