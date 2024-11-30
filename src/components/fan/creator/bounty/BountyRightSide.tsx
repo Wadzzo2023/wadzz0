@@ -3,6 +3,7 @@ import { useRouter } from "next/router";
 import { Skeleton } from "package/connect_wallet/src/shadcn/ui/skeleton";
 import toast from "react-hot-toast";
 import { Preview } from "~/components/preview";
+import { Badge } from "~/components/shadcn/ui/badge";
 import { Button } from "~/components/shadcn/ui/button";
 import ImageVideViewer from "~/components/wallete/Image_video_viewer";
 import { useBountyRightStore } from "~/lib/state/bounty/use-bounty-store";
@@ -89,16 +90,11 @@ const BountyRightBar = () => {
                   )}
                 </div>
                 <p className="font-semibold uppercase">
-                  WINNER:{" "}
-                  {currentData.winner?.name ? (
-                    <span className="me-2 rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-medium text-red-800 dark:bg-red-900 dark:text-red-300">
-                      {currentData.winner.name}
-                    </span>
-                  ) : (
-                    <span className="me-2 rounded-full bg-purple-100 px-2.5 py-0.5 text-xs font-medium text-purple-800 dark:bg-purple-900 dark:text-purple-300">
-                      NOT ANNOUNCED
-                    </span>
-                  )}
+                  <Badge
+                    variant={currentData._count.BountyWinner === 0 ? "destructive" : "default"}
+                  >
+                    {currentData.totalWinner === currentData._count.BountyWinner ? "Finished" : (currentData.totalWinner - currentData._count.BountyWinner) + " Winner Left"}
+                  </Badge>
                 </p>
               </div>
             </div>
@@ -121,6 +117,10 @@ const BountyRightBar = () => {
                 <Button className="w-full" disabled variant={"destructive"}>
                   Required {currentData.requiredBalance} {PLATFORM_ASSET.code}
                 </Button>
+              ) : currentData.totalWinner === currentData._count.BountyWinner ? (
+                <Button className="w-full" disabled variant={"destructive"}>
+                  Bounty Finished
+                </Button>
               ) : (
                 <Button
                   className="w-full"
@@ -131,7 +131,8 @@ const BountyRightBar = () => {
                 >
                   Join Bounty
                 </Button>
-              )}
+              )
+              }
             </div>
           </div>
         </div>

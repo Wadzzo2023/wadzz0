@@ -111,7 +111,7 @@ export function PaymentChoose({
                   </div>
                 </div>
                 <div className="text-right font-medium">
-                  {requiredToken} {PLATFORM_ASSET.code}
+                  {requiredToken.toFixed(2)} {PLATFORM_ASSET.code}
                 </div>
               </Label>
             </div>
@@ -133,7 +133,7 @@ export function PaymentChoose({
                   </div>
                 </div>
                 <div className="text-right font-medium">
-                  {XLM_EQUIVALENT} XLM
+                  {XLM_EQUIVALENT.toFixed(2)} XLM
                 </div>
               </Label>
             </div>
@@ -151,7 +151,7 @@ export function PaymentChoose({
                 {item.label}
               </span>
               <span>
-                {item.amount} {paymentMethod === "asset" ? PLATFORM_ASSET.code : "XLM"}
+                {item.amount.toFixed(2)} {paymentMethod === "asset" ? PLATFORM_ASSET.code : "XLM"}
               </span>
             </div>
           )) : <></>}

@@ -188,12 +188,12 @@ const FileUploadModal = () => {
                   )}{" "}
                 </div>
                 <div className="mt-2 flex flex-col items-center gap-2">
-                  <div className="flex max-h-[200px] w-full flex-col gap-2 overflow-y-auto">
+                  <div className="flex max-h-[200px] mt-10 w-full flex-col gap-2 overflow-y-auto">
                     {/* Display uploading files with progress */}
                     {uploadingFiles.map((file, index) => (
                       <div
                         key={index}
-                        className="w-full rounded-md bg-[#F5F7FB] px-8 py-4 shadow-sm"
+                        className="w-full rounded-md bg-[#F5F7FB] px-8 py-4 shadow-sm "
                       >
                         <div className="flex items-center justify-between">
                           <span className="truncate text-base font-medium text-[#07074D]">

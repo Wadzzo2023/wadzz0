@@ -6,19 +6,27 @@ export interface BountyProps {
     description: string;
     priceInUSD: number;
     priceInBand: number;
-    creator: {
-        name: string;
-    };
+    requiredBalance: number;
     imageUrls: string[];
-    createdAt: Date; // Changed from string to Date
+    totalWinner: number;
+    status: "PENDING" | "APPROVED" | "REJECTED";
+    creatorId: string;
     _count: {
         participants: number;
-    };
-    requiredBalance: number; // Changed from requiredBalance to requredBalance
-    status: BountyStatus;
-    winner?: {
-        name: string | null;
-    };
+        BountyWinner: number;
+    }
+    creator: {
+        name: string;
+        profileUrl: string | null;
+    },
+    BountyWinner: {
+        user: {
+            id: string;
+        }
+    }[],
+    isJoined: boolean;
+    isOwner: boolean;
+
 }
 
 interface BountyRightState {

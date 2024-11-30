@@ -14,7 +14,10 @@ import { addrShort } from "~/utils/utils";
 import { xdr } from "@stellar/stellar-sdk";
 
 export const PlaceMarketFormSchema = z.object({
-  placingCopies: z.number().nonnegative().int(),
+  placingCopies: z.number({
+    required_error: "Placing Copies  must be a number",
+    invalid_type_error: "Placing Copies must be a number",
+  }).nonnegative().int(),
   code: z
     .string()
     .min(4, { message: "Must be a minimum of 4 characters" })

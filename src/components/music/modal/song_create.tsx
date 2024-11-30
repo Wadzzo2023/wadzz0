@@ -28,7 +28,10 @@ export const SongFormSchema = z.object({
       invalid_type_error: "Limit must be entered as a number",
     })
     .nonnegative(),
-  priceUSD: z.number().nonnegative(),
+  priceUSD: z.number({
+    required_error: "Price  must be a number",
+    invalid_type_error: "Price must be a number",
+  }).nonnegative(),
   limit: z
     .number({
       required_error: "Limit must be entered as a number",
@@ -183,7 +186,7 @@ export default function SongCreate({ albumId }: { albumId: number }) {
           <form method="dialog">
             <button
               className="btn btn-circle btn-ghost btn-sm absolute right-2 top-2"
-              // onClick={handleCloseClick}
+            // onClick={handleCloseClick}
             >
               ✕
             </button>
@@ -437,7 +440,7 @@ export default function SongCreate({ albumId }: { albumId: number }) {
             <form method="dialog">
               <button
                 className="btn"
-                // onClick={handleCloseClick}
+              // onClick={handleCloseClick}
               >
                 Close
               </button>

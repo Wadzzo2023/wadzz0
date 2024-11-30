@@ -278,7 +278,7 @@ const UserBountyPage = () => {
                   className="h-64 w-full rounded-t-lg object-cover"
                 />
 
-                <Badge
+                {/* <Badge
                   variant={
                     data?.status === "APPROVED"
                       ? "default"
@@ -293,7 +293,7 @@ const UserBountyPage = () => {
                     : data?.status === "PENDING"
                       ? "Pending"
                       : "Rejected"}
-                </Badge>
+                </Badge> */}
               </div>
               <div className="mt-4 flex items-center justify-between">
                 <CardTitle className="text-3xl">{data?.title}</CardTitle>
@@ -460,24 +460,24 @@ const UserBountyPage = () => {
                           >
                             {sanitizeInput(message.message).sanitizedInput}
                             {// Display all matched URLs as links
-                            sanitizeInput(message.message).urls?.map(
-                              (url, index) => (
-                                <div
-                                  key={index}
-                                  className=" w-full rounded-md bg-[#F5F7FB] py-2  shadow-sm"
-                                >
-                                  <Link
-                                    href={url}
-                                    className="flex items-center justify-start gap-2"
+                              sanitizeInput(message.message).urls?.map(
+                                (url, index) => (
+                                  <div
+                                    key={index}
+                                    className=" w-full rounded-md bg-[#F5F7FB] py-2  shadow-sm"
                                   >
-                                    <File color="black" />{" "}
-                                    <span className="text-base font-medium text-[#07074D]">
-                                      {url}
-                                    </span>
-                                  </Link>
-                                </div>
-                              ),
-                            )}
+                                    <Link
+                                      href={url}
+                                      className="flex items-center justify-start gap-2"
+                                    >
+                                      <File color="black" />{" "}
+                                      <span className="text-base font-medium text-[#07074D]">
+                                        {url}
+                                      </span>
+                                    </Link>
+                                  </div>
+                                ),
+                              )}
                             <div ref={messagesEndRef} />
                           </div>
                         ))}
@@ -602,121 +602,121 @@ const UserBountyPage = () => {
               {data.BountyWinner.some(
                 (winner) => winner.user.id === session.data?.user.id,
               ) && (
-                <>
-                  <div className="flex flex-col gap-2">
-                    <div className="">
-                      <Dialog
-                        open={isDialogOpen}
-                        onOpenChange={setIsDialogOpen}
-                      >
-                        <DialogTrigger asChild>
-                          <Button
-                            className=""
-                            disabled={
-                              loading ||
-                              data.BountyWinner.some(
-                                (winner) =>
-                                  winner.user.id === session.data?.user.id &&
-                                  winner?.isSwaped === true,
-                              ) ||
-                              swapAssetToUSDC.isLoading ||
-                              MakeSwapUpdateMutation.isLoading
-                            }
-                          >
-                            <span className="flex items-center">
-                              {PLATFORM_ASSET.code}{" "}
-                              <ArrowRight className="ml-2 mr-2" size={16} />{" "}
-                              USDC
-                            </span>
-                          </Button>
-                        </DialogTrigger>
-                        <DialogContent className="sm:max-w-[425px]">
-                          <DialogHeader>
-                            <DialogTitle>Confirmation </DialogTitle>
-                          </DialogHeader>
-                          {!getMotherTrustLine.data ? (
-                            <Alert
-                              className="flex  items-center justify-center"
-                              type="error"
-                              content={`Please Contact Admin. support@wadzzo.com`}
-                            />
-                          ) : (
-                            <>
-                              <div className="">
-                                <div className="space-y-4 rounded-lg border border-gray-100 bg-gray-50 p-6 dark:border-gray-700 dark:bg-gray-800">
-                                  <div className="space-y-2">
-                                    <dl className="flex items-center justify-between gap-4">
-                                      <dt className="text-base font-normal text-gray-500 dark:text-gray-400">
-                                        Amount
+                  <>
+                    <div className="flex flex-col gap-2">
+                      <div className="">
+                        <Dialog
+                          open={isDialogOpen}
+                          onOpenChange={setIsDialogOpen}
+                        >
+                          <DialogTrigger asChild>
+                            <Button
+                              className=""
+                              disabled={
+                                loading ||
+                                data.BountyWinner.some(
+                                  (winner) =>
+                                    winner.user.id === session.data?.user.id &&
+                                    winner?.isSwaped === true,
+                                ) ||
+                                swapAssetToUSDC.isLoading ||
+                                MakeSwapUpdateMutation.isLoading
+                              }
+                            >
+                              <span className="flex items-center">
+                                {PLATFORM_ASSET.code}{" "}
+                                <ArrowRight className="ml-2 mr-2" size={16} />{" "}
+                                USDC
+                              </span>
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent className="sm:max-w-[425px]">
+                            <DialogHeader>
+                              <DialogTitle>Confirmation </DialogTitle>
+                            </DialogHeader>
+                            {!getMotherTrustLine.data ? (
+                              <Alert
+                                className="flex  items-center justify-center"
+                                type="error"
+                                content={`Please Contact Admin. support@wadzzo.com`}
+                              />
+                            ) : (
+                              <>
+                                <div className="">
+                                  <div className="space-y-4 rounded-lg border border-gray-100 bg-gray-50 p-6 dark:border-gray-700 dark:bg-gray-800">
+                                    <div className="space-y-2">
+                                      <dl className="flex items-center justify-between gap-4">
+                                        <dt className="text-base font-normal text-gray-500 dark:text-gray-400">
+                                          Amount
+                                        </dt>
+                                        <dd className="text-base font-medium text-gray-900 dark:text-white">
+                                          {(
+                                            data?.priceInBand / data.totalWinner
+                                          ).toFixed(2)}{" "}
+                                          {PLATFORM_ASSET.code}
+                                        </dd>
+                                      </dl>
+                                    </div>
+
+                                    <dl className="flex items-center justify-between gap-4 border-t border-gray-200 pt-2 dark:border-gray-700">
+                                      <dt className="text-base font-bold text-gray-900 dark:text-white">
+                                        Swapped Amount
                                       </dt>
-                                      <dd className="text-base font-medium text-gray-900 dark:text-white">
-                                        {(
-                                          data?.priceInBand / data.totalWinner
-                                        ).toFixed(2)}{" "}
-                                        {PLATFORM_ASSET.code}
+                                      <dd className="text-base font-bold text-gray-900 dark:text-white">
+                                        {data.priceInUSD / data.totalWinner} USDC
                                       </dd>
                                     </dl>
                                   </div>
 
-                                  <dl className="flex items-center justify-between gap-4 border-t border-gray-200 pt-2 dark:border-gray-700">
-                                    <dt className="text-base font-bold text-gray-900 dark:text-white">
-                                      Swapped Amount
-                                    </dt>
-                                    <dd className="text-base font-bold text-gray-900 dark:text-white">
-                                      {data.priceInUSD / data.totalWinner} USDC
-                                    </dd>
-                                  </dl>
+                                  <span className="text-xs text-red-500">
+                                    NOTE: This is a one time operation! You can
+                                    {"'t"} undo this operation
+                                  </span>
                                 </div>
-
-                                <span className="text-xs text-red-500">
-                                  NOTE: This is a one time operation! You can
-                                  {"'t"} undo this operation
-                                </span>
-                              </div>
-                              <DialogFooter className=" w-full">
-                                <div className="flex w-full gap-4  ">
-                                  <DialogClose className="w-full">
+                                <DialogFooter className=" w-full">
+                                  <div className="flex w-full gap-4  ">
+                                    <DialogClose className="w-full">
+                                      <Button
+                                        variant="outline"
+                                        className="w-full"
+                                      >
+                                        Cancel
+                                      </Button>
+                                    </DialogClose>
                                     <Button
-                                      variant="outline"
+                                      disabled={
+                                        loading ||
+                                        data.BountyWinner.some(
+                                          (winner) =>
+                                            winner.user.id ===
+                                            session.data?.user.id &&
+                                            winner?.isSwaped === true,
+                                        ) ||
+                                        swapAssetToUSDC.isLoading ||
+                                        MakeSwapUpdateMutation.isLoading
+                                      }
+                                      variant="destructive"
+                                      onClick={() =>
+                                        handleSwap(
+                                          data.id,
+                                          data.priceInBand / data.totalWinner,
+                                          data.priceInUSD / data.totalWinner,
+                                        )
+                                      }
                                       className="w-full"
                                     >
-                                      Cancel
+                                      Confirm
                                     </Button>
-                                  </DialogClose>
-                                  <Button
-                                    disabled={
-                                      loading ||
-                                      data.BountyWinner.some(
-                                        (winner) =>
-                                          winner.user.id ===
-                                            session.data?.user.id &&
-                                          winner?.isSwaped === true,
-                                      ) ||
-                                      swapAssetToUSDC.isLoading ||
-                                      MakeSwapUpdateMutation.isLoading
-                                    }
-                                    variant="destructive"
-                                    onClick={() =>
-                                      handleSwap(
-                                        data.id,
-                                        data.priceInBand / data.totalWinner,
-                                        data.priceInUSD / data.totalWinner,
-                                      )
-                                    }
-                                    className="w-full"
-                                  >
-                                    Confirm
-                                  </Button>
-                                </div>
-                              </DialogFooter>
-                            </>
-                          )}
-                        </DialogContent>
-                      </Dialog>
+                                  </div>
+                                </DialogFooter>
+                              </>
+                            )}
+                          </DialogContent>
+                        </Dialog>
+                      </div>
                     </div>
-                  </div>
-                </>
-              )}
+                  </>
+                )}
             </CardFooter>
           </Card>
         ) : data.requiredBalance > platformAssetBalance ? (
@@ -879,7 +879,7 @@ const AdminBountyPage = () => {
                 className="h-64 w-full rounded-t-lg object-cover"
               />
 
-              <Badge
+              {/* <Badge
                 variant={
                   data?.status === "APPROVED"
                     ? "default"
@@ -894,7 +894,7 @@ const AdminBountyPage = () => {
                   : data?.status === "PENDING"
                     ? "Pending"
                     : "Rejected"}
-              </Badge>
+              </Badge> */}
             </div>
             <div className="mt-4 flex items-center justify-between">
               <CardTitle className="flex w-full items-center justify-between text-3xl">
@@ -983,7 +983,7 @@ const AdminBountyPage = () => {
                                     disabled={
                                       loadingBountyId === data.id ||
                                       data.totalWinner ===
-                                        data._count.BountyWinner ||
+                                      data._count.BountyWinner ||
                                       data.BountyWinner.some(
                                         (winner) =>
                                           winner.user.id ===
@@ -1041,7 +1041,7 @@ const AdminBountyPage = () => {
                                       disabled={
                                         loadingBountyId === data.id ||
                                         data.totalWinner ===
-                                          data._count.BountyWinner ||
+                                        data._count.BountyWinner ||
                                         data.BountyWinner.some(
                                           (winner) =>
                                             winner.user.id ===
@@ -1160,7 +1160,7 @@ const AdminBountyPage = () => {
                       <Button
                         disabled={
                           loadingBountyId === data.id ||
-                          data._count.BountyWinner > 0
+                            data._count.BountyWinner > 0
                             ? true
                             : false
                         }
@@ -1188,7 +1188,7 @@ const AdminBountyPage = () => {
                           <Button
                             disabled={
                               loadingBountyId === data.id ||
-                              data._count.BountyWinner > 0
+                                data._count.BountyWinner > 0
                                 ? true
                                 : false
                             }

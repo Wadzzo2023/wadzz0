@@ -87,7 +87,7 @@ const EditBountyModal = () => {
   const onSubmit: SubmitHandler<z.infer<typeof BountySchema>> = (data) => {
     data.medias = media;
     updateBountyMutation.mutate({
-      BountyId: bountyId ?? 0,
+      BountyId: bountyId!,
       title: data.title,
       content: data.content,
       requiredBalance: data.requiredBalance,
@@ -97,7 +97,7 @@ const EditBountyModal = () => {
   };
 
   const addMediaItem = (url: string) => {
-    setMedia((prevMedia) => [...prevMedia, { url }]);
+    setMedia([{ url }]); // Replace all existing media with the new one
   };
 
   const removeMediaItem = (index: number) => {
@@ -110,14 +110,16 @@ const EditBountyModal = () => {
 
   useEffect(() => {
     if (CurrentBounty) {
-      const initialMedia = CurrentBounty.imageUrls.map((url) => ({
-        url: url,
-      }));
+      const initialMedia = CurrentBounty.imageUrls.map((url) => ({ url }));
       setMedia(initialMedia);
+    } else {
+      setMedia([]); // Reset when there's no data
     }
   }, [CurrentBounty]);
 
+
   const handleClose = () => {
+    setMedia([]);
     reset();
     onClose();
   };
@@ -150,7 +152,7 @@ const EditBountyModal = () => {
   return (
     <>
       <Dialog open={isModalOpen} onOpenChange={handleClose}>
-        <DialogContent className="overflow-hidden p-0">
+        <DialogContent className="overflow-y-auto max-h-[750px] p-0">
           <DialogHeader className="px-6 pt-8">
             <DialogTitle className="text-center text-2xl font-bold">
               Edit Bounty
@@ -179,7 +181,7 @@ const EditBountyModal = () => {
                     </div>
                   )}
                 </label>
-                <label className="h-[240px]">
+                <label className="h-[280px]">
                   <Editor
                     height="200px"
                     value={getValues("content") ?? CurrentBounty?.description}
@@ -191,6 +193,45 @@ const EditBountyModal = () => {
                     <div className="label">
                       <span className="label-text-alt text-warning">
                         {errors.content.message}
+                      </span>
+                    </div>
+                  )}
+                </label>
+
+                <label className=" mb-1 w-full text-xs tracking-wide text-gray-600 sm:text-sm">
+                  Required Balance to Join this Bounty in{" "}
+                  {PLATFORM_ASSET.code}
+                  <input
+                    type="number"
+                    defaultValue={CurrentBounty?.requiredBalance}
+                    {...register("requiredBalance", {
+                      valueAsNumber: true,
+                    })}
+                    className="input input-bordered   w-full"
+                  />
+                  {errors.requiredBalance && (
+                    <div className="label">
+                      <span className="label-text-alt text-warning">
+                        {errors.requiredBalance.message}
+                      </span>
+                    </div>
+                  )}
+                </label>
+                <label className="form-control w-full ">
+                  <span className="label-text">Status</span>
+                  <select
+                    {...register("status")}
+                    defaultValue={CurrentBounty?.status}
+                    className="select select-bordered w-full"
+                  >
+                    <option value="PENDING">Pending</option>
+                    <option value="APPROVED">Approved</option>
+                    <option value="REJECTED">Rejected</option>
+                  </select>
+                  {errors.status && (
+                    <div className="label">
+                      <span className="label-text-alt text-warning">
+                        {errors.status.message}
                       </span>
                     </div>
                   )}
@@ -217,44 +258,6 @@ const EditBountyModal = () => {
                         </div>
                       ))}
                     </div>
-                    <label className=" mb-1 w-full text-xs tracking-wide text-gray-600 sm:text-sm">
-                      Required Balance to Join this Bounty in{" "}
-                      {PLATFORM_ASSET.code}
-                      <input
-                        type="number"
-                        defaultValue={CurrentBounty?.requiredBalance}
-                        {...register("requiredBalance", {
-                          valueAsNumber: true,
-                        })}
-                        className="input input-bordered   w-full"
-                      />
-                      {errors.requiredBalance && (
-                        <div className="label">
-                          <span className="label-text-alt text-warning">
-                            {errors.requiredBalance.message}
-                          </span>
-                        </div>
-                      )}
-                    </label>
-                    <label className="form-control w-full ">
-                      <span className="label-text">Status</span>
-                      <select
-                        {...register("status")}
-                        defaultValue={CurrentBounty?.status}
-                        className="select select-bordered w-full"
-                      >
-                        <option value="PENDING">Pending</option>
-                        <option value="APPROVED">Approved</option>
-                        <option value="REJECTED">Rejected</option>
-                      </select>
-                      {errors.status && (
-                        <div className="label">
-                          <span className="label-text-alt text-warning">
-                            {errors.status.message}
-                          </span>
-                        </div>
-                      )}
-                    </label>
                     <UploadButton
                       endpoint="imageUploader"
                       content={{

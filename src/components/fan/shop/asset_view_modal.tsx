@@ -112,9 +112,15 @@ function EditItem({
 
 export const updateAssetFormShema = z.object({
   assetId: z.number(),
-  price: z.number().nonnegative(),
+  price: z.number({
+    required_error: "Price  must be a number",
+    invalid_type_error: "Price must be a number",
+  }).nonnegative(),
 
-  priceUSD: z.number().nonnegative(),
+  priceUSD: z.number({
+    required_error: "Prize  must be a number",
+    invalid_type_error: "Prize must be a number",
+  }).nonnegative(),
 });
 
 function EditForm({

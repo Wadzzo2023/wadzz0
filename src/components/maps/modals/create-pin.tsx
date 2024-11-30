@@ -64,9 +64,18 @@ export const createPinFormSchema = z.object({
   autoCollect: z.boolean(),
   token: z.number().optional(),
   tokenAmount: z.number().nonnegative().optional(), // if it optional then no token selected
-  pinNumber: z.number().nonnegative().min(1),
-  radius: z.number().nonnegative(),
-  pinCollectionLimit: z.number().min(0),
+  pinNumber: z.number({
+    required_error: "Pin number  must be a number",
+    invalid_type_error: "Pin number must be a number",
+  }).nonnegative().min(1),
+  radius: z.number({
+    required_error: "Radius  must be a number",
+    invalid_type_error: "Radius must be a number",
+  }).nonnegative(),
+  pinCollectionLimit: z.number({
+    required_error: "Collection Limit  must be a number",
+    invalid_type_error: "Collection Limit must be a number",
+  }).min(0),
   tier: z.string().optional(),
 });
 

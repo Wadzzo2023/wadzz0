@@ -53,14 +53,26 @@ export const MediaInfo = z.object({
 export const BountySchema = z.object({
   title: z.string().min(1, { message: "Title can't be empty" }),
   totalWinner: z
-    .number()
+    .number({
+      required_error: "Total Winner must be a number",
+      invalid_type_error: "Total Winner must be a number",
+    })
     .min(1, { message: "Please select at least 1 winner" }),
   prizeInUSD: z
-    .number()
+    .number({
+      required_error: "Prize  must be a number",
+      invalid_type_error: "Prize must be a number",
+    })
     .min(0.00001, { message: "Prize can't less than 0.00001" }),
-  prize: z.number().min(0.00001, { message: "Prize can't less than 0.00001" }),
+  prize: z.number({
+    required_error: "Prize  must be a number",
+    invalid_type_error: "Prize must be a number",
+  }).min(0.00001, { message: "Prize can't less than 0.00001" }),
   requiredBalance: z
-    .number()
+    .number({
+      required_error: "Required Balance  must be a number",
+      invalid_type_error: "Required Balance must be a number",
+    })
     .nonnegative({ message: "Required Balance can't be less than 0" })
     .optional(),
 
