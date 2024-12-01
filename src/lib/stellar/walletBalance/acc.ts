@@ -496,8 +496,10 @@ export async function CheckHasTrustLineOnPlatformAsset({
   userPubKey: string;
 }) {
   const server = new Horizon.Server(STELLAR_URL);
+
   const account = await server.loadAccount(userPubKey);
-  const findAsset = account.balances.find((balance) => {
+  const findAsset = account.balances.some((balance) => {
+    console.log("Balance", balance);
     if (
       (balance.asset_type === "credit_alphanum4" ||
         balance.asset_type === "credit_alphanum12") &&
@@ -508,8 +510,8 @@ export async function CheckHasTrustLineOnPlatformAsset({
     }
     return false;
   });
-
-  return !!findAsset;
+  console.log("FindAsset", findAsset);
+  return findAsset;
 }
 
 export async function PlatformAssetBalance({

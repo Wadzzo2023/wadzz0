@@ -1,8 +1,6 @@
-import clsx from "clsx";
 import Image from "next/image";
-import { Button } from "~/components/shadcn/ui/button";
+import { PlayIcon } from "@heroicons/react/24/solid";
 import { TrackItemType, usePlayerStore } from "~/lib/state/music/track";
-import BuyModal from "../modal/buy_modal";
 import { AssetType } from "~/components/marketplace/market_right";
 import { ReactNode } from "react";
 
@@ -11,48 +9,50 @@ function CreatorTrack({
   assetItem,
   playable,
   buyModal,
+  index,
 }: {
   item: TrackItemType;
   assetItem?: AssetType;
   playable?: boolean;
   buyModal?: ReactNode;
+  index: number;
 }) {
   const trackUrlStore = usePlayerStore();
 
   function playSong() {
     if (playable) trackUrlStore.setNewTrack(item);
   }
+
   return (
     <div
-      // onClick={playSong}
-      className="flex max-w-md flex-row items-center   justify-between p-2 hover:bg-base-100"
-      //   onClick={}
+      className="group cursor-pointer space-y-2 bg-slate-200 p-2 rounded-md"
+      onClick={playable ? playSong : undefined}
     >
-      <div className="flex">
-        <div className="bg-neutral-focus mr-4 h-10 w-10 flex-shrink-0">
-          <Image
-            src={item.thumbnail}
-            width={40}
-            height={40}
-            alt="music cover"
-          />
-        </div>
-        <div className="">
-          <p className={clsx(" text-base font-bold")}>{item.code}</p>
-          <p className={clsx("text-sm")}>{item.artist}</p>
+      <div className="relative aspect-square overflow-hidden rounded-md">
+        <Image
+          src={item.thumbnail}
+          layout="fill"
+          objectFit="cover"
+          alt={`${item.code} cover`}
+          className="transition-transform duration-300 group-hover:scale-105"
+        />
+        <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-0 transition-all duration-300 group-hover:bg-opacity-50">
+          {playable ? (
+            <PlayIcon className="h-12 w-12 text-white opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+          ) : (
+            <div className="opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+              {buyModal}
+            </div>
+          )}
         </div>
       </div>
       <div>
-        {playable ? (
-          <Button onClick={playSong}>Play</Button>
-        ) : (
-          // <Button>Buy</Button>
-
-          <>{buyModal}</>
-        )}
+        <p className="text-base font-medium text-black line-clamp-1">{item.code}</p>
+        <p className="text-sm text-gray-400 line-clamp-1">{item.artist}</p>
       </div>
     </div>
   );
 }
 
 export default CreatorTrack;
+
