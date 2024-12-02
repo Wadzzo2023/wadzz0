@@ -64,7 +64,7 @@ export default function SinglePinPage() {
                     format(new Date(demoPin.startDate), "PPP")}
                 </p>
                 <p>
-                  <strong>End Date:</strong>{" "}
+                  <strong>Expire at:</strong>{" "}
                   {demoPin.endDate && format(new Date(demoPin.endDate), "PPP")}
                 </p>
               </div>

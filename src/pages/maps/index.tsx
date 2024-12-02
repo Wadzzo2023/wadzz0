@@ -344,9 +344,12 @@ function SideMapItem({
                       {pin._count.consumers} visitors
                     </Badge>
                     <span className=" absolute bottom-4 right-0 text-[.60rem]">
-                      End At:
+                      Expire At:
                       {pin.locationGroup &&
-                        format(new Date(pin.locationGroup.endDate), "dd, yyyy")}
+                        format(
+                          new Date(pin.locationGroup.endDate),
+                          "dd/mm/yyyy",
+                        )}
                     </span>
                   </div>
                 </div>
@@ -414,12 +417,12 @@ function MyPins({
           >
             <Image
               src={pin.locationGroup?.creator.profileUrl ?? "/favicon.ico"}
-              width={3 * 30}
-              height={3 * 30}
+              width={150}
+              height={150}
               alt="Creator"
               className={`h-10 w-10 bg-white ${
                 !pin.autoCollect ? "rounded-full " : ""
-              } ${pin.locationGroup?.limit! <= 0 ? "opacity-100" : "opacity-50 "}`}
+              } ${(pin.locationGroup?.limit ?? 1 <= 0) ? "opacity-100" : "opacity-50 "}`}
             />
           </AdvancedMarker>
         ))}
