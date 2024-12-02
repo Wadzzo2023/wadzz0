@@ -29,10 +29,10 @@ import toast from "react-hot-toast";
 
 type Pin = {
   locationGroup:
-  | (LocationGroup & {
-    creator: { profileUrl: string | null };
-  })
-  | null;
+    | (LocationGroup & {
+        creator: { profileUrl: string | null };
+      })
+    | null;
   _count: {
     consumers: number;
   };
@@ -129,10 +129,11 @@ function App() {
   const [loading, setLoading] = useState<boolean>(false);
   const [RangedPins, setRangedPins] = useState<Pin[]>([]);
   const [isCordsSearch, setIsCordsSearch] = useState<boolean>(false);
-  const [searchCoordinates, setSearchCoordinates] = useState<google.maps.LatLngLiteral>({
-    lat: 22.54992,
-    lng: 0,
-  });
+  const [searchCoordinates, setSearchCoordinates] =
+    useState<google.maps.LatLngLiteral>({
+      lat: 22.54992,
+      lng: 0,
+    });
 
   const {
     selectedPlace: alreadySelectedPlace,
@@ -329,11 +330,6 @@ function SideMapItem({
                 <div className="flex-1">
                   <h3 className="relative font-medium">
                     {pin.locationGroup?.title}{" "}
-                    <span className=" absolute bottom-4 right-0 text-[.60rem]">
-                      End At:
-                      {pin.locationGroup &&
-                        format(new Date(pin.locationGroup.endDate), "dd, yyyy")}
-                    </span>
                   </h3>
                   <div className="mt-1 flex items-center gap-1">
                     <Avatar className="h-6 w-6">
@@ -347,6 +343,11 @@ function SideMapItem({
                     <Badge variant="secondary" className="text-xs">
                       {pin._count.consumers} visitors
                     </Badge>
+                    <span className=" absolute bottom-4 right-0 text-[.60rem]">
+                      End At:
+                      {pin.locationGroup &&
+                        format(new Date(pin.locationGroup.endDate), "dd, yyyy")}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -406,8 +407,7 @@ function MyPins({
                 mapDescription: pin.locationGroup?.description,
                 endDate: pin.locationGroup?.endDate,
                 startDate: pin.locationGroup?.startDate,
-                pinCollectionLimit: pin.locationGroup?.limit
-
+                pinCollectionLimit: pin.locationGroup?.limit,
               });
               setIsAutoCollect(pin.autoCollect); // Set isAutoCollect to true when a pin is clicked
             }}
@@ -417,8 +417,9 @@ function MyPins({
               width={3 * 30}
               height={3 * 30}
               alt="Creator"
-              className={`h-10 w-10 bg-white ${!pin.autoCollect ? "rounded-full " : ""
-                } ${pin._count.consumers <= 0 ? "opacity-100" : "opacity-50 "}`}
+              className={`h-10 w-10 bg-white ${
+                !pin.autoCollect ? "rounded-full " : ""
+              } ${pin.locationGroup?.limit! <= 0 ? "opacity-100" : "opacity-50 "}`}
             />
           </AdvancedMarker>
         ))}
