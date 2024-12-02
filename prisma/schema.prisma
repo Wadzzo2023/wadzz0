@@ -488,6 +488,8 @@ model LocationGroup {
 
     link String?
 
+    multiPin Boolean @default(false)
+
     locations Location[]
 }
 

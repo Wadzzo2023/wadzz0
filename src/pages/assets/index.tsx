@@ -22,6 +22,7 @@ export default function MyAssetsPage() {
     </div>
   );
 }
+
 function RenderTabs() {
   const { selectedMenu, setSelectedMenu } = useAssetMenu();
   switch (selectedMenu) {

@@ -25,7 +25,7 @@ export const pinRouter = createTRPCRouter({
   createPin: creatorProcedure
     .input(createPinFormSchema)
     .mutation(async ({ ctx, input }) => {
-      const { pinNumber, pinCollectionLimit, token, tier } = input;
+      const { pinNumber, pinCollectionLimit, token, tier, multiPin } = input;
 
       let tierId: number | undefined;
       let privacy: ItemPrivacy = ItemPrivacy.PUBLIC;
@@ -82,6 +82,7 @@ export const pinRouter = createTRPCRouter({
           subscriptionId: tierId,
           privacy: privacy,
           remaining: pinCollectionLimit,
+          multiPin: multiPin,
         },
       });
     }),

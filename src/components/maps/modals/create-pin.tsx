@@ -68,6 +68,7 @@ export const createPinFormSchema = z.object({
   radius: z.number().nonnegative(),
   pinCollectionLimit: z.number().min(0),
   tier: z.string().optional(),
+  multiPin: z.boolean().optional(),
 });
 
 export default function CreatePinModal() {
@@ -547,6 +548,18 @@ export default function CreatePinModal() {
                     />
                     <label htmlFor="autoCollect" className="text-sm">
                       Auto Collect
+                    </label>
+                  </div>
+
+                  <div className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      id="multiPin"
+                      {...register("multiPin")}
+                      className="checkbox"
+                    />
+                    <label htmlFor="autoCollect" className="text-sm">
+                      Multi Pin
                     </label>
                   </div>
                   {/* <div className="flex flex-col space-y-2">
