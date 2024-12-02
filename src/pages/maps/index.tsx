@@ -379,8 +379,8 @@ function MyPins({
           >
             <Image
               src={pin.locationGroup?.creator.profileUrl ?? "/favicon.ico"}
-              width={30}
-              height={30}
+              width={3 * 30}
+              height={3 * 30}
               alt="Creator"
               className={`h-10 w-10 bg-white ${
                 !pin.autoCollect ? "rounded-full " : ""
