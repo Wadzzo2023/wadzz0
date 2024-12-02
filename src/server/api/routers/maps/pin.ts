@@ -93,11 +93,15 @@ export const pinRouter = createTRPCRouter({
         locationGroup: {
           include: {
             creator: { select: { name: true, profileUrl: true } },
-          },
-        },
-        consumers: {
-          include: {
-            user: { select: { name: true, email: true, id: true } },
+            locations: {
+              include: {
+                consumers: {
+                  include: {
+                    user: { select: { name: true, email: true, id: true } },
+                  },
+                },
+              },
+            },
           },
         },
       },
@@ -117,13 +121,16 @@ export const pinRouter = createTRPCRouter({
       latitude: pin.latitude,
       longitude: pin.longitude,
 
-      consumers: pin.consumers.map((consumer) => {
-        return {
-          pubkey: consumer.user.id,
-          name: consumer.user.name ?? "Unknown",
-          consumptionDate: consumer.createdAt,
-        };
-      }),
+      consumers:
+        pin.locationGroup?.locations.flatMap((location) => {
+          return location.consumers.map((consumer) => {
+            return {
+              pubkey: consumer.user.id,
+              name: consumer.user.name ?? "Unknown",
+              consumptionDate: consumer.createdAt,
+            };
+          });
+        }) ?? [],
     };
   }),
 
@@ -164,7 +171,7 @@ export const pinRouter = createTRPCRouter({
       };
     }),
 
-    updatePin: creatorProcedure
+  updatePin: creatorProcedure
     .input(
       z.object({
         pinId: z.string(),
@@ -177,9 +184,17 @@ export const pinRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const { pinId, title, description, imgUrl, startDate, endDate, collectionLimit } = input;
+      const {
+        pinId,
+        title,
+        description,
+        imgUrl,
+        startDate,
+        endDate,
+        collectionLimit,
+      } = input;
       console.log(pinId, title, description);
-  
+
       try {
         // Step 1: Find the Location object by pinId (which is the location ID)
         const findLocation = await ctx.db.location.findFirst({
@@ -190,40 +205,41 @@ export const pinRouter = createTRPCRouter({
             locationGroup: true, // Include the LocationGroup associated with the Location
           },
         });
-  
+
         // Step 2: If the location does not exist, return an error
         if (!findLocation || !findLocation.locationGroup) {
-          throw new Error('Location or associated LocationGroup not found');
+          throw new Error("Location or associated LocationGroup not found");
         }
-  
+
         // Step 3: Check if the logged-in user is the creator of the LocationGroup
         if (findLocation.locationGroup.creatorId !== ctx.session.user.id) {
-          throw new Error('Unauthorized: You are not the creator of this location group');
+          throw new Error(
+            "Unauthorized: You are not the creator of this location group",
+          );
         }
-  
+
         console.log("Location Group to update:", findLocation.locationGroup);
-  
+
         // Step 4: Update the LocationGroup
         const updatedLocationGroup = await ctx.db.locationGroup.update({
           where: {
             id: findLocation.locationGroup.id, // Use locationGroup ID to update
           },
           data: {
-            title,               // Update the title
-            description,         // Update the description
-            image: imgUrl,       // Optional image URL
-            startDate,           // Optional start date
-            endDate,             // Optional end date
+            title, // Update the title
+            description, // Update the description
+            image: imgUrl, // Optional image URL
+            startDate, // Optional start date
+            endDate, // Optional end date
             limit: collectionLimit, // Optional collection limit
           },
         });
-  
-        console.log('Updated Location Group:', updatedLocationGroup);
+
+        console.log("Updated Location Group:", updatedLocationGroup);
         return updatedLocationGroup;
-  
       } catch (e) {
-        console.error('Error updating location group:', e);
-        throw new Error('Failed to update location group');
+        console.error("Error updating location group:", e);
+        throw new Error("Failed to update location group");
       }
     }),
   getMyPins: creatorProcedure.query(async ({ ctx }) => {
@@ -240,24 +256,22 @@ export const pinRouter = createTRPCRouter({
         locationGroup: {
           include: {
             creator: { select: { profileUrl: true } },
-            locations:{
-              select:{
-                locationGroup:{
-                  select:{
-                    endDate:true,
+            locations: {
+              select: {
+                locationGroup: {
+                  select: {
+                    endDate: true,
                     startDate: true,
-                    limit:true,
-                    image:true,
-                    description:true,
-                    title:true,
-                  }
-                }
-              }
-            }
+                    limit: true,
+                    image: true,
+                    description: true,
+                    title: true,
+                  },
+                },
+              },
+            },
           },
         },
-        
-
       },
     });
 
