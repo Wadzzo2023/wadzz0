@@ -233,7 +233,7 @@ export function UnFollowButton({ creator }: { creator: Creator }) {
   const utils = api.useUtils();
   const unFollow = api.fan.member.unFollowCreator.useMutation({
     onSuccess: async () => {
-      toast.success("Un follow success");
+      toast.success("Unfollow success");
 
       // await utils.fan.member.isFollower.refetch({
       //   creatorId: creator.id,
@@ -276,7 +276,7 @@ export function ChooseMemberShip({ creator }: { creator: Creator }) {
                 creator={creator}
                 subscription={el}
                 pageAsset={el.creator.pageAsset?.code}
-               
+
               />
             ))}
         </SubscriptionGridWrapper>
@@ -326,7 +326,7 @@ function SubscriptionCard({
   subscription: SubscriptionType;
   creator: Creator;
   priority?: number;
-  pageAsset?:string
+  pageAsset?: string
 }) {
   return (
     <MemberShipCard

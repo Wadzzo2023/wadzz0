@@ -9,6 +9,21 @@ interface EditorProps {
   placeholder?: string;
 }
 
+const modules = {
+  toolbar: [
+    [{ header: [1, 2, 3, 4, 5, 6, false] }],
+    ["bold", "italic", "underline", "strike", "blockquote"],
+    [{ list: "ordered" }, { list: "bullet" }, { 'list': 'check' }, { indent: "-1" }, { indent: "+1" }],
+    ["link",],
+    ["clean"],
+    ["code-block"],
+    [{ 'color': [] }, { 'background': [] }],          // dropdown with defaults from theme
+    [{ 'direction': 'rtl' }],                         // text direction
+
+  ],
+
+}
+
 export const Editor = ({
   onChange,
   value,
@@ -18,13 +33,19 @@ export const Editor = ({
   const ReactQuill = dynamic(() => import("react-quill"));
 
   return (
-    <div className="">
+    <div className="quill-editor-wrapper">
       <ReactQuill
-        className={clsx(height ? `h-[${height}]` : "h-[240px]")}
+        className={clsx(
+          height ? `h-[${height}]` : "h-[240px]"
+
+        )}
+
         value={value}
+        modules={modules}
         placeholder={placeholder}
         onChange={onChange}
       />
+
     </div>
   );
 };

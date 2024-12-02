@@ -18,7 +18,7 @@ import {
 } from "~/components/shadcn/ui/dialog";
 import useNeedSign from "~/lib/hook";
 import { useUserStellarAcc } from "~/lib/state/wallete/stellar-balances";
-import { PLATFORM_ASSET } from "~/lib/stellar/constant";
+import { PLATFORM_ASSET, PLATFORM_FEE, TrxBaseFeeInPlatformAsset } from "~/lib/stellar/constant";
 import { AccountSchema, clientSelect } from "~/lib/stellar/fan/utils";
 import { api } from "~/utils/api";
 import { BADWORDS } from "~/utils/banned-word";
@@ -155,6 +155,7 @@ function NftCreateForm({
   const walletType = isAdmin ? WalletType.isAdmin : connectedWalletType;
   const [uploadProgress, setUploadProgress] = useState<number>(0);
 
+  const totalFeees = Number(TrxBaseFeeInPlatformAsset) + Number(PLATFORM_FEE);
   const { paymentMethod, setIsOpen: setPaymentModalOpen } =
     usePaymentMethodStore();
 
@@ -621,6 +622,26 @@ function NftCreateForm({
                 {requiredTokenAmount > platformAssetBalance && <RechargeLink />}
               </div>
               <PaymentChoose
+                costBreakdown={[
+                  {
+                    label: "Cost",
+                    amount: paymentMethod === "asset" ? requiredTokenAmount - totalFeees : 2,
+                    type: "cost",
+                    highlighted: true,
+                  },
+                  {
+                    label: "Platform Fee",
+                    amount: paymentMethod === "asset" ? totalFeees : 2,
+                    highlighted: false,
+                    type: "fee",
+                  },
+                  {
+                    label: "Total Cost",
+                    amount: paymentMethod === "asset" ? requiredTokenAmount : 2 + 2,
+                    highlighted: false,
+                    type: "total",
+                  },
+                ]}
                 XLM_EQUIVALENT={2 + 2}
                 handleConfirm={() => onSubmit()}
                 loading={loading}

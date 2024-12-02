@@ -9,7 +9,7 @@ import { z } from "zod";
 import { Button } from "~/components/shadcn/ui/button";
 import Alert from "~/components/ui/alert";
 import useNeedSign from "~/lib/hook";
-import { PLATFORM_ASSET } from "~/lib/stellar/constant";
+import { PLATFORM_ASSET, PLATFORM_FEE, TrxBaseFeeInPlatformAsset } from "~/lib/stellar/constant";
 import { clientSelect } from "~/lib/stellar/fan/utils";
 import { api } from "~/utils/api";
 
@@ -55,6 +55,7 @@ function NewPageAssetFrom({ requiredToken }: { requiredToken: number }) {
   const [coverUrl, setCover] = useState<string>();
   const { isOpen, setIsOpen, paymentMethod } = usePaymentMethodStore();
   const { toast: shadToast } = useToast();
+  const totalFeees = Number(TrxBaseFeeInPlatformAsset) + Number(PLATFORM_FEE);
 
   // pinta upload
   const [file, setFile] = useState<File>();
@@ -270,6 +271,26 @@ function NewPageAssetFrom({ requiredToken }: { requiredToken: number }) {
       </div>
 
       <PaymentChoose
+        costBreakdown={[
+          {
+            label: "Cost",
+            amount: paymentMethod === "asset" ? requiredToken : 2,
+            type: "cost",
+            highlighted: true,
+          },
+          {
+            label: "Platform Fee",
+            amount: paymentMethod === "asset" ? totalFeees : 2,
+            highlighted: false,
+            type: "fee",
+          },
+          {
+            label: "Total Cost",
+            amount: paymentMethod === "asset" ? requiredToken : 2 + 2,
+            highlighted: false,
+            type: "total",
+          },
+        ]}
         XLM_EQUIVALENT={2 + 2}
         handleConfirm={() => onSubmit()}
         loading={loading}

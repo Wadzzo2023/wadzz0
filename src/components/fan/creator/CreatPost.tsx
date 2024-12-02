@@ -138,7 +138,7 @@ export function CreatPost() {
   }
 
   return (
-    <Card className="w-full md:px-8">
+    <Card className="w-full px-0 md:px-8">
       <form onSubmit={handleSubmit(onSubmit)}>
         <CardHeader className="flex flex-col items-start justify-between space-y-2 pb-2 sm:flex-row sm:items-center sm:space-y-0">
           <div className="flex items-center space-x-2">
@@ -172,7 +172,7 @@ export function CreatPost() {
             )}
           </div>
           <div className="">
-            <div className="mt-20 flex flex-wrap gap-2  ">
+            <div className="mt-20 mb-8 flex flex-wrap gap-2  ">
               {media.map((el, id) => (
                 <div key={id} className="relative">
                   <Image

@@ -32,6 +32,13 @@ export const usePaymentMethodStore = create<PaymentMethodStore>((set) => ({
   setIsOpen: (isOpen) => set({ isOpen }),
 }));
 
+export interface CostBreakdownItem {
+  label: string;
+  amount: number;
+  type: 'fee' | 'cost' | 'total' | 'subtotal';
+  highlighted?: boolean;
+}
+
 export function PaymentChoose({
   XLM_EQUIVALENT,
   handleConfirm,
@@ -39,6 +46,7 @@ export function PaymentChoose({
   requiredToken,
   trigger,
   beforeTrigger,
+  costBreakdown,
 }: {
   requiredToken: number;
   XLM_EQUIVALENT: number;
@@ -46,6 +54,7 @@ export function PaymentChoose({
   loading: boolean;
   trigger: React.ReactNode;
   beforeTrigger?: () => Promise<boolean>;
+  costBreakdown?: CostBreakdownItem[];
 }) {
   const { paymentMethod, setPaymentMethod, isOpen, setIsOpen } =
     usePaymentMethodStore();
@@ -127,6 +136,23 @@ export function PaymentChoose({
               </Label>
             </div>
           </RadioGroup>
+        </div>
+
+        <div className="mt-6 space-y-3 border-t border-gray-200 pt-4">
+          {costBreakdown ? costBreakdown.map((item, index) => (
+            <div
+              key={index}
+              className={`flex justify-between ${item.highlighted ? 'font-semibold' : ''
+                } ${item.type === 'total' ? 'text-lg pt-2 border-t border-gray-200' : 'text-sm'}`}
+            >
+              <span className={item.type === 'fee' ? 'text-gray-500' : ''}>
+                {item.label}
+              </span>
+              <span>
+                {item.amount} {paymentMethod === "asset" ? PLATFORM_ASSET.code : "XLM"}
+              </span>
+            </div>
+          )) : <></>}
         </div>
         <div className="mt-4 text-center text-sm text-gray-500">
           Your account will be charged{" "}
