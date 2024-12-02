@@ -1,9 +1,7 @@
 import { useRef, useState } from "react";
 import { api } from "~/utils/api";
-
-import clsx from "clsx";
 import { useSession } from "next-auth/react";
-import { WalletType, clientsign } from "package/connect_wallet";
+import { clientsign, WalletType } from "package/connect_wallet";
 import toast from "react-hot-toast";
 import { AssetType } from "~/components/marketplace/market_right";
 import BuyWithSquire from "~/components/marketplace/pay/buy_with_squire";
@@ -15,9 +13,7 @@ import {
   DialogContent,
   DialogFooter,
 } from "~/components/shadcn/ui/dialog";
-
-import { Loader } from "lucide-react";
-import { z } from "zod";
+import { Loader } from 'lucide-react';
 import Alert from "~/components/ui/alert";
 import useNeedSign from "~/lib/hook";
 import { useUserStellarAcc } from "~/lib/state/wallete/stellar-balances";
@@ -28,17 +24,17 @@ import {
 } from "~/lib/stellar/constant";
 import { clientSelect } from "~/lib/stellar/fan/utils";
 import { addrShort } from "~/utils/utils";
+import { z } from "zod";
+import clsx from "clsx";
 
 type BuyModalProps = {
   item: AssetType;
   placerId?: string | null;
   price: number;
   priceUSD: number;
-  marketItemId?: number; // undefined will mean it is song
+  marketItemId?: number;
 };
-
 export const PaymentMethodEnum = z.enum(["asset", "xlm", "card"]);
-
 export type PaymentMethod = z.infer<typeof PaymentMethodEnum>;
 
 export default function BuyModal({
@@ -53,40 +49,27 @@ export default function BuyModal({
   const { code, issuer } = item;
   const { platformAssetBalance, active, getXLMBalance, balances, hasTrust } =
     useUserStellarAcc();
-
   const requiredFee = api.fan.trx.getRequiredPlatformAsset.useQuery({
     xlm: hasTrust(code, issuer) ? 0 : 0.5,
   });
 
-  const modal = useRef<HTMLDialogElement>(null);
   const [xdr, setXdr] = useState<string>();
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>();
   const [paymentSuccess, setPaymentSuccess] = useState(false);
   const [isBuyDialogOpen, setIsBuyDialogOpen] = useState(false);
-  // const { asset } = item;
-
   const [submitLoading, setSubmitLoading] = useState(false);
 
-  // fetCh the copies from the storage acc.
-
   const copy = api.marketplace.market.getMarketAssetAvailableCopy.useQuery({
-    id: marketItemId,
+    id: marketItemId!,
   });
 
   const xdrMutation =
     api.marketplace.steller.buyFromMarketPaymentXDR.useMutation({
-      onSuccess: (data, Variable) => {
+      onSuccess: (data) => {
         setXdr(data);
       },
       onError: (e) => toast.error(e.message.toString()),
     });
-
-  const handleModal = (close?: true) => {
-    if (close) {
-      return modal.current?.close();
-    }
-    modal.current?.showModal();
-  };
 
   async function handleXDR(method: PaymentMethod) {
     xdrMutation.mutate({
@@ -104,191 +87,106 @@ export default function BuyModal({
     await handleXDR(method);
   };
 
+  const handlePaymentConfirmation = () => {
+    setSubmitLoading(true);
+    if (!xdrMutation.data) {
+      toast.error("XDR data is missing.");
+      return;
+    }
+    clientsign({
+      presignedxdr: xdrMutation.data,
+      pubkey: session.data?.user.id,
+      walletType: session.data?.user.walletType,
+      test: clientSelect(),
+    })
+      .then((res) => {
+        if (res) {
+          toast.success("Payment Success");
+          setPaymentSuccess(true);
+          setIsBuyDialogOpen(false);
+        }
+      })
+      .catch((e) => console.log(e))
+      .finally(() => {
+        setSubmitLoading(false);
+        setIsBuyDialogOpen(false);
+      });
+  };
+
   if (!active) return null;
+
   return (
     <>
       <Dialog open={isBuyDialogOpen} onOpenChange={setIsBuyDialogOpen}>
-        <DialogContent className="modal-box">
-          <div className="flex flex-col items-center gap-y-2">
-            <div className="flex flex-col gap-2  bg-base-200 p-10">
-              <p>
-                Asset Name: <span className="badge badge-primary">{code}</span>
+        <DialogContent className="sm:max-w-[425px]">
+          <div className="grid gap-4">
+            <div className="space-y-2">
+              <h2 className="text-2xl font-bold">Checkout</h2>
+              <p className="text-sm text-gray-500">
+                Complete your purchase for {item.name}
               </p>
-              <p className="font-bold">
-                Price: {price} {PLATFORM_ASSET.code}
-              </p>
-              <p className="font-bold">Price in USD : ${priceUSD}</p>
-              <p className="text-sm">
-                Copies available: {copy.data ?? "loading..."}
-              </p>
-              <p className="text-sm">Issuer: {addrShort(issuer, 15)}</p>
-              {copy.data && copy.data < 1 && (
-                <Alert type="error" content={"You have to be minimum 1 copy"} />
-              )}
             </div>
-            {/* <BuyWithSquire marketId={item.id} xdr={xdr ?? "xdr"} /> */}
-
-            <div className="flex flex-col items-center">
-              <>
-                <PaymentOptions
-                  method={paymentMethod}
-                  setIsWallet={changePaymentMethod}
-                />
-                <MethodDetails setModalClose={setIsBuyDialogOpen} />
-              </>
+            <div className="grid gap-2">
+              <div className="flex justify-between">
+                <span>Price:</span>
+                <span className="font-semibold">
+                  {price} {PLATFORM_ASSET.code}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span>Price in USD:</span>
+                <span className="font-semibold">${priceUSD}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Copies available:</span>
+                <span>{copy.data ?? "loading..."}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Issuer:</span>
+                <span>{addrShort(issuer, 7)}</span>
+              </div>
             </div>
+            {copy.data && copy.data < 1 && (
+              <Alert type="error" content={"You have to be minimum 1 copy"} />
+            )}
+            <PaymentOptions
+              method={paymentMethod}
+              setIsWallet={changePaymentMethod}
+            />
+            <MethodDetails
+              paymentMethod={paymentMethod}
+              xdrMutation={xdrMutation}
+              requiredFee={requiredFee.data}
+              price={price}
+              priceUSD={priceUSD}
+              platformAssetBalance={platformAssetBalance}
+              getXLMBalance={getXLMBalance}
+              hasTrust={hasTrust}
+              code={code}
+              issuer={issuer}
+              item={item}
+              onConfirmPayment={handlePaymentConfirmation}
+              submitLoading={submitLoading}
+              paymentSuccess={paymentSuccess}
+            />
           </div>
           <DialogFooter>
-            <DialogClose>
-              <Button>Close</Button>
+            <DialogClose asChild>
+              <Button variant="outline">Close</Button>
             </DialogClose>
           </DialogFooter>
         </DialogContent>
       </Dialog>
-      <button
+      <Button
         disabled={copy.data === 0}
-        className="btn btn-primary btn-sm my-2 w-full transition duration-500 ease-in-out"
+        className="w-full"
         onClick={() => setIsBuyDialogOpen(true)}
       >
         BUY
-      </button>
+      </Button>
     </>
   );
-
-  function MethodDetails({
-    setModalClose,
-  }: {
-    setModalClose: (isOpen: boolean) => void;
-  }) {
-    if (xdrMutation.isLoading) return <Loader className="animate-spin" />;
-
-    if (xdrMutation.isError) {
-      return (
-        <Alert
-          type="error"
-          content={
-            xdrMutation.error instanceof Error
-              ? xdrMutation.error.message
-              : "Error"
-          }
-        />
-      );
-    }
-
-    if (xdrMutation.isSuccess && requiredFee.data) {
-      if (paymentMethod === "asset") {
-        const requiredAssetBalance = price + requiredFee.data;
-        const isSufficientAssetBalance =
-          platformAssetBalance >= requiredAssetBalance;
-        return (
-          <>
-            {isSufficientAssetBalance ? (
-              <>
-                <p>
-                  You need total: {price} + {requiredFee.data} {" Fee "} ={" "}
-                  {requiredAssetBalance}
-                  {PLATFORM_ASSET.code} to buy this item!
-                </p>
-                <button
-                  disabled={paymentSuccess}
-                  className="btn btn-primary"
-                  onClick={() => {
-                    setSubmitLoading(true);
-                    clientsign({
-                      presignedxdr: xdrMutation.data,
-                      pubkey: session.data?.user.id,
-                      walletType: session.data?.user.walletType,
-                      test: clientSelect(),
-                    })
-                      .then((res) => {
-                        if (res) {
-                          toast.success("Payment Success");
-                          setPaymentSuccess(true);
-                          handleModal(true);
-                          setModalClose(false);
-                        }
-                      })
-                      .catch((e) => console.log(e))
-                      .finally(() => {
-                        setSubmitLoading(false);
-                        setModalClose(false);
-                      });
-                  }}
-                >
-                  {submitLoading && <Loader className="animate-spin" />}
-                  Confirm Payment
-                </button>
-              </>
-            ) : (
-              <>
-                <p className="mt-2">
-                  You have {platformAssetBalance} {PLATFORM_ASSET.code}
-                </p>
-                <p className="mb-2 text-error">Insufficient Balance</p>
-                <RechargeLink />
-              </>
-            )}
-          </>
-        );
-      }
-      if (paymentMethod === "xlm") {
-        const requiredXlmBalance =
-          priceUSD + 2 + (hasTrust(code, issuer) ? 0 : 0.5);
-        const isSufficientAssetBalance =
-          getXLMBalance() ?? 0 >= requiredXlmBalance;
-        return (
-          <>
-            {isSufficientAssetBalance ? (
-              <>
-                <p>You need total {requiredXlmBalance} XLM to buy this item!</p>
-                <button
-                  disabled={paymentSuccess}
-                  className="btn btn-primary"
-                  onClick={() => {
-                    // toast("hi");
-                    setSubmitLoading(true);
-                    clientsign({
-                      presignedxdr: xdrMutation.data,
-                      pubkey: session.data?.user.id,
-                      walletType: session.data?.user.walletType,
-                      test: clientSelect(),
-                    })
-                      .then((res) => {
-                        if (res) {
-                          toast.success("Payment Success");
-                          setPaymentSuccess(true);
-                          handleModal(true);
-                        }
-                      })
-                      .catch((e) => console.log(e))
-                      .finally(() => setSubmitLoading(false));
-                  }}
-                >
-                  {submitLoading && <Loader className="animate-spin" />}
-                  Confirm Payment
-                </button>
-              </>
-            ) : (
-              <>
-                <p className="mt-2">You have {getXLMBalance()} XLM</p>
-                <p className="mb-2 text-error">Insufficient Balance</p>
-                <RechargeLink />
-              </>
-            )}
-          </>
-        );
-      }
-      if (paymentMethod === "card") {
-        return (
-          <button>
-            <BuyWithSquire marketId={item.id} xdr={xdrMutation.data} />
-          </button>
-        );
-      }
-    }
-  }
 }
-
 function PaymentOptions({
   method,
   setIsWallet,
@@ -297,7 +195,6 @@ function PaymentOptions({
   setIsWallet: (method: PaymentMethod) => void;
 }) {
   const session = useSession();
-
   if (session.status == "authenticated") {
     const walletType = session.data.user.walletType;
     const showCardOption =
@@ -351,3 +248,151 @@ function PaymentOptions({
     );
   }
 }
+type MethodDetailsProps = {
+  paymentMethod?: PaymentMethod;
+  xdrMutation: ReturnType<typeof api.marketplace.steller.buyFromMarketPaymentXDR.useMutation>;
+  requiredFee?: number;
+  price: number;
+  priceUSD: number;
+  platformAssetBalance: number;
+  getXLMBalance: () => string | undefined;
+  hasTrust: (code: string, issuer: string) => boolean | undefined;
+  code: string;
+  issuer: string;
+  item: AssetType;
+  onConfirmPayment: () => void;
+  submitLoading: boolean;
+  paymentSuccess: boolean;
+};
+
+export function MethodDetails({
+  paymentMethod,
+  xdrMutation,
+  requiredFee,
+  price,
+  priceUSD,
+  platformAssetBalance,
+  getXLMBalance,
+  hasTrust,
+  code,
+  issuer,
+  item,
+  onConfirmPayment,
+  submitLoading,
+  paymentSuccess,
+}: MethodDetailsProps) {
+  if (xdrMutation.isLoading) return <Loader className="animate-spin" />;
+
+  if (xdrMutation.isError) {
+    return (
+      <Alert
+        type="error"
+        content={
+          xdrMutation.error instanceof Error
+            ? xdrMutation.error.message
+            : "Error"
+        }
+      />
+    );
+  }
+
+  if (xdrMutation.isSuccess && requiredFee) {
+    if (paymentMethod === "asset") {
+      const requiredAssetBalance = price + requiredFee;
+      const isSufficientAssetBalance =
+        platformAssetBalance >= requiredAssetBalance;
+
+      return (
+        <div className="space-y-4">
+          <div className="rounded-lg bg-gray-100 p-4">
+            <h3 className="mb-2 font-semibold">Payment Summary</h3>
+            <div className="space-y-1">
+              <div className="flex justify-between">
+                <span>Item Price:</span>
+                <span>{price} {PLATFORM_ASSET.code}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Fee:</span>
+                <span>{requiredFee} {PLATFORM_ASSET.code}</span>
+              </div>
+              <div className="flex justify-between font-semibold">
+                <span>Total:</span>
+                <span>{requiredAssetBalance} {PLATFORM_ASSET.code}</span>
+              </div>
+            </div>
+          </div>
+          {isSufficientAssetBalance ? (
+            <Button
+              disabled={paymentSuccess}
+              className="w-full"
+              onClick={onConfirmPayment}
+            >
+              {submitLoading && <Loader className="mr-2 h-4 w-4 animate-spin" />}
+              Confirm Payment
+            </Button>
+          ) : (
+            <div className="space-y-2">
+              <p>
+                Your balance: {platformAssetBalance} {PLATFORM_ASSET.code}
+              </p>
+              <p className="text-sm text-red-500">Insufficient Balance</p>
+              <RechargeLink />
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    if (paymentMethod === "xlm") {
+      const requiredXlmBalance =
+        priceUSD + 2 + (hasTrust(code, issuer) ? 0 : 0.5);
+      const isSufficientAssetBalance =
+        getXLMBalance() ?? 0 >= requiredXlmBalance;
+
+      return (
+        <div className="space-y-4">
+          <div className="rounded-lg bg-gray-100 p-4">
+            <h3 className="mb-2 font-semibold">Payment Summary</h3>
+            <div className="space-y-1">
+              <div className="flex justify-between">
+                <span>Total in XLM:</span>
+                <span>{requiredXlmBalance} XLM</span>
+              </div>
+            </div>
+          </div>
+          {isSufficientAssetBalance ? (
+            <Button
+              disabled={paymentSuccess}
+              className="w-full"
+              onClick={onConfirmPayment}
+            >
+              {submitLoading && <Loader className="mr-2 h-4 w-4 animate-spin" />}
+              Confirm Payment
+            </Button>
+          ) : (
+            <div className="space-y-2">
+              <p>Your balance: {getXLMBalance()} XLM</p>
+              <p className="text-sm text-red-500">Insufficient Balance</p>
+              <RechargeLink />
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    if (paymentMethod === "card") {
+      return (
+        <div className="space-y-4">
+          <div className="rounded-lg bg-gray-100 p-4">
+            <h3 className="mb-2 font-semibold">Credit Card Payment</h3>
+            <p>Proceed to pay with your credit card.</p>
+          </div>
+          <BuyWithSquire marketId={item.id} xdr={xdrMutation.data} />
+        </div>
+      );
+    }
+  }
+
+  return null;
+}
+

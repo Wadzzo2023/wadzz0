@@ -10,7 +10,7 @@ export function MusicRightSide() {
   const { song, isPlaying, setisPlaying } = usePlayerStore()
 
   return (
-    <div className="flex h-full flex-col gap-4 p-1">
+    <div className="flex h-screen flex-col gap-4 p-1">
       <Card className="flex-1">
         <CardHeader>
           <CardTitle>Playable Songs</CardTitle>
@@ -55,7 +55,7 @@ function RightSongs() {
 
   if (songs.data)
     return (
-      <ScrollArea className="h-[300px] pr-4">
+      <ScrollArea className="h-[500px] pr-4">
         <RightTrackSection songs={songs.data} playable />
       </ScrollArea>
     )

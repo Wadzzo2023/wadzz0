@@ -1,77 +1,93 @@
 import { usePlayerStore } from "~/lib/state/music/track";
-
 import { api } from "~/utils/api";
-
-import MusicItem, { SongItemType } from "../track/music_item";
-import { Play } from "lucide-react";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "~/components/shadcn/ui/table";
+import { Skeleton } from "~/components/shadcn/ui/skeleton";
+import { Button } from "~/components/shadcn/ui/button";
+import { Play, PlayIcon } from "lucide-react";
 import BuyModal from "../modal/buy_modal";
-import { ButtonSkeleton } from "~/pages/music/album/[album]";
-import clsx from "clsx";
+import { Song } from "@prisma/client";
+import { AssetType } from "@stellar/stellar-sdk";
+import Image from "next/image";
+import { SongItemType } from "../track/music_item";
+
 
 export default function SongList({
   songs,
+  albumId,
 }: {
   songs: SongItemType[];
   albumId: number;
 }) {
+  const admin = api.wallate.admin.checkAdmin.useQuery();
+
   return (
     <div className="py-2">
-      {/* <div className="h-4" /> */}
-      <table className="table bg-base-300">
-        <thead></thead>
-        <tbody>
-          {songs.map((song) => {
-            return (
-              <tr
-                key={song.id}
-                className={clsx("bg-base-300", "hover:bg-base-100")}
-              >
-                <td>
-                  <div className="space-x-3">
-                    <MusicItem item={song} />
-                  </div>
-                </td>
-
-                <td>
-                  <PlayOrBuy song={song} />
-                </td>
-
-                <DeleteSongButton songId={song.id} />
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
+      <Table className="bg-base-300 rounded-md">
+        <TableHeader>
+          <TableRow className="flex justify-between items-center border-b-2 border-base-200">
+            <TableHead>Song</TableHead>
+            <TableHead>Action</TableHead>
+            {
+              admin.data && (
+                <TableHead>Admin Action</TableHead>)
+            }
+          </TableRow>
+        </TableHeader>
+        <TableBody className="">
+          {songs.map((song, index) => (
+            <TableRow
+              key={song.id}
+              className="bg-base-300 hover:bg-base-100 flex justify-between border-b-2 border-base-200"
+            >
+              <TableCell >
+                <div className="space-x-3 ">
+                  <MusicItem item={song} index={index + 1} />
+                </div>
+              </TableCell>
+              <TableCell>
+                <PlayOrBuy song={song} />
+              </TableCell>
+              {
+                admin.data && (
+                  <TableCell>
+                    <DeleteSongButton songId={song.id} />
+                  </TableCell>)
+              }
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
     </div>
   );
 }
 
-function DeleteSongButton({ songId }: { songId: number }) {
+
+export function DeleteSongButton({ songId }: { songId: number }) {
   const admin = api.wallate.admin.checkAdmin.useQuery();
   const deleteSongMutation = api.music.song.deleteAsong.useMutation();
 
-  if (admin.isLoading) return <ButtonSkeleton />;
-  if (deleteSongMutation.isLoading)
-    return <span className="loading loading-spinner" />;
+  if (admin.isLoading) return <Skeleton className="h-9 w-20" />;
+  if (deleteSongMutation.isLoading) return <span className="loading loading-spinner" />;
 
-  if (admin.data)
+  if (admin.data) {
     return (
-      <td>
-        <button
-          className="btn btn-primary btn-sm w-20"
-          onClick={() => deleteSongMutation.mutate({ songId })}
-        >
-          Delete
-        </button>
-      </td>
+      <Button
+        className="btn btn-primary btn-sm w-20"
+        onClick={() => deleteSongMutation.mutate({ songId })}
+      >
+        Delete
+      </Button>
     );
+  }
+
+  return null;
 }
 
 export function PlayOrBuy({ song }: { song: SongItemType }) {
   const trackUrlStore = usePlayerStore();
   const userAssets = api.wallate.acc.getAccountInfo.useQuery();
 
-  if (userAssets.isLoading) return <ButtonSkeleton />;
+  if (userAssets.isLoading) return <Skeleton className="h-9 w-20" />;
 
   if (
     userAssets.data?.dbAssets?.some(
@@ -79,33 +95,82 @@ export function PlayOrBuy({ song }: { song: SongItemType }) {
     )
   ) {
     return (
-      <>
-        <Play
-          // className={clsx(song.id == activeRow && "text-primary")}
-          onClick={() => {
-            // setActiveRow(song.id);
-            trackUrlStore.setNewTrack({
-              artist: song.artist,
-              mediaUrl: song.asset.mediaUrl,
-              thumbnail: song.asset.thumbnail,
-              code: song.asset.code,
-              name: song.asset.name,
-            });
-          }}
-        />
-      </>
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={() => {
+          trackUrlStore.setNewTrack({
+            artist: song.artist,
+            mediaUrl: song.asset.mediaUrl,
+            thumbnail: song.asset.thumbnail,
+            code: song.asset.code,
+            name: song.asset.name,
+          });
+        }}
+      >
+        <Play className="h-4 w-4" />
+      </Button>
     );
   } else {
     return (
-      <>
-        <div className="w-12">
-          <BuyModal
-            priceUSD={song.priceUSD}
-            item={song.asset}
-            price={song.price}
-          />
-        </div>
-      </>
+      <div className="w-12">
+        <BuyModal
+          marketItemId={song.asset.id}
+          priceUSD={song.priceUSD}
+          item={song.asset}
+          price={song.price}
+        />
+      </div>
     );
   }
 }
+
+
+export function MusicItem({
+  item,
+  playable,
+  index,
+}: {
+  item: SongItemType;
+  playable?: boolean;
+  index: number;
+}) {
+  const trackUrlStore = usePlayerStore();
+
+  function playSong() {
+    if (playable)
+      trackUrlStore.setNewTrack({
+        artist: item.artist,
+        code: item.asset.code,
+        thumbnail: item.asset.thumbnail,
+        mediaUrl: item.asset.mediaUrl,
+        name: item.asset.name,
+      });
+  }
+
+  return (
+    <div
+      className="flex items-center gap-4 cursor-pointer group"
+      onClick={playSong}
+    >
+      <div className="text-gray-500 w-6 text-right">{index}</div>
+      <div className="relative h-12 w-12 overflow-hidden rounded-md shadow-md">
+        <Image
+          src={item.asset.thumbnail}
+          layout="fill"
+          objectFit="cover"
+          alt={`${item.asset.code} cover`}
+          className="transition-transform duration-300 group-hover:scale-105"
+        />
+        <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-0 transition-all duration-300 group-hover:bg-opacity-50">
+          <PlayIcon className="h-6 w-6 text-white opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+        </div>
+      </div>
+      <div className="flex-grow min-w-0">
+        <p className="text-base font-medium text-gray-800 truncate">{item.asset.code}</p>
+        <p className="text-sm text-gray-600 truncate">{item.artist}</p>
+      </div>
+    </div>
+  );
+}
+

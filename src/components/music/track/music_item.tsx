@@ -13,10 +13,12 @@ export default function MusicItem({
   item,
   playable,
   index,
+  className,
 }: {
   item: SongItemType;
   playable?: boolean;
   index: number;
+  className?: string;
 }) {
   const trackUrlStore = usePlayerStore();
 
@@ -36,7 +38,9 @@ export default function MusicItem({
       className="group cursor-pointer space-y-2"
       onClick={playSong}
     >
-      <div className="relative aspect-square overflow-hidden rounded-md shadow-md">
+      <div className={clsx("relative aspect-square overflow-hidden rounded-md shadow-md", {
+        className
+      })}>
         <Image
           src={item.asset.thumbnail}
           layout="fill"

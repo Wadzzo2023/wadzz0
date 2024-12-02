@@ -25,6 +25,7 @@ export const albumRouter = createTRPCRouter({
             include: {
               asset: {
                 select: AssetSelectAllProperty,
+
               },
             },
           },

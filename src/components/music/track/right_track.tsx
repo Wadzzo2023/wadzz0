@@ -16,7 +16,9 @@ export default function RightTrackSection({
     return (
       <div>
         {songs.map((song, index) => (
-          <MusicItem key={song.id} item={song} playable={playable} index={index + 1} />
+          <MusicItem key={song.id} item={song} playable={playable} index={index + 1}
+            className="h-12 w-12"
+          />
         ))}
 
         <div className="flex flex-col gap-2"></div>
