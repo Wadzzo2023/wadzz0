@@ -4,12 +4,16 @@ import { MoreAssetsSkeleton } from "~/components/marketplace/platforms_nfts";
 import { api } from "~/utils/api";
 import ViewMediaModal from "../shop/asset_view_modal";
 import ShopAssetComponent from "../shop/shop_asset";
+import RedeeemPage from "~/components/redeem/creator-redeem";
 
 export default function Shop({ creator }: { creator?: Creator }) {
   return (
     <div className="my-7">
       <div className="fixed bottom-10 right-0 p-4 lg:bottom-0 lg:right-80">
         <NftCreate />
+      </div>
+      <div className="fixed bottom-24 right-0 p-4 lg:bottom-0 lg:right-[26rem]">
+        <RedeeemPage />
       </div>
       <AllShopItems />
     </div>

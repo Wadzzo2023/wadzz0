@@ -30,7 +30,7 @@ export const LeftNavigation = {
   Settings: { path: "/settings", icon: Settings2, text: "SETTINGS" },
 } as const;
 export const BottomNavigation = {
-  Claim: { path: "/maps/pins/my", icon: HomeIcon, text: "CLAIM" },
+  Claim: { path: "/claim-redeem", icon: HomeIcon, text: "REDEEM" },
 } as const;
 
 export default function LeftBar({ className }: { className?: string }) {
@@ -76,7 +76,7 @@ function NavigationButtons() {
           ),
         )}
       </div>
-      {/* <div className="flex   flex-col  gap-2">
+      <div className="flex   flex-col  gap-2">
         {Object.entries(BottomNavigation).map(
           ([key, { path, icon: Icon, text }]) => (
             <Link href={path} className="w-full " key={key}>
@@ -89,7 +89,7 @@ function NavigationButtons() {
             </Link>
           ),
         )}
-      </div> */}
+      </div>
     </div>
   );
 }

@@ -283,6 +283,8 @@ model User {
     BountyDoubtMessage       BountyDoubtMessage[]
 
     BountyWinner BountyWinner[]
+
+    RedeemConsumer RedeemConsumer[]
 }
 
 model VerificationToken {
@@ -372,6 +374,7 @@ model Asset {
     buyers        User_Asset[]
     marketItems   MarketAsset[]
     LocationGroup LocationGroup[]
+    Redeem        Redeem[]
 
     @@unique([code, issuer])
     @@index([name, description])
@@ -655,4 +658,23 @@ enum SubmissionViewType {
     ONREVIEW
     APPROVED
     REJECTED
+}
+
+// I want to add asset redeeming feature
+
+model Redeem {
+    code            String           @id
+    totalRedeemable Int
+    redeemConsumers RedeemConsumer[]
+    assetRedeemId   Int
+    assetRedeem     Asset            @relation(fields: [assetRedeemId], references: [id], onDelete: Cascade)
+}
+
+model RedeemConsumer {
+    id         Int      @id @default(autoincrement())
+    userId     String
+    user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+    code       String
+    redeemCode Redeem   @relation(fields: [code], references: [code], onDelete: Cascade)
+    redeemedAt DateTime @default(now())
 }
