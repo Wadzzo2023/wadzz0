@@ -1,14 +1,17 @@
 import { getAccSecret } from "package/connect_wallet";
-import { getAccSecretFromRubyApi } from "package/connect_wallet/src/lib/stellar/get-acc-secret";
 import { z } from "zod";
 import { CreatorAboutShema } from "~/components/fan/creator/about";
-import { createRedeemXDRAsset, createRedeemXDRNative } from "~/lib/stellar/fan/redeem";
+import {
+  createRedeemXDRAsset,
+  createRedeemXDRNative,
+} from "~/lib/stellar/fan/redeem";
 import { AccountSchema } from "~/lib/stellar/fan/utils";
 import { getAssetBalance } from "~/lib/stellar/marketplace/test/acc";
 import { SignUser } from "~/lib/stellar/utils";
 
 import {
   createTRPCRouter,
+  creatorProcedure,
   protectedProcedure,
   publicProcedure,
 } from "~/server/api/trpc";
@@ -278,15 +281,15 @@ export const creatorRouter = createTRPCRouter({
               redeemConsumers: {
                 select: {
                   id: true,
-                }
-              }
-            }
-          }
-        }
+                },
+              },
+            },
+          },
+        },
       });
-      const assetsWithRemaining = Asset.map(asset => ({
+      const assetsWithRemaining = Asset.map((asset) => ({
         ...asset,
-        Redeem: asset.Redeem.map(redeem => ({
+        Redeem: asset.Redeem.map((redeem) => ({
           ...redeem,
           remaining: redeem.totalRedeemable - redeem.redeemConsumers.length, // Calculate remaining redemptions
         })),
@@ -294,7 +297,13 @@ export const creatorRouter = createTRPCRouter({
       return assetsWithRemaining;
     }),
   generateRedeemCode: protectedProcedure
-    .input(z.object({ redeemCode: z.string(), assetId: z.number(), maxRedeems: z.number() }))
+    .input(
+      z.object({
+        redeemCode: z.string(),
+        assetId: z.number(),
+        maxRedeems: z.number(),
+      }),
+    )
     .mutation(async ({ input, ctx }) => {
       const { redeemCode, assetId, maxRedeems } = input;
       const creatorId = ctx.session.user.id;
@@ -321,69 +330,65 @@ export const creatorRouter = createTRPCRouter({
         data: {
           totalRedeemable: maxRedeems,
           code: redeemCode,
-          assetRedeemId: assetId
+          assetRedeemId: assetId,
         },
       });
       return { code: redeemCode };
     }),
 
-  getXDRForCreatorRedeem: protectedProcedure.input(z.object(
-    {
-      assetId: z.number(),
-      maxRedeems: z.number(),
-      redeemCode: z.string(),
-      signWith: SignUser,
-      paymentMethod: z.string().optional(),
-    }
-  )).mutation(async ({ input, ctx }) => {
+  getXDRForCreatorRedeem: creatorProcedure
+    .input(
+      z.object({
+        assetId: z.number(),
+        maxRedeems: z.number(),
+        redeemCode: z.string(),
+        signWith: SignUser,
+        paymentMethod: z.string().optional(),
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      const { assetId, maxRedeems, signWith, redeemCode, paymentMethod } =
+        input;
 
-    const { assetId, maxRedeems, signWith, redeemCode, paymentMethod } = input;
-    const creatorId = ctx.session.user.id;
-    const creator = await ctx.db.creator.findUnique({
-      where: { id: creatorId },
-      include: { pageAsset: true },
-    });
-    if (!creator) {
-      throw new Error("Creator not found");
-    }
-    const asset = await ctx.db.asset.findUnique({
-      where: { id: assetId },
-    });
-    if (!asset) {
-      throw new Error("Asset not found");
-    }
-    const findRedeem = await ctx.db.redeem.findUnique({
-      where: { code: redeemCode },
-    });
-    if (findRedeem) {
-      throw new Error("Redeem code founded!");
-    }
+      const creatorId = ctx.session.user.id;
 
-
-    if (paymentMethod === 'xlm') {
-      return await createRedeemXDRNative({
-        creatorId: creatorId,
-        assetCode: asset.code,
-        assetIssuer: asset.issuer,
-        maxRedeems,
-        signWith,
-
+      const creator = await ctx.db.creator.findUnique({
+        where: { id: creatorId },
+        include: { pageAsset: true },
       });
-    }
-    else if (paymentMethod === 'asset') {
-      return await createRedeemXDRAsset({
-        creatorId: creatorId,
-        assetCode: asset.code,
-        assetIssuer: asset.issuer,
-        maxRedeems,
-        signWith,
 
+      if (!creator) {
+        throw new Error("Creator not found");
+      }
+
+      const asset = await ctx.db.asset.findUnique({
+        where: { id: assetId },
       });
-    }
 
+      if (!asset) {
+        throw new Error("Asset not found");
+      }
 
-  }
-  ),
+      const findRedeem = await ctx.db.redeem.findUnique({
+        where: { code: redeemCode },
+      });
 
+      if (findRedeem) {
+        throw new Error("Redeem code founded!");
+      }
 
+      if (paymentMethod === "xlm") {
+        return await createRedeemXDRNative({
+          creatorId: creatorId,
+          maxRedeems,
+          signWith,
+        });
+      } else if (paymentMethod === "asset") {
+        return await createRedeemXDRAsset({
+          creatorId: creatorId,
+          maxRedeems,
+          signWith,
+        });
+      }
+    }),
 });

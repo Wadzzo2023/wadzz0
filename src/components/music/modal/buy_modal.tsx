@@ -13,7 +13,7 @@ import {
   DialogContent,
   DialogFooter,
 } from "~/components/shadcn/ui/dialog";
-import { Loader } from 'lucide-react';
+import { Loader } from "lucide-react";
 import Alert from "~/components/ui/alert";
 import useNeedSign from "~/lib/hook";
 import { useUserStellarAcc } from "~/lib/state/wallete/stellar-balances";
@@ -49,6 +49,7 @@ export default function BuyModal({
   const { code, issuer } = item;
   const { platformAssetBalance, active, getXLMBalance, balances, hasTrust } =
     useUserStellarAcc();
+
   const requiredFee = api.fan.trx.getRequiredPlatformAsset.useQuery({
     xlm: hasTrust(code, issuer) ? 0 : 0.5,
   });
@@ -250,7 +251,9 @@ function PaymentOptions({
 }
 type MethodDetailsProps = {
   paymentMethod?: PaymentMethod;
-  xdrMutation: ReturnType<typeof api.marketplace.steller.buyFromMarketPaymentXDR.useMutation>;
+  xdrMutation: ReturnType<
+    typeof api.marketplace.steller.buyFromMarketPaymentXDR.useMutation
+  >;
   requiredFee?: number;
   price: number;
   priceUSD: number;
@@ -309,15 +312,21 @@ export function MethodDetails({
             <div className="space-y-1">
               <div className="flex justify-between">
                 <span>Item Price:</span>
-                <span>{price} {PLATFORM_ASSET.code}</span>
+                <span>
+                  {price} {PLATFORM_ASSET.code}
+                </span>
               </div>
               <div className="flex justify-between">
                 <span>Fee:</span>
-                <span>{requiredFee} {PLATFORM_ASSET.code}</span>
+                <span>
+                  {requiredFee} {PLATFORM_ASSET.code}
+                </span>
               </div>
               <div className="flex justify-between font-semibold">
                 <span>Total:</span>
-                <span>{requiredAssetBalance} {PLATFORM_ASSET.code}</span>
+                <span>
+                  {requiredAssetBalance} {PLATFORM_ASSET.code}
+                </span>
               </div>
             </div>
           </div>
@@ -327,7 +336,9 @@ export function MethodDetails({
               className="w-full"
               onClick={onConfirmPayment}
             >
-              {submitLoading && <Loader className="mr-2 h-4 w-4 animate-spin" />}
+              {submitLoading && (
+                <Loader className="mr-2 h-4 w-4 animate-spin" />
+              )}
               Confirm Payment
             </Button>
           ) : (
@@ -366,7 +377,9 @@ export function MethodDetails({
               className="w-full"
               onClick={onConfirmPayment}
             >
-              {submitLoading && <Loader className="mr-2 h-4 w-4 animate-spin" />}
+              {submitLoading && (
+                <Loader className="mr-2 h-4 w-4 animate-spin" />
+              )}
               Confirm Payment
             </Button>
           ) : (
@@ -395,4 +408,3 @@ export function MethodDetails({
 
   return null;
 }
-
