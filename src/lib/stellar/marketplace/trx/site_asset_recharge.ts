@@ -5,7 +5,7 @@ import {
   Horizon,
   TransactionBuilder,
 } from "@stellar/stellar-sdk";
-import { STORAGE_SECRET } from "../SECRET";
+import { MOTHER_SECRET, STORAGE_SECRET } from "../SECRET";
 import { STELLAR_URL, PLATFORM_ASSET, networkPassphrase } from "../../constant";
 
 async function checkSiteAssetTrustLine(accPub: string) {
@@ -32,19 +32,16 @@ async function checkSiteAssetTrustLine(accPub: string) {
 export async function sendSiteAsset2pub(
   pubkey: string,
   siteAssetAmount: number,
-  // secret: string, // have secret means that the user don't have trust
 ) {
-  // 1. Create trustline - wadzzo
-  // 2. Send X amount - wadzzo
-
   const server = new Horizon.Server(STELLAR_URL);
 
-  const storageAcc = Keypair.fromSecret(STORAGE_SECRET);
-  // const userAcc = Keypair.fromSecret(secret);
+  const motherAcc = Keypair.fromSecret(MOTHER_SECRET);
 
-  const transactionInializer = await server.loadAccount(storageAcc.publicKey());
+  const transactionInitializer = await server.loadAccount(
+    motherAcc.publicKey(),
+  );
 
-  const balances = transactionInializer.balances;
+  const balances = transactionInitializer.balances;
   const trust = balances.find((balance) => {
     if (
       balance.asset_type === "credit_alphanum12" ||
@@ -59,31 +56,23 @@ export async function sendSiteAsset2pub(
     }
   });
 
-  if (!trust) throw new Error("No trustline for platform asset");
+  if (!trust) throw new Error("No trust line for platform asset");
 
-  // if (!hasWadzzoTrust) {
-  const Tx = new TransactionBuilder(transactionInializer, {
+  const Tx = new TransactionBuilder(transactionInitializer, {
     fee: BASE_FEE,
     networkPassphrase,
   })
-    .addOperation(
-      Operation.changeTrust({
-        asset: PLATFORM_ASSET,
-        source: pubkey,
-      }),
-    )
     .addOperation(
       Operation.payment({
         destination: pubkey,
         amount: siteAssetAmount.toString(), //copy,
         asset: PLATFORM_ASSET,
-        source: storageAcc.publicKey(),
       }),
     )
     .setTimeout(0)
     .build();
 
-  Tx.sign(storageAcc);
+  Tx.sign(motherAcc);
 
   return Tx.toXDR();
 }

@@ -56,11 +56,9 @@ export async function getAssetPrice(): Promise<number> {
     const response = await axios.get<PlatformAssetInfo>(
       `https://api.stellar.expert/explorer/public/asset/${PLATFORM_ASSET.code}-${PLATFORM_ASSET.issuer}`,
     );
-    // console.log(response.data);
 
     const platformAssetInfo = response.data;
     const price = platformAssetInfo.price;
-    console.log("price", price);
     return price ?? 0.00231;
   } catch (error) {
     console.error(`Error fetching ${PLATFORM_ASSET.code}  price:`, error);
@@ -68,7 +66,7 @@ export async function getAssetPrice(): Promise<number> {
   }
 }
 
-export async function getPlatfromAssetPrice() {
+export async function getPlatformAssetPrice() {
   if (env.NEXT_PUBLIC_STELLAR_PUBNET) return await getAssetPrice();
   else return 0.5;
 }
@@ -77,7 +75,7 @@ export async function getplatformAssetNumberForXLM(xlm = 1.5) {
   const xlmPrice = await getXLMPrice();
   if (PLATFORM_ASSET.code.toLocaleLowerCase() === "Wadzzo".toLocaleLowerCase())
     return Math.ceil(xlm * xlmPrice * 100);
-  const price = await getPlatfromAssetPrice();
+  const price = await getPlatformAssetPrice();
   return Math.ceil((xlm * xlmPrice) / price);
 }
 
