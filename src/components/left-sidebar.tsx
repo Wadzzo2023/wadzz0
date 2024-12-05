@@ -12,11 +12,11 @@ import Button from "./ui/button";
 
 export const LeftNavigation = {
   Home: { path: "/", icon: HomeIcon, text: "HOMEPAGE" },
-  WalletBalance: {
-    path: "/walletBalance",
-    icon: Wallet,
-    text: "MY WALLET",
-  },
+  // WalletBalance: {
+  //   path: "/walletBalance",
+  //   icon: Wallet,
+  //   text: "MY WALLET",
+  // },
   MyAssets: { path: "/assets", icon: Bell, text: "COLLECTION" },
   // Search: { path: "/search", icon: Search, text: "Search" },
   Music: { path: "/music", icon: Diamond, text: "MUSIC" },
@@ -81,7 +81,7 @@ function NavigationButtons() {
           ([key, { path, icon: Icon, text }]) => (
             <Link href={path} className="w-full " key={key}>
               <Button
-                className="mb-2  rounded-lg bg-gradient-to-br from-green-400 to-blue-600  text-center text-sm font-medium text-white hover:bg-gradient-to-bl focus:outline-none focus:ring-4 focus:ring-green-200 dark:focus:ring-green-800"
+                className="mb-2  rounded-lg bg-gradient-to-br from-yellow-400 to-blue-400  text-center text-sm font-medium text-white hover:bg-gradient-to-bl focus:outline-none focus:ring-4 focus:ring-green-200 dark:focus:ring-green-800"
                 path={path}
                 icon={<Icon className="h-5 w-5" />}
                 text={text}
