@@ -3,7 +3,7 @@ import {
   getAssetToUSDCRate,
   getPlatformAssetNumberForUSD,
   getPlatformTokenNumberForUSD,
-  getPlatfromAssetPrice,
+  getPlatformAssetPrice,
 } from "~/lib/stellar/fan/get_token_price";
 import { sendSiteAsset2pub } from "~/lib/stellar/marketplace/trx/site_asset_recharge";
 
@@ -123,7 +123,7 @@ export const payRouter = createTRPCRouter({
     }),
 
   getOffers: protectedProcedure.query(async ({ ctx }) => {
-    const tokenNumber = await getPlatfromAssetPrice();
+    const tokenNumber = await getPlatformAssetPrice();
 
     const offers = [4.99, 9.99, 19.99, 24.99, 49.99, 99.99].map((price) => {
       const num = Number((price / tokenNumber).toFixed(1));

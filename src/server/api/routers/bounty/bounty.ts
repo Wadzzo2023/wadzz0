@@ -9,10 +9,7 @@ import {
 import { getAccSecretFromRubyApi } from "package/connect_wallet/src/lib/stellar/get-acc-secret";
 import { z } from "zod";
 import { BountyCommentSchema } from "~/components/fan/creator/bounty/Add-Bounty-Comment";
-import {
-  sortOptionEnum,
-
-} from "~/components/fan/creator/bounty/BountyList";
+import { sortOptionEnum } from "~/components/fan/creator/bounty/BountyList";
 import { MediaInfo } from "~/components/fan/creator/bounty/CreateBounty";
 import {
   checkXDRSubmitted,
@@ -30,7 +27,7 @@ import {
   getAssetPrice,
   getAssetToUSDCRate,
   getplatformAssetNumberForXLM,
-  getPlatfromAssetPrice,
+  getPlatformAssetPrice,
 } from "~/lib/stellar/fan/get_token_price";
 import { SignUser } from "~/lib/stellar/utils";
 import {
@@ -188,7 +185,6 @@ export const BountyRoute = createTRPCRouter({
             { description: { contains: search, mode: "insensitive" } },
           ],
         }),
-
       };
 
       const bounties = await ctx.db.bounty.findMany({
@@ -331,7 +327,6 @@ export const BountyRoute = createTRPCRouter({
         skip: z.number().optional(),
         search: z.string().optional(),
         sortBy: z.nativeEnum(sortOptionEnum).optional(),
-
       }),
     )
     .query(async ({ input, ctx }) => {
@@ -356,7 +351,6 @@ export const BountyRoute = createTRPCRouter({
             { description: { contains: search, mode: "insensitive" } },
           ],
         }),
-
       };
 
       const bounties = await ctx.db.bounty.findMany({
@@ -510,10 +504,10 @@ export const BountyRoute = createTRPCRouter({
           bountyId: input.BountyId,
           medias: input.medias
             ? {
-              createMany: {
-                data: input.medias,
-              },
-            }
+                createMany: {
+                  data: input.medias,
+                },
+              }
             : undefined,
         },
       });
@@ -568,11 +562,11 @@ export const BountyRoute = createTRPCRouter({
             createMany: {
               data: input.medias
                 ? input.medias.map((media) => ({
-                  url: media.url,
-                  name: media.name,
-                  size: media.size,
-                  type: media.type,
-                }))
+                    url: media.url,
+                    name: media.name,
+                    size: media.size,
+                    type: media.type,
+                  }))
                 : [],
             },
           },
@@ -663,7 +657,7 @@ export const BountyRoute = createTRPCRouter({
       });
     }),
   getCurrentUSDFromAsset: protectedProcedure.query(async ({ ctx }) => {
-    return await getPlatfromAssetPrice();
+    return await getPlatformAssetPrice();
   }),
   getPlatformAsset: protectedProcedure.query(async ({ ctx }) => {
     return await getAssetPrice();
@@ -901,7 +895,7 @@ export const BountyRoute = createTRPCRouter({
       }),
     )
     .mutation(async ({ input, ctx }) => {
-      console.log("data", input)
+      console.log("data", input);
       const bounty = await ctx.db.bounty.findUnique({
         where: {
           id: input.BountyId,

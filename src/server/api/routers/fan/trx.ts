@@ -6,7 +6,7 @@ import {
 } from "~/lib/stellar/fan/clawback";
 import { createAsset } from "~/lib/stellar/fan/create_asset";
 import {
-  getPlatfromAssetPrice,
+  getPlatformAssetPrice,
   getplatformAssetNumberForXLM,
 } from "~/lib/stellar/fan/get_token_price";
 import { getClawbackAsPayment } from "~/lib/stellar/fan/subscribe";
@@ -222,7 +222,7 @@ export const trxRouter = createTRPCRouter({
   }),
 
   getAssetPrice: publicProcedure.query(async () => {
-    return await getPlatfromAssetPrice();
+    return await getPlatformAssetPrice();
   }),
 
   getAssetNumberforXlm: publicProcedure

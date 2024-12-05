@@ -81,9 +81,6 @@ function SiteAssetBuy() {
   const [selectedIdx, setSelection] = useState<number>(() => 0);
   const offersQ = api.marketplace.pay.getOffers.useQuery();
 
-  const { data } = api.bounty.Bounty.getCurrentUSDFromAsset.useQuery();
-  console.log("data", data);
-
   const xdrMutation = api.marketplace.pay.getRechargeXDR.useMutation({
     onSuccess: (data) => {
       setXDR(data);
