@@ -18,7 +18,7 @@ import {
 import { Label } from "~/components/shadcn/ui/label";
 import { Input } from "~/components/shadcn/ui/input";
 import { Button } from "~/components/shadcn/ui/button";
-import { Loader2 } from "lucide-react";
+import { Loader2, Pen } from "lucide-react";
 type PlaceMarketModalProps = {
   content: ReactNode;
   item: MarketAssetType;
@@ -60,13 +60,7 @@ export default function ViewMediaModal({
             />
           </div>
 
-          <div className="modal-action mt-2  pt-2">
-            <form method="dialog">
-              <button className="btn" onClick={() => handleClose()}>
-                Close
-              </button>
-            </form>
-          </div>
+
         </div>
       </dialog>
 
@@ -103,8 +97,8 @@ function EditItem({
   }
   function ToggleButton() {
     return (
-      <button className="btn-cirlce btn" onClick={handleEdit}>
-        {editing ? "Cancel" : "Edit"}
+      <button className="btn-cirlce btn w-full m-2" onClick={handleEdit}>
+        {editing ? "Cancel" : <span className="flex items-center gap-2">Edit <Pen size={15} /></span>}
       </button>
     );
   }
@@ -112,15 +106,9 @@ function EditItem({
 
 export const updateAssetFormShema = z.object({
   assetId: z.number(),
-  price: z.number({
-    required_error: "Price  must be a number",
-    invalid_type_error: "Price must be a number",
-  }).nonnegative(),
+  price: z.number().nonnegative(),
 
-  priceUSD: z.number({
-    required_error: "Prize  must be a number",
-    invalid_type_error: "Prize must be a number",
-  }).nonnegative(),
+  priceUSD: z.number().nonnegative(),
 });
 
 function EditForm({
@@ -159,7 +147,7 @@ function EditForm({
   };
 
   return (
-    <Card className="mx-auto w-full max-w-md">
+    <Card className=" w-full ">
       <CardHeader>
         <CardTitle className="text-center text-2xl font-bold">
           Edit Asset
