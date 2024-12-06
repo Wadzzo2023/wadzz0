@@ -29,20 +29,20 @@ export const useAudio = () => {
                 if (isPlaying) {
                     audioRef.current.play()
                     audioRef.current.addEventListener('timeupdate', () => {
-                        setCurrentTime(audioRef.current?.currentTime || 0)
+                        setCurrentTime(audioRef.current?.currentTime ?? 0)
                     })
                     audioRef.current.addEventListener('loadedmetadata', () => {
-                        setDuration(audioRef.current?.duration || 0)
+                        setDuration(audioRef.current?.duration ?? 0)
                     })
                 }
             } else {
                 audioRef.current = new Audio(currentTrack.asset.mediaUrl)
                 audioRef.current.addEventListener('ended', () => setIsPlaying(false))
                 audioRef.current.addEventListener('timeupdate', () => {
-                    setCurrentTime(audioRef.current?.currentTime || 0)
+                    setCurrentTime(audioRef.current?.currentTime ?? 0)
                 })
                 audioRef.current.addEventListener('loadedmetadata', () => {
-                    setDuration(audioRef.current?.duration || 0)
+                    setDuration(audioRef.current?.duration ?? 0)
                 })
             }
         }
@@ -51,10 +51,10 @@ export const useAudio = () => {
                 audioRef.current.pause()
                 audioRef.current.removeEventListener('ended', () => setIsPlaying(false))
                 audioRef.current.removeEventListener('timeupdate', () => {
-                    setCurrentTime(audioRef.current?.currentTime || 0)
+                    setCurrentTime(audioRef.current?.currentTime ?? 0)
                 })
                 audioRef.current.removeEventListener('loadedmetadata', () => {
-                    setDuration(audioRef.current?.duration || 0)
+                    setDuration(audioRef.current?.duration ?? 0)
                 })
             }
         }
