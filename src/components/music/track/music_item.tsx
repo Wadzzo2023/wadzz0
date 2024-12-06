@@ -5,7 +5,8 @@ import { AssetType } from "~/components/marketplace/market_right";
 import { usePlayerStore } from "~/lib/state/music/track";
 import { PlayOrBuy } from "../album/table";
 import { AssetBadge } from "./asset_badge";
-import { PlayIcon } from "lucide-react";
+import { Pause, PlayIcon } from "lucide-react";
+import { usePlayer } from "~/components/context/PlayerContext";
 
 export type SongItemType = Song & { asset: AssetType };
 
@@ -21,16 +22,18 @@ export default function MusicItem({
   className?: string;
 }) {
   const trackUrlStore = usePlayerStore();
+  const { setCurrentTrack, currentTrack, isPlaying } = usePlayer()
 
   function playSong() {
     if (playable)
-      trackUrlStore.setNewTrack({
-        artist: item.artist,
-        code: item.asset.code,
-        thumbnail: item.asset.thumbnail,
-        mediaUrl: item.asset.mediaUrl,
-        name: item.asset.name,
-      });
+      setCurrentTrack(item)
+    trackUrlStore.setNewTrack({
+      artist: item.artist,
+      code: item.asset.code,
+      thumbnail: item.asset.thumbnail,
+      mediaUrl: item.asset.mediaUrl,
+      name: item.asset.name,
+    });
   }
 
   return (
@@ -49,7 +52,11 @@ export default function MusicItem({
           className="transition-transform duration-300 group-hover:scale-105"
         />
         <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-0 transition-all duration-300 group-hover:bg-opacity-50">
-          <PlayIcon className="h-12 w-12 text-blue-600 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+          {
+            currentTrack?.id === item.id && isPlaying ? (
+              <Pause className="h-10 w-10" />) : <PlayIcon className="h-10 w-10" />
+
+          }
         </div>
       </div>
       <div>

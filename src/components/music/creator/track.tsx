@@ -3,6 +3,7 @@ import { PlayIcon } from "@heroicons/react/24/solid";
 import { TrackItemType, usePlayerStore } from "~/lib/state/music/track";
 import { AssetType } from "~/components/marketplace/market_right";
 import { ReactNode } from "react";
+import { usePlayer } from "~/components/context/PlayerContext";
 
 function CreatorTrack({
   item,
@@ -18,9 +19,11 @@ function CreatorTrack({
   index: number;
 }) {
   const trackUrlStore = usePlayerStore();
-
+  const { setCurrentTrack } = usePlayer()
   function playSong() {
-    if (playable) trackUrlStore.setNewTrack(item);
+    if (playable) {
+      trackUrlStore.setNewTrack(item)
+    }
   }
 
   return (

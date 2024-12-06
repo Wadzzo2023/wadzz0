@@ -3,12 +3,14 @@ import { api } from "~/utils/api";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "~/components/shadcn/ui/table";
 import { Skeleton } from "~/components/shadcn/ui/skeleton";
 import { Button } from "~/components/shadcn/ui/button";
-import { Play, PlayIcon } from "lucide-react";
+import { Pause, Play, PlayIcon } from "lucide-react";
 import BuyModal from "../modal/buy_modal";
 import { Song } from "@prisma/client";
 import { AssetType } from "@stellar/stellar-sdk";
 import Image from "next/image";
 import { SongItemType } from "../track/music_item";
+import { useAudio } from "~/components/hooks/useAudio";
+import { usePlayer } from "~/components/context/PlayerContext";
 
 
 export default function SongList({
@@ -85,8 +87,9 @@ export function DeleteSongButton({ songId }: { songId: number }) {
 
 export function PlayOrBuy({ song }: { song: SongItemType }) {
   const trackUrlStore = usePlayerStore();
+  const { currentTrack, isPlaying } = usePlayer()
   const userAssets = api.wallate.acc.getAccountInfo.useQuery();
-
+  const { setCurrentTrack, setIsPlaying } = usePlayer()
   if (userAssets.isLoading) return <Skeleton className="h-9 w-20" />;
 
   if (
@@ -99,6 +102,8 @@ export function PlayOrBuy({ song }: { song: SongItemType }) {
         variant="ghost"
         size="sm"
         onClick={() => {
+
+          setCurrentTrack(song)
           trackUrlStore.setNewTrack({
             artist: song.artist,
             mediaUrl: song.asset.mediaUrl,
@@ -108,7 +113,11 @@ export function PlayOrBuy({ song }: { song: SongItemType }) {
           });
         }}
       >
-        <Play className="h-4 w-4" />
+        {
+          currentTrack?.id === song.id && isPlaying ? (
+            <Pause className="h-6 w-6" />) : <Play className="h-6 w-6" />
+
+        }
       </Button>
     );
   } else {
@@ -136,9 +145,11 @@ export function MusicItem({
   index: number;
 }) {
   const trackUrlStore = usePlayerStore();
+  const { setCurrentTrack, currentTrack, isPlaying, setIsPlaying } = usePlayer()
+  const playSong = () => {
 
-  function playSong() {
-    if (playable)
+    if (playable) {
+
       trackUrlStore.setNewTrack({
         artist: item.artist,
         code: item.asset.code,
@@ -146,12 +157,15 @@ export function MusicItem({
         mediaUrl: item.asset.mediaUrl,
         name: item.asset.name,
       });
+      setCurrentTrack(item)
+    }
+
   }
 
   return (
     <div
       className="flex items-center gap-4 cursor-pointer group"
-      onClick={playSong}
+      onClick={() => playSong()}
     >
       <div className="text-gray-500 w-6 text-right">{index}</div>
       <div className="relative h-12 w-12 overflow-hidden rounded-md shadow-md">
@@ -163,14 +177,18 @@ export function MusicItem({
           className="transition-transform duration-300 group-hover:scale-105"
         />
         <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-0 transition-all duration-300 group-hover:bg-opacity-50">
-          <PlayIcon className="h-6 w-6 text-white opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+          {
+            currentTrack?.id === item.id && isPlaying ? (
+              <Pause className="h-8 w-8" />) : <Play className="h-8 w-8" />
+
+          }
         </div>
       </div>
       <div className="flex-grow min-w-0">
         <p className="text-base font-medium text-gray-800 truncate">{item.asset.code}</p>
         <p className="text-sm text-gray-600 truncate">{item.artist}</p>
       </div>
-    </div>
+    </div >
   );
 }
 
