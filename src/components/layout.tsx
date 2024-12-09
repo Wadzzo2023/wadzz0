@@ -19,6 +19,7 @@ import {
   CardTitle,
   CardDescription,
 } from "~/components/shadcn/ui/card";
+import Script from "next/script";
 
 const RightDialog = dynamic(async () => await import("./right_dialog"));
 const ConnectWalletButton = dynamic(
@@ -107,15 +108,15 @@ export default function Layout({
                 style={
                   router.pathname.includes("/fans/creator") && creator.data
                     ? {
-                      background: `url("${creator.data.backgroundSVG}")`,
-                      backgroundSize: "10%",
-                      animation: "pan 135s linear infinite",
-                    }
+                        background: `url("${creator.data.backgroundSVG}")`,
+                        backgroundSize: "10%",
+                        animation: "pan 135s linear infinite",
+                      }
                     : {
-                      background: `url("images/guitar.svg")`,
-                      backgroundSize: "10%",
-                      animation: "pan 135s linear infinite",
-                    }
+                        background: `url("images/guitar.svg")`,
+                        backgroundSize: "10%",
+                        animation: "pan 135s linear infinite",
+                      }
                 }
               >
                 <div className=" h-full overflow-y-auto bg-base-100/80 scrollbar-hide">
