@@ -20,6 +20,9 @@ import {
   CardDescription,
 } from "~/components/shadcn/ui/card";
 import Script from "next/script";
+import { PlayerProvider } from "./context/PlayerContext";
+import { Player } from "./Player";
+import { PlayerToggle } from "./playerToggle";
 
 const RightDialog = dynamic(async () => await import("./right_dialog"));
 const ConnectWalletButton = dynamic(
@@ -42,6 +45,7 @@ export default function Layout({
 }) {
   const session = useSession();
   const router = useRouter();
+  const isMusicRoute = router.pathname.startsWith("/music");
 
   // if (router.pathname.includes("/maps")) {
   //   return (
@@ -74,7 +78,7 @@ export default function Layout({
           <div className="flex h-screen items-center justify-center bg-gray-100">
             <Card className="w-[350px]">
               <CardHeader>
-                <CardTitle>Welcome to WadzzoAR</CardTitle>
+                <CardTitle>Welcome to Bandcoin</CardTitle>
                 <CardDescription>
                   Please login/signup to continue
                 </CardDescription>
@@ -96,60 +100,64 @@ export default function Layout({
         enableSystem
         disableTransitionOnChange
       >
-        <div className={clsx(" flex h-screen w-full flex-col", className)}>
-          <Header />
+        <PlayerProvider>
+          <div className={clsx(" flex h-screen w-full flex-col", className)}>
+            <Header />
 
-          <div className="flex-1 overflow-auto bg-base-100/50">
-            <div className="flex h-full border-t-2">
-              <LeftBar className="hidden xl:flex" />
-              <div
-                id="ih"
-                className="flex-1 border-x-2"
-                style={
-                  router.pathname.includes("/fans/creator") && creator.data
-                    ? {
-                        background: `url("${creator.data.backgroundSVG}")`,
-                        backgroundSize: "10%",
-                        animation: "pan 135s linear infinite",
-                      }
-                    : {
-                        background: `url("images/guitar.svg")`,
-                        backgroundSize: "10%",
-                        animation: "pan 135s linear infinite",
-                      }
-                }
-              >
-                <div className=" h-full overflow-y-auto bg-base-100/80 scrollbar-hide">
-                  {session.status == "authenticated" ? (
-                    <>
-                      <ModalProvider />
-                      <PlayModalProvider />
-                      {children}
-                    </>
-                  ) : (
-                    <div className="flex h-full items-center justify-center">
-                      <ConnectWalletButton />
-                    </div>
-                  )}
-                  <div className="h-44 " />
-                  {/* <BottomNav /> */}
+            <div className="flex-1 overflow-auto bg-base-100/50">
+              <div className="flex h-full border-t-2">
+                <LeftBar className="hidden xl:flex" />
+                <div
+                  id="ih"
+                  className="flex-1 border-x-2"
+                  style={
+                    router.pathname.includes("/fans/creator") && creator.data
+                      ? {
+                          background: `url("${creator.data.backgroundSVG}")`,
+                          backgroundSize: "10%",
+                          animation: "pan 135s linear infinite",
+                        }
+                      : {
+                          background: `url("images/guitar.svg")`,
+                          backgroundSize: "10%",
+                          animation: "pan 135s linear infinite",
+                        }
+                  }
+                >
+                  <div className=" h-full overflow-y-auto bg-base-100/80 scrollbar-hide">
+                    {session.status == "authenticated" ? (
+                      <>
+                        <ModalProvider />
+                        <PlayModalProvider />
+                        {children}
+                      </>
+                    ) : (
+                      <div className="flex h-full items-center justify-center">
+                        <ConnectWalletButton />
+                      </div>
+                    )}
+                    <div className="h-44 " />
+                    {/* <BottomNav /> */}
+                  </div>
                 </div>
-              </div>
 
-              {router.pathname !== "/walletBalance" &&
-                router.pathname !== "/notification" &&
-                router.pathname !== "/bounty/[id]" &&
-                router.pathname !== "/settings" &&
-                router.pathname !== "/about" &&
-                router.pathname !== "/support" &&
-                router.pathname !== "/privacy" &&
-                session.status == "authenticated" && <RightSideBar />}
+                {router.pathname !== "/walletBalance" &&
+                  router.pathname !== "/notification" &&
+                  router.pathname !== "/bounty/[id]" &&
+                  router.pathname !== "/settings" &&
+                  router.pathname !== "/about" &&
+                  router.pathname !== "/support" &&
+                  router.pathname !== "/privacy" &&
+                  session.status == "authenticated" && <RightSideBar />}
+              </div>
             </div>
+            <RightDialog />
+            <Player />
+            {/* <BottomPlayerContainer /> */}
+            <Toaster />
           </div>
-          <RightDialog />
-          <BottomPlayerContainer />
-          <Toaster />
-        </div>
+          {isMusicRoute && <PlayerToggle />}
+        </PlayerProvider>
       </ThemeProvider>
     </>
   );

@@ -46,6 +46,7 @@ const ClaimPage = () => {
     },
     onError: (error) => {
       toast.error(error.message);
+      setLoading(false);
     },
   });
 
@@ -81,6 +82,7 @@ const ClaimPage = () => {
     },
     onError: (error) => {
       toast.error(error.message);
+      setLoading(false);
     },
   });
 

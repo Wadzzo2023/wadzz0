@@ -9,8 +9,9 @@ import log from "~/lib/logger/logger";
 import { api } from "~/utils/api";
 import { AlbumSkeleton } from "..";
 import Image from "next/image";
-import { format } from "date-fns";
+import { format, set } from "date-fns";
 import { Skeleton } from "~/components/shadcn/ui/skeleton";
+import { usePlayer } from "~/components/context/PlayerContext";
 
 export default function AlbumPageWrapper() {
   const router = useRouter();
@@ -33,7 +34,6 @@ export default function AlbumPageWrapper() {
 }
 export function AlbumPage({ albumId }: { albumId: number }) {
   const { status } = useSession();
-
   const album = api.music.album.getById.useQuery({ albumId });
 
   const logicalRender = () => {

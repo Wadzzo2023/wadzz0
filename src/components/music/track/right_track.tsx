@@ -1,6 +1,7 @@
 import { api } from "~/utils/api";
 import { MusicItem } from ".";
 import { SongItemType } from "./music_item";
+import { usePlayer } from "~/components/context/PlayerContext";
 
 type TrackSectionProp = {
   songs: SongItemType[];
@@ -12,7 +13,10 @@ export default function RightTrackSection({
   playable,
   songs,
 }: TrackSectionProp) {
+  // const { setPlaylist } = usePlayer()
+
   if (songs)
+    // setPlaylist(songs)
     return (
       <div>
         {songs.map((song, index) => (
