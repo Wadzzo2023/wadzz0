@@ -19,6 +19,7 @@ import {
   CardTitle,
   CardDescription,
 } from "~/components/shadcn/ui/card";
+import Script from "next/script";
 import { PlayerProvider } from "./context/PlayerContext";
 import { Player } from "./Player";
 import { PlayerToggle } from "./playerToggle";
@@ -77,7 +78,7 @@ export default function Layout({
           <div className="flex h-screen items-center justify-center bg-gray-100">
             <Card className="w-[350px]">
               <CardHeader>
-                <CardTitle>Welcome to WadzzoAR</CardTitle>
+                <CardTitle>Welcome to Bandcoin</CardTitle>
                 <CardDescription>
                   Please login/signup to continue
                 </CardDescription>
@@ -112,15 +113,15 @@ export default function Layout({
                   style={
                     router.pathname.includes("/fans/creator") && creator.data
                       ? {
-                        background: `url("${creator.data.backgroundSVG}")`,
-                        backgroundSize: "10%",
-                        animation: "pan 135s linear infinite",
-                      }
+                          background: `url("${creator.data.backgroundSVG}")`,
+                          backgroundSize: "10%",
+                          animation: "pan 135s linear infinite",
+                        }
                       : {
-                        background: `url("images/guitar.svg")`,
-                        backgroundSize: "10%",
-                        animation: "pan 135s linear infinite",
-                      }
+                          background: `url("images/guitar.svg")`,
+                          backgroundSize: "10%",
+                          animation: "pan 135s linear infinite",
+                        }
                   }
                 >
                   <div className=" h-full overflow-y-auto bg-base-100/80 scrollbar-hide">
