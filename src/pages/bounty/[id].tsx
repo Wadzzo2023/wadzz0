@@ -74,7 +74,7 @@ import { useSession } from "next-auth/react";
 
 import { api } from "~/utils/api";
 
-import { SubmissionViewType, UserRole } from "@prisma/client";
+import { BountySubmission, SubmissionViewType, UserRole } from "@prisma/client";
 import { clientsign, WalletType } from "package/connect_wallet";
 import Chat from "~/components/fan/creator/bounty/Chat";
 import { Input } from "~/components/shadcn/ui/input";
@@ -759,6 +759,7 @@ const AdminBountyPage = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isDialogOpenWinner, setIsDialogOpenWinner] = useState(false);
   const { id } = router.query;
+  const [selectedSubmission, setSelectedSubmission] = useState<BountySubmission | null>(null);
   console.log(id);
   const { data } = api.bounty.Bounty.getBountyByID.useQuery({
     BountyId: Number(id),
@@ -864,7 +865,7 @@ const AdminBountyPage = () => {
       status: status,
     });
   };
-
+  console.log("Submission", allSubmission);
   if (data)
     return (
       <div className=" ">
@@ -970,111 +971,118 @@ const AdminBountyPage = () => {
                             <Preview value={submission.content} />
                           )}
                         </div>
+                        <div className="flex items-start justify-between">
+                          <Button
+                            onClick={() => {
+                              setIsDialogOpenWinner(true);
+                              setSelectedSubmission(submission);
 
-                        <div className="flex flex-col gap-2">
-                          <div className="">
-                            <Dialog
-                              open={isDialogOpenWinner}
-                              onOpenChange={setIsDialogOpenWinner}
-                            >
-                              <div className="flex items-start justify-between">
-                                <DialogTrigger asChild>
-                                  <Button
-                                    disabled={
-                                      loadingBountyId === data.id ||
-                                      data.totalWinner ===
-                                      data._count.BountyWinner ||
-                                      data.BountyWinner.some(
-                                        (winner) =>
-                                          winner.user.id ===
-                                          submission.user.name,
-                                      ) ||
-                                      GetSendBalanceToWinnerXdr.isLoading
-                                    }
-                                    className=" me-2  bg-purple-100 px-2.5 py-0.5 text-xs font-medium text-purple-800 dark:bg-purple-900 dark:text-purple-300 "
-                                    variant="outline"
-                                  >
-                                    <Crown size={16} className="mr-2" /> MARK AS
-                                    WINNER
-                                  </Button>
-                                </DialogTrigger>
-                                <Button
-                                  className="  "
-                                  onClick={() => {
-                                    updateSubmissionStatus(
-                                      data.creatorId,
-                                      submission.id,
-                                      "CHECKED",
-                                    ),
-                                      onOpen("view attachment", {
-                                        attachment: submission.medias,
-                                      });
-                                  }}
-                                  variant="outline"
-                                >
-                                  <Paperclip size={16} className="mr-2" /> View
-                                  Attachment
-                                </Button>
-                              </div>
-                              <DialogContent className="sm:max-w-[425px]">
-                                <DialogHeader>
-                                  <DialogTitle>Confirmation </DialogTitle>
-                                </DialogHeader>
-                                <div className="mt-6 w-full space-y-6 sm:mt-8 lg:mt-0 lg:max-w-xs xl:max-w-md">
-                                  <div className="flow-root">
-                                    Do you want to make {submission.user.name}{" "}
-                                    as a winner? This action can{"'t"} be
-                                    undone.
-                                  </div>
-                                </div>
-                                <DialogFooter className=" w-full">
-                                  <div className="flex w-full gap-4  ">
-                                    <DialogClose className="w-full">
-                                      <Button
-                                        variant="outline"
-                                        className="w-full"
-                                      >
-                                        Cancel
-                                      </Button>
-                                    </DialogClose>
-                                    <Button
-                                      disabled={
-                                        loadingBountyId === data.id ||
-                                        data.totalWinner ===
-                                        data._count.BountyWinner ||
-                                        data.BountyWinner.some(
-                                          (winner) =>
-                                            winner.user.id ===
-                                            submission.user.name,
-                                        ) ||
-                                        GetSendBalanceToWinnerXdr.isLoading
-                                      }
-                                      variant="destructive"
-                                      type="submit"
-                                      onClick={() =>
-                                        handleWinner(
-                                          data.id,
-                                          submission.userId,
-                                          data.priceInBand,
-                                        )
-                                      }
-                                      className="w-full"
-                                    >
-                                      Confirm
-                                    </Button>
-                                  </div>
-                                </DialogFooter>
-                              </DialogContent>
-                            </Dialog>
-                          </div>
+                            }}
+                            disabled={
+                              loadingBountyId === data.id ||
+                              data.totalWinner ===
+                              data._count.BountyWinner ||
+                              data.BountyWinner.some(
+                                (winner) =>
+                                  winner.user.id ===
+                                  submission.user.id,
+                              ) ||
+                              GetSendBalanceToWinnerXdr.isLoading
+                            }
+                            className=" me-2  bg-purple-100 px-2.5 py-0.5 text-xs font-medium text-purple-800 dark:bg-purple-900 dark:text-purple-300 "
+                            variant="outline"
+                          >
+                            <Crown size={16} className="mr-2" /> MARK AS
+                            WINNER
+                          </Button>
+                          <Button
+                            className="  "
+                            onClick={() => {
+                              updateSubmissionStatus(
+                                data.creatorId,
+                                submission.id,
+                                "CHECKED",
+                              ),
+                                onOpen("view attachment", {
+                                  attachment: submission.medias,
+                                });
+                            }}
+                            variant="outline"
+                          >
+                            <Paperclip size={16} className="mr-2" /> View
+                            Attachment
+                          </Button>
                         </div>
+                        {
+                          selectedSubmission && (
+                            <div className="flex flex-col gap-2">
+                              <div className="">
+                                <Dialog
+                                  open={isDialogOpenWinner}
+                                  onOpenChange={setIsDialogOpenWinner}
+                                >
+
+                                  <DialogContent className="sm:max-w-[425px]">
+                                    <DialogHeader>
+                                      <DialogTitle>Confirmation </DialogTitle>
+                                    </DialogHeader>
+                                    <div className="mt-6 w-full space-y-6 sm:mt-8 lg:mt-0 lg:max-w-xs xl:max-w-md">
+                                      <div className="flow-root">
+                                        Do you want to make {addrShort(selectedSubmission.userId, 6)}{" "}
+                                        as a winner? This action can{"'t"} be
+                                        undone.
+                                      </div>
+                                    </div>
+                                    <DialogFooter className=" w-full">
+                                      <div className="flex w-full gap-4  ">
+                                        <DialogClose className="w-full">
+                                          <Button
+                                            variant="outline"
+                                            className="w-full"
+                                          >
+                                            Cancel
+                                          </Button>
+                                        </DialogClose>
+                                        <Button
+                                          disabled={
+                                            loadingBountyId === data.id ||
+                                            data.totalWinner ===
+                                            data._count.BountyWinner ||
+                                            data.BountyWinner.some(
+                                              (winner) =>
+                                                winner.user.id ===
+                                                selectedSubmission.userId,
+                                            ) ||
+                                            GetSendBalanceToWinnerXdr.isLoading
+                                          }
+                                          variant="destructive"
+                                          type="submit"
+                                          onClick={() =>
+                                            handleWinner(
+                                              data.id,
+                                              selectedSubmission.userId,
+                                              data.priceInBand,
+                                            )
+                                          }
+                                          className="w-full"
+                                        >
+                                          Confirm
+                                        </Button>
+                                      </div>
+                                    </DialogFooter>
+                                  </DialogContent>
+                                </Dialog>
+                              </div>
+                            </div>
+                          )
+                        }
                       </div>
                     </div>
                   ))}
                 </div>
-              </TabsContent>{" "}
+              </TabsContent>
               <TabsContent value="doubt" className=" m-0 h-full  w-full p-0">
-                {" "}
+
                 <Chat bountyId={data.id} />
               </TabsContent>
               <TabsContent value="comments" className="mt-4">

@@ -130,10 +130,7 @@ function App() {
   const [loading, setLoading] = useState<boolean>(false);
   const [RangedPins, setRangedPins] = useState<Pin[]>([]);
   const [isCordsSearch, setIsCordsSearch] = useState<boolean>(false);
-  const [searchCoordinates, setSearchCoordinates] = useState<google.maps.LatLngLiteral>({
-    lat: 22.54992,
-    lng: 0,
-  });
+  const [searchCoordinates, setSearchCoordinates] = useState<google.maps.LatLngLiteral>();
 
   const {
     selectedPlace: alreadySelectedPlace,
@@ -218,6 +215,7 @@ function App() {
         setCordSearchLocation={setCordSearchLocation}
       />
       <Map
+
         onCenterChanged={(center) => {
           setMapCenter(center.detail.center);
           setCenterChanged(center.detail.bounds); // Update the centerChanged state with new bounds
@@ -227,9 +225,11 @@ function App() {
         }}
         onClick={handleMapClick}
         mapId={"bf51eea910020fa25a"}
-        style={{ height: "100vh" }}
+        className="h-screen w-full"
+
         defaultCenter={{ lat: 22.54992, lng: 0 }}
         defaultZoom={3}
+        minZoom={2}
         zoom={mapZoom}
         center={mapCenter}
         gestureHandling={"greedy"}

@@ -3,10 +3,7 @@ import { useSession } from "next-auth/react";
 import { ReactNode, useRef, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { z } from "zod";
-import {
-  AssetDetails,
-  MarketAssetType,
-} from "~/components/marketplace/market_right";
+
 import { PLATFORM_ASSET } from "~/lib/stellar/constant";
 import { api } from "~/utils/api";
 import {
@@ -19,6 +16,7 @@ import { Label } from "~/components/shadcn/ui/label";
 import { Input } from "~/components/shadcn/ui/input";
 import { Button } from "~/components/shadcn/ui/button";
 import { Loader2, Pen } from "lucide-react";
+import { MarketAssetType, useModal } from "~/lib/state/play/use-modal-store";
 type PlaceMarketModalProps = {
   content: ReactNode;
   item: MarketAssetType;
@@ -29,7 +27,7 @@ export default function ViewMediaModal({
 }: PlaceMarketModalProps) {
   const modal = useRef<HTMLDialogElement>(null);
   const [editing, setEditing] = useState(false);
-
+  const { onOpen } = useModal();
   function handleClose() {
     modal.current?.close();
   }
@@ -50,14 +48,18 @@ export default function ViewMediaModal({
               ✕
             </button>
           </form>
-          <div>
-            {!editing && <AssetDetails currentData={item} />}
-            <EditItem
+          <div
+            onClick={() => onOpen("creator asset info", {
+              creatorStoreAsset: item
+            })}
+          >
+            {/* {!editing && <AssetDetails currentData={item} />} */}
+            {/* <EditItem
               editing={editing}
               handleEdit={() => setEditing(!editing)}
               item={item}
               closeModal={handleClose} // Pass the closeModal function
-            />
+            /> */}
           </div>
 
 

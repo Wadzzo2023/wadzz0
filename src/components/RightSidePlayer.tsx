@@ -5,6 +5,7 @@ import { usePlayer } from './context/PlayerContext'
 import { useAudio } from './hooks/useAudio'
 import { Button } from './shadcn/ui/button'
 import { Slider } from './shadcn/ui/slider'
+import Image from 'next/image'
 
 const formatTime = (time: number) => {
     const minutes = Math.floor(time / 60)
@@ -12,7 +13,7 @@ const formatTime = (time: number) => {
     return `${minutes}:${seconds.toString().padStart(2, '0')}`
 }
 
-export const Player: React.FC = () => {
+export const RightSidePlayer: React.FC = () => {
     const {
         isPlayerOpen,
         currentTrack,
@@ -61,9 +62,6 @@ export const Player: React.FC = () => {
     //     }
     // }
 
-    console.log('currentTrack', currentTrack)
-    console.log('isPlaying', isPlaying)
-
 
     if (!currentTrack || !isPlayerOpen) return null
 
@@ -105,69 +103,63 @@ export const Player: React.FC = () => {
     //     );
     // };
     return (
-        <div className="absolute bottom-1 left-0 right-0 bg-background border-t rounded-t-lg border-border p-2 flex flex-col items-center justify-center  max-w-2xl mx-auto">
-            <div className="flex items-center justify-between mb-2 w-full">
-                <div className="flex items-center space-x-4">
-                    <img src={currentTrack.asset.thumbnail} alt={currentTrack.asset.name} className="w-12 h-12 rounded-md" />
-                    <div className="space-y-1 max-w-[300px] sm:max-w-[200px]">
-                        <h3 className="font-medium">{currentTrack.asset.name} </h3>
-                        <p className="text-xs text-muted-foreground truncate">{currentTrack.artist}</p>
-                    </div>
 
-                </div>
+        <div className=" flex justify-center items-center h-full">
+            <div className="bg-white p-2 md:p-4 rounded-lg shadow-md ">
 
-                <div className="flex items-center space-x-4">
-                    <Button variant="ghost" size="icon" className='hidden md:flex' onClick={skipBackward}>
+                <Image
+                    src={currentTrack.asset.thumbnail}
+                    alt={currentTrack.asset.name}
+                    width={1000}
+                    height={1000}
+                    className="w-64 h-64   rounded-lg mb-4 shadow-lg shadow-teal-50 object-cover" />
+
+                <h2 className="text-xl font-semibold text-center">{currentTrack.asset.name}</h2>
+
+                <p className="text-gray-600 text-sm text-center">{currentTrack.artist}</p>
+
+                <div className="mt-6 flex justify-center items-center">
+                    <Button variant="ghost" size="icon" className='' onClick={skipBackward}>
                         <Rewind className="h-4 w-4" />
                     </Button>
                     {/* <Button variant="ghost" size="icon" onClick={previousTrack}>
                         <SkipBack className="h-6 w-6" />
                     </Button> */}
-                    <Button variant="ghost" size="icon" onClick={togglePlay} className='hidden md:flex'>
+                    <Button variant="ghost" size="icon" onClick={togglePlay} className=''>
                         {isPlaying ? <Pause className="h-6 w-6" /> : <Play className="h-6 w-6" />}
                     </Button>
                     {/* <Button variant="ghost" size="icon" onClick={nextTrack}>
                         <SkipForward className="h-6 w-6" />
                     </Button> */}
-                    <Button variant="ghost" size="icon" onClick={skipForward} className='hidden md:flex'>
+                    <Button variant="ghost" size="icon" onClick={skipForward} className=''>
                         <FastForward className="h-4 w-4" />
                     </Button>
-                </div>
-                <div className="flex items-center space-x-4">
-                    <Button variant="ghost" size="icon" onClick={togglePlay} className='flex md:hidden'>
-                        {isPlaying ? <Pause className="h-6 w-6" /> : <Play className="h-6 w-6" />}
-                    </Button>
-                    <div className="flex items-center space-x-2">
+                    <div className="flex items-center space-x-2 w-24">
                         {volume > 0 ? <Volume2 className="h-6 w-6" /> : <VolumeX className="h-6 w-6" />}
                         <Slider
-                            className="w-24 hidden md:flex"
+                            className="w-full "
                             value={[volume]}
                             max={1}
                             step={0.01}
                             onValueChange={handleVolumeChange}
                         />
                     </div>
-                    {/* <Button variant="ghost" size="icon" onClick={togglePIP}>
-                        <PictureInPicture className="h-6 w-6" />
-                    </Button> */}
-                    <Button variant="ghost" size="icon" onClick={() => {
-                        setIsPlayerOpen(false)
-                        setIsPlaying(false)
-                    }}>
-                        <X className="h-6 w-6" />
-                    </Button>
                 </div>
-            </div>
-            <div className="flex items-center space-x-4 w-full">
-                <span className="text-sm">{formatTime(currentTime)}</span>
-                <Slider
-                    className="flex-grow"
-                    value={[currentTime]}
-                    max={duration}
-                    step={1}
-                    onValueChange={handleTimeChange}
-                />
-                <span className="text-sm">{formatTime(duration)}</span>
+
+
+                <div className="flex justify-between mt-2 text-sm text-gray-600">
+                    <div className="flex items-center space-x-4 w-full">
+                        <span className="text-sm">{formatTime(currentTime)}</span>
+                        <Slider
+                            className="flex-grow"
+                            value={[currentTime]}
+                            max={duration}
+                            step={1}
+                            onValueChange={handleTimeChange}
+                        />
+                        <span className="text-sm">{formatTime(duration)}</span>
+                    </div>
+                </div>
             </div>
         </div>
     )

@@ -36,8 +36,7 @@ import {
   publicProcedure,
 } from "~/server/api/trpc";
 import { SubmissionMediaInfo } from "~/components/modals/file-upload-modal";
-import { PaymentMethodEnum } from "~/components/music/modal/buy_modal";
-import { is } from "@react-three/fiber/dist/declarations/src/core/utils";
+import { PaymentMethodEnum } from "~/components/BuyItem";
 
 const getAllBountyByUserIdInput = z.object({
   limit: z.number().min(1).max(100).default(10),
@@ -504,10 +503,10 @@ export const BountyRoute = createTRPCRouter({
           bountyId: input.BountyId,
           medias: input.medias
             ? {
-                createMany: {
-                  data: input.medias,
-                },
-              }
+              createMany: {
+                data: input.medias,
+              },
+            }
             : undefined,
         },
       });
@@ -562,11 +561,11 @@ export const BountyRoute = createTRPCRouter({
             createMany: {
               data: input.medias
                 ? input.medias.map((media) => ({
-                    url: media.url,
-                    name: media.name,
-                    size: media.size,
-                    type: media.type,
-                  }))
+                  url: media.url,
+                  name: media.name,
+                  size: media.size,
+                  type: media.type,
+                }))
                 : [],
             },
           },

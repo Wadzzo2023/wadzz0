@@ -86,7 +86,7 @@ export const useUserStellarAcc = create<Balance>((set, get) => ({
   hasTrust: (code, issuer) => {
     const { balances } = get();
     if (!balances) return undefined;
-    const trustline = balances.find((balance) => {
+    const trustline = balances.some((balance) => {
       if (
         (balance.asset_type === "credit_alphanum12" ||
           balance.asset_type === "credit_alphanum4") &&
@@ -96,7 +96,7 @@ export const useUserStellarAcc = create<Balance>((set, get) => ({
         return true;
       }
     });
-    return false;
+    return trustline;
   },
 }));
 

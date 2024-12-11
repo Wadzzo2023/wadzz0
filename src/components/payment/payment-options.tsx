@@ -16,7 +16,7 @@ import { PLATFORM_ASSET } from "~/lib/stellar/constant";
 
 import { create } from "zustand";
 import { env } from "~/env";
-import { PaymentMethod, PaymentMethodEnum } from "../music/modal/buy_modal";
+import { PaymentMethod, PaymentMethodEnum } from "../BuyItem";
 
 interface PaymentMethodStore {
   paymentMethod: PaymentMethod;

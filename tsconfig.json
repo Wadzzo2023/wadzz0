@@ -39,6 +39,6 @@
     ".next/types/**/*.ts",
     "test/**/*.ts|js",
     "trigger.config.ts"
-  ],
+, "src/pages/chat.jsx"  ],
   "exclude": ["node_modules"]
 }

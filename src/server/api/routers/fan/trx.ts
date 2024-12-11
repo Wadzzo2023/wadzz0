@@ -14,7 +14,7 @@ import { AssetSchema } from "~/lib/stellar/fan/utils";
 import { SignUser, WithSing } from "~/lib/stellar/utils";
 
 import { Keypair } from "@stellar/stellar-sdk";
-import { PaymentMethodEnum } from "~/components/music/modal/buy_modal";
+
 import { env } from "~/env";
 import {
   PLATFORM_ASSET,
@@ -40,6 +40,7 @@ import {
   publicProcedure,
 } from "~/server/api/trpc";
 import { db } from "~/server/db";
+import { PaymentMethodEnum } from "~/components/BuyItem";
 
 export const trxRouter = createTRPCRouter({
   createCreatorPageAsset: protectedProcedure

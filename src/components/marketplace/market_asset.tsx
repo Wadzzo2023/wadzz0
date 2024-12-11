@@ -1,25 +1,23 @@
 import { getTailwindScreenSize } from "~/utils/clientUtils";
-import { MarketAssetType } from "./market_right";
 import { useMarketRightStore } from "~/lib/state/marketplace/right";
 import AssetView from "./asset/asset_view";
 import { usePopUpState } from "~/lib/state/right-pop";
 import { MarketType } from "@prisma/client";
+import { MarketAssetType, useModal } from "~/lib/state/play/use-modal-store";
 
 function MarketAssetComponent({ item }: { item: MarketAssetType }) {
   const { asset } = item;
-
+  const { onOpen } = useModal()
   const urs = useMarketRightStore();
   const pop = usePopUpState();
   return (
     <div className="">
       <button
         onClick={() => {
-          urs.setData(item);
-          pop.setType(MarketType.ADMIN);
+          onOpen("buy modal", {
+            Asset: item
+          });
 
-          if (!getTailwindScreenSize().includes("xl")) {
-            pop.setOpen(true);
-          }
         }}
         className="btn relative h-fit w-full  overflow-hidden py-4 hover:bg-green-300/50"
       >

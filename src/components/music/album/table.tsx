@@ -4,13 +4,10 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "~
 import { Skeleton } from "~/components/shadcn/ui/skeleton";
 import { Button } from "~/components/shadcn/ui/button";
 import { Pause, Play, PlayIcon } from "lucide-react";
-import BuyModal from "../modal/buy_modal";
-import { Song } from "@prisma/client";
-import { AssetType } from "@stellar/stellar-sdk";
 import Image from "next/image";
-import { SongItemType } from "../track/music_item";
-import { useAudio } from "~/components/hooks/useAudio";
+
 import { usePlayer } from "~/components/context/PlayerContext";
+import { SongItemType, useModal } from "~/lib/state/play/use-modal-store";
 
 
 export default function SongList({
@@ -89,6 +86,7 @@ export function PlayOrBuy({ song }: { song: SongItemType }) {
   const trackUrlStore = usePlayerStore();
   const { currentTrack, isPlaying } = usePlayer()
   const userAssets = api.wallate.acc.getAccountInfo.useQuery();
+  const { onOpen } = useModal();
   const { setCurrentTrack, setIsPlaying } = usePlayer()
   if (userAssets.isLoading) return <Skeleton className="h-9 w-20" />;
 
@@ -123,12 +121,21 @@ export function PlayOrBuy({ song }: { song: SongItemType }) {
   } else {
     return (
       <div className="w-12">
-        <BuyModal
+        <Button
+          variant="default"
+          size="sm"
+          onClick={() => onOpen("song buy modal", {
+            Song: song,
+          })}
+        >
+          Buy
+        </Button>
+        {/* <BuyModal
           marketItemId={song.asset.id}
           priceUSD={song.priceUSD}
           item={song.asset}
           price={song.price}
-        />
+        /> */}
       </div>
     );
   }

@@ -1,47 +1,49 @@
 import React from "react";
-import { getTailwindScreenSize } from "~/utils/clientUtils";
-import { useRightStore } from "~/lib/state/wallete/right";
+
 import ImageVideViewer from "./Image_video_viewer";
 import { AdminAsset } from "@prisma/client";
-import { usePopUpState } from "~/lib/state/right-pop";
-import { AssetVariant } from "../right-sidebar";
+
+import { useModal } from "~/lib/state/play/use-modal-store";
+import Image from "next/image";
 
 export type AdminAssetWithTag = AdminAsset & {
   tags: {
     tagName: string;
   }[];
 };
+
 function Asset({ asset }: { asset: AdminAssetWithTag }) {
   const { logoUrl, logoBlueData, color, code } = asset;
-  const urs = useRightStore();
-  const pop = usePopUpState();
+  const { onOpen } = useModal();
 
   return (
     <div>
       <button
         onClick={() => {
-          urs.setData(asset);
-          pop.setType(AssetVariant.Other);
-          if (!getTailwindScreenSize().includes("xl")) {
-            pop.setOpen(true);
-          }
+          onOpen("view admin asset", {
+            adminAssetNtag: asset,
+          });
         }}
-        className="btn relative h-fit w-full overflow-hidden  py-4 "
+        className="btn relative h-fit w-full  overflow-hidden py-4 hover:bg-green-300/50"
       >
         <div
-          className="absolute h-full w-full opacity-30"
-          style={{
-            backgroundColor: color,
-          }}
+          className="absolute m-0 h-full w-full bg-secondary p-0 opacity-30"
+
         />
         <div className="flex flex-col space-y-2 ">
-          <div className="avatar ">
-            <div className="relative w-24 rounded-full">
-              <ImageVideViewer
-                blurData={logoBlueData}
-                code={code}
-                url={logoUrl}
-                sizes="100px"
+          <div className=" m-0   rounded-xl bg-green-200 p-0 ">
+            <div className="h-40 w-full rounded-xl">
+              <Image
+                height={1000}
+                width={1000}
+                alt={code ?? "asset"}
+                style={{
+                  // backgroundColor: "red" ?? undefined,
+                  height: "100%",
+
+                  width: "100%",
+                }}
+                src={logoUrl ?? ""}
               />
             </div>
           </div>

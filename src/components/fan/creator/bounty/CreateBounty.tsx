@@ -51,7 +51,9 @@ export const MediaInfo = z.object({
 });
 
 export const BountySchema = z.object({
-  title: z.string().min(1, { message: "Title can't be empty" }),
+  title: z.string().max(65, {
+    message: "Title can't be more than 65 characters"
+  }).min(1, { message: "Title can't be empty" }),
   totalWinner: z
     .number({
       required_error: "Total Winner must be a number",
@@ -112,6 +114,8 @@ const CreateBounty = () => {
     mode: "onChange",
     defaultValues: {
       content: "",
+      title: "",
+
     },
   });
 
@@ -236,13 +240,25 @@ const CreateBounty = () => {
                 className="flex w-full flex-col gap-4 rounded-3xl bg-base-200 p-5"
               >
                 <label className="form-control w-full ">
+
                   <input
+                    maxLength={65}
                     readOnly={loading}
                     type="text"
                     placeholder="Add a Title..."
                     {...register("title")}
                     className="input input-bordered w-full "
                   />
+                  <div className="flex text-sm justify-between text-gray-500">
+                    <span>{getValues("title").length >= 65 && (
+                      <div className="text-left text-sm text-red-500">
+                        You have reached the maximum character limit.
+                      </div>
+                    )}</span>
+                    {/* <span className=""> {getValues("title").length}/65 characters</span> */}
+                  </div>
+
+
                   {errors.title && (
                     <div className="label">
                       <span className="label-text-alt text-warning">
@@ -359,7 +375,7 @@ const CreateBounty = () => {
                         )}
                       </label>
                       <label className=" mb-1 w-full text-xs tracking-wide text-gray-600 sm:text-sm">
-                        How many winner will be selected?*
+                        How many winners will be selected?*
                         <input
                           readOnly={loading}
                           type="number"

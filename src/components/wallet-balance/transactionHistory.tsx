@@ -34,6 +34,7 @@ const TransactionHistory = () => {
     );
 
   const transactions = data?.pages.flatMap((page) => page.items) ?? [];
+
   const parentRef = useRef<HTMLDivElement>(null);
 
   const loadMore = async () => {
@@ -72,12 +73,11 @@ const TransactionHistory = () => {
                     </TableCell>
                     {item?.parseDetails?.type === "payment" ? (
                       <TableCell>
-                        {item.parseDetails.source ?
-                          addrShort(item.parseDetails.source, 5) : addrShort(item.fee_account)}{" "}
+                        {item.parseDetails.source ? addrShort(item.parseDetails.source) : addrShort(item.fee_account)}{" "}
                         payment {item.parseDetails.amount}{" "}
                         {item.parseDetails.asset} to{" "}
-                        {item.source_account &&
-                          addrShort(item.source_account, 5)}
+                        {item.parseDetails.destination &&
+                          addrShort(item.parseDetails.destination, 5)}
                       </TableCell>
                     ) : item?.parseDetails?.type === "createAccount" ? (
                       <TableCell>

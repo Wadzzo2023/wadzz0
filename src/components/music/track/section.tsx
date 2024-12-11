@@ -1,5 +1,6 @@
 
-import MusicItem, { SongItemType } from "./music_item";
+import { SongItemType } from "~/lib/state/play/use-modal-store";
+import MusicItem from "./music_item";
 
 type TrackSectionProp = {
   header: string;

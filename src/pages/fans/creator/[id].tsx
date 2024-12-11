@@ -251,7 +251,7 @@ export function UnFollowButton({ creator }: { creator: Creator }) {
       }}
     >
       {unFollow.isLoading && <Loader2 className="animate mr-2 animate-spin" />}{" "}
-      unfollow
+      Unfollow
     </Button>
   );
 }

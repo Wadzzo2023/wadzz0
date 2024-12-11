@@ -1,7 +1,8 @@
 import { api } from "~/utils/api";
 import { MusicItem } from ".";
-import { SongItemType } from "./music_item";
+
 import { usePlayer } from "~/components/context/PlayerContext";
+import { SongItemType } from "~/lib/state/play/use-modal-store";
 
 type TrackSectionProp = {
   songs: SongItemType[];

@@ -210,10 +210,44 @@ export function CreatPost() {
                 </Button>
               ))}
             </div>
-            {wantMediaType && (
+            {wantMediaType === 'IMAGE' ? (
               <UploadButton
                 endpoint="imageUploader"
                 content={{ button: "Add Media", allowedContent: "Max (4MB)" }}
+                className=" mt-10"
+                onClientUploadComplete={(res) => {
+                  const data = res[0];
+                  if (data?.url) {
+                    addMediaItem(data.url, wantMediaType);
+                    setWantMedia(undefined);
+                  }
+                }}
+                onUploadError={(error: Error) => {
+                  toast.error(`Upload error: ${error.message}`);
+                }}
+              />
+            ) : wantMediaType === 'VIDEO' ? (
+              (
+                <UploadButton
+                  endpoint="videoUploader"
+                  content={{ button: "Add Media", allowedContent: "Max (256MB)" }}
+                  className=" mt-10"
+                  onClientUploadComplete={(res) => {
+                    const data = res[0];
+                    if (data?.url) {
+                      addMediaItem(data.url, wantMediaType);
+                      setWantMedia(undefined);
+                    }
+                  }}
+                  onUploadError={(error: Error) => {
+                    toast.error(`Upload error: ${error.message}`);
+                  }}
+                />
+              )
+            ) : wantMediaType === "MUSIC" && (
+              <UploadButton
+                endpoint="musicUploader"
+                content={{ button: "Add Media", allowedContent: "Max (64MB)" }}
                 className=" mt-10"
                 onClientUploadComplete={(res) => {
                   const data = res[0];

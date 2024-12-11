@@ -140,6 +140,37 @@ export const songRouter = createTRPCRouter({
       });
     }),
 
+  getSongByCodeIssuer: publicProcedure.input(z.object({ code: z.string().optional(), issuer: z.string().optional() })).query(async ({ input, ctx }) => {
+    const song = await ctx.db.song.findFirst({
+      where: {
+        asset: {
+          code: input.code,
+          issuer: input.issuer,
+        },
+      },
+      select: {
+        asset: {
+          select: {
+            name: true,
+            code: true,
+            thumbnail: true,
+            issuer: true,
+            mediaUrl: true,
+          },
+        },
+        albumId: true,
+        artist: true,
+        assetId: true,
+        createdAt: true,
+        price: true,
+        priceUSD: true,
+        id: true,
+      }
+    });
+    return song;
+  }
+  ),
+
   deleteAsong: adminProcedure
     .input(z.object({ songId: z.number() }))
     .mutation(async ({ ctx, input }) => {

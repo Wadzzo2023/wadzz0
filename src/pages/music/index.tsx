@@ -4,7 +4,6 @@ import AlbumSection from "~/components/music/album/section";
 import CreatorTrack from "~/components/music/creator/track";
 import TrackSection, { TrackSectionSkeleton } from "~/components/music/track/section";
 import { getAssetBalanceFromBalance } from "~/lib/stellar/marketplace/test/acc";
-import BuyModal from "~/components/music/modal/buy_modal";
 
 export default function Home() {
   return (
@@ -85,10 +84,12 @@ function CreatorPublicSongs() {
             <CreatorTrack
               key={song.id}
               playable={true}
-              item={{
-                ...song,
-                artist: song.creatorId?.substring(0, 4) ?? "creator",
-              }}
+              item={
+                {
+                  ...song,
+                  artist: song.creatorId?.substring(0, 4) ?? "creator",
+                }
+              }
               index={index + 1}
             />
           ))}
@@ -112,6 +113,7 @@ function CreatorMarketSongs() {
         <h2 className="mb-4 text-2xl font-bold text-gray-800">{header}</h2>
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
           {creatorSongs.data.map((marketItem, index: number) => {
+            console.log("marketItem", marketItem);
             if (marketItem.asset.tier) {
               const bal = getAssetBalanceFromBalance({
                 balances: accBalances.data,
@@ -138,15 +140,7 @@ function CreatorMarketSongs() {
                       ...marketItem.asset,
                       artist: marketItem.asset.creatorId?.substring(0, 4) ?? "creator",
                     }}
-                    buyModal={
-                      <BuyModal
-                        item={marketItem.asset}
-                        price={marketItem.price}
-                        priceUSD={marketItem.priceUSD}
-                        marketItemId={marketItem.id}
-                        placerId={marketItem.placerId}
-                      />
-                    }
+
                     index={index + 1}
                   />
                 );

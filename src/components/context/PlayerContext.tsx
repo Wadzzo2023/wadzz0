@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react'
-import { SongItemType } from '../music/track/music_item'
+import { SongItemType } from '~/lib/state/play/use-modal-store'
 
 
 
@@ -13,7 +13,7 @@ type PlayerContextType = {
     duration: number
     isPlayerOpen: boolean;
     setPlaylist: (playlist: SongItemType[]) => void
-    setCurrentTrack: (track: SongItemType) => void
+    setCurrentTrack: (track: SongItemType | null) => void
     setIsPlaying: (isPlaying: boolean) => void
     setVolume: (volume: number) => void
     setIsPIP: (isPIP: boolean) => void

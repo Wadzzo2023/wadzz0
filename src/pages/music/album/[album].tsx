@@ -1,7 +1,6 @@
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import { ConnectWalletButton } from "package/connect_wallet";
-import AlbumCover from "~/components/music/album/cover";
 import SongList from "~/components/music/album/table";
 import SongCreate from "~/components/music/modal/song_create";
 import Alert from "~/components/ui/alert";
@@ -10,8 +9,6 @@ import { api } from "~/utils/api";
 import { AlbumSkeleton } from "..";
 import Image from "next/image";
 import { format, set } from "date-fns";
-import { Skeleton } from "~/components/shadcn/ui/skeleton";
-import { usePlayer } from "~/components/context/PlayerContext";
 
 export default function AlbumPageWrapper() {
   const router = useRouter();

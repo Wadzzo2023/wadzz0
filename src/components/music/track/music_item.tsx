@@ -1,14 +1,13 @@
 import { Song } from "@prisma/client";
 import clsx from "clsx";
 import Image from "next/image";
-import { AssetType } from "~/components/marketplace/market_right";
 import { usePlayerStore } from "~/lib/state/music/track";
 import { PlayOrBuy } from "../album/table";
 import { AssetBadge } from "./asset_badge";
 import { Pause, PlayIcon } from "lucide-react";
 import { usePlayer } from "~/components/context/PlayerContext";
+import { SongItemType } from "~/lib/state/play/use-modal-store";
 
-export type SongItemType = Song & { asset: AssetType };
 
 export default function MusicItem({
   item,
@@ -25,16 +24,21 @@ export default function MusicItem({
   const { setCurrentTrack, currentTrack, isPlaying } = usePlayer()
 
   function playSong() {
-    if (playable)
-      setCurrentTrack(item)
-    trackUrlStore.setNewTrack({
-      artist: item.artist,
-      code: item.asset.code,
-      thumbnail: item.asset.thumbnail,
-      mediaUrl: item.asset.mediaUrl,
-      name: item.asset.name,
-    });
+    if (item && item.asset) {
+      setCurrentTrack(item);
+
+      if (playable) {
+        trackUrlStore.setNewTrack({
+          artist: item.artist,
+          code: item.asset.code,
+          thumbnail: item.asset.thumbnail,
+          mediaUrl: item.asset.mediaUrl,
+          name: item.asset.name,
+        });
+      }
+    }
   }
+
 
   return (
     <div
@@ -53,7 +57,7 @@ export default function MusicItem({
         />
         <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-0 transition-all duration-300 group-hover:bg-opacity-50">
           {
-            currentTrack?.id === item.id && isPlaying ? (
+            currentTrack && currentTrack.id === item.id && isPlaying ? (
               <Pause className="h-10 w-10" />) : <PlayIcon className="h-10 w-10" />
 
           }
