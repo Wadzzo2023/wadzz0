@@ -1,16 +1,13 @@
 import { useRouter } from "next/router";
 
-import Right from "./wallete/right";
 import { MusicRightSide } from "./music/music_right";
 import RightBar from "./fan/fan-right";
 
-import AssetRight from "./my_asset/asset_right";
 import AdminRightSide from "./admin/admin_right";
 import { useTagStore } from "~/lib/state/wallete/tag";
 import { MarketType } from "@prisma/client";
 import { usePopUpState } from "~/lib/state/right-pop";
 import Drawer from "./drawer";
-import PageAssetRight from "./wallete/page_asset_right";
 import { CREATOR_PLURAL_TERM } from "~/utils/term";
 import BountyRightBar from "./fan/creator/bounty/BountyRightSide";
 import FunctionTest from "~/pages/functiontest";
