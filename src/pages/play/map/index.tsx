@@ -131,6 +131,7 @@ export default function HomeScreen() {
     return R * 2 * Math.asin(Math.sqrt(a));
   };
 
+
   const handleARPress = (
     userLocation: UserLocationType,
     locations: ConsumedLocation[],
