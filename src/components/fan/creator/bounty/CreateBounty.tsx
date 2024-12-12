@@ -154,7 +154,7 @@ const CreateBounty = () => {
                 priceInXLM:
                   method == "xlm" ? getValues("prize") * 0.7 : undefined,
                 content: getValues("content"),
-                medias: getValues("medias"),
+                medias: media,
               });
               setLoading(false);
               reset();
@@ -185,7 +185,7 @@ const CreateBounty = () => {
       },
     });
   const onSubmit: SubmitHandler<z.infer<typeof BountySchema>> = (data) => {
-    console.log("data", data);
+    console.log("data...................", data);
     data.medias = media;
     setLoading(true);
     SendBalanceToBountyMother.mutate({

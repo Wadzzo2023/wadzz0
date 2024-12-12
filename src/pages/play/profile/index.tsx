@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { useQuery } from "@tanstack/react-query";
-import { Copy, Globe, LogOut, Trash } from "lucide-react";
+import { Copy, Globe, LogOut, RotateCcw, Trash } from "lucide-react";
 import { toast } from "react-hot-toast";
 
 import { Button } from "~/components/shadcn/ui/button";
@@ -26,19 +26,76 @@ import { BASE_URL } from "~/lib/common";
 import { addrShort } from "~/utils/utils";
 import { getTokenUser } from "~/lib/play/get-token-user";
 import { signOut } from "next-auth/react";
+import { useWalkThrough } from "~/components/hooks/play/useWalkthrough";
+import { Walkthrough } from "~/components/walkthrough";
+type ButtonLayout = {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+};
 
 export default function SettingScreen() {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-
+  const [showWalkthrough, setShowWalkthrough] = useState(false);
+  const [buttonLayouts, setButtonLayouts] = useState<ButtonLayout[]>([]);
   const router = useRouter();
   const { data: pinMode, setData } = useAccountAction();
+  const { data: walkthroughData, setData: setWalkThroughData } =
+    useWalkThrough();
+
+  const visitButtonRef = useRef<HTMLButtonElement>(null);
+  const autoCollectButtonRef = useRef<HTMLButtonElement>(null);
+  const resetTutorialButtonRef = useRef<HTMLButtonElement>(null);
+  const deleteDataButtonRef = useRef<HTMLButtonElement>(null);
+  const signOutButtonRef = useRef<HTMLButtonElement>(null);
+
   const { data, isLoading, error } = useQuery({
     queryKey: ["currentUserInfo"],
     queryFn: getTokenUser,
   });
 
-  if (isLoading) return <Loading />;
-  if (error) return <div>Error: {(error as Error).message}</div>;
+  const steps = [
+
+    {
+      target: buttonLayouts[0],
+      title: "Visit Wadzzo.com",
+      content: "Click here to visit our website and explore our services.",
+    },
+    {
+      target: buttonLayouts[1],
+      title: "Auto Collection",
+      content:
+        "Enable Auto Collection to automatically collect eligible pins.  All pins set for auto collection will be gathered when you’re within collecting distance, but all manual pins must still be collected through AR mode.",
+    },
+    {
+      target: buttonLayouts[2],
+      title: "Reset Tutorial",
+      content: "Click here to restart the tutorial and view it again.",
+    },
+    {
+      target: buttonLayouts[3],
+      title: "Delete Data",
+      content:
+        "Press this button to delete your account.  A request will be sent to our support team and your account will be permanently deleted.",
+    },
+    {
+      target: buttonLayouts[4],
+      title: "Sign Out",
+      content: "Click here to log out of your wadzzo account.",
+    },
+  ];
+
+  const resetTutorial = () => {
+
+    // console.log("Resetting tutorial");
+    localStorage.setItem("isFirstSignIn", "true");
+    setShowWalkthrough(true);
+    setWalkThroughData({
+      showWalkThrough: true,
+    });
+  };
+
 
   const deleteData = async () => {
     try {
@@ -67,11 +124,93 @@ export default function SettingScreen() {
       mode: !pinMode.mode,
     });
     console.log(
-      `Pin Collection Mode set to: ${
-        !pinMode.mode ? "Auto Collect" : "Manual Collect"
+      `Pin Collection Mode set to: ${!pinMode.mode ? "Auto Collect" : "Manual Collect"
       }`,
     );
   };
+
+  useLayoutEffect(() => {
+    const updateButtonLayouts = () => {
+      const visitButton = visitButtonRef.current;
+      const autoCollectButton = autoCollectButtonRef.current;
+      const resetTutorialButton = resetTutorialButtonRef.current;
+      const deleteDataButton = deleteDataButtonRef.current;
+      const signOutButton = signOutButtonRef.current;
+
+
+      if (visitButton && autoCollectButton && resetTutorialButton && deleteDataButton && signOutButton) {
+        const visitRect = visitButton.getBoundingClientRect();
+        const autoCollectRect = autoCollectButton.getBoundingClientRect();
+        const resetTutorialRect = resetTutorialButton.getBoundingClientRect();
+        const deleteDataRect = deleteDataButton.getBoundingClientRect();
+        const signOutRect = signOutButton.getBoundingClientRect();
+
+        setButtonLayouts([
+          {
+            x: visitRect.x,
+            y: visitRect.y,
+            width: visitRect.width,
+            height: visitRect.height,
+          },
+          {
+            x: autoCollectRect.x,
+            y: autoCollectRect.y,
+            width: autoCollectRect.width,
+            height: autoCollectRect.height,
+          },
+          {
+            x: resetTutorialRect.x,
+            y: resetTutorialRect.y,
+            width: resetTutorialRect.width,
+            height: resetTutorialRect.height,
+          },
+          {
+            x: deleteDataRect.x,
+            y: deleteDataRect.y,
+            width: deleteDataRect.width,
+            height: deleteDataRect.height,
+          },
+          {
+            x: signOutRect.x,
+            y: signOutRect.y,
+            width: signOutRect.width,
+            height: signOutRect.height,
+          },
+        ]);
+      }
+    };
+
+    // Initial update
+    updateButtonLayouts();
+    console.log("buttonLayouts", buttonLayouts);
+    // Set up a timeout to update again after a short delay
+    const timeoutId = setTimeout(updateButtonLayouts, 3000);
+
+    // Set up resize listener
+    window.addEventListener('resize', updateButtonLayouts);
+
+    return () => {
+      window.removeEventListener('resize', updateButtonLayouts);
+      clearTimeout(timeoutId);
+    };
+  }, []);
+
+  const checkFirstTimeSignIn = async () => {
+    if (walkthroughData.showWalkThrough) {
+      setShowWalkthrough(true);
+    } else {
+      setShowWalkthrough(false);
+    }
+  };
+
+  useEffect(() => {
+    console.log("walkthroughData", walkthroughData);
+    checkFirstTimeSignIn();
+
+  }, [walkthroughData]);
+
+  if (isLoading) return <Loading />;
+  if (error) return <div>Error: {(error as Error).message}</div>;
 
   if (!data) return null;
 
@@ -117,6 +256,7 @@ export default function SettingScreen() {
           <Card>
             <CardContent className="p-6">
               <Button
+                ref={visitButtonRef}
                 className="w-full"
                 onClick={() => window.open("https://wadzzo.com", "_blank")}
               >
@@ -141,6 +281,7 @@ export default function SettingScreen() {
                     Off
                   </span>
                   <Switch
+                    ref={autoCollectButtonRef}
                     checked={pinMode.mode}
                     onCheckedChange={togglePinCollectionMode}
                   />
@@ -153,8 +294,17 @@ export default function SettingScreen() {
               </div>
 
               <hr className="my-4" />
-
               <Button
+                ref={resetTutorialButtonRef}
+                variant="outline"
+                className="w-full"
+                onClick={() => resetTutorial()}
+              >
+                <RotateCcw className="mr-2 h-4 w-4" />
+                Reset Tutorial
+              </Button>
+              <Button
+                ref={deleteDataButtonRef}
                 variant="outline"
                 className="w-full"
                 onClick={() => setShowDeleteDialog(true)}
@@ -164,6 +314,7 @@ export default function SettingScreen() {
               </Button>
 
               <Button
+                ref={signOutButtonRef}
                 className="w-full"
                 onClick={async () =>
                   await signOut({
@@ -201,6 +352,9 @@ export default function SettingScreen() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      {showWalkthrough && (
+        <Walkthrough steps={steps} onFinish={() => setShowWalkthrough(false)} />
+      )}
     </>
   );
 }

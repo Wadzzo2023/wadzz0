@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useLayoutEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import Map, { Marker } from "react-map-gl";
 import { useRouter } from "next/navigation";
@@ -16,12 +16,20 @@ import { Card } from "~/components/shadcn/ui/card";
 import Loading from "~/components/wallete/loading";
 import { BASE_URL } from "~/lib/common";
 import { getMapAllPins } from "~/lib/play/get-Map-all-pins";
+import { getUserPlatformAsset } from "~/lib/play/get-user-platformAsset";
+import { useWalkThrough } from "~/components/hooks/play/useWalkthrough";
+import { Walkthrough } from "~/components/walkthrough";
 
 type UserLocationType = {
   lat: number;
   lng: number;
 };
-
+type ButtonLayout = {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+};
 export default function HomeScreen() {
   const [locationPermission, setLocationPermission] = useState(false);
   const [userLocation, setUserLocation] = useState<UserLocationType | null>(
@@ -37,9 +45,56 @@ export default function HomeScreen() {
   const { data } = useAccountAction();
   const autoCollectModeRef = useRef(data.mode);
   const { onOpen } = useModal();
-
+  const [buttonLayouts, setButtonLayouts] = useState<ButtonLayout[]>([]);
+  const [showWalkthrough, setShowWalkthrough] = useState(false);
   const { data: accountActionData } = useAccountAction();
+  const { data: walkthroughData } = useWalkThrough();
 
+  const welcomeRef = useRef<HTMLDivElement>(null);
+  const balanceRef = useRef<HTMLDivElement>(null);
+  const refreshButtonRef = useRef<HTMLButtonElement>(null);
+  const recenterButtonRef = useRef<HTMLButtonElement>(null);
+  const arButtonRef = useRef<HTMLButtonElement>(null);
+  const pinAutoCollectionRef = useRef<HTMLDivElement>(null);
+
+  const steps = [
+    {
+      target: buttonLayouts[0],
+      title: "Welcome to the Wadzzo app!",
+      content:
+        "This tutorial will show you how to use Wadzzo to find pins around you, follow your favorite brands, and collect rewards.",
+    },
+    {
+      target: buttonLayouts[1],
+      title: "Wadzzo Balance",
+      content:
+        "The Wadzzo Balance displays your Wadzzo count. Check the Bounty Board for the latest ways to earn more Wadzzo!",
+    },
+    {
+      target: buttonLayouts[2],
+      title: "Refresh Button",
+      content:
+        "If you need to refresh your map, press the refresh button. This will reload your entire map with all up to date app data.",
+    },
+    {
+      target: buttonLayouts[3],
+      title: "Re-center button",
+      content:
+        "Press the Re-center button to center your map view to your current location",
+    },
+    {
+      target: buttonLayouts[4],
+      title: "AR button",
+      content:
+        "To collect manual pins, press the AR button on your map to view your surroundings.  Locate the icon on your screen, then press the Collect button that appears below it to add the item to your collection.",
+    },
+    {
+      target: buttonLayouts[5],
+      title: "Pin Auto Collection",
+      content:
+        "This celebration occurs when a pin has been automatically collected in Wadzzo.",
+    },
+  ];
   const getNearbyPins = (
     userLocation: UserLocationType,
     locations: ConsumedLocation[],
@@ -73,7 +128,7 @@ export default function HomeScreen() {
       (Math.cos((lat1 * Math.PI) / 180) *
         Math.cos((lat2 * Math.PI) / 180) *
         (1 - Math.cos(dLon))) /
-        2;
+      2;
     return R * 2 * Math.asin(Math.sqrt(a));
   };
 
@@ -164,8 +219,93 @@ export default function HomeScreen() {
         filterID: accountActionData.brandMode ? "1" : "0",
       }),
   });
+  const balanceRes = useQuery({
+    queryKey: ["balance"],
+    queryFn: getUserPlatformAsset,
+  });
 
   const locations = response.data?.locations ?? [];
+
+
+  useLayoutEffect(() => {
+    const updateButtonLayouts = () => {
+      const welcome = welcomeRef.current;
+      const balance = balanceRef.current;
+      const refreshButton = refreshButtonRef.current;
+      const recenterButton = recenterButtonRef.current;
+      const arButton = arButtonRef.current;
+      if (welcome && balance && refreshButton && recenterButton && arButton) {
+        const welcomeRect = welcome.getBoundingClientRect();
+        const balanceRect = balance.getBoundingClientRect();
+        const refreshRect = refreshButton.getBoundingClientRect();
+        const recenterRect = recenterButton.getBoundingClientRect();
+        const arRect = arButton.getBoundingClientRect();
+
+        setButtonLayouts([
+          {
+            x: welcomeRect.left,
+            y: welcomeRect.top,
+            width: welcomeRect.width,
+            height: welcomeRect.height,
+          },
+
+          {
+            x: balanceRect.left,
+            y: balanceRect.top,
+            width: balanceRect.width,
+            height: balanceRect.height,
+          },
+          {
+            x: refreshRect.left,
+            y: refreshRect.top,
+            width: refreshRect.width,
+            height: refreshRect.height,
+          },
+          {
+            x: recenterRect.left,
+            y: recenterRect.top,
+            width: recenterRect.width,
+            height: recenterRect.height,
+          },
+          {
+            x: arRect.left,
+            y: arRect.top,
+            width: arRect.width,
+            height: arRect.height,
+          },
+
+        ]);
+      }
+    };
+
+    // Initial update
+    updateButtonLayouts();
+    console.log("buttonLayouts", buttonLayouts);
+    // Set up a timeout to update again after a short delay
+    const timeoutId = setTimeout(updateButtonLayouts, 3000);
+
+    // Set up resize listener
+    window.addEventListener('resize', updateButtonLayouts);
+
+    return () => {
+      window.removeEventListener('resize', updateButtonLayouts);
+      clearTimeout(timeoutId);
+    };
+  }, []);
+
+  const checkFirstTimeSignIn = async () => {
+    if (walkthroughData.showWalkThrough) {
+      setShowWalkthrough(true);
+    } else {
+      setShowWalkthrough(false);
+    }
+  };
+
+  useEffect(() => {
+    console.log("walkthroughData", walkthroughData);
+    checkFirstTimeSignIn();
+
+  }, [walkthroughData]);
 
   useEffect(() => {
     autoCollectModeRef.current = data.mode;
@@ -212,7 +352,6 @@ export default function HomeScreen() {
   }, []);
 
   useEffect(() => {
-    console.log("data.mode", data.mode, data.brandMode);
     if (data.mode && userLocation && locations) {
       const autoCollectPins = getAutoCollectPins(userLocation, locations, 100);
       if (autoCollectPins.length > 0) {
@@ -224,7 +363,6 @@ export default function HomeScreen() {
   if (response.isLoading) {
     return <Loading />;
   }
-  console.log("locations", locations);
   return (
     <div className="relative h-screen w-full">
       {loading ? (
@@ -259,8 +397,32 @@ export default function HomeScreen() {
                 <MapPin size={40} className="text-red-500" />
               </Marker>
               <MyPins locations={locations} />
+              {
+                showWalkthrough && (
+                  <div ref={welcomeRef}>
+
+                  </div>
+                )
+              }
             </Map>
+
+            <div
+              ref={balanceRef}
+              className="absolute top-2 right-2 z-10 bg-[#38C02B] flex p-2 rounded-lg
+            ">
+              <Image
+                height={40}
+                width={40}
+                alt="Wadzzo"
+                src="/images/wadzzo.png"
+                className="object-contain  h-6 w-6"
+              />
+              <div className="ml-2 text-white">
+                {Number(balanceRes.data).toFixed(2) ?? 0}
+              </div>
+            </div>
             <Button
+              ref={recenterButtonRef}
               variant="outline"
               size="icon"
               className="absolute bottom-20 right-2 z-10 bg-white"
@@ -269,6 +431,7 @@ export default function HomeScreen() {
               <Crosshair className="h-4 w-4" />
             </Button>
             <Button
+              ref={arButtonRef}
               variant="default"
               size="icon"
               className="absolute bottom-36 right-2 z-10 bg-primary"
@@ -277,6 +440,7 @@ export default function HomeScreen() {
               <ScanLine className="h-6 w-6" />
             </Button>
             <Button
+              ref={refreshButtonRef}
               variant="outline"
               size="icon"
               className="absolute bottom-20 right-16 z-10 bg-white"
@@ -285,7 +449,10 @@ export default function HomeScreen() {
               <RefreshCcw className="h-4 w-4" />
             </Button>
             {pinCollected && (
-              <Card className="absolute bottom-[300px] left-1/2 -ml-[50px] flex h-[100px] w-[100px] animate-pulse items-center justify-center rounded-full bg-primary">
+              <Card
+
+
+                className="absolute bottom-[300px] left-1/2 -ml-[50px] flex h-[100px] w-[100px] animate-pulse items-center justify-center rounded-full bg-primary">
                 <Image
                   height={80}
                   width={80}
@@ -297,6 +464,9 @@ export default function HomeScreen() {
             )}
           </>
         )
+      )}
+      {showWalkthrough && (
+        <Walkthrough steps={steps} onFinish={() => setShowWalkthrough(false)} />
       )}
     </div>
   );

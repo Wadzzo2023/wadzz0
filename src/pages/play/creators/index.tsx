@@ -4,7 +4,7 @@ import { getAllBrands, UnFollowBrand } from "~/lib/play";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/router";
 
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 
 import { Loader2, Search } from "lucide-react";
 import { useSession } from "next-auth/react";
@@ -22,6 +22,15 @@ import useNeedSign from "~/lib/hook";
 import { clientSelect } from "~/lib/stellar/fan/utils";
 import { Brand } from "~/types/game/brand";
 import { api } from "~/utils/api";
+import { Walkthrough } from "~/components/walkthrough";
+import { useWalkThrough } from "~/components/hooks/play/useWalkthrough";
+
+type ButtonLayout = {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+};
 
 export default function CreatorPage() {
   //   const { user, isAuthenticated } = useAuth();
@@ -34,15 +43,50 @@ export default function CreatorPage() {
   const [unfollowLoadingId, setUnfollowLoadingId] = useState<string | null>(
     null,
   );
+  const [showWalkthrough, setShowWalkthrough] = useState(false);
+
 
   const [signLoading, setSingLoading] = useState(false);
   const [submitLoading, setSubmitLoading] = useState(false);
+  const [buttonLayouts, setButtonLayouts] = useState<ButtonLayout[]>([]);
 
   const router = useRouter();
   const { needSign } = useNeedSign();
-
+  const { data: walkthroughData } = useWalkThrough();
   const connectedWalletType = session.data?.user.walletType ?? WalletType.none;
 
+  const modeButtonRef = useRef<HTMLButtonElement>(null);
+  const searchButtonRef = useRef<HTMLDivElement>(null);
+  const brandListButtonRef = useRef<HTMLDivElement>(null);
+  const followButtonRef = useRef<HTMLButtonElement>(null);
+
+
+  const steps = [
+    {
+      target: buttonLayouts[0],
+      title: "Follow Mode",
+      content:
+        "In Follow Mode, see pins for followed brands only. Switch to General Mode to view all brand pins.",
+    },
+    {
+      target: buttonLayouts[1],
+      title: "Search for Brands",
+      content:
+        "Use the search bar to look for any brand on the platform by typing in the brand name in the search bar, then pressing the search icon",
+    },
+    {
+      target: buttonLayouts[2],
+      title: "Brand Lists",
+      content:
+        "Click on 'Available Brands' to view all brands, or 'Followed Brands' to see the ones you've followed.",
+    },
+    {
+      target: buttonLayouts[3],
+      title: "Follow Brands",
+      content:
+        "To follow a brand, press the follow button next to the brand name. To unfollow a brand, press the unfollow button next to the brand name.",
+    },
+  ];
   const { data: accountActionData, setData: setAccountActionData } =
     useAccountAction();
 
@@ -130,6 +174,78 @@ export default function CreatorPage() {
     }
   };
 
+  useLayoutEffect(() => {
+    const updateButtonLayouts = () => {
+      const filterButton = modeButtonRef.current;
+      const searchButton = searchButtonRef.current;
+      const brandListButton = brandListButtonRef.current;
+      const followButton = followButtonRef.current;
+
+      if (filterButton && searchButton && brandListButton && followButton) {
+        const filterRect = filterButton.getBoundingClientRect();
+        const searchRect = searchButton.getBoundingClientRect();
+        const brandListRect = brandListButton.getBoundingClientRect();
+        const followRect = followButton.getBoundingClientRect();
+        setButtonLayouts([
+          {
+            x: filterRect.left,
+            y: filterRect.top,
+            width: filterRect.width,
+            height: filterRect.height,
+          },
+          {
+            x: searchRect.left,
+            y: searchRect.top,
+            width: searchRect.width,
+            height: searchRect.height,
+          },
+          {
+            x: brandListRect.left,
+            y: brandListRect.top,
+            width: brandListRect.width,
+            height: brandListRect.height,
+          },
+          {
+            x: followRect.left,
+            y: followRect.top,
+            width: followRect.width,
+            height: followRect.height,
+
+          },
+
+        ]);
+      }
+    };
+
+    // Initial update
+    updateButtonLayouts();
+    console.log("buttonLayouts", buttonLayouts);
+    // Set up a timeout to update again after a short delay
+    const timeoutId = setTimeout(updateButtonLayouts, 3000);
+
+    // Set up resize listener
+    window.addEventListener('resize', updateButtonLayouts);
+
+    return () => {
+      window.removeEventListener('resize', updateButtonLayouts);
+      clearTimeout(timeoutId);
+    };
+  }, []);
+
+  const checkFirstTimeSignIn = async () => {
+    if (walkthroughData.showWalkThrough) {
+      setShowWalkthrough(true);
+    } else {
+      setShowWalkthrough(false);
+    }
+  };
+
+  useEffect(() => {
+    console.log("walkthroughData", walkthroughData);
+    checkFirstTimeSignIn();
+
+  }, [walkthroughData]);
+
   useEffect(() => {
     if (data) {
       setBrands(data.users);
@@ -165,33 +281,33 @@ export default function CreatorPage() {
         <h1 className="text-2xl font-bold">Brands</h1>
         <div className="flex items-center space-x-2 rounded-full bg-white p-1">
           <span
-            className={`text-sm ${
-              !accountActionData.brandMode
-                ? "font-bold text-[#38C02B]"
-                : "text-gray-500"
-            }`}
+            className={`text-sm ${!accountActionData.brandMode
+              ? "font-bold text-[#38C02B]"
+              : "text-gray-500"
+              }`}
           >
             General
           </span>
           <Switch
+            ref={modeButtonRef}
             checked={accountActionData.brandMode}
             onCheckedChange={toggleBrandMode}
           />
           <span
-            className={`text-sm ${
-              accountActionData.brandMode
-                ? "font-bold text-[#FF5A5F]"
-                : "text-gray-500"
-            }`}
+            className={`text-sm ${accountActionData.brandMode
+              ? "font-bold text-[#FF5A5F]"
+              : "text-gray-500"
+              }`}
           >
             Follow
           </span>
         </div>
       </div>
 
-      <div className="relative mb-4">
+      <div ref={searchButtonRef} className="relative mb-4">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 transform text-gray-400" />
         <Input
+
           type="search"
           placeholder="Search brands"
           value={searchQuery}
@@ -201,7 +317,7 @@ export default function CreatorPage() {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-6">
-        <TabsList className="grid w-full grid-cols-2">
+        <TabsList ref={brandListButtonRef} className="grid w-full grid-cols-2">
           <TabsTrigger value="available">Available Brands</TabsTrigger>
           <TabsTrigger value="followed">Followed Brands</TabsTrigger>
         </TabsList>
@@ -209,7 +325,7 @@ export default function CreatorPage() {
 
       {filteredBrands?.length ? (
         <div className="flex flex-col gap-2 overflow-y-auto ">
-          {filteredBrands.map((brand: Brand) => (
+          {filteredBrands.map((brand: Brand, index) => (
             <Card key={brand.id}>
               <CardContent className="flex items-center justify-between p-4">
                 <div className="flex items-center space-x-4">
@@ -223,6 +339,7 @@ export default function CreatorPage() {
                   <span className="font-semibold">{brand.first_name}</span>
                 </div>
                 <Button
+                  ref={index === 0 ? followButtonRef : null}
                   variant={
                     brand.followed_by_current_user ? "outline" : "default"
                   }
@@ -235,7 +352,7 @@ export default function CreatorPage() {
                   }
                 >
                   {followLoadingId === brand.id ||
-                  unfollowLoadingId === brand.id ? (
+                    unfollowLoadingId === brand.id ? (
                     <Loader2 className="animate-spin" />
                   ) : brand.followed_by_current_user ? (
                     "Unfollow"
@@ -272,7 +389,7 @@ export default function CreatorPage() {
                   }
                 >
                   {followLoadingId === brand.id ||
-                  unfollowLoadingId === brand.id ? (
+                    unfollowLoadingId === brand.id ? (
                     <Loader2 className="animate-spin" />
                   ) : brand.followed_by_current_user ? (
                     "Unfollow"
@@ -286,6 +403,9 @@ export default function CreatorPage() {
         </div>
       ) : (
         <p className="text-center text-gray-500">No brands found</p>
+      )}
+      {showWalkthrough && (
+        <Walkthrough steps={steps} onFinish={() => setShowWalkthrough(false)} />
       )}
     </div>
   );

@@ -7,7 +7,7 @@ export default function PlayLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="relative mx-auto h-screen max-w-2xl bg-slate-200">
+    <div className="relative mx-auto h-screen max-w-2xl  bg-slate-200">
       <style>{`
         html,
         body {

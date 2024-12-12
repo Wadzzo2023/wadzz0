@@ -106,6 +106,7 @@ export const BountyRoute = createTRPCRouter({
       }),
     )
     .mutation(async ({ input, ctx }) => {
+      console.log("data......................", input.medias);
       const bounty = await ctx.db.bounty.create({
         data: {
           title: input.title,

@@ -163,11 +163,11 @@ const SingleBountyItem = () => {
               return prevFiles.map((prevFile) =>
                 prevFile.name === fileName
                   ? {
-                      name: fileName,
-                      size: file.size,
-                      type: file.type,
-                      downloadableURL: downloadURL,
-                    }
+                    name: fileName,
+                    size: file.size,
+                    type: file.type,
+                    downloadableURL: downloadURL,
+                  }
                   : prevFile,
               );
             });
@@ -275,7 +275,7 @@ const SingleBountyItem = () => {
           </Card>
         </TabsContent>
         <TabsContent value="submission">
-          {bounty.BountyWinner.length === 0 ? (
+          {bounty.BountyWinner.length < bounty.totalWinner && !bounty.isOwner ? (
             <Card className="overflow-y-auto">
               <CardHeader>
                 <CardTitle>Submit Your Solution</CardTitle>
