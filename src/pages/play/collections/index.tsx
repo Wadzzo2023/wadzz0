@@ -166,7 +166,7 @@ export default function MyCollectionScreen() {
         const arRect = arButton.getBoundingClientRect();
         const deleteRect = deleteButton.getBoundingClientRect();
         const viewRect = viewButton.getBoundingClientRect();
-
+        console.log("filterRect", filterRect);
         setButtonLayouts([
           {
             x: filterRect.left,
@@ -197,18 +197,19 @@ export default function MyCollectionScreen() {
       }
     };
 
-    // Initial update
+    const observer = new MutationObserver(() => {
+      updateButtonLayouts();
+    });
+
+    // Start observing the document for changes
+    observer.observe(document.body, { childList: true, subtree: true });
+
+    // Initial layout calculation
     updateButtonLayouts();
-    console.log("buttonLayouts", buttonLayouts);
-    // Set up a timeout to update again after a short delay
-    const timeoutId = setTimeout(updateButtonLayouts, 3000);
 
-    // Set up resize listener
-    window.addEventListener('resize', updateButtonLayouts);
-
+    // Clean up the observer
     return () => {
-      window.removeEventListener('resize', updateButtonLayouts);
-      clearTimeout(timeoutId);
+      observer.disconnect();
     };
   }, []);
 

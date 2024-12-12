@@ -19,6 +19,7 @@ import { getMapAllPins } from "~/lib/play/get-Map-all-pins";
 import { getUserPlatformAsset } from "~/lib/play/get-user-platformAsset";
 import { useWalkThrough } from "~/components/hooks/play/useWalkthrough";
 import { Walkthrough } from "~/components/walkthrough";
+import { useBrandFollowMode } from "~/lib/state/play/useBrandFollowMode";
 
 type UserLocationType = {
   lat: number;
@@ -47,15 +48,13 @@ export default function HomeScreen() {
   const { onOpen } = useModal();
   const [buttonLayouts, setButtonLayouts] = useState<ButtonLayout[]>([]);
   const [showWalkthrough, setShowWalkthrough] = useState(false);
-  const { data: accountActionData } = useAccountAction();
   const { data: walkthroughData } = useWalkThrough();
-
+  const { data: brandFollowMode } = useBrandFollowMode()
   const welcomeRef = useRef<HTMLDivElement>(null);
   const balanceRef = useRef<HTMLDivElement>(null);
   const refreshButtonRef = useRef<HTMLButtonElement>(null);
   const recenterButtonRef = useRef<HTMLButtonElement>(null);
   const arButtonRef = useRef<HTMLButtonElement>(null);
-  const pinAutoCollectionRef = useRef<HTMLDivElement>(null);
 
   const steps = [
     {
@@ -101,7 +100,7 @@ export default function HomeScreen() {
     radius: number,
   ) => {
     return locations.filter((location) => {
-      if (location.auto_collect || location.collection_limit_remaining <= 0)
+      if (location.auto_collect || location.collection_limit_remaining <= 0 || location.collected)
         return false;
       const distance = getDistanceFromLatLonInMeters(
         userLocation.lat,
@@ -136,7 +135,7 @@ export default function HomeScreen() {
     userLocation: UserLocationType,
     locations: ConsumedLocation[],
   ) => {
-    const nearbyPins = getNearbyPins(userLocation, locations, 50000);
+    const nearbyPins = getNearbyPins(userLocation, locations, 50);
     if (nearbyPins.length > 0) {
       setData({
         nearbyPins: nearbyPins,
@@ -158,12 +157,13 @@ export default function HomeScreen() {
   };
 
   const getAutoCollectPins = (
-    userLocation: UserLocationType,
+    userLocation: UserLocationType | null,
     locations: ConsumedLocation[],
     radius: number,
   ) => {
+    if (!userLocation) return []; // Exit early if userLocation is null
     return locations.filter((location) => {
-      if (location.collection_limit_remaining <= 0) return false;
+      if (location.collection_limit_remaining <= 0 || location.collected) return false;
       if (location.auto_collect) {
         const distance = getDistanceFromLatLonInMeters(
           userLocation.lat,
@@ -182,7 +182,7 @@ export default function HomeScreen() {
         console.log("Auto collect mode paused");
         return; // Exit if auto-collect is turned off
       }
-      if (pin.collection_limit_remaining <= 0) {
+      if (pin.collection_limit_remaining <= 0 || pin.collected) {
         console.log("Pin limit reached:", pin.id);
         continue;
       }
@@ -213,19 +213,19 @@ export default function HomeScreen() {
   };
 
   const response = useQuery({
-    queryKey: ["MapsAllPins", accountActionData.brandMode],
+    queryKey: ["MapsAllPins", brandFollowMode],
     queryFn: () =>
       getMapAllPins({
-        filterID: accountActionData.brandMode ? "1" : "0",
+        filterID: brandFollowMode ? "1" : "0",
       }),
   });
+
   const balanceRes = useQuery({
     queryKey: ["balance"],
     queryFn: getUserPlatformAsset,
   });
 
   const locations = response.data?.locations ?? [];
-
 
   useLayoutEffect(() => {
     const updateButtonLayouts = () => {
@@ -240,7 +240,7 @@ export default function HomeScreen() {
         const refreshRect = refreshButton.getBoundingClientRect();
         const recenterRect = recenterButton.getBoundingClientRect();
         const arRect = arButton.getBoundingClientRect();
-
+        console.log("welcomeRect", welcomeRect);
         setButtonLayouts([
           {
             x: welcomeRect.left,
@@ -279,17 +279,19 @@ export default function HomeScreen() {
     };
 
     // Initial update
+    const observer = new MutationObserver(() => {
+      updateButtonLayouts();
+    });
+
+    // Start observing the document for changes
+    observer.observe(document.body, { childList: true, subtree: true });
+
+    // Initial layout calculation
     updateButtonLayouts();
-    console.log("buttonLayouts", buttonLayouts);
-    // Set up a timeout to update again after a short delay
-    const timeoutId = setTimeout(updateButtonLayouts, 3000);
 
-    // Set up resize listener
-    window.addEventListener('resize', updateButtonLayouts);
-
+    // Clean up the observer
     return () => {
-      window.removeEventListener('resize', updateButtonLayouts);
-      clearTimeout(timeoutId);
+      observer.disconnect();
     };
   }, []);
 
@@ -301,15 +303,7 @@ export default function HomeScreen() {
     }
   };
 
-  useEffect(() => {
-    console.log("walkthroughData", walkthroughData);
-    checkFirstTimeSignIn();
 
-  }, [walkthroughData]);
-
-  useEffect(() => {
-    autoCollectModeRef.current = data.mode;
-  }, [data.mode]);
 
   useEffect(() => {
     // Check if geolocation is supported
@@ -352,13 +346,32 @@ export default function HomeScreen() {
   }, []);
 
   useEffect(() => {
-    if (data.mode && userLocation && locations) {
-      const autoCollectPins = getAutoCollectPins(userLocation, locations, 100);
+    console.log("walkthroughData", walkthroughData);
+    checkFirstTimeSignIn();
+
+  }, [walkthroughData]);
+
+  useEffect(() => {
+    console.log("brandFollowMode", brandFollowMode);
+  }, [brandFollowMode]);
+
+  useEffect(() => {
+    if (data.mode && locations) {
+      const autoCollectPins = getAutoCollectPins(userLocation, locations, 50);
+      console.log("Auto collect pins:", autoCollectPins);
       if (autoCollectPins.length > 0) {
         collectPinsSequentially(autoCollectPins);
       }
     }
-  }, [data.mode, userLocation, locations]);
+  }, [data.mode, locations]);
+
+  useEffect(() => {
+    console.log("data.mode", data);
+  }, [data.mode]);
+
+  useEffect(() => {
+    autoCollectModeRef.current = data.mode;
+  }, [data.mode]);
 
   if (response.isLoading) {
     return <Loading />;
@@ -452,12 +465,12 @@ export default function HomeScreen() {
               <Card
 
 
-                className="absolute bottom-[300px] left-1/2 -ml-[50px] flex h-[100px] w-[100px] animate-pulse items-center justify-center rounded-full bg-primary">
+                className="absolute bottom-[300px] left-1/2 -ml-[50px] flex h-[150px] w-[150px] animate-pulse items-center justify-center rounded-full bg-primary">
                 <Image
                   height={80}
                   width={80}
                   alt="Wadzzo"
-                  src="/assets/images/wadzzo.png"
+                  src="/images/wadzzo.png"
                   className="object-contain"
                 />
               </Card>
@@ -494,7 +507,7 @@ function MyPins({ locations }: { locations: ConsumedLocation[] }) {
             width={40}
             alt="Wadzzo"
             src={location.brand_image_url}
-            className="rounded-full"
+            className="rounded-full h-12 w-12"
           />
         </Marker>
       ))}

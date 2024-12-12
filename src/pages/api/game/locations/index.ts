@@ -186,7 +186,6 @@ export default async function handler(
   }
 
   const locations = await pinsForCreators(creatorsId);
-
   res.status(200).json({ locations });
 }
 

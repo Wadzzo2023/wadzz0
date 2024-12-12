@@ -24,6 +24,7 @@ import { Brand } from "~/types/game/brand";
 import { api } from "~/utils/api";
 import { Walkthrough } from "~/components/walkthrough";
 import { useWalkThrough } from "~/components/hooks/play/useWalkthrough";
+import { useBrandFollowMode } from "~/lib/state/play/useBrandFollowMode";
 
 type ButtonLayout = {
   x: number;
@@ -33,7 +34,6 @@ type ButtonLayout = {
 };
 
 export default function CreatorPage() {
-  //   const { user, isAuthenticated } = useAuth();
   const session = useSession();
 
   const [searchQuery, setSearchQuery] = useState("");
@@ -47,14 +47,13 @@ export default function CreatorPage() {
 
 
   const [signLoading, setSingLoading] = useState(false);
-  const [submitLoading, setSubmitLoading] = useState(false);
+
   const [buttonLayouts, setButtonLayouts] = useState<ButtonLayout[]>([]);
 
-  const router = useRouter();
+
   const { needSign } = useNeedSign();
   const { data: walkthroughData } = useWalkThrough();
-  const connectedWalletType = session.data?.user.walletType ?? WalletType.none;
-
+  const { setData: setBrandFollowMode, data: brandFollowMode } = useBrandFollowMode()
   const modeButtonRef = useRef<HTMLButtonElement>(null);
   const searchButtonRef = useRef<HTMLDivElement>(null);
   const brandListButtonRef = useRef<HTMLDivElement>(null);
@@ -91,10 +90,7 @@ export default function CreatorPage() {
     useAccountAction();
 
   const toggleBrandMode = () => {
-    setAccountActionData({
-      brandMode: !accountActionData.brandMode,
-    });
-    console.log("accountActionData", accountActionData);
+    setBrandFollowMode(!brandFollowMode);
   };
   const queryClient = useQueryClient();
 
@@ -186,6 +182,7 @@ export default function CreatorPage() {
         const searchRect = searchButton.getBoundingClientRect();
         const brandListRect = brandListButton.getBoundingClientRect();
         const followRect = followButton.getBoundingClientRect();
+        console.log("filterRect", filterRect);
         setButtonLayouts([
           {
             x: filterRect.left,
@@ -216,19 +213,19 @@ export default function CreatorPage() {
         ]);
       }
     };
+    const observer = new MutationObserver(() => {
+      updateButtonLayouts();
+    });
 
-    // Initial update
+    // Start observing the document for changes
+    observer.observe(document.body, { childList: true, subtree: true });
+
+    // Initial layout calculation
     updateButtonLayouts();
-    console.log("buttonLayouts", buttonLayouts);
-    // Set up a timeout to update again after a short delay
-    const timeoutId = setTimeout(updateButtonLayouts, 3000);
 
-    // Set up resize listener
-    window.addEventListener('resize', updateButtonLayouts);
-
+    // Clean up the observer
     return () => {
-      window.removeEventListener('resize', updateButtonLayouts);
-      clearTimeout(timeoutId);
+      observer.disconnect();
     };
   }, []);
 
@@ -281,7 +278,7 @@ export default function CreatorPage() {
         <h1 className="text-2xl font-bold">Brands</h1>
         <div className="flex items-center space-x-2 rounded-full bg-white p-1">
           <span
-            className={`text-sm ${!accountActionData.brandMode
+            className={`text-sm ${!brandFollowMode
               ? "font-bold text-[#38C02B]"
               : "text-gray-500"
               }`}
@@ -290,11 +287,11 @@ export default function CreatorPage() {
           </span>
           <Switch
             ref={modeButtonRef}
-            checked={accountActionData.brandMode}
+            checked={brandFollowMode}
             onCheckedChange={toggleBrandMode}
           />
           <span
-            className={`text-sm ${accountActionData.brandMode
+            className={`text-sm ${brandFollowMode
               ? "font-bold text-[#FF5A5F]"
               : "text-gray-500"
               }`}

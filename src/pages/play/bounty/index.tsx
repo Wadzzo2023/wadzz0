@@ -119,36 +119,52 @@ export default function BountyScreen() {
         const filterRect = filterButton.getBoundingClientRect();
         const joinRect = joinButton.getBoundingClientRect();
         console.log("filterRect", filterRect);
-        console.log("joinRect", joinRect);
-        setButtonLayouts([
-          {
-            x: filterRect.left,
-            y: filterRect.top,
-            width: filterRect.width,
-            height: filterRect.height,
-          },
-          {
-            x: joinRect.left,
-            y: joinRect.top,
-            width: joinRect.width,
-            height: joinRect.height,
-          },
-        ]);
+        // Only update state if layout values have actually changed
+        setButtonLayouts((prevLayouts) => {
+          const newLayouts = [
+            {
+              x: filterRect.left,
+              y: filterRect.top,
+              width: filterRect.width,
+              height: filterRect.height,
+            },
+            {
+              x: joinRect.left,
+              y: joinRect.top,
+              width: joinRect.width,
+              height: joinRect.height,
+            },
+          ];
+
+          // Compare previous and new layouts to prevent unnecessary updates
+          if (
+            JSON.stringify(prevLayouts) !== JSON.stringify(newLayouts)
+          ) {
+            return newLayouts;
+          }
+          return prevLayouts;
+        });
       }
     };
 
-    // Initial update
-    updateButtonLayouts();
-    console.log("buttonLayouts", buttonLayouts);
-    // Set up a timeout to update again after a short delay
-    const timeoutId = setTimeout(updateButtonLayouts, 3000);
+    // Throttle updates using a flag
+    let animationFrameId: number | null = null;
 
-    // Set up resize listener
-    window.addEventListener('resize', updateButtonLayouts);
+    const observer = new MutationObserver(() => {
+      if (animationFrameId) cancelAnimationFrame(animationFrameId);
+      animationFrameId = requestAnimationFrame(updateButtonLayouts);
+    });
+
+    // Observe only the parent container for efficiency
+    const container = document.body;
+    observer.observe(container, { childList: true, subtree: true });
+
+    // Initial calculation
+    updateButtonLayouts();
 
     return () => {
-      window.removeEventListener('resize', updateButtonLayouts);
-      clearTimeout(timeoutId);
+      if (animationFrameId) cancelAnimationFrame(animationFrameId);
+      observer.disconnect();
     };
   }, []);
 
@@ -172,7 +188,7 @@ export default function BountyScreen() {
       if (selectedFilter === "Not Joined") return !bounty.isJoined && !bounty.isOwner;
       return true; // "All"
     });
-  }, [response.data, selectedFilter]);
+  }, [selectedFilter]);
 
   if (response.isLoading) return <Loading />;
 

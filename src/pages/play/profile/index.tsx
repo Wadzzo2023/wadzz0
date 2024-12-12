@@ -121,6 +121,7 @@ export default function SettingScreen() {
 
   const togglePinCollectionMode = () => {
     setData({
+      ...pinMode,
       mode: !pinMode.mode,
     });
     console.log(
@@ -144,7 +145,7 @@ export default function SettingScreen() {
         const resetTutorialRect = resetTutorialButton.getBoundingClientRect();
         const deleteDataRect = deleteDataButton.getBoundingClientRect();
         const signOutRect = signOutButton.getBoundingClientRect();
-
+        console.log("visitRect", visitRect);
         setButtonLayouts([
           {
             x: visitRect.x,
@@ -180,18 +181,19 @@ export default function SettingScreen() {
       }
     };
 
-    // Initial update
+    const observer = new MutationObserver(() => {
+      updateButtonLayouts();
+    });
+
+    // Start observing the document for changes
+    observer.observe(document.body, { childList: true, subtree: true });
+
+    // Initial layout calculation
     updateButtonLayouts();
-    console.log("buttonLayouts", buttonLayouts);
-    // Set up a timeout to update again after a short delay
-    const timeoutId = setTimeout(updateButtonLayouts, 3000);
 
-    // Set up resize listener
-    window.addEventListener('resize', updateButtonLayouts);
-
+    // Clean up the observer
     return () => {
-      window.removeEventListener('resize', updateButtonLayouts);
-      clearTimeout(timeoutId);
+      observer.disconnect();
     };
   }, []);
 
