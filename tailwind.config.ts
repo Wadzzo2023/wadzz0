@@ -76,11 +76,8 @@ const config: Config = {
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
-<<<<<<< HEAD
-=======
         // 'scrolling-text': 'scrolling-text 20s linear infinite',
 
->>>>>>> a0ff1735b97d7743c75d161a79c6b9516edc4672
       },
     },
   },
