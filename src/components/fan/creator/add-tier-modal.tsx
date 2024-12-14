@@ -136,7 +136,7 @@ export default function AddTierModal({ creator }: { creator: Creator }) {
                 </div>
                 <input
                   {...register("price", { valueAsNumber: true })}
-                  className="input input-bordered w-full px-2 "
+                  className="input input-bordered w-full "
                   type="number"
                   step="1"
                   min="1"
