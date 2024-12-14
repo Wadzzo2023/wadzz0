@@ -32,8 +32,14 @@ import { empty, error, loading, success } from "~/utils/trcp/patterns";
 export const tradeFormSchema = z.object({
   selling: z.string(),
   buying: z.string(),
-  amount: z.number().positive(),
-  price: z.number().positive(),
+  amount: z.number({
+    required_error: "Amount  must be a number",
+    invalid_type_error: "Amount must be a number",
+  }).positive(),
+  price: z.number({
+    required_error: "Price  must be a number",
+    invalid_type_error: "Price must be a number",
+  }).positive(),
 });
 
 export default function CreateTrade() {

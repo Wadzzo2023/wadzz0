@@ -1,6 +1,6 @@
-import { api } from "~/utils/api";
-import { MusicItem } from ".";
-import { SongItemType } from "./music_item";
+
+import { SongItemType } from "~/lib/state/play/use-modal-store";
+import MusicItem from "./music_item";
 
 type TrackSectionProp = {
   header: string;
@@ -8,36 +8,29 @@ type TrackSectionProp = {
   playable?: boolean;
 };
 
-export default function TrackSection({
-  header,
-  playable,
-  songs,
-}: TrackSectionProp) {
+export default function TrackSection({ header, playable, songs }: TrackSectionProp) {
   if (songs && songs.length > 0)
     return (
-      <div>
-        <h3 className="py-2 text-2xl font-bold">{header}</h3>
-        {songs.map((song) => (
-          <MusicItem key={song.id} item={song} playable={playable} />
-        ))}
-
-        <div className="flex flex-col gap-2"></div>
+      <div className="w-full">
+        <h2 className="mb-4 text-2xl font-bold text-gray-800">{header}</h2>
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
+          {songs.map((song, index: number) => (
+            <MusicItem key={song.id} item={song} playable={playable} index={index + 1} />
+          ))}
+        </div>
       </div>
     );
 }
 
-export function TrackSectionSkeleton({
-  header,
-  count = 2,
-}: {
-  header: string;
-  count?: number;
-}) {
+export function TrackSectionSkeleton({ header, count = 10 }: { header: string; count?: number }) {
   return (
-    <div>
-      <h3 className="py-2 text-2xl font-bold">{header}</h3>
-      <div className="skeleton my-2 h-10 w-full" />
-      <div className="skeleton h-10 w-full" />
+    <div className="w-full">
+      <h2 className="mb-4 text-2xl font-bold text-gray-800">{header}</h2>
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
+        {Array.from({ length: count }, (_, i: number) => (
+          <div key={i} className="aspect-square animate-pulse rounded-md bg-gray-200" />
+        ))}
+      </div>
     </div>
   );
 }

@@ -27,11 +27,22 @@ import {
   PaymentChoose,
   usePaymentMethodStore,
 } from "../payment/payment-options";
+import * as React from "react";
 
 import { Button } from "../shadcn/ui/button";
 import Alert from "../ui/alert";
 import Loading from "../wallete/loading";
 import RechargeLink from "./recharge/link";
+
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "~/components/shadcn/ui/select";
 
 import { Eye, EyeOff } from "lucide-react";
 import {
@@ -108,17 +119,6 @@ export default function NftCreate({ admin: isAdmin }: { admin?: true }) {
   }
 }
 
-import * as React from "react";
-
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue,
-} from "~/components/shadcn/ui/select";
 
 function NftCreateForm({
   admin: isAdmin,

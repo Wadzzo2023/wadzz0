@@ -6,7 +6,7 @@ import {
 } from "~/lib/stellar/fan/clawback";
 import { createAsset } from "~/lib/stellar/fan/create_asset";
 import {
-  getPlatfromAssetPrice,
+  getPlatformAssetPrice,
   getplatformAssetNumberForXLM,
 } from "~/lib/stellar/fan/get_token_price";
 import { getClawbackAsPayment } from "~/lib/stellar/fan/subscribe";
@@ -14,7 +14,6 @@ import { AssetSchema } from "~/lib/stellar/fan/utils";
 import { SignUser, WithSing } from "~/lib/stellar/utils";
 
 import { Keypair } from "@stellar/stellar-sdk";
-import { PaymentMethodEnum } from "~/components/music/modal/buy_modal";
 import { env } from "~/env";
 import {
   PLATFORM_ASSET,
@@ -40,6 +39,7 @@ import {
   publicProcedure,
 } from "~/server/api/trpc";
 import { db } from "~/server/db";
+import { PaymentMethodEnum } from "~/components/BuyItem";
 
 export const trxRouter = createTRPCRouter({
   createCreatorPageAsset: protectedProcedure
@@ -222,7 +222,7 @@ export const trxRouter = createTRPCRouter({
   }),
 
   getAssetPrice: publicProcedure.query(async () => {
-    return await getPlatfromAssetPrice();
+    return await getPlatformAssetPrice();
   }),
 
   getAssetNumberforXlm: publicProcedure

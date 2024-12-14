@@ -9,10 +9,7 @@ import {
 import { getAccSecretFromRubyApi } from "package/connect_wallet/src/lib/stellar/get-acc-secret";
 import { z } from "zod";
 import { BountyCommentSchema } from "~/components/fan/creator/bounty/Add-Bounty-Comment";
-import {
-  sortOptionEnum,
-  statusFilterEnum,
-} from "~/components/fan/creator/bounty/BountyList";
+import { sortOptionEnum } from "~/components/fan/creator/bounty/BountyList";
 import { MediaInfo } from "~/components/fan/creator/bounty/CreateBounty";
 import {
   checkXDRSubmitted,
@@ -30,7 +27,7 @@ import {
   getAssetPrice,
   getAssetToUSDCRate,
   getplatformAssetNumberForXLM,
-  getPlatfromAssetPrice,
+  getPlatformAssetPrice,
 } from "~/lib/stellar/fan/get_token_price";
 import { SignUser } from "~/lib/stellar/utils";
 import {
@@ -39,8 +36,7 @@ import {
   publicProcedure,
 } from "~/server/api/trpc";
 import { SubmissionMediaInfo } from "~/components/modals/file-upload-modal";
-import { PaymentMethodEnum } from "~/components/music/modal/buy_modal";
-import { is } from "@react-three/fiber/dist/declarations/src/core/utils";
+import { PaymentMethodEnum } from "~/components/BuyItem";
 
 const getAllBountyByUserIdInput = z.object({
   limit: z.number().min(1).max(100).default(10),
@@ -92,7 +88,9 @@ export const BountyRoute = createTRPCRouter({
     .input(
       z.object({
         title: z.string().min(1, { message: "Title can't be empty" }),
-        totalWinner: z.number().min(1, { message: "Please select at least 1 winner" }),
+        totalWinner: z
+          .number()
+          .min(1, { message: "Please select at least 1 winner" }),
         prizeInUSD: z
           .number()
           .min(0.00001, { message: "Prize can't less than 0" }),
@@ -108,6 +106,7 @@ export const BountyRoute = createTRPCRouter({
       }),
     )
     .mutation(async ({ input, ctx }) => {
+      console.log("data......................", input.medias);
       const bounty = await ctx.db.bounty.create({
         data: {
           title: input.title,
@@ -186,12 +185,6 @@ export const BountyRoute = createTRPCRouter({
             { description: { contains: search, mode: "insensitive" } },
           ],
         }),
-        ...(status === statusFilterEnum.ACTIVE && {
-          winnerId: null, // Bounties with no winner
-        }),
-        ...(status === statusFilterEnum.FINISHED && {
-          winnerId: { not: null }, // Bounties with a winner
-        }),
       };
 
       const bounties = await ctx.db.bounty.findMany({
@@ -210,6 +203,7 @@ export const BountyRoute = createTRPCRouter({
           creator: {
             select: {
               name: true,
+              profileUrl: true,
             },
           },
 
@@ -218,21 +212,33 @@ export const BountyRoute = createTRPCRouter({
               user: {
                 select: {
                   id: true,
-
-                }
+                },
               },
               isSwaped: true,
             },
           },
+          participants: {
+            where: { userId: ctx.session?.user.id },
+            select: { userId: true },
+          },
         },
       });
+      const bountyWithIsOwnerNisJoined = bounties.map((bounty) => {
+        return {
+          ...bounty,
+          isOwner: bounty.creatorId === ctx.session?.user.id,
+          isJoined: bounty.participants.some(
+            (participant) => participant.userId === ctx.session?.user.id,
+          ),
+        };
+      });
       let nextCursor: typeof cursor | undefined = undefined;
-      if (bounties.length > limit) {
-        const nextItem = bounties.pop();
+      if (bountyWithIsOwnerNisJoined.length > limit) {
+        const nextItem = bountyWithIsOwnerNisJoined.pop();
         nextCursor = nextItem?.id;
       }
       return {
-        bounties: bounties,
+        bounties: bountyWithIsOwnerNisJoined,
         nextCursor: nextCursor,
       };
     }),
@@ -321,11 +327,10 @@ export const BountyRoute = createTRPCRouter({
         skip: z.number().optional(),
         search: z.string().optional(),
         sortBy: z.nativeEnum(sortOptionEnum).optional(),
-        status: z.nativeEnum(statusFilterEnum).optional(),
       }),
     )
     .query(async ({ input, ctx }) => {
-      const { limit, cursor, skip, search, sortBy, status } = input;
+      const { limit, cursor, skip, search, sortBy } = input;
 
       const orderBy: Prisma.BountyOrderByWithRelationInput = {};
       if (sortBy === sortOptionEnum.DATE_ASC) {
@@ -346,12 +351,6 @@ export const BountyRoute = createTRPCRouter({
             { description: { contains: search, mode: "insensitive" } },
           ],
         }),
-        ...(status === statusFilterEnum.ACTIVE && {
-          winnerId: null, // Bounties with no winner
-        }),
-        ...(status === statusFilterEnum.FINISHED && {
-          winnerId: { not: null }, // Bounties with a winner
-        }),
       };
 
       const bounties = await ctx.db.bounty.findMany({
@@ -371,8 +370,7 @@ export const BountyRoute = createTRPCRouter({
               user: {
                 select: {
                   id: true,
-
-                }
+                },
               },
               isSwaped: true,
             },
@@ -382,18 +380,30 @@ export const BountyRoute = createTRPCRouter({
               name: true,
             },
           },
+          participants: {
+            where: { userId: ctx.session?.user.id },
+            select: { userId: true },
+          },
         },
         orderBy: orderBy,
       });
-
+      const bountyWithIsOwnerNisJoined = bounties.map((bounty) => {
+        return {
+          ...bounty,
+          isOwner: bounty.creatorId === ctx.session?.user.id,
+          isJoined: bounty.participants.some(
+            (participant) => participant.userId === ctx.session?.user.id,
+          ),
+        };
+      });
       let nextCursor: typeof cursor | undefined = undefined;
-      if (bounties.length > limit) {
-        const nextItem = bounties.pop();
+      if (bountyWithIsOwnerNisJoined.length > limit) {
+        const nextItem = bountyWithIsOwnerNisJoined.pop();
         nextCursor = nextItem?.id;
       }
 
       return {
-        bounties: bounties,
+        bounties: bountyWithIsOwnerNisJoined,
         nextCursor: nextCursor,
       };
     }),
@@ -427,7 +437,7 @@ export const BountyRoute = createTRPCRouter({
               user: {
                 select: {
                   id: true,
-                }
+                },
               },
               isSwaped: true,
             },
@@ -647,7 +657,7 @@ export const BountyRoute = createTRPCRouter({
       });
     }),
   getCurrentUSDFromAsset: protectedProcedure.query(async ({ ctx }) => {
-    return await getPlatfromAssetPrice();
+    return await getPlatformAssetPrice();
   }),
   getPlatformAsset: protectedProcedure.query(async ({ ctx }) => {
     return await getAssetPrice();
@@ -679,16 +689,15 @@ export const BountyRoute = createTRPCRouter({
       const winners = await ctx.db.bounty.findUnique({
         where: {
           id: input.BountyId,
-
         },
         select: {
           _count: {
             select: {
-              BountyWinner: true
-            }
+              BountyWinner: true,
+            },
           },
           totalWinner: true,
-          priceInXLM: true
+          priceInXLM: true,
         },
       });
       if (!winners) {
@@ -730,12 +739,12 @@ export const BountyRoute = createTRPCRouter({
         select: {
           _count: {
             select: {
-              BountyWinner: true
-            }
+              BountyWinner: true,
+            },
           },
           totalWinner: true,
-          creatorId: true
-        }
+          creatorId: true,
+        },
       });
       if (!bounty) {
         throw new Error("Bounty not found");
@@ -748,15 +757,15 @@ export const BountyRoute = createTRPCRouter({
       }
       await ctx.db.bounty.update({
         where: {
-          id: input.BountyId
+          id: input.BountyId,
         },
         data: {
           BountyWinner: {
             create: {
               userId: input.userId,
-            }
-          }
-        }
+            },
+          },
+        },
       });
 
       await ctx.db.notificationObject.create({
@@ -852,7 +861,6 @@ export const BountyRoute = createTRPCRouter({
         throw new Error("Bounty has a winner, you can't delete this bounty");
       }
 
-
       const bounty = await ctx.db.bounty.findUnique({
         where: {
           id: input.bountyId,
@@ -887,6 +895,7 @@ export const BountyRoute = createTRPCRouter({
       }),
     )
     .mutation(async ({ input, ctx }) => {
+      console.log("data", input);
       const bounty = await ctx.db.bounty.findUnique({
         where: {
           id: input.BountyId,
@@ -1151,11 +1160,11 @@ export const BountyRoute = createTRPCRouter({
       const findXDR = await ctx.db.bountyWinner.findFirst({
         where: {
           bountyId: input.bountyId,
-          userId: ctx.session.user.id
+          userId: ctx.session.user.id,
         },
         select: {
-          xdr: true
-        }
+          xdr: true,
+        },
       });
 
       if (findXDR?.xdr) {
@@ -1183,8 +1192,8 @@ export const BountyRoute = createTRPCRouter({
             BountyWinner: {
               create: {
                 userId: ctx.session.user.id,
-                xdr: res.xdr
-              }
+                xdr: res.xdr,
+              },
             },
           },
         });
@@ -1208,8 +1217,8 @@ export const BountyRoute = createTRPCRouter({
             create: {
               userId: ctx.session.user.id,
               isSwaped: true,
-            }
-          }
+            },
+          },
         },
       });
     }),
@@ -1457,9 +1466,7 @@ export const BountyRoute = createTRPCRouter({
         },
       });
       const result = doubts.map((doubt) => {
-        const winnerData = winnerCounts.find(
-          (w) => w.userId === doubt.user.id
-        );
+        const winnerData = winnerCounts.find((w) => w.userId === doubt.user.id);
         return {
           ...doubt,
           winnerCount: winnerData ? winnerData._count.userId : 0,

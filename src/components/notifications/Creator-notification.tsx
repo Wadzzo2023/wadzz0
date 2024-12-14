@@ -87,12 +87,12 @@ const Notifications = () => {
                   enable = true;
                   break;
                 case NotificationType.BOUNTY_DOUBT_CREATE:
-                  message = `${el.notificationObject.actor.name} create a chat on your bounty`;
+                  message = `${el.notificationObject.actor.name} created a chat on your bounty`;
                   url = `/bounty/${el.notificationObject.entityId}`;
                   enable = true;
                   break;
                 case NotificationType.BOUNTY_DOUBT_REPLY:
-                  message = `${el.notificationObject.actor.name} reply to your chat on bounty`;
+                  message = `${el.notificationObject.actor.name} replied to your chat on bounty`;
                   url = `/bounty/${el.notificationObject.entityId}`;
                   enable = true;
                   break;

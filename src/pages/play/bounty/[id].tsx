@@ -35,6 +35,7 @@ import { UploadSubmission } from "~/lib/play/upload-submission";
 import { Preview } from "~/components/preview";
 import { storage } from "package/connect_wallet/src/lib/firebase/firebase-auth";
 import { FirebaseStorage } from "firebase/storage";
+import { PLATFORM_ASSET } from "~/lib/stellar/constant";
 
 type UploadProgress = Record<string, number>;
 
@@ -225,7 +226,7 @@ const SingleBountyItem = () => {
           <div className="flex flex-col gap-2">
             <p className="font-bold">Prize: ${bounty.priceInUSD.toFixed(2)}</p>
             <p className="font-bold">
-              Prize: {bounty.priceInBand.toFixed(2)} Wadzzo
+              Prize: {bounty.priceInBand.toFixed(2)} {PLATFORM_ASSET.code}
             </p>
             <p>Participants: {bounty._count.participants}</p>
           </div>
@@ -274,7 +275,7 @@ const SingleBountyItem = () => {
           </Card>
         </TabsContent>
         <TabsContent value="submission">
-          {bounty.BountyWinner.length === 0 ? (
+          {bounty.BountyWinner.length < bounty.totalWinner && !bounty.isOwner ? (
             <Card className="overflow-y-auto">
               <CardHeader>
                 <CardTitle>Submit Your Solution</CardTitle>
@@ -306,7 +307,7 @@ const SingleBountyItem = () => {
           ) : (
             <Card>
               <CardContent>
-                <h3 className="text-xl font-bold mb-2">Winners</h3>
+                <h3 className="mb-2 text-xl font-bold">Winners</h3>
                 {bounty.BountyWinner.map((winner, index) => (
                   <p key={index} className="font-bold text-green-600">
                     {winner.userId}

@@ -12,9 +12,13 @@ import useNeedSign from "~/lib/hook";
 import { clientSelect } from "~/lib/stellar/fan/utils";
 import { addrShort } from "~/utils/utils";
 import { xdr } from "@stellar/stellar-sdk";
+import { Button } from "~/components/shadcn/ui/button";
 
 export const PlaceMarketFormSchema = z.object({
-  placingCopies: z.number().nonnegative().int(),
+  placingCopies: z.number({
+    required_error: "Placing Copies  must be a number",
+    invalid_type_error: "Placing Copies must be a number",
+  }).nonnegative().int(),
   code: z
     .string()
     .min(4, { message: "Must be a minimum of 4 characters" })
@@ -189,12 +193,12 @@ export default function PlaceNFT2Storage({
           <button>close</button>
         </form> */}
       </dialog>
-      <button
-        className="btn btn-primary btn-sm my-2 w-full transition duration-500 ease-in-out"
+      <Button
+        className="btn btn-secondary btn-sm my-2 w-full transition duration-500 ease-in-out"
         onClick={handleModal}
       >
         Place item for sale
-      </button>
+      </Button>
     </>
   );
 }

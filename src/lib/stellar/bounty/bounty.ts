@@ -1,16 +1,12 @@
-import { SignUserType, WithSing } from "../utils";
 import {
   Asset,
   BASE_FEE,
-  Claimant,
   Horizon,
   Keypair,
-  Networks,
   Operation,
   Transaction,
   TransactionBuilder,
 } from "@stellar/stellar-sdk";
-import { MOTHER_SECRET } from "../marketplace/SECRET";
 import {
   networkPassphrase,
   PLATFORM_ASSET,
@@ -19,16 +15,10 @@ import {
   TrxBaseFee,
   TrxBaseFeeInPlatformAsset,
 } from "../constant";
-import {
-  getAssetPrice,
-  getAssetToUSDCRate,
-  getplatformAssetNumberForXLM,
-} from "../fan/get_token_price";
-import { env } from "~/env";
-import { LucideBookDown } from "lucide-react";
-import { P } from "pino";
+import { MOTHER_SECRET } from "../marketplace/SECRET";
+import { SignUserType, WithSing } from "../utils";
 
-const assetIssuer = "GA5ZSEJYB37JRC5AVCIA5MOP4RHTM335X2KGX3IHOJAPP5RE34K4KZVN"
+const assetIssuer = "GA5ZSEJYB37JRC5AVCIA5MOP4RHTM335X2KGX3IHOJAPP5RE34K4KZVN";
 const assetCode = "USDC";
 
 export async function SendBountyBalanceToMotherAccount({
@@ -251,7 +241,8 @@ export async function SendBountyBalanceToWinner({
   const hasTrust = receiverAcc.balances.some((balance) => {
     console.log(balance);
     return (
-      (balance.asset_type === "credit_alphanum4" || balance.asset_type === "credit_alphanum12") &&
+      (balance.asset_type === "credit_alphanum4" ||
+        balance.asset_type === "credit_alphanum12") &&
       balance.asset_code === PLATFORM_ASSET.getCode() &&
       balance.asset_issuer === PLATFORM_ASSET.getIssuer()
     );
@@ -315,7 +306,6 @@ export async function SendBountyBalanceToWinnerViaXLM({
   );
 
   transaction.setTimeout(0);
-
   const buildTrx = transaction.build();
   buildTrx.sign(motherAcc);
   return buildTrx.toXDR();
@@ -367,36 +357,33 @@ export async function SwapUserAssetToMotherUSDC({
     return false;
   });
 
-
   const asset = new Asset(assetCode, assetIssuer);
 
   const senderHasTrustOnUSDC = senderAcc.balances.some((balance) => {
     console.log(balance);
     return (
-      (balance.asset_type === "credit_alphanum4" || balance.asset_type === "credit_alphanum12") &&
+      (balance.asset_type === "credit_alphanum4" ||
+        balance.asset_type === "credit_alphanum12") &&
       balance.asset_code === assetCode &&
       balance.asset_issuer === assetIssuer
     );
   });
-
 
   const receiverHasTrustOnUSDC = account.balances.some((balance) => {
     console.log(balance);
     return (
-      (balance.asset_type === "credit_alphanum4" || balance.asset_type === "credit_alphanum12") &&
+      (balance.asset_type === "credit_alphanum4" ||
+        balance.asset_type === "credit_alphanum12") &&
       balance.asset_code === assetCode &&
       balance.asset_issuer === assetIssuer
     );
   });
-
 
   if (!receiverHasTrustOnUSDC) {
     throw new Error("Please Contact Admin to add USDC trustline");
   }
 
-
   if (!senderHasTrustOnUSDC) {
-
     if (
       !platformAssetBalance ||
       parseFloat(platformAssetBalance.balance) < priceInBand
@@ -461,7 +448,8 @@ export async function getHasMotherTrustOnUSDC() {
   const motherHasTrust = account.balances.some((balance) => {
     console.log(balance);
     return (
-      (balance.asset_type === "credit_alphanum4" || balance.asset_type === "credit_alphanum12") &&
+      (balance.asset_type === "credit_alphanum4" ||
+        balance.asset_type === "credit_alphanum12") &&
       balance.asset_code === assetCode &&
       balance.asset_issuer === assetIssuer
     );
@@ -478,7 +466,8 @@ export async function getHasUserHasTrustOnUSDC(userPubKey: string) {
   const userHasTrust = account.balances.some((balance) => {
     console.log(balance);
     return (
-      (balance.asset_type === "credit_alphanum4" || balance.asset_type === "credit_alphanum12") &&
+      (balance.asset_type === "credit_alphanum4" ||
+        balance.asset_type === "credit_alphanum12") &&
       balance.asset_code === assetCode &&
       balance.asset_issuer === assetIssuer
     );

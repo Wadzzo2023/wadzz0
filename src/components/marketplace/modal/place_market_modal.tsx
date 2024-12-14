@@ -21,7 +21,10 @@ export const PlaceMarketFormSchema = z.object({
       invalid_type_error: "Limit must be entered as a number",
     })
     .nonnegative(),
-  priceUSD: z.number().nonnegative(),
+  priceUSD: z.number({
+    required_error: "Price  must be a number",
+    invalid_type_error: "Price must be a number",
+  }).nonnegative(),
 });
 
 export type PlaceMarketFormType = z.TypeOf<typeof PlaceMarketFormSchema>;

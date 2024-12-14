@@ -132,7 +132,7 @@ export default function GiftPage() {
                 placeholder={`Price in ${bal.data.asset}`}
                 {...register("amount")}
                 className="grow"
-                // className=" input input-bordered w-full "
+              // className=" input input-bordered w-full "
               />
             </label>
             <div className="flex flex-col gap-2">

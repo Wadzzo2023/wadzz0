@@ -6,14 +6,14 @@ import PageAssetComponent from "../marketplace/page_asset";
 
 export default function AllAsset() {
   const assets = api.wallate.asset.getBancoinAssets.useInfiniteQuery(
-    { limit: 4 },
+    { limit: 10 },
     {
       getNextPageParam: (lastPage) => lastPage.nextCursor,
     },
   );
 
   const musicAssets = api.music.song.getAllSongMarketAssets.useInfiniteQuery(
-    { limit: 4 },
+    { limit: 10 },
     {
       getNextPageParam: (lastPage) => lastPage.nextCursor,
     },
@@ -21,20 +21,20 @@ export default function AllAsset() {
 
   const adminAssets =
     api.marketplace.market.getMarketAdminNfts.useInfiniteQuery(
-      { limit: 4 },
+      { limit: 10 },
       {
         getNextPageParam: (lastPage) => lastPage.nextCursor,
       },
     );
 
   const fanAssets = api.marketplace.market.getFanMarketNfts.useInfiniteQuery(
-    { limit: 4 },
+    { limit: 10 },
     {
       getNextPageParam: (lastPage) => lastPage.nextCursor,
     },
   );
   const artistAssets = api.marketplace.market.getPageAssets.useInfiniteQuery(
-    { limit: 4 },
+    { limit: 10 },
     {
       getNextPageParam: (lastPage) => lastPage.nextCursor,
     },

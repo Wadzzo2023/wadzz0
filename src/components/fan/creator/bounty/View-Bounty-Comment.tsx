@@ -18,7 +18,6 @@ export default function ViewBountyComment({
 }: {
   comment: BountyComment & {
     userWinCount: number;
-
     user: {
       name: string | null;
       image: string | null;
@@ -33,6 +32,8 @@ export default function ViewBountyComment({
 }) {
   const [replyBox, setReplyBox] = useState<boolean>(false);
 
+  console.log("bountyChildComments", bountyChildComments);
+  console.log("comment", comment);
   return (
     <div className="flex items-start justify-between text-sm ">
       <div className="flex w-full gap-2">
@@ -46,7 +47,7 @@ export default function ViewBountyComment({
         <div className="flex w-full flex-col items-start">
           <h2 className="font-bold">{comment.user.name}</h2>
           {/* <p>{comment.content}</p> */}
-          {comment.content.length > 50 ? (
+          {comment.content.length > 200 ? (
             <ShowMore content={comment.content} />
           ) : (
             <p>{comment.content}</p>

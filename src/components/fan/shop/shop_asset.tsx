@@ -3,7 +3,7 @@ import { useMarketRightStore } from "~/lib/state/marketplace/right";
 import { usePopUpState } from "~/lib/state/right-pop";
 import { MarketType } from "@prisma/client";
 import AssetView from "~/components/marketplace/asset/asset_view";
-import { MarketAssetType } from "~/components/marketplace/market_right";
+import { MarketAssetType } from "~/lib/state/play/use-modal-store";
 
 function ShopAssetComponent({ item }: { item: MarketAssetType }) {
   const { asset } = item;
