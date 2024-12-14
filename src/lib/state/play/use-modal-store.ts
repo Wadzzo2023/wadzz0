@@ -23,6 +23,23 @@ export type AdminAssetWithTag = AdminAsset & {
     tagName: string;
   }[];
 };
+export type Transaction = {
+  source: string;
+  successful: boolean;
+  ledger_attr: number;
+  sequence: string;
+  maxFee: string | number;
+  createdAt: string;
+  memo: string | undefined;
+  id: string;
+  pagingToken: string;
+  envelopeXdr: string;
+  resultXdr: string;
+  resultMetaXdr: string;
+  signatures: string[];
+  fee_charged: string | number;
+  operations: Horizon.ServerApi.OperationRecord[];
+}
 
 export type ModalType =
   | "send assets"
@@ -59,7 +76,7 @@ export interface ModalData {
   bountyId?: number;
   attachment?: SubmissionAttachment[];
   submissionId?: number;
-  transaction?: Horizon.ServerApi.TransactionRecord
+  transaction?: Transaction;
   startDate?: Date,
   endDate?: Date,
   pinCollectionLimit?: number,
