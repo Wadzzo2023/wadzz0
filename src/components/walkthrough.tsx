@@ -129,10 +129,12 @@ export const Walkthrough: React.FC<WalkthroughProps> = ({ steps, onFinish }) => 
     // }, [])
 
     const onStop = () => {
-        localStorage.setItem("isFirstSignIn", "false")
-        setData({ showWalkThrough: false });
-        onFinish()
-    }
+        if (typeof window !== "undefined") {
+            localStorage.setItem("isFirstSignIn", "false");
+            setData({ showWalkThrough: false });
+        }
+        onFinish();
+    };
 
     const nextStep = () => {
         if (currentStep < steps.length - 1) {
