@@ -645,6 +645,12 @@ function PlayableMedia({
             <source src={mediaUrl} type="video/mp4" />
           </video>
         );
+      case MediaType.THREE_D:
+        return (
+          <div className="text-center">
+            <span className="text-center text-green-600">Obj has uploaded!!</span>
+          </div>
+        )
 
     }
   }
