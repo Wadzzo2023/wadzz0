@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { api } from "~/utils/api";
 import { useSession } from "next-auth/react";
 import { clientsign, WalletType } from "package/connect_wallet";
@@ -6,7 +6,11 @@ import toast from "react-hot-toast";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import { SubmitHandler, useForm } from "react-hook-form";
-
+import { Canvas } from "@react-three/fiber";
+import { OBJLoader } from "three/examples/jsm/loaders/OBJLoader";
+import { PresentationControls, Stage, OrbitControls } from "@react-three/drei";
+import { Group } from "three";
+import * as THREE from "three";
 import { Button } from "~/components/shadcn/ui/button";
 import {
     Dialog,
@@ -17,7 +21,7 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "~/components/shadcn/ui/dialog";
-import { X, MessageCircle, Sparkles, Loader2 } from "lucide-react";
+import { X, MessageCircle, Sparkles, Loader2, ArrowLeft } from "lucide-react";
 
 import { Input } from "~/components/shadcn/ui/input";
 import {
@@ -53,6 +57,7 @@ import EnableInMarket from "../marketplace/modal/place_market_modal";
 import { useRouter } from "next/router";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Label } from "../shadcn/ui/label";
+import ShowModel from "../ThreeDModel";
 
 export const PaymentMethodEnum = z.enum(["asset", "xlm", "card"]);
 export type PaymentMethod = z.infer<typeof PaymentMethodEnum>;
@@ -78,7 +83,7 @@ export default function CreatorStoreAssetInfoModal() {
     }
 
     const copy = api.marketplace.market.getMarketAssetAvailableCopy.useQuery({
-        id: data.creatorStoreAsset?.asset.id,
+        id: data.creatorStoreAsset?.id,
     });
 
     if (data.creatorStoreAsset && data.creatorStoreAsset.asset)
@@ -86,26 +91,7 @@ export default function CreatorStoreAssetInfoModal() {
             <>
                 <Dialog open={isModalOpen} onOpenChange={handleClose}>
                     <DialogContent className="max-w-3xl overflow-hidden p-0 [&>button]:text-white ">
-                        <DialogHeader className=" border-b m-0 p-0">
-                            <DialogTitle className="justify-between flex p-2">
-                                <DialogClose className="absolute top-1 right-3">
-                                    <X color="red" />
-                                </DialogClose>
-                                {
-                                    step === 1 && (
-                                        <h2 className="text-lg font-bold text-black">
-                                            Edit {data.creatorStoreAsset.asset.name}
-                                        </h2>
-                                    )
-                                }
-                                {step === 2 && (
-                                    <Button onClick={handleBack} variant="outline" className="">
-                                        Back
-                                    </Button>
-                                )}
 
-                            </DialogTitle>
-                        </DialogHeader>
                         {
                             step === 1 && (
                                 <div className="grid grid-cols-2 md:grid-cols-7">
@@ -185,7 +171,7 @@ export default function CreatorStoreAssetInfoModal() {
                                                 )}
                                             />
                                         ) : (
-                                            data.creatorStoreAsset.asset.mediaType === "MUSIC" && (
+                                            data.creatorStoreAsset.asset.mediaType === "MUSIC" ? (
                                                 <Image
                                                     src={data.creatorStoreAsset.asset.thumbnail}
                                                     alt={data.creatorStoreAsset.asset.name}
@@ -196,15 +182,32 @@ export default function CreatorStoreAssetInfoModal() {
                                                         data.creatorStoreAsset.asset.tierId ? " blur-md" : "",
                                                     )}
                                                 />
-                                            )
-                                        )}
+                                            ) :
+                                                (
+                                                    data.creatorStoreAsset.asset.mediaType === "THREE_D" && (
+                                                        <ShowModel url={data.creatorStoreAsset.asset.mediaUrl} />
+                                                    )
+                                                )
+                                        )
+                                        }
                                     </div>
                                 </div>
                             )
                         }
                         {
                             step === 2 && (
-                                <EditForm item={data.creatorStoreAsset} closeModal={handleClose} />
+                                <Card>
+                                    <CardContent className="p-0">
+                                        <EditForm item={data.creatorStoreAsset} closeModal={handleClose} />
+                                    </CardContent>
+                                    <CardFooter className="p-2">
+                                        {step === 2 && (
+                                            <Button onClick={handleBack} variant="secondary" className="">
+                                                <ArrowLeft className="h-4 w-4" /> Back
+                                            </Button>
+                                        )}
+                                    </CardFooter>
+                                </Card>
                             )
                         }
                     </DialogContent>
@@ -351,3 +354,6 @@ function EditForm({
         </Card>
     );
 }
+
+
+

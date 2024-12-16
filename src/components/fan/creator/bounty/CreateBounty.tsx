@@ -232,7 +232,7 @@ const CreateBounty = () => {
               </CardTitle>
               <CardDescription></CardDescription>
             </CardHeader>
-            <CardContent className="px-1 ">
+            <CardContent className="px-1">
               <form
                 onSubmit={handleSubmit(onSubmit)}
                 className="flex w-full flex-col gap-4 rounded-3xl bg-base-200 p-5"
@@ -265,7 +265,7 @@ const CreateBounty = () => {
                     </div>
                   )}
                 </label>
-                <label className="h-[240px]">
+                <div className="h-[240px]">
                   {/* <textarea
                 {...register("content")}
                 className="textarea textarea-bordered h-48"
@@ -285,7 +285,7 @@ const CreateBounty = () => {
                       </span>
                     </div>
                   )}
-                </label>
+                </div>
                 <div>
                   <div className="flex flex-col items-center gap-2">
                     <div className="flex gap-2">

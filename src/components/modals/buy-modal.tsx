@@ -28,6 +28,7 @@ import clsx from "clsx";
 
 import { useRouter } from "next/router";
 import BuyItem from "../BuyItem";
+import ShowModel from "../ThreeDModel";
 
 export const PaymentMethodEnum = z.enum(["asset", "xlm", "card"]);
 export type PaymentMethod = z.infer<typeof PaymentMethodEnum>;
@@ -55,11 +56,11 @@ export default function BuyModal() {
     }
 
     const copy = api.marketplace.market.getMarketAssetAvailableCopy.useQuery({
-        id: data.Asset?.asset?.id,
+        id: data.Asset?.id,
     });
 
     const { data: canBuyUser, isLoading: canBuyUserLoading } = api.marketplace.market.userCanBuyThisMarketAsset.useQuery(
-        data.Asset?.asset?.id ?? 0,
+        data.Asset?.id ?? 0,
     );
 
     if (!data.Asset || !data.Asset.asset)
@@ -93,7 +94,6 @@ export default function BuyModal() {
             <Dialog open={isModalOpen} onOpenChange={handleClose}>
 
                 <DialogContent className="max-w-3xl overflow-hidden p-0 [&>button]:text-white ">
-
 
                     {
                         step === 1 && (
@@ -205,7 +205,7 @@ export default function BuyModal() {
                                             className={clsx("h-full w-full object-cover ", data.Asset.asset.tierId ? " blur-md" : "")}
                                         />
                                     ) : (
-                                        data.Asset.asset.mediaType === "MUSIC" && (
+                                        data.Asset.asset.mediaType === "MUSIC" ? (
                                             <Image
                                                 src={data.Asset.asset.thumbnail}
                                                 alt={data.Asset.asset.name}
@@ -213,7 +213,27 @@ export default function BuyModal() {
                                                 height={1000}
                                                 className={clsx("h-full w-full object-cover ", data.Asset.asset.tierId ? " blur-md" : "")}
                                             />
-                                        )
+                                        ) :
+                                            (
+                                                <>
+                                                    <div
+                                                        style={{
+                                                            backgroundImage: `url(${data.Asset.asset.thumbnail})`,
+                                                            backgroundSize: "cover",
+                                                            backgroundPosition: "center",
+                                                            backgroundRepeat: "no-repeat",
+                                                            height: "100%",
+                                                            width: "100%",
+
+                                                        }}
+                                                        className={clsx(
+                                                            "h-full w-full"
+                                                        )}
+                                                    >
+                                                        <ShowModel url={data.Asset.asset.mediaUrl} blur={true} />
+                                                    </div>
+                                                </>
+                                            )
                                     )}
                                 </div>
                             </div>
@@ -225,7 +245,7 @@ export default function BuyModal() {
                         <Card>
                             <CardContent className="p-0">
                                 <BuyItem
-                                    marketItemId={data.Asset.asset.id}
+                                    marketItemId={data.Asset.id}
                                     priceUSD={data.Asset.priceUSD}
                                     item={data.Asset.asset}
                                     price={data.Asset.price}

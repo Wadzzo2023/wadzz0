@@ -26,6 +26,7 @@ enum MediaType {
     MUSIC
     VIDEO
     IMAGE
+    THREE_D
 }
 
 // ------------------------NOTIFICATION SCHEMA-------------------------
