@@ -15,6 +15,7 @@ import {
   publicProcedure,
 } from "~/server/api/trpc";
 import { PinLocation } from "~/types/pin";
+import { BADWORDS } from "~/utils/banned-word";
 import { randomLocation as getLocationInLatLngRad } from "~/utils/map";
 
 export const pinRouter = createTRPCRouter({
@@ -176,26 +177,76 @@ export const pinRouter = createTRPCRouter({
     .input(
       z.object({
         pinId: z.string(),
-        title: z.string(),
+        lat: z
+          .number({
+            message: "Latitude is required",
+          })
+          .min(-180)
+          .max(180),
+        lng: z
+          .number({
+            message: "Longitude is required",
+          })
+          .min(-180)
+          .max(180),
         description: z.string(),
-        imgUrl: z.string().optional(),
+        title: z
+          .string()
+          .min(3)
+          .refine(
+            (value) => {
+              return !BADWORDS.some((word) => value.includes(word));
+            },
+            {
+              message: "Input contains banned words.",
+            },
+          ),
+        image: z.string().url().optional(),
         startDate: z.date().optional(),
-        endDate: z.date().optional(),
-        collectionLimit: z.number().optional(),
-      }),
+        endDate: z.date().min(new Date(new Date().setHours(0, 0, 0, 0))).optional(),
+        url: z.string().url().optional(),
+        autoCollect: z.boolean(),
+        token: z.number().optional(),
+        pinNumber: z.number().nonnegative().min(1),
+        pinCollectionLimit: z.number().min(0),
+        tier: z.string().optional(),
+        multiPin: z.boolean().optional(),
+      })
     )
     .mutation(async ({ ctx, input }) => {
-      const {
-        pinId,
-        title,
+      const { pinNumber, pinCollectionLimit, token, tier, multiPin, pinId,
+        lat,
+        lng,
         description,
-        imgUrl,
+        title,
+        image,
         startDate,
         endDate,
-        collectionLimit,
+        url,
+        autoCollect,
       } = input;
-      console.log(pinId, title, description);
 
+      let tierId: number | undefined;
+      let privacy: ItemPrivacy = ItemPrivacy.PUBLIC;
+
+      if (!tier) {
+        privacy = ItemPrivacy.PUBLIC;
+      } else if (tier == "public") {
+        privacy = ItemPrivacy.PUBLIC;
+      } else if (tier == "private") {
+        privacy = ItemPrivacy.PRIVATE;
+      } else {
+        tierId = Number(tier);
+        privacy = ItemPrivacy.TIER;
+      }
+
+      let assetId = token;
+      let pageAsset = false;
+
+      if (token == PAGE_ASSET_NUM) {
+        assetId = undefined;
+        pageAsset = true;
+      }
       try {
         // Step 1: Find the Location object by pinId (which is the location ID)
         const findLocation = await ctx.db.location.findFirst({
@@ -203,6 +254,7 @@ export const pinRouter = createTRPCRouter({
             id: pinId,
           },
           include: {
+
             locationGroup: true, // Include the LocationGroup associated with the Location
           },
         });
@@ -227,12 +279,19 @@ export const pinRouter = createTRPCRouter({
             id: findLocation.locationGroup.id, // Use locationGroup ID to update
           },
           data: {
-            title, // Update the title
-            description, // Update the description
-            image: imgUrl, // Optional image URL
-            startDate, // Optional start date
-            endDate, // Optional end date
-            limit: collectionLimit, // Optional collection limit
+            title,
+            description,
+            image,
+            startDate,
+            endDate,
+            link: url,
+            subscriptionId: tierId,
+            privacy,
+            assetId,
+            pageAsset,
+            limit: pinCollectionLimit,
+            remaining: pinNumber,
+            multiPin,
           },
         });
 
@@ -267,9 +326,23 @@ export const pinRouter = createTRPCRouter({
                     image: true,
                     description: true,
                     title: true,
+                    link: true,
+                    multiPin: true,
+                    subscriptionId: true,
+                    pageAsset: true,
+                    privacy: true,
+                    remaining: true,
+                    assetId: true,
                   },
                 },
+                latitude: true,
+                longitude: true,
+                id: true,
+                autoCollect: true,
+
+
               },
+
             },
           },
         },
@@ -440,10 +513,10 @@ export const pinRouter = createTRPCRouter({
         where: {
           createdAt: input
             ? {
-                gte: new Date(
-                  new Date().getTime() - input.day * 24 * 60 * 60 * 1000,
-                ),
-              }
+              gte: new Date(
+                new Date().getTime() - input.day * 24 * 60 * 60 * 1000,
+              ),
+            }
             : {},
         },
         include: {
@@ -499,10 +572,10 @@ export const pinRouter = createTRPCRouter({
         where: {
           createdAt: input
             ? {
-                gte: new Date(
-                  new Date().getTime() - input.day * 24 * 60 * 60 * 1000,
-                ),
-              }
+              gte: new Date(
+                new Date().getTime() - input.day * 24 * 60 * 60 * 1000,
+              ),
+            }
             : {},
         },
         include: {
@@ -556,10 +629,10 @@ export const pinRouter = createTRPCRouter({
         where: {
           createdAt: input
             ? {
-                gte: new Date(
-                  new Date().getTime() - input.day * 24 * 60 * 60 * 1000,
-                ),
-              }
+              gte: new Date(
+                new Date().getTime() - input.day * 24 * 60 * 60 * 1000,
+              ),
+            }
             : {},
         },
         include: {
