@@ -23,6 +23,7 @@ import { useModal } from "~/lib/state/play/use-modal-store";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { RecentTransactionHistory } from "~/lib/stellar/walletBalance/acc";
 import { useSession } from "next-auth/react";
+import { format } from "date-fns";
 
 const BatchLimit = 10;
 
@@ -83,9 +84,11 @@ const TransactionHistory = () => {
                       <TableRow key={j}
                         onClick={() => onOpen("transaction history", { transaction: transaction })}
                       >
+                        <TableCell >{new Date(transaction.createdAt).toLocaleString()}</TableCell>
                         {
                           transaction.operations.map((operation, k) => (
-                            <TableCell key={k} className="flex flex-col  px-2 py-3">
+
+                            <TableCell className="flex flex-col  px-2 py-3">
                               {
                                 operation.type === "payment" && (
                                   (
