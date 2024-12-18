@@ -13,8 +13,8 @@ const Notification = () => {
     <div>
       <Tabs defaultValue="user" className="w-full p-4 text-center">
         <TabsList className="">
-          <TabsTrigger value="user">User Notification</TabsTrigger>
-          <TabsTrigger value="creator">Creator Notification</TabsTrigger>
+          <TabsTrigger value="user">User Notifications</TabsTrigger>
+          <TabsTrigger value="creator">Creator Notifications</TabsTrigger>
         </TabsList>
         <TabsContent value="user">
           <UserNotification />
