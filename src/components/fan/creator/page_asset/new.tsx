@@ -274,7 +274,7 @@ function NewPageAssetFrom({ requiredToken }: { requiredToken: number }) {
         costBreakdown={[
           {
             label: "Cost",
-            amount: paymentMethod === "asset" ? requiredToken : 2,
+            amount: paymentMethod === "asset" ? requiredToken - totalFeees : 2,
             type: "cost",
             highlighted: true,
           },

@@ -61,11 +61,11 @@ export default function SinglePinPage() {
                 <p>
                   <strong>Start Date:</strong>{" "}
                   {demoPin.startDate &&
-                    format(new Date(demoPin.startDate), "PPP")}
+                    new Date(demoPin.startDate).toLocaleString()}
                 </p>
                 <p>
                   <strong>End Date:</strong>{" "}
-                  {demoPin.endDate && format(new Date(demoPin.endDate), "PPP")}
+                  {demoPin.endDate && new Date(demoPin.endDate).toLocaleString()}
                 </p>
               </div>
               <div className="flex items-center justify-center">

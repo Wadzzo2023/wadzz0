@@ -27,7 +27,7 @@ export default function MemberShipCard({
         <div className="mb-6 flex items-center justify-between border-b pb-2">
           <div>
             <p className="text-sm font-bold uppercase tracking-wider">
-              {subscription.price} {pageAsset}
+              Requirement: {subscription.price} {pageAsset}
             </p>
             <p className="text-3xl font-extrabold">
               {subscription.name.toLocaleUpperCase()}

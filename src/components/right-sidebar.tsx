@@ -2,7 +2,6 @@ import { useRouter } from "next/router";
 
 import { MusicRightSide } from "./music/music_right";
 import RightBar from "./fan/fan-right";
-
 import AdminRightSide from "./admin/admin_right";
 import { useTagStore } from "~/lib/state/wallete/tag";
 import { MarketType } from "@prisma/client";

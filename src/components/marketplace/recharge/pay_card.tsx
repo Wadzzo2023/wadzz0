@@ -14,7 +14,6 @@ type PaymentCardType = {
   pubkey: string;
   xdr: string;
 };
-
 export default function PaymentCard({ pubkey, offer, xdr }: PaymentCardType) {
   const [loading, setLoading] = useState(false);
 

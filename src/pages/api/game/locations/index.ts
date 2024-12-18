@@ -8,6 +8,7 @@ import { db } from "~/server/db";
 import { Location } from "~/types/game/location";
 import { avaterIconUrl as abaterIconUrl } from "../brands";
 import { StellarAccount } from "~/lib/stellar/marketplace/test/Account";
+import { m } from "framer-motion";
 
 export default async function handler(
   req: NextApiRequest,
@@ -111,11 +112,9 @@ export default async function handler(
       include: {
         locations: {
           include: {
-            _count: {
+            consumers: {
               select: {
-                consumers: {
-                  where: { userId },
-                },
+                userId: true,
               },
             },
           },
@@ -136,28 +135,55 @@ export default async function handler(
 
     const pins = locationGroup
       .flatMap((group) => {
+        const multiPin = group.multiPin;
+        const hasConsumedOne = group.locations.some((location) =>
+          location.consumers.some((consumer) => consumer.userId === userId),
+        );
         if (group.privacy === ItemPrivacy.TIER) {
           const creatorPageAsset = group.creator.pageAsset;
           const subscription = group.Subscription;
+
           if (creatorPageAsset && subscription) {
             const bal = userAcc.getTokenBalance(
               creatorPageAsset.code,
               creatorPageAsset.issuer,
             );
             if (bal >= subscription.price) {
-              return group.locations.map((location) => ({
-                ...location,
-                ...group,
-                id: location.id,
-              }));
+              if (multiPin) {
+                return group.locations.map((location) => ({
+                  ...location,
+                  ...group,
+                  id: location.id,
+                  collected: location.consumers.some(
+                    (c) => c.userId === userId,
+                  ),
+                }));
+              } else {
+                return group.locations.map((location) => ({
+                  ...location,
+                  ...group,
+                  id: location.id,
+                  collected: hasConsumedOne,
+                }));
+              }
             }
           }
         } else {
-          return group.locations.map((location) => ({
-            ...location,
-            ...group,
-            id: location.id,
-          }));
+          if (multiPin) {
+            return group.locations.map((location) => ({
+              ...location,
+              ...group,
+              id: location.id,
+              collected: location.consumers.some((c) => c.userId === userId),
+            }));
+          } else {
+            return group.locations.map((location) => ({
+              ...location,
+              ...group,
+              id: location.id,
+              collected: hasConsumedOne,
+            }));
+          }
         }
       })
       .filter((location) => location !== undefined);
@@ -173,7 +199,7 @@ export default async function handler(
         url: location.link ?? "https://wadzzo.com/",
         image_url:
           location.image ?? location.creator.profileUrl ?? WadzzoIconURL,
-        collected: location._count.consumers > 0,
+        collected: location.collected,
         collection_limit_remaining: location.remaining,
         auto_collect: location.autoCollect,
         brand_image_url: location.creator.profileUrl ?? abaterIconUrl,
@@ -186,6 +212,7 @@ export default async function handler(
   }
 
   const locations = await pinsForCreators(creatorsId);
+
   res.status(200).json({ locations });
 }
 

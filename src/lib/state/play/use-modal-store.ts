@@ -2,6 +2,7 @@ import { create } from "zustand";
 import {
   AdminAsset,
   Asset,
+  ItemPrivacy,
   MarketAsset,
   Song,
   SubmissionAttachment,
@@ -80,6 +81,15 @@ export interface ModalData {
   startDate?: Date,
   endDate?: Date,
   pinCollectionLimit?: number,
+  multiPin?: boolean,
+  pinNumber?: number,
+  autoCollect?: boolean,
+  subscriptionId?: number,
+
+  assetId?: number,
+  link?: string,
+  pageAsset?: boolean,
+  privacy?: ItemPrivacy,
   Asset?: MarketAssetType,
   MyAsset?: AssetType,
   Song?: SongItemType,

@@ -341,7 +341,6 @@ export async function RecentTransactionHistory({
   };
 }
 
-
 export async function PendingAssetList({
   userPubKey,
 }: {

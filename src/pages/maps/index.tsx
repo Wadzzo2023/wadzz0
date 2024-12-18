@@ -2,6 +2,7 @@ import { Location, LocationGroup } from "@prisma/client";
 import {
   APIProvider,
   AdvancedMarker,
+  ControlPosition,
   Map,
   MapMouseEvent,
 } from "@vis.gl/react-google-maps";
@@ -22,7 +23,6 @@ import {
 } from "~/lib/state/play/use-modal-store";
 import { useSelectedAutoSuggestion } from "~/lib/state/play/use-selectedAutoSuggestion";
 import { useCreatorStorageAcc } from "~/lib/state/wallete/stellar-balances";
-
 import { api } from "~/utils/api";
 
 import { create } from "zustand";
@@ -215,7 +215,10 @@ function App() {
         setCordSearchLocation={setCordSearchLocation}
       />
       <Map
-
+        zoomControl={true}
+        zoomControlOptions={{
+          position: ControlPosition.RIGHT_TOP,
+        }}
         onCenterChanged={(center) => {
           setMapCenter(center.detail.center);
           setCenterChanged(center.detail.bounds); // Update the centerChanged state with new bounds
@@ -407,7 +410,15 @@ function MyPins({
                 mapDescription: pin.locationGroup?.description,
                 endDate: pin.locationGroup?.endDate,
                 startDate: pin.locationGroup?.startDate,
-                pinCollectionLimit: pin.locationGroup?.limit
+                pinCollectionLimit: pin.locationGroup?.limit,
+                multiPin: pin.locationGroup?.multiPin,
+                subscriptionId: pin.locationGroup?.subscriptionId ?? undefined,
+                autoCollect: pin.autoCollect,
+                pageAsset: pin.locationGroup?.pageAsset ?? false,
+                privacy: pin.locationGroup?.privacy,
+                pinNumber: pin.locationGroup?.remaining,
+                link: pin.locationGroup?.link ?? undefined,
+                assetId: pin.locationGroup?.assetId ?? undefined,
 
               });
               setIsAutoCollect(pin.autoCollect); // Set isAutoCollect to true when a pin is clicked

@@ -24,6 +24,7 @@ export default function MyAssetsPage() {
     </div>
   );
 }
+
 function RenderTabs() {
   const { selectedMenu, setSelectedMenu } = useAssetMenu();
   switch (selectedMenu) {
@@ -121,6 +122,8 @@ function AssetTabs() {
   const { selectedMenu, setSelectedMenu } = useAssetMenu();
 
   const creator = api.fan.creator.meCreator.useQuery();
+
+
 
   return (
     <div role="tablist" className="tabs-boxed tabs my-5 w-full max-w-md">

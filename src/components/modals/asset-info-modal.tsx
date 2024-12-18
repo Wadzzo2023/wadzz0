@@ -55,6 +55,7 @@ import { useRouter } from "next/router";
 import { Player } from "../Player";
 import { usePlayer } from "../context/PlayerContext";
 import { RightSidePlayer } from "../RightSidePlayer";
+import ShowModel from "../ThreeDModel";
 
 export const PaymentMethodEnum = z.enum(["asset", "xlm", "card"]);
 export type PaymentMethod = z.infer<typeof PaymentMethodEnum>;
@@ -76,39 +77,9 @@ export default function AssetInfoModal() {
         id: data.MyAsset?.id,
     });
 
-    const song = api.music.song.getSongByCodeIssuer.useQuery({
-        code: data.MyAsset?.code,
-        issuer: data.MyAsset?.issuer,
-    });
 
-    console.log("song............", data.MyAsset);
-    if (!data.MyAsset || !copy.data || !song.data)
-        return (
-            <Dialog open={isModalOpen} onOpenChange={handleClose}>
-                <DialogContent className="max-w-2xl overflow-hidden p-1   ">
-                    <DialogClose className="absolute right-3 top-3 ">
-                        <X color="white" size={24} />
-                    </DialogClose>
-                    <div className="grid grid-cols-1">
-                        {/* Left Column - Product Image */}
-                        <Card className="  bg-[#1e1f22] ">
-                            <CardContent className="min-h-[600px] max-h-[600px] flex items-center justify-center">
-                                <div role="status">
-                                    <svg aria-hidden="true" className="w-8 h-8 text-gray-200 animate-spin dark:text-gray-600 fill-blue-600" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor" />
-                                        <path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill" />
-                                    </svg>
-                                    <span className="sr-only">Loading...</span>
-                                </div>
-                            </CardContent>
-                        </Card>
+    if (data.MyAsset)
 
-                    </div>
-                </DialogContent>
-            </Dialog>
-        )
-
-    else
         return (
             <>
                 <Dialog open={isModalOpen} onOpenChange={handleClose}>
@@ -186,9 +157,27 @@ export default function AssetInfoModal() {
                                     {
                                         data.MyAsset.mediaType === "MUSIC" ?
                                             <Button className="w-full" variant='secondary'
-                                                onClick={() => setCurrentTrack(song.data as SongItemType)}
+                                                onClick={() => setCurrentTrack({
+                                                    asset: data.MyAsset,
+                                                    albumId: 2,
+                                                    artist: " ",
+                                                    assetId: 1,
+                                                    createdAt: new Date(),
+                                                    price: 15,
+                                                    priceUSD: 50,
+                                                    id: 1,
+                                                } as SongItemType)}
                                             >Play</Button> : data.MyAsset.mediaType === "VIDEO" &&
-                                            <Button className="w-full" variant='secondary'
+                                            <Button onClick={() => setCurrentTrack({
+                                                asset: data.MyAsset,
+                                                albumId: 2,
+                                                artist: " ",
+                                                assetId: 1,
+                                                createdAt: new Date(),
+                                                price: 15,
+                                                priceUSD: 50,
+                                                id: 1,
+                                            } as SongItemType)} className="w-full" variant='secondary'
 
                                             >Play</Button>
 
@@ -214,17 +203,26 @@ export default function AssetInfoModal() {
                                         )}
                                     />
                                 ) : data.MyAsset.mediaType === "VIDEO" ? (
-                                    <Image
-                                        src={data.MyAsset.thumbnail}
-                                        alt={data.MyAsset.name}
-                                        width={1000}
-                                        height={1000}
-                                        className={clsx(
-                                            "h-full w-full object-cover ",
-                                        )}
-                                    />
+                                    <>
+                                        <div
+                                            style={{
+                                                backgroundImage: `url(${data.MyAsset.thumbnail})`,
+                                                backgroundSize: "cover",
+                                                backgroundPosition: "center",
+                                                backgroundRepeat: "no-repeat",
+                                                height: "100%",
+                                                width: "100%",
+
+                                            }}
+                                            className={clsx(
+                                                "h-full w-full"
+                                            )}
+                                        >
+                                            <RightSidePlayer />
+                                        </div>
+                                    </>
                                 ) : (
-                                    data.MyAsset.mediaType === "MUSIC" && (
+                                    data.MyAsset.mediaType === "MUSIC" ? (
                                         <>
                                             <div
                                                 style={{
@@ -243,8 +241,15 @@ export default function AssetInfoModal() {
                                                 <RightSidePlayer />
                                             </div>
                                         </>
-                                    )
-                                )}
+                                    ) :
+                                        (
+                                            data.MyAsset.mediaType === "THREE_D" && (
+                                                <ShowModel url={data.MyAsset.mediaUrl} />
+                                            )
+                                        )
+                                )
+
+                                }
                             </div>
                         </div>
                     </DialogContent>
