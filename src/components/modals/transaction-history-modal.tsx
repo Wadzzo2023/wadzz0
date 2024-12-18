@@ -1,4 +1,6 @@
-import { Horizon } from '@stellar/stellar-sdk'
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unsafe-enum-comparison */
+/* eslint-disable @typescript-eslint/no-non-null-asserted-optional-chain */
 import { Copy, ChevronDown } from 'lucide-react'
 import { useState } from "react"
 import { Button } from "~/components/shadcn/ui/button"
