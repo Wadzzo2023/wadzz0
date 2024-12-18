@@ -353,11 +353,7 @@ const updateMapFormSchema = z.object({
   endDate: z.date().min(new Date(new Date().setHours(0, 0, 0, 0))).optional(),
   url: z.string().url().optional(),
   autoCollect: z.boolean(),
-  token: z.number().optional(),
-  pinNumber: z.number().nonnegative().min(1),
-  pinCollectionLimit: z.number().min(0),
-  tier: z.string().optional(),
-  multiPin: z.boolean().optional(),
+
 });
 
 type FormData = z.infer<typeof updateMapFormSchema>;
@@ -416,20 +412,14 @@ function PinInfoUpdate({
     defaultValues: {
       title: title ?? "",
       description: description ?? "",
-      pinCollectionLimit: collectionLimit ?? 1,
-      startDate: startDate, // Pass the raw Date object
-      endDate: endDate, // Pass the raw Date object
+      startDate: startDate,
+      endDate: endDate,
       image: image,
       autoCollect: autoCollect ?? false,
-      multiPin: multiPin ?? false,
-      tier: privacy === "PUBLIC" ? "public" : privacy === "PRIVATE" ? "private" : privacy,
       pinId: id,
       lat: lat ?? 0,
       lng: long ?? 0,
-      pinNumber: pinNumber ?? 1,
       url: link ?? "",
-      token: assetId ?? 0,
-      tokenAmount: 0,
     },
   });
   const tiers = api.fan.member.getAllMembership.useQuery();
@@ -452,123 +442,11 @@ function PinInfoUpdate({
   const onSubmit = (formData: FormData) => {
     formData.image = coverUrl ?? image;
 
-    if (selectedToken && data.pinCollectionLimit) {
-      if (data.pinCollectionLimit > selectedToken.bal) {
-        setError("pinCollectionLimit", {
-          type: "manual",
-          message: "Collection limit can't be more than token balance",
-        });
-        return;
-      }
-    }
-
     update.mutate(formData);
 
   };
-  function TiersOptions() {
-    // console.log("tiers", tiers);
-    if (tiers.isLoading) return <div className="skeleton h-10 w-20"></div>;
-    if (tiers.data) {
-      return (
-        <Controller
-          name="tier"
-          control={control}
-          render={({ field }) => (
-            <select {...field} className="select select-bordered "
-              defaultValue={privacy === "PUBLIC" ? "public" : privacy === "PRIVATE" ? "private" : Number(privacy)}
-            >
-              <option disabled>Choose Tier</option>
-              <option value="public">Public</option>
-              <option value="private">Only Followers</option>
-              {tiers.data.map((model) => (
-                <option
-                  key={model.id}
-                  value={model.id}
-                >{`${model.name} : ${model.price} ${model.creator.pageAsset?.code}`}</option>
-              ))}
-            </select>
-          )}
-        />
-      );
-    }
-  }
-  function handleTokenOptionChange(
-    event: ChangeEvent<HTMLSelectElement>,
-  ): void {
-    // toast(event.target.value);
-    const selectedAssetId = Number(event.target.value);
-    if (selectedAssetId === NO_ASSET) {
-      setSelectedToken(undefined);
-      return;
-    }
-    if (selectedAssetId === PAGE_ASSET_NUM) {
-      const pageAsset = assets.data?.pageAsset;
 
-      if (pageAsset) {
-        const bal = getAssetBalance({
-          code: pageAsset.code,
-          issuer: pageAsset.issuer,
-        });
-        setSelectedToken({
-          bal,
-          code: pageAsset.code,
-          issuer: pageAsset.issuer,
-          id: PAGE_ASSET_NUM,
-          thumbnail: pageAsset.thumbnail ?? "",
-        });
-      } else {
-        toast.error("No page asset found");
-      }
-    }
 
-    const selectedAsset = assets.data?.shopAsset.find(
-      (asset) => asset.id === selectedAssetId,
-    );
-    if (selectedAsset) {
-      const bal = getAssetBalance({
-        code: selectedAsset.code,
-        issuer: selectedAsset.issuer,
-      });
-      setSelectedToken({ ...selectedAsset, bal: bal });
-      setValue("token", selectedAsset.id);
-    }
-  }
-  const assetsDropdown = match(assets)
-    .with(success, () => {
-      const pageAsset = assets.data?.pageAsset;
-      const shopAsset = assets.data?.shopAsset;
-
-      if (isPageAsset && pageAsset) {
-        return <p>{pageAsset.code}</p>;
-      }
-      // if (isPageAsset === false && shopAsset)
-      if (true)
-        return (
-          <label className="form-control w-full max-w-xs">
-            <div className="label">
-              <span className="label-text">Choose Token</span>
-            </div>
-            <select
-              className="select select-bordered"
-              onChange={handleTokenOptionChange}
-              defaultValue={assetId}
-            >
-              <option value={NO_ASSET}>Pin (No asset)</option>
-              <option value={PAGE_ASSET_NUM}>
-                {pageAsset?.code} - Page Asset
-              </option>
-              {assets.data?.shopAsset.map((asset: AssetType) => (
-                <option key={asset.id} value={asset.id}>
-                  {asset.code}
-                </option>
-              ))}
-            </select>
-          </label>
-        );
-    })
-    .with(loading, (data) => <p>Loading...</p>)
-    .with(error, (data) => <p>{data.failureReason?.message}</p>)
-    .otherwise(() => <p>Failed to fetch assets</p>);
   useEffect(() => {
     // Only load the media from the server on the first load
     if (image && isInitialLoad) {
@@ -578,38 +456,7 @@ function PinInfoUpdate({
     }
   }, [image, isInitialLoad]);
 
-  useEffect(() => {
-    if (assetId) {
-      if (assetId === PAGE_ASSET_NUM) {
-        const pageAsset = assets.data?.pageAsset;
 
-        if (pageAsset) {
-          const bal = getAssetBalance({
-            code: pageAsset.code,
-            issuer: pageAsset.issuer,
-          });
-          setSelectedToken({
-            bal,
-            code: pageAsset.code,
-            issuer: pageAsset.issuer,
-            id: PAGE_ASSET_NUM,
-            thumbnail: pageAsset.thumbnail ?? "",
-          });
-        }
-      } else {
-        const selectedAsset = assets.data?.shopAsset.find(
-          (asset) => asset.id === assetId,
-        );
-        if (selectedAsset) {
-          const bal = getAssetBalance({
-            code: selectedAsset.code,
-            issuer: selectedAsset.issuer,
-          });
-          setSelectedToken({ ...selectedAsset, bal: bal });
-        }
-      }
-    }
-  }, [assetId, assets.data]);
 
   return (
     <form className="mt-5" onSubmit={handleSubmit(onSubmit)}>
@@ -671,67 +518,15 @@ function PinInfoUpdate({
           )}
         </div>
         {/* <AssetTypeTab /> */}
-        <div>
-          <label
-            htmlFor="description"
-            className="mr-2 text-sm font-medium"
-          >
-            Choose tier
-          </label>
-          <TiersOptions />
-        </div>
-        <div className="flex justify-between">{assetsDropdown}</div>
-        <div>
-          {selectedToken && (
-            <TokenInStorage bal={selectedToken.bal} />
-          )}
-        </div>
+
+
         {/* <AvailableTokenField balance={selectedToken?.bal} /> */}
 
 
 
-        <div className="flex flex-col space-y-2">
-          <label htmlFor="pinNumber" className="text-sm font-medium">
-            Number of pins
-          </label>
-          <input
-            type="number"
-            min={1}
-            id="pinNumber"
-            {...register("pinNumber", { valueAsNumber: true })}
-            className="input input-bordered"
-          />
-          {errors.pinNumber && (
-            <p className="text-red-500">{errors.pinNumber.message}</p>
-          )}
-        </div>
 
-        <label className="form-control w-full">
-          <div className="label">
-            <span className="label-text">Collection limit</span>
-          </div>
 
-          <input
-            type="number"
-            defaultValue={1}
-            id="perUserTokenAmount"
-            {...register("pinCollectionLimit", {
-              valueAsNumber: true,
-              min: 1,
-              max: 2147483647,
-            })} // default value
-            className="input input-bordered"
-            max={2147483647}
-          />
 
-          {errors.pinCollectionLimit && (
-            <div className="label">
-              <span className="label-text-alt text-red-500">
-                {errors.pinCollectionLimit.message}
-              </span>
-            </div>
-          )}
-        </label>
 
         <div className="mt ">
           <label className="text-sm font-medium">
@@ -791,36 +586,36 @@ function PinInfoUpdate({
           )}
         </div>
 
-        <div className="flex flex-col space-y-2">
-          <label htmlFor="startDate" className="text-sm font-medium">
-            Start Date
-          </label>
-          <input
-            type="date"
-            value={startDate ? startDate.toISOString().split("T")[0] : ""}
-            onChange={(e) => setValue("startDate", new Date(e.target.value))} // Convert input back to Date
-            id="startDate"
-
-            className="input input-bordered"
+        <div className="space-y-2">
+          <Label htmlFor="startDate">Start Date</Label>
+          <Controller
+            name="startDate"
+            control={control}
+            render={({ field: { onChange, value } }) => (
+              <Input
+                type="date"
+                onChange={(e) => onChange(new Date(e.target.value))}
+                value={value instanceof Date ? value.toISOString().split('T')[0] : ''}
+              />
+            )}
           />
-          {errors.startDate && (
-            <p className="text-red-500">{errors.startDate.message}</p>
-          )}
+          {errors.startDate && <p className="text-red-500 text-sm">{errors.startDate.message}</p>}
         </div>
-        <div className="flex flex-col space-y-2">
-          <label htmlFor="endDate" className="text-sm font-medium">
-            End Date
-          </label>
-          <input
-            type="date"
-            id="endDate"
-            value={endDate ? endDate.toISOString().split("T")[0] : ""}
-            onChange={(e) => setValue("endDate", new Date(e.target.value))}
-            className="input input-bordered"
+
+        <div className="space-y-2">
+          <Label htmlFor="endDate">End Date</Label>
+          <Controller
+            name="endDate"
+            control={control}
+            render={({ field: { onChange, value } }) => (
+              <Input
+                type="date"
+                onChange={(e) => onChange(new Date(e.target.value))}
+                value={value instanceof Date ? value.toISOString().split('T')[0] : ''}
+              />
+            )}
           />
-          {errors.endDate && (
-            <p className="text-red-500">{errors.endDate.message}</p>
-          )}
+          {errors.endDate && <p className="text-red-500 text-sm">{errors.endDate.message}</p>}
         </div>
         <div className="flex items-center space-x-2">
           <input
@@ -834,17 +629,6 @@ function PinInfoUpdate({
           </label>
         </div>
 
-        <div className="flex items-center space-x-2">
-          <input
-            type="checkbox"
-            id="multiPin"
-            {...register("multiPin")}
-            className="checkbox"
-          />
-          <label htmlFor="autoCollect" className="text-sm">
-            Multi Pin
-          </label>
-        </div>
         {/* <div className="flex flex-col space-y-2">
                 <label htmlFor="limit" className="text-sm font-medium">
                   Limit
@@ -875,9 +659,5 @@ function PinInfoUpdate({
       </div>
     </form>
   );
-}
-
-function TokenInStorage({ bal }: { bal: number }) {
-  return <p className="text-sm text-red-400">Limit Remaining : {bal}</p>;
 }
 
