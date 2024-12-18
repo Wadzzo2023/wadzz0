@@ -206,15 +206,10 @@ export const pinRouter = createTRPCRouter({
         endDate: z.date().min(new Date(new Date().setHours(0, 0, 0, 0))).optional(),
         url: z.string().url().optional(),
         autoCollect: z.boolean(),
-        token: z.number().optional(),
-        pinNumber: z.number().nonnegative().min(1),
-        pinCollectionLimit: z.number().min(0),
-        tier: z.string().optional(),
-        multiPin: z.boolean().optional(),
       })
     )
     .mutation(async ({ ctx, input }) => {
-      const { pinNumber, pinCollectionLimit, token, tier, multiPin, pinId,
+      const { pinId,
         lat,
         lng,
         description,
@@ -226,27 +221,7 @@ export const pinRouter = createTRPCRouter({
         autoCollect,
       } = input;
 
-      let tierId: number | undefined;
-      let privacy: ItemPrivacy = ItemPrivacy.PUBLIC;
 
-      if (!tier) {
-        privacy = ItemPrivacy.PUBLIC;
-      } else if (tier == "public") {
-        privacy = ItemPrivacy.PUBLIC;
-      } else if (tier == "private") {
-        privacy = ItemPrivacy.PRIVATE;
-      } else {
-        tierId = Number(tier);
-        privacy = ItemPrivacy.TIER;
-      }
-
-      let assetId = token;
-      let pageAsset = false;
-
-      if (token == PAGE_ASSET_NUM) {
-        assetId = undefined;
-        pageAsset = true;
-      }
       try {
         // Step 1: Find the Location object by pinId (which is the location ID)
         const findLocation = await ctx.db.location.findFirst({
@@ -273,7 +248,18 @@ export const pinRouter = createTRPCRouter({
 
         console.log("Location Group to update:", findLocation.locationGroup);
 
-        // Step 4: Update the LocationGroup
+        const update = await ctx.db.location.update({
+          where: {
+            id: pinId, // Use location ID to update
+          },
+          data: {
+            latitude: lat,
+            longitude: lng,
+            autoCollect: autoCollect,
+          },
+        });
+
+
         const updatedLocationGroup = await ctx.db.locationGroup.update({
           where: {
             id: findLocation.locationGroup.id, // Use locationGroup ID to update
@@ -285,17 +271,10 @@ export const pinRouter = createTRPCRouter({
             startDate,
             endDate,
             link: url,
-            subscriptionId: tierId,
-            privacy,
-            assetId,
-            pageAsset,
-            limit: pinCollectionLimit,
-            remaining: pinNumber,
-            multiPin,
           },
         });
 
-        console.log("Updated Location Group:", updatedLocationGroup);
+
         return updatedLocationGroup;
       } catch (e) {
         console.error("Error updating location group:", e);
