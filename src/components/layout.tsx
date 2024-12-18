@@ -22,6 +22,7 @@ import {
 import { PlayerToggle } from "./playerToggle";
 import { PlayerProvider } from "./context/PlayerContext";
 import { Player } from "./Player";
+import SnowEffect from "./showfallEffect";
 
 const RightDialog = dynamic(async () => await import("./right_dialog"));
 const ConnectWalletButton = dynamic(
@@ -156,6 +157,7 @@ export default function Layout({
             <Toaster />
           </div>
           {isMusicRoute && <PlayerToggle />}
+          <SnowEffect />
         </PlayerProvider>
       </ThemeProvider>
     </>

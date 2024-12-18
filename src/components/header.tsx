@@ -33,6 +33,44 @@ function Header(_props: HeaderProps) {
         <Logo />
         <SiteAssetBalance />
       </div>
+      <div className="absolute top-18 left-0 right-0 h-12  overflow-hidden">
+        <div className="christmas-lights">
+          <div className="light-string">
+            {[...Array({ length: 12 })].map((_, i) => (
+              <div key={i} className="light-segment">
+                <div className="wire"></div>
+                <div
+                  className="bulb"
+                  style={{
+                    backgroundColor: i % 3 === 0 ? '#ff0000' :
+                      i % 3 === 1 ? '#00ff00' :
+                        '#ffff00',
+                    animationDelay: `${i * 0.1}s`
+                  }}
+                ></div>
+              </div>
+            ))}
+          </div>
+          <div className="light-string2">
+            {[...Array({ length: 12 })].map((_, i) => (
+              <div key={i} className="light-segment2">
+                <div className="wire2"></div>
+                <div
+                  className="bulb2"
+                  style={{
+                    backgroundColor: i % 3 === 0 ? '#ffff00' :
+                      i % 3 === 1 ? '#ff0000' :
+                        '#00ff00',
+                    animationDelay: `${i * 0.1}s`
+                  }}
+                ></div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+
     </header>
   );
 }
