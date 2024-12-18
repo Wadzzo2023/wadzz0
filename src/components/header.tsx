@@ -33,10 +33,10 @@ function Header(_props: HeaderProps) {
         <Logo />
         <SiteAssetBalance />
       </div>
-      <div className="absolute top-18 left-0 right-0 h-12  overflow-hidden">
+      <div className="absolute top-18 left-0 right-0 h-12 overflow-hidden">
         <div className="christmas-lights">
           <div className="light-string">
-            {[...Array({ length: 12 })].map((_, i) => (
+            {Array.from({ length: 12 }, (_, i) => (
               <div key={i} className="light-segment">
                 <div className="wire"></div>
                 <div
@@ -52,7 +52,7 @@ function Header(_props: HeaderProps) {
             ))}
           </div>
           <div className="light-string2">
-            {[...Array({ length: 12 })].map((_, i) => (
+            {Array.from({ length: 12 }, (_, i) => (
               <div key={i} className="light-segment2">
                 <div className="wire2"></div>
                 <div
@@ -69,6 +69,7 @@ function Header(_props: HeaderProps) {
           </div>
         </div>
       </div>
+
 
 
     </header>

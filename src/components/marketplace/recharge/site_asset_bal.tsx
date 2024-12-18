@@ -75,16 +75,18 @@ export function SiteAssetBalance() {
 
         {/* <Plus className="btn btn-square btn-primary btn-sm -mr-4 " /> */}
       </Link>
-
-      <Link
-        className=" "
-        href={isFBorGoogle ? "/recharge" : "/"}
-      // href="/recharge"
-      >
-        <Button className="">
-          <ShoppingCart />
-        </Button>
-      </Link>
+      {
+        isFBorGoogle &&
+        <Link
+          className=" "
+          href={"/recharge"}
+        // href="/recharge"
+        >
+          <Button className="">
+            <ShoppingCart />
+          </Button>
+        </Link>
+      }
       <Button
         className=" relative "
         onClick={async () => {
