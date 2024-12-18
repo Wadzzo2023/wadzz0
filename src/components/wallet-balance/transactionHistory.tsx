@@ -88,7 +88,7 @@ const TransactionHistory = () => {
                         {
                           transaction.operations.map((operation, k) => (
 
-                            <TableCell className="flex flex-col  px-2 py-3">
+                            <TableCell key={k} className="flex flex-col  px-2 py-3">
                               {
                                 operation.type === "payment" && (
                                   (
