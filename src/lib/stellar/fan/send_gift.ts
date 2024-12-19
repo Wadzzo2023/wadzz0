@@ -20,7 +20,7 @@ export async function sendGift({
 }: {
   customerPubkey: string;
   creatorPageAsset: MyAssetType;
-  price: string;
+  price: number;
   creatorPub: string;
   creatorStorageSec: string;
 }) {
@@ -48,7 +48,7 @@ export async function sendGift({
     .addOperation(
       Operation.payment({
         asset,
-        amount: price,
+        amount: price.toFixed(7),
         source: assetStorage.publicKey(),
         destination: customerPubkey,
       }),

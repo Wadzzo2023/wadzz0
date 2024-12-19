@@ -439,7 +439,7 @@ const CreateBounty = () => {
                           },
                           {
                             label: "Total Cost",
-                            amount: paymentMethod === "asset" ? prizeInAsset : prizeInAsset * 0.7 + totalFeees,
+                            amount: paymentMethod === "asset" ? prizeInAsset + totalFeees : prizeInAsset * 0.7 + totalFeees,
                             highlighted: false,
                             type: "total",
                           },

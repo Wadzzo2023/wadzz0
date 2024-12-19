@@ -72,9 +72,10 @@ export const PlayerProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     ])
 
     useEffect(() => {
-        setCurrentTrack(currentTrack);
-        setIsPlaying(true);
-
+        if (currentTrack) {
+            setCurrentTrack(currentTrack);
+            setIsPlaying(true);
+        }
     }, [currentTrack]);
 
     useEffect(() => {
