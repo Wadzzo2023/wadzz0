@@ -11,9 +11,17 @@ import {
     TableRow,
 } from "~/components/shadcn/ui/table";
 import { Button } from "~/components/shadcn/ui/button";
-import { z } from "zod";
 import { CreatorConsumedPin, useModal } from "~/lib/state/play/use-modal-store";
 import { addrShort } from "~/utils/utils";
+
+type ConsumerType = {
+    user: {
+        name: string | null;
+        id: string;
+        email: string | null;
+    };
+
+}
 
 const CreatorCollectionReport = () => {
     const pins = api.maps.pin.getCreatorPinTConsumedByUser.useQuery();
@@ -153,11 +161,11 @@ function DownloadPinLocationAsCSV(data: CreatorConsumedPin[]) {
         [
             "pin_title", "pin_id", "start_date", "end_date",
             "location_id", "latitude", "longitude",
-            "auto_collect", "consumer_name", "consumer_email", "consumed_at"
+            "auto_collect", "consumer_name", "consumer_email"
         ], // CSV headers
         ...data.flatMap((pin) =>
-            pin.locations.flatMap((location: any) =>
-                (location.consumers || []).map((consumer: any) => [
+            pin.locations.flatMap((location) =>
+                (location.consumers || []).map((consumer: ConsumerType) => [
                     pin.title,
                     pin.id,
                     new Date(pin.startDate).toISOString(),
@@ -166,11 +174,8 @@ function DownloadPinLocationAsCSV(data: CreatorConsumedPin[]) {
                     location.latitude,
                     location.longitude,
                     location.autoCollect,
-                    consumer.name || "N/A", // Consumer name or fallback
-                    consumer.email || "", // Consumer email or empty string
-                    consumer.consumedAt
-                        ? new Date(consumer.consumedAt).toISOString() // Consumed date
-                        : "",
+                    consumer.user.name || "N/A",
+                    consumer.user.email || "",
                 ])
             )
         ),

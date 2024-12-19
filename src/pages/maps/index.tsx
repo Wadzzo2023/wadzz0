@@ -367,8 +367,8 @@ function SideMapItem({
 function ManualPinButton({ handleClick }: { handleClick: () => void }) {
   return (
     <div className="absolute bottom-2 right-2">
-      <div className="btn btn-circle" onClick={handleClick}>
-        <MapPin />
+      <div className="btn" onClick={handleClick}>
+        <MapPin /> Drop Pins
       </div>
     </div>
   );
@@ -377,8 +377,8 @@ function ManualPinButton({ handleClick }: { handleClick: () => void }) {
 function ReportCollection() {
   return (
     <Link href="/maps/report" className="absolute bottom-16 right-2">
-      <div className="btn btn-circle" >
-        <ClipboardList />
+      <div className="btn" >
+        <ClipboardList /> Collection Report
       </div>
     </Link>
   );
