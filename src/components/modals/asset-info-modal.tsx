@@ -77,7 +77,6 @@ export default function AssetInfoModal() {
         id: data.MyAsset?.id,
     });
 
-
     if (data.MyAsset)
 
         return (
@@ -109,7 +108,7 @@ export default function AssetInfoModal() {
                                             {data.MyAsset.name}
                                         </h2>
 
-                                        <p className="text-sm text-gray-400">
+                                        <p className="text-sm text-gray-400 max-h-[100px] min-h-[100px] overflow-y-auto">
                                             {data.MyAsset.description}
                                         </p>
 
@@ -156,8 +155,9 @@ export default function AssetInfoModal() {
                                         )}
                                     {
                                         data.MyAsset.mediaType === "MUSIC" ?
-                                            <Button className="w-full" variant='secondary'
-                                                onClick={() => setCurrentTrack({
+                                            <Button onClick={() => {
+                                                setCurrentTrack(null);
+                                                setCurrentTrack({
                                                     asset: data.MyAsset,
                                                     albumId: 2,
                                                     artist: " ",
@@ -166,27 +166,32 @@ export default function AssetInfoModal() {
                                                     price: 15,
                                                     priceUSD: 50,
                                                     id: 1,
-                                                } as SongItemType)}
+                                                } as SongItemType)
+                                            }
+                                            } className="w-full" variant='secondary'
+
                                             >Play</Button> : data.MyAsset.mediaType === "VIDEO" &&
-                                            <Button onClick={() => setCurrentTrack({
-                                                asset: data.MyAsset,
-                                                albumId: 2,
-                                                artist: " ",
-                                                assetId: 1,
-                                                createdAt: new Date(),
-                                                price: 15,
-                                                priceUSD: 50,
-                                                id: 1,
-                                            } as SongItemType)} className="w-full" variant='secondary'
+                                            <Button onClick={() => {
+                                                setCurrentTrack(null);
+                                                setCurrentTrack({
+                                                    asset: data.MyAsset,
+                                                    albumId: 2,
+                                                    artist: " ",
+                                                    assetId: 1,
+                                                    createdAt: new Date(),
+                                                    price: 15,
+                                                    priceUSD: 50,
+                                                    id: 1,
+                                                } as SongItemType)
+                                            }
+                                            } className="w-full" variant='secondary'
 
                                             >Play</Button>
 
 
                                     }
                                     <DeleteAssetByAdmin id={data.MyAsset.id} />
-                                    <p className="text-xs text-gray-400">
-                                        Once purchased, this item will be placed on collection.
-                                    </p>
+
                                 </CardFooter>
                             </Card>
 

@@ -55,7 +55,7 @@ export const RightSidePlayer: React.FC = () => {
                 <video
                     ref={mediaRef as React.RefObject<HTMLVideoElement>}
                     src={currentTrack.asset.mediaUrl}
-                    className="w-64 h-64 rounded-lg mb-4 shadow-lg shadow-teal-50 object-cover"
+                    className="w-80 h-96 rounded-lg mb-4 shadow-lg shadow-teal-50 object-cover"
                 />
             ) : (
                 <Image

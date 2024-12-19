@@ -41,6 +41,26 @@ export type Transaction = {
   fee_charged: string | number;
   operations: Horizon.ServerApi.OperationRecord[];
 }
+export type CreatorConsumedPin = {
+  id: string;
+  startDate: Date;
+  endDate: Date;
+  title: string;
+  locations: {
+    id: string;
+    latitude: number;
+    longitude: number;
+    autoCollect: boolean;
+    _count: { consumers: number };
+    consumers: {
+      user: {
+        name: string | null;
+        id: string;
+        email: string | null;
+      };
+    }[];
+  }[];
+};
 
 export type ModalType =
   | "send assets"
@@ -85,7 +105,6 @@ export interface ModalData {
   pinNumber?: number,
   autoCollect?: boolean,
   subscriptionId?: number,
-
   assetId?: number,
   link?: string,
   pageAsset?: boolean,

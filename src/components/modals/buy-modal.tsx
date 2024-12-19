@@ -43,7 +43,7 @@ export default function BuyModal() {
     console.log("isOpen", isOpen);
     const isModalOpen = isOpen && type === "buy modal";
     const handleClose = () => {
-
+        setStep(1)
         onClose();
     };
 
@@ -119,7 +119,7 @@ export default function BuyModal() {
                                                 {data.Asset.asset.name}
                                             </h2>
 
-                                            <p className="text-sm text-gray-400">
+                                            <p className="text-sm text-gray-400 max-h-[100px] min-h-[100px] overflow-y-auto">
                                                 {data.Asset.asset.description}
                                             </p>
 
