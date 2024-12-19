@@ -165,7 +165,7 @@ function DownloadPinLocationAsCSV(data: CreatorConsumedPin[]) {
         ], // CSV headers
         ...data.flatMap((pin) =>
             pin.locations.flatMap((location) =>
-                (location.consumers || []).map((consumer: ConsumerType) => [
+                (location.consumers ?? []).map((consumer: ConsumerType) => [
                     pin.title,
                     pin.id,
                     new Date(pin.startDate).toISOString(),
@@ -174,8 +174,8 @@ function DownloadPinLocationAsCSV(data: CreatorConsumedPin[]) {
                     location.latitude,
                     location.longitude,
                     location.autoCollect,
-                    consumer.user.name || "N/A",
-                    consumer.user.email || "",
+                    consumer.user.name ?? "N/A",
+                    consumer.user.email ?? "",
                 ])
             )
         ),
