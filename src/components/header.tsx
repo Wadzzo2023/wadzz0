@@ -33,6 +33,19 @@ function Header(_props: HeaderProps) {
         <Logo />
         <SiteAssetBalance />
       </div>
+      <div className="absolute top-[4.6rem] left-0 right-0 w-full z-50 flex overflow-hidden">
+        {Array.from({ length: 5 }, (_, index) => (
+          <Image
+            key={index}
+            src="/trn-christmas-lights.png"
+            alt=""
+            width={1000}
+            height={1000}
+            className="object-cover"
+            priority={index === 0}
+          />
+        ))}
+      </div>
     </header>
   );
 }
