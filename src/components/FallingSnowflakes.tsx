@@ -16,12 +16,12 @@ export default function FallingSnowflakes() {
     useEffect(() => {
         const generateSnowflakes = () => {
             const newSnowflakes: SnowflakeData[] = []
-            for (let i = 0; i < 20; i++) {
+            for (let i = 0; i < 14; i++) {
                 newSnowflakes.push({
                     id: i,
                     size: Math.random() * 30 + 20,
                     left: `${Math.random() * 100}%`,
-                    animationDuration: `${Math.random() * 5 + 5}s`,
+                    animationDuration: `${Math.random() * 10 + 20}s`,
                 })
             }
             setSnowflakes(newSnowflakes)
