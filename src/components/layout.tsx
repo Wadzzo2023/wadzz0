@@ -24,6 +24,7 @@ import { PlayerProvider } from "./context/PlayerContext";
 import { Player } from "./Player";
 import SnowEffect from "./Snowflake";
 import FallingSnowflakes from "./FallingSnowflakes";
+import BackgroundMusic from "./BackgroundMusic";
 
 const RightDialog = dynamic(async () => await import("./right_dialog"));
 const ConnectWalletButton = dynamic(
@@ -99,7 +100,9 @@ export default function Layout({
         defaultTheme="light"
         enableSystem
         disableTransitionOnChange
-      > <PlayerProvider>
+      >
+
+        <PlayerProvider>
           <div className={clsx(" flex h-screen w-full flex-col", className)}>
             <Header />
 
@@ -128,6 +131,7 @@ export default function Layout({
                       <>
                         <ModalProvider />
                         <PlayModalProvider />
+
                         {children}
                       </>
                     ) : (
@@ -159,6 +163,7 @@ export default function Layout({
           </div>
           {isMusicRoute && <PlayerToggle />}
           <FallingSnowflakes />
+
         </PlayerProvider>
       </ThemeProvider>
     </>
