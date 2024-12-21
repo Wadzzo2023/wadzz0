@@ -5,7 +5,6 @@ import Logo from "./logo";
 import { SiteAssetBalance } from "./marketplace/recharge/site_asset_bal";
 
 import Image from "next/image";
-import { ConnectWalletButton } from "package/connect_wallet";
 
 interface HeaderProps {
   key?: React.Key;
@@ -31,6 +30,7 @@ function Header(_props: HeaderProps) {
         <div className="ml-auto hidden md:flex">
           <SiteAssetBalance />
         </div>
+
       </div>
       <div className="absolute top-[4.6rem] left-0 right-0 w-full z-50 flex overflow-hidden">
         {Array.from({ length: 5 }, (_, index) => (
