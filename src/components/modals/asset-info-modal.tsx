@@ -30,7 +30,7 @@ import { Badge } from "~/components/shadcn/ui/badge";
 import { Loader } from "lucide-react";
 import Alert from "~/components/ui/alert";
 import useNeedSign from "~/lib/hook";
-import { useUserStellarAcc } from "~/lib/state/wallete/stellar-balances";
+import { useCreatorStorageAcc, useUserStellarAcc } from "~/lib/state/wallete/stellar-balances";
 import {
     PLATFORM_ASSET,
     PLATFORM_FEE,
@@ -56,6 +56,7 @@ import { Player } from "../Player";
 import { usePlayer } from "../context/PlayerContext";
 import { RightSidePlayer } from "../RightSidePlayer";
 import ShowModel from "../ThreeDModel";
+import { getAssetBalance } from "~/lib/stellar/marketplace/test/acc";
 
 export const PaymentMethodEnum = z.enum(["asset", "xlm", "card"]);
 export type PaymentMethod = z.infer<typeof PaymentMethodEnum>;
@@ -64,7 +65,9 @@ export default function AssetInfoModal() {
     const { onClose, isOpen, type, data } = useModal();
     const session = useSession();
     const router = useRouter();
-
+    const { selectedMenu, setSelectedMenu } = useAssetMenu();
+    const { getAssetBalance: creatorAssetBalance } = useUserStellarAcc();
+    const { getAssetBalance: creatorStorageAssetBalance, setBalance } = useCreatorStorageAcc();
     console.log("isOpen", isOpen);
     const { setCurrentTrack, currentTrack } = usePlayer()
     const isModalOpen = isOpen && type === "my asset info modal";
@@ -73,9 +76,20 @@ export default function AssetInfoModal() {
         onClose();
     };
 
-    const copy = api.marketplace.market.getMarketAssetAvailableCopy.useQuery({
-        id: data.MyAsset?.id,
+    const acc = api.wallate.acc.getCreatorStorageBallances.useQuery(undefined, {
+        onSuccess: (data) => {
+
+            setBalance(data);
+        },
+        onError: (error) => {
+            console.log(error);
+        },
+        refetchOnWindowFocus: false,
     });
+
+    const copyCreatorAssetBalance = selectedMenu === AssetMenu.OWN ? creatorAssetBalance({
+        code: data?.MyAsset?.code, issuer: data?.MyAsset?.issuer,
+    }) : creatorStorageAssetBalance({ code: data?.MyAsset?.code, issuer: data?.MyAsset?.issuer })
 
     if (data.MyAsset)
 
@@ -105,16 +119,16 @@ export default function AssetInfoModal() {
                                     {/* Content */}
                                     <div className="space-y-3 p-4">
                                         <h2 className="text-xl font-bold text-white">
-                                            {data.MyAsset.name}
+                                            NAME: {data.MyAsset.name}
                                         </h2>
 
                                         <p className="text-sm text-gray-400 max-h-[100px] min-h-[100px] overflow-y-auto">
-                                            {data.MyAsset.description}
+                                            DESCRIPTION:  {data.MyAsset.description}
                                         </p>
 
                                         <div className="flex items-center gap-2 text-sm text-gray-400">
                                             <span className="h-auto p-0 text-xs text-[#00a8fc]">
-                                                {addrShort(data.MyAsset.issuer, 5)}
+                                                ISSUER ID:  {addrShort(data.MyAsset.issuer, 5)}
                                             </span>
                                             <Badge variant="secondary" className=" rounded-lg">
                                                 {data.MyAsset.code}
@@ -123,12 +137,12 @@ export default function AssetInfoModal() {
 
                                         <p className="font-semibold text-white">
                                             <span className="">Available:</span>{" "}
-                                            {copy.data === 0
+                                            {Number(copyCreatorAssetBalance) === 0
                                                 ? "Sold out"
-                                                : copy.data === 1
+                                                : Number(copyCreatorAssetBalance) === 1
                                                     ? "1 copy"
-                                                    : copy.data !== undefined
-                                                        ? `${copy.data} copies`
+                                                    : Number(copyCreatorAssetBalance) !== undefined
+                                                        ? `${Number(copyCreatorAssetBalance)} copies`
                                                         : "..."}
                                         </p>
                                         <div className="flex items-center gap-2 text-sm text-gray-400">
@@ -143,7 +157,7 @@ export default function AssetInfoModal() {
 
                                 </CardContent>
                                 <CardFooter className="flex flex-col gap-1 p-2">
-                                    <OtherButtons currentData={data.MyAsset} copies={copy.data} />
+                                    <OtherButtons currentData={data.MyAsset} copies={Number(copyCreatorAssetBalance)} />
                                     {session.status === "authenticated" &&
                                         data.MyAsset.creatorId === session.data.user.id && (
                                             <>

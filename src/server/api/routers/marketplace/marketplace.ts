@@ -168,6 +168,7 @@ export const marketRouter = createTRPCRouter({
           asset: {
             select: AssetSelectAllProperty,
           },
+
         },
         where: { placerId: { not: null }, type: { equals: "FAN" } },
       });
