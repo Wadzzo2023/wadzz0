@@ -116,16 +116,16 @@ export default function BuyModal() {
                                         {/* Content */}
                                         <div className="space-y-3 p-4">
                                             <h2 className="text-xl font-bold text-white">
-                                                {data.Asset.asset.name}
+                                                NAME: {data.Asset.asset.name}
                                             </h2>
 
                                             <p className="text-sm text-gray-400 max-h-[100px] min-h-[100px] overflow-y-auto">
-                                                {data.Asset.asset.description}
+                                                DESCRIPTION: {data.Asset.asset.description}
                                             </p>
 
                                             <div className="flex items-center gap-2">
                                                 <span className="text-lg font-bold text-white">
-                                                    {data.Asset.price} {PLATFORM_ASSET.code}
+                                                    PRICE: {data.Asset.price} {PLATFORM_ASSET.code}
                                                 </span>
                                                 <Badge
                                                     variant="outline"
@@ -137,12 +137,21 @@ export default function BuyModal() {
 
                                             <div className="flex items-center gap-2 text-sm text-gray-400">
                                                 <span className="h-auto p-0 text-xs text-[#00a8fc]">
-                                                    {addrShort(data.Asset.asset.issuer, 5)}
+                                                    ISSUER ID: {addrShort(data.Asset.asset.issuer, 5)}
                                                 </span>
                                                 <Badge variant="destructive" className=" rounded-lg">
                                                     {data.Asset.asset.code}
                                                 </Badge>
                                             </div>
+                                            {
+                                                data.Asset.placerId && <div className="flex items-center gap-2 text-sm text-gray-400">
+                                                    <span className="h-auto p-0 text-xs text-[#00a8fc]">
+                                                        PLACER ID: {addrShort(data.Asset.placerId, 5)}
+                                                    </span>
+
+                                                </div>
+                                            }
+
                                             <p className="font-semibold text-white">
                                                 <span className="">Available:</span>{" "}
                                                 {copy.data === 0
