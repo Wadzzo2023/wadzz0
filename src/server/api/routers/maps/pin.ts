@@ -450,6 +450,94 @@ export const pinRouter = createTRPCRouter({
     });
     return consumedLocations;
   }),
+
+  getCreatorPinTConsumedByUser: creatorProcedure.query(async ({ ctx }) => {
+    const creatorId = ctx.session.user.id;
+    const consumedLocations = await ctx.db.locationGroup.findMany({
+      where: {
+        creatorId
+      },
+      select: {
+        locations: {
+          select: {
+            id: true,
+            latitude: true,
+            longitude: true,
+            autoCollect: true,
+            _count: { select: { consumers: true } },
+            consumers: {
+              select: {
+                user: {
+                  select: {
+                    name: true,
+                    id: true,
+                    email: true,
+                  }
+                }
+              }
+            }
+          }
+        },
+        startDate: true,
+        endDate: true,
+        title: true,
+        id: true,
+      },
+      orderBy: { createdAt: "desc" },
+    });
+
+
+    return consumedLocations;
+  }),
+
+  downloadCreatorPinTConsumedByUser: creatorProcedure.input(z.object({ day: z.number() }).optional()).mutation(async ({ ctx, input }) => {
+    const creatorId = ctx.session.user.id;
+    const consumedLocations = await ctx.db.locationGroup.findMany({
+      where: {
+        createdAt: input
+          ? {
+            gte: new Date(
+              new Date().getTime() - input.day * 24 * 60 * 60 * 1000,
+            ),
+          }
+          : {},
+        creatorId
+      },
+      select: {
+        locations: {
+          select: {
+            id: true,
+            latitude: true,
+            longitude: true,
+            autoCollect: true,
+            _count: { select: { consumers: true } },
+            consumers: {
+              select: {
+                user: {
+                  select: {
+                    name: true,
+                    id: true,
+                    email: true
+                  }
+                }
+              }
+            }
+          }
+        },
+        startDate: true,
+        endDate: true,
+        title: true,
+        id: true,
+      },
+      orderBy: { createdAt: "desc" },
+    });
+
+    return consumedLocations;
+  }),
+
+
+
+
   getCreatorCreatedPin: creatorProcedure.query(async ({ ctx }) => {
     const creatorId = ctx.session.user.id;
     const locatoinGroups = await ctx.db.locationGroup.findMany({
@@ -541,6 +629,9 @@ export const pinRouter = createTRPCRouter({
 
       return locations;
     }),
+
+
+
 
   downloadAllConsumedLocation: creatorProcedure
     .input(z.object({ day: z.number() }).optional())

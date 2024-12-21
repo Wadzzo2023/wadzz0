@@ -43,7 +43,7 @@ export default function BuyModal() {
     console.log("isOpen", isOpen);
     const isModalOpen = isOpen && type === "buy modal";
     const handleClose = () => {
-
+        setStep(1)
         onClose();
     };
 
@@ -99,7 +99,7 @@ export default function BuyModal() {
                         step === 1 && (
                             <div className="grid grid-cols-2 md:grid-cols-7">
                                 {/* Left Column - Product Image */}
-                                <Card className=" overflow-y-auto   bg-[#1e1f22] md:col-span-3">
+                                <Card className=" overflow-y-auto  max-h-[800px]  bg-[#1e1f22] md:col-span-3">
                                     <CardContent className="p-0">
                                         {/* Image Container */}
                                         <div className="relative aspect-square bg-[#1e1f22]">
@@ -116,16 +116,16 @@ export default function BuyModal() {
                                         {/* Content */}
                                         <div className="space-y-3 p-4">
                                             <h2 className="text-xl font-bold text-white">
-                                                {data.Asset.asset.name}
+                                                NAME: {data.Asset.asset.name}
                                             </h2>
 
-                                            <p className="text-sm text-gray-400">
-                                                {data.Asset.asset.description}
+                                            <p className="text-sm text-gray-400 max-h-[100px] min-h-[100px] overflow-y-auto">
+                                                DESCRIPTION: {data.Asset.asset.description}
                                             </p>
 
                                             <div className="flex items-center gap-2">
                                                 <span className="text-lg font-bold text-white">
-                                                    {data.Asset.price} {PLATFORM_ASSET.code}
+                                                    PRICE: {data.Asset.price} {PLATFORM_ASSET.code}
                                                 </span>
                                                 <Badge
                                                     variant="outline"
@@ -137,12 +137,21 @@ export default function BuyModal() {
 
                                             <div className="flex items-center gap-2 text-sm text-gray-400">
                                                 <span className="h-auto p-0 text-xs text-[#00a8fc]">
-                                                    {addrShort(data.Asset.asset.issuer, 5)}
+                                                    ISSUER ID: {addrShort(data.Asset.asset.issuer, 5)}
                                                 </span>
                                                 <Badge variant="destructive" className=" rounded-lg">
                                                     {data.Asset.asset.code}
                                                 </Badge>
                                             </div>
+                                            {
+                                                data.Asset.placerId && <div className="flex items-center gap-2 text-sm text-gray-400">
+                                                    <span className="h-auto p-0 text-xs text-[#00a8fc]">
+                                                        PLACER ID: {addrShort(data.Asset.placerId, 5)}
+                                                    </span>
+
+                                                </div>
+                                            }
+
                                             <p className="font-semibold text-white">
                                                 <span className="">Available:</span>{" "}
                                                 {copy.data === 0
@@ -158,7 +167,7 @@ export default function BuyModal() {
                                                     Media Type:
                                                 </span>
                                                 <Badge variant="destructive" className=" rounded-lg">
-                                                    {data.Asset.asset.mediaType}
+                                                    {data.Asset.asset.mediaType === 'THREE_D' ? "3D Model" : data.Asset.asset.mediaType}
                                                 </Badge>
                                             </div>
                                         </div>
@@ -187,14 +196,14 @@ export default function BuyModal() {
                                 </Card>
 
                                 {/* Right Column - Bundle Info */}
-                                <div className=" bg-gray-300 p-1 rounded-sm   md:col-span-4">
+                                <div className=" bg-gray-300 p-1 rounded-sm   md:col-span-4 ">
                                     {data.Asset.asset.mediaType === "IMAGE" ? (
                                         <Image
                                             src={data.Asset.asset.mediaUrl}
                                             alt={data.Asset.asset.name}
                                             width={1000}
                                             height={1000}
-                                            className={clsx("h-full w-full object-cover ", data.Asset.asset.tierId ? " blur-md" : "")}
+                                            className={clsx("h-full max-h-[800px] overflow-y-auto w-full object-cover ", data.Asset.asset.tierId ? " blur-md" : "")}
                                         />
                                     ) : data.Asset.asset.mediaType === "VIDEO" ? (
                                         <Image
@@ -202,7 +211,7 @@ export default function BuyModal() {
                                             alt={data.Asset.asset.name}
                                             width={1000}
                                             height={1000}
-                                            className={clsx("h-full w-full object-cover ", data.Asset.asset.tierId ? " blur-md" : "")}
+                                            className={clsx("h-full max-h-[800px] overflow-y-auto w-full object-cover ", data.Asset.asset.tierId ? " blur-md" : "")}
                                         />
                                     ) : (
                                         data.Asset.asset.mediaType === "MUSIC" ? (
@@ -211,7 +220,7 @@ export default function BuyModal() {
                                                 alt={data.Asset.asset.name}
                                                 width={1000}
                                                 height={1000}
-                                                className={clsx("h-full w-full object-cover ", data.Asset.asset.tierId ? " blur-md" : "")}
+                                                className={clsx(" h-full max-h-[800px] overflow-y-auto w-full object-cover ", data.Asset.asset.tierId ? " blur-md" : "")}
                                             />
                                         ) :
                                             (

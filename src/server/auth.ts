@@ -121,6 +121,7 @@ export const authOptions: NextAuthOptions = {
         if (cred.walletType == WalletType.albedo) {
           const { pubkey, signature, token } = cred;
 
+
           const isValid = verifyMessageSignature(pubkey, token, signature);
           if (isValid) {
             const sessionUser = await dbUser(pubkey);
@@ -273,22 +274,6 @@ async function getUserPublicKey({
       params: {
         uid,
         email,
-      },
-    },
-  );
-  return res.data;
-}
-
-export async function getUserPublicKeyWithAppleUid({
-  appleUid,
-}: {
-  appleUid: string;
-}) {
-  const res = await axios.get<z.infer<typeof getPublicKeyAPISchema>>(
-    USER_ACCOUNT_URL_APPLE,
-    {
-      params: {
-        appleUid,
       },
     },
   );

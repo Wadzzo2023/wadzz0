@@ -189,6 +189,7 @@ function NftCreateForm({
         position: "top-center",
         duration: 4000,
       });
+      setParentIsOpen(false);
       setPaymentModalOpen(false);
       setIsOpen(false);
       setMediaUploadSuccess(false);

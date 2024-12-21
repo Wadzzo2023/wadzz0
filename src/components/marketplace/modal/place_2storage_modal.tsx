@@ -33,6 +33,7 @@ export default function PlaceNFT2Storage({
 }: {
   item: { code: string; issuer: string; copies: number };
 }) {
+
   const modalRef = useRef<HTMLDialogElement>(null);
 
   const session = useSession();

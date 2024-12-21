@@ -23,6 +23,7 @@ import Script from "next/script";
 import { PlayerProvider } from "./context/PlayerContext";
 import { Player } from "./Player";
 import { PlayerToggle } from "./playerToggle";
+import FallingSnowflakes from "./FallingSnowflakes";
 
 const RightDialog = dynamic(async () => await import("./right_dialog"));
 const ConnectWalletButton = dynamic(
@@ -108,21 +109,27 @@ export default function Layout({
               <div className="flex h-full border-t-2">
                 <LeftBar className="hidden xl:flex" />
                 <div
-                  id="ih"
+                  // id="ih"
                   className="flex-1 border-x-2"
-                  style={
-                    router.pathname.includes("/fans/creator") && creator.data
-                      ? {
-                          background: `url("${creator.data.backgroundSVG}")`,
-                          backgroundSize: "10%",
-                          animation: "pan 135s linear infinite",
-                        }
-                      : {
-                          background: `url("images/guitar.svg")`,
-                          backgroundSize: "10%",
-                          animation: "pan 135s linear infinite",
-                        }
-                  }
+                  // style={
+                  //   router.pathname.includes("/fans/creator") && creator.data
+                  //     ? {
+                  //       background: `url("${creator.data.backgroundSVG}")`,
+                  //       backgroundSize: "10%",
+                  //       animation: "pan 135s linear infinite",
+                  //     }
+                  //     : {
+                  //       background: `url("images/guitar.svg")`,
+                  //       backgroundSize: "10%",
+                  //       animation: "pan 135s linear infinite",
+                  //     }
+                  // }
+                  style={{
+                    backgroundImage: `url("christmas-bg.png")`,
+                    backgroundSize: "100%",
+                    backgroundRepeat: "no-repeat",
+
+                  }}
                 >
                   <div className=" h-full overflow-y-auto bg-base-100/80 scrollbar-hide">
                     {session.status == "authenticated" ? (
@@ -159,6 +166,7 @@ export default function Layout({
             <Toaster />
           </div>
           {isMusicRoute && <PlayerToggle />}
+          <FallingSnowflakes />
         </PlayerProvider>
       </ThemeProvider>
     </>
