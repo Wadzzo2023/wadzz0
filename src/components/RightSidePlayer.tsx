@@ -50,12 +50,12 @@ export const RightSidePlayer: React.FC = () => {
     if (!currentTrack || !isPlayerOpen) return null
 
     return (
-        <div className="bg-white flex-col flex justify-center items-center shadow-md h-full w-full">
+        <div className="bg-white  flex-col flex justify-center items-center shadow-md h-full w-full">
             {isVideo ? (
                 <video
                     ref={mediaRef as React.RefObject<HTMLVideoElement>}
                     src={currentTrack.asset.mediaUrl}
-                    className="w-64 h-64 rounded-lg mb-4 shadow-lg shadow-teal-50 object-cover"
+                    className="w-80 h-96 rounded-lg mb-4 shadow-lg shadow-teal-50 object-cover"
                 />
             ) : (
                 <Image

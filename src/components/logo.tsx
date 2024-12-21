@@ -18,7 +18,7 @@ export default function Logo({ className }: { className?: string }) {
             className,
           )}
         >
-          {PLATFORM_ASSET.code}
+          {PLATFORM_ASSET.code.toLocaleUpperCase()}
           <p className="absolute right-0 top-0 -mr-4 -mt-1 text-xs">TM</p>
         </h1>
       </div>

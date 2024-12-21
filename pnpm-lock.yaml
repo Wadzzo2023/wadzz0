@@ -207,7 +207,7 @@ importers:
         specifier: ^8.1.6
         version: 8.5.1
       embla-carousel-react:
-        specifier: ^8.1.6
+        specifier: ^8.5.1
         version: 8.5.1(react@18.2.0)
       firebase:
         specifier: ^10.12.3

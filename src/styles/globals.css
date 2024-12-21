@@ -147,7 +147,21 @@ body {
   background-size: 10%;
   animation: pan 135s linear infinite;
 }
+@keyframes fall {
+  0% {
+    transform: translateY(-10%) rotate(0deg);
+  }
 
+  100% {
+    transform: translateY(110vh) rotate(360deg);
+  }
+}
+
+.animate-fall {
+  animation-name: fall;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
 @keyframes pan {
   0% {
     background-position: 0% 0%;

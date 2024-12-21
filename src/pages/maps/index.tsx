@@ -8,7 +8,7 @@ import {
 } from "@vis.gl/react-google-maps";
 
 import { format, set } from "date-fns";
-import { MapPin } from "lucide-react";
+import { ClipboardList, MapPin } from "lucide-react";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
 import { Loading } from "react-daisyui";
@@ -27,6 +27,7 @@ import { api } from "~/utils/api";
 
 import { create } from "zustand";
 import toast from "react-hot-toast";
+import Link from "next/link";
 
 type Pin = {
   locationGroup:
@@ -294,6 +295,7 @@ function App() {
         <SideMapItem setAlreadySelectedPlace={setAlreadySelectedPlace} />
       </div>
       <ManualPinButton handleClick={handleManualPinClick} />
+      <ReportCollection />
       <CreatePinModal />
     </APIProvider>
   );
@@ -336,7 +338,7 @@ function SideMapItem({
                     <span className=" absolute bottom-4 right-0 text-[.60rem]">
                       End At:
                       {pin.locationGroup &&
-                        format(new Date(pin.locationGroup.endDate), "dd, yyyy")}
+                        new Date(pin.locationGroup.endDate).toLocaleString()}
                     </span>
                   </h3>
                   <div className="mt-1 flex items-center gap-1">
@@ -365,10 +367,20 @@ function SideMapItem({
 function ManualPinButton({ handleClick }: { handleClick: () => void }) {
   return (
     <div className="absolute bottom-2 right-2">
-      <div className="btn btn-circle" onClick={handleClick}>
-        <MapPin />
+      <div className="btn" onClick={handleClick}>
+        <MapPin /> Drop Pins
       </div>
     </div>
+  );
+}
+
+function ReportCollection() {
+  return (
+    <Link href="/maps/report" className="absolute bottom-16 right-2">
+      <div className="btn" >
+        <ClipboardList /> Collection Report
+      </div>
+    </Link>
   );
 }
 

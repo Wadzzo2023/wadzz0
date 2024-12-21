@@ -23,7 +23,11 @@ import { fetchPubkeyfromEmail } from "~/utils/get-pubkey";
 import { addrShort } from "~/utils/utils";
 export const FanGitFormSchema = z.object({
   pubkey: z.string().length(56),
-  amount: z.string(),
+  amount: z.number({
+    required_error: "Amount is required",
+    invalid_type_error: "Amount must be a number",
+    message: "Amount must be a number",
+  }).min(1),
 });
 
 export default function GiftPage() {
@@ -49,17 +53,23 @@ export default function GiftPage() {
         loading: "Sending gift...",
         success: (d) => {
           if (d.successful) {
+            setIsDialogOpen(false);
             reset();
             return "Gift sent successfully";
           } else return "Sorry, gift failed to send";
         },
         error: (e) => {
+          setIsDialogOpen(false);
           return "Sorry, Some error in Stellar network. Please try again later.";
           console.error(e);
         },
       });
+      setIsDialogOpen(false);
     },
-    onError: (e) => toast.error(e.message),
+    onError: (e) => {
+      setIsDialogOpen(false);
+      toast.error(e.message)
+    },
   });
 
   const onSubmit: SubmitHandler<z.infer<typeof FanGitFormSchema>> = (data) => {
@@ -89,7 +99,7 @@ export default function GiftPage() {
   if (bal.isLoading) return <Loading />;
   if (bal.data) {
     return (
-      <div className=" flex h-full flex-col items-center ">
+      <div className=" flex h-full flex-col items-center mt-8 ">
         <div className="card w-full  max-w-xl bg-base-200 p-4">
           {/* <h2>Fan email / pubkey</h2> */}
           <h2 className="mb-4 text-2xl font-bold">Gift your fans</h2>
@@ -130,9 +140,11 @@ export default function GiftPage() {
               <input
                 type="number"
                 placeholder={`Price in ${bal.data.asset}`}
-                {...register("amount")}
+                {...register("amount", {
+                  valueAsNumber: true,
+                  min: 1
+                })}
                 className="grow"
-              // className=" input input-bordered w-full "
               />
             </label>
             <div className="flex flex-col gap-2">
@@ -201,7 +213,11 @@ export default function GiftPage() {
       </div>
     );
   } else if (bal.data === undefined) {
-    return <div>You don&apos;t have page asset to gift.</div>;
+    return <div className="h-full flex items-center justify-center">
+      <div className="h-full flex items-center justify-center">
+        You don&apos;t have page asset to gift.
+      </div>
+    </div>;
   }
 }
 

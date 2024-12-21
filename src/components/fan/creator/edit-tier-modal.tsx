@@ -46,7 +46,7 @@ export const EditTierSchema = z.object({
     }),
   featureDescription: z
     .string()
-    .min(20, { message: "Make description longer" }),
+    .min(20, { message: "Description must be longer than 20 characters" }),
   id: z.number(),
 });
 

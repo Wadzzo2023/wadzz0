@@ -62,7 +62,7 @@ function MyStorageAsset() {
 
               >
                 {/* <p>{acc.data.accAssets[i]?.copies}</p> */}
-                <AssetView code={asset.code} thumbnail={asset.thumbnail} />
+                <AssetView code={asset.name} thumbnail={asset.thumbnail} />
               </button>
             </div>
           );
@@ -109,7 +109,7 @@ function MyAssets() {
                 className="btn relative h-fit w-full overflow-hidden  py-4 "
 
               >
-                <AssetView code={asset.code} thumbnail={asset.thumbnail} />
+                <AssetView code={asset.name} thumbnail={asset.thumbnail} />
               </button>
             </div>
           );

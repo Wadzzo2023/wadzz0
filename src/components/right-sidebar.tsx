@@ -13,7 +13,7 @@ import FunctionTest from "~/pages/functiontest";
 
 export const AssetVariant = {
   ...MarketType,
-  Other: "Other",
+  // Other: "Other",
   Artists: CREATOR_PLURAL_TERM,
 } as const;
 
