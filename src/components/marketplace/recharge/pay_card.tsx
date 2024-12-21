@@ -25,6 +25,8 @@ export default function PaymentCard({ pubkey, offer, xdr }: PaymentCardType) {
           .then((data) => {
             if (data) {
               toast.success("Payment success");
+            } else {
+              toast.error("Payment failed, Contact to admin");
             }
           })
           .catch((e) => {

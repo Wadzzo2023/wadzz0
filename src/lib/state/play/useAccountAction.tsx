@@ -1,8 +1,8 @@
 import { create } from "zustand";
 
 export interface AccountActionData {
-  mode?: boolean;
-  brandMode?: boolean;
+  mode: boolean;
+  brandMode: boolean;
 }
 
 interface AccountActionStore {

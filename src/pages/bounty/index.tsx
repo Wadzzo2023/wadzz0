@@ -1,227 +1,159 @@
-import { useEffect, useState } from "react";
-import { format } from "date-fns";
+import React, { useEffect, useState } from "react";
 import Image from "next/image";
-import Link from "next/link";
 import { Preview } from "~/components/preview";
-import {
-  BountyProps,
-  useBountyRightStore,
-} from "~/lib/state/bounty/use-bounty-store";
+import { BountyProps, useBountyRightStore } from "~/lib/state/bounty/use-bounty-store";
 import { usePopUpState } from "~/lib/state/right-pop";
 import { PLATFORM_ASSET } from "~/lib/stellar/constant";
 import { api } from "~/utils/api";
 import { getTailwindScreenSize } from "~/utils/clientUtils";
-import {
-  sortOptionEnum,
-  statusFilterEnum,
-} from "~/components/fan/creator/bounty/BountyList";
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "~/components/shadcn/ui/card";
+import { sortOptionEnum } from "~/components/fan/creator/bounty/BountyList";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "~/components/shadcn/ui/card";
 import { Badge } from "~/components/shadcn/ui/badge";
-import { Award } from "lucide-react";
+import { Award, Search, ChevronDown } from 'lucide-react';
+import { Input } from "~/components/shadcn/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "~/components/shadcn/ui/select";
+import { Button } from "~/components/shadcn/ui/button";
 
-const Bounty = () => {
+const Bounty: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [sortOption, setSortOption] = useState<sortOptionEnum>(
-    sortOptionEnum.DATE_ASC,
-  );
+  const [sortOption, setSortOption] = useState<sortOptionEnum>(sortOptionEnum.DATE_DESC);
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
 
-  const [statusFilter, setStatusFilter] = useState<statusFilterEnum>(
-    statusFilterEnum.ALL,
-  );
+  const bountyStore = useBountyRightStore();
+  const pop = usePopUpState();
 
   const getAllBounty = api.bounty.Bounty.getAllBounties.useInfiniteQuery(
     {
       limit: 10,
       search: debouncedSearchTerm,
       sortBy: sortOption,
-      status: statusFilter,
     },
     {
       getNextPageParam: (lastPage) => lastPage.nextCursor,
     },
   );
 
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) =>
-    setSearchTerm(e.target.value);
-  const handleSortChange = (e: React.ChangeEvent<HTMLSelectElement>) =>
-    setSortOption(e.target.value as sortOptionEnum);
-
-  const handleStatusChange = (e: React.ChangeEvent<HTMLSelectElement>) =>
-    setStatusFilter(e.target.value as statusFilterEnum);
-
   useEffect(() => {
     const handler = setTimeout(() => {
       setDebouncedSearchTerm(searchTerm);
-    }, 1500);
+    }, 500);
 
-    // Cleanup the timeout if the user types again before 2 seconds
     return () => {
       clearTimeout(handler);
     };
   }, [searchTerm]);
 
-  const bountyStore = useBountyRightStore();
-  const pop = usePopUpState();
+  const handleBountyClick = (bounty: BountyProps) => {
+    bountyStore.setData(bounty);
+    if (!getTailwindScreenSize().includes("xl")) {
+      pop.setOpen(true);
+    }
+  };
 
   return (
-    <div className="p-4">
-      <div>
-        <div>
-          <h2 className="mb-5 text-center text-2xl font-bold">Bounty</h2>
+    <div className="container mx-auto px-4 py-8">
+      <h1 className="mb-8 text-4xl font-bold text-center">Available Bounties</h1>
+      <div className="mb-8 flex flex-col md:flex-row gap-4 items-center justify-between">
+        <div className="relative w-full md:w-1/2">
+          <Input
+            type="search"
+            placeholder="Search bounties..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-10 pr-4 py-2 w-full"
+          />
+          <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 transform text-gray-400" />
         </div>
-        <div className="flex flex-col gap-2 md:grid md:grid-cols-2">
-          <div className="">
-            <form className="">
-              <div className="relative">
-                <input
-                  type="search"
-                  id="default-search"
-                  value={searchTerm}
-                  onChange={handleSearchChange}
-                  className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-4 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                  placeholder="Search Mockups, Logos..."
-                  required
-                />
-                <button
-                  type="submit"
-                  onClick={(e) => {
-                    e.preventDefault();
-                  }}
-                  className="absolute bottom-2.5 end-2.5 rounded-lg bg-blue-700 px-4 py-2  text-sm font-medium text-white hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-                >
-                  Search
-                </button>
-              </div>
-            </form>
-          </div>
-          <div className="flex items-center justify-center gap-2">
-            <select
-              value={statusFilter}
-              onChange={handleStatusChange}
-              className="mb-6 block w-full rounded-lg border  border-gray-300 bg-gray-50 p-4  text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-            >
-              <option value="ALL">All Bounty</option>
-              <option value="ACTIVE">Active Bounty</option>
-              <option value="FINISHED">Finished Bounty</option>
-            </select>
-
-            <select
-              value={sortOption}
-              onChange={handleSortChange}
-              className="mb-6 block w-full rounded-lg border border-gray-300 bg-gray-50 p-4 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-            >
-              <option value="DATE_ASC">Date (Oldest to Newest)</option>
-              <option value="DATE_DESC">Date (Newest to Oldest)</option>
-              <option value="PRICE_ASC">
-                Prize Size (Smallest to Largest)
-              </option>
-              <option value="PRICE_DESC">
-                Prize Size (Largest to Smallest)
-              </option>
-            </select>
-          </div>
-        </div>
+        <Select value={sortOption} onValueChange={(value) => setSortOption(value as sortOptionEnum)}>
+          <SelectTrigger className="w-full md:w-auto">
+            <SelectValue placeholder="Sort bounties" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value={sortOptionEnum.DATE_DESC}>Newest First</SelectItem>
+            <SelectItem value={sortOptionEnum.DATE_ASC}>Oldest First</SelectItem>
+            <SelectItem value={sortOptionEnum.PRICE_DESC}>Highest Prize</SelectItem>
+            <SelectItem value={sortOptionEnum.PRICE_ASC}>Lowest Prize</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
 
-      <div className="grid grid-flow-row grid-cols-1 gap-6 md:grid-cols-2 	">
-        {getAllBounty.data &&
-          getAllBounty.data.pages[0]?.bounties.length === 0 && (
-            <p className="w-full text-center">There is no page asset yet</p>
-          )}
-        {getAllBounty.data?.pages.map((page) => (
-          <>
-            {page.bounties.map((bounty) => (
-              <>
-                <div
+      {getAllBounty.isLoading ? (
+        <div className="text-center text-xl">Loading bounties...</div>
+      ) : getAllBounty.data?.pages[0]?.bounties.length === 0 ? (
+        <div className="text-center text-xl">No bounties found</div>
+      ) : (
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {getAllBounty.data?.pages.map((page, pageIndex) => (
+            <React.Fragment key={pageIndex}>
+              {page.bounties.map((bounty) => (
+                <Card
                   key={bounty.id}
-                  onClick={() => {
-                    bountyStore.setData(bounty as BountyProps);
-                    if (!getTailwindScreenSize().includes("xl")) {
-                      pop.setOpen(true);
-                    }
-                  }}
+                  className="flex h-full flex-col transition-all duration-300 hover:shadow-lg hover:-translate-y-1 cursor-pointer"
+                  onClick={() => handleBountyClick(bounty as BountyProps)}
                 >
-                  <Card
-                    key={bounty.id}
-                    className="flex  max-h-[480px] min-h-[480px] flex-col "
-                  >
-                    <CardHeader>
-                      <div className="relative">
-                        <Image
-                          src={bounty.imageUrls[0] ?? "/images/logo.png"}
-                          alt={bounty.title}
-                          width={200}
-                          height={100}
-                          className="h-40 w-full rounded-t-lg object-cover"
-                        />
-                        <Badge
-                          variant={
-                            bounty.status === "APPROVED"
-                              ? "default"
-                              : "destructive"
-                          }
-                          className="absolute right-2 top-2"
-                        >
-                          {bounty.status === "APPROVED"
-                            ? "Approved"
-                            : "Pending"}
-                        </Badge>
-                      </div>
-                      <CardTitle className="mt-4">{bounty.title}</CardTitle>
-                    </CardHeader>
-                    <CardContent className="flex-grow">
-                      <div className="mb-4">
-                        <span className="font-semibold">Prize Pool:</span>{" "}
-                        {bounty.priceInUSD} USD ({bounty.priceInBand.toFixed(3)}{" "}
-                        {PLATFORM_ASSET.code})
-                      </div>
-                      <div className="max-h-[85px] min-h-[85px]">
-                        <span className="font-semibold ">Requirements:</span>
-                        <ul className="mt-2 list-inside list-disc">
-                          {<Preview value={bounty.description.slice(0, 100)} />}
-                        </ul>
-                      </div>
-                    </CardContent>
-                    <CardFooter className="flex items-center justify-between">
-                      <div className="flex items-center">
-                        <Badge variant="secondary" className="mr-2">
-                          {bounty._count.participants} participants
-                        </Badge>
-                        <div className="flex items-center justify-between">
-                          <Badge
-                            variant={bounty._count.BountyWinner === 0 ? "destructive" : "default"}
-                          >
-                            {bounty.totalWinner === bounty._count.BountyWinner ? "Finished" : (bounty.totalWinner - bounty._count.BountyWinner) + " Winner Left"}
-                          </Badge>
+                  <CardHeader className="relative p-0">
+                    <Image
+                      src={bounty.imageUrls[0] ?? "/images/logo.png"}
+                      alt={bounty.title}
+                      width={400}
+                      height={200}
+                      className="h-48 w-full rounded-t-lg object-cover"
+                    />
 
-                        </div>
-                      </div>
-                    </CardFooter>
-                  </Card>
-                </div>
-              </>
-            ))}
-          </>
-        ))}
-      </div>
-      <div className="mt-5">
-        {getAllBounty.hasNextPage && (
-          <button
-            className="btn btn-outline btn-primary"
+                  </CardHeader>
+                  <CardContent className="flex-grow p-4 max-h-[300px] min-h-[300px]">
+                    <CardTitle className="mb-2 line-clamp-2 text-xl">{bounty.title}</CardTitle>
+                    <div className="mb-2 flex items-center text-sm text-red-600">
+                      <Award className="mr-1 inline-block h-4 w-4" />
+                      <span className="font-semibold">{bounty.priceInUSD} USD</span>
+                      <span className="ml-1 text-xs text-red-500">
+                        ({bounty.priceInBand.toFixed(3)} {PLATFORM_ASSET.code})
+                      </span>
+                    </div>
+                    <div className="mb-4 line-clamp-3 text-sm text-gray-500">
+                      <Preview value={bounty.description.slice(0, 200)} />
+                    </div>
+                  </CardContent>
+                  <CardFooter className="flex items-center justify-between border-t p-4">
+                    <Badge variant="secondary">
+                      {bounty._count.participants} participants
+                    </Badge>
+                    <Badge variant={bounty._count.BountyWinner === 0 ? "outline" : "default"}>
+                      {bounty.totalWinner === bounty._count.BountyWinner
+                        ? "Finished"
+                        : `${bounty.totalWinner - bounty._count.BountyWinner} Winner${bounty.totalWinner - bounty._count.BountyWinner !== 1 ? "s" : ""
+                        } Left`}
+                    </Badge>
+                  </CardFooter>
+                </Card>
+              ))}
+            </React.Fragment>
+          ))}
+        </div>
+      )}
+
+      {getAllBounty.hasNextPage && (
+        <div className="mt-12 text-center">
+          <Button
             onClick={() => void getAllBounty.fetchNextPage()}
+            disabled={getAllBounty.isFetchingNextPage}
+            size="lg"
+            className="group relative overflow-hidden"
           >
-            Load More
-          </button>
-        )}
-      </div>
+            {getAllBounty.isFetchingNextPage ? (
+              "Loading more..."
+            ) : (
+              <>
+                Load More
+                <ChevronDown className="ml-2 h-4 w-4 transition-transform group-hover:translate-y-1" />
+              </>
+            )}
+          </Button>
+        </div>
+      )}
     </div>
   );
 };
+
 export default Bounty;
+

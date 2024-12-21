@@ -1,11 +1,66 @@
 import { create } from "zustand";
 import {
+  AdminAsset,
+  Asset,
+  ItemPrivacy,
+  MarketAsset,
+  Song,
   SubmissionAttachment,
   type Location,
   type LocationConsumer,
 } from "@prisma/client";
 
 import { Horizon } from "@stellar/stellar-sdk";
+export type AssetRightType = AssetType & { copies: number };
+
+export type SongItemType = Song & { asset: AssetType };
+export type AssetType = Omit<Asset, "issuerPrivate">;
+
+export type MarketAssetType = MarketAsset & {
+  asset: AssetType;
+};
+export type AdminAssetWithTag = AdminAsset & {
+  tags: {
+    tagName: string;
+  }[];
+};
+export type Transaction = {
+  source: string;
+  successful: boolean;
+  ledger_attr: number;
+  sequence: string;
+  maxFee: string | number;
+  createdAt: string;
+  memo: string | undefined;
+  id: string;
+  pagingToken: string;
+  envelopeXdr: string;
+  resultXdr: string;
+  resultMetaXdr: string;
+  signatures: string[];
+  fee_charged: string | number;
+  operations: Horizon.ServerApi.OperationRecord[];
+}
+export type CreatorConsumedPin = {
+  id: string;
+  startDate: Date;
+  endDate: Date;
+  title: string;
+  locations: {
+    id: string;
+    latitude: number;
+    longitude: number;
+    autoCollect: boolean;
+    _count: { consumers: number };
+    consumers: {
+      user: {
+        name: string | null;
+        id: string;
+        email: string | null;
+      };
+    }[];
+  }[];
+};
 
 export type ModalType =
   | "send assets"
@@ -20,6 +75,11 @@ export type ModalType =
   | "edit bounty"
   | "view attachment"
   | "transaction history"
+  | "buy modal"
+  | "my asset info modal"
+  | "song buy modal"
+  | "creator asset info"
+  | 'view admin asset'
 
 export interface ModalData {
   pinId?: string;
@@ -37,10 +97,23 @@ export interface ModalData {
   bountyId?: number;
   attachment?: SubmissionAttachment[];
   submissionId?: number;
-  transaction?: Horizon.ServerApi.TransactionRecord
-  startDate?:Date,
-  endDate?:Date,
-  pinCollectionLimit?:number
+  transaction?: Transaction;
+  startDate?: Date,
+  endDate?: Date,
+  pinCollectionLimit?: number,
+  multiPin?: boolean,
+  pinNumber?: number,
+  autoCollect?: boolean,
+  subscriptionId?: number,
+  assetId?: number,
+  link?: string,
+  pageAsset?: boolean,
+  privacy?: ItemPrivacy,
+  Asset?: MarketAssetType,
+  MyAsset?: AssetType,
+  Song?: SongItemType,
+  creatorStoreAsset?: MarketAssetType,
+  adminAssetNtag?: AdminAssetWithTag,
 }
 
 interface ModalStore {

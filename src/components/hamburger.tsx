@@ -10,7 +10,7 @@ function Hamburger() {
       <SheetTrigger className="btn">
         <Menu />
       </SheetTrigger>
-      <SheetContent side={"left"} className="w-80 !px-0">
+      <SheetContent side={"left"} className="w-80 !px-0 py-8 ">
         <LeftBar className="bg-base-100" />
       </SheetContent>
     </Sheet>

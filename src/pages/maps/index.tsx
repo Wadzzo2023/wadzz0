@@ -2,12 +2,13 @@ import { Location, LocationGroup } from "@prisma/client";
 import {
   APIProvider,
   AdvancedMarker,
+  ControlPosition,
   Map,
   MapMouseEvent,
 } from "@vis.gl/react-google-maps";
 
 import { format, set } from "date-fns";
-import { MapPin } from "lucide-react";
+import { ClipboardList, MapPin } from "lucide-react";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
 import { Loading } from "react-daisyui";
@@ -26,13 +27,14 @@ import { api } from "~/utils/api";
 
 import { create } from "zustand";
 import toast from "react-hot-toast";
+import Link from "next/link";
 
 type Pin = {
   locationGroup:
-    | (LocationGroup & {
-        creator: { profileUrl: string | null };
-      })
-    | null;
+  | (LocationGroup & {
+    creator: { profileUrl: string | null };
+  })
+  | null;
   _count: {
     consumers: number;
   };
@@ -129,11 +131,7 @@ function App() {
   const [loading, setLoading] = useState<boolean>(false);
   const [RangedPins, setRangedPins] = useState<Pin[]>([]);
   const [isCordsSearch, setIsCordsSearch] = useState<boolean>(false);
-  const [searchCoordinates, setSearchCoordinates] =
-    useState<google.maps.LatLngLiteral>({
-      lat: 22.54992,
-      lng: 0,
-    });
+  const [searchCoordinates, setSearchCoordinates] = useState<google.maps.LatLngLiteral>();
 
   const {
     selectedPlace: alreadySelectedPlace,
@@ -218,6 +216,10 @@ function App() {
         setCordSearchLocation={setCordSearchLocation}
       />
       <Map
+        zoomControl={true}
+        zoomControlOptions={{
+          position: ControlPosition.RIGHT_TOP,
+        }}
         onCenterChanged={(center) => {
           setMapCenter(center.detail.center);
           setCenterChanged(center.detail.bounds); // Update the centerChanged state with new bounds
@@ -227,9 +229,11 @@ function App() {
         }}
         onClick={handleMapClick}
         mapId={"bf51eea910020fa25a"}
-        style={{ height: "100vh" }}
+        className="h-screen w-full"
+
         defaultCenter={{ lat: 22.54992, lng: 0 }}
         defaultZoom={3}
+        minZoom={2}
         zoom={mapZoom}
         center={mapCenter}
         gestureHandling={"greedy"}
@@ -291,6 +295,7 @@ function App() {
         <SideMapItem setAlreadySelectedPlace={setAlreadySelectedPlace} />
       </div>
       <ManualPinButton handleClick={handleManualPinClick} />
+      <ReportCollection />
       <CreatePinModal />
     </APIProvider>
   );
@@ -330,6 +335,11 @@ function SideMapItem({
                 <div className="flex-1">
                   <h3 className="relative font-medium">
                     {pin.locationGroup?.title}{" "}
+                    <span className=" absolute bottom-4 right-0 text-[.60rem]">
+                      End At:
+                      {pin.locationGroup &&
+                        new Date(pin.locationGroup.endDate).toLocaleString()}
+                    </span>
                   </h3>
                   <div className="mt-1 flex items-center gap-1">
                     <Avatar className="h-6 w-6">
@@ -343,14 +353,6 @@ function SideMapItem({
                     <Badge variant="secondary" className="text-xs">
                       {pin._count.consumers} visitors
                     </Badge>
-                    <span className=" absolute bottom-4 right-0 text-[.60rem]">
-                      Expire At:
-                      {pin.locationGroup &&
-                        format(
-                          new Date(pin.locationGroup.endDate),
-                          "dd/mm/yyyy",
-                        )}
-                    </span>
                   </div>
                 </div>
               </div>
@@ -365,10 +367,20 @@ function SideMapItem({
 function ManualPinButton({ handleClick }: { handleClick: () => void }) {
   return (
     <div className="absolute bottom-2 right-2">
-      <div className="btn btn-circle" onClick={handleClick}>
-        <MapPin />
+      <div className="btn" onClick={handleClick}>
+        <MapPin /> Drop Pins
       </div>
     </div>
+  );
+}
+
+function ReportCollection() {
+  return (
+    <Link href="/maps/report" className="absolute bottom-16 right-2">
+      <div className="btn" >
+        <ClipboardList /> Collection Report
+      </div>
+    </Link>
   );
 }
 
@@ -411,18 +423,26 @@ function MyPins({
                 endDate: pin.locationGroup?.endDate,
                 startDate: pin.locationGroup?.startDate,
                 pinCollectionLimit: pin.locationGroup?.limit,
+                multiPin: pin.locationGroup?.multiPin,
+                subscriptionId: pin.locationGroup?.subscriptionId ?? undefined,
+                autoCollect: pin.autoCollect,
+                pageAsset: pin.locationGroup?.pageAsset ?? false,
+                privacy: pin.locationGroup?.privacy,
+                pinNumber: pin.locationGroup?.remaining,
+                link: pin.locationGroup?.link ?? undefined,
+                assetId: pin.locationGroup?.assetId ?? undefined,
+
               });
               setIsAutoCollect(pin.autoCollect); // Set isAutoCollect to true when a pin is clicked
             }}
           >
             <Image
               src={pin.locationGroup?.creator.profileUrl ?? "/favicon.ico"}
-              width={150}
-              height={150}
+              width={30}
+              height={30}
               alt="Creator"
-              className={`h-10 w-10 bg-white ${
-                !pin.autoCollect ? "rounded-full " : ""
-              } ${(pin.locationGroup?.limit ?? 1 <= 0) ? "opacity-100" : "opacity-50 "}`}
+              className={`h-10 w-10 bg-white ${!pin.autoCollect ? "rounded-full " : ""
+                } ${pin._count.consumers <= 0 ? "opacity-100" : "opacity-50 "}`}
             />
           </AdvancedMarker>
         ))}

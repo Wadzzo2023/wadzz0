@@ -23,10 +23,6 @@ import { Coins, DollarSign, Loader } from "lucide-react";
 import { Label } from "~/components/shadcn/ui/label";
 import { RadioGroup, RadioGroupItem } from "~/components/shadcn/ui/radio-group";
 
-import {
-  PaymentMethod,
-  PaymentMethodEnum,
-} from "~/components/music/modal/buy_modal";
 import { Button } from "~/components/shadcn/ui/button";
 import {
   Dialog,
@@ -37,6 +33,7 @@ import {
   DialogTrigger,
 } from "~/components/shadcn/ui/dialog";
 import { PLATFORM_ASSET } from "~/lib/stellar/constant";
+import { PaymentMethod, PaymentMethodEnum } from "~/components/BuyItem";
 
 export default function CreatorProfile() {
   const { data: session } = useSession();

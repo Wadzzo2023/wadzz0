@@ -51,20 +51,35 @@ export const MediaInfo = z.object({
 });
 
 export const BountySchema = z.object({
-  title: z.string().min(1, { message: "Title can't be empty" }),
-  totalWinner: z.number().min(1, { message: "Please select at least 1 winner" }),
+  title: z.string().max(65, {
+    message: "Title can't be more than 65 characters"
+  }).min(1, { message: "Title can't be empty" }),
+  totalWinner: z
+    .number({
+      required_error: "Total Winner must be a number",
+      invalid_type_error: "Total Winner must be a number",
+    })
+    .min(1, { message: "Please select at least 1 winner" }),
   prizeInUSD: z
-    .number()
+    .number({
+      required_error: "Prize  must be a number",
+      invalid_type_error: "Prize must be a number",
+    })
     .min(0.00001, { message: "Prize can't less than 0.00001" }),
-  prize: z.number().min(0.00001, { message: "Prize can't less than 0.00001" }),
+  prize: z.number({
+    required_error: "Prize  must be a number",
+    invalid_type_error: "Prize must be a number",
+  }).min(0.00001, { message: "Prize can't less than 0.00001" }),
   requiredBalance: z
-    .number()
+    .number({
+      required_error: "Required Balance  must be a number",
+      invalid_type_error: "Required Balance must be a number",
+    })
     .nonnegative({ message: "Required Balance can't be less than 0" })
     .optional(),
 
   content: z.string().min(2, { message: "Description can't be empty" }),
   medias: z.array(MediaInfo).optional(),
-
 });
 
 type MediaInfoType = z.TypeOf<typeof MediaInfo>;
@@ -81,7 +96,8 @@ const CreateBounty = () => {
 
   const { isOpen, setIsOpen, paymentMethod } = usePaymentMethodStore();
 
-  const totalFeees = 2 * Number(TrxBaseFeeInPlatformAsset) + Number(PLATFORM_FEE);
+  const totalFeees =
+    2 * Number(TrxBaseFeeInPlatformAsset) + Number(PLATFORM_FEE);
 
   // console.log("platformAssetBalance", platformAssetBalance);
   const {
@@ -97,6 +113,8 @@ const CreateBounty = () => {
     mode: "onChange",
     defaultValues: {
       content: "",
+      title: "",
+
     },
   });
 
@@ -135,7 +153,7 @@ const CreateBounty = () => {
                 priceInXLM:
                   method == "xlm" ? getValues("prize") * 0.7 : undefined,
                 content: getValues("content"),
-                medias: getValues("medias"),
+                medias: media,
               });
               setLoading(false);
               reset();
@@ -166,7 +184,7 @@ const CreateBounty = () => {
       },
     });
   const onSubmit: SubmitHandler<z.infer<typeof BountySchema>> = (data) => {
-    console.log("data", data);
+    console.log("data...................", data);
     data.medias = media;
     setLoading(true);
     SendBalanceToBountyMother.mutate({
@@ -214,19 +232,31 @@ const CreateBounty = () => {
               </CardTitle>
               <CardDescription></CardDescription>
             </CardHeader>
-            <CardContent className="px-1 ">
+            <CardContent className="px-1">
               <form
                 onSubmit={handleSubmit(onSubmit)}
                 className="flex w-full flex-col gap-4 rounded-3xl bg-base-200 p-5"
               >
                 <label className="form-control w-full ">
+
                   <input
+                    maxLength={65}
                     readOnly={loading}
                     type="text"
                     placeholder="Add a Title..."
                     {...register("title")}
                     className="input input-bordered w-full "
                   />
+                  <div className="flex text-sm justify-between text-gray-500">
+                    <span>{getValues("title").length >= 65 && (
+                      <div className="text-left text-sm text-red-500">
+                        You have reached the maximum character limit.
+                      </div>
+                    )}</span>
+                    {/* <span className=""> {getValues("title").length}/65 characters</span> */}
+                  </div>
+
+
                   {errors.title && (
                     <div className="label">
                       <span className="label-text-alt text-warning">
@@ -235,7 +265,7 @@ const CreateBounty = () => {
                     </div>
                   )}
                 </label>
-                <label className="h-[240px]">
+                <div className="h-[240px]">
                   {/* <textarea
                 {...register("content")}
                 className="textarea textarea-bordered h-48"
@@ -255,7 +285,7 @@ const CreateBounty = () => {
                       </span>
                     </div>
                   )}
-                </label>
+                </div>
                 <div>
                   <div className="flex flex-col items-center gap-2">
                     <div className="flex gap-2">
@@ -279,8 +309,8 @@ const CreateBounty = () => {
                       ))}
                     </div>
 
-                    <div className=" flex w-full flex-col sm:flex-row  gap-2 mt-2">
-                      <label className="w-full mb-1 text-xs tracking-wide text-gray-600 sm:text-sm">
+                    <div className=" mt-2 flex w-full flex-col  gap-2 sm:flex-row">
+                      <label className="mb-1 w-full text-xs tracking-wide text-gray-600 sm:text-sm">
                         Prize in $USD*
                         <input
                           step={0.00001}
@@ -303,7 +333,7 @@ const CreateBounty = () => {
                           </div>
                         )}
                       </label>
-                      <label className="w-full mb-1 text-xs tracking-wide text-gray-600 sm:text-sm">
+                      <label className="mb-1 w-full text-xs tracking-wide text-gray-600 sm:text-sm">
                         Prize in {PLATFORM_ASSET.code}*
                         <input
                           readOnly
@@ -321,7 +351,7 @@ const CreateBounty = () => {
                       </label>
                     </div>
 
-                    <div className=" flex w-full flex-col md:flex-row  gap-2">
+                    <div className=" flex w-full flex-col gap-2  md:flex-row">
                       <label className=" mb-1 w-full text-xs tracking-wide text-gray-600 sm:text-sm">
                         Required Balance to Join this Bounty in{" "}
                         {PLATFORM_ASSET.code}*
@@ -343,7 +373,7 @@ const CreateBounty = () => {
                         )}
                       </label>
                       <label className=" mb-1 w-full text-xs tracking-wide text-gray-600 sm:text-sm">
-                        How many winner will be selected?*
+                        How many winners will be selected?*
                         <input
                           readOnly={loading}
                           type="number"
@@ -384,7 +414,7 @@ const CreateBounty = () => {
                     />
                   </div>
                 </div>{" "}
-                <CardFooter className="flex justify-between w-full">
+                <CardFooter className="flex w-full justify-between">
                   {platformAssetBalance < prizeInAsset + totalFeees ? (
                     <Alert
                       type="error"
@@ -392,7 +422,7 @@ const CreateBounty = () => {
                       content={`You don't have Sufficient Balance ,To  create this bounty, you need minimum ${prizeInAsset + totalFeees} ${PLATFORM_ASSET.code},`}
                     />
                   ) : (
-                    <div className="flex flex-col w-full gap-2">
+                    <div className="flex w-full flex-col gap-2">
                       <PaymentChoose
                         costBreakdown={[
                           {
@@ -409,7 +439,7 @@ const CreateBounty = () => {
                           },
                           {
                             label: "Total Cost",
-                            amount: paymentMethod === "asset" ? prizeInAsset : prizeInAsset * 0.7 + totalFeees,
+                            amount: paymentMethod === "asset" ? prizeInAsset + totalFeees : prizeInAsset * 0.7 + totalFeees,
                             highlighted: false,
                             type: "total",
                           },
@@ -430,9 +460,10 @@ const CreateBounty = () => {
                       />
 
                       <Alert
-                        type="success" className="w-full text-center"
+                        type="success"
+                        className="w-full text-center"
                         content={`
-                          Note: You will be charged ${prizeInAsset + totalFeees} ${PLATFORM_ASSET.code} to create this bounty.
+                          Note: You will be charged ${prizeInAsset + totalFeees} ${PLATFORM_ASSET.code} to create this bounty
                           `}
                       />
                     </div>

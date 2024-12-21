@@ -16,7 +16,7 @@ import { PLATFORM_ASSET } from "~/lib/stellar/constant";
 
 import { create } from "zustand";
 import { env } from "~/env";
-import { PaymentMethod, PaymentMethodEnum } from "../music/modal/buy_modal";
+import { PaymentMethod, PaymentMethodEnum } from "../BuyItem";
 
 interface PaymentMethodStore {
   paymentMethod: PaymentMethod;
@@ -103,13 +103,15 @@ export function PaymentChoose({
               >
                 <Coins className="mr-3 h-6 w-6 text-primary" />
                 <div className="flex-grow">
-                  <div className="font-medium">Pay with WADZZO</div>
+                  <div className="font-medium">
+                    Pay with {PLATFORM_ASSET.code}
+                  </div>
                   <div className="text-sm text-gray-500">
                     Use platform tokens
                   </div>
                 </div>
                 <div className="text-right font-medium">
-                  {requiredToken} WADZZO
+                  {requiredToken.toFixed(0)} {PLATFORM_ASSET.code}
                 </div>
               </Label>
             </div>
@@ -131,7 +133,7 @@ export function PaymentChoose({
                   </div>
                 </div>
                 <div className="text-right font-medium">
-                  {XLM_EQUIVALENT} XLM
+                  {XLM_EQUIVALENT.toFixed(0)} XLM
                 </div>
               </Label>
             </div>
@@ -149,7 +151,7 @@ export function PaymentChoose({
                 {item.label}
               </span>
               <span>
-                {item.amount} {paymentMethod === "asset" ? PLATFORM_ASSET.code : "XLM"}
+                {item.amount.toFixed(0)} {paymentMethod === "asset" ? PLATFORM_ASSET.code : "XLM"}
               </span>
             </div>
           )) : <></>}

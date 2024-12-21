@@ -18,7 +18,6 @@ function PageAssetComponent({ item }: { item: CreatorPageAssetType }) {
   const urs = usePageAssetRightStore();
   const pop = usePopUpState();
   const router = useRouter();
-
   return (
     <div>
       <button

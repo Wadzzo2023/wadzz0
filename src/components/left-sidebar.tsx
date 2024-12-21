@@ -1,13 +1,14 @@
-import { ConnectWalletButton } from "package/connect_wallet";
 import { Facebook, Instagram, Wallet } from "lucide-react";
+import { ConnectWalletButton } from "package/connect_wallet";
 
-import Button from "./ui/button";
-import Link from "next/link";
-import { HomeIcon, Settings2, Diamond, Bell } from "lucide-react";
+import { Bell, Diamond, HomeIcon, Settings2 } from "lucide-react";
 import Image from "next/image";
-import { cn } from "~/utils/utils";
+import Link from "next/link";
 import { env } from "~/env";
+import { useDrawerOpenStore } from "~/lib/state/fan/drawer_open";
 import { CREATOR_PLURAL_TERM } from "~/utils/term";
+import { cn } from "~/utils/utils";
+import Button from "./ui/button";
 
 export const LeftNavigation = {
   Home: { path: "/", icon: HomeIcon, text: "HOMEPAGE" },
@@ -24,7 +25,7 @@ export const LeftNavigation = {
   Fan: {
     path: "/fans/home",
     icon: Bell,
-    text: CREATOR_PLURAL_TERM.toUpperCase(),
+    text: CREATOR_PLURAL_TERM.toLocaleUpperCase(),
   },
   Settings: { path: "/settings", icon: Settings2, text: "SETTINGS" },
 } as const;
@@ -53,6 +54,7 @@ export default function LeftBar({ className }: { className?: string }) {
 }
 
 function NavigationButtons() {
+  const { setIsOpen } = useDrawerOpenStore();
   return (
     <div className="flex h-full min-h-full flex-col justify-between gap-2">
       <div className="flex  flex-col  gap-2">

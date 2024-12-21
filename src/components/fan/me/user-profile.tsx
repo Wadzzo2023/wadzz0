@@ -41,6 +41,7 @@ import {
 import toast from "react-hot-toast";
 export default function About() {
   const user = api.fan.user.getUser.useQuery();
+  console.log("user", user);
   if (user.data)
     return (
       <div className="flex  flex-col items-center ">
