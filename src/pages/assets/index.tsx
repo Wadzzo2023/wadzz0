@@ -11,6 +11,8 @@ import { usePopUpState } from "~/lib/state/right-pop";
 
 import { api } from "~/utils/api";
 import { ValidCreateCreator } from "../fans/creator";
+import { useModal } from "~/lib/state/play/use-modal-store";
+
 
 export default function MyAssetsPage() {
   return (
@@ -22,6 +24,7 @@ export default function MyAssetsPage() {
     </div>
   );
 }
+
 function RenderTabs() {
   const { selectedMenu, setSelectedMenu } = useAssetMenu();
   switch (selectedMenu) {
@@ -33,9 +36,8 @@ function RenderTabs() {
 }
 
 function MyStorageAsset() {
-  const { setData } = useAssetRightStore();
   const acc = api.wallate.acc.getCreatorStorageInfo.useQuery();
-
+  const { onOpen } = useModal()
   if (acc.isLoading) return <MoreAssetsSkeleton className="flex gap-2" />;
   if (acc.data)
     return (
@@ -43,23 +45,24 @@ function MyStorageAsset() {
         style={{
           scrollbarGutter: "stable",
         }}
-        className="main-asset-area flex gap-2"
+        className="grid grid-cols-2 md:grid-cols-4  xl:grid-cols-6 gap-2 "
       >
         {acc.data.accAssets.length === 0 && (
           <p className="w-full text-center">You have no asset</p>
         )}
         {acc.data.dbAssets.map((asset, i) => {
           return (
-            <div key={i}>
+            <div key={i} onClick={() => {
+              onOpen("my asset info modal", {
+                MyAsset: asset
+              })
+            }}>
               <button
                 className="btn relative h-fit w-full overflow-hidden  py-4 "
-                onClick={() => {
-                  const copies = acc.data.accAssets[i]?.copies ?? 0;
-                  setData({ ...asset, copies });
-                }}
+
               >
                 {/* <p>{acc.data.accAssets[i]?.copies}</p> */}
-                <AssetView code={asset.code} thumbnail={asset.thumbnail} />
+                <AssetView code={asset.name} thumbnail={asset.thumbnail} />
               </button>
             </div>
           );
@@ -77,8 +80,8 @@ function MyStorageAsset() {
 
 function MyAssets() {
   const acc = api.wallate.acc.getAccountInfo.useQuery();
-  const { setData } = useAssetRightStore();
-  const pop = usePopUpState();
+
+  const { onOpen } = useModal()
 
   if (acc.isLoading) return <MoreAssetsSkeleton className="flex gap-2" />;
   if (acc.data)
@@ -87,7 +90,7 @@ function MyAssets() {
         style={{
           scrollbarGutter: "stable",
         }}
-        className="main-asset-area flex gap-2"
+        className="grid grid-cols-2 md:grid-cols-4  xl:grid-cols-6 gap-2 "
       >
         {acc.data.accAssets.length === 0 && (
           <p className="w-full text-center">You have no asset</p>
@@ -95,18 +98,18 @@ function MyAssets() {
         {acc.data.dbAssets.map((asset, i) => {
           // if (asset.copies > 0)
           return (
-            <div key={i}>
+            <div key={i} onClick={() => {
+
+              onOpen("my asset info modal", {
+                MyAsset: asset
+              })
+
+            }}>
               <button
                 className="btn relative h-fit w-full overflow-hidden  py-4 "
-                onClick={() => {
-                  const copies = acc.data.accAssets[i]?.copies ?? 0;
-                  setData({ ...asset, copies });
-                  if (!getTailwindScreenSize().includes("xl")) {
-                    pop.setOpen(true);
-                  }
-                }}
+
               >
-                <AssetView code={asset.code} thumbnail={asset.thumbnail} />
+                <AssetView code={asset.name} thumbnail={asset.thumbnail} />
               </button>
             </div>
           );
@@ -117,9 +120,10 @@ function MyAssets() {
 
 function AssetTabs() {
   const { selectedMenu, setSelectedMenu } = useAssetMenu();
-  const { setData } = useAssetRightStore();
 
   const creator = api.fan.creator.meCreator.useQuery();
+
+
 
   return (
     <div role="tablist" className="tabs-boxed tabs my-5 w-full max-w-md">
@@ -146,7 +150,7 @@ function AssetTabs() {
   function handleClick(key: AssetMenu) {
     return () => {
       setSelectedMenu(key);
-      setData(undefined);
+
     };
   }
 }

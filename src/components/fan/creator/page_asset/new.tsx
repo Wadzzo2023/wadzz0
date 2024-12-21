@@ -3,25 +3,24 @@ import { useSession } from "next-auth/react";
 import Image from "next/image";
 import { clientsign } from "package/connect_wallet";
 import React, { useState } from "react";
-import { SubmitHandler, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { z } from "zod";
 import { Button } from "~/components/shadcn/ui/button";
 import Alert from "~/components/ui/alert";
 import useNeedSign from "~/lib/hook";
-import { PLATFORM_ASSET, PLATFORM_FEE } from "~/lib/stellar/constant";
+import { PLATFORM_ASSET, PLATFORM_FEE, TrxBaseFeeInPlatformAsset } from "~/lib/stellar/constant";
 import { clientSelect } from "~/lib/stellar/fan/utils";
 import { api } from "~/utils/api";
 
 import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "~/components/shadcn/ui/dialog";
+  PaymentChoose,
+  usePaymentMethodStore,
+} from "~/components/payment/payment-options";
+import { useToast } from "~/hooks/use-toast";
+import { ipfsHashToUrl } from "~/utils/ipfs";
+
+export const MAX_ASSET_LIMIT = Number("922337203685");
 
 export const CreatorPageAssetSchema = z.object({
   code: z
@@ -43,16 +42,20 @@ export const CreatorPageAssetSchema = z.object({
       invalid_type_error: "Limit must be entered as a number",
     })
     .min(1, { message: "Limit must be greater than 0" })
+    .max(MAX_ASSET_LIMIT, {
+      message: `Limit must be less than ${MAX_ASSET_LIMIT} `,
+    })
     .nonnegative(),
   thumbnail: z.string(),
 });
 
 function NewPageAssetFrom({ requiredToken }: { requiredToken: number }) {
-  const [isModalOpen, setIsModalOpen] = React.useState(false);
   const [signLoading, setSignLoading] = React.useState(false);
   const [uploading, setUploading] = useState(false);
   const [coverUrl, setCover] = useState<string>();
-  const [isOpen, setIsOpen] = useState(false);
+  const { isOpen, setIsOpen, paymentMethod } = usePaymentMethodStore();
+  const { toast: shadToast } = useToast();
+  const totalFeees = Number(TrxBaseFeeInPlatformAsset) + Number(PLATFORM_FEE);
 
   // pinta upload
   const [file, setFile] = useState<File>();
@@ -67,6 +70,7 @@ function NewPageAssetFrom({ requiredToken }: { requiredToken: number }) {
     formState: { errors },
     getValues,
     setValue,
+    trigger,
     reset,
   } = useForm<z.infer<typeof CreatorPageAssetSchema>>({
     resolver: zodResolver(CreatorPageAssetSchema),
@@ -88,6 +92,7 @@ function NewPageAssetFrom({ requiredToken }: { requiredToken: number }) {
       setSignLoading(true);
       // sign the transaction for fbgoogle
       const toastId = toast.loading("Signing Transaction");
+
       clientsign({
         walletType: session.data?.user.walletType,
         presignedxdr: data.trx,
@@ -105,37 +110,47 @@ function NewPageAssetFrom({ requiredToken }: { requiredToken: number }) {
             });
           } else {
             toast.error("Transaction failed", { id: toastId });
+            shadToast({
+              title: "Transaction failed",
+              description: "Failed to sign transaction",
+            });
           }
         })
         .catch((e) => {
           toast.error("Transaction failed", { id: toastId });
+          shadToast({
+            title: "Transaction failed",
+          });
           console.log(e);
         })
         .finally(() => {
           toast.dismiss(toastId);
           setSignLoading(false);
         });
-      // setIsModalOpen(false);
+    },
+    onError: (e) => {
+      shadToast({
+        title: "Transaction failed",
+        description: e.message,
+      });
     },
   });
 
-  const onSubmit = () => {
-    setIsModalOpen(true);
-
+  const onSubmit = async () => {
     if (ipfs) {
       trxMutation.mutate({
         ipfs,
         code: getValues("code"),
         signWith: needSign(),
         limit: getValues("limit"),
+        method: paymentMethod,
       });
     } else {
       toast.error("Please upload a file");
     }
   };
 
-  const loading =
-    trxMutation.isLoading || isModalOpen || mutation.isLoading || signLoading;
+  const loading = trxMutation.isLoading || mutation.isLoading || signLoading;
 
   const uploadFile = async (fileToUpload: File) => {
     try {
@@ -148,7 +163,7 @@ function NewPageAssetFrom({ requiredToken }: { requiredToken: number }) {
         body: formData,
       });
       const ipfsHash = await res.text();
-      const thumbnail = "https://ipfs.io/ipfs/" + ipfsHash;
+      const thumbnail = ipfsHashToUrl(ipfsHash);
       setCover(thumbnail);
       setValue("thumbnail", thumbnail);
       setCid(ipfsHash);
@@ -210,6 +225,7 @@ function NewPageAssetFrom({ requiredToken }: { requiredToken: number }) {
           type="number"
           {...register("limit", { valueAsNumber: true })}
           min={1}
+          max={MAX_ASSET_LIMIT}
           step={1}
           className="input input-bordered w-full"
           placeholder="Asset Limit"
@@ -250,46 +266,45 @@ function NewPageAssetFrom({ requiredToken }: { requiredToken: number }) {
         <Alert
           className=""
           type={mutation.error ? "warning" : "normal"}
-          content={`To create this page token, you'll need ${requiredToken} ${PLATFORM_ASSET.code} for your Asset account`}
+          content={`To create this page token, you'll need ${requiredToken} ${PLATFORM_ASSET.code} for your Asset account.`}
         />
       </div>
 
-      <Dialog open={isOpen} onOpenChange={setIsOpen}>
-        <DialogTrigger asChild>
-          <Button className="w-full" disabled={loading}>
+      <PaymentChoose
+        costBreakdown={[
+          {
+            label: "Cost",
+            amount: paymentMethod === "asset" ? requiredToken - totalFeees : 2,
+            type: "cost",
+            highlighted: true,
+          },
+          {
+            label: "Platform Fee",
+            amount: paymentMethod === "asset" ? totalFeees : 2,
+            highlighted: false,
+            type: "fee",
+          },
+          {
+            label: "Total Cost",
+            amount: paymentMethod === "asset" ? requiredToken : 2 + 2,
+            highlighted: false,
+            type: "total",
+          },
+        ]}
+        XLM_EQUIVALENT={2 + 2}
+        handleConfirm={() => onSubmit()}
+        loading={loading}
+        requiredToken={requiredToken}
+        beforeTrigger={async () => {
+          const ok = await trigger();
+          return ok;
+        }}
+        trigger={
+          <Button className="w-full" disabled={loading || !ipfs}>
             Create Page Asset
           </Button>
-        </DialogTrigger>
-        <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle>Confirmation </DialogTitle>
-          </DialogHeader>
-          <div>
-            Your account will be charged {requiredToken}{" "}
-            <span className="text-red-600">{PLATFORM_ASSET.code}</span> to
-            create this page token;
-          </div>
-          <DialogFooter className=" w-full">
-            <div className="flex w-full gap-4  ">
-              <DialogClose className="w-full">
-                <Button variant="outline" className="w-full">
-                  Cancel
-                </Button>
-              </DialogClose>
-              <Button
-                variant="destructive"
-                type="submit"
-                onClick={() => onSubmit()}
-                disabled={loading}
-                className="w-full"
-              >
-                {loading && <span className="loading loading-spinner" />}
-                Confirm
-              </Button>
-            </div>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+        }
+      />
     </form>
   );
 }

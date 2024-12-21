@@ -10,6 +10,12 @@ import ShareModal from "../modals/share-modal";
 import FileUploadModal from "../modals/file-upload-modal";
 import EditBountyModal from "../modals/edit-bounty-modal";
 import ViewAttachmentModal from "../modals/view-attachment-modal";
+import TransactionDetails from "../modals/transaction-history-modal";
+import BuyModal from "../modals/buy-modal";
+import AssetInfoModal from "../modals/asset-info-modal";
+import SongBuyModal from "../modals/song-buy-modal";
+import CreatorStoreAssetInfoModal from "../modals/creator-store-asset-info";
+import ViewAdminAsset from "../modals/view-admin-asset";
 
 const ModalProvider = () => {
   const [isMounted, setIsMounted] = useState(false);
@@ -32,6 +38,12 @@ const ModalProvider = () => {
       <FileUploadModal />
       <EditBountyModal />
       <ViewAttachmentModal />
+      <TransactionDetails />
+      <BuyModal />
+      <AssetInfoModal />
+      <SongBuyModal />
+      <CreatorStoreAssetInfoModal />
+      <ViewAdminAsset />
     </>
   );
 };

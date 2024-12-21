@@ -5,17 +5,31 @@ import { PlaceAutocompleteClassic } from "./autocomplete-classic";
 
 type CustomAutocompleteControlProps = {
   controlPosition: ControlPosition;
+  onCenterChange: (center: google.maps.LatLngLiteral) => void;
   onPlaceSelect: (place: google.maps.places.PlaceResult | null) => void;
+  setIsCordsSearch: (isCordsSearch: boolean) => void;
+  setCordSearchLocation: (location: google.maps.LatLngLiteral) => void;
+  setSearchCoordinates: (searchCoordinates: google.maps.LatLngLiteral) => void;
 };
 
 export const CustomMapControl = ({
   controlPosition,
   onPlaceSelect,
+  onCenterChange,
+  setIsCordsSearch,
+  setCordSearchLocation,
+  setSearchCoordinates
 }: CustomAutocompleteControlProps) => {
   return (
     <MapControl position={controlPosition}>
       <div className="autocomplete-control w-full">
-        <PlaceAutocompleteClassic onPlaceSelect={onPlaceSelect} />
+        <PlaceAutocompleteClassic
+          onPlaceSelect={onPlaceSelect}
+          onCenterChange={onCenterChange}
+          setIsCordsSearch={setIsCordsSearch}
+          setCordSearchLocation={setCordSearchLocation}
+          setSearchCoordinates={setSearchCoordinates}
+        />
       </div>
     </MapControl>
   );

@@ -1,4 +1,5 @@
 import { Keypair } from "@stellar/stellar-sdk";
+import { AwardIcon } from "lucide-react";
 import { getAccSecretFromRubyApi } from "package/connect_wallet/src/lib/stellar/get-acc-secret";
 import { z } from "zod";
 import { env } from "~/env";
@@ -6,7 +7,11 @@ import { env } from "~/env";
 // import { getUserSecret } from "~/components/recharge/utils";
 import { covertSiteAsset2XLM } from "~/lib/stellar/marketplace/trx/convert_site_asset";
 import { alreadyHaveTrustOnNft } from "~/lib/stellar/marketplace/trx/utils";
-import { XDR4BuyAsset } from "~/lib/stellar/music/trx/payment_xdr";
+import {
+  XDR4BuyAsset,
+  XDR4BuyAssetWithSquire,
+  XDR4BuyAssetWithXLM,
+} from "~/lib/stellar/music/trx/payment_xdr";
 import { SignUser } from "~/lib/stellar/utils";
 import {
   createTRPCRouter,
@@ -28,6 +33,7 @@ export const stellarRouter = createTRPCRouter({
         limit: z.number(),
         placerId: z.string().optional().nullable(),
         signWith: SignUser,
+        method: z.enum(["xlm", "asset", "card"]),
       }),
     )
     .mutation(async ({ input, ctx }) => {
@@ -44,12 +50,12 @@ export const stellarRouter = createTRPCRouter({
 
       const marketAsset = await ctx.db.marketAsset.findFirst({
         where: { AND: [{ assetId: dbAsset.id }, { placerId: placerId }] },
-        select: { price: true },
+        select: { price: true, priceUSD: true },
       });
 
       if (!marketAsset) throw new Error("asset is not in market");
 
-      // validate and transfor input
+      // validate and transform input
 
       let seller: string;
       let sellerStorageSec: string;
@@ -71,17 +77,42 @@ export const stellarRouter = createTRPCRouter({
         sellerStorageSec = env.STORAGE_SECRET;
       }
 
-      const limit = l.toString();
-
-      return await XDR4BuyAsset({
-        seller: seller,
-        storageSecret: sellerStorageSec,
-        code: assetCode,
-        issuerPub,
-        buyer,
-        price: marketAsset.price.toString(),
-        signWith,
-      });
+      switch (input.method) {
+        case "xlm": {
+          const nativePrice = marketAsset.priceUSD;
+          return await XDR4BuyAssetWithXLM({
+            seller: seller,
+            storageSecret: sellerStorageSec,
+            code: assetCode,
+            issuerPub,
+            buyer,
+            priceInNative: nativePrice.toString(),
+            signWith,
+          });
+        }
+        case "asset": {
+          return await XDR4BuyAsset({
+            seller: seller,
+            storageSecret: sellerStorageSec,
+            code: assetCode,
+            issuerPub,
+            buyer,
+            price: marketAsset.price.toString(),
+            signWith,
+          });
+        }
+        case "card": {
+          return await XDR4BuyAssetWithSquire({
+            seller: seller,
+            storageSecret: sellerStorageSec,
+            code: assetCode,
+            issuerPub,
+            buyer,
+            price: marketAsset.priceUSD.toString(),
+            signWith,
+          });
+        }
+      }
     }),
 
   convertSiteAsset: protectedProcedure

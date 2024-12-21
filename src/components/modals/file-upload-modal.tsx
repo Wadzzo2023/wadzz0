@@ -1,27 +1,20 @@
-import QRCode from "react-qr-code";
-import { useModal } from "../hooks/use-modal-store";
-import CopyToClip from "../wallete/copy_to_Clip";
-import { Button } from "../shadcn/ui/button";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Trash } from "lucide-react";
+import { useEffect, useState } from "react";
+import { SubmitHandler, useForm } from "react-hook-form";
+import toast from "react-hot-toast";
+import { z } from "zod";
 import {
   Dialog,
   DialogContent,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "~/components/shadcn/ui/dialog";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Textarea } from "../shadcn/ui/textarea";
-import { MediaType } from "@prisma/client";
-import { useEffect, useMemo, useState } from "react";
-import { useForm, SubmitHandler, Controller } from "react-hook-form";
-import Image from "next/image";
-import { UploadButton } from "~/utils/uploadthing";
 import { api } from "~/utils/api";
-import toast from "react-hot-toast";
-import { Trash, X } from "lucide-react";
+import { UploadButton } from "~/utils/uploadthing";
+import { useModal } from "../../lib/state/play/use-modal-store";
 import { Editor } from "../editor";
-import { parseJSON } from "date-fns";
+import { Button } from "../shadcn/ui/button";
 
 export const SubmissionMediaInfo = z.object({
   url: z.string(),
@@ -195,12 +188,12 @@ const FileUploadModal = () => {
                   )}{" "}
                 </div>
                 <div className="mt-2 flex flex-col items-center gap-2">
-                  <div className="flex max-h-[200px] w-full flex-col gap-2 overflow-y-auto">
+                  <div className="flex max-h-[200px] mt-10 w-full flex-col gap-2 overflow-y-auto">
                     {/* Display uploading files with progress */}
                     {uploadingFiles.map((file, index) => (
                       <div
                         key={index}
-                        className="w-full rounded-md bg-[#F5F7FB] px-8 py-4 shadow-sm"
+                        className="w-full rounded-md bg-[#F5F7FB] px-8 py-4 shadow-sm "
                       >
                         <div className="flex items-center justify-between">
                           <span className="truncate text-base font-medium text-[#07074D]">

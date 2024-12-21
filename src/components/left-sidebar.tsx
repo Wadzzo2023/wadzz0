@@ -1,22 +1,22 @@
-import { ConnectWalletButton } from "package/connect_wallet";
 import { Facebook, Instagram, Wallet } from "lucide-react";
+import { ConnectWalletButton } from "package/connect_wallet";
 
-import Button from "./ui/button";
-import Link from "next/link";
-import { HomeIcon, Settings2, Diamond, Bell } from "lucide-react";
+import { Bell, Diamond, HomeIcon, Settings2 } from "lucide-react";
 import Image from "next/image";
-import { cn } from "~/utils/utils";
+import Link from "next/link";
 import { env } from "~/env";
 import { useDrawerOpenStore } from "~/lib/state/fan/drawer_open";
 import { CREATOR_PLURAL_TERM } from "~/utils/term";
+import { cn } from "~/utils/utils";
+import Button from "./ui/button";
 
 export const LeftNavigation = {
   Home: { path: "/", icon: HomeIcon, text: "HOMEPAGE" },
-  WalletBalance: {
-    path: "/walletBalance",
-    icon: Wallet,
-    text: "MY WALLET",
-  },
+  // WalletBalance: {
+  //   path: "/walletBalance",
+  //   icon: Wallet,
+  //   text: "MY WALLET",
+  // },
   MyAssets: { path: "/assets", icon: Bell, text: "COLLECTION" },
   // Search: { path: "/search", icon: Search, text: "Search" },
   Music: { path: "/music", icon: Diamond, text: "MUSIC" },
@@ -30,23 +30,23 @@ export const LeftNavigation = {
   Settings: { path: "/settings", icon: Settings2, text: "SETTINGS" },
 } as const;
 export const BottomNavigation = {
-  Home: { path: "/maps/pins", icon: HomeIcon, text: "CLAIM" },
+  Claim: { path: "/claim-redeem", icon: HomeIcon, text: "REDEEM" },
 } as const;
 
 export default function LeftBar({ className }: { className?: string }) {
   return (
     <div
       className={cn(
-        "flex h-full max-h-screen w-80 flex-col items-center justify-between gap-4 overflow-hidden overflow-y-auto bg-base-100/80 px-4 pb-4 scrollbar-hide ",
+        "flex h-full max-h-screen w-80 flex-col items-center justify-between gap-4 overflow-auto bg-base-100/80 px-4 pb-4 scrollbar-hide ",
         className,
       )}
     >
-      <div className="flex h-full w-full flex-1 flex-col items-center justify-between gap-2 overflow-hidden overflow-y-auto">
-        <div className="mt-7  w-full flex-1">
+      <div className="flex h-full w-full flex-1 flex-col items-center justify-between gap-2 overflow-auto overflow-x-hidden">
+        <div className="mt-2  w-full flex-1">
           <NavigationButtons />
         </div>
       </div>
-      <div className="flex w-full flex-col items-center">
+      <div className="flex w-full flex-col items-center ">
         <LeftBottom />
       </div>
     </div>
@@ -76,12 +76,12 @@ function NavigationButtons() {
           ),
         )}
       </div>
-      {/* <div className="flex   flex-col  gap-2">
+      <div className="flex   flex-col  gap-2">
         {Object.entries(BottomNavigation).map(
           ([key, { path, icon: Icon, text }]) => (
             <Link href={path} className="w-full " key={key}>
               <Button
-                className="mb-2  rounded-lg bg-gradient-to-br from-green-400 to-blue-600  text-center text-sm font-medium text-white hover:bg-gradient-to-bl focus:outline-none focus:ring-4 focus:ring-green-200 dark:focus:ring-green-800"
+                className="mb-2  rounded-lg bg-gradient-to-br from-yellow-400 to-blue-400  text-center text-sm font-medium text-white hover:bg-gradient-to-bl focus:outline-none focus:ring-4 focus:ring-green-200 dark:focus:ring-green-800"
                 path={path}
                 icon={<Icon className="h-5 w-5" />}
                 text={text}
@@ -89,7 +89,7 @@ function NavigationButtons() {
             </Link>
           ),
         )}
-      </div> */}
+      </div>
     </div>
   );
 }

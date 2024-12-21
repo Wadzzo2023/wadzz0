@@ -12,8 +12,8 @@ export default function BottonPlayer() {
         {/* <div className="flex w-44">
             <PlayerSongCover song={song} />
           </div> */}
-        <div className="flex-1 rounded-3xl">
-          <AudioPlayer
+        <div className="flex-1  w-full rounded-3xl">
+          <AudioPlayer className=" w-full"
             header={
               <div className="flex  items-center gap-2">
                 <Image

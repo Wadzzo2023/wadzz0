@@ -1,15 +1,12 @@
-import { Asset, Creator } from "@prisma/client";
-import React from "react";
-import AddItem2Shop from "./add-shop-item";
-import { api } from "~/utils/api";
-import BuyItemModal from "../shop/buy-item-modal";
-import { useSession } from "next-auth/react";
-import ContextMenu from "../../ui/context-menu";
+import { Creator } from "@prisma/client";
 import NftCreate from "~/components/marketplace/nft_create";
-import MarketAssetComponent from "~/components/marketplace/market_asset";
+import { MoreAssetsSkeleton } from "~/components/marketplace/platforms_nfts";
+import { api } from "~/utils/api";
 import ViewMediaModal from "../shop/asset_view_modal";
 import ShopAssetComponent from "../shop/shop_asset";
-import { MoreAssetsSkeleton } from "~/components/marketplace/platforms_nfts";
+import RedeeemPage from "~/components/redeem/creator-redeem";
+import AssetView from "~/components/marketplace/asset/asset_view";
+import { useModal } from "~/lib/state/play/use-modal-store";
 
 export default function Shop({ creator }: { creator?: Creator }) {
   return (
@@ -17,12 +14,16 @@ export default function Shop({ creator }: { creator?: Creator }) {
       <div className="fixed bottom-10 right-0 p-4 lg:bottom-0 lg:right-80">
         <NftCreate />
       </div>
+      {/* <div className="fixed bottom-24 right-0 p-4 lg:bottom-0 lg:right-[26rem]">
+        <RedeeemPage />
+      </div> */}
       <AllShopItems />
     </div>
   );
 }
 
 function AllShopItems() {
+  const { onOpen } = useModal();
   const assets = api.marketplace.market.getACreatorNfts.useInfiniteQuery(
     { limit: 10 },
     {
@@ -49,11 +50,12 @@ function AllShopItems() {
         >
           {assets.data.pages.map((page) =>
             page.nfts.map((item, i) => (
-              <ViewMediaModal
+              <button
                 key={i}
-                item={item}
-                content={<ShopAssetComponent key={i} item={item} />}
-              />
+                onClick={() => onOpen("creator asset info", { creatorStoreAsset: item })} // Pass the closeModal function
+                className="btn relative h-fit w-full overflow-hidden  py-4 ">
+                <AssetView code={item.asset.name} thumbnail={item.asset.thumbnail} />
+              </button>
             )),
           )}
         </div>

@@ -103,7 +103,6 @@
   }
 }
 
-
 .gradient-background {
   background: linear-gradient(
     180deg,
@@ -124,14 +123,45 @@ body {
   -o-background-size: cover;
   background-size: cover;
 }
+.ql-editor {
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  word-break: break-word;
+  white-space: pre-wrap;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
 
+.ql-editor img,
+.ql-editor .ql-video {
+  max-width: 100%;
+  height: auto;
+}
 
+.ql-editor * {
+  word-wrap: break-word;
+}
 #ihx {
   background: url("/images/guitar.svg");
   background-size: 10%;
   animation: pan 135s linear infinite;
 }
+@keyframes fall {
+  0% {
+    transform: translateY(-10%) rotate(0deg);
+  }
 
+  100% {
+    transform: translateY(110vh) rotate(360deg);
+  }
+}
+
+.animate-fall {
+  animation-name: fall;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
 @keyframes pan {
   0% {
     background-position: 0% 0%;

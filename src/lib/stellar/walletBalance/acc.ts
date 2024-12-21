@@ -160,25 +160,19 @@ export async function SendAssets({
     }
     return false;
   });
-  // console.log('accBalance', accBalance);
+  console.log('accBalance', accBalance);
   if (!accBalance || parseFloat(accBalance.balance) < amount) {
     throw new Error("Balance is not enough to send the asset.");
   }
 
   const receiverAccount = await server.loadAccount(recipientId);
-  const hasTrust = receiverAccount.balances.find((balance) => {
-    if (
-      balance.asset_type === "credit_alphanum4" ||
-      balance.asset_type === "credit_alphanum12"
-    ) {
-      return (
-        balance.asset_code === asset_code &&
-        balance.asset_issuer === asset_issuer
-      );
-    } else if (balance.asset_type === "native") {
-      return balance.asset_type === asset_type;
-    }
-    return false;
+  const hasTrust = receiverAccount.balances.some((balance) => {
+    console.log(balance);
+    return (
+      (balance.asset_type === "credit_alphanum4" || balance.asset_type === "credit_alphanum12") &&
+      balance.asset_code === asset_code &&
+      balance.asset_issuer === asset_issuer
+    );
   });
 
   const asset =
@@ -209,6 +203,7 @@ export async function SendAssets({
         destination: recipientId,
         asset: asset,
         amount: amount.toString(),
+        source: userPubKey,
       }),
     );
   }
@@ -313,73 +308,30 @@ export async function RecentTransactionHistory({
   }
 
   const items = await transactionCall.call();
-
-  const newItem = items.records.map((record) => {
-    const tx = new Transaction(record.envelope_xdr, Networks.TESTNET);
-    const operations = tx.operations;
-    // console.log("Operations", operations);
-    if (operations[0]?.type === "payment") {
+  const newItem = await Promise.all(
+    items.records.map(async (record) => {
+      const ops = await record.operations();
       return {
-        ...record,
-        parseDetails: {
-          type: "payment",
-          amount: operations[0].amount,
-          asset: operations[0].asset.code,
-          issuer: operations[0].asset.issuer,
-          destination: operations[0].destination,
-          source: operations[0].source,
-          createdAt: record.created_at,
-        },
+        source: record.source_account,
+        sequence: record.source_account_sequence,
+        ledger_attr: record.ledger_attr,
+        successful: record.successful,
+        createdAt: record.created_at,
+        maxFee: record.max_fee,
+        memo: record.memo,
+        id: record.id,
+        signatures: record.signatures,
+        pagingToken: record.paging_token,
+        envelopeXdr: record.envelope_xdr,
+        resultXdr: record.result_xdr,
+        resultMetaXdr: record.result_meta_xdr,
+        fee_charged: record.fee_charged,
+        operations: ops.records,
       };
-    } else if (operations[0]?.type === "createAccount") {
-      return {
-        ...record,
-        parseDetails: {
-          type: "createAccount",
-          startingBalance: operations[0].startingBalance,
-          source: userPubKey,
-          createdAt: record.created_at,
-        },
-      };
-    } else if (operations[0]?.type === "createClaimableBalance") {
-      return {
-        ...record,
-        parseDetails: {
-          type: "createClaimableBalance",
-          amount: operations[0].amount,
-          code: operations[0].asset.code,
-          issuer: operations[0].asset.issuer,
+    })
+  );
 
-          claimantZero: operations[0].claimants[0]?.destination,
-          claimantOne: operations[0].claimants[1]?.destination,
-          createdAt: record.created_at,
-        },
-      };
-    } else if (operations[0]?.type === "claimClaimableBalance") {
-      return {
-        ...record,
-        parseDetails: {
-          type: "claimClaimableBalance",
-          balanceId: operations[0].balanceId,
-
-          source: userPubKey,
-          createdAt: record.created_at,
-        },
-      };
-    } else if (operations[0]?.type === "changeTrust") {
-      return {
-        ...record,
-        parseDetails: {
-          type: "changeTrust",
-          //  asset: operations[0]?.asset?.code,
-
-          source: userPubKey,
-          createdAt: record.created_at,
-        },
-      };
-    }
-  });
-
+  console.log("Items", newItem);
   return {
     items: newItem,
     nextCursor:
@@ -502,8 +454,10 @@ export async function CheckHasTrustLineOnPlatformAsset({
   userPubKey: string;
 }) {
   const server = new Horizon.Server(STELLAR_URL);
+
   const account = await server.loadAccount(userPubKey);
-  const findAsset = account.balances.find((balance) => {
+  const findAsset = account.balances.some((balance) => {
+    console.log("Balance", balance);
     if (
       (balance.asset_type === "credit_alphanum4" ||
         balance.asset_type === "credit_alphanum12") &&
@@ -514,8 +468,8 @@ export async function CheckHasTrustLineOnPlatformAsset({
     }
     return false;
   });
-
-  return !!findAsset;
+  console.log("FindAsset", findAsset);
+  return findAsset;
 }
 
 export async function PlatformAssetBalance({
@@ -524,18 +478,23 @@ export async function PlatformAssetBalance({
   userPubKey: string;
 }) {
   const server = new Horizon.Server(STELLAR_URL);
-  const account = await server.loadAccount(userPubKey);
-  const findAsset = account.balances.find((balance) => {
-    if (
-      (balance.asset_type === "credit_alphanum4" ||
-        balance.asset_type === "credit_alphanum12") &&
-      balance.asset_code === PLATFORM_ASSET.code &&
-      balance.asset_issuer === PLATFORM_ASSET.issuer
-    ) {
-      return balance.balance;
-    }
-    return false;
-  });
+  try {
+    const account = await server.loadAccount(userPubKey);
+    const findAsset = account.balances.find((balance) => {
+      if (
+        (balance.asset_type === "credit_alphanum4" ||
+          balance.asset_type === "credit_alphanum12") &&
+        balance.asset_code === PLATFORM_ASSET.code &&
+        balance.asset_issuer === PLATFORM_ASSET.issuer
+      ) {
+        return balance.balance;
+      }
+      return false;
+    });
+    return findAsset ? findAsset.balance : 0;
+  } catch (e) {
+    return -1
+  }
 
-  return findAsset ? findAsset.balance : 0;
+
 }

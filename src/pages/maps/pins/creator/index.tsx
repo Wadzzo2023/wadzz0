@@ -40,8 +40,24 @@ import {
   TableRow,
 } from "~/components/shadcn/ui/table";
 import { api } from "~/utils/api";
-import { Location } from "@prisma/client";
+import { Location, LocationGroup } from "@prisma/client";
 import Link from "next/link";
+import { CREATOR_TERM } from "~/utils/term";
+import { useRouter } from "next/router";
+
+export type LocationWithConsumers = {
+  title: string;
+  description?: string;
+  image?: string;
+  startDate: Date;
+  endDate: Date;
+  approved?: boolean;
+  latitude: number;
+  longitude: number;
+  consumers: number;
+  autoCollect: boolean;
+  id: string;
+};
 
 export default function CreatorsPinReports() {
   const pins = api.maps.pin.getCreatorCreatedPin.useQuery();
@@ -51,7 +67,9 @@ export default function CreatorsPinReports() {
     return (
       <div>
         <div className="flex items-center justify-center ">
-          <h2 className="p-4 text-center text-lg font-bold">Creator Pins</h2>
+          <h2 className="p-4 text-center text-lg font-bold">
+            {CREATOR_TERM} Pins
+          </h2>
           <Link href="/maps/pins/creator/report">
             <Button>Collection Reports</Button>
           </Link>
@@ -63,29 +81,29 @@ export default function CreatorsPinReports() {
     );
 }
 
-export const columns: ColumnDef<Location>[] = [
-  {
-    id: "select",
-    header: ({ table }) => (
-      <Checkbox
-        checked={
-          table.getIsAllPageRowsSelected() ||
-          (table.getIsSomePageRowsSelected() && "indeterminate")
-        }
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        aria-label="Select all"
-      />
-    ),
-    cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label="Select row"
-      />
-    ),
-    enableSorting: false,
-    enableHiding: false,
-  },
+export const columns: ColumnDef<LocationWithConsumers>[] = [
+  // {
+  //   id: "select",
+  //   header: ({ table }) => (
+  //     <Checkbox
+  //       checked={
+  //         table.getIsAllPageRowsSelected() ||
+  //         (table.getIsSomePageRowsSelected() && "indeterminate")
+  //       }
+  //       onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+  //       aria-label="Select all"
+  //     />
+  //   ),
+  //   cell: ({ row }) => (
+  //     <Checkbox
+  //       checked={row.getIsSelected()}
+  //       onCheckedChange={(value) => row.toggleSelected(!!value)}
+  //       aria-label="Select row"
+  //     />
+  //   ),
+  //   enableSorting: false,
+  //   enableHiding: false,
+  // },
   {
     accessorKey: "approved",
     header: ({ column }) => {
@@ -159,8 +177,10 @@ export const columns: ColumnDef<Location>[] = [
   {
     id: "actions",
     enableHiding: false,
+    accessorKey: "id",
     cell: ({ row }) => {
-      const payment = row.original;
+      const data = row.original;
+      const id = row.getValue("id");
 
       return (
         <DropdownMenu>
@@ -172,14 +192,12 @@ export const columns: ColumnDef<Location>[] = [
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem
-            // onClick={() => navigator.clipboard.writeText(payment.id)}
-            >
-              Copy payment ID
-            </DropdownMenuItem>
+
+            <DropdownMenuClickable id={data.id} text="Show pin details" />
             <DropdownMenuSeparator />
-            <DropdownMenuItem>View customer</DropdownMenuItem>
-            <DropdownMenuItem>View payment details</DropdownMenuItem>
+            {/* <DropdownMenuItem>View collectors</DropdownMenuItem> */}
+            <DropdownMenuClickable id={data.id} text="View collectors" />
+            {/* <DropdownMenuItem>View payment details</DropdownMenuItem> */}
           </DropdownMenuContent>
         </DropdownMenu>
       );
@@ -187,7 +205,15 @@ export const columns: ColumnDef<Location>[] = [
   },
 ];
 
-export function DataTableDemo({ pins }: { pins: Location[] }) {
+function DropdownMenuClickable({ id, text }: { id: string; text: string }) {
+  const router = useRouter();
+  return (
+    <DropdownMenuItem onClick={() => router.push(`/maps/pins/${id}`)}>
+      {text}
+    </DropdownMenuItem>
+  );
+}
+export function DataTableDemo({ pins }: { pins: LocationWithConsumers[] }) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     [],

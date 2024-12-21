@@ -1,9 +1,12 @@
 import { z } from "zod";
 import { buyAssetTrx } from "~/lib/stellar/fan/buy_asset";
-import { creatorPageAccCreate } from "~/lib/stellar/fan/clawback";
+import {
+  creatorPageAccCreate,
+  creatorPageAccCreateWithXLM,
+} from "~/lib/stellar/fan/clawback";
 import { createAsset } from "~/lib/stellar/fan/create_asset";
 import {
-  getPlatfromAssetPrice,
+  getPlatformAssetPrice,
   getplatformAssetNumberForXLM,
 } from "~/lib/stellar/fan/get_token_price";
 import { getClawbackAsPayment } from "~/lib/stellar/fan/subscribe";
@@ -11,11 +14,25 @@ import { AssetSchema } from "~/lib/stellar/fan/utils";
 import { SignUser, WithSing } from "~/lib/stellar/utils";
 
 import { Keypair } from "@stellar/stellar-sdk";
+
 import { env } from "~/env";
-import { createStorageTrx } from "~/lib/stellar/fan/create_storage";
+import {
+  PLATFORM_ASSET,
+  PLATFORM_FEE,
+  TrxBaseFeeInPlatformAsset,
+} from "~/lib/stellar/constant";
+import {
+  createStorageTrx,
+  createStorageTrxWithXLM,
+} from "~/lib/stellar/fan/create_storage";
 import { follow_creator } from "~/lib/stellar/fan/follow_creator";
 import { sendGift } from "~/lib/stellar/fan/send_gift";
-import { createUniAsset } from "~/lib/stellar/uni_create_asset";
+import { trustCustomPageAsset } from "~/lib/stellar/fan/trust_custom_page_asset";
+import { StellarAccount } from "~/lib/stellar/marketplace/test/Account";
+import {
+  createUniAsset,
+  createUniAssetWithXLM,
+} from "~/lib/stellar/uni_create_asset";
 import { FanGitFormSchema } from "~/pages/fans/creator/gift";
 import {
   createTRPCRouter,
@@ -23,12 +40,7 @@ import {
   publicProcedure,
 } from "~/server/api/trpc";
 import { db } from "~/server/db";
-import { trustCustomPageAsset } from "~/lib/stellar/fan/trust_custom_page_asset";
-import { platform } from "os";
-import {
-  PLATFORM_FEE,
-  TrxBaseFeeInPlatformAsset,
-} from "~/lib/stellar/constant";
+import { PaymentMethodEnum } from "~/components/BuyItem";
 
 export const trxRouter = createTRPCRouter({
   createCreatorPageAsset: protectedProcedure
@@ -38,6 +50,7 @@ export const trxRouter = createTRPCRouter({
         signWith: SignUser,
         limit: z.number().nonnegative().min(1),
         ipfs: z.string(),
+        method: PaymentMethodEnum.optional(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
@@ -51,14 +64,25 @@ export const trxRouter = createTRPCRouter({
 
       const creatorStorageSec = creator.storageSecret;
 
-      return await creatorPageAccCreate({
-        ipfs: input.ipfs,
-        limit: limit.toString(),
-        storageSecret: creatorStorageSec,
-        pubkey: creatorId,
-        assetCode: code,
-        signWith,
-      });
+      if (input.method && input.method === "xlm") {
+        return await creatorPageAccCreateWithXLM({
+          ipfs: input.ipfs,
+          limit: limit.toString(),
+          storageSecret: creatorStorageSec,
+          pubkey: creatorId,
+          assetCode: code,
+          signWith,
+        });
+      } else {
+        return await creatorPageAccCreate({
+          ipfs: input.ipfs,
+          limit: limit.toString(),
+          storageSecret: creatorStorageSec,
+          pubkey: creatorId,
+          assetCode: code,
+          signWith,
+        });
+      }
     }),
 
   clawbackAssetPaymentTrx: protectedProcedure
@@ -114,10 +138,11 @@ export const trxRouter = createTRPCRouter({
         limit: z.number(),
         signWith: SignUser,
         ipfsHash: z.string(),
+        native: z.boolean().optional(),
       }),
     )
     .mutation(async ({ ctx, input: i }) => {
-      const assetAmout = await getplatformAssetNumberForXLM();
+      const assetAmount = await getplatformAssetNumberForXLM();
       const signWith = i.signWith;
       const limit = i.limit.toString();
 
@@ -140,16 +165,29 @@ export const trxRouter = createTRPCRouter({
 
       // console.log("storageSecret", storageSecret);
 
-      return await createUniAsset({
-        actionAmount: assetAmout.toString(),
-        pubkey,
-        storageSecret,
-        code: i.code,
-        homeDomain,
-        limit,
-        signWith,
-        ipfsHash: i.ipfsHash,
-      });
+      if (i.native) {
+        return await createUniAssetWithXLM({
+          actionAmount: assetAmount.toString(),
+          pubkey,
+          storageSecret,
+          code: i.code,
+          homeDomain,
+          limit,
+          signWith,
+          ipfsHash: i.ipfsHash,
+        });
+      } else {
+        return await createUniAsset({
+          actionAmount: assetAmount.toString(),
+          pubkey,
+          storageSecret,
+          code: i.code,
+          homeDomain,
+          limit,
+          signWith,
+          ipfsHash: i.ipfsHash,
+        });
+      }
     }),
 
   buyAssetTrx: protectedProcedure
@@ -185,7 +223,7 @@ export const trxRouter = createTRPCRouter({
   }),
 
   getAssetPrice: publicProcedure.query(async () => {
-    return await getPlatfromAssetPrice();
+    return await getPlatformAssetPrice();
   }),
 
   getAssetNumberforXlm: publicProcedure
@@ -195,12 +233,19 @@ export const trxRouter = createTRPCRouter({
     }),
 
   createStorageAccount: protectedProcedure
-    .input(SignUser)
+    .input(z.object({ signWith: SignUser, native: z.boolean().optional() }))
     .mutation(async ({ ctx, input }) => {
-      return await createStorageTrx({
-        pubkey: ctx.session.user.id,
-        signWith: input,
-      });
+      if (input.native) {
+        return await createStorageTrxWithXLM({
+          pubkey: ctx.session.user.id,
+          signWith: input.signWith,
+        });
+      } else {
+        return await createStorageTrx({
+          pubkey: ctx.session.user.id,
+          signWith: input.signWith,
+        });
+      }
     }),
 
   followCreatorTRX: protectedProcedure
@@ -214,26 +259,40 @@ export const trxRouter = createTRPCRouter({
         include: { pageAsset: true },
       });
 
+      const userAcc = await StellarAccount.create(userId);
+
       if (creator.pageAsset) {
         const { code, issuer } = creator.pageAsset;
-        // creat trust with userId
-        const xdr = await follow_creator({
-          creatorPageAsset: { code, issuer },
-          userPubkey: userId,
-          signWith,
-        });
-        return xdr;
+
+        const hasTrust = userAcc.hasTrustline(code, issuer);
+
+        if (hasTrust) {
+          return true;
+        } else {
+          // creat trust with userId
+          const xdr = await follow_creator({
+            creatorPageAsset: { code, issuer },
+            userPubkey: userId,
+            signWith,
+          });
+          return xdr;
+        }
       } else {
         if (creator.customPageAssetCodeIssuer) {
           const [code, issuer] = creator.customPageAssetCodeIssuer.split("-");
           const issuerVal = z.string().length(56).safeParse(issuer);
           if (issuerVal.success && code) {
-            const xdr = await follow_creator({
-              creatorPageAsset: { code, issuer: issuerVal.data },
-              userPubkey: userId,
-              signWith,
-            });
-            return xdr;
+            const hasTrust = userAcc.hasTrustline(code, issuerVal.data);
+            if (hasTrust) {
+              return true;
+            } else {
+              const xdr = await follow_creator({
+                creatorPageAsset: { code, issuer: issuerVal.data },
+                userPubkey: userId,
+                signWith,
+              });
+              return xdr;
+            }
           } else {
             throw new Error("Issuer is invalid");
           }
@@ -290,7 +349,6 @@ export const trxRouter = createTRPCRouter({
     )
     .query(async ({ ctx, input }) => {
       const token = await getplatformAssetNumberForXLM(input.xlm);
-      console.log("token", token, "x", input.platformAsset);
       return token + input.platformAsset;
     }),
 

@@ -1,12 +1,8 @@
 import clsx from "clsx";
-import { format, formatDate } from "date-fns";
+import { format } from "date-fns";
 import {
-  ArrowLeft,
-  ArrowLeftRight,
   ArrowRight,
-  Clock,
   Crown,
-  DatabaseZap,
   DollarSign,
   Edit,
   File,
@@ -15,18 +11,8 @@ import {
   Send,
   Trash,
   Trophy,
-  UploadCloud,
   Users,
 } from "lucide-react";
-import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "~/components/shadcn/ui/dialog";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -35,7 +21,7 @@ import { MutableRefObject, useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { AddBountyComment } from "~/components/fan/creator/bounty/Add-Bounty-Comment";
 import ViewBountyComment from "~/components/fan/creator/bounty/View-Bounty-Comment";
-import { useModal } from "~/components/hooks/use-modal-store";
+import { useModal } from "~/lib/state/play/use-modal-store";
 import { Preview } from "~/components/preview";
 import {
   Avatar,
@@ -45,19 +31,28 @@ import {
 import { Badge } from "~/components/shadcn/ui/badge";
 import { Button } from "~/components/shadcn/ui/button";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "~/components/shadcn/ui/select";
-import {
   Card,
   CardContent,
   CardFooter,
   CardHeader,
   CardTitle,
 } from "~/components/shadcn/ui/card";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "~/components/shadcn/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "~/components/shadcn/ui/select";
 import { Separator } from "~/components/shadcn/ui/separator";
 import {
   Tabs,
@@ -68,8 +63,6 @@ import {
 import Alert from "~/components/ui/alert";
 import Avater from "~/components/ui/avater";
 import useNeedSign from "~/lib/hook";
-import { useBountyRightStore } from "~/lib/state/bounty/use-bounty-store";
-import { usePopUpState } from "~/lib/state/right-pop";
 import { useUserStellarAcc } from "~/lib/state/wallete/stellar-balances";
 import {
   PLATFORM_ASSET,
@@ -81,17 +74,13 @@ import { useSession } from "next-auth/react";
 
 import { api } from "~/utils/api";
 
+import { BountySubmission, SubmissionViewType, UserRole } from "@prisma/client";
 import { clientsign, WalletType } from "package/connect_wallet";
-import { clientSelect } from "~/lib/stellar/fan/utils";
-import {
-  getAssetPrice,
-  getAssetToUSDCRate,
-} from "~/lib/stellar/fan/get_token_price";
-import Loading from "~/components/wallete/loading";
-import { SubmissionViewType, UserRole } from "@prisma/client";
-import { Input } from "~/components/shadcn/ui/input";
-import { cn } from "~/lib/utils";
 import Chat from "~/components/fan/creator/bounty/Chat";
+import { Input } from "~/components/shadcn/ui/input";
+import Loading from "~/components/wallete/loading";
+import { clientSelect } from "~/lib/stellar/fan/utils";
+import { cn } from "~/lib/utils";
 import { addrShort } from "~/utils/utils";
 
 const SingleBountyPage = () => {
@@ -219,7 +208,6 @@ const UserBountyPage = () => {
     BountyId: Number(id) ?? 0,
   });
 
-  const getUserHasTrustLine = api.bounty.Bounty.hasUserTrustOnUSDC.useQuery();
   const getMotherTrustLine = api.bounty.Bounty.hasMotherTrustOnUSDC.useQuery();
 
   const { data: oldMessage, isSuccess: oldMessageSucess } =
@@ -268,6 +256,7 @@ const UserBountyPage = () => {
   }, [messages]);
 
   if (bountyLoading || isAlreadyJoin.isLoading) return <Loading />;
+
   if (data && isAlreadyJoin.data) {
     return (
       <div className="p-2">
@@ -289,7 +278,7 @@ const UserBountyPage = () => {
                   className="h-64 w-full rounded-t-lg object-cover"
                 />
 
-                <Badge
+                {/* <Badge
                   variant={
                     data?.status === "APPROVED"
                       ? "default"
@@ -304,7 +293,7 @@ const UserBountyPage = () => {
                     : data?.status === "PENDING"
                       ? "Pending"
                       : "Rejected"}
-                </Badge>
+                </Badge> */}
               </div>
               <div className="mt-4 flex items-center justify-between">
                 <CardTitle className="text-3xl">{data?.title}</CardTitle>
@@ -416,7 +405,10 @@ const UserBountyPage = () => {
                                 <Edit />
                               </Button>
                               <Button
-                                disabled={data?.winner?.name ? true : false}
+                                disabled={data.BountyWinner.some(
+                                  (winner) =>
+                                    winner.user.id === session.data?.user.id,
+                                )}
                                 variant="destructive"
                                 onClick={() =>
                                   handleSubmissionDelete(submission.id)
@@ -432,7 +424,6 @@ const UserBountyPage = () => {
                   </div>
                 </TabsContent>
                 <TabsContent value="doubt" className="">
-                  {" "}
                   <Card>
                     <CardHeader className="flex flex-row items-center border-b-2 p-4">
                       <div className="flex items-center space-x-4 ">
@@ -469,24 +460,24 @@ const UserBountyPage = () => {
                           >
                             {sanitizeInput(message.message).sanitizedInput}
                             {// Display all matched URLs as links
-                            sanitizeInput(message.message).urls?.map(
-                              (url, index) => (
-                                <div
-                                  key={index}
-                                  className=" w-full rounded-md bg-[#F5F7FB] py-2  shadow-sm"
-                                >
-                                  <Link
-                                    href={url}
-                                    className="flex items-center justify-start gap-2"
+                              sanitizeInput(message.message).urls?.map(
+                                (url, index) => (
+                                  <div
+                                    key={index}
+                                    className=" w-full rounded-md bg-[#F5F7FB] py-2  shadow-sm"
                                   >
-                                    <File color="black" />{" "}
-                                    <span className="text-base font-medium text-[#07074D]">
-                                      {url}
-                                    </span>
-                                  </Link>
-                                </div>
-                              ),
-                            )}
+                                    <Link
+                                      href={url}
+                                      className="flex items-center justify-start gap-2"
+                                    >
+                                      <File color="black" />{" "}
+                                      <span className="text-base font-medium text-[#07074D]">
+                                        {url}
+                                      </span>
+                                    </Link>
+                                  </div>
+                                ),
+                              )}
                             <div ref={messagesEndRef} />
                           </div>
                         ))}
@@ -597,7 +588,7 @@ const UserBountyPage = () => {
               <div className="flex   space-x-4">
                 <Button
                   variant="destructive"
-                  disabled={data?.winner?.name ? true : false}
+                  disabled={data._count.BountyWinner === data.totalWinner}
                   className=""
                   onClick={() =>
                     onOpen("upload file", {
@@ -608,11 +599,9 @@ const UserBountyPage = () => {
                   Submit Solution
                 </Button>
               </div>
-              {data.winnerId &&
-                data.winnerId === session.data?.user.id &&
-                (session.data?.user?.walletType === WalletType.emailPass ||
-                  session.data?.user?.walletType === WalletType.apple ||
-                  session.data?.user?.walletType === WalletType.google) && (
+              {data.BountyWinner.some(
+                (winner) => winner.user.id === session.data?.user.id,
+              ) && (
                   <>
                     <div className="flex flex-col gap-2">
                       <div className="">
@@ -624,11 +613,14 @@ const UserBountyPage = () => {
                             <Button
                               className=""
                               disabled={
-                                loading || data.isSwaped
-                                  ? true
-                                  : false ||
-                                    swapAssetToUSDC.isLoading ||
-                                    MakeSwapUpdateMutation.isLoading
+                                loading ||
+                                data.BountyWinner.some(
+                                  (winner) =>
+                                    winner.user.id === session.data?.user.id &&
+                                    winner?.isSwaped === true,
+                                ) ||
+                                swapAssetToUSDC.isLoading ||
+                                MakeSwapUpdateMutation.isLoading
                               }
                             >
                               <span className="flex items-center">
@@ -658,7 +650,9 @@ const UserBountyPage = () => {
                                           Amount
                                         </dt>
                                         <dd className="text-base font-medium text-gray-900 dark:text-white">
-                                          {(data?.priceInBand).toFixed(2)}{" "}
+                                          {(
+                                            data?.priceInBand / data.totalWinner
+                                          ).toFixed(2)}{" "}
                                           {PLATFORM_ASSET.code}
                                         </dd>
                                       </dl>
@@ -669,7 +663,7 @@ const UserBountyPage = () => {
                                         Swapped Amount
                                       </dt>
                                       <dd className="text-base font-bold text-gray-900 dark:text-white">
-                                        {data.priceInUSD} USDC
+                                        {data.priceInUSD / data.totalWinner} USDC
                                       </dd>
                                     </dl>
                                   </div>
@@ -691,18 +685,22 @@ const UserBountyPage = () => {
                                     </DialogClose>
                                     <Button
                                       disabled={
-                                        loading || data.isSwaped
-                                          ? true
-                                          : false ||
-                                            swapAssetToUSDC.isLoading ||
-                                            MakeSwapUpdateMutation.isLoading
+                                        loading ||
+                                        data.BountyWinner.some(
+                                          (winner) =>
+                                            winner.user.id ===
+                                            session.data?.user.id &&
+                                            winner?.isSwaped === true,
+                                        ) ||
+                                        swapAssetToUSDC.isLoading ||
+                                        MakeSwapUpdateMutation.isLoading
                                       }
                                       variant="destructive"
                                       onClick={() =>
                                         handleSwap(
                                           data.id,
-                                          data.priceInBand,
-                                          data.priceInUSD,
+                                          data.priceInBand / data.totalWinner,
+                                          data.priceInUSD / data.totalWinner,
                                         )
                                       }
                                       className="w-full"
@@ -761,6 +759,7 @@ const AdminBountyPage = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isDialogOpenWinner, setIsDialogOpenWinner] = useState(false);
   const { id } = router.query;
+  const [selectedSubmission, setSelectedSubmission] = useState<BountySubmission | null>(null);
   console.log(id);
   const { data } = api.bounty.Bounty.getBountyByID.useQuery({
     BountyId: Number(id),
@@ -799,6 +798,10 @@ const AdminBountyPage = () => {
           });
         }
       }
+      setLoadingBountyId(null);
+    },
+    onError: (error) => {
+      toast.error(error.message);
       setLoadingBountyId(null);
     },
   });
@@ -862,7 +865,7 @@ const AdminBountyPage = () => {
       status: status,
     });
   };
-
+  console.log("Submission", allSubmission);
   if (data)
     return (
       <div className=" ">
@@ -877,7 +880,7 @@ const AdminBountyPage = () => {
                 className="h-64 w-full rounded-t-lg object-cover"
               />
 
-              <Badge
+              {/* <Badge
                 variant={
                   data?.status === "APPROVED"
                     ? "default"
@@ -892,7 +895,7 @@ const AdminBountyPage = () => {
                   : data?.status === "PENDING"
                     ? "Pending"
                     : "Rejected"}
-              </Badge>
+              </Badge> */}
             </div>
             <div className="mt-4 flex items-center justify-between">
               <CardTitle className="flex w-full items-center justify-between text-3xl">
@@ -968,103 +971,118 @@ const AdminBountyPage = () => {
                             <Preview value={submission.content} />
                           )}
                         </div>
+                        <div className="flex items-start justify-between">
+                          <Button
+                            onClick={() => {
+                              setIsDialogOpenWinner(true);
+                              setSelectedSubmission(submission);
 
-                        <div className="flex flex-col gap-2">
-                          <div className="">
-                            <Dialog
-                              open={isDialogOpenWinner}
-                              onOpenChange={setIsDialogOpenWinner}
-                            >
-                              <div className="flex items-start justify-between">
-                                <DialogTrigger asChild>
-                                  <Button
-                                    disabled={
-                                      loadingBountyId === data.id ||
-                                      data.winner?.name
-                                        ? true
-                                        : false ||
-                                          GetSendBalanceToWinnerXdr.isLoading
-                                    }
-                                    className=" me-2  bg-purple-100 px-2.5 py-0.5 text-xs font-medium text-purple-800 dark:bg-purple-900 dark:text-purple-300 "
-                                    variant="outline"
-                                  >
-                                    <Crown size={16} className="mr-2" /> MARK AS
-                                    WINNER
-                                  </Button>
-                                </DialogTrigger>
-                                <Button
-                                  className="  "
-                                  onClick={() => {
-                                    updateSubmissionStatus(
-                                      data.creatorId,
-                                      submission.id,
-                                      "CHECKED",
-                                    ),
-                                      onOpen("view attachment", {
-                                        attachment: submission.medias,
-                                      });
-                                  }}
-                                  variant="outline"
-                                >
-                                  <Paperclip size={16} className="mr-2" /> View
-                                  Attachment
-                                </Button>
-                              </div>
-                              <DialogContent className="sm:max-w-[425px]">
-                                <DialogHeader>
-                                  <DialogTitle>Confirmation </DialogTitle>
-                                </DialogHeader>
-                                <div className="mt-6 w-full space-y-6 sm:mt-8 lg:mt-0 lg:max-w-xs xl:max-w-md">
-                                  <div className="flow-root">
-                                    Do you want to make {submission.user.name}{" "}
-                                    as a winner? This action can{"'t"} be
-                                    undone.
-                                  </div>
-                                </div>
-                                <DialogFooter className=" w-full">
-                                  <div className="flex w-full gap-4  ">
-                                    <DialogClose className="w-full">
-                                      <Button
-                                        variant="outline"
-                                        className="w-full"
-                                      >
-                                        Cancel
-                                      </Button>
-                                    </DialogClose>
-                                    <Button
-                                      disabled={
-                                        loadingBountyId === data.id ||
-                                        data.winner?.name
-                                          ? true
-                                          : false ||
-                                            GetSendBalanceToWinnerXdr.isLoading
-                                      }
-                                      variant="destructive"
-                                      type="submit"
-                                      onClick={() =>
-                                        handleWinner(
-                                          data.id,
-                                          submission.userId,
-                                          data.priceInBand,
-                                        )
-                                      }
-                                      className="w-full"
-                                    >
-                                      Confirm
-                                    </Button>
-                                  </div>
-                                </DialogFooter>
-                              </DialogContent>
-                            </Dialog>
-                          </div>
+                            }}
+                            disabled={
+                              loadingBountyId === data.id ||
+                              data.totalWinner ===
+                              data._count.BountyWinner ||
+                              data.BountyWinner.some(
+                                (winner) =>
+                                  winner.user.id ===
+                                  submission.user.id,
+                              ) ||
+                              GetSendBalanceToWinnerXdr.isLoading
+                            }
+                            className=" me-2  bg-purple-100 px-2.5 py-0.5 text-xs font-medium text-purple-800 dark:bg-purple-900 dark:text-purple-300 "
+                            variant="outline"
+                          >
+                            <Crown size={16} className="mr-2" /> MARK AS
+                            WINNER
+                          </Button>
+                          <Button
+                            className="  "
+                            onClick={() => {
+                              updateSubmissionStatus(
+                                data.creatorId,
+                                submission.id,
+                                "CHECKED",
+                              ),
+                                onOpen("view attachment", {
+                                  attachment: submission.medias,
+                                });
+                            }}
+                            variant="outline"
+                          >
+                            <Paperclip size={16} className="mr-2" /> View
+                            Attachment
+                          </Button>
                         </div>
+                        {
+                          selectedSubmission && (
+                            <div className="flex flex-col gap-2">
+                              <div className="">
+                                <Dialog
+                                  open={isDialogOpenWinner}
+                                  onOpenChange={setIsDialogOpenWinner}
+                                >
+
+                                  <DialogContent className="sm:max-w-[425px]">
+                                    <DialogHeader>
+                                      <DialogTitle>Confirmation </DialogTitle>
+                                    </DialogHeader>
+                                    <div className="mt-6 w-full space-y-6 sm:mt-8 lg:mt-0 lg:max-w-xs xl:max-w-md">
+                                      <div className="flow-root">
+                                        Do you want to make {addrShort(selectedSubmission.userId, 6)}{" "}
+                                        as a winner? This action can{"'t"} be
+                                        undone.
+                                      </div>
+                                    </div>
+                                    <DialogFooter className=" w-full">
+                                      <div className="flex w-full gap-4  ">
+                                        <DialogClose className="w-full">
+                                          <Button
+                                            variant="outline"
+                                            className="w-full"
+                                          >
+                                            Cancel
+                                          </Button>
+                                        </DialogClose>
+                                        <Button
+                                          disabled={
+                                            loadingBountyId === data.id ||
+                                            data.totalWinner ===
+                                            data._count.BountyWinner ||
+                                            data.BountyWinner.some(
+                                              (winner) =>
+                                                winner.user.id ===
+                                                selectedSubmission.userId,
+                                            ) ||
+                                            GetSendBalanceToWinnerXdr.isLoading
+                                          }
+                                          variant="destructive"
+                                          type="submit"
+                                          onClick={() =>
+                                            handleWinner(
+                                              data.id,
+                                              selectedSubmission.userId,
+                                              data.priceInBand,
+                                            )
+                                          }
+                                          className="w-full"
+                                        >
+                                          Confirm
+                                        </Button>
+                                      </div>
+                                    </DialogFooter>
+                                  </DialogContent>
+                                </Dialog>
+                              </div>
+                            </div>
+                          )
+                        }
                       </div>
                     </div>
                   ))}
                 </div>
-              </TabsContent>{" "}
+              </TabsContent>
               <TabsContent value="doubt" className=" m-0 h-full  w-full p-0">
-                {" "}
+
                 <Chat bountyId={data.id} />
               </TabsContent>
               <TabsContent value="comments" className="mt-4">
@@ -1149,7 +1167,8 @@ const AdminBountyPage = () => {
                     <DialogTrigger asChild>
                       <Button
                         disabled={
-                          loadingBountyId === data.id || data.winner?.name
+                          loadingBountyId === data.id ||
+                            data._count.BountyWinner > 0
                             ? true
                             : false
                         }
@@ -1176,7 +1195,8 @@ const AdminBountyPage = () => {
                           </DialogClose>
                           <Button
                             disabled={
-                              loadingBountyId === data.id || data.winner?.name
+                              loadingBountyId === data.id ||
+                                data._count.BountyWinner > 0
                                 ? true
                                 : false
                             }

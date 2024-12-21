@@ -12,7 +12,7 @@ export const env = createEnv({
       .url()
       .refine(
         (str) => !str.includes("YOUR_MYSQL_URL_HERE"),
-        "You forgot to change the default URL"
+        "You forgot to change the default URL",
       ),
     NODE_ENV: z
       .enum(["development", "test", "production"])
@@ -26,7 +26,7 @@ export const env = createEnv({
       // Since NextAuth.js automatically uses the VERCEL_URL if present.
       (str) => process.env.VERCEL_URL ?? str,
       // VERCEL_URL doesn't include `https` so it cant be validated as a URL
-      process.env.VERCEL ? z.string() : z.string().url()
+      process.env.VERCEL ? z.string() : z.string().url(),
     ),
     STORAGE_SECRET: z.string(),
     MOTHER_SECRET: z.string(),
@@ -34,7 +34,6 @@ export const env = createEnv({
     // squire
     SQUARE_ACCESS_TOKEN: z.string(),
     SQUARE_ENVIRONMENT: z.string(),
-
   },
 
   /**
@@ -60,7 +59,6 @@ export const env = createEnv({
       .refine((s) => s === "true" || s === "false")
       .transform((s) => s === "true"),
 
-
     // squire
     NEXT_PUBLIC_SQUARE_APP_ID: z.string(),
     NEXT_PUBLIC_SQUARE_LOCATION: z.string(),
@@ -73,7 +71,8 @@ export const env = createEnv({
    */
   runtimeEnv: {
     NEXT_PUBLIC_SITE: process.env.NEXT_PUBLIC_SITE,
-    NEXT_PUBLIC_PLATFORM_CREATOR_TERM: process.env.NEXT_PUBLIC_PLATFORM_CREATOR_TERM,
+    NEXT_PUBLIC_PLATFORM_CREATOR_TERM:
+      process.env.NEXT_PUBLIC_PLATFORM_CREATOR_TERM,
     NEXT_PUBLIC_DESC: process.env.NEXT_PUBLIC_DESC,
     DATABASE_URL: process.env.DATABASE_URL,
     NODE_ENV: process.env.NODE_ENV,

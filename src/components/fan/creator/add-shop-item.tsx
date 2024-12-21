@@ -20,8 +20,14 @@ export const ShopItemSchema = z.object({
     .string()
     .min(4, { message: "Asset name should be minimum 4" })
     .max(12, { message: "Asset name should be maximum 12" }),
-  limit: z.number().nonnegative().int(),
-  price: z.number().nonnegative(),
+  limit: z.number({
+    required_error: "Limit  must be a number",
+    invalid_type_error: "Limit must be a number",
+  }).nonnegative().int(),
+  price: z.number({
+    required_error: "Price  must be a number",
+    invalid_type_error: "Price must be a number",
+  }).nonnegative(),
   mediaUrl: z.string().optional(),
   thumbnail: z.string().optional(),
   issuer: AccountSchema.optional(),
@@ -29,7 +35,6 @@ export const ShopItemSchema = z.object({
 
 export default function AddItem2Shop() {
   const modalRef = useRef<HTMLDialogElement>(null);
-
   const [medialUrl, setMediaUrl] = React.useState<string>();
   const [thumbnail, setThumbnail] = React.useState<string>();
   const [step, setStep] = React.useState(1);

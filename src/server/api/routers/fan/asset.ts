@@ -1,5 +1,5 @@
+import { ItemPrivacy } from "@prisma/client";
 import { z } from "zod";
-import { ShopItemSchema } from "~/components/fan/creator/add-shop-item";
 import { updateAssetFormShema } from "~/components/fan/shop/asset_view_modal";
 import { NftFormSchema } from "~/components/marketplace/nft_create";
 
@@ -7,7 +7,6 @@ import {
   createTRPCRouter,
   creatorProcedure,
   protectedProcedure,
-  publicProcedure,
 } from "~/server/api/trpc";
 
 export const shopRouter = createTRPCRouter({
@@ -37,9 +36,17 @@ export const shopRouter = createTRPCRouter({
         const nftType = isAdmin ? "ADMIN" : "FAN";
 
         let tierId: number | undefined;
+        let privacy: ItemPrivacy = ItemPrivacy.PUBLIC;
 
-        if (tier != "public") {
+        if (!tier) {
+          privacy = ItemPrivacy.PUBLIC;
+        } else if (tier == "public") {
+          privacy = ItemPrivacy.PUBLIC;
+        } else if (tier == "private") {
+          privacy = ItemPrivacy.PRIVATE;
+        } else {
           tierId = Number(tier);
+          privacy = ItemPrivacy.TIER;
         }
 
         // console.log("mediaType", mediaType, mediaUrl);
@@ -48,6 +55,7 @@ export const shopRouter = createTRPCRouter({
           data: {
             code,
             issuer: issuer.publicKey,
+            issuerPrivate: issuer.secretKey,
             name,
             mediaType,
             mediaUrl,
@@ -57,6 +65,7 @@ export const shopRouter = createTRPCRouter({
                 priceUSD,
                 placerId: creatorId,
                 type: nftType,
+                privacy: privacy,
               },
             },
             description,
@@ -64,6 +73,7 @@ export const shopRouter = createTRPCRouter({
             creatorId,
             limit,
             tierId,
+            privacy: privacy,
           },
         });
       }

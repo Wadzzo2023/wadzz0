@@ -1,7 +1,7 @@
 import { create } from "zustand";
-import { MarketAssetType } from "~/components/marketplace/market_right";
+import { MarketAssetType } from "../play/use-modal-store";
 
-interface MarketRightState {
+export interface MarketRightState {
   open: boolean;
   currentData?: MarketAssetType;
   setOpen: (value: boolean) => void;

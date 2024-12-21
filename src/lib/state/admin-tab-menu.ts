@@ -1,7 +1,7 @@
 import { create } from "zustand";
 
 export enum AdminNavigation {
-  WALLET = "wallet",
+  // WALLET = "wallet",
   NFT = "nft",
   ALBUM = "album",
   ADMIN = "admin",
@@ -18,6 +18,6 @@ interface MarketMenurState {
 }
 
 export const useAdminMenu = create<MarketMenurState>((set) => ({
-  selectedMenu: AdminNavigation.WALLET,
+  selectedMenu: AdminNavigation.NFT,
   setSelectedMenu: (menu) => set({ selectedMenu: menu }),
 }));

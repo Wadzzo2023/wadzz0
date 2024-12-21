@@ -13,6 +13,7 @@ import { PLATFORM_ASSET } from "~/lib/stellar/constant";
 import { AccountSchema } from "~/lib/stellar/fan/utils";
 import { api } from "~/utils/api";
 import { UploadButton } from "~/utils/uploadthing";
+import { ipfsHashToUrl } from "~/utils/ipfs";
 
 export const SongFormSchema = z.object({
   name: z.string(),
@@ -27,7 +28,10 @@ export const SongFormSchema = z.object({
       invalid_type_error: "Limit must be entered as a number",
     })
     .nonnegative(),
-  priceUSD: z.number().nonnegative(),
+  priceUSD: z.number({
+    required_error: "Price  must be a number",
+    invalid_type_error: "Price must be a number",
+  }).nonnegative(),
   limit: z
     .number({
       required_error: "Limit must be entered as a number",
@@ -145,7 +149,7 @@ export default function SongCreate({ albumId }: { albumId: number }) {
         body: formData,
       });
       const ipfsHash = await res.text();
-      const thumbnail = "https://ipfs.io/ipfs/" + ipfsHash;
+      const thumbnail = ipfsHashToUrl(ipfsHash);
       setCover(thumbnail);
       setIpfs(ipfsHash);
       setValue("coverImgUrl", thumbnail);
@@ -182,7 +186,7 @@ export default function SongCreate({ albumId }: { albumId: number }) {
           <form method="dialog">
             <button
               className="btn btn-circle btn-ghost btn-sm absolute right-2 top-2"
-              // onClick={handleCloseClick}
+            // onClick={handleCloseClick}
             >
               ✕
             </button>
@@ -436,7 +440,7 @@ export default function SongCreate({ albumId }: { albumId: number }) {
             <form method="dialog">
               <button
                 className="btn"
-                // onClick={handleCloseClick}
+              // onClick={handleCloseClick}
               >
                 Close
               </button>

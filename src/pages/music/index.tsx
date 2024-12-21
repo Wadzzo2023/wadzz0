@@ -1,31 +1,32 @@
 import Head from "next/head";
+import { api } from "~/utils/api";
 import AlbumSection from "~/components/music/album/section";
 import CreatorTrack from "~/components/music/creator/track";
-import TrackSection, {
-  TrackSectionSkeleton,
-} from "~/components/music/track/section";
-import { api } from "~/utils/api";
+import TrackSection, { TrackSectionSkeleton } from "~/components/music/track/section";
 import { getAssetBalanceFromBalance } from "~/lib/stellar/marketplace/test/acc";
-import BuyModal from "~/components/music/modal/buy_modal";
-import { Loader2 } from "lucide-react";
-import toast from "react-hot-toast";
 
 export default function Home() {
   return (
     <>
       <Head>
         <title>MUSIC APP - Home</title>
-        {/* <meta name="description" content={env.NEXT_PUBLIC_DESC} /> */}
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <div className="flex flex-col gap-5 p-4">
-        <AlbumsContainer />
-        <AllSongs />
-        <MySongs />
-        <CreatorPublicSongs />
-        <CreatorMarketSongs />
-      </div>
+      <body className="">
+        <div className="min-h-screen bg-gray-50 text-gray-900 ">
+          <div className="p-4 ">
+            <h1 className="mb-8 text-4xl font-bold text-blue-600">Music App</h1>
+            <div className="space-y-12 ">
+              <AlbumsContainer />
+              <AllSongs />
+              <MySongs />
+              <CreatorPublicSongs />
+              <CreatorMarketSongs />
+            </div>
+          </div>
+        </div>
+      </body>
     </>
   );
 }
@@ -36,7 +37,7 @@ function AlbumsContainer() {
   if (albums.data)
     return (
       <div>
-        <h3 className="pb-4 text-2xl font-bold">ALBUMS</h3>
+        <h2 className="mb-4 text-2xl font-bold text-gray-800">Albums</h2>
         <AlbumSection albums={albums.data} />
       </div>
     );
@@ -46,11 +47,14 @@ function AlbumsContainer() {
 
 export function AlbumSkeleton() {
   return (
-    <div>
-      <div className="skeleton h-40 w-40" />
+    <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
+      {Array.from({ length: 12 }, (_, i: number) => (
+        <div key={i} className="aspect-square animate-pulse rounded-lg bg-gray-200" />
+      ))}
     </div>
   );
 }
+
 
 function MySongs() {
   const mySongs = api.music.song.getUserBuyedSongs.useQuery();
@@ -60,17 +64,12 @@ function MySongs() {
   if (mySongs.isLoading) return <TrackSectionSkeleton header={header} />;
 
   if (mySongs.data && mySongs.data.length > 0) {
-    return (
-      <div className="py-4">
-        <TrackSection songs={mySongs.data} header={header} playable />
-      </div>
-    );
+    return <TrackSection songs={mySongs.data} header={header} playable />;
   }
 }
 
 function CreatorPublicSongs() {
   const creatorSongs = api.music.song.getCreatorPublicSong.useQuery();
-  const admin = api.wallate.admin.checkAdmin.useQuery();
 
   const header = "Public Songs";
 
@@ -78,52 +77,26 @@ function CreatorPublicSongs() {
 
   if (creatorSongs.data && creatorSongs.data.length > 0) {
     return (
-      <div className="py-4">
-        {/* <TrackSection songs={creatorSongs.data} header={header} playable /> */}
-        <h3 className="py-2 text-2xl font-bold">{header}</h3>
-        {creatorSongs.data.map((song) => {
-          return (
-            <div className="flex w-full " key={song.id}>
-              <div className="w-full">
-                <CreatorTrack
-                  key={song.id}
-                  // choose first 4 characters of the creator
-                  playable={true}
-                  item={{
-                    ...song,
-                    artist: song.creatorId?.substring(0, 4) ?? "creator",
-                  }}
-                />
-              </div>
-              {admin.data && <DeletePublicSong key={song.id} id={song.id} />}
-            </div>
-          );
-        })}
+      <div>
+        <h2 className="mb-4 text-2xl font-bold text-gray-800">{header}</h2>
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
+          {creatorSongs.data.map((song, index: number) => (
+            <CreatorTrack
+              key={song.id}
+              playable={true}
+              item={
+                {
+                  ...song,
+                  artist: song.creatorId?.substring(0, 4) ?? "creator",
+                }
+              }
+              index={index + 1}
+            />
+          ))}
+        </div>
       </div>
     );
   }
-}
-
-function DeletePublicSong({ id }: { id: number }) {
-  const deletM = api.music.song.deleteCreatorPublicSong.useMutation({
-    onSuccess(data, variables, context) {
-      toast.success("Song deleted successfully");
-    },
-  });
-
-  return (
-    <button
-      className="btn btn-primary"
-      onClick={() =>
-        deletM.mutate({
-          songId: id,
-        })
-      }
-    >
-      {deletM.isLoading && <Loader2 className="animate animate-spin" />}
-      Delete
-    </button>
-  );
 }
 
 function CreatorMarketSongs() {
@@ -136,51 +109,45 @@ function CreatorMarketSongs() {
 
   if (creatorSongs.data && creatorSongs.data.length > 0) {
     return (
-      <div className="py-4">
-        {/* <TrackSection songs={creatorSongs.data} header={header} playable /> */}
-        <h3 className="py-2 text-2xl font-bold">{header}</h3>
-        {creatorSongs.data.map((marketItem) => {
-          if (marketItem.asset.tier) {
-            const bal = getAssetBalanceFromBalance({
-              balances: accBalances.data,
-              code: marketItem.asset.code,
-              issuer: marketItem.asset.issuer,
-            });
-            if (marketItem.asset.tier.price <= bal) {
-              return (
-                <CreatorTrack
-                  key={marketItem.id}
-                  playable={true}
-                  item={{
-                    ...marketItem.asset,
-                    artist:
-                      marketItem.asset.creatorId?.substring(0, 4) ?? "creator",
-                  }}
-                />
-              );
-            } else {
-              return (
-                <CreatorTrack
-                  key={marketItem.id}
-                  item={{
-                    ...marketItem.asset,
-                    artist:
-                      marketItem.asset.creatorId?.substring(0, 4) ?? "creator",
-                  }}
-                  buyModal={
-                    <BuyModal
-                      item={marketItem.asset}
-                      price={marketItem.price}
-                      priceUSD={marketItem.priceUSD}
-                      marketItemId={marketItem.id}
-                      placerId={marketItem.placerId}
-                    />
-                  }
-                />
-              );
+      <div>
+        <h2 className="mb-4 text-2xl font-bold text-gray-800">{header}</h2>
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
+          {creatorSongs.data.map((marketItem, index: number) => {
+            console.log("marketItem", marketItem);
+            if (marketItem.asset.tier) {
+              const bal = getAssetBalanceFromBalance({
+                balances: accBalances.data,
+                code: marketItem.asset.code,
+                issuer: marketItem.asset.issuer,
+              });
+              if (marketItem.asset.tier.price <= bal) {
+                return (
+                  <CreatorTrack
+                    key={marketItem.id}
+                    playable={true}
+                    item={{
+                      ...marketItem.asset,
+                      artist: marketItem.asset.creatorId?.substring(0, 4) ?? "creator",
+                    }}
+                    index={index + 1}
+                  />
+                );
+              } else {
+                return (
+                  <CreatorTrack
+                    key={marketItem.id}
+                    item={{
+                      ...marketItem.asset,
+                      artist: marketItem.asset.creatorId?.substring(0, 4) ?? "creator",
+                    }}
+
+                    index={index + 1}
+                  />
+                );
+              }
             }
-          }
-        })}
+          })}
+        </div>
       </div>
     );
   }
@@ -194,10 +161,6 @@ function AllSongs() {
   if (allSongs.isLoading) return <TrackSectionSkeleton header={header} />;
 
   if (allSongs.data && allSongs.data.length > 0) {
-    return (
-      <div className="py-4">
-        <TrackSection songs={allSongs.data} header={header} />
-      </div>
-    );
+    return <TrackSection songs={allSongs.data} header={header} />;
   }
 }

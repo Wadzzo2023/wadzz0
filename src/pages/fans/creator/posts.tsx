@@ -9,22 +9,41 @@ import {
   TabsList,
   TabsTrigger,
 } from "~/components/shadcn/ui/tabs";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "~/components/shadcn/ui/card";
+import { Loader2 } from "lucide-react";
 
 export default function CreatorsPost() {
   const creator = api.fan.creator.meCreator.useQuery();
   if (creator.data)
     return (
-      <div className="h-screen p-0 md:p-5">
-        <h2 className="mb-5 text-center text-2xl font-bold">Contents</h2>
-
-        <div className=" flex w-full flex-col items-center justify-center">
-          <CreateTabs />
-          <div className="mb-20 mt-10 flex w-full items-center">
-            <RenderTabs />
-          </div>
-        </div>
+      <div className="min-h-screen bg-gradient-to-b from-background to-secondary/10 p-1 md:p-8">
+        <Card className=" shadow-lg">
+          <CardHeader>
+            <CardTitle className="text-center text-3xl font-bold text-primary">
+              Contents
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="px-2">
+            <div className="flex w-full flex-col items-center justify-center space-y-8">
+              <CreateTabs />
+              <div className="w-full">
+                <RenderTabs />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     );
+  return (
+    <div className="flex h-screen items-center justify-center">
+      <Loader2 className="h-8 w-8 animate-spin text-primary" />
+    </div>
+  );
 }
 
 function RenderTabs() {
@@ -46,6 +65,7 @@ function Posts() {
   if (creator.data) {
     return <PostList id={creator.data.id} />;
   }
+  return null;
 }
 
 function CreateTabs() {
@@ -56,9 +76,11 @@ function CreateTabs() {
   return (
     <Tabs
       defaultValue={selectedMenu ? selectedMenu : menuItems[0]}
-      className="w-full px-2  md:w-1/2"
+      className="w-full px-2 md:w-3/4"
     >
-      <TabsList className={clsx("grid w-full", gridColsClass)}>
+      <TabsList
+        className={clsx("grid w-full rounded-lg bg-muted", gridColsClass)}
+      >
         {menuItems.map((key) => (
           <TabsTrigger
             value={key}
@@ -66,8 +88,11 @@ function CreateTabs() {
             onClick={() => setSelectedMenu(key)}
             role="tab"
             className={clsx(
-              selectedMenu === key && "tab-active text-primary",
-              "font-bold",
+              "rounded-md py-2 text-sm font-medium transition-all",
+              selectedMenu === key
+                ? "bg-background text-foreground shadow-sm"
+                : "text-muted-foreground hover:bg-muted-foreground/10",
+              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
             )}
           >
             {key}

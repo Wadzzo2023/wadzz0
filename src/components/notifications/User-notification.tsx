@@ -28,7 +28,7 @@ const Notifications = () => {
     <div className="w-full rounded-lg  bg-white shadow-sm lg:w-[715px]">
       <div className="p-6">
         <div className="mb-6 flex flex-row gap-x-6">
-          <h1 className="text-2xl font-bold">User{"'s"} Notifications</h1>
+          <h1 className="text-2xl font-bold">User Notifications</h1>
           {/* <a className="my-auto rounded-lg bg-[#0a3279] px-3 font-bold text-white">
             {newNotificationCount()}
           </a> */}
@@ -84,7 +84,7 @@ const Notifications = () => {
                   break;
 
                 case NotificationType.BOUNTY_DOUBT_REPLY:
-                  message = `${el.notificationObject.actor.name} reply to your chat on bounty`;
+                  message = `${el.notificationObject.actor.name} replied to your chat on bounty`;
                   url = `/bounty/${el.notificationObject.entityId}`;
 
                   break;

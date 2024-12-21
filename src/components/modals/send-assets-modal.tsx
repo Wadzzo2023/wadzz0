@@ -40,7 +40,7 @@ import { Loader2, RefreshCcw, RotateCw, Send } from "lucide-react";
 import { WalletType, clientsign } from "package/connect_wallet";
 import { useSession } from "next-auth/react";
 import { Toaster } from "react-hot-toast";
-import { useModal } from "../hooks/use-modal-store";
+import { useModal } from "../../lib/state/play/use-modal-store";
 import useNeedSign from "~/lib/hook";
 import { clientSelect } from "~/lib/stellar/fan/utils";
 import { useRouter } from "next/router";
@@ -51,7 +51,10 @@ const formSchema = z.object({
   recipientId: z.string().length(56, {
     message: "Recipient Id is must be 56 characters long.",
   }),
-  amount: z.number().positive({
+  amount: z.number({
+    required_error: "Amount is required.",
+    invalid_type_error: "Amount must be a number.",
+  }).positive({
     message: "Amount must be greater than zero.",
   }),
   selectItem: z.string().min(1, {
@@ -359,11 +362,11 @@ const SendAssets = () => {
                         value={field.value}
                       >
                         <SelectTrigger className="focus-visible:ring-0 focus-visible:ring-offset-0">
-                          <SelectValue placeholder="Select Wallet" />
+                          <SelectValue placeholder="Select Asset" />
                         </SelectTrigger>
                         <SelectContent>
                           <SelectGroup>
-                            <SelectLabel>Wallets</SelectLabel>
+                            <SelectLabel>Assets</SelectLabel>
                             {assetWithBalance?.map((wallet, idx) => (
                               <SelectItem
                                 key={idx}

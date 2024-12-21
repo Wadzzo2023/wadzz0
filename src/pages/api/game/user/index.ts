@@ -1,11 +1,13 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 
 import { getSession } from "next-auth/react";
+import { EnableCors } from "~/server/api-cors";
 
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse,
 ) {
+  await EnableCors(req, res);
   try {
     const session = await getSession({ req });
 

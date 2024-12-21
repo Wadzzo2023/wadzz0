@@ -26,6 +26,7 @@ enum MediaType {
     MUSIC
     VIDEO
     IMAGE
+    THREE_D
 }
 
 // ------------------------NOTIFICATION SCHEMA-------------------------
@@ -86,9 +87,9 @@ model Subscription {
     creatorId String
     creator   Creator @relation(fields: [creatorId], references: [id], onDelete: Cascade)
 
-    posts    Post[]
-    assets   Asset[]
-    Location Location[]
+    posts         Post[]
+    assets        Asset[]
+    LocationGroup LocationGroup[]
 
     @@unique([name, creatorId])
 }
@@ -199,7 +200,6 @@ model Creator {
     marketAssets  MarketAsset[]
     pageAsset     CreatorPageAsset?
     followers     Follow[]
-    Location      Location[]
     LocationGroup LocationGroup[]
     Bounty        Bounty[]
 
@@ -282,6 +282,10 @@ model User {
     Bounty                   Bounty[]
     BountyDoubt              BountyDoubt[]
     BountyDoubtMessage       BountyDoubtMessage[]
+
+    BountyWinner BountyWinner[]
+
+    RedeemConsumer RedeemConsumer[]
 }
 
 model VerificationToken {
@@ -335,8 +339,11 @@ model User_Song {
 
 enum ItemPrivacy {
     DRAFT
-    FOR_SALE // for sell
-    NOT_FOR_SALE // for public
+    FOR_SALE
+    NOT_FOR_SALE
+    PUBLIC
+    PRIVATE // only for followers
+    TIER // tier based
 }
 
 // ------------------------Marketplace SCHEMA-------------------------
@@ -356,7 +363,7 @@ model Asset {
     mediaUrl  String
     thumbnail String
 
-    privacy ItemPrivacy @default(FOR_SALE)
+    privacy ItemPrivacy @default(PUBLIC)
 
     creatorId String? // if null then it is admin asset
     creator   Creator? @relation(fields: [creatorId], references: [id], onDelete: Cascade)
@@ -364,10 +371,11 @@ model Asset {
     tierId Int?
     tier   Subscription? @relation(fields: [tierId], references: [id], onDelete: SetNull)
 
-    song        Song?
-    buyers      User_Asset[]
-    marketItems MarketAsset[]
-    Location    Location[]
+    song          Song?
+    buyers        User_Asset[]
+    marketItems   MarketAsset[]
+    LocationGroup LocationGroup[]
+    Redeem        Redeem[]
 
     @@unique([code, issuer])
     @@index([name, description])
@@ -383,6 +391,8 @@ enum MarketType {
 // this for creators;
 model MarketAsset {
     id Int @id @default(autoincrement())
+
+    privacy ItemPrivacy @default(PUBLIC)
 
     price    Float
     priceUSD Float @default(1)
@@ -454,48 +464,49 @@ model Admin {
 model LocationGroup {
     id String @id @default(cuid())
 
+    privacy ItemPrivacy @default(PUBLIC)
+
+    subscriptionId Int?
+    Subscription   Subscription? @relation(fields: [subscriptionId], references: [id])
+
+    assetId Int?
+    asset   Asset? @relation(fields: [assetId], references: [id], onDelete: Cascade)
+
+    pageAsset Boolean? @default(false)
+
     creatorId String
     creator   Creator @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+
+    limit     Int @default(0)
+    remaining Int @default(0)
+
+    title       String
+    description String?
+
+    startDate DateTime
+    endDate   DateTime
+
+    approved Boolean?
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    image String?
+
+    link String?
+
+    multiPin Boolean @default(false)
 
     locations Location[]
 }
 
 model Location {
-    id Int @id @default(autoincrement())
+    id String @id @default(cuid())
 
     latitude  Float
     longitude Float
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
-
-    assetId Int?
-    asset   Asset? @relation(fields: [assetId], references: [id], onDelete: Cascade)
-
-    tierId Int?
-    tier   Subscription? @relation(fields: [tierId], references: [id], onDelete: SetNull)
-
-    pageAsset Boolean? @default(false)
-
-    claimAmount Float? // how much token each person will claim. if null then it is free
-
-    isActive Boolean // just an field
-    image    String?
-
-    link String?
-
-    limit Int // how many person can claim the Location / pin
-
-    creatorId String
-    creator   Creator @relation(fields: [creatorId], references: [id], onDelete: Cascade)
-
-    title       String
-    description String?
-    startDate   DateTime
-    endDate     DateTime
 
     autoCollect Boolean
-
-    approved Boolean?
 
     locationGroupId String?
     locationGroup   LocationGroup? @relation(fields: [locationGroupId], references: [id], onDelete: Cascade)
@@ -509,7 +520,7 @@ model LocationConsumer {
     userId String
     user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-    locationId Int
+    locationId String
     location   Location @relation(fields: [locationId], references: [id], onDelete: Cascade)
 
     claimedAt DateTime?
@@ -527,6 +538,8 @@ model Bounty {
     description     String
     priceInUSD      Float
     priceInBand     Float
+    totalWinner     Int
+    priceInXLM      Float?
     requiredBalance Float
     imageUrls       String[]
     createdAt       DateTime            @default(now())
@@ -534,18 +547,26 @@ model Bounty {
     status          BountyStatus        @default(PENDING)
     creatorId       String
     creator         Creator             @relation(fields: [creatorId], references: [id], onDelete: Cascade)
-    isSwaped        Boolean?            @default(false)
     participants    BountyParticipant[] // Users who join the bounty
     comments        BountyComment[] // Comments on the bounty
     submissions     BountySubmission[] // Submissions to the bounty
     doubts          BountyDoubt[]
-    // New field to reference the winner
-    winnerId        String? // Optional: Can be null until a winner is selected
-    winner          User?               @relation(fields: [winnerId], references: [id], onDelete: SetNull)
-
-    xdr String?
+    BountyWinner    BountyWinner[]
+    User            User?               @relation(fields: [userId], references: [id])
+    userId          String?
 
     @@index([title, description])
+}
+
+model BountyWinner {
+    id        Int      @id @default(autoincrement())
+    bountyId  Int
+    xdr       String?
+    isSwaped  Boolean? @default(false)
+    bounty    Bounty   @relation(fields: [bountyId], references: [id], onDelete: Cascade)
+    userId    String
+    user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+    awardedAt DateTime @default(now()) // Timestamp of when the user was awarded as a winner
 }
 
 model BountyDoubt {
@@ -640,4 +661,23 @@ enum SubmissionViewType {
     ONREVIEW
     APPROVED
     REJECTED
+}
+
+// I want to add asset redeeming feature
+
+model Redeem {
+    code            String           @id
+    totalRedeemable Int
+    redeemConsumers RedeemConsumer[]
+    assetRedeemId   Int
+    assetRedeem     Asset            @relation(fields: [assetRedeemId], references: [id], onDelete: Cascade)
+}
+
+model RedeemConsumer {
+    id         Int      @id @default(autoincrement())
+    userId     String
+    user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+    code       String
+    redeemCode Redeem   @relation(fields: [code], references: [code], onDelete: Cascade)
+    redeemedAt DateTime @default(now())
 }

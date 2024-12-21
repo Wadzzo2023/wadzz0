@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { WalletType } from "package/connect_wallet/src/lib/enums";
+import MusicControls from "~/components/BackgroundMusic";
 import { Button } from "~/components/shadcn/ui/button";
 import { Mode, useMode } from "~/lib/state/fan/left-side-mode";
 import { useUserStellarAcc } from "~/lib/state/wallete/stellar-balances";
@@ -53,33 +54,40 @@ export function SiteAssetBalance() {
     <div className=" flex items-center justify-center gap-1 ">
       <Link href="/walletBalance" className="">
         <Button className="">
-          <div className="flex md:hidden">
+          {/* <div className="flex h-6 w-6 rounded-full  bg-white md:hidden">
             <Image
               alt="logo"
-              src="/images/logo.png"
-              className=" mr-2 h-6 w-6"
+              src="/images/icons/wadzzo.svg"
+              className=" mr-2   object-cover"
               width={100}
               height={100}
             />
-          </div>
+          </div> */}
           <span className="hidden md:flex">
-            {PLATFORM_ASSET.code.toUpperCase() + " : "}
+            {PLATFORM_ASSET.code.toUpperCase()}
+            {"  "}
           </span>
-          {formatNumber(bal.data?.platformAssetBal?.toString())}
+
+          <span className="flex">
+            <span className="hidden md:flex" >{" : "}</span>
+            {bal.data?.platformAssetBal.toFixed(0)}
+          </span>
         </Button>
 
         {/* <Plus className="btn btn-square btn-primary btn-sm -mr-4 " /> */}
       </Link>
-
-      <Link
-        className=" "
-        href={isFBorGoogle ? "/recharge" : "/"}
+      {
+        isFBorGoogle &&
+        <Link
+          className=" "
+          href={"/recharge"}
         // href="/recharge"
-      >
-        <Button className="">
-          <ShoppingCart />
-        </Button>
-      </Link>
+        >
+          <Button className="">
+            <ShoppingCart />
+          </Button>
+        </Link>
+      }
       <Button
         className=" relative "
         onClick={async () => {
@@ -92,6 +100,7 @@ export function SiteAssetBalance() {
         )}
         <Bell />
       </Button>
+      <MusicControls />
     </div>
   );
 }

@@ -1,3 +1,5 @@
+import "mapbox-gl/dist/mapbox-gl.css";
+
 import Head from "next/head";
 import Main from "~/components/wallete/main";
 import { env } from "~/env";

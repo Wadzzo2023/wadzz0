@@ -1,24 +1,29 @@
 import { api } from "~/utils/api";
 import { MusicItem } from ".";
-import { SongItemType } from "./music_item";
+
+import { usePlayer } from "~/components/context/PlayerContext";
+import { SongItemType } from "~/lib/state/play/use-modal-store";
 
 type TrackSectionProp = {
-  header: string;
   songs: SongItemType[];
   playable?: boolean;
 };
 
 export default function RightTrackSection({
-  header,
+
   playable,
   songs,
 }: TrackSectionProp) {
+  // const { setPlaylist } = usePlayer()
+
   if (songs)
+    // setPlaylist(songs)
     return (
       <div>
-        <h3 className="py-2 text-2xl font-bold">{header}</h3>
-        {songs.map((song) => (
-          <MusicItem key={song.id} item={song} playable={playable} />
+        {songs.map((song, index) => (
+          <MusicItem key={song.id} item={song} playable={playable} index={index + 1}
+            className="h-12 w-12"
+          />
         ))}
 
         <div className="flex flex-col gap-2"></div>

@@ -19,22 +19,21 @@ import { clientSelect } from "~/lib/stellar/fan/utils";
 import { api } from "~/utils/api";
 import { CREATOR_TERM } from "~/utils/term";
 
+import { Coins, DollarSign, Loader } from "lucide-react";
+import { Label } from "~/components/shadcn/ui/label";
+import { RadioGroup, RadioGroupItem } from "~/components/shadcn/ui/radio-group";
+
 import { Button } from "~/components/shadcn/ui/button";
 import {
   Dialog,
-  DialogClose,
   DialogContent,
   DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "~/components/shadcn/ui/dialog";
-import {
-  PLATFORM_ASSET,
-  PLATFORM_FEE,
-  TrxBaseFee,
-  TrxBaseFeeInPlatformAsset,
-} from "~/lib/stellar/constant";
+import { PLATFORM_ASSET } from "~/lib/stellar/constant";
+import { PaymentMethod, PaymentMethodEnum } from "~/components/BuyItem";
 
 export default function CreatorProfile() {
   const { data: session } = useSession();
@@ -115,7 +114,7 @@ function ConditionallyRenderMenuPage({ creator }: { creator: Creator }) {
 export function ValidCreateCreator({ message }: { message?: string }) {
   const { platformAssetBalance } = useUserStellarAcc();
   const requiredToken = api.fan.trx.getRequiredPlatformAsset.useQuery({
-    xlm: 5,
+    xlm: 1,
   });
 
   if (requiredToken.isLoading) return <Loading />;
@@ -147,9 +146,17 @@ export function ValidCreateCreator({ message }: { message?: string }) {
 function CreateCreator({ requiredToken }: { requiredToken: number }) {
   const [isOpen, setIsOpen] = useState(false);
   const { needSign } = useNeedSign();
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>(
+    PaymentMethodEnum.enum.asset,
+  );
 
   const session = useSession();
-  const makeCreatorMutation = api.fan.creator.makeMeCreator.useMutation();
+  const makeCreatorMutation = api.fan.creator.makeMeCreator.useMutation({
+    onSuccess: () => {
+      toast.success("You are now a creator");
+      setIsOpen(false);
+    },
+  });
   const [signLoading, setSingLoading] = useState(false);
 
   const xdr = api.fan.trx.createStorageAccount.useMutation({
@@ -167,7 +174,6 @@ function CreateCreator({ requiredToken }: { requiredToken: number }) {
       })
         .then((isSucces) => {
           if (isSucces) {
-            toast.success("You are now a creator");
             makeCreatorMutation.mutate(storage);
           } else {
             toast.error("Failed to create account");
@@ -175,57 +181,128 @@ function CreateCreator({ requiredToken }: { requiredToken: number }) {
         })
         .catch((e) => console.log(e))
         .finally(() => {
+          setIsOpen(false);
           toast.dismiss(toastId);
           setSingLoading(false);
-          setIsOpen(false);
         });
     },
   });
 
+  const handleConfirm = () => {
+    xdr.mutate({
+      signWith: needSign(),
+      native: paymentMethod === PaymentMethodEnum.enum.xlm,
+    });
+  };
+
+  const XLM_EQUIVALENT = 3;
+
   const loading = xdr.isLoading || makeCreatorMutation.isLoading || signLoading;
 
   return (
-    <div className="flex h-full flex-col items-center justify-center gap-2 ">
-      <p className="text-2xl font-bold">You are not a {CREATOR_TERM}</p>
-      <p className="alert alert-info max-w-xl text-center">
-        Your account will be charged {requiredToken} {PLATFORM_ASSET.code} to be
-        a brand.
-      </p>
+    <div className="flex h-screen flex-col items-center justify-center gap-4 bg-gray-100 p-4">
+      <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-lg">
+        <h2 className="mb-4 text-center text-2xl font-bold">
+          You are not a {CREATOR_TERM}
+        </h2>
+        <p className="mb-6 text-center text-gray-600">
+          Your account will be charged {requiredToken} {PLATFORM_ASSET.code} or
+          equivalent XLM to be a {CREATOR_TERM.toLowerCase()}.
+        </p>
 
-      <Dialog open={isOpen} onOpenChange={setIsOpen}>
-        <DialogTrigger asChild>
-          <button className="btn btn-primary">Join as a brand</button>
-        </DialogTrigger>
-        <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle>Confirmation </DialogTitle>
-          </DialogHeader>
-          <div>
-            Your account will be charged {requiredToken}{" "}
-            <span className="text-red-600">{PLATFORM_ASSET.code}</span> to be a
-            brand.
-          </div>
-          <DialogFooter className=" w-full">
-            <div className="flex w-full gap-4  ">
-              <DialogClose className="w-full">
-                <Button variant="outline" className="w-full">
-                  Cancel
-                </Button>
-              </DialogClose>
+        <Dialog open={isOpen} onOpenChange={setIsOpen}>
+          <DialogTrigger asChild>
+            <Button className="w-full">
+              {loading && <Loader className="animate mr-2 animate-spin" />}
+              Join as a {CREATOR_TERM.toLowerCase()}
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+              <DialogTitle className="mb-4 text-center text-2xl font-bold">
+                Choose Payment Method
+              </DialogTitle>
+            </DialogHeader>
+            <div className="py-4">
+              <RadioGroup
+                value={paymentMethod}
+                onValueChange={(e) => setPaymentMethod(e as PaymentMethod)}
+                className="space-y-4"
+              >
+                <div className="flex items-center space-x-2 rounded-lg border border-gray-200 p-4 transition-colors hover:bg-gray-50">
+                  <RadioGroupItem
+                    value={PaymentMethodEnum.enum.asset}
+                    id={PaymentMethodEnum.enum.asset}
+                    className="border-primary"
+                  />
+                  <Label
+                    htmlFor={PLATFORM_ASSET.code}
+                    className="flex flex-1 cursor-pointer items-center"
+                  >
+                    <Coins className="mr-3 h-6 w-6 text-primary" />
+                    <div className="flex-grow">
+                      <div className="font-medium">
+                        Pay with {PLATFORM_ASSET.code.toUpperCase()}
+                      </div>
+                      <div className="text-sm text-gray-500">
+                        Use platform tokens
+                      </div>
+                    </div>
+                    <div className="text-right font-medium">
+                      {requiredToken} {PLATFORM_ASSET.code.toUpperCase()}
+                    </div>
+                  </Label>
+                </div>
+                <div className="flex items-center space-x-2 rounded-lg border border-gray-200 p-4 transition-colors hover:bg-gray-50">
+                  <RadioGroupItem
+                    value={PaymentMethodEnum.enum.xlm}
+                    id={PaymentMethodEnum.enum.xlm}
+                    className="border-primary"
+                  />
+                  <Label
+                    htmlFor={PaymentMethodEnum.enum.xlm}
+                    className="flex flex-1 cursor-pointer items-center"
+                  >
+                    <DollarSign className="mr-3 h-6 w-6 text-primary" />
+                    <div className="flex-grow">
+                      <div className="font-medium">Pay with XLM</div>
+                      <div className="text-sm text-gray-500">
+                        Use Stellar Lumens
+                      </div>
+                    </div>
+                    <div className="text-right font-medium">
+                      {XLM_EQUIVALENT} XLM
+                    </div>
+                  </Label>
+                </div>
+              </RadioGroup>
+            </div>
+            <div className="mt-4 text-center text-sm text-gray-500">
+              Your account will be charged{" "}
+              {paymentMethod == PaymentMethodEnum.enum.asset
+                ? `${requiredToken} ${PLATFORM_ASSET.code}`
+                : `${XLM_EQUIVALENT} XLM`}{" "}
+              to be a {CREATOR_TERM.toLowerCase()}.
+            </div>
+            <DialogFooter className="mt-6">
               <Button
-                variant="destructive"
-                type="submit"
-                onClick={() => xdr.mutate(needSign())}
+                variant="outline"
+                onClick={() => setIsOpen(false)}
+                className="mb-2 w-full"
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={handleConfirm}
                 disabled={loading}
                 className="w-full"
               >
-                {loading && <span className="loading loading-spinner" />}
-                Confirm
+                {loading ? "Processing..." : "Confirm Payment"}
               </Button>
-            </div>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </div>
     </div>
   );
 }

@@ -26,8 +26,8 @@
     /* Path Aliases */
     "baseUrl": ".",
     "paths": {
-      "~/*": ["./src/*"],
-    },
+      "~/*": ["./src/*"]
+    }
   },
   "include": [
     ".eslintrc.cjs",
@@ -38,7 +38,7 @@
     "**/*.js",
     ".next/types/**/*.ts",
     "test/**/*.ts|js",
-    "trigger.config.ts",
-  ],
-  "exclude": ["node_modules"],
+    "trigger.config.ts"
+, "src/pages/chat.jsx"  ],
+  "exclude": ["node_modules"]
 }

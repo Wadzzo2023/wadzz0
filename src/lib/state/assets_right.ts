@@ -1,7 +1,6 @@
 import { create } from "zustand";
-import { AssetType } from "~/components/marketplace/market_right";
+import { AssetRightType } from "./play/use-modal-store";
 
-type AssetRightType = AssetType & { copies: number };
 
 interface AssetRightState {
   open: boolean;

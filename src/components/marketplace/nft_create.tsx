@@ -7,30 +7,51 @@ import Image from "next/image";
 import { clientsign } from "package/connect_wallet";
 import { WalletType } from "package/connect_wallet/src/lib/enums";
 import { ChangeEvent, useRef, useState } from "react";
-import { SubmitHandler, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { z } from "zod";
 import {
   Dialog,
-  DialogClose,
   DialogContent,
-  DialogFooter,
   DialogHeader,
-  DialogTitle,
   DialogTrigger,
 } from "~/components/shadcn/ui/dialog";
 import useNeedSign from "~/lib/hook";
 import { useUserStellarAcc } from "~/lib/state/wallete/stellar-balances";
-import { PLATFORM_ASSET, PLATFORM_FEE } from "~/lib/stellar/constant";
+import { PLATFORM_ASSET, PLATFORM_FEE, TrxBaseFeeInPlatformAsset } from "~/lib/stellar/constant";
 import { AccountSchema, clientSelect } from "~/lib/stellar/fan/utils";
 import { api } from "~/utils/api";
+import { BADWORDS } from "~/utils/banned-word";
 import { UploadButton } from "~/utils/uploadthing";
+import {
+  PaymentChoose,
+  usePaymentMethodStore,
+} from "../payment/payment-options";
+import * as React from "react";
+
+import { Button } from "../shadcn/ui/button";
 import Alert from "../ui/alert";
 import Loading from "../wallete/loading";
-import { Button } from "../shadcn/ui/button";
-import { BADWORDS } from "~/utils/banned-word";
-import Link from "next/link";
 import RechargeLink from "./recharge/link";
+
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "~/components/shadcn/ui/select";
+
+import { Eye, EyeOff } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "~/components/ui/tooltip";
+import { ipfsHashToUrl } from "~/utils/ipfs";
 
 export const ExtraSongInfo = z.object({
   artist: z.string(),
@@ -82,7 +103,7 @@ export const NftFormSchema = z.object({
 
 export default function NftCreate({ admin: isAdmin }: { admin?: true }) {
   const requiredToken = api.fan.trx.getRequiredPlatformAsset.useQuery({
-    xlm: 2.5,
+    xlm: 2,
   });
 
   if (requiredToken.isLoading) return <Loading />;
@@ -97,6 +118,7 @@ export default function NftCreate({ admin: isAdmin }: { admin?: true }) {
     );
   }
 }
+
 
 function NftCreateForm({
   admin: isAdmin,
@@ -133,6 +155,10 @@ function NftCreateForm({
   const walletType = isAdmin ? WalletType.isAdmin : connectedWalletType;
   const [uploadProgress, setUploadProgress] = useState<number>(0);
 
+  const totalFeees = Number(TrxBaseFeeInPlatformAsset) + Number(PLATFORM_FEE);
+  const { paymentMethod, setIsOpen: setPaymentModalOpen } =
+    usePaymentMethodStore();
+
   const {
     register,
     handleSubmit,
@@ -163,9 +189,14 @@ function NftCreateForm({
         position: "top-center",
         duration: 4000,
       });
+      setParentIsOpen(false);
+      setPaymentModalOpen(false);
       setIsOpen(false);
       setMediaUploadSuccess(false);
+      setMediaUrl(undefined);
+      setCover(undefined);
       reset();
+
     },
   });
 
@@ -189,9 +220,7 @@ function NftCreateForm({
               setValue("isAdmin", isAdmin);
               setValue("tier", tier);
               const data = getValues();
-              // res && addMutation.mutate(data);
-
-              addAsset.mutate(data);
+              addAsset.mutate({ ...data });
             } else {
               toast.error("Transaction Failed");
             }
@@ -200,7 +229,7 @@ function NftCreateForm({
           .finally(() => setSubmitLoading(false)),
         {
           loading: "Signing Transaction",
-          success: "Signed Transaction Successfully",
+          success: "",
           error: "Signing Transaction Failed",
         },
       );
@@ -216,6 +245,7 @@ function NftCreateForm({
         limit: getValues("limit"),
         signWith: needSign(isAdmin),
         ipfsHash: ipfs,
+        native: paymentMethod === "xlm",
       });
   };
 
@@ -227,6 +257,8 @@ function NftCreateForm({
         return "musicUploader";
       case MediaType.VIDEO:
         return "videoUploader";
+      case MediaType.THREE_D:
+        return "modelUploader";
       default:
         return "imageUploader";
     }
@@ -248,7 +280,7 @@ function NftCreateForm({
         body: formData,
       });
       const ipfsHash = await res.text();
-      const thumbnail = "https://ipfs.io/ipfs/" + ipfsHash;
+      const thumbnail = ipfsHashToUrl(ipfsHash);
       setCover(thumbnail);
       setValue("coverImgUrl", thumbnail);
       setCid(ipfsHash);
@@ -281,428 +313,301 @@ function NftCreateForm({
   };
 
   function onChangeHandler(event: ChangeEvent<HTMLSelectElement>): void {
-    // toast.success(`${event.currentTarget.value}`);
+    toast.success(`${event.currentTarget.value}`);
     setTier(event.currentTarget.value);
   }
 
-  function TiersOptions() {
-    if (tiers.isLoading) return <div className="skeleton h-10 w-20"></div>;
-    if (tiers.data) {
-      return (
-        <select className="select select-bordered" onChange={onChangeHandler}>
-          <option disabled>Choose Tier</option>
-          <option value="public">Public</option>
-          {tiers.data.map((model) => (
-            <option
-              key={model.id}
-              value={model.id}
-            >{`${model.name} - ${model.price}`}</option>
-          ))}
-        </select>
-      );
-    }
-  }
-  // console.log("CoverURL", getValues("tier"));
-  const handleLoL = () => {
-    toast.success("NFT Created", {
-      position: "top-center",
-      duration: 4000,
-    });
-  };
-
   const loading = xdrMutation.isLoading || addAsset.isLoading || submitLoading;
   return (
-    <>
-      <Dialog open={parentIsOpen} onOpenChange={setParentIsOpen}>
-        <DialogTrigger asChild>
-          <Button variant="destructive">
-            <PlusIcon size={16} /> Item
-          </Button>
-        </DialogTrigger>
-        <DialogContent
-          onInteractOutside={(e) => {
-            e.preventDefault();
-          }}
-          className=" h-[80%] overflow-auto p-3"
-        >
-          <DialogHeader className="text-lg font-bold">Add Asset</DialogHeader>
-          {/* <button onClick={handleLoL}> LOL</button> */}
-          <form onSubmit={handleSubmit(onSubmit)}>
-            <div className="flex flex-col gap-4 ">
-              <div className="rounded-lg bg-base-200  p-2">
-                <div className="flex justify-between">
-                  <div className="">
-                    <ul className="menu menu-vertical rounded-box bg-base-300 lg:menu-horizontal">
-                      {Object.values(MediaType).map((media, i) => (
-                        <li key={i}>
-                          <p
-                            className={media == mediaType ? "active" : ""}
-                            onClick={() => handleMediaChange(media)}
-                          >
-                            {media}
-                          </p>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-
-                  {isAdmin ? <> </> : <TiersOptions />}
-                </div>
-
-                <div className="rounded-md bg-base-200 p-2">
-                  <label className="label font-bold">Media Info </label>
-                  <div className="w-full max-w-xs">
-                    <label className="label">
-                      Name <span className="text-red-600">*</span>
-                    </label>
-                    <input
-                      minLength={2}
-                      required
-                      {...register("name")}
-                      className="input input-sm input-bordered  w-full"
-                      placeholder="Enter NFT Name"
-                    />
-                    {errors.name && (
-                      <label className="label">
-                        <span className="label-text-alt text-warning">
-                          {errors.name.message}
-                        </span>
-                      </label>
-                    )}
-                  </div>
-
-                  <div className="w-full max-w-xs">
-                    <label className="label">Description</label>
-                    <input
-                      {...register("description")}
-                      className="input input-sm input-bordered  w-full"
-                      placeholder="Write a short Description"
-                    />
-                    {errors.description && (
-                      <div className="label">
-                        <span className="label-text-alt">
-                          {errors.description.message}
-                        </span>
-                      </div>
-                    )}
-                  </div>
-
-                  <label className="label text-center font-bold">
-                    Upload Files
-                  </label>
-                  <div className="form-control w-full max-w-xs py-2">
-                    <label className="label">
-                      <span className="label-text">
-                        Choose a thumbnail Max 1MB (this will be used as NFT
-                        Image) <span className="text-red-600">*</span>
-                      </span>
-                    </label>
-
-                    <div className="my-2">
-                      <input
-                        type="file"
-                        id="file"
-                        accept=".jpg, .png , .jpeg "
-                        ref={inputFile}
-                        onChange={handleChange}
-                        className=""
-                      />{" "}
-                      {errors.coverImgUrl && (
-                        <div className="label">
-                          <span className="label-text-alt">
-                            {errors.coverImgUrl.message}
-                          </span>
-                        </div>
-                      )}
-                      {uploading && (
-                        <progress className="progress w-56"></progress>
-                      )}
-                      {coverUrl && (
-                        <>
-                          <Image
-                            className="p-2"
-                            width={100}
-                            height={100}
-                            alt="preview image"
-                            src={coverUrl}
-                          />
-                        </>
-                      )}
-                    </div>
-
-                    <div className="form-control w-full max-w-xs">
-                      <div className="label-text flex items-center justify-between py-2">
-                        <span>
-                          Choose your media{" "}
-                          <span className="text-red-600">*</span>
-                        </span>
-                        {mediaUpload && <p>{uploadProgress}%</p>}
-                      </div>
-
-                      <UploadButton
-                        endpoint={getEndpoint(mediaType)}
-                        onUploadBegin={() => {
-                          setMediaUpload(true);
-                        }}
-                        disabled={mediaUpload}
-                        onUploadProgress={(progress) => {
-                          setUploadProgress(progress);
-                        }}
-                        appearance={{
-                          button:
-                            " w-full text-white bg-gradient-to-r from-cyan-400 via-cyan-500 to-cyan-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-cyan-300 dark:focus:ring-cyan-800 font-medium  text-sm  text-center ",
-                          container:
-                            " w-full flex-row rounded-md border-cyan-300 bg-slate-800",
-                          allowedContent:
-                            "flex h-8 flex-col items-center justify-center px-2 text-white",
-                        }}
-                        content={{
-                          button: mediaUpload
-                            ? `UPLOADING TO ${process.env.NEXT_PUBLIC_SITE}`
-                            : mediaUploadSuccess
-                              ? "FILE UPLOAD SUCCESS"
-                              : "UPLOAD MEDIA",
-                        }}
-                        onClientUploadComplete={(res) => {
-                          // Do something with the response
-                          // alert("Upload Completed");
-                          const data = res[0];
-
-                          if (data?.url) {
-                            setMediaUrl(data.url);
-                            setValue("mediaUrl", data.url);
-                            setMediaUpload(false);
-                            setMediaUploadSuccess(true);
-                          }
-                          // updateProfileMutation.mutate(res);
-                        }}
-                        onUploadError={(error: Error) => {
-                          // Do something with the error.
-                          alert(`ERROR! ${error.message}`);
-                        }}
-                      />
-
-                      <div className="flex items-center justify-center py-2">
-                        <PlayableMedia
-                          mediaType={mediaType}
-                          mediaUrl={mediaUrl}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <>
-                  <div className="rounded-md bg-base-200 p-2">
-                    <label className="label  font-bold">NFT Info</label>
-
-                    <>
-                      <div className="w-full max-w-xs ">
-                        <label className="label">
-                          <span className="label-text">
-                            Asset Name<span className="text-red-600">*</span>
-                          </span>
-                          <span className="label-text-alt">
-                            You can&apos;t change it later
-                          </span>
-                        </label>
-                        <input
-                          {...register("code")}
-                          className={clsx(
-                            "input input-sm input-bordered  w-full",
-                            errors.code && "input-warning",
-                          )}
-                          placeholder="Enter Asset Name"
-                        />
-                        {errors.code && (
-                          <label className="label">
-                            <span className="label-text-alt text-warning">
-                              {errors.code.message}
-                            </span>
-                          </label>
+    <Dialog open={parentIsOpen} onOpenChange={setParentIsOpen}>
+      <DialogTrigger asChild>
+        <Button variant="destructive">
+          <PlusIcon size={16} /> Item
+        </Button>
+      </DialogTrigger>
+      <DialogContent
+        onInteractOutside={(e) => {
+          e.preventDefault();
+        }}
+        className="max-h-[90vh] min-h-[90vh] w-[90vw] max-w-xl overflow-auto p-3 sm:h-auto sm:w-full"
+      >
+        <DialogHeader className="text-lg font-bold">Add Store Item</DialogHeader>
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          <div className="rounded-lg bg-base-200 p-2">
+            <div className="flex flex-col gap-2 sm:flex-row sm:justify-between">
+              <div className="w-full sm:w-auto">
+                <ul className="menu menu-horizontal rounded-box bg-base-300 p-1 flex-wrap justify-center">
+                  {Object.values(MediaType).map((media, i) => (
+                    <li key={i} className="mr-1 mb-1">
+                      <button
+                        type="button"
+                        className={clsx(
+                          "px-2 py-1 text-sm",
+                          media == mediaType ? "bg-primary text-primary-foreground" : ""
                         )}
-                      </div>
-                      <div className=" w-full max-w-xs ">
-                        <label className="label">
-                          <span className="label-text">
-                            Limit<span className="text-red-600">*</span>
-                          </span>
-                          <span className="label-text-alt">
-                            Default limit would be 1
-                          </span>
-                        </label>
-                        <input
-                          // disabled={trxdata?.successful ? true : false}
-                          type="number"
-                          {...register("limit", { valueAsNumber: true })}
-                          className="input input-sm input-bordered  w-full"
-                          placeholder="Enter limit of the new Asset"
-                        />
-                        {errors.limit && (
-                          <div className="label">
-                            <span className="label-text-alt text-warning">
-                              {errors.limit.message}
-                            </span>
-                          </div>
-                        )}
-                      </div>
-                      <div className=" w-full max-w-xs ">
-                        <label className="label">
-                          <span className="label-text">
-                            Price in $USD<span className="text-red-600">*</span>
-                          </span>
-                        </label>
-                        <input
-                          // disabled={trxdata?.successful ? true : false}
-                          type="number"
-                          {...register("priceUSD", { valueAsNumber: true })}
-                          className="input input-sm input-bordered  w-full"
-                          placeholder="Enter Price in USD"
-                        />
-                        {errors.priceUSD && (
-                          <div className="label">
-                            <span className="label-text-alt text-warning">
-                              {errors.priceUSD.message}
-                            </span>
-                          </div>
-                        )}
-                      </div>
-                      <div className=" w-full max-w-xs ">
-                        <label className="label">
-                          <span className="label-text">
-                            Price in {PLATFORM_ASSET.code}
-                            <span className="text-red-600">*</span>
-                          </span>
-                        </label>
-                        <input
-                          // disabled={trxdata?.successful ? true : false}
-                          type="number"
-                          {...register("price", { valueAsNumber: true })}
-                          className="input input-sm input-bordered  w-full"
-                          placeholder={`Enter Price in ${PLATFORM_ASSET.code}`}
-                        />
-                        {errors.price && (
-                          <div className="label">
-                            <span className="label-text-alt text-warning">
-                              {errors.price.message}
-                            </span>
-                          </div>
-                        )}
-                      </div>
-                    </>
-                    {/* {!tier ||
-                      (tier != "public" && (
-                        <>
-                          <div className="w-full max-w-xs">
-                            <label className="label">
-                              <span className="label-text">Price</span>
-                              <span className="label-text-alt">
-                                Default price is 2 {PLATFORM_ASSET.code}
-                              </span>
-                            </label>
-                            <input
-                              step="0.1"
-                              type="number"
-                              {...register("price", { valueAsNumber: true })}
-                              className="input input-sm input-bordered  w-full"
-                              placeholder="Price"
-                            />
-                            {errors.price && (
-                              <div className="label">
-                                <span className="label-text-alt">
-                                  {errors.price.message}
-                                </span>
-                              </div>
-                            )}
-                          </div>
-                          <div className="w-full max-w-xs">
-                            <label className="label">
-                              <span className="label-text">Price in USD</span>
-                           
-                            </label>
-                            <input
-                              step="0.1"
-                              type="number"
-                              {...register("priceUSD", { valueAsNumber: true })}
-                              className="input input-sm input-bordered  w-full"
-                              placeholder="Price"
-                            />
-                            {errors.priceUSD && (
-                              <div className="label">
-                                <span className="label-text-alt">
-                                  {errors.priceUSD.message}
-                                </span>
-                              </div>
-                            )}
-                          </div>
-                        </>
-                      ))} */}
-                  </div>
-                </>
-              </div>
-              <div>
-                <Alert
-                  type={
-                    requiredTokenAmount > platformAssetBalance
-                      ? "warning"
-                      : "normal"
-                  }
-                  content={`You need minimum ${requiredTokenAmount} ${PLATFORM_ASSET.code}`}
-                />
-                {requiredTokenAmount > platformAssetBalance && <RechargeLink />}
-              </div>
-
-              <Dialog open={isOpen} onOpenChange={setIsOpen}>
-                <DialogTrigger asChild>
-                  <button
-                    className="btn btn-primary"
-                    disabled={
-                      loading ||
-                      requiredTokenAmount > platformAssetBalance ||
-                      !isValid
-                    }
-                  >
-                    {loading && (
-                      <span className="loading loading-spinner"></span>
-                    )}
-                    Create Asset
-                  </button>
-                </DialogTrigger>
-                <DialogContent className="sm:max-w-[425px]">
-                  <DialogHeader>
-                    <DialogTitle>Confirmation </DialogTitle>
-                  </DialogHeader>
-                  <div>
-                    Your account will be charged {requiredTokenAmount}{" "}
-                    <span className="text-red-600">{PLATFORM_ASSET.code}</span>{" "}
-                    to create this NFT
-                  </div>
-                  <DialogFooter className=" w-full">
-                    <div className="flex w-full gap-4  ">
-                      <DialogClose className="w-full">
-                        <Button variant="outline" className="w-full">
-                          Cancel
-                        </Button>
-                      </DialogClose>
-                      <Button
-                        variant="destructive"
-                        onClick={() => onSubmit()}
-                        disabled={loading}
-                        className="w-full"
+                        onClick={() => handleMediaChange(media)}
                       >
-                        {loading && (
-                          <span className="loading loading-spinner" />
-                        )}
-                        Confirm
-                      </Button>
-                    </div>
-                  </DialogFooter>
-                </DialogContent>
-              </Dialog>
+                        {media === MediaType.THREE_D ? "3D" : media}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              {!isAdmin && tiers.data && (
+                <TiersOptions
+                  handleTierChange={(value: string) => {
+                    setTier(value);
+                  }}
+                  tiers={tiers.data}
+                />
+              )}
             </div>
-          </form>
-        </DialogContent>
-      </Dialog>
+
+            <div className="mt-4 space-y-4">
+              <div>
+                <label className="label font-bold">Media Info</label>
+                <input
+                  minLength={2}
+                  required
+                  {...register("name")}
+                  className="input input-sm input-bordered w-full"
+                  placeholder="Enter NFT Name"
+                />
+                {errors.name && (
+                  <p className="text-warning text-sm mt-1">{errors.name.message}</p>
+                )}
+              </div>
+
+              <div>
+                <input
+                  {...register("description")}
+                  className="input input-sm input-bordered w-full"
+                  placeholder="Write a short Description"
+                />
+                {errors.description && (
+                  <p className="text-warning text-sm mt-1">{errors.description.message}</p>
+                )}
+              </div>
+
+              <div>
+                <label className="label">
+                  Choose a thumbnail Max 1MB (this will be used as NFT Image)
+                </label>
+                <input
+                  type="file"
+                  accept=".jpg, .png, .jpeg"
+                  onChange={handleChange}
+                  className="file-input file-input-bordered file-input-sm w-full"
+                />
+                {coverUrl && (
+                  <Image
+                    className="mt-2"
+                    width={100}
+                    height={100}
+                    alt="preview image"
+                    src={coverUrl}
+                  />
+                )}
+              </div>
+
+              <div>
+                <label className="label">Choose your media</label>
+                <UploadButton
+                  endpoint={getEndpoint(mediaType)}
+                  onBeforeUploadBegin={(files) => {
+                    const validFiles = files.filter((file) => {
+                      const fileExtension = file.name.split('.').pop()?.toLowerCase();
+                      if (mediaType === "THREE_D" && fileExtension !== 'obj') {
+                        return false; // Filter out invalid files
+                      }
+                      return true;
+                    });
+
+                    if (validFiles.length !== files.length) {
+                      toast.error(` ${mediaType === 'THREE_D' ? 'Only .obj files are accepted' : 'Some files were not uploaded due to invalid file types.'}`);
+                    }
+
+                    return validFiles;
+                  }}
+                  onUploadBegin={() => {
+                    setMediaUpload(true);
+                  }}
+                  onUploadProgress={(progress) => setUploadProgress(progress)}
+                  onClientUploadComplete={(res) => {
+                    const data = res[0];
+                    if (data?.url) {
+                      setMediaUrl(data.url);
+                      setValue("mediaUrl", data.url);
+                      setMediaUpload(false);
+                      setMediaUploadSuccess(true);
+                    }
+                  }}
+                  onUploadError={(error: Error) => {
+                    alert(`ERROR! ${error.message}`);
+                  }}
+                />
+
+                {mediaType === 'THREE_D' && <p className="text-sm mt-1 text-red-400">[only .obj accepted]</p>}
+                {mediaUrl && (
+                  <PlayableMedia mediaType={mediaType} mediaUrl={mediaUrl} />
+                )}
+              </div>
+            </div>
+          </div>
+
+          <div className="rounded-lg bg-base-200 p-2 space-y-4">
+            <label className="label font-bold">NFT Info</label>
+            <input
+              {...register("code")}
+              className={clsx(
+                "input input-sm input-bordered w-full",
+                errors.code && "input-warning"
+              )}
+              placeholder="Enter Asset Name"
+            />
+            {errors.code && (
+              <p className="text-warning text-sm">{errors.code.message}</p>
+            )}
+
+            <div className=" w-full ">
+              <label className="label">
+                <span className="label-text">
+                  Limit<span className="text-red-600">*</span>
+                </span>
+                <span className="label-text-alt">
+                  Default limit would be 1
+                </span>
+              </label>
+              <input
+                // disabled={trxdata?.successful ? true : false}
+                type="number"
+                {...register("limit", { valueAsNumber: true })}
+                className="input input-sm input-bordered  w-full"
+                placeholder="Enter limit of the new Asset"
+              />
+              {errors.limit && (
+                <div className="label">
+                  <span className="label-text-alt text-warning">
+                    {errors.limit.message}
+                  </span>
+                </div>
+              )}
+            </div>
+            <div className=" w-full  ">
+              <span className="label-text">
+                Price in $USD<span className="text-red-600">*</span>
+              </span>
+              <input
+                // disabled={trxdata?.successful ? true : false}
+                type="number"
+                {...register("priceUSD", { valueAsNumber: true })}
+                className="input input-sm input-bordered  w-full"
+                placeholder="Enter Price in USD"
+              />
+              {errors.priceUSD && (
+                <div className="label">
+                  <span className="label-text-alt text-warning">
+                    {errors.priceUSD.message}
+                  </span>
+                </div>
+              )}
+            </div>
+            <div className=" w-full ">
+              <span className="label-text">
+                Price in {PLATFORM_ASSET.code}
+                <span className="text-red-600">*</span>
+              </span>
+              <input
+                // disabled={trxdata?.successful ? true : false}
+                type="number"
+                {...register("price", { valueAsNumber: true })}
+                className="input input-sm input-bordered  w-full"
+                placeholder={`Price in ${PLATFORM_ASSET.code}`}
+              />
+              {errors.price && (
+                <div className="label">
+                  <span className="label-text-alt text-warning">
+                    {errors.price.message}
+                  </span>
+                </div>
+              )}
+            </div>
+          </div>
+
+          <Alert
+            type={requiredTokenAmount > platformAssetBalance ? "warning" : "normal"}
+            content={`You need minimum ${requiredTokenAmount} ${PLATFORM_ASSET.code}`}
+          />
+          {requiredTokenAmount > platformAssetBalance && <RechargeLink />}
+
+          <PaymentChoose
+            costBreakdown={[
+              {
+                label: "Cost",
+                amount: paymentMethod === "asset" ? requiredTokenAmount - totalFeees : 2,
+                type: "cost",
+                highlighted: true,
+              },
+              {
+                label: "Platform Fee",
+                amount: paymentMethod === "asset" ? totalFeees : 2,
+                highlighted: false,
+                type: "fee",
+              },
+              {
+                label: "Total Cost",
+                amount: paymentMethod === "asset" ? requiredTokenAmount : 4,
+                highlighted: false,
+                type: "total",
+              },
+            ]}
+            XLM_EQUIVALENT={4}
+            handleConfirm={() => onSubmit()}
+            loading={loading}
+            requiredToken={requiredTokenAmount}
+            trigger={
+              <Button
+                disabled={loading || requiredTokenAmount > platformAssetBalance || !isValid}
+                className="w-full"
+              >
+                {loading && <span className="loading loading-spinner mr-2"></span>}
+                Create Asset
+              </Button>
+            }
+          />
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function TiersOptions({
+  tiers,
+  handleTierChange,
+}: {
+  tiers: { id: number; name: string; price: number }[];
+  handleTierChange: (value: string) => void;
+}) {
+  return (
+    <>
+      <Select onValueChange={handleTierChange}>
+        <SelectTrigger className="w-[180px]">
+          <SelectValue placeholder="Select a tier" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectGroup>
+            <SelectLabel>Choose Tier</SelectLabel>
+            <SelectItem value="public">Public</SelectItem>
+            <SelectItem value="private">Only Followers</SelectItem>
+            {tiers.map((model) => (
+              <SelectItem
+                key={model.id}
+                value={model.id.toString()}
+              >{`${model.name} - ${model.price}`}</SelectItem>
+            ))}
+          </SelectGroup>
+        </SelectContent>
+      </Select>
     </>
   );
 }
@@ -714,6 +619,7 @@ function PlayableMedia({
   mediaUrl?: string;
   mediaType: MediaType;
 }) {
+
   return (
     mediaUrl && <MediaComponent mediaType={mediaType} mediaUrl={mediaUrl} />
   );
@@ -740,6 +646,47 @@ function PlayableMedia({
             <source src={mediaUrl} type="video/mp4" />
           </video>
         );
+      case MediaType.THREE_D:
+        return (
+          <div className="text-center">
+            <span className="text-center text-green-600">Obj has uploaded!!</span>
+          </div>
+        )
+
     }
   }
+}
+
+interface VisibilityToggleProps {
+  isVisible: boolean;
+  toggleVisibility: () => void;
+}
+
+export function VisibilityToggle({
+  isVisible,
+  toggleVisibility,
+}: VisibilityToggleProps) {
+  return (
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={toggleVisibility}
+            aria-label={isVisible ? "Set to private" : "Set to visible"}
+          >
+            {isVisible ? (
+              <Eye className="h-4 w-4" />
+            ) : (
+              <EyeOff className="h-4 w-4" />
+            )}
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent>
+          <p>{isVisible ? "Visible to all" : "Private"}</p>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+  );
 }

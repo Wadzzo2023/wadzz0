@@ -3,13 +3,11 @@ import { SubmitHandler, useForm } from "react-hook-form";
 import { z } from "zod";
 import { api } from "~/utils/api";
 
-import { DollarSign, RefreshCcw } from "lucide-react";
+import { RefreshCcw } from "lucide-react";
 import { submitSignedXDRToServer } from "package/connect_wallet";
+import { useState } from "react";
 import toast from "react-hot-toast";
-import Avater from "~/components/ui/avater";
-import Loading from "~/components/wallete/loading";
-import { fetchPubkeyfromEmail } from "~/utils/get-pubkey";
-import { PLATFORM_ASSET } from "~/lib/stellar/constant";
+import { Button } from "~/components/shadcn/ui/button";
 import {
   Dialog,
   DialogClose,
@@ -19,12 +17,17 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "~/components/shadcn/ui/dialog";
-import { useState } from "react";
-import { Button } from "~/components/shadcn/ui/button";
+import Avater from "~/components/ui/avater";
+import Loading from "~/components/wallete/loading";
+import { fetchPubkeyfromEmail } from "~/utils/get-pubkey";
 import { addrShort } from "~/utils/utils";
 export const FanGitFormSchema = z.object({
   pubkey: z.string().length(56),
-  amount: z.string(),
+  amount: z.number({
+    required_error: "Amount is required",
+    invalid_type_error: "Amount must be a number",
+    message: "Amount must be a number",
+  }).min(1),
 });
 
 export default function GiftPage() {
@@ -42,23 +45,31 @@ export default function GiftPage() {
     resolver: zodResolver(FanGitFormSchema),
   });
 
+  const bal = api.fan.creator.getCreatorPageAssetBalance.useQuery();
+
   const xdr = api.fan.trx.giftFollowerXDR.useMutation({
     onSuccess: (xdr) => {
       toast.promise(submitSignedXDRToServer(xdr), {
         loading: "Sending gift...",
         success: (d) => {
           if (d.successful) {
+            setIsDialogOpen(false);
             reset();
             return "Gift sent successfully";
           } else return "Sorry, gift failed to send";
         },
         error: (e) => {
+          setIsDialogOpen(false);
           return "Sorry, Some error in Stellar network. Please try again later.";
           console.error(e);
         },
       });
+      setIsDialogOpen(false);
     },
-    onError: (e) => toast.error(e.message),
+    onError: (e) => {
+      setIsDialogOpen(false);
+      toast.error(e.message)
+    },
   });
 
   const onSubmit: SubmitHandler<z.infer<typeof FanGitFormSchema>> = (data) => {
@@ -81,120 +92,133 @@ export default function GiftPage() {
     }
   }
 
-  return (
-    <div className=" flex h-full flex-col items-center ">
-      <div className="card w-full  max-w-xl bg-base-200 p-4">
-        {/* <h2>Fan email / pubkey</h2> */}
-        <h2 className="mb-4 text-2xl font-bold">Gift your fans</h2>
-        <form onSubmit={handleSubmit(onSubmit)} className="">
-          <label className="form-control w-full py-2">
-            <div className="label">
-              <span className="label-text">Pubkey/Email</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <input
-                type="text"
-                // onChange={(e) => setUserKey(e.target.value)}
-                {...register("pubkey")}
-                placeholder="Email/ Pubkey"
-                className="input input-bordered w-full "
-              />
-              {z.string().email().safeParse(pubkey).success && (
-                <div className="tooltip" data-tip="Fetch Pubkey">
-                  <RefreshCcw onClick={fetchPubKey} />
+  const handleFanAvatarClick = (pubkey: string) => {
+    setValue("pubkey", pubkey, { shouldValidate: true });
+  };
+
+  if (bal.isLoading) return <Loading />;
+  if (bal.data) {
+    return (
+      <div className=" flex h-full flex-col items-center mt-8 ">
+        <div className="card w-full  max-w-xl bg-base-200 p-4">
+          {/* <h2>Fan email / pubkey</h2> */}
+          <h2 className="mb-4 text-2xl font-bold">Gift your fans</h2>
+          <form onSubmit={handleSubmit(onSubmit)} className="">
+            <label className="form-control w-full py-2">
+              <div className="label">
+                <span className="label-text">Pubkey/Email</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <input
+                  type="text"
+                  // onChange={(e) => setUserKey(e.target.value)}
+                  {...register("pubkey")}
+                  placeholder="Email/ Pubkey"
+                  className="input input-bordered w-full "
+                />
+                {z.string().email().safeParse(pubkey).success && (
+                  <div className="tooltip" data-tip="Fetch Pubkey">
+                    <RefreshCcw onClick={fetchPubKey} />
+                  </div>
+                )}
+              </div>
+
+              {pubkey && pubkey.length == 56 && (
+                <div className="label">
+                  <span className="label-text">
+                    <p className="text-sm">pubkey: {pubkey}</p>
+                  </span>
                 </div>
               )}
+            </label>
+            <div className="label">
+              <span className="label-text">
+                Amount of {bal.data.asset} to gift
+              </span>
             </div>
-
-            {pubkey && pubkey.length == 56 && (
-              <div className="label">
-                <span className="label-text">
-                  <p className="text-sm">pubkey: {pubkey}</p>
-                </span>
-              </div>
-            )}
-          </label>
-          <div className="label">
-            <span className="label-text">Price in {PLATFORM_ASSET.code}</span>
-          </div>
-          <label className="input input-bordered flex  items-center gap-2">
-            <input
-              type="number"
-              placeholder={`Price in ${PLATFORM_ASSET.code}`}
-              {...register("amount")}
-              className="grow"
-              // className=" input input-bordered w-full "
-            />
-          </label>
-          <div className="flex flex-col gap-2">
-            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-              <DialogTrigger asChild>
-                <Button
-                  className="mt-2 w-full"
-                  disabled={xdr.isLoading || !isValid}
-                >
-                  Gift
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="sm:max-w-[425px]">
-                <DialogHeader>
-                  <DialogTitle>Confirmation </DialogTitle>
-                </DialogHeader>
-                <div className="mt-6 w-full space-y-6 sm:mt-8 lg:mt-0 lg:max-w-xs xl:max-w-md">
-                  <div className="flex flex-col gap-2">
-                    <p className="font-semibold">
-                      Receiver Pubkey :{" "}
-                      {getValues("pubkey")
-                        ? addrShort(getValues("pubkey"))
-                        : ""}
-                    </p>
-                    <p className="font-semibold">
-                      Amount : {getValues("amount")} {PLATFORM_ASSET.code}
-                    </p>
+            <label className="input input-bordered flex  items-center gap-2">
+              <input
+                type="number"
+                placeholder={`Price in ${bal.data.asset}`}
+                {...register("amount", {
+                  valueAsNumber: true,
+                  min: 1
+                })}
+                className="grow"
+              />
+            </label>
+            <div className="flex flex-col gap-2">
+              <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button
+                    className="mt-2 w-full"
+                    disabled={xdr.isLoading || !isValid}
+                  >
+                    Gift
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-[425px]">
+                  <DialogHeader>
+                    <DialogTitle>Confirmation </DialogTitle>
+                  </DialogHeader>
+                  <div className="mt-6 w-full space-y-6 sm:mt-8 lg:mt-0 lg:max-w-xs xl:max-w-md">
+                    <div className="flex flex-col gap-2">
+                      <p className="font-semibold">
+                        Receiver Pubkey :{" "}
+                        {getValues("pubkey")
+                          ? addrShort(getValues("pubkey"))
+                          : ""}
+                      </p>
+                      <p className="font-semibold">
+                        Amount : {getValues("amount")} {bal.data.asset}
+                      </p>
+                    </div>
                   </div>
-                </div>
-                <DialogFooter className="w-full">
-                  <div className="flex w-full gap-4">
-                    <DialogClose className="w-full">
+                  <DialogFooter className="w-full">
+                    <div className="flex w-full gap-4">
+                      <DialogClose className="w-full">
+                        <Button
+                          disabled={xdr.isLoading}
+                          variant="outline"
+                          onClick={() => setIsDialogOpen(false)}
+                          className="w-full"
+                        >
+                          Cancel
+                        </Button>
+                      </DialogClose>
                       <Button
-                        disabled={xdr.isLoading}
-                        variant="outline"
-                        onClick={() => setIsDialogOpen(false)}
+                        disabled={xdr.isLoading || !isValid}
+                        onClick={handleSubmit(onSubmit)}
+                        variant="destructive"
+                        type="submit"
                         className="w-full"
                       >
-                        Cancel
+                        Confirm
                       </Button>
-                    </DialogClose>
-                    <Button
-                      disabled={xdr.isLoading || !isValid}
-                      onClick={handleSubmit(onSubmit)}
-                      variant="destructive"
-                      type="submit"
-                      className="w-full"
-                    >
-                      Confirm
-                    </Button>
-                  </div>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
-          </div>
-          {/* <button className="btn btn-primary my-2" type="submit">
-            {xdr.isLoading && <span className="loading loading-spinner" />}
-            Gift
-          </button> */}
+                    </div>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+            </div>
 
-          <div className="mt-2">
-            <CreatorPageBal />
-          </div>
-        </form>
+            <div className="mt-2">
+              <CreatorPageBal />
+            </div>
+          </form>
+        </div>
+        <div className="card mt-4  w-full max-w-xl bg-base-200 p-4">
+          <h2 className="my-3 text-xl font-bold">Your Fans</h2>
+          <FansList handleFanAvatarClick={handleFanAvatarClick} />
+        </div>
       </div>
-      <div className="card mt-4  w-full max-w-xl bg-base-200 p-4">
-        <h2 className="my-3 text-xl font-bold">Your Fans</h2>
-        <FansList />
+    );
+  } else if (bal.data === undefined) {
+    return <div className="h-full flex items-center justify-center">
+      <div className="h-full flex items-center justify-center">
+        You don&apos;t have page asset to gift.
       </div>
-    </div>
-  );
+    </div>;
+  }
 }
 
 function CreatorPageBal() {
@@ -215,7 +239,11 @@ function CreatorPageBal() {
   }
 }
 
-function FansList() {
+function FansList({
+  handleFanAvatarClick,
+}: {
+  handleFanAvatarClick: (pubkey: string) => void;
+}) {
   const fans = api.fan.creator.getFansList.useQuery();
 
   if (fans.isLoading) return <Loading />;
@@ -223,7 +251,13 @@ function FansList() {
     return (
       <div>
         {fans.data.map((fan) => (
-          <FanAvater key={fan.id} name={fan.user.name} pubkey={fan.user.id} />
+          <FanAvater
+            handleFanAvatarClick={handleFanAvatarClick}
+            key={fan.id}
+            name={fan.user.name}
+            pubkey={fan.user.id}
+            url={fan.user.image}
+          />
         ))}
       </div>
     );
@@ -232,14 +266,21 @@ function FansList() {
 export function FanAvater({
   name,
   pubkey,
+  handleFanAvatarClick,
+  url,
 }: {
   name: string | null;
   pubkey: string;
+  handleFanAvatarClick: (pubkey: string) => void;
+  url: string | null;
 }) {
   return (
-    <div className="flex items-center gap-2  p-2 px-4 hover:rounded-lg hover:bg-base-100">
+    <div
+      className="flex items-center gap-2  p-2 px-4 hover:rounded-lg hover:bg-base-100"
+      onClick={() => handleFanAvatarClick(pubkey)}
+    >
       <div>
-        <Avater url={undefined} className="w-8" />
+        <Avater url={url ?? undefined} className="w-8" />
       </div>
       <div>
         {name}

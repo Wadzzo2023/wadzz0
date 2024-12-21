@@ -4,11 +4,11 @@ import type { Config } from "tailwindcss";
 const config: Config = {
   darkMode: ["class"],
   content: [
-    './pages/**/*.{ts,tsx}',
-    './components/**/*.{ts,tsx}',
-    './components/**/**/*.{ts,tsx}',
-    './app/**/*.{ts,tsx}',
-    './src/**/*.{ts,tsx}',
+    "./pages/**/*.{ts,tsx}",
+    "./components/**/*.{ts,tsx}",
+    "./components/**/**/*.{ts,tsx}",
+    "./app/**/*.{ts,tsx}",
+    "./src/**/*.{ts,tsx}",
     "./package/**/*.{jsx,tsx}",
     "node_modules/daisyui/dist/**/*.js",
     "node_modules/react-daisyui/dist/**/*.js",
@@ -23,7 +23,6 @@ const config: Config = {
       },
     },
     extend: {
-
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
@@ -77,6 +76,8 @@ const config: Config = {
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+        // 'scrolling-text': 'scrolling-text 20s linear infinite',
+
       },
     },
   },

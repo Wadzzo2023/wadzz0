@@ -12,7 +12,7 @@ import {
 } from "package/connect_wallet/src/lib/stellar/utils";
 import { useCallback, useEffect, useState } from "react";
 import QRCode from "react-qr-code";
-import { useModal } from "~/components/hooks/use-modal-store";
+import { useModal } from "~/lib/state/play/use-modal-store";
 import TransactionHistory from "~/components/wallet-balance/transactionHistory";
 import CopyToClip from "~/components/wallete/copy_to_Clip";
 import Loading from "~/components/wallete/loading";
@@ -176,7 +176,7 @@ const Wallets = () => {
   return (
     <div className=" min-h-screen overflow-hidden p-1">
       <div className="grid gap-6 xl:grid-cols-3">
-        <div className="flex flex-col xl:col-span-2">
+        <div className="flex flex-col md:px-20 xl:col-span-3">
           <div className="space-y-4">
             <Card>
               <CardContent className="m-2 p-2">
@@ -197,7 +197,7 @@ const Wallets = () => {
                     ) : (
                       <>
                         <h1 className="text-xl text-red-500 ">
-                          `You haven{"'"}t trust to {PLATFORM_ASSET.code} yet !`
+                          You haven{"'"}t trust to {PLATFORM_ASSET.code} yet !
                           <br />
                           <button
                             onClick={handleSubmit}
@@ -227,25 +227,26 @@ const Wallets = () => {
                     >
                       <Send size={14} className="mr-1 md:mr-2 " /> SEND ASSETS
                     </Button>
-                    <Button
+                    {/* <Button
                       size="sm"
                       variant="default"
                       className=" "
                       onClick={() => onOpen("add assets")}
                     >
                       <Plus size={14} className="mr-1 md:mr-2 " /> ADD ASSETS
-                    </Button>
+                    </Button> */}
                   </div>
                 </div>
               </CardContent>
             </Card>
-            <WBRightSideBar />
+            <TransactionHistory />
+            {/* <WBRightSideBar /> */}
           </div>
         </div>
 
-        <div className="lg:col-span-1">
+        {/* <div className="lg:col-span-1">
           <TransactionHistory />
-        </div>
+        </div> */}
       </div>
     </div>
   );

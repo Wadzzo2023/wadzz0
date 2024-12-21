@@ -9,7 +9,7 @@ export function getTailwindScreenSize() {
 
   const screenWidth = window.innerWidth;
 
-  const matchingScreens = [];
+  const matchingScreens: string[] = [];
 
   // Determine the current screen size based on the window width
   if (screenWidth >= screenSizes.xl) {
