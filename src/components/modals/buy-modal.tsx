@@ -158,7 +158,7 @@ export default function BuyModal() {
                                                     Media Type:
                                                 </span>
                                                 <Badge variant="destructive" className=" rounded-lg">
-                                                    {data.Asset.asset.mediaType}
+                                                    {data.Asset.asset.mediaType === 'THREE_D' ? "3D Model" : data.Asset.asset.mediaType}
                                                 </Badge>
                                             </div>
                                         </div>

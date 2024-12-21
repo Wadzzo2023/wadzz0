@@ -5,17 +5,28 @@ import { PLATFORM_ASSET } from "~/lib/stellar/constant";
 export default function Logo({ className }: { className?: string }) {
   return (
     <div className="flex w-full items-center justify-center">
-      <Link href="/" className="btn btn-ghost flex items-center gap-2">
-        <div className="relative h-10 w-28 md:h-12 md:w-40">
+      <Link href="/" className="flex items-center gap-2 justify-center ">
+        <div className=" flex items-center gap-2 justify-center ">
           <Image
             alt="Wadzzo logo"
             src="/images/logo.png"
             blurDataURL={"vongCong"}
             placeholder="blur"
-            fill
+            height={1000}
+            width={1000}
+            className="h-10 w-28 md:h-12 md:w-40 "
           />
         </div>
       </Link>
+      <div className="absolute top-[3.6rem] ">
+        <Image
+          src="/snow-pile-2.png"
+          alt="snow-pile"
+          width={100}
+          height={40}
+          className="h-6 w-16"
+        />
+      </div>
     </div>
   );
 }
