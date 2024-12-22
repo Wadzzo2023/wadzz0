@@ -2,6 +2,7 @@ import { z } from "zod";
 import {
   adminProcedure,
   createTRPCRouter,
+  creatorProcedure,
   protectedProcedure,
 } from "~/server/api/trpc";
 
@@ -28,5 +29,14 @@ export const creatorRouter = createTRPCRouter({
     }),
   getSecretMessage: protectedProcedure.query(() => {
     return "you can now see this secret message!";
+  }),
+  creatorIDfromVanityURL: creatorProcedure.input(z.string()).query(async ({ input, ctx }) => {
+    const creator = await ctx.db.creator.findUnique({
+      where: { vanityURL: input },
+      include: {
+        vanitySubscription: true
+      }
+    });
+    return creator;
   }),
 });
