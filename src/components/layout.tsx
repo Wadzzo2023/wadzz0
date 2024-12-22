@@ -151,6 +151,7 @@ export default function Layout({
                 {router.pathname !== "/walletBalance" &&
                   router.pathname !== "/assets" &&
                   router.pathname !== "/" &&
+                  router.pathname !== "/[vanityURL]" &&
                   router.pathname !== "/notification" &&
                   router.pathname !== "/bounty/[id]" &&
                   router.pathname !== "/settings" &&
