@@ -26,7 +26,7 @@ const ClaimPinModal = () => {
   const isModalOpen = isOpen && type === "claim pin";
   const handleClose = () => {
     setXdr(""); // Reset XDR state
-    setpaymetSucess(false); // Reset payment success state
+    setpaymetSucess(false); // Reset Payment Successful state
     xdrMutation.reset(); // Reset XDR mutation
     claimPin.reset(); // Reset claimPin mutation
     onClose();
@@ -58,7 +58,7 @@ const ClaimPinModal = () => {
   return (
     <>
       <Dialog open={isModalOpen} onOpenChange={handleClose}>
-        <DialogContent className="overflow-hidden p-0">
+        <DialogContent className="overflow-hidden p-0 max-w-3xl  [&>button]:text-black [&>button]:border [&>button]:border-black [&>button]:rounded-full [&>button]:bg-white">
           <DialogHeader className="px-6 pt-8">
             <DialogTitle className="text-center text-2xl font-bold">
               CLAIM PIN

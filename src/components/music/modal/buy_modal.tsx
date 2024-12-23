@@ -103,7 +103,7 @@
 //     })
 //       .then((res) => {
 //         if (res) {
-//           toast.success("Payment Success");
+//           toast.success("Payment Successful");
 //           setPaymentSuccess(true);
 //           setIsBuyDialogOpen(false);
 //         }

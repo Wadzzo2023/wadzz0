@@ -90,13 +90,13 @@ export default function CreatorStoreAssetInfoModal() {
         return (
             <>
                 <Dialog open={isModalOpen} onOpenChange={handleClose}>
-                    <DialogContent className="max-w-3xl overflow-hidden p-0 [&>button]:text-white ">
+                    <DialogContent className="max-w-3xl overflow-hidden p-0 [&>button]:text-black [&>button]:border [&>button]:border-black [&>button]:rounded-full [&>button]:bg-white ">
 
                         {
                             step === 1 && (
                                 <div className="grid grid-cols-2 md:grid-cols-7">
                                     {/* Left Column - Product Image */}
-                                    <Card className=" overflow-y-auto   bg-[#1e1f22] md:col-span-3">
+                                    <Card className="  overflow-y-auto  max-h-[800px]   bg-[#1e1f22] md:col-span-3 ">
                                         <CardContent className="p-0">
                                             {/* Image Container */}
                                             <div className="relative aspect-square bg-[#1e1f22]">
@@ -116,7 +116,7 @@ export default function CreatorStoreAssetInfoModal() {
                                                     {data.creatorStoreAsset.asset.name}
                                                 </h2>
 
-                                                <p className="text-sm text-gray-400">
+                                                <p className="text-sm text-gray-400  max-h-[100px] min-h-[100px] overflow-y-auto">
                                                     {data.creatorStoreAsset.asset.description}
                                                 </p>
 
@@ -138,6 +138,14 @@ export default function CreatorStoreAssetInfoModal() {
                                                                 ? `${copy.data} copies`
                                                                 : "..."}
                                                 </p>
+                                                <div className="flex items-center gap-2 text-sm text-gray-400">
+                                                    <span className="h-auto p-0 text-xs text-[#00a8fc]">
+                                                        Media Type:
+                                                    </span>
+                                                    <Badge variant="destructive" className=" rounded-lg">
+                                                        {data.creatorStoreAsset.asset.mediaType === 'THREE_D' ? "3D Model" : data.creatorStoreAsset.asset.mediaType}
+                                                    </Badge>
+                                                </div>
                                             </div>
                                         </CardContent>
                                         <CardFooter className="flex flex-col gap-1 p-2">
@@ -156,7 +164,7 @@ export default function CreatorStoreAssetInfoModal() {
                                                 width={1000}
                                                 height={1000}
                                                 className={clsx(
-                                                    "h-full w-full object-cover "
+                                                    "h-full max-h-[800px] overflow-y-auto w-full object-cover ", data.creatorStoreAsset.asset.tierId ? " blur-md" : ""
                                                 )}
                                             />
                                         ) : data.creatorStoreAsset.asset.mediaType === "VIDEO" ? (
@@ -166,7 +174,7 @@ export default function CreatorStoreAssetInfoModal() {
                                                 width={1000}
                                                 height={1000}
                                                 className={clsx(
-                                                    "h-full w-full object-cover ",
+                                                    "h-full max-h-[800px] overflow-y-auto w-full object-cover ", data.creatorStoreAsset.asset.tierId ? " blur-md" : "",
                                                     data.creatorStoreAsset.asset.tierId ? " blur-md" : "",
                                                 )}
                                             />
@@ -178,7 +186,7 @@ export default function CreatorStoreAssetInfoModal() {
                                                     width={1000}
                                                     height={1000}
                                                     className={clsx(
-                                                        "h-full w-full object-cover ",
+                                                        "h-full max-h-[800px] overflow-y-auto w-full object-cover ",
                                                         data.creatorStoreAsset.asset.tierId ? " blur-md" : "",
                                                     )}
                                                 />

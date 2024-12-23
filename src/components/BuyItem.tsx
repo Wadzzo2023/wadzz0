@@ -109,7 +109,7 @@ export default function BuyItem({
         })
             .then((res) => {
                 if (res) {
-                    toast.success("Payment Success");
+                    toast.success("Payment Successful");
                     setClose();
                     setPaymentSuccess(true);
                     setIsBuyDialogOpen(false);
