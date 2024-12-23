@@ -24,7 +24,7 @@ export default function PaymentCard({ pubkey, offer, xdr }: PaymentCardType) {
         submitSignedXDRToServer4User(xdr)
           .then((data) => {
             if (data) {
-              toast.success("Payment success");
+              toast.success("Payment Successful");
             } else {
               toast.error("Payment failed, Contact to admin");
             }

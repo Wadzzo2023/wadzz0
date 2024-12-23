@@ -8,18 +8,6 @@ import { UploadButton } from "~/utils/uploadthing";
 import { CoverChange } from "./change-cover-button";
 import PadSVG from "./profile/convert-svg";
 
-export default function About({ creator }: { creator: Creator }) {
-  return (
-
-
-    <AboutForm creator={creator} />
-
-
-
-
-  );
-}
-
 export const CreatorAboutShema = z.object({
   description: z
     .string()
@@ -32,7 +20,9 @@ export const CreatorAboutShema = z.object({
   profileUrl: z.string().nullable().optional(),
 });
 
-function AboutForm({ creator }: { creator: Creator }) {
+export default function About({ creator }: { creator: Creator }) {
+
+
   const mutation = api.fan.creator.updateCreatorProfile.useMutation({
     onSuccess: () => {
       toast.success("Information updated successfully");
@@ -61,7 +51,7 @@ function AboutForm({ creator }: { creator: Creator }) {
     mutation.mutate(data);
 
   return (
-    <div className="space-y-6 bg-base-200 p-6 rounded-lg shadow-md">
+    <div className="space-y-6 bg-base-200 p-6 rounded-lg shadow-md w-full">
 
       <form
         onSubmit={handleSubmit(onSubmit)}
@@ -153,4 +143,11 @@ function AboutForm({ creator }: { creator: Creator }) {
       </form>
     </div>
   );
+
+
+
+
+
 }
+
+

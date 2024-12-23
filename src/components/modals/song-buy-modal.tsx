@@ -108,7 +108,7 @@ export default function SongBuyModal() {
         <>
             <Dialog open={isModalOpen} onOpenChange={handleClose}>
 
-                <DialogContent className="max-w-3xl overflow-hidden p-0 [&>button]:text-white">
+                <DialogContent className="max-w-3xl  overflow-y-auto  max-h-[800px]  p-0 [&>button]:text-black [&>button]:border [&>button]:border-black [&>button]:rounded-full [&>button]:bg-white">
 
                     {
                         step === 1 && (

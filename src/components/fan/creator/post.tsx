@@ -134,7 +134,7 @@ export function PostCard({
         <PostContextMenu creatorId={creator.id} postId={post.id} />
       </CardHeader>
 
-      <CardContent className="px-6">
+      <CardContent className="px-6 bg-slate-50 rounded-xl">
         <Link href={postUrl}>
           <h2 className="text-xl font-bold mb-4">{post.heading}</h2>
         </Link>
