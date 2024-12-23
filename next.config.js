@@ -50,6 +50,7 @@ const config = {
       { hostname: "ipfs.io" },
       { hostname: "daisyui.com" },
       { hostname: "picsum.photos" },
+      { hostname: `${process.env.AWS_BUCKET_NAME}.s3.amazonaws.com` },
     ],
   },
 

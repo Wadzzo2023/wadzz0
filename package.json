@@ -17,6 +17,8 @@
   "dependencies": {
     "@albedo-link/intent": "^0.12.0",
     "@albedo-link/signature-verification": "^0.1.2",
+    "@aws-sdk/client-s3": "^3.717.0",
+    "@aws-sdk/s3-request-presigner": "^3.717.0",
     "@creit-tech/xbull-wallet-connect": "github:Creit-Tech/xBull-Wallet-Connect",
     "@headlessui/react": "^1.7.19",
     "@heroicons/react": "^2.1.5",
