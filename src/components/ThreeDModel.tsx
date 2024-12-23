@@ -96,4 +96,3 @@ const ShowModel = ({ url, blur }: { url: string; blur?: boolean }) => {
 };
 
 export default ShowModel;
-

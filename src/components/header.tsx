@@ -37,7 +37,7 @@ function Header(_props: HeaderProps) {
         <Logo />
         <SiteAssetBalance />
 
-        <MusicControls />
+
       </div>
       <div className="absolute top-[4.6rem] left-0 right-0 w-full z-50 flex overflow-hidden">
         {Array.from({ length: 5 }, (_, index) => (

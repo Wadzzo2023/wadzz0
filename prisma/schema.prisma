@@ -182,6 +182,7 @@ model Creator {
 
     backgroundSVG String?
     showSVG       Boolean @default(false)
+    vanityURL     String? @unique(map: "unique_vanityurl")
 
     storagePub    String
     storageSecret String
@@ -193,17 +194,30 @@ model Creator {
 
     customPageAssetCodeIssuer String? // CODE-ISSUER
 
-    user          User              @relation(fields: [id], references: [id], onDelete: Cascade)
-    posts         Post[]
-    subscriptions Subscription[]
-    assets        Asset[]
-    marketAssets  MarketAsset[]
-    pageAsset     CreatorPageAsset?
-    followers     Follow[]
-    LocationGroup LocationGroup[]
-    Bounty        Bounty[]
+    user               User                @relation(fields: [id], references: [id], onDelete: Cascade)
+    posts              Post[]
+    subscriptions      Subscription[]
+    assets             Asset[]
+    marketAssets       MarketAsset[]
+    pageAsset          CreatorPageAsset?
+    followers          Follow[]
+    LocationGroup      LocationGroup[]
+    Bounty             Bounty[]
+    vanitySubscription VanitySubscription?
 
     @@index([bio, name])
+}
+
+model VanitySubscription {
+    id        String   @id @default(cuid())
+    creatorId String   @unique
+    creator   Creator  @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+    startDate DateTime @default(now())
+    endDate   DateTime
+
+    // Payment tracking
+    lastPaymentAmount Float
+    lastPaymentDate   DateTime
 }
 
 model Post {

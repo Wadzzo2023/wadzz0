@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { WalletType } from "package/connect_wallet/src/lib/enums";
+import MusicControls from "~/components/BackgroundMusic";
 import { Button } from "~/components/shadcn/ui/button";
 import { Mode, useMode } from "~/lib/state/fan/left-side-mode";
 import { useUserStellarAcc } from "~/lib/state/wallete/stellar-balances";
@@ -99,6 +100,7 @@ export function SiteAssetBalance() {
         )}
         <Bell />
       </Button>
+      <MusicControls />
     </div>
   );
 }

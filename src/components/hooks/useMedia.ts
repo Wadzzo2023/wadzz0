@@ -36,7 +36,6 @@ export const useMedia = (mediaType: MediaType) => {
             }
 
             element.src = currentTrack.asset.mediaUrl
-            element.preload = 'auto'
             element.load()
 
             const handleTimeUpdate = () => setCurrentTime(element.currentTime)

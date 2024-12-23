@@ -25,6 +25,7 @@ import { Player } from "./Player";
 import SnowEffect from "./Snowflake";
 import FallingSnowflakes from "./FallingSnowflakes";
 import BackgroundMusic from "./BackgroundMusic";
+import { BackgroundMusicProvider } from "./context/BackgroundMusicContext";
 
 const RightDialog = dynamic(async () => await import("./right_dialog"));
 const ConnectWalletButton = dynamic(
@@ -103,75 +104,76 @@ export default function Layout({
       >
 
         <PlayerProvider>
-          <div className={clsx(" flex h-screen w-full flex-col", className)}>
-            <Header />
+          <BackgroundMusicProvider>
+            <div className={clsx(" flex h-screen w-full flex-col", className)}>
+              <Header />
 
-            <div className="flex-1 overflow-auto bg-base-100/50">
-              <div className="flex h-full border-t-2">
-                <LeftBar className="hidden xl:flex" />
-                <div
-                  // id="ih"
-                  className="flex-1 border-x-2"
-                  style={{
-                    backgroundImage: `url("christmas-bg.png")`,
-                    backgroundSize: "100%",
-                    backgroundRepeat: "no-repeat",
+              <div className="flex-1 overflow-auto bg-base-100/50">
+                <div className="flex h-full border-t-2">
+                  <LeftBar className="hidden xl:flex" />
+                  <div
+                    // id="ih"
+                    className="flex-1 border-x-2"
+                    style={{
+                      backgroundImage: `url("christmas-bg.png")`,
+                      backgroundSize: "100%",
+                      backgroundRepeat: "no-repeat",
 
-                  }}
-                // style={
-                //   router.pathname.includes("/fans/creator") && creator.data
-                //     ? {
-                //         background: `url("${creator.data.backgroundSVG}")`,
-                //         backgroundSize: "10%",
-                //         animation: "pan 135s linear infinite",
-                //       }
-                //     : {
-                //         background: `url("images/guitar.svg")`,
-                //         backgroundSize: "10%",
-                //         animation: "pan 135s linear infinite",
-                //       }
-                // }
-                >
-                  <div className=" h-full overflow-y-auto bg-base-100/80 scrollbar-hide">
-                    {session.status == "authenticated" ? (
-                      <>
-                        <ModalProvider />
-                        <PlayModalProvider />
+                    }}
+                  // style={
+                  //   router.pathname.includes("/fans/creator") && creator.data
+                  //     ? {
+                  //         background: `url("${creator.data.backgroundSVG}")`,
+                  //         backgroundSize: "10%",
+                  //         animation: "pan 135s linear infinite",
+                  //       }
+                  //     : {
+                  //         background: `url("images/guitar.svg")`,
+                  //         backgroundSize: "10%",
+                  //         animation: "pan 135s linear infinite",
+                  //       }
+                  // }
+                  >
+                    <div className=" h-full overflow-y-auto bg-base-100/80 scrollbar-hide">
+                      {session.status == "authenticated" ? (
+                        <>
+                          <ModalProvider />
+                          <PlayModalProvider />
 
-                        {children}
-                      </>
-                    ) : (
-                      <div className="flex h-full items-center justify-center">
-                        <ConnectWalletButton />
-                      </div>
-                    )}
-                    <div className="h-44 " />
-                    {/* <BottomNav /> */}
+                          {children}
+                        </>
+                      ) : (
+                        <div className="flex h-full items-center justify-center">
+                          <ConnectWalletButton />
+                        </div>
+                      )}
+                      <div className="h-44 " />
+                      {/* <BottomNav /> */}
+                    </div>
                   </div>
+
+                  {router.pathname !== "/walletBalance" &&
+                    router.pathname !== "/assets" &&
+                    router.pathname !== "/" &&
+                    router.pathname !== "/notification" &&
+                    router.pathname !== "/bounty/[id]" &&
+                    router.pathname !== "/settings" &&
+                    router.pathname !== "/about" &&
+                    router.pathname !== "/support" &&
+                    router.pathname !== "/privacy" &&
+                    session.status == "authenticated" && <RightSideBar />}
                 </div>
-
-                {router.pathname !== "/walletBalance" &&
-                  router.pathname !== "/assets" &&
-                  router.pathname !== "/" &&
-                  router.pathname !== "/notification" &&
-                  router.pathname !== "/bounty/[id]" &&
-                  router.pathname !== "/settings" &&
-                  router.pathname !== "/about" &&
-                  router.pathname !== "/support" &&
-                  router.pathname !== "/privacy" &&
-                  session.status == "authenticated" && <RightSideBar />}
               </div>
+              <RightDialog />
+              <Player />
+              {/* <BottomPlayerContainer /> */}
+              <Toaster />
             </div>
-            <RightDialog />
-            <Player />
-            {/* <BottomPlayerContainer /> */}
-            <Toaster />
-          </div>
-          {isMusicRoute && <PlayerToggle />}
-          <FallingSnowflakes />
-
+            {isMusicRoute && <PlayerToggle />}
+            <FallingSnowflakes />
+          </BackgroundMusicProvider>
         </PlayerProvider>
-      </ThemeProvider>
+      </ThemeProvider >
     </>
   );
 }

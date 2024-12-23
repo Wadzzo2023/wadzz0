@@ -93,13 +93,13 @@ export default function BuyModal() {
         <>
             <Dialog open={isModalOpen} onOpenChange={handleClose}>
 
-                <DialogContent className="max-w-3xl overflow-hidden p-0 [&>button]:text-white ">
+                <DialogContent className="max-w-3xl overflow-hidden p-0 [&>button]:text-black [&>button]:border [&>button]:border-black [&>button]:rounded-full [&>button]:bg-white">
 
                     {
                         step === 1 && (
                             <div className="grid grid-cols-2 md:grid-cols-7">
                                 {/* Left Column - Product Image */}
-                                <Card className=" overflow-y-auto   bg-[#1e1f22] md:col-span-3">
+                                <Card className=" overflow-y-auto  max-h-[800px]  bg-[#1e1f22] md:col-span-3">
                                     <CardContent className="p-0">
                                         {/* Image Container */}
                                         <div className="relative aspect-square bg-[#1e1f22]">
@@ -196,14 +196,14 @@ export default function BuyModal() {
                                 </Card>
 
                                 {/* Right Column - Bundle Info */}
-                                <div className=" bg-gray-300 p-1 rounded-sm   md:col-span-4">
+                                <div className=" bg-gray-300 p-1 rounded-sm   md:col-span-4 ">
                                     {data.Asset.asset.mediaType === "IMAGE" ? (
                                         <Image
                                             src={data.Asset.asset.mediaUrl}
                                             alt={data.Asset.asset.name}
                                             width={1000}
                                             height={1000}
-                                            className={clsx("h-full w-full object-cover ", data.Asset.asset.tierId ? " blur-md" : "")}
+                                            className={clsx("h-full max-h-[800px] overflow-y-auto w-full object-cover ", data.Asset.asset.tierId ? " blur-md" : "")}
                                         />
                                     ) : data.Asset.asset.mediaType === "VIDEO" ? (
                                         <Image
@@ -211,7 +211,7 @@ export default function BuyModal() {
                                             alt={data.Asset.asset.name}
                                             width={1000}
                                             height={1000}
-                                            className={clsx("h-full w-full object-cover ", data.Asset.asset.tierId ? " blur-md" : "")}
+                                            className={clsx("h-full max-h-[800px] overflow-y-auto w-full object-cover ", data.Asset.asset.tierId ? " blur-md" : "")}
                                         />
                                     ) : (
                                         data.Asset.asset.mediaType === "MUSIC" ? (
@@ -220,7 +220,7 @@ export default function BuyModal() {
                                                 alt={data.Asset.asset.name}
                                                 width={1000}
                                                 height={1000}
-                                                className={clsx("h-full w-full object-cover ", data.Asset.asset.tierId ? " blur-md" : "")}
+                                                className={clsx(" h-full max-h-[800px] overflow-y-auto w-full object-cover ", data.Asset.asset.tierId ? " blur-md" : "")}
                                             />
                                         ) :
                                             (
@@ -235,11 +235,11 @@ export default function BuyModal() {
                                                             width: "100%",
 
                                                         }}
-                                                        className={clsx(
-                                                            "h-full w-full"
-                                                        )}
+                                                        className={
+                                                            clsx("h-full max-h-[800px] overflow-y-auto w-full object-cover ", data.Asset.asset.tierId ? " blur-md" : "")
+                                                        }
                                                     >
-                                                        <ShowModel url={data.Asset.asset.mediaUrl} blur={true} />
+                                                        <ShowModel url={data.Asset.asset.mediaUrl} />
                                                     </div>
                                                 </>
                                             )
