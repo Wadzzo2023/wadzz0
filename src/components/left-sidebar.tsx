@@ -27,7 +27,7 @@ export const LeftNavigation = {
     icon: Bell,
     text: CREATOR_PLURAL_TERM.toLocaleUpperCase(),
   },
-  Settings: { path: "/settings", icon: Settings2, text: "SETTINGS" },
+  Settings: { path: "/settings", icon: Settings2, text: "MY PROFILE" },
 } as const;
 export const BottomNavigation = {
   Claim: { path: "/maps/pins/my", icon: HomeIcon, text: "CLAIM" },
