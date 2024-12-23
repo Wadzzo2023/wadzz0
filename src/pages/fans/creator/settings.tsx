@@ -11,7 +11,7 @@ export default function CreatorSettings() {
     return (
       <div className="flex flex-col items-center justify-center">
         <CreatorBack creator={creator.data} />
-        <div className="flex flex-col items-center pb-20 w-full gap-6">
+        <div className="flex flex-col items-center  gap-6">
           <VanityURLManager creator={subscription.data as CreatorWithSubscription} />
           <About creator={creator.data} />
         </div>

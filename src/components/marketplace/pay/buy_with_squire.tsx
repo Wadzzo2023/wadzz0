@@ -27,7 +27,7 @@ export default function BuyWithSquire({
           submitSignedXDRToServer4User(xdr)
             .then((data) => {
               if (data) {
-                toast.success("Payment success");
+                toast.success("Payment Successful");
               }
             })
             .catch((e) => {

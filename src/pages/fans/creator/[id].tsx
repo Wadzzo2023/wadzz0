@@ -78,7 +78,7 @@ function CreatorPosts({ creatorId }: { creatorId: string }) {
   if (!data) return <div>No data</div>;
   if (data.pages.length > 0) {
     return (
-      <div className="flex  w-full flex-col items-center  justify-center ">
+      <div className="flex w-full flex-col gap-4 items-center p-2 md:mx-auto md:container bg-base-100">
         {data.pages.map((page) =>
           page.posts.map((el) => (
             <PostCard
@@ -233,7 +233,7 @@ export function UnFollowButton({ creator }: { creator: Creator }) {
   const utils = api.useUtils();
   const unFollow = api.fan.member.unFollowCreator.useMutation({
     onSuccess: async () => {
-      toast.success("Unfollow success");
+      toast.success("Unfollowed successfully");
 
       // await utils.fan.member.isFollower.refetch({
       //   creatorId: creator.id,

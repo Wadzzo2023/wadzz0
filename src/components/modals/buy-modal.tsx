@@ -93,7 +93,7 @@ export default function BuyModal() {
         <>
             <Dialog open={isModalOpen} onOpenChange={handleClose}>
 
-                <DialogContent className="max-w-3xl overflow-hidden p-0 [&>button]:text-white ">
+                <DialogContent className="max-w-3xl overflow-hidden p-0 [&>button]:text-black [&>button]:border [&>button]:border-black [&>button]:rounded-full [&>button]:bg-white">
 
                     {
                         step === 1 && (
@@ -235,11 +235,11 @@ export default function BuyModal() {
                                                             width: "100%",
 
                                                         }}
-                                                        className={clsx(
-                                                            "h-full w-full"
-                                                        )}
+                                                        className={
+                                                            clsx("h-full max-h-[800px] overflow-y-auto w-full object-cover ", data.Asset.asset.tierId ? " blur-md" : "")
+                                                        }
                                                     >
-                                                        <ShowModel url={data.Asset.asset.mediaUrl} blur={true} />
+                                                        <ShowModel url={data.Asset.asset.mediaUrl} />
                                                     </div>
                                                 </>
                                             )
