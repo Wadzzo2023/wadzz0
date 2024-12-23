@@ -3,16 +3,18 @@ import { useMarketRightStore } from "~/lib/state/marketplace/right";
 import { usePopUpState } from "~/lib/state/right-pop";
 import { MarketType } from "@prisma/client";
 import AssetView from "~/components/marketplace/asset/asset_view";
-import { MarketAssetType } from "~/lib/state/play/use-modal-store";
+import { MarketAssetType, useModal } from "~/lib/state/play/use-modal-store";
 
 function ShopAssetComponent({ item }: { item: MarketAssetType }) {
   const { asset } = item;
-
-  const urs = useMarketRightStore();
-  const pop = usePopUpState();
+  const { onOpen } = useModal()
   return (
     <div>
-      <button className="btn relative h-fit w-full overflow-hidden  py-4 ">
+      <button
+        onClick={() => {
+          onOpen("buy modal", { Asset: item })
+        }}
+        className="btn relative h-fit w-full overflow-hidden  py-4 ">
         <AssetView code={asset.name} thumbnail={asset.thumbnail} />
       </button>
     </div>

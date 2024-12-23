@@ -170,7 +170,6 @@ const CreateBounty = () => {
             setLoading(false);
             console.error("Error sending balance to bounty mother", error);
             reset();
-            toast.success("Bounty Created");
             setMedia([]);
           }
         }

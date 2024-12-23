@@ -1,7 +1,7 @@
 import { create } from "zustand";
 
 export enum SettingsMenu {
-  Basic = "About",
+  Basic = "My Profile",
   // Membership = "Memberships",
 }
 
