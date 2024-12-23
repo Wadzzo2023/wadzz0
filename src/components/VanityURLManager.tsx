@@ -223,8 +223,8 @@ export function VanityURLManager({ creator }: { creator: CreatorWithSubscription
             <div className="text-sm text-base-content/70 space-y-2">
                 <p>
                     {subscriptionStatus === 'active'
-                        ? `Changing your vanity URL will cost ${PLATFORM_ASSET.code.toLocaleLowerCase() === 'wadzzo' ? '200 Wadzzo' : '300,000 Bandcoin'}.`
-                        : `Setting up a vanity URL costs ${PLATFORM_ASSET.code.toLocaleLowerCase() === 'wadzzo' ? '500 Wadzzo' : '750,000 Bandcoin'} per month.`}
+                        ? `Changing your vanity URL will cost ${PLATFORM_ASSET.code.toLocaleLowerCase() === 'wadzzo' ? '500 Wadzzo' : '750,000 Bandcoin'}.`
+                        : `Setting up a vanity URL costs ${PLATFORM_ASSET.code.toLocaleLowerCase() === 'wadzzo' ? '200 Wadzzo' : '300,000 Bandcoin'} per month.`}
                 </p>
                 {subscriptionStatus !== 'none' && (
                     <div className="bg-base-300 p-4 rounded-md">
