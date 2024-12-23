@@ -1,5 +1,4 @@
 import {
-  CheckCheck,
   Copy,
   Edit3,
   InfoIcon,
@@ -12,7 +11,7 @@ import {
 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
-import React, { ChangeEvent, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { Button } from "~/components/shadcn/ui/button";
 import {
@@ -23,25 +22,20 @@ import {
   DialogTitle,
 } from "~/components/shadcn/ui/dialog";
 import { api } from "~/utils/api";
-import { ModalData, useModal } from "../../lib/state/play/use-modal-store";
-import { match } from "ts-pattern";
+import { useModal } from "../../lib/state/play/use-modal-store";
 
-
-import { useRouter } from "next/router";
-import { IPin, useMapModalStore } from "~/pages/maps";
-import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useRouter } from "next/router";
+import { Controller, useForm } from "react-hook-form";
 import * as z from "zod";
 import { Input } from "~/components/shadcn/ui/input";
-import { error, loading, success } from "~/utils/trcp/patterns";
+import { IPin, useMapModalStore } from "~/pages/maps";
 
-import { Label } from "~/components/shadcn/ui/label";
-import { UploadButton } from "~/utils/uploadthing";
-import { BADWORDS } from "~/utils/banned-word";
-import { Select } from "../shadcn/ui/select";
-import { NO_ASSET, PAGE_ASSET_NUM } from "../maps/modals/create-pin";
-import { useCreatorStorageAcc } from "~/lib/state/wallete/stellar-balances";
 import { ItemPrivacy } from "@prisma/client";
+import { Label } from "~/components/shadcn/ui/label";
+import { useCreatorStorageAcc } from "~/lib/state/wallete/stellar-balances";
+import { BADWORDS } from "~/utils/banned-word";
+import { UploadButton } from "~/utils/uploadthing";
 
 const MapModalComponent = () => {
   const {
@@ -172,12 +166,12 @@ const MapModalComponent = () => {
     setDuplicate(true);
     setIsOpen(true);
   }
-  console.log("data", data)
+  // console.log("data", data)
   if (data)
     return (
       <>
         <Dialog open={isModalOpen} onOpenChange={handleClose}>
-          <DialogContent className="overflow-y-auto max-h-[750px] p-0">
+          <DialogContent className="max-h-[750px] overflow-y-auto p-0">
             <>
               <DialogHeader className="px-6 pt-8">
                 <DialogTitle className="flex items-center justify-center gap-2  ">
@@ -188,8 +182,7 @@ const MapModalComponent = () => {
                     variant="outline"
                     size="icon"
                     onClick={() => {
-                      setIsForm(!isForm)
-
+                      setIsForm(!isForm);
                     }}
                   >
                     <Edit3 />
@@ -201,7 +194,6 @@ const MapModalComponent = () => {
                   <PinInfoUpdate
                     autoCollect={data.autoCollect}
                     multiPin={data.multiPin}
-
                     lat={data.lat}
                     long={data.long}
                     id={data.pinId}
@@ -216,7 +208,6 @@ const MapModalComponent = () => {
                     link={data.link}
                     assetId={data.assetId}
                     privacy={data.privacy}
-
                   />
                 </div>
               ) : (
@@ -350,10 +341,12 @@ const updateMapFormSchema = z.object({
     ),
   image: z.string().url().optional(),
   startDate: z.date().optional(),
-  endDate: z.date().min(new Date(new Date().setHours(0, 0, 0, 0))).optional(),
+  endDate: z
+    .date()
+    .min(new Date(new Date().setHours(0, 0, 0, 0)))
+    .optional(),
   url: z.string().url().optional(),
   autoCollect: z.boolean(),
-
 });
 
 type FormData = z.infer<typeof updateMapFormSchema>;
@@ -375,7 +368,6 @@ function PinInfoUpdate({
   link,
   assetId,
   privacy,
-
 }: {
   image?: string;
   title: string;
@@ -397,7 +389,7 @@ function PinInfoUpdate({
   const [coverUrl, setCover] = React.useState("");
   const { data, updateData, onClose } = useModal();
   const utils = api.useUtils();
-  console.log('collectionrm', collectionLimit)
+  console.log("collectionrm", collectionLimit);
   const [isPageAsset, setIsPageAsset] = useState<boolean>();
   const [selectedToken, setSelectedToken] = useState<
     AssetType & { bal: number }
@@ -405,8 +397,13 @@ function PinInfoUpdate({
 
   const { getAssetBalance } = useCreatorStorageAcc();
   const [isInitialLoad, setIsInitialLoad] = useState(true);
-  const { control, handleSubmit, formState: { errors }, register, setError,
-    setValue
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+    register,
+    setError,
+    setValue,
   } = useForm({
     resolver: zodResolver(updateMapFormSchema),
     defaultValues: {
@@ -427,8 +424,6 @@ function PinInfoUpdate({
 
   const update = api.maps.pin.updatePin.useMutation({
     onSuccess: async (updatedData) => {
-
-
       await utils.maps.pin.getMyPins.refetch();
 
       toast.success("Pin updated successfully");
@@ -436,16 +431,14 @@ function PinInfoUpdate({
     },
     onError: (error) => {
       toast.error(error.message);
-    }
+    },
   });
 
   const onSubmit = (formData: FormData) => {
     formData.image = coverUrl ?? image;
 
     update.mutate(formData);
-
   };
-
 
   useEffect(() => {
     // Only load the media from the server on the first load
@@ -455,8 +448,6 @@ function PinInfoUpdate({
       setIsInitialLoad(false); // After loading, mark initial load as done
     }
   }, [image, isInitialLoad]);
-
-
 
   return (
     <form className="mt-5" onSubmit={handleSubmit(onSubmit)}>
@@ -500,10 +491,7 @@ function PinInfoUpdate({
         </div>
 
         <div className="flex flex-col space-y-2">
-          <label
-            htmlFor="description"
-            className="text-sm font-medium"
-          >
+          <label htmlFor="description" className="text-sm font-medium">
             Description
           </label>
           <textarea
@@ -512,26 +500,15 @@ function PinInfoUpdate({
             className="input input-bordered"
           />
           {errors.description && (
-            <p className="text-red-500">
-              {errors.description.message}
-            </p>
+            <p className="text-red-500">{errors.description.message}</p>
           )}
         </div>
         {/* <AssetTypeTab /> */}
 
-
         {/* <AvailableTokenField balance={selectedToken?.bal} /> */}
 
-
-
-
-
-
-
         <div className="mt ">
-          <label className="text-sm font-medium">
-            Pin Cover Image
-          </label>
+          <label className="text-sm font-medium">Pin Cover Image</label>
           <UploadButton
             endpoint="imageUploader"
             content={{
@@ -570,10 +547,7 @@ function PinInfoUpdate({
         </div>
 
         <div className="flex flex-col space-y-2">
-          <label
-            htmlFor="description"
-            className="text-sm font-medium"
-          >
+          <label htmlFor="description" className="text-sm font-medium">
             URL / LINK
           </label>
           <input
@@ -581,9 +555,7 @@ function PinInfoUpdate({
             {...register("url")}
             className="input input-bordered"
           />
-          {errors.url && (
-            <p className="text-red-500">{errors.url.message}</p>
-          )}
+          {errors.url && <p className="text-red-500">{errors.url.message}</p>}
         </div>
 
         <div className="space-y-2">
@@ -595,11 +567,15 @@ function PinInfoUpdate({
               <Input
                 type="date"
                 onChange={(e) => onChange(new Date(e.target.value))}
-                value={value instanceof Date ? value.toISOString().split('T')[0] : ''}
+                value={
+                  value instanceof Date ? value.toISOString().split("T")[0] : ""
+                }
               />
             )}
           />
-          {errors.startDate && <p className="text-red-500 text-sm">{errors.startDate.message}</p>}
+          {errors.startDate && (
+            <p className="text-sm text-red-500">{errors.startDate.message}</p>
+          )}
         </div>
 
         <div className="space-y-2">
@@ -611,11 +587,15 @@ function PinInfoUpdate({
               <Input
                 type="date"
                 onChange={(e) => onChange(new Date(e.target.value))}
-                value={value instanceof Date ? value.toISOString().split('T')[0] : ''}
+                value={
+                  value instanceof Date ? value.toISOString().split("T")[0] : ""
+                }
               />
             )}
           />
-          {errors.endDate && <p className="text-red-500 text-sm">{errors.endDate.message}</p>}
+          {errors.endDate && (
+            <p className="text-sm text-red-500">{errors.endDate.message}</p>
+          )}
         </div>
         <div className="flex items-center space-x-2">
           <input
@@ -643,21 +623,14 @@ function PinInfoUpdate({
                   <p className="text-red-500">{errors.limit.message}</p>
                 )}
               </div> */}
-        <button
-          type="submit"
-          className="btn btn-primary"
-
-        >
+        <button type="submit" className="btn btn-primary">
           {update.isLoading && <Loader className="animate-spin" />}
           Submit
         </button>
         {update.isError && (
-          <p className="text-red-500">
-            {update.failureReason?.message}
-          </p>
+          <p className="text-red-500">{update.failureReason?.message}</p>
         )}
       </div>
     </form>
   );
 }
-
