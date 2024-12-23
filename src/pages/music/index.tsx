@@ -16,7 +16,7 @@ export default function Home() {
       <body className="">
         <div className="min-h-screen bg-gray-50 text-gray-900 ">
           <div className="p-4 ">
-            <h1 className="mb-8 text-4xl font-bold text-blue-600">Music App</h1>
+            {/* <h1 className="mb-8 text-4xl font-bold text-blue-600">Music App</h1> */}
             <div className="space-y-12 ">
               <AlbumsContainer />
               <AllSongs />

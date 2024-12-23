@@ -26,8 +26,8 @@ export type CreatorWithSubscription = Creator & {
 export function VanityURLManager({ creator }: { creator: CreatorWithSubscription }) {
 
     const [subscriptionStatus, setSubscriptionStatus] = useState<'active' | 'expired' | 'none'>('none');
-    const changingCost = PLATFORM_ASSET.code.toLocaleLowerCase() === 'wadzzo' ? 200 : 300000;
-    const settingCost = PLATFORM_ASSET.code.toLocaleLowerCase() === 'wadzzo' ? 500 : 750000;
+    const changingCost = PLATFORM_ASSET.code.toLocaleLowerCase() === 'wadzzo' ? 500 : 750000;
+    const settingCost = PLATFORM_ASSET.code.toLocaleLowerCase() === 'wadzzo' ? 200 : 300000;
     const session = useSession()
     const [loading, setLoading] = useState(false);
     const { needSign } = useNeedSign()
