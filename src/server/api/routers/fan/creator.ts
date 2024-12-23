@@ -6,6 +6,7 @@ import {
   createRedeemXDRNative,
 } from "~/lib/stellar/fan/redeem";
 import { AccountSchema } from "~/lib/stellar/fan/utils";
+import { createOrRenewVanitySubscription, getVanitySubscriptionXDR } from "~/lib/stellar/fan/vanity-url";
 import { getAssetBalance } from "~/lib/stellar/marketplace/test/acc";
 import { SignUser } from "~/lib/stellar/utils";
 
@@ -53,7 +54,16 @@ export const creatorRouter = createTRPCRouter({
       where: { user: { id: ctx.session.user.id } },
     });
   }),
+  vanitySubscription: protectedProcedure.query(async ({ ctx }) => {
+    const creator = ctx.db.creator.findFirst({
+      where: { user: { id: ctx.session.user.id } },
+      include: {
+        vanitySubscription: true
+      }
+    });
+    return creator;
 
+  }),
   getCreatorSecret: protectedProcedure
     .input(
       z.object({
@@ -391,4 +401,75 @@ export const creatorRouter = createTRPCRouter({
         });
       }
     }),
+
+  // Vanity URL Section 
+
+  updateVanityURL: protectedProcedure
+    .input(
+      z.object({
+        vanityURL: z.string().min(2).max(30).optional().nullable(),
+        isChanging: z.boolean(),
+        signWith: SignUser,
+        cost: z.number(),
+
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const userId = ctx.session.user.id;
+      const creator = await ctx.db.creator.findUnique({
+        where: { id: userId },
+        include: { vanitySubscription: true },
+      });
+
+      if (!creator) {
+        throw new Error("Creator not found");
+      }
+      return getVanitySubscriptionXDR({
+        amount: input.cost,
+        signWith: input.signWith,
+        userPubKey: userId,
+      })
+
+    }),
+
+  createOrUpdateVanityURL: protectedProcedure
+    .input(
+      z.object({
+        vanityURL: z.string().min(2).max(30).optional().nullable(),
+        isChanging: z.boolean(),
+        amount: z.number(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const userId = ctx.session.user.id;
+      const creator = await ctx.db.creator.findUnique({
+        where: { id: userId },
+        include: { vanitySubscription: true },
+      });
+
+      if (!creator) {
+        throw new Error("Creator not found");
+      }
+
+      return createOrRenewVanitySubscription({
+        creatorId: userId,
+        isChanging: input.isChanging,
+        amount: input.amount,
+        vanityURL: input.vanityURL,
+      })
+
+    }),
+
+  checkVanityURLAvailability: protectedProcedure
+    .input(z.object({ vanityURL: z.string().min(2).max(30) }))
+    .query(async ({ ctx, input }) => {
+      const existingCreator = await ctx.db.creator.findUnique({
+        where: { vanityURL: input.vanityURL },
+      });
+
+      return { isAvailable: !existingCreator };
+    }),
+
+
+
 });

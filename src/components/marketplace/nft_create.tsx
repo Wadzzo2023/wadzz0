@@ -106,7 +106,7 @@ export default function NftCreate({ admin: isAdmin }: { admin?: true }) {
     xlm: 2,
   });
 
-  if (requiredToken.isLoading) return <Loading />;
+  // if (requiredToken.isLoading) return <Loading />;
 
   if (requiredToken.data) {
     const requiredTokenAmount = requiredToken.data;

@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import Snowflake from './Snowflake'
+import { useBackgroundMusic } from './context/BackgroundMusicContext'
 
 interface SnowflakeData {
     id: number
@@ -12,8 +13,14 @@ interface SnowflakeData {
 
 export default function FallingSnowflakes() {
     const [snowflakes, setSnowflakes] = useState<SnowflakeData[]>([])
-
+    const { isPlaying } = useBackgroundMusic()
+    console.log("isPlaying in FallingSnowflakes", isPlaying)
     useEffect(() => {
+        if (!isPlaying) {
+            setSnowflakes([])
+            return
+        }
+
         const generateSnowflakes = () => {
             const newSnowflakes: SnowflakeData[] = []
             for (let i = 0; i < 14; i++) {
@@ -28,7 +35,7 @@ export default function FallingSnowflakes() {
         }
 
         generateSnowflakes()
-    }, [])
+    }, [isPlaying])
 
     return (
         <div className="fixed inset-0 pointer-events-none overflow-hidden">

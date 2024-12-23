@@ -96,7 +96,7 @@ export default function AssetInfoModal() {
         return (
             <>
                 <Dialog open={isModalOpen} onOpenChange={handleClose}>
-                    <DialogContent className="max-w-2xl overflow-hidden p-1 ">
+                    <DialogContent className="max-w-3xl overflow-hidden p-0 [&>button]:text-black [&>button]:border [&>button]:border-black [&>button]:rounded-full [&>button]:bg-white ">
                         <DialogClose className="absolute right-3 top-3 ">
                             <X color="white" size={24} />
                         </DialogClose>
@@ -218,7 +218,7 @@ export default function AssetInfoModal() {
                                         width={1000}
                                         height={1000}
                                         className={clsx(
-                                            "h-full w-full object-cover ",
+                                            "h-full max-h-[800px] overflow-y-auto w-full object-cover ",
                                         )}
                                     />
                                 ) : data.MyAsset.mediaType === "VIDEO" ? (
@@ -234,7 +234,7 @@ export default function AssetInfoModal() {
 
                                             }}
                                             className={clsx(
-                                                "h-full w-full"
+                                                "h-full max-h-[800px] overflow-y-auto w-full object-cover"
                                             )}
                                         >
                                             <RightSidePlayer />
@@ -254,7 +254,7 @@ export default function AssetInfoModal() {
 
                                                 }}
                                                 className={clsx(
-                                                    "h-full w-full"
+                                                    "h-full max-h-[800px] overflow-y-auto w-full object-cover"
                                                 )}
                                             >
                                                 <RightSidePlayer />

@@ -30,13 +30,13 @@ function AuthShowcase() {
   // if (status == "authenticated") return <div>{data.user.id}</div>;
   return (
     <div className="w-full">
-      <h1 className="bg-base-150 flex items-center justify-center  rounded-md py-3 text-center text-2xl font-bold shadow-md">
+      <h1 className="bg-base-100 flex items-center justify-center  rounded-md py-3 text-center text-2xl font-bold shadow-md">
         News Feed
       </h1>
       {/* <div className="flex flex-col items-center">
         <CreatorSecret />
       </div> */}
-      <div className="mt-10 flex w-full flex-col items-center">
+      <div className="mt-2 flex w-full flex-col items-center ">
         <AllRecentPost />
       </div>
     </div>
@@ -75,7 +75,7 @@ function AllRecentPost() {
 
   if (posts.data) {
     return (
-      <div className="flex w-full flex-col items-center">
+      <div className="flex w-full flex-col gap-4 items-center p-2 md:mx-auto md:container bg-base-100">
         {posts.data.pages.map((page) => (
           <>
             {page.posts.length === 0 && <p>There are no post yet</p>}
