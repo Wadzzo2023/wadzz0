@@ -18,15 +18,7 @@ export default function Logo({ className }: { className?: string }) {
           />
         </div>
       </Link>
-      <div className="absolute top-[3.6rem] ">
-        <Image
-          src="/snow-pile-2.png"
-          alt="snow-pile"
-          width={100}
-          height={40}
-          className="h-6 w-16"
-        />
-      </div>
+
     </div>
   );
 }

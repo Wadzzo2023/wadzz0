@@ -74,7 +74,7 @@ export default function ViewAdminAsset() {
         return (
             <>
                 <Dialog open={isModalOpen} onOpenChange={handleClose}>
-                    <DialogContent className="max-w-3xl overflow-hidden p-0 [&>button]:text-white ">
+                    <DialogContent className="max-w-3xl overflow-hidden p-0 [&>button]:text-black [&>button]:border [&>button]:border-black [&>button]:rounded-full [&>button]:bg-white">
 
                         <div className="grid grid-cols-2 md:grid-cols-7">
                             {/* Left Column - Product Image */}

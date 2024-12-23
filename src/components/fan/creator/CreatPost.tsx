@@ -294,7 +294,7 @@ export function PostList(props: { id: string }) {
   if (posts.isLoading) return <div>Loading...</div>;
   if (posts.data) {
     return (
-      <div className=" flex  flex-col items-center justify-center  ">
+      <div className="flex w-full flex-col gap-4 items-center p-2 md:mx-auto md:container bg-base-100 ">
         {posts.data?.pages.map((page) =>
           page.posts.map((post) => (
             <PostCard
