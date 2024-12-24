@@ -102,7 +102,7 @@ export const postRouter = createTRPCRouter({
           },
           medias: true,
           subscription: true,
-          creator: { select: { name: true, id: true, profileUrl: true } },
+          creator: { select: { name: true, id: true, profileUrl: true, pageAsset: true } },
         },
         orderBy: { createdAt: "desc" },
       });
