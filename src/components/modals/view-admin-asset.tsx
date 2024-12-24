@@ -1,8 +1,10 @@
-import { motion } from "framer-motion";
-import { useSession } from "next-auth/react";
-import Image from "next/image";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { api } from "~/utils/api";
+import { useSession } from "next-auth/react";
+import { clientsign, WalletType } from "package/connect_wallet";
+import toast from "react-hot-toast";
+import { motion } from "framer-motion";
+import Image from "next/image";
 
 import { Button } from "~/components/shadcn/ui/button";
 import {
@@ -14,25 +16,41 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "~/components/shadcn/ui/dialog";
+import { X, MessageCircle, Sparkles } from "lucide-react";
 
+import { Input } from "~/components/shadcn/ui/input";
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "~/components/shadcn/ui/avatar";
+import { Badge } from "~/components/shadcn/ui/badge";
+import { Loader } from "lucide-react";
+import Alert from "~/components/ui/alert";
+import useNeedSign from "~/lib/hook";
 import { useUserStellarAcc } from "~/lib/state/wallete/stellar-balances";
+import {
+  PLATFORM_ASSET,
+  PLATFORM_FEE,
+  TrxBaseFeeInPlatformAsset,
+} from "~/lib/stellar/constant";
 
-import { z } from "zod";
 import { addrShort } from "~/utils/utils";
+import { z } from "zod";
 
-import clsx from "clsx";
-import Link from "next/link";
-import { useRouter } from "next/router";
 import { Card, CardContent, CardFooter } from "~/components/shadcn/ui/card";
+import { useMarketRightStore } from "~/lib/state/marketplace/right";
+import { AssetType, useModal } from "~/lib/state/play/use-modal-store";
+import clsx from "clsx";
 import {
   AssetMenu,
   useAssetMenu,
 } from "~/lib/state/marketplace/asset-tab-menu";
-import { useMarketRightStore } from "~/lib/state/marketplace/right";
-import { AssetType, useModal } from "~/lib/state/play/use-modal-store";
 import PlaceNFT2Storage from "../marketplace/modal/place_2storage_modal";
-import EnableInMarket from "../marketplace/modal/place_market_modal";
 import NftBackModal from "../marketplace/modal/revert_place_market_modal";
+import EnableInMarket from "../marketplace/modal/place_market_modal";
+import { useRouter } from "next/router";
+import Link from "next/link";
 
 export const PaymentMethodEnum = z.enum(["asset", "xlm", "card"]);
 export type PaymentMethod = z.infer<typeof PaymentMethodEnum>;
@@ -42,7 +60,7 @@ export default function ViewAdminAsset() {
   const session = useSession();
   const router = useRouter();
 
-  // console.log("isOpen", isOpen);
+  console.log("isOpen", isOpen);
   const isModalOpen = isOpen && type === "view admin asset";
   const handleClose = () => {
     onClose();
@@ -56,7 +74,8 @@ export default function ViewAdminAsset() {
     return (
       <>
         <Dialog open={isModalOpen} onOpenChange={handleClose}>
-          <DialogContent className="max-w-3xl overflow-hidden p-0 [&>button]:text-white ">
+          <DialogContent className="max-w-3xl overflow-hidden p-0 [&>button]:text-black [&>button]:border [&>button]:border-black [&>button]:rounded-full [&>button]:bg-white">
+
             <div className="grid grid-cols-2 md:grid-cols-7">
               {/* Left Column - Product Image */}
               <Card className=" overflow-y-auto   bg-[#1e1f22] md:col-span-3">
@@ -79,34 +98,32 @@ export default function ViewAdminAsset() {
                       {data.adminAssetNtag.code}
                     </h2>
 
+
                     <div className="flex items-center gap-2 text-sm text-gray-400">
                       <span className="h-auto p-0 text-xs text-[#00a8fc]">
                         {addrShort(data.adminAssetNtag.adminId, 5)}
                       </span>
+
                     </div>
+
                   </div>
                 </CardContent>
                 <CardFooter className="flex flex-col gap-1 p-2">
-                  <Link
-                    className="w-full"
-                    href={data.adminAssetNtag.StellarTerm ?? ""}
-                  >
+
+                  <Link className="w-full" href={data.adminAssetNtag.StellarTerm ?? ""}>
+
                     <Button className="w-full" variant="outline">
                       View on StellarTerm
                     </Button>
                   </Link>
-                  <Link
-                    className="w-full"
-                    href={data.adminAssetNtag.Litemint ?? ""}
-                  >
+                  <Link className="w-full" href={data.adminAssetNtag.Litemint ?? ""}>
+
                     <Button className="w-full" variant="outline">
                       View on Litemint
                     </Button>
                   </Link>
-                  <Link
-                    className="w-full"
-                    href={data.adminAssetNtag.StellarX ?? ""}
-                  >
+                  <Link className="w-full" href={data.adminAssetNtag.StellarX ?? ""}>
+
                     <Button className="w-full" variant="outline">
                       View on StellarX
                     </Button>
@@ -116,13 +133,18 @@ export default function ViewAdminAsset() {
 
               {/* Right Column - Bundle Info */}
               <div className=" rounded-sm bg-gray-300 p-1   md:col-span-4">
+
                 <Image
                   src={data.adminAssetNtag.logoUrl}
                   alt={data.adminAssetNtag.logoUrl}
                   width={1000}
                   height={1000}
-                  className={clsx("h-full w-full object-cover ")}
+                  className={clsx(
+                    "h-full w-full object-cover "
+
+                  )}
                 />
+
               </div>
             </div>
           </DialogContent>

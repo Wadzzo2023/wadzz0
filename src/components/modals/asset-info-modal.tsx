@@ -1,12 +1,13 @@
-import { motion } from "framer-motion";
-import { VideoOff } from "lucide-react";
-import { useSession } from "next-auth/react";
-import Image from "next/image";
-import { Suspense, useState } from "react";
-import { twMerge } from "tailwind-merge";
+import { Suspense, useRef, useState } from "react";
 import { api } from "~/utils/api";
+import { useSession } from "next-auth/react";
+import { clientsign, WalletType } from "package/connect_wallet";
+import toast from "react-hot-toast";
+import { motion } from "framer-motion";
+import Image from "next/image";
+import { twMerge } from "tailwind-merge";
+import { VideoOff } from "lucide-react";
 
-import { X } from "lucide-react";
 import { Button } from "~/components/shadcn/ui/button";
 import {
   Dialog,
@@ -17,35 +18,45 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "~/components/shadcn/ui/dialog";
+import { X, MessageCircle, Sparkles } from "lucide-react";
 
-import { Badge } from "~/components/shadcn/ui/badge";
+import { Input } from "~/components/shadcn/ui/input";
 import {
-  useCreatorStorageAcc,
-  useUserStellarAcc,
-} from "~/lib/state/wallete/stellar-balances";
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "~/components/shadcn/ui/avatar";
+import { Badge } from "~/components/shadcn/ui/badge";
+import { Loader } from "lucide-react";
+import Alert from "~/components/ui/alert";
+import useNeedSign from "~/lib/hook";
+import { useCreatorStorageAcc, useUserStellarAcc } from "~/lib/state/wallete/stellar-balances";
+import {
+  PLATFORM_ASSET,
+  PLATFORM_FEE,
+  TrxBaseFeeInPlatformAsset,
+} from "~/lib/stellar/constant";
 
-import { z } from "zod";
 import { addrShort } from "~/utils/utils";
+import { z } from "zod";
 
-import clsx from "clsx";
-import { useRouter } from "next/router";
 import { Card, CardContent, CardFooter } from "~/components/shadcn/ui/card";
+import { useMarketRightStore } from "~/lib/state/marketplace/right";
+import { AssetType, SongItemType, useModal } from "~/lib/state/play/use-modal-store";
+import clsx from "clsx";
 import {
   AssetMenu,
   useAssetMenu,
 } from "~/lib/state/marketplace/asset-tab-menu";
-import { useMarketRightStore } from "~/lib/state/marketplace/right";
-import {
-  AssetType,
-  SongItemType,
-  useModal,
-} from "~/lib/state/play/use-modal-store";
-import { usePlayer } from "../context/PlayerContext";
 import PlaceNFT2Storage from "../marketplace/modal/place_2storage_modal";
-import EnableInMarket from "../marketplace/modal/place_market_modal";
 import NftBackModal from "../marketplace/modal/revert_place_market_modal";
+import EnableInMarket from "../marketplace/modal/place_market_modal";
+import { useRouter } from "next/router";
+import { Player } from "../Player";
+import { usePlayer } from "../context/PlayerContext";
 import { RightSidePlayer } from "../RightSidePlayer";
 import ShowModel from "../ThreeDModel";
+import { getAssetBalance } from "~/lib/stellar/marketplace/test/acc";
 
 export const PaymentMethodEnum = z.enum(["asset", "xlm", "card"]);
 export type PaymentMethod = z.infer<typeof PaymentMethodEnum>;
@@ -56,18 +67,18 @@ export default function AssetInfoModal() {
   const router = useRouter();
   const { selectedMenu, setSelectedMenu } = useAssetMenu();
   const { getAssetBalance: creatorAssetBalance } = useUserStellarAcc();
-  const { getAssetBalance: creatorStorageAssetBalance, setBalance } =
-    useCreatorStorageAcc();
-  // console.log("isOpen", isOpen);
-  const { setCurrentTrack, currentTrack } = usePlayer();
+  const { getAssetBalance: creatorStorageAssetBalance, setBalance } = useCreatorStorageAcc();
+  console.log("isOpen", isOpen);
+  const { setCurrentTrack, currentTrack } = usePlayer()
   const isModalOpen = isOpen && type === "my asset info modal";
   const handleClose = () => {
-    setCurrentTrack(null);
+    setCurrentTrack(null)
     onClose();
   };
 
   const acc = api.wallate.acc.getCreatorStorageBallances.useQuery(undefined, {
     onSuccess: (data) => {
+
       setBalance(data);
     },
     onError: (error) => {
@@ -76,22 +87,16 @@ export default function AssetInfoModal() {
     refetchOnWindowFocus: false,
   });
 
-  const copyCreatorAssetBalance =
-    selectedMenu === AssetMenu.OWN
-      ? creatorAssetBalance({
-          code: data?.MyAsset?.code,
-          issuer: data?.MyAsset?.issuer,
-        })
-      : creatorStorageAssetBalance({
-          code: data?.MyAsset?.code,
-          issuer: data?.MyAsset?.issuer,
-        });
+  const copyCreatorAssetBalance = selectedMenu === AssetMenu.OWN ? creatorAssetBalance({
+    code: data?.MyAsset?.code, issuer: data?.MyAsset?.issuer,
+  }) : creatorStorageAssetBalance({ code: data?.MyAsset?.code, issuer: data?.MyAsset?.issuer })
 
   if (data.MyAsset)
+
     return (
       <>
         <Dialog open={isModalOpen} onOpenChange={handleClose}>
-          <DialogContent className="max-w-2xl overflow-hidden p-1 ">
+          <DialogContent className="max-w-3xl overflow-hidden p-0 [&>button]:text-black [&>button]:border [&>button]:border-black [&>button]:rounded-full [&>button]:bg-white ">
             <DialogClose className="absolute right-3 top-3 ">
               <X color="white" size={24} />
             </DialogClose>
@@ -117,13 +122,13 @@ export default function AssetInfoModal() {
                       NAME: {data.MyAsset.name}
                     </h2>
 
-                    <p className="max-h-[100px] min-h-[100px] overflow-y-auto text-sm text-gray-400">
-                      DESCRIPTION: {data.MyAsset.description}
+                    <p className="text-sm text-gray-400 max-h-[100px] min-h-[100px] overflow-y-auto">
+                      DESCRIPTION:  {data.MyAsset.description}
                     </p>
 
                     <div className="flex items-center gap-2 text-sm text-gray-400">
                       <span className="h-auto p-0 text-xs text-[#00a8fc]">
-                        ISSUER ID: {addrShort(data.MyAsset.issuer, 5)}
+                        ISSUER ID:  {addrShort(data.MyAsset.issuer, 5)}
                       </span>
                       <Badge variant="secondary" className=" rounded-lg">
                         {data.MyAsset.code}
@@ -149,12 +154,10 @@ export default function AssetInfoModal() {
                       </Badge>
                     </div>
                   </div>
+
                 </CardContent>
                 <CardFooter className="flex flex-col gap-1 p-2">
-                  <OtherButtons
-                    currentData={data.MyAsset}
-                    copies={Number(copyCreatorAssetBalance)}
-                  />
+                  <OtherButtons currentData={data.MyAsset} copies={Number(copyCreatorAssetBalance)} />
                   {session.status === "authenticated" &&
                     data.MyAsset.creatorId === session.data.user.id && (
                       <>
@@ -164,9 +167,9 @@ export default function AssetInfoModal() {
                         />
                       </>
                     )}
-                  {data.MyAsset.mediaType === "MUSIC" ? (
-                    <Button
-                      onClick={() => {
+                  {
+                    data.MyAsset.mediaType === "MUSIC" ?
+                      <Button onClick={() => {
                         setCurrentTrack(null);
                         setCurrentTrack({
                           asset: data.MyAsset,
@@ -177,37 +180,32 @@ export default function AssetInfoModal() {
                           price: 15,
                           priceUSD: 50,
                           id: 1,
-                        } as SongItemType);
-                      }}
-                      className="w-full"
-                      variant="secondary"
-                    >
-                      Play
-                    </Button>
-                  ) : (
-                    data.MyAsset.mediaType === "VIDEO" && (
-                      <Button
-                        onClick={() => {
-                          setCurrentTrack(null);
-                          setCurrentTrack({
-                            asset: data.MyAsset,
-                            albumId: 2,
-                            artist: " ",
-                            assetId: 1,
-                            createdAt: new Date(),
-                            price: 15,
-                            priceUSD: 50,
-                            id: 1,
-                          } as SongItemType);
-                        }}
-                        className="w-full"
-                        variant="secondary"
-                      >
-                        Play
-                      </Button>
-                    )
-                  )}
+                        } as SongItemType)
+                      }
+                      } className="w-full" variant='secondary'
+
+                      >Play</Button> : data.MyAsset.mediaType === "VIDEO" &&
+                      <Button onClick={() => {
+                        setCurrentTrack(null);
+                        setCurrentTrack({
+                          asset: data.MyAsset,
+                          albumId: 2,
+                          artist: " ",
+                          assetId: 1,
+                          createdAt: new Date(),
+                          price: 15,
+                          priceUSD: 50,
+                          id: 1,
+                        } as SongItemType)
+                      }
+                      } className="w-full" variant='secondary'
+
+                      >Play</Button>
+
+
+                  }
                   <DeleteAssetByAdmin id={data.MyAsset.id} />
+
                 </CardFooter>
               </Card>
 
@@ -219,7 +217,9 @@ export default function AssetInfoModal() {
                     alt={data.MyAsset.name}
                     width={1000}
                     height={1000}
-                    className={clsx("h-full w-full object-cover ")}
+                    className={clsx(
+                      "h-full max-h-[800px] overflow-y-auto w-full object-cover ",
+                    )}
                   />
                 ) : data.MyAsset.mediaType === "VIDEO" ? (
                   <>
@@ -231,37 +231,48 @@ export default function AssetInfoModal() {
                         backgroundRepeat: "no-repeat",
                         height: "100%",
                         width: "100%",
+
                       }}
-                      className={clsx("h-full w-full")}
-                    >
-                      <RightSidePlayer />
-                    </div>
-                  </>
-                ) : data.MyAsset.mediaType === "MUSIC" ? (
-                  <>
-                    <div
-                      style={{
-                        backgroundImage: `url(${data.MyAsset.thumbnail})`,
-                        backgroundSize: "cover",
-                        backgroundPosition: "center",
-                        backgroundRepeat: "no-repeat",
-                        height: "100%",
-                        width: "100%",
-                      }}
-                      className={clsx("h-full w-full")}
+                      className={clsx(
+                        "h-full max-h-[800px] overflow-y-auto w-full object-cover"
+                      )}
                     >
                       <RightSidePlayer />
                     </div>
                   </>
                 ) : (
-                  data.MyAsset.mediaType === "THREE_D" && (
-                    <ShowModel url={data.MyAsset.mediaUrl} />
-                  )
-                )}
+                  data.MyAsset.mediaType === "MUSIC" ? (
+                    <>
+                      <div
+                        style={{
+                          backgroundImage: `url(${data.MyAsset.thumbnail})`,
+                          backgroundSize: "cover",
+                          backgroundPosition: "center",
+                          backgroundRepeat: "no-repeat",
+                          height: "100%",
+                          width: "100%",
+
+                        }}
+                        className={clsx(
+                          "h-full max-h-[800px] overflow-y-auto w-full object-cover"
+                        )}
+                      >
+                        <RightSidePlayer />
+                      </div>
+                    </>
+                  ) :
+                    (
+                      data.MyAsset.mediaType === "THREE_D" && (
+                        <ShowModel url={data.MyAsset.mediaUrl} />
+                      )
+                    )
+                )
+
+                }
               </div>
             </div>
           </DialogContent>
-        </Dialog>
+        </Dialog >
       </>
     );
 }

@@ -152,18 +152,18 @@ export function VanityURLManager({ creator }: { creator: CreatorWithSubscription
         });
 
     };
-    console.log("setIsAvailable", isAvailable)
+
     return (
-        <div className="space-y-6 bg-base-200 p-6 rounded-lg shadow-md">
+        <div className="space-y-6 bg-base-200 p-6 rounded-lg shadow-md w-full">
             <h3 className="text-2xl font-bold">Vanity URL</h3>
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-                <div className="form-control">
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 w-full">
+                <div className="">
                     <label className="label">
                         <span className="label-text font-semibold">Your Vanity URL</span>
                     </label>
-                    <div className="flex items-center space-x-2">
+                    <div className="flex items-center space-x-2 w-full">
                         <span className="text-base-content/70">{env.NEXT_PUBLIC_URL}/</span>
-                        <div className="flex-1 relative">
+                        <div className="flex flex-col relative">
                             <input
                                 disabled={subscriptionStatus === 'expired'}
                                 type="text"
