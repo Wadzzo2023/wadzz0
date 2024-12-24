@@ -5,9 +5,8 @@ import * as z from "zod";
 import { api } from "~/utils/api";
 
 import { MediaType } from "@prisma/client";
-import { ImageIcon, Music, Users2, Video, X } from "lucide-react";
+import { FileAudio, FileVideo, ImageIcon, Music, Users2, Video, X } from "lucide-react";
 import clsx from "clsx";
-import { UploadButton } from "~/utils/uploadthing";
 import Image from "next/image";
 import { PostCard } from "./post";
 import Avater from "../../ui/avater";
@@ -31,6 +30,7 @@ import {
 import toast from "react-hot-toast";
 import { router } from "@trpc/server";
 import { useRouter } from "next/router";
+import { UploadS3Button } from "~/pages/test";
 
 const mediaTypes = [
   { type: MediaType.IMAGE, icon: ImageIcon },
@@ -175,13 +175,23 @@ export function CreatPost() {
             <div className="mt-20 mb-8 flex flex-wrap gap-2  ">
               {media.map((el, id) => (
                 <div key={id} className="relative">
-                  <Image
-                    src={el.url}
-                    alt="Uploaded media"
-                    height={100}
-                    width={100}
-                    className="rounded-md object-cover"
-                  />
+                  {el.type === MediaType.IMAGE ? (
+                    <Image
+                      src={el.url}
+                      alt="Uploaded media"
+                      height={100}
+                      width={100}
+                      className="rounded-md object-cover h-[100px] w-[100px]"
+                    />
+                  ) : el.type === MediaType.VIDEO ? (
+                    <div className="h-[100px] w-[100px] flex items-center justify-center bg-gray-200 rounded-md">
+                      <FileVideo className="h-12 w-12 text-gray-500" />
+                    </div>
+                  ) : (
+                    <div className="h-[100px] w-[100px] flex items-center justify-center bg-gray-200 rounded-md">
+                      <FileAudio className="h-12 w-12 text-gray-500" />
+                    </div>
+                  )}
                   <Button
                     size="icon"
                     variant="destructive"
@@ -195,72 +205,81 @@ export function CreatPost() {
                 </div>
               ))}
             </div>
-            <div className="flex flex-wrap gap-2">
-              {mediaTypes.map(({ type, icon: IconComponent }) => (
-                <Button
-                  key={type}
-                  size="sm"
-                  type="button"
-                  variant={wantMediaType === type ? "default" : "outline"}
-                  onClick={() => handleWantMediaType(type)}
-                  className="flex-1 sm:flex-none"
-                >
-                  <IconComponent className="mr-2 h-4 w-4" />
-                  {type}
-                </Button>
-              ))}
-            </div>
-            {wantMediaType === 'IMAGE' ? (
-              <UploadButton
-                endpoint="imageUploader"
-                content={{ button: "Add Media", allowedContent: "Max (4MB)" }}
-                className=" mt-10"
-                onClientUploadComplete={(res) => {
-                  const data = res[0];
-                  if (data?.url) {
-                    addMediaItem(data.url, wantMediaType);
-                    setWantMedia(undefined);
-                  }
-                }}
-                onUploadError={(error: Error) => {
-                  toast.error(`Upload error: ${error.message}`);
-                }}
-              />
-            ) : wantMediaType === 'VIDEO' ? (
-              (
-                <UploadButton
-                  endpoint="videoUploader"
-                  content={{ button: "Add Media", allowedContent: "Max (256MB)" }}
-                  className=" mt-10"
+            <div className="flex flex-col items-center gap-4">
+
+
+              <div className="flex flex-wrap items-center justify-center gap-2">
+                {mediaTypes.map(({ type, icon: IconComponent }) => (
+                  <Button
+                    key={type}
+                    size="sm"
+                    type="button"
+                    variant={wantMediaType === type ? "default" : "outline"}
+                    onClick={() => handleWantMediaType(type)}
+                    className="flex-1 sm:flex-none"
+                  >
+                    <IconComponent className="mr-2 h-4 w-4" />
+                    {type}
+                  </Button>
+                ))}
+              </div>
+              {wantMediaType === 'IMAGE' ? (
+                <UploadS3Button
+                  endpoint="imageUploader"
                   onClientUploadComplete={(res) => {
-                    const data = res[0];
+                    const data = res;
                     if (data?.url) {
                       addMediaItem(data.url, wantMediaType);
                       setWantMedia(undefined);
                     }
                   }}
                   onUploadError={(error: Error) => {
-                    toast.error(`Upload error: ${error.message}`);
+                    // Do something with the error.
+                    toast.error(`ERROR! ${error.message}`);
+
                   }}
                 />
-              )
-            ) : wantMediaType === "MUSIC" && (
-              <UploadButton
-                endpoint="musicUploader"
-                content={{ button: "Add Media", allowedContent: "Max (64MB)" }}
-                className=" mt-10"
-                onClientUploadComplete={(res) => {
-                  const data = res[0];
-                  if (data?.url) {
-                    addMediaItem(data.url, wantMediaType);
-                    setWantMedia(undefined);
-                  }
-                }}
-                onUploadError={(error: Error) => {
-                  toast.error(`Upload error: ${error.message}`);
-                }}
-              />
-            )}
+
+              ) : wantMediaType === 'VIDEO' ? (
+                (
+
+                  <UploadS3Button
+                    endpoint="videoUploader"
+                    onClientUploadComplete={(res) => {
+                      const data = res;
+                      if (data?.url) {
+                        addMediaItem(data.url, wantMediaType);
+                        setWantMedia(undefined);
+                      }
+                    }}
+                    onUploadError={(error: Error) => {
+                      // Do something with the error.
+                      toast.error(`ERROR! ${error.message}`);
+
+                    }}
+                  />
+
+                )
+              ) : wantMediaType === "MUSIC" && (
+                <UploadS3Button
+                  endpoint="musicUploader"
+                  onClientUploadComplete={(res) => {
+                    const data = res;
+                    if (data?.url) {
+                      addMediaItem(data.url, wantMediaType);
+                      setWantMedia(undefined);
+                    }
+                  }}
+                  onUploadError={(error: Error) => {
+                    // Do something with the error.
+                    toast.error(`ERROR! ${error.message}`);
+
+                  }}
+                />
+
+              )}
+            </div>
+
           </div>
         </CardContent>
         <CardFooter className="mt-8 flex flex-col items-stretch justify-between space-y-2 ">

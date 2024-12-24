@@ -5,6 +5,7 @@ import { api } from "~/utils/api";
 
 import axios, { AxiosError } from "axios";
 import { EndPointType } from "~/server/s3";
+import { Progress } from "~/components/shadcn/ui/progress";
 
 export default function TestPage() {
   return (
@@ -30,12 +31,14 @@ export function UploadS3Button({
   onUploadProgress,
   onClientUploadComplete,
   onUploadError,
+  disabled,
 }: {
   endpoint: EndPointType;
   onUploadProgress?: (p: number) => void;
   onClientUploadComplete?: (file: { url: string }) => void;
   onBeforeUploadBegin?: (files: File) => Promise<File> | File;
   onUploadError?: (error: Error) => void;
+  disabled?: boolean;
 }) {
   const [progress, setProgress] = useState(0);
   const [file, setFile] = useState<File>();
@@ -113,19 +116,21 @@ export function UploadS3Button({
   };
 
   return (
-    <div className="grid w-full max-w-sm items-center gap-1.5">
+    <div className="grid w-full  items-center gap-1.5">
       {loading && <div>Uploading...</div>}
       <Input
         onChange={handleFileChange}
         id="picture"
+        disabled={disabled}
         type="file"
+        className="bg-slate-200"
         accept={getAcceptString()}
       />
 
-      <progress
+      <Progress
         className="w-full"
         value={progress}
-        max="100"
+
         style={{ height: "0.5rem" }}
       />
     </div>
@@ -138,7 +143,7 @@ export function UploadS3Button({
       case "videoUploader":
         return "video/mp4,video/webm";
       case "musicUploader":
-        return "audio/mpeg,audio/ogg,audio/wav";
+        return "audio/mpeg,audio/mp3,audio/wav,audio/ogg,audio/aac,audio/flac,audio/alac,audio/aiff,audio/wma,audio/m4a";
     }
   }
 }

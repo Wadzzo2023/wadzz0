@@ -16,7 +16,6 @@ import {
   CardHeader,
 } from "~/components/shadcn/ui/card";
 import { api } from "~/utils/api";
-import { UploadButton } from "~/utils/uploadthing";
 import { useModal } from "../../lib/state/play/use-modal-store";
 import {
   Dialog,
@@ -26,6 +25,7 @@ import {
 } from "../shadcn/ui/dialog";
 
 import { PLATFORM_ASSET } from "~/lib/stellar/constant";
+import { UploadS3Button } from "~/pages/test";
 
 export const MediaInfo = z.object({
   url: z.string(),
@@ -258,23 +258,21 @@ const EditBountyModal = () => {
                         </div>
                       ))}
                     </div>
-                    <UploadButton
+                    <UploadS3Button
                       endpoint="imageUploader"
-                      content={{
-                        button: "Add Media",
-                        allowedContent: "Max (4MB)",
-                      }}
                       onClientUploadComplete={(res) => {
-                        const data = res[0];
+                        const data = res;
 
                         if (data?.url) {
                           addMediaItem(data.url);
                         }
                       }}
                       onUploadError={(error: Error) => {
-                        alert(`ERROR! ${error.message}`);
+                        // Do something with the error.
+                        toast.error(`ERROR! ${error.message}`);
                       }}
                     />
+
                   </div>
                 </div>
                 <CardFooter className="flex justify-between">

@@ -7,10 +7,11 @@ import Image from "next/image";
 import _isEqual from "lodash.isequal";
 import { SubmitHandler, useForm } from "react-hook-form";
 import Alert from "~/components/ui/alert";
-import { UploadButton } from "~/utils/uploadthing";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Album } from "@prisma/client";
+import { UploadS3Button } from "~/pages/test";
+import toast from "react-hot-toast";
 
 type AlbumCreate = {
   mode: ModalMode;
@@ -93,22 +94,22 @@ export default function AlbumCreate({ mode, album }: AlbumCreate) {
                 placeholder="Description"
                 className="input input-sm input-bordered w-full"
               />
-              <UploadButton
+
+              <UploadS3Button
                 endpoint="imageUploader"
-                content={{ button: "Add Media", allowedContent: "Max (4MB)" }}
                 onClientUploadComplete={(res) => {
-                  const data = res[0];
+                  const data = res;
                   if (data?.url) {
                     setCoverUrl(data.url);
                     setValue("coverImgUrl", data.url);
                   }
-                  // updateProfileMutation.mutate(res);
                 }}
                 onUploadError={(error: Error) => {
                   // Do something with the error.
-                  alert(`ERROR! ${error.message}`);
+                  toast.error(`ERROR! ${error.message}`);
                 }}
               />
+
 
               {coverUrl && (
                 <Image
