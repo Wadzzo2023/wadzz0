@@ -1,4 +1,13 @@
 export const BADWORDS = [
+  "Bandcoin",
+  "WWW",
+  "XLM",
+  "Stellar",
+  "Trump",
+  "Shit",
+  "vanity",
+  "URL",
+  "Giveaway",
   "2g1c",
   "2 girls 1 cup",
   "acrotomophilia",
