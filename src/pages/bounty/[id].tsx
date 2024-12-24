@@ -1167,7 +1167,7 @@ const AdminBountyPage = () => {
                     <DialogTrigger asChild>
                       <Button
                         disabled={
-                          loadingBountyId === data.id ||
+                          DeleteMutation.isLoading || loadingBountyId === data.id ||
                             data._count.BountyWinner > 0
                             ? true
                             : false

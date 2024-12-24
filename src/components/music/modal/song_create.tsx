@@ -270,7 +270,7 @@ export default function SongCreate({ albumId }: { albumId: number }) {
 
 
                     <UploadS3Button
-                      endpoint="imageUploader"
+                      endpoint="musicUploader"
                       onClientUploadComplete={(res) => {
                         const data = res;
 
