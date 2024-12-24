@@ -12,6 +12,7 @@ import useNeedSign from '~/lib/hook';
 import { clientsign } from 'package/connect_wallet';
 import { clientSelect } from '~/lib/stellar/fan/utils';
 import { useSession } from 'next-auth/react';
+import { Copy } from 'lucide-react';
 
 const VanityURLSchema = z.object({
     vanityURL: z.string().min(2).max(30),
@@ -152,7 +153,15 @@ export function VanityURLManager({ creator }: { creator: CreatorWithSubscription
         });
 
     };
-
+    const copyToClipboard = () => {
+        const vanityURL = `${env.NEXT_PUBLIC_URL}/${watch('vanityURL')}`;
+        navigator.clipboard.writeText(vanityURL).then(() => {
+            toast.success('Vanity URL copied to clipboard');
+        }).catch((err) => {
+            console.error('Failed to copy: ', err);
+            toast.error('Failed to copy Vanity URL');
+        });
+    };
     return (
         <div className="space-y-6 bg-base-200 p-6 rounded-lg shadow-md w-full">
             <h3 className="text-2xl font-bold">Vanity URL</h3>
@@ -160,6 +169,14 @@ export function VanityURLManager({ creator }: { creator: CreatorWithSubscription
                 <div className="">
                     <label className="label">
                         <span className="label-text font-semibold">Your Vanity URL</span>
+                        <button
+                            type="button"
+                            onClick={copyToClipboard}
+                            className="btn btn-ghost btn-sm ml-2"
+                            aria-label="Copy Vanity URL"
+                        >
+                            Copy <Copy className="h-4 w-4" />
+                        </button>
                     </label>
                     <div className="flex items-center space-x-2 w-full">
                         <span className="text-base-content/70">{env.NEXT_PUBLIC_URL}/</span>
@@ -172,6 +189,7 @@ export function VanityURLManager({ creator }: { creator: CreatorWithSubscription
                                     }`}
                                 placeholder="your-custom-url"
                             />
+
                             {isAvailable !== null && (
                                 <span className={` ${isAvailable ? 'text-success' : 'text-error'
                                     }`}>
