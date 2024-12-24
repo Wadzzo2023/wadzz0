@@ -183,13 +183,13 @@ export function MusicItem({
           alt={`${item.asset.code} cover`}
           className="transition-transform duration-300 group-hover:scale-105"
         />
-        <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-0 transition-all duration-300 group-hover:bg-opacity-50">
+        {/* <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-0 transition-all duration-300 group-hover:bg-opacity-50">
           {
             currentTrack?.id === item.id && isPlaying ? (
               <Pause className="h-8 w-8" />) : <Play className="h-8 w-8" />
 
           }
-        </div>
+        </div> */}
       </div>
       <div className="flex-grow min-w-0">
         <p className="text-base font-medium text-gray-800 truncate">{item.asset.code}</p>
