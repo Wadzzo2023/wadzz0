@@ -129,14 +129,12 @@ export async function SendBountyBalanceToUserAccount({
   const platformAssetBalance = account.balances.find((balance) => {
     if (
       balance.asset_type === "credit_alphanum4" ||
-      balance.asset_type === "credit_alphanum12"
+      balance.asset_type === "credit_alphanum12" && (balance.asset_code === PLATFORM_ASSET.code && balance.asset_issuer === PLATFORM_ASSET.issuer)
     ) {
-      return balance.asset_code === PLATFORM_ASSET.code && balance.asset_issuer === PLATFORM_ASSET.issuer;
+      return true
     }
     return false;
   });
-  console.log("platformAssetBalance......................", platformAssetBalance);
-  console.log("prize", prize);
 
   if (
     !platformAssetBalance ||

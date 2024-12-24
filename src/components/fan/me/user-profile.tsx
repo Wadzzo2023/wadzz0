@@ -5,7 +5,6 @@ import { z } from "zod";
 import Avater from "../../ui/avater";
 import { type Creator, type User } from "@prisma/client";
 import { api } from "~/utils/api";
-import { UploadButton } from "~/utils/uploadthing";
 import { Card, CardHeader, CardContent } from "~/components/shadcn/ui/card";
 import {
   Avatar,
@@ -100,30 +99,7 @@ function AboutForm({ user }: { user: User }) {
     //     <div className="">
     //       <Avater url={user.image} className="w-8" />
     //     </div>
-    //     <UploadButton
-    //       endpoint="imageUploader"
-    //       appearance={{
-    //         allowedContent(arg) {
-    //           return { display: "none" };
-    //         },
-    //       }}
-    //       content={{ button: "Change Photo" }}
-    //       onClientUploadComplete={(res) => {
-    //         // Do something with the response
-    //         console.log("Files: ", res);
-    //         // alert("Upload Completed");
-    //         const data = res[0];
-
-    //         if (data?.url) {
-    //           updateProfileMutation.mutate(data.url);
-    //         }
-    //         // updateProfileMutation.mutate(res);
-    //       }}
-    //       onUploadError={(error: Error) => {
-    //         // Do something with the error.
-    //         alert(`ERROR! ${error.message}`);
-    //       }}
-    //     />
+    //    
     //   </div>
     //   <label className="form-control w-full ">
     //     <div className="label">
@@ -259,33 +235,6 @@ function AboutForm({ user }: { user: User }) {
                           />
                         </Avatar>
 
-                        <UploadButton
-                          endpoint="imageUploader"
-                          appearance={{
-                            button:
-                              "text-white bg-green-700 hover:bg-green-800 focus:outline-none focus:ring-4 focus:ring-green-300 font-medium rounded-full text-sm px-5 py-2.5 text-center dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800text-white bg-gradient-to-r from-green-400 via-green-500 to-green-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-green-300 dark:focus:ring-green-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center",
-                            container:
-                              "p-1 w-max flex-row rounded-md border-cyan-300 bg-slate-800",
-                            allowedContent:
-                              "flex h-8 flex-col items-center justify-center px-2 text-white",
-                          }}
-                          content={{ button: "Change Photo" }}
-                          onClientUploadComplete={(res) => {
-                            // Do something with the response
-                            console.log("Files: ", res);
-                            // alert("Upload Completed");
-                            const data = res[0];
-
-                            if (data?.url) {
-                              updateProfileMutation.mutate(data.url);
-                            }
-                            // updateProfileMutation.mutate(res);
-                          }}
-                          onUploadError={(error: Error) => {
-                            // Do something with the error.
-                            alert(`ERROR! ${error.message}`);
-                          }}
-                        />
                         <UploadS3Button
                           endpoint="imageUploader"
                           onClientUploadComplete={(res) => {
@@ -294,7 +243,7 @@ function AboutForm({ user }: { user: User }) {
                           }}
                           onUploadError={(error: Error) => {
                             // Do something with the error.
-                            alert(`ERROR! ${error.message}`);
+                            toast.error(`ERROR! ${error.message}`);
                           }}
                         />
                       </div>
