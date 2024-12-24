@@ -44,7 +44,7 @@ export async function createUniAsset({
 
   // accounts
   const issuerAcc = Keypair.random();
-  const asesetStorage = Keypair.fromSecret(storageSecret);
+  const assetStorage = Keypair.fromSecret(storageSecret);
   const PLATFORM_MOTHER_ACC = Keypair.fromSecret(env.MOTHER_SECRET);
 
   const asset = new Asset(code, issuerAcc.publicKey());
@@ -57,11 +57,11 @@ export async function createUniAsset({
     Number(TrxBaseFeeInPlatformAsset);
 
   // here pubkey should be change for admin
-  const transactionInializer = await server.loadAccount(
+  const transactionInitializer = await server.loadAccount(
     PLATFORM_MOTHER_ACC.publicKey(),
   );
 
-  const Tx1 = new TransactionBuilder(transactionInializer, {
+  const Tx1 = new TransactionBuilder(transactionInitializer, {
     fee: TrxBaseFee,
     networkPassphrase,
   });
@@ -83,7 +83,7 @@ export async function createUniAsset({
   // send this required xlm to storage so that it can lock new  trusting asset (0.5xlm)
   Tx1.addOperation(
     Operation.payment({
-      destination: asesetStorage.publicKey(),
+      destination: assetStorage.publicKey(),
       asset: Asset.native(),
       amount: "2",
       source: PLATFORM_MOTHER_ACC.publicKey(),
@@ -95,7 +95,7 @@ export async function createUniAsset({
       Operation.createAccount({
         destination: issuerAcc.publicKey(),
         startingBalance: "1.5",
-        source: asesetStorage.publicKey(),
+        source: assetStorage.publicKey(),
       }),
     )
     // 2
@@ -103,7 +103,7 @@ export async function createUniAsset({
       Operation.changeTrust({
         asset,
         limit: limit,
-        source: asesetStorage.publicKey(),
+        source: assetStorage.publicKey(),
       }),
     )
 
@@ -113,7 +113,7 @@ export async function createUniAsset({
         asset,
         amount: limit,
         source: issuerAcc.publicKey(),
-        destination: asesetStorage.publicKey(),
+        destination: assetStorage.publicKey(),
       }),
     )
     // 4
@@ -136,7 +136,7 @@ export async function createUniAsset({
   const buildTrx = Tx1.build();
 
   // sign
-  buildTrx.sign(PLATFORM_MOTHER_ACC, issuerAcc, asesetStorage);
+  buildTrx.sign(PLATFORM_MOTHER_ACC, issuerAcc, assetStorage);
   const xdr = buildTrx.toXDR();
 
   const signedXDr = await WithSing({

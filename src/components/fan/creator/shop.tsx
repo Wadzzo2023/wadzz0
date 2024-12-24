@@ -4,9 +4,9 @@ import { MoreAssetsSkeleton } from "~/components/marketplace/platforms_nfts";
 import { api } from "~/utils/api";
 import ViewMediaModal from "../shop/asset_view_modal";
 import ShopAssetComponent from "../shop/shop_asset";
-import RedeeemPage from "~/components/redeem/creator-redeem";
 import AssetView from "~/components/marketplace/asset/asset_view";
 import { useModal } from "~/lib/state/play/use-modal-store";
+import RedeeemPage from "~/components/redeem/creator-redeem";
 
 export default function Shop({ creator }: { creator?: Creator }) {
   return (

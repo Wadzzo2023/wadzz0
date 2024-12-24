@@ -4,9 +4,9 @@ import { SubmitHandler, useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { z } from "zod";
 import { api } from "~/utils/api";
-import { UploadButton } from "~/utils/uploadthing";
 import { CoverChange } from "./change-cover-button";
 import PadSVG from "./profile/convert-svg";
+import { UploadS3Button } from "~/pages/test";
 
 export const CreatorAboutShema = z.object({
   description: z
@@ -60,33 +60,19 @@ export default function About({ creator }: { creator: Creator }) {
         <div className="flex flex-col items-center   gap-2">
           <div className="space-y-4 ">
             <span className="text-xs">Profile Dimension 200 x 200 pixels</span>
-            <UploadButton
-              className="w-full "
+            <UploadS3Button
               endpoint="imageUploader"
-              appearance={{
-                button:
-                  "text-white bg-gradient-to-r from-cyan-400 via-cyan-500 to-cyan-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-cyan-300 dark:focus:ring-cyan-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center ",
-                container:
-                  "p-1 w-max flex-row rounded-md border-cyan-300 bg-slate-800",
-                allowedContent:
-                  "flex h-8 flex-col items-center justify-center px-2 text-white",
-              }}
-              content={{ button: "Change Profile" }}
               onClientUploadComplete={(res) => {
-                // Do something with the response
-                // alert("Upload Completed");
-                const data = res[0];
-
-                if (data?.url) {
-                  updateProfileMutation.mutate(data.url);
-                }
-                // updateProfileMutation.mutate(res);
+                const fileUrl = res.url;
+                updateProfileMutation.mutate(fileUrl);
               }}
               onUploadError={(error: Error) => {
                 // Do something with the error.
-                alert(`ERROR! ${error.message}`);
+                toast.error(`ERROR! ${error.message}`);
+
               }}
             />
+
           </div>
 
           <CoverChange />

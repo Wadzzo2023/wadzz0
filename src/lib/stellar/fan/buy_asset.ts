@@ -33,11 +33,11 @@ export async function buyAssetTrx({
   const asset = new Asset(assetType.code, assetType.issuer);
 
   const assetStorage = Keypair.fromSecret(storageSecret);
-  const maotherAcc = Keypair.fromSecret(env.MOTHER_SECRET);
+  const motherAcc = Keypair.fromSecret(env.MOTHER_SECRET);
 
-  const transactionInializer = await server.loadAccount(customerPubkey);
+  const transactionInitializer = await server.loadAccount(customerPubkey);
 
-  const Tx1 = new TransactionBuilder(transactionInializer, {
+  const Tx1 = new TransactionBuilder(transactionInitializer, {
     fee: "200",
     networkPassphrase,
   })
@@ -71,7 +71,7 @@ export async function buyAssetTrx({
       Operation.payment({
         amount: PLATFORM_FEE,
         asset: PLATFORM_ASSET,
-        destination: maotherAcc.publicKey(),
+        destination: motherAcc.publicKey(),
       }),
     )
 
