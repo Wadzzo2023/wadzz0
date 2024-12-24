@@ -99,10 +99,10 @@ export const env = createEnv({
     NEXT_PUBLIC_SQUARE_APP_ID: process.env.NEXT_PUBLIC_SQUARE_APP_ID,
     NEXT_PUBLIC_SQUARE_LOCATION: process.env.NEXT_PUBLIC_SQUARE_LOCATION,
     // AWS
-    AWS_BUCKET_NAME: process.env.AWS_BUCKET_NAME,
-    AWS_BUCKET_REGION: process.env.AWS_BUCKET_REGION,
-    AWS_ACCESS_KEY: process.env.AWS_ACCESS_KEY,
-    AWS_SECRET_ACCESS_KEY: process.env.AWS_SECRET_ACCESS_KEY,
+    AWS_BUCKET_NAME: process.env.NEXT_PUBLIC_AWS_BUCKET_NAME,
+    AWS_BUCKET_REGION: process.env.NEXT_PUBLIC_AWS_BUCKET_REGION,
+    AWS_ACCESS_KEY: process.env.NEXT_PUBLIC_AWS_ACCESS_KEY,
+    AWS_SECRET_ACCESS_KEY: process.env.NEXT_PUBLIC_AWS_SECRET_ACCESS_KEY,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially
