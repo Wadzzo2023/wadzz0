@@ -71,6 +71,7 @@ export default function CreatorStoreAssetInfoModal() {
   console.log("isOpen", isOpen);
   const isModalOpen = isOpen && type === "creator asset info";
   const handleClose = () => {
+    setStep(1)
     onClose();
   };
 
