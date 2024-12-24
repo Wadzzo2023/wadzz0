@@ -2,6 +2,7 @@ import { NotificationType } from "@prisma/client";
 import { z } from "zod";
 import { PostSchema } from "~/components/fan/creator/CreatPost";
 import { CommentSchema } from "~/components/fan/post/add-comment";
+import { StellarAccount } from "~/lib/stellar/marketplace/test/Account";
 
 import {
   createTRPCRouter,
@@ -171,29 +172,38 @@ export const postRouter = createTRPCRouter({
   getAPost: protectedProcedure
     .input(z.number())
     .query(async ({ input, ctx }) => {
-      const usertoken = 10;
       const userId = ctx.session.user.id;
 
       const post = await ctx.db.post.findUnique({
         where: { id: input },
         include: {
           _count: { select: { likes: true, comments: true } },
-          creator: { select: { name: true, id: true, profileUrl: true } },
+          creator: { select: { name: true, id: true, profileUrl: true, pageAsset: true } },
           subscription: { select: { price: true } },
           medias: true,
         },
       });
 
-      // if post is for all
+
+
+
+
 
       if (post) {
         if (post.subscription) {
-          // choose creator highest priority valid subscription
+          const pageAsset = post.creator.pageAsset;
+          if (!pageAsset) {
+            throw new Error("Page Asset not found");
+          }
+          const { code, issuer } = pageAsset;
+          const acc = await StellarAccount.create(userId);
 
-          if (usertoken <= post.subscription.price) {
+          if (acc.getTokenBalance(code, issuer) >= post.subscription.price) {
             return post;
           }
-          return false;
+          else {
+            return false
+          }
         }
 
         if (!post.subscription) return post;
