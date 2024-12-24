@@ -10,8 +10,9 @@ import { z } from "zod";
 import { PLATFORM_ASSET, PLATFORM_FEE } from "~/lib/stellar/constant";
 import { AccountSchema, clientSelect } from "~/lib/stellar/fan/utils";
 import { api } from "~/utils/api";
-import { UploadButton } from "~/utils/uploadthing";
+
 import Alert from "../../ui/alert";
+import { UploadS3Button } from "~/pages/test";
 
 export const ShopItemSchema = z.object({
   name: z.string().min(4, { message: "Minimum 4 Required" }),
@@ -260,25 +261,25 @@ export default function AddItem2Shop() {
     return (
       <>
         <div className="mt-4">
-          <UploadButton
+
+          <UploadS3Button
             endpoint="imageUploader"
-            content={{ button: "Add Media", allowedContent: "Max (4MB)" }}
             onClientUploadComplete={(res) => {
-              // Do something with the response
-              // alert("Upload Completed");
-              const data = res[0];
+              const data = res;
 
               if (data?.url) {
                 setThumbnail(data.url);
                 setValue("thumbnail", data.url);
               }
-              // updateProfileMutation.mutate(res);
             }}
             onUploadError={(error: Error) => {
               // Do something with the error.
-              alert(`ERROR! ${error.message}`);
+              toast.error(`ERROR! ${error.message}`);
+
             }}
           />
+
+
         </div>
         <div className="flex h-40 w-full flex-col items-center justify-center gap-2">
           {thumbnail && (

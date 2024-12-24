@@ -115,13 +115,16 @@ export function PostCard({
         <div className="h-auto w-auto rounded-full">
           <Avater className="h-12 w-12" url={creator.profileUrl} />
         </div>
-        <div className="ml-4 flex flex-col">
-          <Link
-            href={creatorProfileUrl}
-            className="text-sm font-semibold text-gray-600 hover:underline"
-          >
-            {creator.name}
-          </Link>
+        <div className="ml-4 flex flex-col w-full">
+          <div className="items-center flex flex-row justify-between w-full">
+            <Link
+              href={creatorProfileUrl}
+              className="text-sm font-semibold text-gray-600 hover:underline"
+            >
+              {creator.name}
+            </Link>
+            <PostContextMenu creatorId={creator.id} postId={post.id} />
+          </div>
           <div className="flex items-center text-xs text-blue-700">
             {priority && (
               <Badge variant="secondary" className={`mr-2 ${getBadgeStyle(priority)}`}>
@@ -131,7 +134,7 @@ export function PostCard({
             {formatPostCreatedAt(post.createdAt)}
           </div>
         </div>
-        <PostContextMenu creatorId={creator.id} postId={post.id} />
+
       </CardHeader>
 
       <CardContent className="px-6 bg-slate-50 rounded-xl">

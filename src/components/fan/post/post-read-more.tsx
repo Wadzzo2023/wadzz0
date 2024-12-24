@@ -6,7 +6,7 @@ import { Preview } from "~/components/preview";
 export function PostReadMore({ post }: { post: Post }) {
   const router = useRouter();
   const isLong = post.content.length > 200;
-  if (isLong && router.pathname != `fans/posts/[id]`) {
+  if (isLong && router.pathname != `/fans/posts/[id]`) {
     return (
       <div className="px-2">
         <Preview value={post.content.slice(0, 200)} />

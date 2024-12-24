@@ -12,8 +12,9 @@ import { z } from "zod";
 import { PLATFORM_ASSET } from "~/lib/stellar/constant";
 import { AccountSchema } from "~/lib/stellar/fan/utils";
 import { api } from "~/utils/api";
-import { UploadButton } from "~/utils/uploadthing";
+
 import { ipfsHashToUrl } from "~/utils/ipfs";
+import { UploadS3Button } from "~/pages/test";
 
 export const SongFormSchema = z.object({
   name: z.string(),
@@ -261,35 +262,26 @@ export default function SongCreate({ albumId }: { albumId: number }) {
 
                   <div className="form-control w-full">
                     <label className="label">
-                      <span className="label-text">
+                      <span className="label-text ">
                         Choose your music{" "}
-                        {errors.musicUrl ? (
-                          <span className="text-warning">`(requried)`</span>
-                        ) : (
-                          `(required)`
-                        )}
+                        <span className="text-red-600">* requried</span>
                       </span>
                     </label>
 
-                    <UploadButton
+
+                    <UploadS3Button
                       endpoint="musicUploader"
-                      content={{
-                        button: "Add Song",
-                      }}
                       onClientUploadComplete={(res) => {
-                        // Do something with the response
-                        // alert("Upload Completed");
-                        const data = res[0];
+                        const data = res;
 
                         if (data?.url) {
                           setMusicUrl(data.url);
                           setValue("musicUrl", data.url);
                         }
-                        // updateProfileMutation.mutate(res);
                       }}
                       onUploadError={(error: Error) => {
                         // Do something with the error.
-                        alert(`ERROR! ${error.message}`);
+                        toast.error(`ERROR! ${error.message}`);
                       }}
                     />
 
@@ -300,6 +292,15 @@ export default function SongCreate({ albumId }: { albumId: number }) {
                         </audio>
                       </>
                     )}
+                    {
+                      errors.musicUrl && (
+                        <label className="label">
+                          <span className="label-text-alt text-warning">
+                            {errors.musicUrl.message}
+                          </span>
+                        </label>
+                      )
+                    }
                   </div>
                 </div>
 

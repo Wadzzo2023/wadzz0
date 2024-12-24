@@ -9,6 +9,7 @@ import { gameRouter } from "./routers/game";
 import { wallateBalanceRouter } from "./routers/walletBalance/root";
 import { adminRouter } from "./routers/admin/root";
 import { BountyRouters } from "./routers/bounty/root";
+import { s3Router } from "./routers/s3";
 
 /**
  * This is the primary router for your server.
@@ -26,6 +27,7 @@ export const appRouter = createTRPCRouter({
   walletBalance: wallateBalanceRouter,
   admin: adminRouter,
   bounty: BountyRouters,
+  s3: s3Router,
 });
 
 // export type definition of API

@@ -39,13 +39,13 @@ export const marketRouter = createTRPCRouter({
   placeNft2StorageXdr: protectedProcedure
     .input(PlaceMarketFormSchema.extend({ signWith: SignUser }))
     .mutation(async ({ input, ctx }) => {
-      // validate and transfor input
+      // validate and transfer input
       const { code, issuer, placingCopies, signWith } = input;
 
       const creatorId = ctx.session.user.id;
       const storage = await ctx.db.creator.findUnique({
         where: { id: creatorId },
-        select: { storagePub: true },
+        select: { storagePub: true, storageSecret: true },
       });
       if (!storage?.storagePub) {
         throw new Error("storage does not exist");
@@ -53,13 +53,13 @@ export const marketRouter = createTRPCRouter({
 
       const assetAmount = placingCopies.toString();
 
-      // stellear sdk for xdr
+      // stellar sdk for xdr
       return await sendNft2StorageXDR({
         assetAmount,
         assetCode: code,
         signWith,
         issuerPub: issuer,
-        storagePub: storage.storagePub,
+        storageSec: storage.storageSecret,
         userPub: creatorId,
       });
     }),
@@ -168,7 +168,6 @@ export const marketRouter = createTRPCRouter({
           asset: {
             select: AssetSelectAllProperty,
           },
-
         },
         where: { placerId: { not: null }, type: { equals: "FAN" } },
       });

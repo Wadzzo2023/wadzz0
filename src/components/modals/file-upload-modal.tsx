@@ -15,6 +15,7 @@ import { UploadButton } from "~/utils/uploadthing";
 import { useModal } from "../../lib/state/play/use-modal-store";
 import { Editor } from "../editor";
 import { Button } from "../shadcn/ui/button";
+import { MultiUploadS3Button } from "~/pages/test";
 
 export const SubmissionMediaInfo = z.object({
   url: z.string(),
@@ -22,6 +23,21 @@ export const SubmissionMediaInfo = z.object({
   size: z.number(),
   type: z.string(),
 });
+
+export const allowedSubmissionTypes = [
+  "image/*", // All image types
+  "video/*", // All video types
+  "audio/*", // All audio types
+  "application/vnd.google-apps.document", // Google Docs
+  "application/vnd.google-apps.spreadsheet", // Google Sheets
+  "text/plain", // Plain text
+  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", // XLSX
+  "application/vnd.ms-excel", // XLS (old Excel format)
+  "text/csv", // CSV
+  "text/tab-separated-values", // TSV
+  "application/pdf", // PDF
+  "application/vnd.oasis.opendocument.spreadsheet", // ODS (OpenDocument Spreadsheet)
+];
 
 type SubmissionMediaInfoType = z.TypeOf<typeof SubmissionMediaInfo>;
 
@@ -44,7 +60,7 @@ const FileUploadModal = () => {
     api.bounty.Bounty.getSubmittedAttachmentById.useQuery({
       submissionId: submissionId ?? 0,
     });
-  console.log(getSubmittedAttachment.data);
+  // console.log(getSubmittedAttachment.data);
   const {
     register,
     handleSubmit,
@@ -58,7 +74,7 @@ const FileUploadModal = () => {
   });
 
   const isModalOpen = isOpen && type === "upload file";
-  console.log(data);
+  // console.log(data);
   const handleClose = () => {
     reset();
     setMedia([]); // Clear media when modal is closed
@@ -115,7 +131,7 @@ const FileUploadModal = () => {
   ) => {
     data.BountyId = bountyId;
     data.medias = media;
-    console.log("data data data", data);
+    // console.log("data data data", data);
     if (submissionId) {
       UpdateBountyAttachment.mutate({
         content: data.content,
@@ -146,7 +162,7 @@ const FileUploadModal = () => {
     setMedia((prevMedia) => [...prevMedia, { url, name, size, type }]);
   };
 
-  console.log(media);
+  // console.log(media);
   return (
     <>
       <Dialog open={isModalOpen} onOpenChange={handleClose}>
@@ -188,7 +204,7 @@ const FileUploadModal = () => {
                   )}{" "}
                 </div>
                 <div className="mt-2 flex flex-col items-center gap-2">
-                  <div className="flex max-h-[200px] mt-10 w-full flex-col gap-2 overflow-y-auto">
+                  <div className="mt-10 flex max-h-[200px] w-full flex-col gap-2 overflow-y-auto">
                     {/* Display uploading files with progress */}
                     {uploadingFiles.map((file, index) => (
                       <div
@@ -244,13 +260,9 @@ const FileUploadModal = () => {
                 <span className="text-center text-xs text-red-400">
                   You can only upload a maximum of 5 files at a time.
                 </span>
-                <UploadButton
-                  endpoint="SubmissionImageUploader"
-                  content={{
-                    button: "Add Media",
-                    allowedContent:
-                      "Audio, Video, Image, PDF,Text ,Spreed Sheet, CSV, TSV, ODS | Max (1024MB)",
-                  }}
+                <MultiUploadS3Button
+                  endpoint="multiBlobUploader"
+
                   onUploadProgress={(progressValue) => {
                     setProgress((prevProgress) => {
                       // Assuming progress for the first file in the uploadingFiles list is updated
@@ -264,7 +276,7 @@ const FileUploadModal = () => {
 
                     // Handle the uploaded file(s)
                     res.forEach((data) => {
-                      console.log(data);
+                      // console.log(data);
                       if (data?.url) {
                         addMediaItem(data.url, data.name, data.size, data.type);
                       }
@@ -275,61 +287,7 @@ const FileUploadModal = () => {
                     setProgress([]);
                     setLoading(false);
                   }}
-                  onBeforeUploadBegin={(files) => {
-                    setLoading(true);
-                    const allowedTypes = [
-                      "image/*", // All image types
-                      "video/*", // All video types
-                      "audio/*", // All audio types
-                      "application/vnd.google-apps.document", // Google Docs
-                      "application/vnd.google-apps.spreadsheet", // Google Sheets
-                      "text/plain", // Plain text
-                      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", // XLSX
-                      "application/vnd.ms-excel", // XLS (old Excel format)
-                      "text/csv", // CSV
-                      "text/tab-separated-values", // TSV
-                      "application/pdf", // PDF
-                      "application/vnd.oasis.opendocument.spreadsheet", // ODS (OpenDocument Spreadsheet)
-                    ];
-                    if (
-                      files.length > 5 ||
-                      media.length > 5 ||
-                      files.length + media.length > 5
-                    ) {
-                      toast.error(
-                        "You can only upload a maximum of 5 files at a time.",
-                      );
-                      setLoading(false);
-                      return [];
-                    }
 
-                    const validFiles = files.filter((file) => {
-                      const fileType = file?.type;
-                      const isAllowed = allowedTypes.some((type) => {
-                        const baseType = type.split("/")[0];
-                        return (
-                          fileType === type || fileType?.startsWith(baseType!)
-                        );
-                      });
-
-                      if (!isAllowed) {
-                        toast.error(`File type not allowed: ${file.name}`);
-                        return false; // Exclude invalid file
-                      }
-
-                      return true;
-                    });
-
-                    if (validFiles.length === 0) {
-                      setLoading(false);
-                      return []; // Prevent upload if no valid files
-                    }
-
-                    setUploadingFiles(validFiles); // Track all valid files being uploaded
-                    setProgress(Array(validFiles.length).fill(0)); // Initialize progress for all files
-
-                    return validFiles; // Return the valid files for upload
-                  }}
                   onUploadError={(error: Error) => {
                     setLoading(false);
                     toast.error(error.message);

@@ -38,6 +38,7 @@ const config = {
   reactStrictMode: true,
   images: {
     remotePatterns: [
+      {hostname:"wadzzo.s3.amazonaws.com"},
       {
         hostname: "utfs.io",
       },
@@ -50,6 +51,7 @@ const config = {
       { hostname: "ipfs.io" },
       { hostname: "daisyui.com" },
       { hostname: "picsum.photos" },
+      { hostname: `${process.env.NEXT_AWS_BUCKET_NAME}.s3.amazonaws.com` },
     ],
   },
 
