@@ -77,6 +77,8 @@ export default function SongCreate({ albumId }: { albumId: number }) {
   const addSong = api.music.song.create.useMutation({
     onSuccess: () => {
       toast.success("Song added");
+      modalRef.current?.close();
+
       reset();
     },
   });
