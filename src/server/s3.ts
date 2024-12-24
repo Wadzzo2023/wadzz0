@@ -4,10 +4,10 @@ import crypto from "crypto";
 import { env } from "~/env";
 
 const s3Client = new S3Client({
-  region: env.AWS_BUCKET_REGION!,
+  region: env.AWS_BUCKET_REGION,
   credentials: {
-    accessKeyId: env.AWS_ACCESS_KEY!,
-    secretAccessKey: env.AWS_SECRET_ACCESS_KEY!,
+    accessKeyId: env.AWS_ACCESS_KEY,
+    secretAccessKey: env.AWS_SECRET_ACCESS_KEY,
   },
 });
 
