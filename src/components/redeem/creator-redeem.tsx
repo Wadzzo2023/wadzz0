@@ -242,8 +242,7 @@ const Redeem = ({ creatorId }: { creatorId: string }) => {
     console.log("creatorAssets", creatorAssets);
 
     const totalFee = totalFees.data ?? 0;
-    const totalAmount =
-        Number(totalFee + TrxBaseFeeInPlatformAsset + PLATFORM_FEE);
+
     const xlmPlatformFee = 2;
 
     return (
@@ -365,7 +364,7 @@ const Redeem = ({ creatorId }: { creatorId: string }) => {
                                             label: "Cost",
                                             amount:
                                                 paymentMethod === "asset"
-                                                    ? totalAmount * getValues("maxRedeems")
+                                                    ? totalFee * getValues("maxRedeems")
                                                     :
                                                     Number(0.5 + TrxBaseFee) * getValues("maxRedeems") + xlmPlatformFee,
                                             highlighted: true,
@@ -376,7 +375,7 @@ const Redeem = ({ creatorId }: { creatorId: string }) => {
                                             label: "Total Cost",
                                             amount:
                                                 paymentMethod === "asset"
-                                                    ? totalAmount * getValues("maxRedeems")
+                                                    ? totalFee * getValues("maxRedeems")
                                                     : Number(0.5 + TrxBaseFee) * getValues("maxRedeems") + xlmPlatformFee,
                                             highlighted: false,
                                             type: "total",
@@ -387,7 +386,7 @@ const Redeem = ({ creatorId }: { creatorId: string }) => {
                                     }
                                     handleConfirm={handleSubmit(onSubmit)}
                                     loading={loading}
-                                    requiredToken={totalAmount * getValues("maxRedeems")}
+                                    requiredToken={totalFee * getValues("maxRedeems")}
                                     trigger={
                                         <Button disabled={loading} className="w-full">
                                             {loading && (

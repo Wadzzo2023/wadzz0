@@ -16,6 +16,7 @@ import {
   protectedProcedure,
   publicProcedure,
 } from "~/server/api/trpc";
+import { BADWORDS } from "~/utils/banned-word";
 import { truncateString } from "~/utils/string";
 
 export const creatorRouter = createTRPCRouter({
@@ -467,9 +468,9 @@ export const creatorRouter = createTRPCRouter({
         where: { vanityURL: input.vanityURL },
       });
 
-      return { isAvailable: !existingCreator };
+      const exixt = BADWORDS.includes(input.vanityURL) || existingCreator;
+
+      return { isAvailable: !exixt };
     }),
-
-
 
 });
