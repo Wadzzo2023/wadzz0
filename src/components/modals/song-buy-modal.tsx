@@ -56,7 +56,7 @@ export default function SongBuyModal() {
   console.log("isOpen", isOpen);
   const isModalOpen = isOpen && type === "song buy modal";
   const handleClose = () => {
-
+    setStep(1)
     onClose();
   };
 

@@ -28,14 +28,32 @@ const RedeeemPage = () => {
     const creator = api.fan.creator.meCreator.useQuery();
 
     if (creator.isLoading) {
-        return <div className="flex items-center justify-center h-screen">Loading...</div>;
+        return (
+            <Dialog>
+                <DialogContent className="min-w-[60%] min-h-[60%] max-h-[60%] items-start flex flex-col overflow-y-auto">
+                    <div className="flex items-center justify-center h-screen">
+                        <div className="flex items-center justify-center h-screen">Loading...</div>;
+                    </div>
+                </DialogContent>
+            </Dialog>
+        )
+
     }
 
     if (!creator.data) {
         return (
-            <div className="flex items-center justify-center h-screen">
-                <p className="text-xl font-semibold text-red-600">You aren{"'t"} a creator</p>
-            </div>
+            <Dialog>
+
+
+                <DialogContent className="min-w-[60%] min-h-[60%] max-h-[60%] items-start flex flex-col overflow-y-auto">
+
+
+                    <div className="flex items-center justify-center h-screen">
+                        <p className="text-xl font-semibold text-red-600">You aren{"'t"} a creator</p>
+                    </div>
+                </DialogContent>
+            </Dialog>
+
         );
     }
 
@@ -188,12 +206,38 @@ const Redeem = ({ creatorId }: { creatorId: string }) => {
     };
 
 
-    if (creatorAssets.isLoading) {
-        return <div className="flex items-center justify-center h-screen">Loading assets...</div>;
-    }
 
+    if (creatorAssets.isLoading) {
+        return (
+            <Dialog>
+
+
+                <DialogContent className="min-w-[60%] min-h-[60%] max-h-[60%] items-start flex flex-col overflow-y-auto">
+
+
+                    <div className="flex items-center justify-center h-screen">
+                        <p className="text-xl font-semibold text-red-600">You aren{"'t"} a creator</p>
+                    </div>
+                </DialogContent>
+            </Dialog>
+        );
+    }
     if (!creatorAssets.data || creatorAssets.data.length === 0) {
-        return <div className="flex items-center justify-center h-screen">No assets found</div>;
+        return (
+            <Dialog>
+
+
+                <DialogContent className="min-w-[60%] min-h-[60%] max-h-[60%] items-start flex flex-col overflow-y-auto">
+
+
+                    <div className="flex items-center justify-center h-screen">
+                        <p className="text-xl font-semibold text-red-600">No assets found</p>
+                    </div>
+                </DialogContent>
+            </Dialog>
+        )
+
+
     }
     console.log("creatorAssets", creatorAssets);
 

@@ -38,6 +38,7 @@ const config = {
   reactStrictMode: true,
   images: {
     remotePatterns: [
+      {hostname:"bandcoin-object-store.s3.amazonaws.com"},
       {
         hostname: "utfs.io",
       },
