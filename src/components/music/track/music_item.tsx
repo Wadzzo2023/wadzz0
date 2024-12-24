@@ -55,13 +55,13 @@ export default function MusicItem({
           alt={`${item.asset.code} cover`}
           className="transition-transform duration-300 group-hover:scale-105"
         />
-        <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-0 transition-all duration-300 group-hover:bg-opacity-50">
+        {/* <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-0 transition-all duration-300 group-hover:bg-opacity-50">
           {
             currentTrack && currentTrack.id === item.id && isPlaying ? (
               <Pause className="h-10 w-10" />) : <PlayIcon className="h-10 w-10" />
 
           }
-        </div>
+        </div> */}
       </div>
       <div>
         <p className="text-base font-medium text-gray-800 line-clamp-1">{item.asset.code}</p>

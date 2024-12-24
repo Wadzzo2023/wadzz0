@@ -1,32 +1,34 @@
 import {
   Asset,
   BASE_FEE,
+  Horizon,
   Keypair,
   Operation,
-  Horizon,
   TransactionBuilder,
 } from "@stellar/stellar-sdk";
-import { SignUserType, WithSing } from "../../utils";
 import { env } from "~/env";
 import {
   networkPassphrase,
   PLATFORM_ASSET,
   PLATFORM_FEE,
   STELLAR_URL,
-  STROOP,
   TrxBaseFee,
+  TrxBaseFeeInPlatformAsset,
 } from "../../constant";
+import { getplatformAssetNumberForXLM } from "../../fan/get_token_price";
+import { SignUserType, WithSing } from "../../utils";
+import { StellarAccount } from "../test/Account";
 
 export async function sendNft2StorageXDR({
   assetCode,
   issuerPub,
   assetAmount,
   userPub,
-  storagePub,
+  storageSec,
   signWith,
 }: {
   userPub: string;
-  storagePub: string;
+  storageSec: string;
   assetCode: string;
   issuerPub: string;
   assetAmount: string;
@@ -35,33 +37,66 @@ export async function sendNft2StorageXDR({
   // const assetAmount = DEFAULT_ASSET_LIMIT
   const asset = new Asset(assetCode, issuerPub);
   const server = new Horizon.Server(STELLAR_URL);
+  const motherAcc = Keypair.fromSecret(env.MOTHER_SECRET);
+  const storageAcc = Keypair.fromSecret(storageSec);
 
-  const transactionInializer = await server.loadAccount(userPub);
+  const transactionInitializer = await server.loadAccount(
+    motherAcc.publicKey(),
+  );
 
-  const Tx2 = new TransactionBuilder(transactionInializer, {
+  const acc = await StellarAccount.create(storageAcc.publicKey());
+  const hasTrust = acc.hasTrustline(asset.code, asset.issuer);
+
+  const totalFee =
+    Number(PLATFORM_FEE) +
+    Number(TrxBaseFeeInPlatformAsset) +
+    (hasTrust ? 0 : await getplatformAssetNumberForXLM(0.5));
+
+  const Tx2 = new TransactionBuilder(transactionInitializer, {
     fee: TrxBaseFee,
     networkPassphrase,
-  })
-    .addOperation(
+  });
+
+  if (!hasTrust) {
+    Tx2.addOperation(
       Operation.payment({
-        destination: Keypair.fromSecret(env.MOTHER_SECRET).publicKey(),
-        amount: PLATFORM_FEE,
-        asset: PLATFORM_ASSET,
+        destination: storageAcc.publicKey(),
+        amount: "0.5",
+        asset: Asset.native(),
       }),
-    )
+    ).addOperation(
+      Operation.changeTrust({
+        asset: asset,
+        source: storageAcc.publicKey(),
+      }),
+    );
+  }
+
+  console.log("totalFee", totalFee);
+
+  Tx2.addOperation(
+    Operation.payment({
+      destination: motherAcc.publicKey(),
+      amount: totalFee.toFixed(7),
+      asset: PLATFORM_ASSET,
+    }),
+  )
     //
     .addOperation(
       Operation.payment({
-        destination: storagePub,
+        destination: storageAcc.publicKey(),
         amount: assetAmount, //copy,
         asset: asset,
         source: userPub,
       }),
     )
-    .setTimeout(0)
-    .build();
+    .setTimeout(0);
 
-  return await WithSing({ xdr: Tx2.toXDR(), signWith });
+  const buildTrx = Tx2.build();
+
+  buildTrx.sign(motherAcc, storageAcc);
+
+  return await WithSing({ xdr: buildTrx.toXDR(), signWith });
 }
 
 export async function sendNftback({

@@ -21,6 +21,7 @@ import { useModal } from "../../lib/state/play/use-modal-store";
 import Alert from "../ui/alert";
 import Loading from "../wallete/loading";
 import { ipfsHashToUrl } from "~/utils/ipfs";
+import { UploadS3Button } from "~/pages/test";
 
 export const ExtraSongInfo = z.object({
   artist: z.string(),
@@ -392,22 +393,10 @@ function NftCreateForm({
                           Choose your media (required)
                         </span>
                       </label>
-
-                      <UploadButton
+                      <UploadS3Button
                         endpoint={getEndpoint(mediaType)}
-                        appearance={{
-                          button:
-                            "text-white bg-gradient-to-r from-cyan-400 via-cyan-500 to-cyan-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-cyan-300 dark:focus:ring-cyan-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center ",
-                          container:
-                            "p-1 w-max flex-row rounded-md border-cyan-300 bg-slate-800",
-                          allowedContent:
-                            "flex h-8 flex-col items-center justify-center px-2 text-white",
-                        }}
-                        content={{ button: "Add Media" }}
                         onClientUploadComplete={(res) => {
-                          // Do something with the response
-                          // alert("Upload Completed");
-                          const data = res[0];
+                          const data = res;
 
                           if (data?.url) {
                             setMediaUrl(data.url);
@@ -417,9 +406,10 @@ function NftCreateForm({
                         }}
                         onUploadError={(error: Error) => {
                           // Do something with the error.
-                          alert(`ERROR! ${error.message}`);
+                          toast.error(`ERROR! ${error.message}`);
                         }}
                       />
+
 
                       <PlayableMedia
                         mediaType={mediaType}
@@ -549,8 +539,8 @@ function NftCreateForm({
                 {(xdrMutation.isLoading ||
                   addAsset.isLoading ||
                   submitLoading) && (
-                  <span className="loading loading-spinner"></span>
-                )}
+                    <span className="loading loading-spinner"></span>
+                  )}
                 Create Asset
               </button>
             </div>

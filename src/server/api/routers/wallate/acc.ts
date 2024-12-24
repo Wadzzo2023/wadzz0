@@ -98,10 +98,10 @@ export const accRouter = createTRPCRouter({
   getAStorageAssetInMarket: protectedProcedure
     .input(z.object({ code: z.string(), issuer: z.string() }))
     .query(async ({ ctx, input }) => {
-      const creatorId = ctx.session.user.id;
+      const userId = ctx.session.user.id;
       return await ctx.db.marketAsset.findFirst({
         where: {
-          placerId: creatorId,
+          placerId: userId,
           asset: { code: input.code, issuer: input.issuer },
         },
       });

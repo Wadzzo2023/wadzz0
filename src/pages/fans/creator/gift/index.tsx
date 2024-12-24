@@ -49,6 +49,7 @@ export default function GiftPage() {
 
   const xdr = api.fan.trx.giftFollowerXDR.useMutation({
     onSuccess: (xdr) => {
+      console.log("xdr", xdr);
       toast.promise(submitSignedXDRToServer(xdr), {
         loading: "Sending gift...",
         success: (d) => {

@@ -22,6 +22,7 @@ import useNeedSign from "~/lib/hook";
 import { useUserStellarAcc } from "~/lib/state/wallete/stellar-balances";
 import { CreatorBack } from "~/pages/fans/creator";
 import { CREATOR_TERM } from "~/utils/term";
+import { getAssetBalanceFromBalance } from "~/lib/stellar/marketplace/test/acc";
 
 export default function CreatorPage() {
   const router = useRouter();
@@ -38,6 +39,7 @@ function CreatorPageView({ creatorId }: { creatorId: string }) {
   const { data: creator } = api.fan.creator.getCreator.useQuery({
     id: creatorId,
   });
+
   if (creator)
     return (
       <div className="flex w-full flex-col gap-4 overflow-y-auto">
@@ -73,6 +75,8 @@ function CreatorPosts({ creatorId }: { creatorId: string }) {
     { getNextPageParam: (lastPage) => lastPage.nextCursor },
   );
 
+  const accBalances = api.wallate.acc.getUserPubAssetBallances.useQuery();
+
   if (error) return <div>{error.message}</div>;
   if (isLoading) return <div>Loading...</div>;
   if (!data) return <div>No data</div>;
@@ -89,10 +93,18 @@ function CreatorPosts({ creatorId }: { creatorId: string }) {
               key={el.id}
               post={el}
               show={(() => {
-                if (el.subscription == null) return true;
                 if (el.subscription) {
-                  return el.subscription.price <= 10;
-                }
+                  const bal = getAssetBalanceFromBalance({
+                    balances: accBalances.data,
+                    code: el.creator.pageAsset?.code,
+                    issuer: el.creator.pageAsset?.issuer,
+                  });
+                  if (el.subscription.price <= bal) {
+                    return true;
+                  }
+
+                  return false;
+                } else return true;
               })()}
               media={el.medias ? el.medias : []}
             />
