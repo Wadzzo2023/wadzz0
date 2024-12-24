@@ -42,8 +42,8 @@ import {
   TrxBaseFeeInPlatformAsset,
 } from "~/lib/stellar/constant";
 import { clientSelect } from "~/lib/stellar/fan/utils";
+import { UploadS3Button } from "~/pages/test";
 import { api } from "~/utils/api";
-import { UploadButton } from "~/utils/uploadthing";
 
 export const MediaInfo = z.object({
   url: z.string(),
@@ -289,26 +289,7 @@ const CreateBounty = () => {
                 </label>
                 <div>
                   <div className="flex flex-col items-center gap-2">
-                    <div className="flex gap-2">
-                      {media.map((el, id) => (
-                        <div key={id} className="relative">
-                          <Image
-                            src={el.url}
-                            alt="media"
-                            height={100}
-                            width={100}
-                            className="h-full w-full object-cover"
-                          />
-                          <button
-                            type="button"
-                            onClick={() => removeMediaItem(id)}
-                            className="absolute right-0 top-0 rounded-full bg-red-500 p-1 text-white"
-                          >
-                            <X size={16} />
-                          </button>
-                        </div>
-                      ))}
-                    </div>
+
 
                     <div className=" mt-2 flex w-full flex-col  gap-2 sm:flex-row">
                       <label className="mb-1 w-full text-xs tracking-wide text-gray-600 sm:text-sm">
@@ -393,26 +374,58 @@ const CreateBounty = () => {
                         )}
                       </label>
                     </div>
-                    <UploadButton
-                      disabled={media.length >= 4 || isCardDisabled || loading}
-                      endpoint="imageUploader"
-                      content={{
-                        button: "Add Media",
-                        allowedContent: "Max (4MB)",
-                      }}
-                      onClientUploadComplete={(res) => {
-                        const data = res[0];
+                    <div className="space-y-4">
+                      <div className="flex flex-wrap gap-2">
+                        {media.map((item, index) => (
+                          <div key={index} className="relative">
+                            <Image
+                              src={item.url}
+                              alt={`Uploaded media ${index + 1}`}
+                              width={100}
+                              height={100}
+                              className="rounded-md object-cover"
+                            />
+                            <Button
+                              size="icon"
+                              variant="destructive"
+                              className="absolute -top-2 -right-2 h-6 w-6"
+                              onClick={() => removeMediaItem(index)}
+                            >
+                              <X className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        ))}
+                      </div>
 
-                        if (data?.url) {
-                          addMediaItem(data.url, wantMediaType!);
-                          trigger().catch((e) => console.log(e));
-                          setWantMedia(undefined);
-                        }
-                      }}
-                      onUploadError={(error: Error) => {
-                        alert(`ERROR! ${error.message}`);
-                      }}
-                    />
+                      {media.length >= 4 && (
+                        <p className="text-sm text-red-500">Maximum number of uploads reached.</p>
+                      )}
+                    </div>
+
+                    <div>
+                      <span className="text-start">Choose Bounty Thumbnail</span>
+                      <UploadS3Button
+                        disabled={media.length >= 4 || isCardDisabled || loading}
+                        endpoint="imageUploader"
+                        onClientUploadComplete={(res) => {
+
+                          const data = res;
+
+                          if (data?.url) {
+                            addMediaItem(data.url, wantMediaType!);
+                            trigger().catch((e) => console.log(e));
+                            setWantMedia(undefined);
+                          }
+                        }}
+                        onUploadError={(error: Error) => {
+                          // Do something with the error.
+                          toast.error(`ERROR! ${error.message}`);
+
+                        }}
+                      />
+                    </div>
+
+
                   </div>
                 </div>{" "}
                 <CardFooter className="flex w-full justify-between">

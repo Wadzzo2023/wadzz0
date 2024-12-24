@@ -3,11 +3,11 @@ import { api } from "~/utils/api";
 
 import { z } from "zod";
 
-import { addrShort } from "~/utils/utils";
-import { SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { SubmitHandler, useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { PLATFORM_ASSET } from "~/lib/stellar/constant";
+import { addrShort } from "~/utils/utils";
 
 export const PlaceMarketFormSchema = z.object({
   code: z
@@ -21,10 +21,12 @@ export const PlaceMarketFormSchema = z.object({
       invalid_type_error: "Limit must be entered as a number",
     })
     .nonnegative(),
-  priceUSD: z.number({
-    required_error: "Price  must be a number",
-    invalid_type_error: "Price must be a number",
-  }).nonnegative(),
+  priceUSD: z
+    .number({
+      required_error: "Price  must be a number",
+      invalid_type_error: "Price must be a number",
+    })
+    .nonnegative(),
 });
 
 export type PlaceMarketFormType = z.TypeOf<typeof PlaceMarketFormSchema>;

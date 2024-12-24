@@ -129,12 +129,13 @@ export async function SendBountyBalanceToUserAccount({
   const platformAssetBalance = account.balances.find((balance) => {
     if (
       balance.asset_type === "credit_alphanum4" ||
-      balance.asset_type === "credit_alphanum12"
+      balance.asset_type === "credit_alphanum12" && (balance.asset_code === PLATFORM_ASSET.code && balance.asset_issuer === PLATFORM_ASSET.issuer)
     ) {
-      return balance.asset_code === PLATFORM_ASSET.code;
+      return true
     }
     return false;
   });
+
   if (
     !platformAssetBalance ||
     parseFloat(platformAssetBalance.balance) < prize
@@ -218,7 +219,7 @@ export async function SendBountyBalanceToWinner({
       balance.asset_type === "credit_alphanum4" ||
       balance.asset_type === "credit_alphanum12"
     ) {
-      return balance.asset_code === PLATFORM_ASSET.code;
+      return balance.asset_code === PLATFORM_ASSET.code && balance.asset_issuer === PLATFORM_ASSET.issuer;
     }
     return false;
   });
@@ -352,7 +353,7 @@ export async function SwapUserAssetToMotherUSDC({
       balance.asset_type === "credit_alphanum4" ||
       balance.asset_type === "credit_alphanum12"
     ) {
-      return balance.asset_code === PLATFORM_ASSET.code;
+      return balance.asset_code === PLATFORM_ASSET.code && balance.asset_issuer === PLATFORM_ASSET.issuer;
     }
     return false;
   });

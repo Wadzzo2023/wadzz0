@@ -8,17 +8,19 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useSession } from "next-auth/react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import toast from "react-hot-toast";
+import { Button } from "~/components/shadcn/ui/button";
 import useNeedSign from "~/lib/hook";
 import { clientSelect } from "~/lib/stellar/fan/utils";
 import { addrShort } from "~/utils/utils";
-import { xdr } from "@stellar/stellar-sdk";
-import { Button } from "~/components/shadcn/ui/button";
 
 export const PlaceMarketFormSchema = z.object({
-  placingCopies: z.number({
-    required_error: "Placing Copies  must be a number",
-    invalid_type_error: "Placing Copies must be a number",
-  }).nonnegative().int(),
+  placingCopies: z
+    .number({
+      required_error: "Placing Copies  must be a number",
+      invalid_type_error: "Placing Copies must be a number",
+    })
+    .nonnegative()
+    .int(),
   code: z
     .string()
     .min(4, { message: "Must be a minimum of 4 characters" })
@@ -33,7 +35,6 @@ export default function PlaceNFT2Storage({
 }: {
   item: { code: string; issuer: string; copies: number };
 }) {
-
   const modalRef = useRef<HTMLDialogElement>(null);
 
   const session = useSession();
