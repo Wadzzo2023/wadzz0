@@ -88,10 +88,10 @@ const uploaderType: Record<
   imageUploader: {
     maxFileSize: "1024MB",
     maxFileCount: 1,
-    expireIn: 60 /* 1 minute*/,
+    expireIn: 60 * 10 /* 1 minute*/,
   },
   videoUploader: { maxFileSize: "1024MB", maxFileCount: 1, expireIn: 60 * 10 },
-  musicUploader: { maxFileSize: "1024MB", maxFileCount: 1, expireIn: 60 * 5 },
+  musicUploader: { maxFileSize: "1024MB", maxFileCount: 1, expireIn: 60 * 10 },
   blobUploader: {
     maxFileSize: "1024MB",
     maxFileCount: 1,
@@ -108,7 +108,7 @@ const uploaderType: Record<
     maxFileCount: 1,
     expireIn: 60 * 10,
   },
-  svgUploader: { maxFileSize: "1024MB", maxFileCount: 1, expireIn: 60 * 5 },
+  svgUploader: { maxFileSize: "1024MB", maxFileCount: 1, expireIn: 60 * 10 },
 };
 
 type GetSignedURLParams = {
