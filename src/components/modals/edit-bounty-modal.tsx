@@ -48,6 +48,7 @@ const EditBountyModal = () => {
   const { bountyId } = data;
   const isModalOpen = isOpen && type === "edit bounty";
   const [media, setMedia] = useState<MediaInfoType[]>([]);
+  const [isMediaInitialized, setMediaInitialized] = useState(false);
 
   const { data: CurrentBounty, isLoading: CurrentBountyIsLoading } =
     api.bounty.Bounty.getBountyByID.useQuery({
@@ -97,9 +98,8 @@ const EditBountyModal = () => {
   };
 
   const addMediaItem = (url: string) => {
-    setMedia([{ url }]); // Replace all existing media with the new one
+    setMedia((prevMedia) => [...prevMedia, { url }]);
   };
-
   const removeMediaItem = (index: number) => {
     setMedia((prevMedia) => prevMedia.filter((_, i) => i !== index));
   };
@@ -109,18 +109,17 @@ const EditBountyModal = () => {
   }
 
   useEffect(() => {
-    if (CurrentBounty) {
+    if (!isMediaInitialized && CurrentBounty?.imageUrls) {
       const initialMedia = CurrentBounty.imageUrls.map((url) => ({ url }));
       setMedia(initialMedia);
-    } else {
-      setMedia([]); // Reset when there's no data
+      setMediaInitialized(true);
     }
-  }, [CurrentBounty]);
+  }, [CurrentBounty, isMediaInitialized]);
 
 
   const handleClose = () => {
     setMedia([]);
-    reset();
+    setMediaInitialized(false);
     onClose();
   };
 
@@ -217,25 +216,7 @@ const EditBountyModal = () => {
                     </div>
                   )}
                 </label>
-                <label className="form-control w-full ">
-                  <span className="label-text">Status</span>
-                  <select
-                    {...register("status")}
-                    defaultValue={CurrentBounty?.status}
-                    className="select select-bordered w-full"
-                  >
-                    <option value="PENDING">Pending</option>
-                    <option value="APPROVED">Approved</option>
-                    <option value="REJECTED">Rejected</option>
-                  </select>
-                  {errors.status && (
-                    <div className="label">
-                      <span className="label-text-alt text-warning">
-                        {errors.status.message}
-                      </span>
-                    </div>
-                  )}
-                </label>
+
                 <div>
                   <div className="flex flex-col items-center gap-2">
                     <div className="flex gap-2">

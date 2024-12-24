@@ -52,6 +52,7 @@ import {
   TooltipTrigger,
 } from "~/components/ui/tooltip";
 import { ipfsHashToUrl } from "~/utils/ipfs";
+import { UploadS3Button } from "~/pages/test";
 
 export const ExtraSongInfo = z.object({
   artist: z.string(),
@@ -412,29 +413,10 @@ function NftCreateForm({
 
               <div>
                 <label className="label">Choose your media</label>
-                <UploadButton
+                <UploadS3Button
                   endpoint={getEndpoint(mediaType)}
-                  onBeforeUploadBegin={(files) => {
-                    const validFiles = files.filter((file) => {
-                      const fileExtension = file.name.split('.').pop()?.toLowerCase();
-                      if (mediaType === "THREE_D" && fileExtension !== 'obj') {
-                        return false; // Filter out invalid files
-                      }
-                      return true;
-                    });
-
-                    if (validFiles.length !== files.length) {
-                      toast.error(` ${mediaType === 'THREE_D' ? 'Only .obj files are accepted' : 'Some files were not uploaded due to invalid file types.'}`);
-                    }
-
-                    return validFiles;
-                  }}
-                  onUploadBegin={() => {
-                    setMediaUpload(true);
-                  }}
-                  onUploadProgress={(progress) => setUploadProgress(progress)}
                   onClientUploadComplete={(res) => {
-                    const data = res[0];
+                    const data = res;
                     if (data?.url) {
                       setMediaUrl(data.url);
                       setValue("mediaUrl", data.url);
@@ -443,9 +425,12 @@ function NftCreateForm({
                     }
                   }}
                   onUploadError={(error: Error) => {
-                    alert(`ERROR! ${error.message}`);
+                    // Do something with the error.
+                    toast.error(`ERROR! ${error.message}`);
                   }}
                 />
+
+
 
                 {mediaType === 'THREE_D' && <p className="text-sm mt-1 text-red-400">[only .obj accepted]</p>}
                 {mediaUrl && (

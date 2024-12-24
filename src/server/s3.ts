@@ -4,10 +4,10 @@ import crypto from "crypto";
 import { env } from "~/env";
 
 const s3Client = new S3Client({
-  region: env.AWS_BUCKET_REGION!,
+  region: env.AWS_BUCKET_REGION,
   credentials: {
-    accessKeyId: env.AWS_ACCESS_KEY!,
-    secretAccessKey: env.AWS_SECRET_ACCESS_KEY!,
+    accessKeyId: env.AWS_ACCESS_KEY,
+    secretAccessKey: env.AWS_SECRET_ACCESS_KEY,
   },
 });
 
@@ -16,6 +16,7 @@ const allowedFileTypes = [
   "image/png",
   "image/webp",
   "image/gif",
+  "image/svg+xml",
   // video
   "video/mp4",
   "video/quicktime",
@@ -45,7 +46,9 @@ const allowedFileTypes = [
   "audio/x-ms-wma",
   "audio/x-aiff",
   "video/webm",
-
+  // model
+  "application/octet-stream", // General binary files
+  ".obj", // Explicitly allow `.obj` extensions
 
   // other
   "application/vnd.google-apps.document", // Google Docs
@@ -66,6 +69,8 @@ export const endPoints = [
   "musicUploader",
   "blobUploader",
   "multiBlobUploader",
+  "modelUploader",
+  "svgUploader",
 ] as const;
 export type EndPointType = (typeof endPoints)[number];
 
@@ -81,12 +86,12 @@ const uploaderType: Record<
   { maxFileSize: string; maxFileCount: number; expireIn: number }
 > = {
   imageUploader: {
-    maxFileSize: "4MB",
+    maxFileSize: "1024MB",
     maxFileCount: 1,
     expireIn: 60 /* 1 minute*/,
   },
-  videoUploader: { maxFileSize: "256MB", maxFileCount: 1, expireIn: 60 * 10 },
-  musicUploader: { maxFileSize: "64MB", maxFileCount: 1, expireIn: 60 * 5 },
+  videoUploader: { maxFileSize: "1024MB", maxFileCount: 1, expireIn: 60 * 10 },
+  musicUploader: { maxFileSize: "1024MB", maxFileCount: 1, expireIn: 60 * 5 },
   blobUploader: {
     maxFileSize: "1024MB",
     maxFileCount: 1,
@@ -98,6 +103,12 @@ const uploaderType: Record<
     maxFileCount: 5,
     expireIn: 60 * 10,
   },
+  modelUploader: {
+    maxFileSize: "1024MB",
+    maxFileCount: 1,
+    expireIn: 60 * 10,
+  },
+  svgUploader: { maxFileSize: "1024MB", maxFileCount: 1, expireIn: 60 * 5 },
 };
 
 type GetSignedURLParams = {
@@ -116,6 +127,8 @@ export async function getSignedURL({
   fileName,
 }: GetSignedURLParams) {
   const expireIn = uploaderType[endPoint].expireIn;
+
+  console.log("fileType", fileType);
   if (fileSize > convertSize(uploaderType[endPoint].maxFileSize)) {
     throw new Error("File is too large");
   }

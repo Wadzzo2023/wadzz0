@@ -35,7 +35,7 @@ import { ItemPrivacy } from "@prisma/client";
 import { Label } from "~/components/shadcn/ui/label";
 import { useCreatorStorageAcc } from "~/lib/state/wallete/stellar-balances";
 import { BADWORDS } from "~/utils/banned-word";
-import { UploadButton } from "~/utils/uploadthing";
+import { UploadS3Button } from "~/pages/test";
 
 const MapModalComponent = () => {
   const {
@@ -509,28 +509,23 @@ function PinInfoUpdate({
 
         <div className="mt ">
           <label className="text-sm font-medium">Pin Cover Image</label>
-          <UploadButton
+
+          <UploadS3Button
             endpoint="imageUploader"
-            content={{
-              button: "Add Cover",
-              allowedContent: "Max (4MB)",
-            }}
             onClientUploadComplete={(res) => {
-              // Do something with the response
-              // alert("Upload Completed");
-              const data = res[0];
+              const data = res;
 
               if (data?.url) {
                 setCover(data.url);
                 setValue("image", data.url);
               }
-              // updateProfileMutation.mutate(res);
             }}
             onUploadError={(error: Error) => {
               // Do something with the error.
-              alert(`ERROR! ${error.message}`);
+              toast.error(`ERROR! ${error.message}`);
             }}
           />
+
 
           {/* {uploading && <progress className="progress w-56"></progress>} */}
           {coverUrl && (

@@ -15,6 +15,7 @@ import { UploadButton } from "~/utils/uploadthing";
 import { useModal } from "../../lib/state/play/use-modal-store";
 import { Editor } from "../editor";
 import { Button } from "../shadcn/ui/button";
+import { MultiUploadS3Button } from "~/pages/test";
 
 export const SubmissionMediaInfo = z.object({
   url: z.string(),
@@ -259,13 +260,9 @@ const FileUploadModal = () => {
                 <span className="text-center text-xs text-red-400">
                   You can only upload a maximum of 5 files at a time.
                 </span>
-                <UploadButton
-                  endpoint="SubmissionImageUploader"
-                  content={{
-                    button: "Add Media",
-                    allowedContent:
-                      "Audio, Video, Image, PDF,Text ,Spreed Sheet, CSV, TSV, ODS | Max (1024MB)",
-                  }}
+                <MultiUploadS3Button
+                  endpoint="multiBlobUploader"
+
                   onUploadProgress={(progressValue) => {
                     setProgress((prevProgress) => {
                       // Assuming progress for the first file in the uploadingFiles list is updated
@@ -290,48 +287,7 @@ const FileUploadModal = () => {
                     setProgress([]);
                     setLoading(false);
                   }}
-                  onBeforeUploadBegin={(files) => {
-                    setLoading(true);
 
-                    if (
-                      files.length > 5 ||
-                      media.length > 5 ||
-                      files.length + media.length > 5
-                    ) {
-                      toast.error(
-                        "You can only upload a maximum of 5 files at a time.",
-                      );
-                      setLoading(false);
-                      return [];
-                    }
-
-                    const validFiles = files.filter((file) => {
-                      const fileType = file?.type;
-                      const isAllowed = allowedSubmissionTypes.some((type) => {
-                        const baseType = type.split("/")[0];
-                        return (
-                          fileType === type || fileType?.startsWith(baseType!)
-                        );
-                      });
-
-                      if (!isAllowed) {
-                        toast.error(`File type not allowed: ${file.name}`);
-                        return false; // Exclude invalid file
-                      }
-
-                      return true;
-                    });
-
-                    if (validFiles.length === 0) {
-                      setLoading(false);
-                      return []; // Prevent upload if no valid files
-                    }
-
-                    setUploadingFiles(validFiles); // Track all valid files being uploaded
-                    setProgress(Array(validFiles.length).fill(0)); // Initialize progress for all files
-
-                    return validFiles; // Return the valid files for upload
-                  }}
                   onUploadError={(error: Error) => {
                     setLoading(false);
                     toast.error(error.message);
