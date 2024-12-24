@@ -40,6 +40,7 @@ import {
   DialogTitle,
 } from "~/components/shadcn/ui/dialog";
 import Avater from "~/components/ui/avater";
+import { MultiUploadS3Button } from "~/pages/test";
 
 type BountyDoubtListItem = {
   id: number;
@@ -309,22 +310,22 @@ const ChatItem = ({ item }: { item: BountyDoubtListItem }) => {
             >
               {sanitizeInput(message.message).sanitizedInput}
               {// Display all matched URLs as links
-              sanitizeInput(message.message).urls?.map((url, index) => (
-                <div
-                  key={index}
-                  className=" w-full rounded-md bg-[#F5F7FB] py-2  shadow-sm"
-                >
-                  <Link
-                    href={url}
-                    className="flex items-center justify-between gap-2"
+                sanitizeInput(message.message).urls?.map((url, index) => (
+                  <div
+                    key={index}
+                    className=" w-full rounded-md bg-[#F5F7FB] py-2  shadow-sm"
                   >
-                    <File color="black" />{" "}
-                    <span className=" text-base font-medium text-[#07074D]">
-                      {url}
-                    </span>
-                  </Link>
-                </div>
-              ))}
+                    <Link
+                      href={url}
+                      className="flex items-center justify-between gap-2"
+                    >
+                      <File color="black" />{" "}
+                      <span className=" text-base font-medium text-[#07074D]">
+                        {url}
+                      </span>
+                    </Link>
+                  </div>
+                ))}
               <div ref={messagesEndRef} />
             </div>
           ))}
@@ -379,31 +380,9 @@ const ChatItem = ({ item }: { item: BountyDoubtListItem }) => {
           className="flex w-full items-center gap-1 space-x-2 "
         >
           <div className="flex w-full items-center gap-5">
-            <UploadButton
-              endpoint="SubmissionImageUploader"
-              appearance={{
-                button: {
-                  padding: "0px",
+            <MultiUploadS3Button
+              endpoint="multiBlobUploader"
 
-                  width: "40px",
-                },
-                container: {
-                  width: "5px",
-                  padding: "0px",
-                  background: "white",
-                },
-                allowedContent: {
-                  display: "none",
-                },
-              }}
-              content={{
-                button: (
-                  <div className="flex items-center justify-center rounded-md p-1 ">
-                    <Paperclip size={25} />
-                  </div>
-                ),
-                allowedContent: "Max (1024MB)",
-              }}
               onUploadProgress={(progress) => {
                 setProgress(progress);
               }}
@@ -418,49 +397,13 @@ const ChatItem = ({ item }: { item: BountyDoubtListItem }) => {
                 }
                 setLoading(false);
               }}
-              onBeforeUploadBegin={(files) => {
-                setLoading(true);
-                const allowedTypes = [
-                  "image/*", // All image types
-                  "video/*", // All video types
-                  "audio/*", // All audio types
-                  "application/vnd.google-apps.document", // Google Docs
-                  "application/vnd.google-apps.spreadsheet", // Google Sheets
-                  "text/plain", // Plain text
-                  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", // XLSX
-                  "application/vnd.ms-excel", // XLS (old Excel format)
-                  "text/csv", // CSV
-                  "text/tab-separated-values", // TSV
-                  "application/pdf", // PDF
-                  "application/vnd.oasis.opendocument.spreadsheet", // ODS (OpenDocument Spreadsheet)
-                ];
 
-                const file = files[0];
-                const fileType = file?.type;
-
-                // Manually check if the file type is allowed
-                const isAllowed = allowedTypes.some((type) => {
-                  const baseType = type.split("/")[0];
-                  return fileType === type || fileType?.startsWith(baseType!);
-                });
-
-                if (!isAllowed) {
-                  toast.error(
-                    "File type not supported. Please upload a valid file.",
-                  );
-                  setLoading(true);
-                  return []; // Cancel the upload
-                }
-                setUploadingFile(files[0] ?? null);
-                setProgress(0);
-                return files;
-              }}
               onUploadError={(error: Error) => {
                 setLoading(false);
                 toast.error(error.message);
               }}
-              className="custom-upload-button"
             />
+
 
             <Input
               id="message"

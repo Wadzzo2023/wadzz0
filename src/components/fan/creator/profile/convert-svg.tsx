@@ -1,4 +1,5 @@
 import toast from "react-hot-toast";
+import { UploadS3Button } from "~/pages/test";
 import { api } from "~/utils/api";
 import { UploadButton } from "~/utils/uploadthing";
 
@@ -40,61 +41,21 @@ export default function PadSVG() {
   return (
     <div className="text-center">
       <span className="text-xs">SVG Dimension 200 x 200 pixels</span>
-      <UploadButton
-        className="w-full "
-        endpoint="imageUploader"
-        onBeforeUploadBegin={(files) => {
-          const filePromises = files.map((file) => {
-            return new Promise<File>((resolve) => {
-              if (file.type === "image/svg+xml") {
-                const reader = new FileReader();
-                reader.onload = (event: ProgressEvent<FileReader>) => {
-                  const content = event.target?.result as string;
-                  const modifiedContent = addExtraSpaceToSvg(content);
 
-                  const blob = new Blob([modifiedContent], {
-                    type: "image/svg+xml",
-                  });
-                  const modifiedFile = new File([blob], file.name, {
-                    type: "image/svg+xml",
-                  });
-
-                  // Resolve the promise with the modified file
-                  resolve(modifiedFile);
-                };
-                reader.readAsText(file);
-              } else {
-                // For non-SVG files, resolve the promise immediately with the original file
-                resolve(file);
-              }
-            });
-          });
-
-          // Use Promise.all to wait for all file processing to complete
-          return Promise.all(filePromises);
-        }}
-        appearance={{
-          button:
-            " text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center ",
-          container:
-            "p-1 w-max flex-row rounded-md border-cyan-300 bg-slate-800",
-          allowedContent:
-            "flex h-8 flex-col items-center justify-center px-2 text-white",
-        }}
-        content={{ button: "Change SVG" }}
+      <UploadS3Button
+        endpoint="svgUploader"
         onClientUploadComplete={(res) => {
           // Do something with the response
           // alert("Upload Completed");
-          const data = res[0];
+          const data = res;
 
           if (data?.url) {
             updateSVg.mutate(data.url);
           }
-          // updateProfileMutation.mutate(res);
         }}
         onUploadError={(error: Error) => {
           // Do something with the error.
-          alert(`ERROR! ${error.message}`);
+          toast.error(`ERROR! ${error.message}`);
         }}
       />
     </div>
