@@ -14,14 +14,34 @@ const s3Client = new S3Client({
 const allowedFileTypes = [
   "image/jpeg",
   "image/png",
+  "image/webp",
+  "image/gif",
+  // video
   "video/mp4",
-  "video/quicktime",
+  "video/webm",
+  // audio
+  "audio/mpeg",
+  "audio/ogg",
+  "audio/wav",
+
+  // other
+  "application/vnd.google-apps.document", // Google Docs
+  "application/vnd.google-apps.spreadsheet", // Google Sheets
+  "text/plain", // Plain text
+  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", // XLSX
+  "application/vnd.ms-excel", // XLS (old Excel format)
+  "text/csv", // CSV
+  "text/tab-separated-values", // TSV
+  "application/pdf", // PDF
+  "application/vnd.oasis.opendocument.spreadsheet",
 ];
 
 export const endPoints = [
   "imageUploader",
   "videoUploader",
   "musicUploader",
+  "blobUploader",
+  "multiBlobUploader",
 ] as const;
 export type EndPointType = (typeof endPoints)[number];
 
@@ -43,6 +63,17 @@ const uploaderType: Record<
   },
   videoUploader: { maxFileSize: "256MB", maxFileCount: 1, expireIn: 60 * 10 },
   musicUploader: { maxFileSize: "64MB", maxFileCount: 1, expireIn: 60 * 5 },
+  blobUploader: {
+    maxFileSize: "1024MB",
+    maxFileCount: 1,
+    expireIn: 60 * 10,
+  },
+
+  multiBlobUploader: {
+    maxFileSize: "1024MB",
+    maxFileCount: 5,
+    expireIn: 60 * 10,
+  },
 };
 
 type GetSignedURLParams = {
@@ -50,6 +81,7 @@ type GetSignedURLParams = {
   fileSize: number;
   checksum: string;
   endPoint: EndPointType;
+  fileName: string;
 };
 
 export async function getSignedURL({
@@ -57,6 +89,7 @@ export async function getSignedURL({
   fileSize,
   fileType,
   endPoint,
+  fileName,
 }: GetSignedURLParams) {
   const expireIn = uploaderType[endPoint].expireIn;
   if (fileSize > convertSize(uploaderType[endPoint].maxFileSize)) {
@@ -67,10 +100,10 @@ export async function getSignedURL({
     throw new Error("File type not allowed");
   }
 
-  const fileName = generateFileName();
+  const genFileName = generateFileName();
   const putObjectCommand = new PutObjectCommand({
     Bucket: env.AWS_BUCKET_NAME,
-    Key: fileName,
+    Key: genFileName,
     ContentType: fileType,
     ContentLength: fileSize,
     ChecksumSHA256: checksum,
@@ -79,7 +112,11 @@ export async function getSignedURL({
   const uploadUrl = await getSignedUrl(s3Client, putObjectCommand, {
     expiresIn: expireIn,
   });
-  return { uploadUrl, fileUrl: getAwsS3PublicUrl(fileName) };
+  return {
+    uploadUrl,
+    fileUrl: getAwsS3PublicUrl(genFileName),
+    fileName: fileName,
+  };
 }
 
 function convertSize(value: string) {

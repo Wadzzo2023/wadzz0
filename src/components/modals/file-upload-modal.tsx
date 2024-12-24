@@ -23,6 +23,21 @@ export const SubmissionMediaInfo = z.object({
   type: z.string(),
 });
 
+export const allowedSubmissionTypes = [
+  "image/*", // All image types
+  "video/*", // All video types
+  "audio/*", // All audio types
+  "application/vnd.google-apps.document", // Google Docs
+  "application/vnd.google-apps.spreadsheet", // Google Sheets
+  "text/plain", // Plain text
+  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", // XLSX
+  "application/vnd.ms-excel", // XLS (old Excel format)
+  "text/csv", // CSV
+  "text/tab-separated-values", // TSV
+  "application/pdf", // PDF
+  "application/vnd.oasis.opendocument.spreadsheet", // ODS (OpenDocument Spreadsheet)
+];
+
 type SubmissionMediaInfoType = z.TypeOf<typeof SubmissionMediaInfo>;
 
 export const BountyAttachmentSchema = z.object({
@@ -277,20 +292,7 @@ const FileUploadModal = () => {
                   }}
                   onBeforeUploadBegin={(files) => {
                     setLoading(true);
-                    const allowedTypes = [
-                      "image/*", // All image types
-                      "video/*", // All video types
-                      "audio/*", // All audio types
-                      "application/vnd.google-apps.document", // Google Docs
-                      "application/vnd.google-apps.spreadsheet", // Google Sheets
-                      "text/plain", // Plain text
-                      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", // XLSX
-                      "application/vnd.ms-excel", // XLS (old Excel format)
-                      "text/csv", // CSV
-                      "text/tab-separated-values", // TSV
-                      "application/pdf", // PDF
-                      "application/vnd.oasis.opendocument.spreadsheet", // ODS (OpenDocument Spreadsheet)
-                    ];
+
                     if (
                       files.length > 5 ||
                       media.length > 5 ||
@@ -305,7 +307,7 @@ const FileUploadModal = () => {
 
                     const validFiles = files.filter((file) => {
                       const fileType = file?.type;
-                      const isAllowed = allowedTypes.some((type) => {
+                      const isAllowed = allowedSubmissionTypes.some((type) => {
                         const baseType = type.split("/")[0];
                         return (
                           fileType === type || fileType?.startsWith(baseType!)
