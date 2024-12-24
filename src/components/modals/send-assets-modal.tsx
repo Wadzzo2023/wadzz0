@@ -51,12 +51,14 @@ const formSchema = z.object({
   recipientId: z.string().length(56, {
     message: "Recipient Id is must be 56 characters long.",
   }),
-  amount: z.number({
-    required_error: "Amount is required.",
-    invalid_type_error: "Amount must be a number.",
-  }).positive({
-    message: "Amount must be greater than zero.",
-  }),
+  amount: z
+    .number({
+      required_error: "Amount is required.",
+      invalid_type_error: "Amount must be a number.",
+    })
+    .positive({
+      message: "Amount must be greater than zero.",
+    }),
   selectItem: z.string().min(1, {
     message: "Asset code is required.",
   }),
@@ -73,7 +75,12 @@ const SendAssets = () => {
   const { isOpen, onClose, type } = useModal();
   const session = useSession();
   const [loading, setLoading] = useState(false);
-  const { data } = api.walletBalance.wallBalance.getWalletsBalance.useQuery();
+  const { data } = api.walletBalance.wallBalance.getWalletsBalance.useQuery(
+    undefined,
+    {
+      retry: false,
+    },
+  );
   const { needSign } = useNeedSign();
   const isModalOpen = isOpen && type === "send assets";
   const router = useRouter();

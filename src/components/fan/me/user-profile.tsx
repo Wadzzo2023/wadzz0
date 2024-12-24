@@ -39,6 +39,7 @@ import {
   FormDescription,
 } from "~/components/shadcn/ui/form";
 import toast from "react-hot-toast";
+import { UploadS3Button } from "~/pages/test";
 export default function About() {
   const user = api.fan.user.getUser.useQuery();
   console.log("user", user);
@@ -279,6 +280,17 @@ function AboutForm({ user }: { user: User }) {
                               updateProfileMutation.mutate(data.url);
                             }
                             // updateProfileMutation.mutate(res);
+                          }}
+                          onUploadError={(error: Error) => {
+                            // Do something with the error.
+                            alert(`ERROR! ${error.message}`);
+                          }}
+                        />
+                        <UploadS3Button
+                          endpoint="imageUploader"
+                          onClientUploadComplete={(res) => {
+                            const fileUrl = res.url;
+                            updateProfileMutation.mutate(fileUrl);
                           }}
                           onUploadError={(error: Error) => {
                             // Do something with the error.

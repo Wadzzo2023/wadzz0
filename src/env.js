@@ -34,6 +34,11 @@ export const env = createEnv({
     // squire
     SQUARE_ACCESS_TOKEN: z.string(),
     SQUARE_ENVIRONMENT: z.string(),
+    // AWS
+    AWS_BUCKET_NAME: z.string(),
+    AWS_BUCKET_REGION: z.string(),
+    AWS_ACCESS_KEY: z.string(),
+    AWS_SECRET_ACCESS_KEY: z.string(),
   },
 
   /**
@@ -93,6 +98,11 @@ export const env = createEnv({
     SQUARE_ENVIRONMENT: process.env.SQUARE_ENVIRONMENT,
     NEXT_PUBLIC_SQUARE_APP_ID: process.env.NEXT_PUBLIC_SQUARE_APP_ID,
     NEXT_PUBLIC_SQUARE_LOCATION: process.env.NEXT_PUBLIC_SQUARE_LOCATION,
+    // AWS
+    AWS_BUCKET_NAME: process.env.AWS_BUCKET_NAME,
+    AWS_BUCKET_REGION: process.env.AWS_BUCKET_REGION,
+    AWS_ACCESS_KEY: process.env.AWS_ACCESS_KEY,
+    AWS_SECRET_ACCESS_KEY: process.env.AWS_SECRET_ACCESS_KEY,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially

@@ -44,7 +44,7 @@ const FileUploadModal = () => {
     api.bounty.Bounty.getSubmittedAttachmentById.useQuery({
       submissionId: submissionId ?? 0,
     });
-  console.log(getSubmittedAttachment.data);
+  // console.log(getSubmittedAttachment.data);
   const {
     register,
     handleSubmit,
@@ -58,7 +58,7 @@ const FileUploadModal = () => {
   });
 
   const isModalOpen = isOpen && type === "upload file";
-  console.log(data);
+  // console.log(data);
   const handleClose = () => {
     reset();
     setMedia([]); // Clear media when modal is closed
@@ -115,7 +115,7 @@ const FileUploadModal = () => {
   ) => {
     data.BountyId = bountyId;
     data.medias = media;
-    console.log("data data data", data);
+    // console.log("data data data", data);
     if (submissionId) {
       UpdateBountyAttachment.mutate({
         content: data.content,
@@ -146,7 +146,7 @@ const FileUploadModal = () => {
     setMedia((prevMedia) => [...prevMedia, { url, name, size, type }]);
   };
 
-  console.log(media);
+  // console.log(media);
   return (
     <>
       <Dialog open={isModalOpen} onOpenChange={handleClose}>
@@ -188,7 +188,7 @@ const FileUploadModal = () => {
                   )}{" "}
                 </div>
                 <div className="mt-2 flex flex-col items-center gap-2">
-                  <div className="flex max-h-[200px] mt-10 w-full flex-col gap-2 overflow-y-auto">
+                  <div className="mt-10 flex max-h-[200px] w-full flex-col gap-2 overflow-y-auto">
                     {/* Display uploading files with progress */}
                     {uploadingFiles.map((file, index) => (
                       <div
@@ -264,7 +264,7 @@ const FileUploadModal = () => {
 
                     // Handle the uploaded file(s)
                     res.forEach((data) => {
-                      console.log(data);
+                      // console.log(data);
                       if (data?.url) {
                         addMediaItem(data.url, data.name, data.size, data.type);
                       }
