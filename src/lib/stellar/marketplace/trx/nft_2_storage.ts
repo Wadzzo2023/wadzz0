@@ -72,8 +72,6 @@ export async function sendNft2StorageXDR({
     );
   }
 
-  console.log("totalFee", totalFee);
-
   Tx2.addOperation(
     Operation.payment({
       destination: motherAcc.publicKey(),
@@ -121,9 +119,17 @@ export async function sendNftback({
 
   const server = new Horizon.Server(STELLAR_URL);
 
-  const transactionInializer = await server.loadAccount(userPub);
+  const userAcc = await StellarAccount.create(userPub);
+  const hasTrust = userAcc.hasTrustline(assetCode, issuerPub);
 
-  const Tx2 = new TransactionBuilder(transactionInializer, {
+  const totalFee =
+    Number(TrxBaseFeeInPlatformAsset) +
+    Number(PLATFORM_FEE) +
+    (hasTrust ? 0 : await getplatformAssetNumberForXLM(0.5));
+
+  const transactionInializer = await server.loadAccount(motherAcc.publicKey());
+
+  const Tx1 = new TransactionBuilder(transactionInializer, {
     fee: BASE_FEE,
     networkPassphrase,
   })
@@ -131,22 +137,39 @@ export async function sendNftback({
     .addOperation(
       Operation.payment({
         destination: motherAcc.publicKey(),
-        amount: PLATFORM_FEE,
+        amount: totalFee.toFixed(7),
         asset: PLATFORM_ASSET,
+        source: userPub,
       }),
-    )
-    .addOperation(
-      Operation.payment({
-        destination: userPub,
-        amount: assetAmount, //copy,
-        asset: asset,
-        source: storageAcc.publicKey(),
-      }),
-    )
-    .setTimeout(0)
-    .build();
+    );
 
-  Tx2.sign(storageAcc);
+  if (!hasTrust) {
+    Tx1.addOperation(
+      Operation.payment({
+        amount: "0.5",
+        asset: Asset.native(),
+        destination: userPub,
+      }),
+    ).addOperation(
+      Operation.changeTrust({
+        asset: asset,
+        source: userPub,
+      }),
+    );
+  }
+
+  Tx1.addOperation(
+    Operation.payment({
+      destination: userPub,
+      amount: assetAmount, //copy,
+      asset: asset,
+      source: storageAcc.publicKey(),
+    }),
+  ).setTimeout(0);
+
+  const Tx2 = Tx1.build();
+
+  Tx2.sign(storageAcc, motherAcc);
 
   return await WithSing({ xdr: Tx2.toXDR(), signWith });
 }
