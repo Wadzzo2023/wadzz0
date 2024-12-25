@@ -43,7 +43,7 @@ export async function createRedeemXDRAsset({
   // (0.5 xlm + trxBaseFee + platformFee ) * maxRedeems
   const trustPrice = await getplatformAssetNumberForXLM(0.5);
   const totalAmount =
-    Number(trustPrice + TrxBaseFeeInPlatformAsset + PLATFORM_FEE) * maxRedeems;
+    Number(trustPrice + Number(TrxBaseFeeInPlatformAsset) + Number(PLATFORM_FEE)) * maxRedeems;
 
   Tx1.addOperation(
     Operation.payment({
