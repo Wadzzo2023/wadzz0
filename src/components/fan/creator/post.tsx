@@ -18,6 +18,8 @@ import { PostContextMenu } from "../post/post-context-menu";
 import { PostReadMore } from "../post/post-read-more";
 import { AddComment } from "../post/add-comment";
 import Avater from "~/components/ui/avater";
+import AudioPlayerCard from "~/components/PostAudioPlayer";
+import VideoPlayerCard from "~/components/PostVideoPlayer";
 
 export function PostCard({
   post,
@@ -59,7 +61,7 @@ export function PostCard({
     }
   }
 
-  const renderMediaItem = (item: Media) => {
+  const renderMediaItem = (item: Media, creatorId: string) => {
     switch (item.type) {
       case 'IMAGE':
         return (
@@ -74,21 +76,24 @@ export function PostCard({
         );
       case 'VIDEO':
         return (
-          <video
-            key={item.id}
-            src={item.url}
-            controls
-            className="max-h-[400px] min-h-[400px] w-full  md:max-h-[500px]  md:min-h-[500px] rounded-lg  object-cover"
-          />
+          <div
+
+            className="max-h-[400px] min-h-[400px] w-full  md:max-h-[500px]  md:min-h-[500px] flex items-center justify-center bg-gray-100 rounded-lg"
+          >
+            <VideoPlayerCard
+              creatorId={creatorId}
+              videoSrc={item.url}
+              title={post.heading}
+            />
+          </div>
         );
       case 'MUSIC':
         return (
           <div className="max-h-[400px] min-h-[400px] w-full  md:max-h-[500px]  md:min-h-[500px] flex items-center justify-center bg-gray-100 rounded-lg">
-            <audio
-              key={item.id}
-              src={item.url}
-              controls
-              className="w-full max-w-md"
+            <AudioPlayerCard
+              creatorId={creatorId}
+              audioSrc={item.url}
+              title={post.heading}
             />
           </div>
         );
@@ -156,7 +161,7 @@ export function PostCard({
             </Link>
             {media && media.length > 0 && (
               <div className="mt-4 relative">
-                {media[currentMediaIndex] ? renderMediaItem(media[currentMediaIndex]) : null}
+                {media[currentMediaIndex] ? renderMediaItem(media[currentMediaIndex], post.creatorId) : null}
                 {media.length > 1 && (
                   <>
                     <Button

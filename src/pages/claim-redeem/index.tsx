@@ -123,7 +123,7 @@ const ClaimPage = () => {
                       id="redeemCode"
                       placeholder="Enter your redeem code"
                       value={redeemCode}
-                      onChange={(e) => setRedeemCode(e.target.value)}
+                      onChange={(e) => setRedeemCode(e.target.value.toLocaleUpperCase())}
                     />
                   </div>
                 </div>
