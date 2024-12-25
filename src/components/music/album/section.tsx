@@ -8,8 +8,8 @@ export default function AlbumSection({ albums }: { albums: Album[] }) {
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
         {albums.map((album) => (
           <Link key={album.id} href={`/music/album/${album.id}`}>
-            <div className="group cursor-pointer space-y-2">
-              <div className="relative aspect-square overflow-hidden rounded-md shadow-md">
+            <div className="p-2 group max-h-[260px] min-h-[260px] relative overflow-hidden rounded-lg bg-white shadow-md transition-all duration-300 hover:shadow-lg">
+              <div className="relative aspect-square overflow-hidden">
                 <Image
                   src={album.coverImgUrl}
                   alt={album.name}
