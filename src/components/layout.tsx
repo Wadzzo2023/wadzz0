@@ -147,7 +147,7 @@ export default function Layout({
                           <ConnectWalletButton />
                         </div>
                       )}
-                      <div className="h-44 " />
+                      {/* <div className="h-44 " /> */}
                       {/* <BottomNav /> */}
                     </div>
                   </div>
@@ -158,6 +158,7 @@ export default function Layout({
                     router.pathname !== "/notification" &&
                     router.pathname !== "/bounty/[id]" &&
                     router.pathname !== "/settings" &&
+                    router.pathname !== "/marketplace" &&
                     router.pathname !== "/about" &&
                     router.pathname !== "/support" &&
                     router.pathname !== "/privacy" &&

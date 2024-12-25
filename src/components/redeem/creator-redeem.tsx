@@ -24,6 +24,7 @@ import { PLATFORM_ASSET, PLATFORM_FEE, TrxBaseFee, TrxBaseFeeInPlatformAsset } f
 import { SubmitHandler, useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useCreatorStorageAcc } from "~/lib/state/wallete/stellar-balances";
 const RedeeemPage = () => {
     const creator = api.fan.creator.meCreator.useQuery();
 
@@ -101,6 +102,7 @@ const Redeem = ({ creatorId }: { creatorId: string }) => {
         register,
         handleSubmit,
         getValues,
+        reset,
         formState: { errors },
     } = useForm<z.infer<typeof RedeemSchema>>({
         resolver: zodResolver(RedeemSchema),
@@ -112,15 +114,18 @@ const Redeem = ({ creatorId }: { creatorId: string }) => {
 
     const totalFees = api.fan.trx.getRequiredPlatformAsset.useQuery({
         xlm: 0.5, // this is for the trust fee and default (trx base + platform fee)
-        platformAsset: 0
     });
     const generateCode = api.fan.creator.generateRedeemCode.useMutation({
         onSuccess: (data) => {
             setLoading(false);
             toast.success("Code generated successfully");
+            setIsOpen(false);
+            setParentIsOpen(false);
         },
         onError: (error) => {
             toast.error(error.message);
+            setIsOpen(false);
+            setParentIsOpen(false);
         },
     });
 
@@ -170,7 +175,7 @@ const Redeem = ({ creatorId }: { creatorId: string }) => {
                         toast.success("Transaction successful");
                         generateCode.mutate({
                             assetId: variables.assetId,
-                            redeemCode: variables.redeemCode,
+                            redeemCode: variables.redeemCode.toLocaleUpperCase(),
                             maxRedeems: variables.maxRedeems,
                         });
                     } else {
@@ -195,7 +200,14 @@ const Redeem = ({ creatorId }: { creatorId: string }) => {
     });
 
     const onSubmit: SubmitHandler<z.infer<typeof RedeemSchema>> = (data) => {
+        console.log("maxRedeems", data.maxRedeems);
         setLoading(true);
+        if (selectedAsset?.limit && data.maxRedeems > selectedAsset?.limit) {
+            toast.error("Max redeems must be less than or equal to the asset limit");
+            setLoading(false);
+            return;
+        }
+
         generateXDR.mutate({
             assetId: Number(selectedAsset?.id),
             redeemCode: data.redeemCode,
@@ -245,6 +257,9 @@ const Redeem = ({ creatorId }: { creatorId: string }) => {
 
     const xlmPlatformFee = 2;
 
+
+
+
     return (
         <Dialog open={parentIsOpen} onOpenChange={setParentIsOpen}>
             <DialogTrigger asChild>
@@ -264,7 +279,7 @@ const Redeem = ({ creatorId }: { creatorId: string }) => {
                             <TableHead>Asset Code</TableHead>
                             <TableHead>Limit</TableHead>
                             <TableHead>Redeem Code</TableHead>
-                            <TableHead>Action</TableHead>
+                            <TableHead>Total Remaining</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -274,7 +289,7 @@ const Redeem = ({ creatorId }: { creatorId: string }) => {
                                 <TableCell>{asset.code}</TableCell>
                                 <TableCell>{asset.limit}</TableCell>
                                 <TableCell>{asset.Redeem[asset.Redeem.length - 1]?.code ?? "No Redeem Code"} </TableCell>
-                                <TableCell>{asset.Redeem[asset.Redeem.length - 1]?.totalRedeemable ?? "No Redeem Code"} </TableCell>
+                                <TableCell>{asset.Redeem[asset.Redeem.length - 1]?.remaining ?? "No Redeem Code"} </TableCell>
                                 <TableCell>
                                     <Button
                                         disabled={(() => {
@@ -304,7 +319,12 @@ const Redeem = ({ creatorId }: { creatorId: string }) => {
                     </TableBody>
                 </Table>
 
-                <Dialog open={openModal} onOpenChange={setOpenModal}>
+                <Dialog open={openModal} onOpenChange={(isOpen) => {
+                    setOpenModal(isOpen);
+                    if (!isOpen) {
+                        reset();
+                    }
+                }}>
                     <DialogContent>
                         <DialogHeader>
                             <DialogTitle>Generate Redeem Code</DialogTitle>
@@ -323,6 +343,7 @@ const Redeem = ({ creatorId }: { creatorId: string }) => {
                                 <input
                                     id="maxRedeems"
                                     type="number"
+
                                     {...register("maxRedeems", {
                                         valueAsNumber: true,
                                     })}
@@ -345,6 +366,9 @@ const Redeem = ({ creatorId }: { creatorId: string }) => {
                                     id="redeemCode"
                                     type="text"  {...register("redeemCode")}
                                     className="col-span-3"
+                                    onChange={(e) => {
+                                        e.target.value = e.target.value.toUpperCase(); // Convert input to uppercase
+                                    }}
 
                                 />
                                 {errors.redeemCode && (

@@ -100,6 +100,7 @@ const Notifications = () => {
                 default:
                   message = "";
                   url = "";
+                  enable = false;
               }
 
               return (
@@ -108,7 +109,7 @@ const Notifications = () => {
                     {enable ? (
                       <Link
                         href={url}
-                        className="flex items-center justify-start gap-2"
+                        className="flex items-center justify-start gap-2  "
                       >
                         <Image
                           width={1000}
@@ -130,7 +131,7 @@ const Notifications = () => {
                         </div>
                       </Link>
                     ) : (
-                      <div className="">
+                      <div className="flex items-center justify-start gap-2">
                         <Image
                           width={1000}
                           height={1000}
