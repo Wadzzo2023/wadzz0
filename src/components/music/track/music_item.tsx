@@ -42,7 +42,7 @@ export default function MusicItem({
 
   return (
     <div
-      className="group cursor-pointer space-y-2"
+      className="p-2 group max-h-[260px] min-h-[260px] relative overflow-hidden rounded-lg bg-white shadow-md transition-all duration-300 hover:shadow-lg"
       onClick={playSong}
     >
       <div className={clsx("relative aspect-square overflow-hidden rounded-md shadow-md", {
