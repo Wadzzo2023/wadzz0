@@ -75,7 +75,7 @@ export async function sendSiteAsset2pub(
     .addOperation(
       Operation.payment({
         destination: pubkey,
-        amount: siteAssetAmount.toString(), //copy,
+        amount: siteAssetAmount.toFixed(7).toString(), //copy,
         asset: PLATFORM_ASSET,
         source: storageAcc.publicKey(),
       }),

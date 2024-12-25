@@ -8,6 +8,7 @@ import {
 import { AccountSchema } from "~/lib/stellar/fan/utils";
 import { createOrRenewVanitySubscription, getVanitySubscriptionXDR } from "~/lib/stellar/fan/vanity-url";
 import { getAssetBalance } from "~/lib/stellar/marketplace/test/acc";
+import { StellarAccount } from "~/lib/stellar/marketplace/test/Account";
 import { SignUser } from "~/lib/stellar/utils";
 
 import {
@@ -277,6 +278,17 @@ export const creatorRouter = createTRPCRouter({
     .input(z.object({ creatorId: z.string() }))
     .query(async ({ input, ctx }) => {
       const { creatorId } = input;
+      const creator = await ctx.db.creator.findUnique({
+        where: { id: creatorId },
+      });
+
+      if (!creator) {
+        throw new Error("Creator not found");
+      }
+      const storagePubKey = creator.storagePub;
+
+
+
       const Asset = await ctx.db.asset.findMany({
         where: { creatorId },
         select: {
@@ -298,13 +310,18 @@ export const creatorRouter = createTRPCRouter({
           },
         },
       });
-      const assetsWithRemaining = Asset.map((asset) => ({
-        ...asset,
-        Redeem: asset.Redeem.map((redeem) => ({
-          ...redeem,
-          remaining: redeem.totalRedeemable - redeem.redeemConsumers.length, // Calculate remaining redemptions
-        })),
-      }));
+
+      const acc = await StellarAccount.create(storagePubKey);
+
+      const assetsWithRemaining = Asset.map((asset) => (
+        {
+          ...asset,
+          limit: acc.getTokenBalance(asset.code, asset.issuer),
+          Redeem: asset.Redeem.map((redeem) => ({
+            ...redeem,
+            remaining: redeem.totalRedeemable - redeem.redeemConsumers.length, // Calculate remaining redemptions
+          })),
+        }));
       return assetsWithRemaining;
     }),
   generateRedeemCode: protectedProcedure
@@ -340,7 +357,7 @@ export const creatorRouter = createTRPCRouter({
       const code = await ctx.db.redeem.create({
         data: {
           totalRedeemable: maxRedeems,
-          code: redeemCode,
+          code: redeemCode.toLocaleUpperCase(),
           assetRedeemId: assetId,
         },
       });

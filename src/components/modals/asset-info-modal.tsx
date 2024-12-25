@@ -373,14 +373,21 @@ export function DisableFromMarketButton({
   code: string;
   issuer: string;
 }) {
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { setData } = useMarketRightStore();
   const disable = api.marketplace.market.disableToMarketDB.useMutation({
     onSuccess() {
       setData(undefined);
+      setIsDialogOpen(false);
+      toast.success("Item has been disabled from the market");
     },
+    onError(error) {
+      setIsDialogOpen(false);
+      toast.error(error.message);
+    }
   });
 
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
+
   return (
     <div className="flex w-full flex-col gap-2">
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
@@ -419,6 +426,11 @@ export function DisableFromMarketButton({
                 onClick={() => disable.mutate({ code, issuer })}
                 className="w-full"
               >
+                {
+                  disable.isLoading && (
+                    <span className="loading loading-spinner" />
+                  )
+                }
                 Confirm
               </Button>
             </div>

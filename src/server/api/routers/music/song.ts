@@ -253,4 +253,25 @@ export const songRouter = createTRPCRouter({
       // const docRef = doc(db, FCname.songs, songId);
       // await updateDoc(docRef, { privacy: privacy });
     }),
+  deletePublicSong: protectedProcedure
+    .input(
+      z.object({
+        songId: z.number(),
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      const { id } = ctx.session.user;
+      const isAdmin = await ctx.db.admin.findUnique({ where: { id } });
+      const isCreator = await ctx.db.asset.findUnique({
+        where: { creatorId: id, id: input.songId },
+      });
+
+      if (!isAdmin && !isCreator) {
+        throw new Error("You are not an admin/creator");
+      }
+
+      return await ctx.db.asset.delete({
+        where: { id: input.songId },
+      });
+    }),
 });

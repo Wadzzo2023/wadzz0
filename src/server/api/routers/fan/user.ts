@@ -76,7 +76,7 @@ export const userRouter = createTRPCRouter({
       const user = ctx.session.user.id;
 
       const getRedeem = await ctx.db.redeem.findUnique({
-        where: { code: redeemCode },
+        where: { code: redeemCode.toLocaleUpperCase() },
         select: {
           _count: {
             select: {
