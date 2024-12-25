@@ -30,12 +30,12 @@ function RenderTabs() {
   const { selectedMenu } = useAdminMenu();
 
   switch (selectedMenu) {
-    case AdminNavigation.WALLET:
-      return (
-        <div className=" w-full max-w-xl">
-          <MintedItemAdd />
-        </div>
-      );
+    // case AdminNavigation.WALLET:
+    //   return (
+    //     <div className=" w-full max-w-xl">
+    //       <MintedItemAdd />
+    //     </div>
+    //   );
     case AdminNavigation.NFT:
       return (
         <div className="min-w-xl p-4">

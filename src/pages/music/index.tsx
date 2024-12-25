@@ -6,6 +6,10 @@ import TrackSection, { TrackSectionSkeleton } from "~/components/music/track/sec
 import { getAssetBalanceFromBalance } from "~/lib/stellar/marketplace/test/acc";
 
 export default function Home() {
+  const { data } = api.wallate.admin.checkAdmin.useQuery(undefined, {
+    refetchOnWindowFocus: false,
+  });
+
   return (
     <>
       <Head>
@@ -21,8 +25,8 @@ export default function Home() {
               <AlbumsContainer />
               <AllSongs />
               <MySongs />
-              <CreatorPublicSongs />
-              <CreatorMarketSongs />
+              <CreatorPublicSongs adminId={data?.id} />
+              <CreatorMarketSongs adminId={data?.id} />
             </div>
           </div>
         </div>
@@ -68,7 +72,7 @@ function MySongs() {
   }
 }
 
-function CreatorPublicSongs() {
+function CreatorPublicSongs({ adminId }: { adminId?: string }) {
   const creatorSongs = api.music.song.getCreatorPublicSong.useQuery();
 
   const header = "Public Songs";
@@ -84,6 +88,7 @@ function CreatorPublicSongs() {
             <CreatorTrack
               key={song.id}
               playable={true}
+              adminId={adminId}
               item={
                 {
                   ...song,
@@ -99,7 +104,7 @@ function CreatorPublicSongs() {
   }
 }
 
-function CreatorMarketSongs() {
+function CreatorMarketSongs({ adminId }: { adminId?: string }) {
   const creatorSongs = api.music.song.getCreatorMarketSong.useQuery();
   const accBalances = api.wallate.acc.getUserPubAssetBallances.useQuery();
 
@@ -125,6 +130,7 @@ function CreatorMarketSongs() {
                   <CreatorTrack
                     key={marketItem.id}
                     playable={true}
+                    adminId={adminId}
                     item={{
                       ...marketItem.asset,
                       artist: marketItem.asset.creatorId?.substring(0, 4) ?? "creator",
@@ -136,6 +142,7 @@ function CreatorMarketSongs() {
                 return (
                   <CreatorTrack
                     key={marketItem.id}
+                    adminId={adminId}
                     item={{
                       ...marketItem.asset,
                       artist: marketItem.asset.creatorId?.substring(0, 4) ?? "creator",

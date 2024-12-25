@@ -33,7 +33,7 @@ export type PlaceMarketFormType = z.TypeOf<typeof PlaceMarketFormSchema>;
 export default function PlaceNFT2Storage({
   item,
 }: {
-  item: { code: string; issuer: string; copies: number };
+  item: { code: string; issuer: string; copies: number, name: string };
 }) {
   const modalRef = useRef<HTMLDialogElement>(null);
 
@@ -80,6 +80,7 @@ export default function PlaceNFT2Storage({
   function resetState() {
     reset();
     xdrMutation.reset();
+
   }
 
   const handleModal = () => {
@@ -119,7 +120,7 @@ export default function PlaceNFT2Storage({
           <form onSubmit={handleSubmit(onSubmit)}>
             <div className="mt-4 flex flex-col items-center gap-y-2">
               <div className="flex w-full  max-w-sm flex-col rounded-lg bg-base-200 p-2 py-5">
-                <p>Asset Name: {item.code}</p>
+                <p>Asset Name: {item.name}</p>
                 <p>
                   Asset Code:{" "}
                   <span className="badge badge-primary">{item.code}</span>

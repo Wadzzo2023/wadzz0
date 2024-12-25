@@ -211,7 +211,7 @@ export default function BuyModal() {
                       alt={data.Asset.asset.name}
                       width={1000}
                       height={1000}
-                      className={clsx("h-full max-h-[800px] overflow-y-auto w-full object-cover ", data.Asset.asset.tierId ? " blur-md" : "")}
+                      className={clsx("h-full max-h-[800px] overflow-y-hidden w-full object-cover ", data.Asset.asset.tierId ? " blur-md" : "")}
                     />
                   ) : (
                     data.Asset.asset.mediaType === "MUSIC" ? (
@@ -220,7 +220,7 @@ export default function BuyModal() {
                         alt={data.Asset.asset.name}
                         width={1000}
                         height={1000}
-                        className={clsx(" h-full max-h-[800px] overflow-y-auto w-full object-cover ", data.Asset.asset.tierId ? " blur-md" : "")}
+                        className={clsx(" h-full max-h-[800px] overflow-y-hidden w-full object-cover ", data.Asset.asset.tierId ? " blur-md" : "")}
                       />
                     ) :
                       (
@@ -236,10 +236,10 @@ export default function BuyModal() {
 
                             }}
                             className={
-                              clsx("h-full max-h-[800px] overflow-y-auto w-full object-cover ", data.Asset.asset.tierId ? " blur-md" : "")
+                              clsx("h-full max-h-[800px] overflow-y-hidden w-full object-cover ", data.Asset.asset.tierId ? " blur-md" : "")
                             }
                           >
-                            <ShowModel url={data.Asset.asset.mediaUrl} />
+                            <ShowModel url={data.Asset.asset.mediaUrl} blur={data.Asset.asset.tierId ? true : false} />
                           </div>
                         </>
                       )
