@@ -41,20 +41,14 @@ export default function VideoPlayerCard({
 
         const setVideoTime = () => setCurrentTime(video.currentTime)
 
-        const handleFullscreenChange = () => {
-            setIsFullscreen(!!document.fullscreenElement);
-        };
-
         video.addEventListener('loadeddata', setVideoData)
         video.addEventListener('timeupdate', setVideoTime)
         video.addEventListener('ended', () => setIsPlaying(false))
-        document.addEventListener('fullscreenchange', handleFullscreenChange);
 
         return () => {
             video.removeEventListener('loadeddata', setVideoData)
             video.removeEventListener('timeupdate', setVideoTime)
             video.removeEventListener('ended', () => setIsPlaying(false))
-            document.removeEventListener('fullscreenchange', handleFullscreenChange);
         }
     }, [])
 
@@ -126,14 +120,14 @@ export default function VideoPlayerCard({
                 {/* Video Container */}
                 <div
                     ref={containerRef}
-                    className={`relative group w-full ${isFullscreen ? 'h-screen' : 'max-h-[400px] md:max-h-[500px]'}`}
+                    className="relative group"
                     onMouseEnter={() => setShowControls(true)}
                     onMouseLeave={() => setShowControls(false)}
                 >
                     <video
                         ref={videoRef}
                         src={videoSrc}
-                        className="w-full h-full object-contain bg-black rounded-lg"
+                        className=" max-h-[400px] min-h-[400px] w-full  md:max-h-[500px]  md:min-h-[500px] rounded-lg bg-black"
                         onClick={togglePlayPause}
                         poster={thumbnailSrc}
                     />
@@ -219,4 +213,3 @@ export default function VideoPlayerCard({
         </Card>
     )
 }
-
