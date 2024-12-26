@@ -4,8 +4,6 @@
 // import { CustomMapControl } from "./map-control";
 // import MapHandler from "./map-handler";
 
-// const API_KEY = "vong cong";
-
 // export type AutocompleteMode = { id: string; label: string };
 
 // const MapApp = () => {

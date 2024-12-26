@@ -27,7 +27,7 @@ import { useRouter } from "next/router";
 import { Card, CardContent, CardFooter } from "~/components/shadcn/ui/card";
 import { useModal } from "~/lib/state/play/use-modal-store";
 import BuyItem from "../BuyItem";
-import { DisableFromMarketButton } from "./modal-action-button";
+import { DisableFromMarketButton, OtherButtons } from "./modal-action-button";
 
 export const PaymentMethodEnum = z.enum(["asset", "xlm", "card"]);
 export type PaymentMethod = z.infer<typeof PaymentMethodEnum>;

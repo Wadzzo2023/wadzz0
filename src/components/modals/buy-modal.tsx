@@ -40,7 +40,6 @@ export default function BuyModal() {
   const router = useRouter();
   const [step, setStep] = useState(1);
 
-  console.log("isOpen", isOpen);
   const isModalOpen = isOpen && type === "buy modal";
   const handleClose = () => {
     setStep(1);
@@ -184,7 +183,7 @@ export default function BuyModal() {
                 </CardContent>
                 <CardFooter className="flex flex-col gap-1 p-2">
                   {session.status === "authenticated" &&
-                  data.Asset.asset.creatorId === session.data.user.id ? (
+                  data.Asset.placerId === session.data.user.id ? (
                     <>
                       <DisableFromMarketButton
                         code={data.Asset.asset.code}

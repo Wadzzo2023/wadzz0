@@ -186,10 +186,7 @@ export function OtherButtons({
   copies: number | undefined;
 }) {
   const { selectedMenu, setSelectedMenu } = useAssetMenu();
-  const { hasTrust } = useUserStellarAcc();
-  const trust = hasTrust(currentData.code, currentData.issuer);
-  console.log("trust", trust);
-  if (currentData && copies && trust) {
+  if (currentData && copies) {
     if (selectedMenu == AssetMenu.OWN) {
       return <PlaceNFT2Storage item={{ ...currentData, copies }} />;
     }
@@ -219,8 +216,9 @@ export function MarketButtons({
     issuer,
   });
   if (inMarket.isLoading) return <div>Loading...</div>;
+  if (inMarket.error) return <div>Error...</div>;
 
-  if (inMarket.data)
+  if (inMarket.data) {
     return (
       <div>
         <span className="text-center text-xs text-red-50">
@@ -230,5 +228,5 @@ export function MarketButtons({
         <NftBackModal copy={copy} item={{ code, issuer }} />
       </div>
     );
-  else return <EnableInMarket copy={copy} item={{ code, issuer }} />;
+  } else return <EnableInMarket copy={copy} item={{ code, issuer }} />;
 }

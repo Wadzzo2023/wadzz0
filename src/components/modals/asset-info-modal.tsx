@@ -48,7 +48,6 @@ export default function AssetInfoModal() {
   const { getAssetBalance: creatorAssetBalance } = useUserStellarAcc();
   const { getAssetBalance: creatorStorageAssetBalance, setBalance } =
     useCreatorStorageAcc();
-  console.log("isOpen", isOpen);
   const { setCurrentTrack, currentTrack } = usePlayer();
   const isModalOpen = isOpen && type === "my asset info modal";
   const handleClose = () => {
@@ -146,7 +145,7 @@ export default function AssetInfoModal() {
                     copies={Number(copyCreatorAssetBalance)}
                   />
                   {session.status === "authenticated" &&
-                    data.MyAsset.creatorId === session.data.user.id && (
+                    data.Asset?.placerId === session.data.user.id && (
                       <>
                         <DisableFromMarketButton
                           code={data.MyAsset.code}
