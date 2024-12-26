@@ -24,6 +24,7 @@ import { AssetType } from "~/lib/state/play/use-modal-store";
 import PlaceNFT2Storage from "../marketplace/modal/place_2storage_modal";
 import EnableInMarket from "../marketplace/modal/place_market_modal";
 import NftBackModal from "../marketplace/modal/revert_place_market_modal";
+import toast from "react-hot-toast";
 
 export function DisableFromMarketButton({
   code,
@@ -127,6 +128,7 @@ export function DeleteAssetByAdmin({ id }: { id: number }) {
   const admin = api.wallate.admin.checkAdmin.useQuery();
   const del = api.marketplace.market.deleteMarketAsset.useMutation({
     onSuccess: () => {
+      toast.success("Asset deleted successfully");
       setIsOpen(false);
     },
   });
@@ -196,6 +198,7 @@ export function OtherButtons({
           copy={copies}
           code={currentData.code}
           issuer={currentData.issuer}
+          name={currentData.name}
         />
       );
     }
@@ -206,14 +209,17 @@ export function MarketButtons({
   code,
   issuer,
   copy,
+  name,
 }: {
   code: string;
   issuer: string;
   copy: number;
+  name: string
 }) {
   const inMarket = api.wallate.acc.getAStorageAssetInMarket.useQuery({
     code,
     issuer,
+
   });
   if (inMarket.isLoading) return <div>Loading...</div>;
   if (inMarket.error) return <div>Error...</div>;
@@ -228,5 +234,5 @@ export function MarketButtons({
         <NftBackModal copy={copy} item={{ code, issuer }} />
       </div>
     );
-  } else return <EnableInMarket copy={copy} item={{ code, issuer }} />;
+  } else return <EnableInMarket copy={copy} item={{ code, issuer, name }} />;
 }
