@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Heart, Lock, MessageCircle, Music, ImageIcon, Video, Share, ChevronLeft, ChevronRight } from 'lucide-react';
@@ -18,8 +18,13 @@ import { PostContextMenu } from "../post/post-context-menu";
 import { PostReadMore } from "../post/post-read-more";
 import { AddComment } from "../post/add-comment";
 import Avater from "~/components/ui/avater";
-import AudioPlayerCard from "~/components/PostAudioPlayer";
-import VideoPlayerCard from "~/components/PostVideoPlayer";
+import PostAudioPlayer from "~/components/PostAudioPlayer";
+import PostVideoPlayer from "~/components/PostVideoPlayer";
+import { usePostVideoMedia } from "~/components/context/PostVideoContext";
+import { usePostAudioMedia } from "~/components/context/PostAudioContext";
+import { usePlayer } from "~/components/context/PlayerContext";
+import DummyAudioPostPlayer from "~/components/DummyAudioPostPlayer";
+import DummmyVideoPostPlayer from "~/components/DummyVideoPostPlayer";
 
 export function PostCard({
   post,
@@ -43,7 +48,8 @@ export function PostCard({
   const deleteLike = api.fan.post.unLike.useMutation();
   const { data: liked } = api.fan.post.isLiked.useQuery(post.id);
   const [currentMediaIndex, setCurrentMediaIndex] = useState(0);
-
+  const { setCurrentVideo, currentVideo, isPlaying, currentVideoPlayingId, setVideoCurrentPlayingId } = usePostVideoMedia();
+  const { setCurrentTrack, currentAudioPlayingId, setCurrentAudioPlayingId } = usePlayer()
   const creatorProfileUrl = `/fans/creator/${post.creatorId}`;
   const postUrl = `/fans/posts/${post.id}`;
   const { onOpen } = useModal();
@@ -61,6 +67,13 @@ export function PostCard({
     }
   }
 
+  useEffect(() => {
+    if (currentVideo) {
+      setCurrentVideo(null);
+      setVideoCurrentPlayingId(null);
+    }
+  }, [post.id])
+
   const renderMediaItem = (item: Media, creatorId: string) => {
     switch (item.type) {
       case 'IMAGE':
@@ -77,24 +90,74 @@ export function PostCard({
       case 'VIDEO':
         return (
           <div
-
             className="max-h-[400px] min-h-[400px] w-full  md:max-h-[500px]  md:min-h-[500px] flex items-center justify-center bg-gray-100 rounded-lg"
+            onClick={() => {
+
+              !isPlaying && currentVideoPlayingId !== item.id && setCurrentVideo({
+                id: item.id,
+                creatorId: creatorId,
+                src: item.url,
+                title: post.heading
+              });
+              setVideoCurrentPlayingId(item.id);
+            }}
           >
-            <VideoPlayerCard
-              creatorId={creatorId}
-              videoSrc={item.url}
-              title={post.heading}
-            />
+            {
+              currentVideoPlayingId === item.id ? (
+                <PostVideoPlayer videoId={item.id} />
+              ) : (
+                <DummmyVideoPostPlayer videoId={item.id}
+                  name={post.heading}
+                  artist={creatorId}
+                  mediaUrl={item.url}
+                />
+              )
+            }
           </div>
         );
       case 'MUSIC':
         return (
-          <div className="max-h-[400px] min-h-[400px] w-full  md:max-h-[500px]  md:min-h-[500px] flex items-center justify-center bg-gray-100 rounded-lg">
-            <AudioPlayerCard
-              creatorId={creatorId}
-              audioSrc={item.url}
-              title={post.heading}
-            />
+          <div className="max-h-[400px] min-h-[400px] w-full  md:max-h-[500px]  md:min-h-[500px] flex items-center justify-center bg-gray-100 rounded-lg"
+            onClick={() => {
+              setCurrentTrack({
+                albumId: 1,
+                artist: creator.name,
+                asset: {
+                  creatorId: creatorId,
+                  description: post.heading,
+                  issuer: 'issuer',
+                  limit: 0,
+                  mediaType: MediaType.MUSIC,
+                  privacy: 'PUBLIC',
+                  tierId: 1,
+                  code: 'video1',
+                  id: 1,
+                  mediaUrl: item.url,
+                  name: post.heading,
+                  thumbnail: 'https://bandcoin.io/images/logo.png',
+                },
+                assetId: 1,
+                createdAt: new Date(),
+                id: 1,
+                price: 0,
+                priceUSD: 0,
+
+              })
+              setCurrentAudioPlayingId(item.id);
+            }}
+          >
+            {
+              currentAudioPlayingId === item.id ? (
+                <PostAudioPlayer />
+              ) : (
+                <DummyAudioPostPlayer audioId={item.id}
+                  name={post.heading}
+                  artist={creatorId}
+
+                  mediaUrl={item.url}
+                />
+              )
+            }
           </div>
         );
       default:

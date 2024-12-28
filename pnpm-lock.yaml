@@ -296,6 +296,9 @@ importers:
       react-dom:
         specifier: 18.2.0
         version: 18.2.0(react@18.2.0)
+      react-draggable:
+        specifier: ^4.4.6
+        version: 4.4.6(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       react-h5-audio-player:
         specifier: ^3.9.3
         version: 3.9.3(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
@@ -308,6 +311,9 @@ importers:
       react-icons:
         specifier: ^5.4.0
         version: 5.4.0(react@18.2.0)
+      react-intersection-observer:
+        specifier: ^9.14.0
+        version: 9.14.0(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       react-map-gl:
         specifier: ^7.1.7
         version: 7.1.7(mapbox-gl@3.8.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
@@ -3578,6 +3584,10 @@ packages:
     resolution: {integrity: sha512-3Pe/CF1Nn94hyhIYpjtiLhdCoEoz0DqQ+988E9gmeEdQZlojxnOb74wctFyuwWQHzqyf9X7C7MG8juUpqBJT8w==}
     engines: {node: '>=0.8'}
 
+  clsx@1.2.1:
+    resolution: {integrity: sha512-EcR6r5a8bj6pu3ycsa/E/cKVGuTgZJZdsyUYHOksG/UHIiKfjxzRxYJpyVBwYaQeOvghal9fcc4PidlgzugAQg==}
+    engines: {node: '>=6'}
+
   clsx@2.1.1:
     resolution: {integrity: sha512-eYm0QWBtUrBWZWG0d386OGAw16Z995PiOVo2B7bjWSbHedGl5e0ZWaq65kOGgUSNesEIDkB9ISbTg/JK9dhCZA==}
     engines: {node: '>=6'}
@@ -6026,6 +6036,12 @@ packages:
     peerDependencies:
       react: ^18.2.0
 
+  react-draggable@4.4.6:
+    resolution: {integrity: sha512-LtY5Xw1zTPqHkVmtM3X8MUOxNDOUhv/khTgBgrUvwaS064bwVvxT+q5El0uUFNx5IEPKXuRejr7UqLwBIg5pdw==}
+    peerDependencies:
+      react: '>= 16.3.0'
+      react-dom: '>= 16.3.0'
+
   react-fast-compare@3.2.2:
     resolution: {integrity: sha512-nsO+KSNgo1SbJqJEYRE9ERzo7YtYbou/OqjSQKxV7jcKox7+usiUVZOAC+XnDOABXggQTno0Y1CpVnuWEc1boQ==}
 
@@ -6052,6 +6068,15 @@ packages:
     resolution: {integrity: sha512-7eltJxgVt7X64oHh6wSWNwwbKTCtMfK35hcjvJS0yxEAhPM8oUKdS3+kqaW1vicIltw+kR2unHaa12S9pPALoQ==}
     peerDependencies:
       react: '*'
+
+  react-intersection-observer@9.14.0:
+    resolution: {integrity: sha512-AYqlmDZn85VUmlODwYym9y5OlqY2cFyIu41dkN0GJWvhdbd19Mh16mz5IH6fO1gp5V4FfQOO4m0zGc04Tj13rQ==}
+    peerDependencies:
+      react: ^17.0.0 || ^18.0.0 || ^19.0.0
+      react-dom: ^17.0.0 || ^18.0.0 || ^19.0.0
+    peerDependenciesMeta:
+      react-dom:
+        optional: true
 
   react-is@16.13.1:
     resolution: {integrity: sha512-24e6ynE2H+OKt4kqsOvNd8kBpV65zoxbA4BVsEOB3ARVWQki/DHzaUoC5KuON/BiccDaCCTZBuOcfZs70kR8bQ==}
@@ -11543,6 +11568,8 @@ snapshots:
 
   clone@2.1.2: {}
 
+  clsx@1.2.1: {}
+
   clsx@2.1.1: {}
 
   color-convert@2.0.1:
@@ -14664,6 +14691,13 @@ snapshots:
       react: 18.2.0
       scheduler: 0.23.2
 
+  react-draggable@4.4.6(react-dom@18.2.0(react@18.2.0))(react@18.2.0):
+    dependencies:
+      clsx: 1.2.1
+      prop-types: 15.8.1
+      react: 18.2.0
+      react-dom: 18.2.0(react@18.2.0)
+
   react-fast-compare@3.2.2: {}
 
   react-h5-audio-player@3.9.3(react-dom@18.2.0(react@18.2.0))(react@18.2.0):
@@ -14688,6 +14722,12 @@ snapshots:
   react-icons@5.4.0(react@18.2.0):
     dependencies:
       react: 18.2.0
+
+  react-intersection-observer@9.14.0(react-dom@18.2.0(react@18.2.0))(react@18.2.0):
+    dependencies:
+      react: 18.2.0
+    optionalDependencies:
+      react-dom: 18.2.0(react@18.2.0)
 
   react-is@16.13.1: {}
 
