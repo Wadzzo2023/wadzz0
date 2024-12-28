@@ -71,7 +71,7 @@ export function SinglePostView({ post }: { post: extendedPost }) {
       case 'VIDEO':
         return (
           <div
-            className=" w-full flex items-center justify-center bg-gray-100 rounded-lg"
+            className=" max-h-[450px] min-h-[450px] w-full  md:max-h-[550px]  md:min-h-[550px] flex items-center justify-center bg-gray-100 rounded-lg "
             onClick={() => {
               setCurrentTrack(null)
               setCurrentAudioPlayingId(null)
@@ -101,7 +101,7 @@ export function SinglePostView({ post }: { post: extendedPost }) {
         );
       case 'MUSIC':
         return (
-          <div className="flex items-center justify-center bg-gray-100 rounded-lg"
+          <div className=" max-h-[450px] min-h-[450px] w-full  md:max-h-[550px]  md:min-h-[550px] flex items-center justify-center bg-gray-100 rounded-lg "
             onClick={() => {
               setCurrentVideo(null)
               setVideoCurrentPlayingId(null)
