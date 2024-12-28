@@ -34,6 +34,8 @@ export const Player: React.FC = () => {
     setVolume,
     setIsPIP,
     setCurrentTime,
+    setCurrentTrack,
+    setCurrentAudioPlayingId,
     nextTrack,
     previousTrack,
     skipForward,
@@ -52,69 +54,17 @@ export const Player: React.FC = () => {
     setCurrentTime(newTime[0]!);
   };
 
-  // const togglePIP = async () => {
-  //     if (!videoRef.current) return
 
-  //     try {
-  //         if (isPIP) {
-  //             await document.exitPictureInPicture()
-  //         } else {
-  //             await videoRef.current.requestPictureInPicture()
-  //         }
-  //         setIsPIP(!isPIP)
-  //     } catch (error) {
-  //         console.error('Failed to toggle Picture-in-Picture mode:', error)
-  //     }
-  // }
-
-  // console.log('currentTrack', currentTrack)
-  // console.log('isPlaying', isPlaying)
 
   if (!currentTrack || !isPlayerOpen) return null;
 
-  // const ScrollingText: React.FC<{ text: string }> = ({ text }) => {
-  //     const containerRef = useRef<HTMLDivElement>(null);
-  //     const textRef = useRef<HTMLDivElement>(null);
-  //     const [isOverflowing, setIsOverflowing] = useState(false);
-  //     const [animationDuration, setAnimationDuration] = useState(0);
 
-  //     useEffect(() => {
-  //         if (containerRef.current && textRef.current) {
-  //             const isOverflow = textRef.current.offsetWidth > containerRef.current.offsetWidth;
-  //             setIsOverflowing(isOverflow);
-  //             if (isOverflow) {
-  //                 const duration = textRef.current.offsetWidth / 10; // Adjust speed here
-  //                 setAnimationDuration(duration);
-  //             }
-  //         }
-  //     }, [text]);
-
-  //     return (
-  //         <div ref={containerRef} className="w-full overflow-hidden">
-  //             <div
-  //                 ref={textRef}
-  //                 className={`inline-block whitespace-nowrap ${isOverflowing ? 'animate-scrolling-text' : ''
-  //                     }`}
-  //                 style={
-  //                     isOverflowing
-  //                         ? {
-  //                             animationDuration: `${animationDuration}s`,
-  //                             animationDelay: '2s',
-  //                         }
-  //                         : {}
-  //                 }
-  //             >
-  //                 {text}
-  //             </div>
-  //         </div>
-  //     );
-  // };
   return (
     <div className="absolute bottom-1 left-0 right-0 mx-auto flex max-w-2xl flex-col items-center justify-center rounded-t-lg border-t border-border  bg-background p-2">
       <div className="mb-2 flex w-full items-center justify-between">
         <div className="flex items-center space-x-4">
           <img
-            src={currentTrack.asset.thumbnail}
+            src={currentTrack.asset.thumbnail ?? "/images/logo.png"}
             alt={currentTrack.asset.name}
             className="h-12 w-12 rounded-md"
           />
@@ -196,8 +146,9 @@ export const Player: React.FC = () => {
             variant="ghost"
             size="icon"
             onClick={() => {
-              setIsPlayerOpen(false);
-              setIsPlaying(false);
+
+              setCurrentTrack(null);
+              setCurrentAudioPlayingId(null);
             }}
           >
             <X className="h-6 w-6" />
