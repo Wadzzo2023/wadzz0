@@ -3,6 +3,7 @@ import { ChevronLeft, ChevronRight, Heart, MessageCircle, ShareIcon } from "luci
 import Link from "next/link";
 import { api } from "~/utils/api";
 import { formatPostCreatedAt } from "~/utils/format-date";
+import PostAudioPlayer from "~/components/PostAudioPlayer";
 
 import Avater from "../../ui/avater";
 import { AddComment } from "./add-comment";
@@ -17,7 +18,12 @@ import { Button } from "~/components/shadcn/ui/button";
 import { useState } from "react";
 import ReplyCommentView from "./reply";
 import { useModal } from "~/lib/state/play/use-modal-store";
-import { Media, Post } from "@prisma/client";
+import { Media, MediaType, Post } from "@prisma/client";
+import { usePostVideoMedia } from "~/components/context/PostVideoContext";
+import { usePlayer } from "~/components/context/PlayerContext";
+import PostVideoPlayer from "~/components/PostVideoPlayer";
+import DummmyVideoPostPlayer from "~/components/DummyVideoPostPlayer";
+import DummyAudioPostPlayer from "~/components/DummyAudioPostPlayer";
 
 type extendedPost = Post & {
   creator: {
@@ -36,7 +42,8 @@ type extendedPost = Post & {
 export function SinglePostView({ post }: { post: extendedPost }) {
 
   const { onOpen } = useModal();
-
+  const { setCurrentVideo, currentVideo, isPlaying, currentVideoPlayingId, setVideoCurrentPlayingId } = usePostVideoMedia();
+  const { setCurrentTrack, currentAudioPlayingId, setCurrentAudioPlayingId } = usePlayer()
   const likeMutation = api.fan.post.likeApost.useMutation();
   const deleteLike = api.fan.post.unLike.useMutation();
   // const { data: likes, isLoading } = api.post.getLikes.useQuery(post.id);
@@ -47,7 +54,7 @@ export function SinglePostView({ post }: { post: extendedPost }) {
   const [commentBox, setCommentBox] = useState(false);
   const [currentMediaIndex, setCurrentMediaIndex] = useState(0);
 
-  const renderMediaItem = (item: Media) => {
+  const renderMediaItem = (item: Media, creatorId: string) => {
     switch (item.type) {
       case 'IMAGE':
         return (
@@ -62,22 +69,75 @@ export function SinglePostView({ post }: { post: extendedPost }) {
         );
       case 'VIDEO':
         return (
-          <video
-            key={item.id}
-            src={item.url}
-            controls
-            className="max-h-[400px] min-h-[400px] w-full  md:max-h-[500px]  md:min-h-[500px] rounded-lg  object-cover"
-          />
+          <div
+            className="max-h-[400px] min-h-[400px] w-full  md:max-h-[500px]  md:min-h-[500px] flex items-center justify-center bg-gray-100 rounded-lg"
+            onClick={() => {
+
+              !isPlaying && currentVideoPlayingId !== item.id && setCurrentVideo({
+                id: item.id,
+                creatorId: creatorId,
+                src: item.url,
+                title: post.heading
+              });
+              setVideoCurrentPlayingId(item.id);
+            }}
+          >
+            {
+              currentVideoPlayingId === item.id ? (
+                <PostVideoPlayer videoId={item.id} />
+              ) : (
+                <DummmyVideoPostPlayer videoId={item.id}
+                  name={post.heading}
+                  artist={creatorId}
+                  mediaUrl={item.url}
+                />
+              )
+            }
+          </div>
         );
       case 'MUSIC':
         return (
-          <div className="max-h-[400px] min-h-[400px] w-full  md:max-h-[500px]  md:min-h-[500px] flex items-center justify-center bg-gray-100 rounded-lg">
-            <audio
-              key={item.id}
-              src={item.url}
-              controls
-              className="w-full max-w-md"
-            />
+          <div className="max-h-[400px] min-h-[400px] w-full  md:max-h-[500px]  md:min-h-[500px] flex items-center justify-center bg-gray-100 rounded-lg"
+            onClick={() => {
+              setCurrentTrack({
+                albumId: 1,
+                artist: creatorId,
+                asset: {
+                  creatorId: creatorId,
+                  description: post.heading,
+                  issuer: 'issuer',
+                  limit: 0,
+                  mediaType: MediaType.MUSIC,
+                  privacy: 'PUBLIC',
+                  tierId: 1,
+                  code: 'video1',
+                  id: 1,
+                  mediaUrl: item.url,
+                  name: post.heading,
+                  thumbnail: 'https://bandcoin.io/images/logo.png',
+                },
+                assetId: 1,
+                createdAt: new Date(),
+                id: 1,
+                price: 0,
+                priceUSD: 0,
+
+              })
+              setCurrentAudioPlayingId(item.id);
+            }}
+          >
+            {
+              currentAudioPlayingId === item.id ? (
+                <PostAudioPlayer />
+              ) : (
+                <DummyAudioPostPlayer audioId={item.id}
+                  name={post.heading}
+                  artist={creatorId}
+
+                  mediaUrl={item.url}
+                />
+              )
+            }
           </div>
         );
       default:
@@ -158,7 +218,7 @@ export function SinglePostView({ post }: { post: extendedPost }) {
                       <Preview value={post.content} />
                       {post.medias && post.medias.length > 0 && (
                         <div className="mt-4 relative">
-                          {post.medias[currentMediaIndex] ? renderMediaItem(post.medias[currentMediaIndex]) : null}
+                          {post.medias[currentMediaIndex] ? renderMediaItem(post.medias[currentMediaIndex], post.creatorId) : null}
                           {post.medias.length > 1 && (
                             <>
                               <Button

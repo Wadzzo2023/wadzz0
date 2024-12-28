@@ -6,82 +6,49 @@ import { Card, CardContent } from "~/components/shadcn/ui/card"
 import { Button } from "~/components/shadcn/ui/button"
 import { Slider } from "~/components/shadcn/ui/slider"
 import { addrShort } from "package/connect_wallet/src/lib/utils"
+import { useMedia } from "./hooks/useMedia"
+import { usePlayer } from "./context/PlayerContext"
 
-interface AudioPlayerCardProps {
-    title: string
-    creatorId: string
-    audioSrc: string
-}
 
-export default function AudioPlayerCard({ title, creatorId, audioSrc }: AudioPlayerCardProps) {
-    const [isPlaying, setIsPlaying] = useState(false)
-    const [currentTime, setCurrentTime] = useState(0)
-    const [duration, setDuration] = useState(0)
-    const [volume, setVolume] = useState(1)
-    const audioRef = useRef<HTMLAudioElement>(null)
 
-    useEffect(() => {
-        const audio = audioRef.current
-        if (!audio) return
+export default function AudioPlayerCard({ audioId, name, artist, mediaUrl }: { audioId?: number, name?: string, artist?: string, mediaUrl?: string }) {
+    const {
+        isPlayerOpen,
+        currentTrack,
+        isPlaying,
+        volume,
+        isPIP,
+        currentTime,
+        duration,
 
-        const setAudioData = () => {
-            setDuration(audio.duration)
-            setCurrentTime(audio.currentTime)
-        }
+        setIsPlaying,
+        setVolume,
+        setIsPIP,
+        setCurrentTime,
+        currentAudioPlayingId,
+        skipForward,
+        skipBackward
+    } = usePlayer()
 
-        const setAudioTime = () => setCurrentTime(audio.currentTime)
-        audio.addEventListener('loadeddata', setAudioData)
-        audio.addEventListener('timeupdate', setAudioTime)
-
-        return () => {
-            audio.removeEventListener('loadeddata', setAudioData)
-            audio.removeEventListener('timeupdate', setAudioTime)
-        }
-    }, [])
-
-    const togglePlayPause = () => {
-        if (audioRef.current) {
-            if (isPlaying) {
-                audioRef.current.pause()
-            } else {
-                audioRef.current.play()
-            }
-            setIsPlaying(!isPlaying)
-        }
-    }
-    const handleTimeChange = (value: number[]) => {
-        if (audioRef.current && value[0] !== undefined) {
-            audioRef.current.currentTime = value[0];
-            setCurrentTime(value[0]);
-        }
+    const handleVolumeChange = (newVolume: number[]) => {
+        setVolume(newVolume[0]!);
     };
 
-    const handleVolumeChange = (value: number[]) => {
-        const newVolume = value[0];
-        if (newVolume !== undefined) {
-            setVolume(newVolume);
-            if (audioRef.current) {
-                audioRef.current.volume = newVolume;
-            }
-        }
+    const handleTimeChange = (newTime: number[]) => {
+        setCurrentTime(newTime[0]!);
     };
+
+    const togglePlay = () => setIsPlaying(!isPlaying);
+
     const formatTime = (time: number) => {
-        const minutes = Math.floor(time / 60)
-        const seconds = Math.floor(time % 60)
-        return `${minutes}:${seconds.toString().padStart(2, '0')}`
-    }
-    const skipForward = () => {
-        const audio = audioRef.current
-        if (!audio) return
+        const minutes = Math.floor(time / 60);
+        const seconds = Math.floor(time % 60);
+        return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+    };
 
-        audio.currentTime = Math.min(audio.duration, audio.currentTime + 10)
-    }
-    const skipBackward = () => {
-        const audio = audioRef.current
-        if (!audio) return
 
-        audio.currentTime = Math.min(audio.duration, audio.currentTime - 10)
-    }
+
+    if (!currentTrack || !isPlayerOpen) return null
     return (
         <Card className="w-full max-w-md  text-black">
             <CardContent className="p-6">
@@ -96,13 +63,12 @@ export default function AudioPlayerCard({ title, creatorId, audioSrc }: AudioPla
                             <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z" />
                         </svg>
                     </div>
-                    <h2 className="text-2xl font-bold mb-1 text-center font-serif">{title}</h2>
-                    <p className="text-gray-400">{addrShort(creatorId, 7)}</p>
+                    <h2 className="text-2xl font-bold mb-1 text-center font-serif">{currentTrack.asset.name}</h2>
+                    <p className="text-gray-400">{addrShort(currentTrack.artist, 7)}</p>
                 </div>
 
                 {/* Audio Controls */}
                 <div className="space-y-4">
-                    <audio ref={audioRef} src={audioSrc} />
 
                     {/* Progress Bar */}
                     <div className="space-y-2">
@@ -133,7 +99,7 @@ export default function AudioPlayerCard({ title, creatorId, audioSrc }: AudioPla
                             variant="ghost"
                             size="icon"
                             className="h-12 w-12 "
-                            onClick={togglePlayPause}
+                            onClick={togglePlay}
                         >
                             {isPlaying ? (
                                 <Pause className="h-6 w-6" />
@@ -167,4 +133,3 @@ export default function AudioPlayerCard({ title, creatorId, audioSrc }: AudioPla
         </Card>
     )
 }
-
