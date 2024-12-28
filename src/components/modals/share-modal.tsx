@@ -28,10 +28,11 @@ const ShareModal = () => {
   };
 
   const fullUrl = `${process.env.NEXT_PUBLIC_URL}${postUrl}`;
+  const sanitizedUrl = fullUrl.replace(/\/\/www\./, '//');
 
   const handleCopy = async () => {
     try {
-      await navigator.clipboard.writeText(fullUrl);
+      await navigator.clipboard.writeText(sanitizedUrl);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000); // Reset after 2 seconds
     } catch (err) {
@@ -124,7 +125,7 @@ const ShareModal = () => {
               className="w-full bg-transparent px-2 outline-none"
               type="text"
               readOnly
-              value={fullUrl}
+              value={sanitizedUrl}
               aria-label="Share link"
             />
 
