@@ -50,8 +50,8 @@ export default function AudioPlayerCard({ audioId, name, artist, mediaUrl }: { a
 
     if (!currentTrack || !isPlayerOpen) return null
     return (
-        <Card className="w-full max-w-md  text-black">
-            <CardContent className="p-6">
+        <Card className="w-full max-w-md   text-black">
+            <CardContent className="p-6 ">
                 {/* Album Art and Title Section */}
                 <div className="flex flex-col items-center mb-6">
                     <div className="w-32 h-32 bg-[#1a1a2e] rounded-lg mb-4 flex items-center justify-center">

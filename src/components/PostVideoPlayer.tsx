@@ -108,7 +108,7 @@ export const PostVideoPlayer: React.FC<{ videoId?: number }> = ({ videoId }) => 
     }
     console.log("isIntersecting",)
     return (
-        <div className="relative w-full h-full">
+        <div className="relative w-full ">
 
 
 
@@ -126,7 +126,7 @@ export const PostVideoPlayer: React.FC<{ videoId?: number }> = ({ videoId }) => 
 
                             <video
                                 ref={videoRef}
-                                className={` w-full  object-contain ${isFullscreen ? 'h-screen' : 'max-h-[400px] min-h-[400px] md:max-h-[500px]'}`}
+                                className={` w-full  object-contain ${isFullscreen ? 'h-screen' : 'max-h-[400px] min-h-[400px]  md:max-h-[500px] md:min-h-[500px] '}`}
                                 onClick={togglePlay}
                             />
 

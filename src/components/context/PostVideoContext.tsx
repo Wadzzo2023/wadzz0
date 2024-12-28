@@ -76,7 +76,6 @@ export const PostVideoProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         if (mediaRef.current) {
             mediaRef.current.play();
             setIsPlaying(true);
-            setVideoCurrentPlayingId(currentVideo?.id ?? null);
         }
     }, [currentVideo]);
 
@@ -84,7 +83,6 @@ export const PostVideoProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         if (mediaRef.current) {
             mediaRef.current.pause();
             setIsPlaying(false);
-            setVideoCurrentPlayingId(null);
         }
     }, []);
 

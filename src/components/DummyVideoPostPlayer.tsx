@@ -7,6 +7,7 @@ import { Play, Pause, SkipBack, SkipForward, Volume2, Maximize2, PictureInPictur
 import { usePostVideoMedia } from './context/PostVideoContext';
 import { useIntersectionObserver } from './hooks/useIntersectionObserver';
 import { addrShort } from '~/utils/utils';
+import { usePlayer } from './context/PlayerContext';
 
 function DummmyVideoPostPlayer({ videoId, name, artist, mediaUrl }: { videoId: number, name: string, artist: string, mediaUrl: string }) {
     const {
@@ -32,6 +33,7 @@ function DummmyVideoPostPlayer({ videoId, name, artist, mediaUrl }: { videoId: n
         setVideoCurrentPlayingId,
     } = usePostVideoMedia();
     const [isVideoVisible, setIsVideoVisible] = useState(true)
+    const { setCurrentTrack, currentAudioPlayingId, setCurrentAudioPlayingId } = usePlayer()
 
     const videoRef = useRef<HTMLVideoElement>(null);
     const containerRef = useRef<HTMLDivElement>(null);
@@ -39,9 +41,14 @@ function DummmyVideoPostPlayer({ videoId, name, artist, mediaUrl }: { videoId: n
         return (
             <div className="relative w-full h-full"
                 onClick={() => {
-                    setCurrentVideo({ id: videoId, title: name, creatorId: artist, src: mediaUrl })
-                    setVideoCurrentPlayingId(videoId)
-                }}>
+                    setCurrentTrack(null)
+                    setCurrentAudioPlayingId(null)
+                    if (!isPlaying && currentVideoPlayingId !== videoId) {
+                        setCurrentVideo({ id: videoId, title: name, creatorId: artist, src: mediaUrl })
+                        setVideoCurrentPlayingId(videoId)
+                    }
+                }}
+            >
                 <Card className="w-full text-black">
                     <CardContent className="p-6">
                         <div

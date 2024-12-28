@@ -25,6 +25,7 @@ import { usePostAudioMedia } from "~/components/context/PostAudioContext";
 import { usePlayer } from "~/components/context/PlayerContext";
 import DummyAudioPostPlayer from "~/components/DummyAudioPostPlayer";
 import DummmyVideoPostPlayer from "~/components/DummyVideoPostPlayer";
+import { addrShort } from "~/utils/utils";
 
 export function PostCard({
   post,
@@ -92,7 +93,8 @@ export function PostCard({
           <div
             className="max-h-[400px] min-h-[400px] w-full  md:max-h-[500px]  md:min-h-[500px] flex items-center justify-center bg-gray-100 rounded-lg"
             onClick={() => {
-
+              setCurrentTrack(null);
+              setCurrentAudioPlayingId(null);
               !isPlaying && currentVideoPlayingId !== item.id && setCurrentVideo({
                 id: item.id,
                 creatorId: creatorId,
@@ -119,31 +121,35 @@ export function PostCard({
         return (
           <div className="max-h-[400px] min-h-[400px] w-full  md:max-h-[500px]  md:min-h-[500px] flex items-center justify-center bg-gray-100 rounded-lg"
             onClick={() => {
-              setCurrentTrack({
-                albumId: 1,
-                artist: creator.name,
-                asset: {
-                  creatorId: creatorId,
-                  description: post.heading,
-                  issuer: 'issuer',
-                  limit: 0,
-                  mediaType: MediaType.MUSIC,
-                  privacy: 'PUBLIC',
-                  tierId: 1,
-                  code: 'video1',
+              setCurrentVideo(null);
+              setVideoCurrentPlayingId(null);
+              if (!isPlaying && currentAudioPlayingId !== item.id) {
+                setCurrentTrack({
+                  albumId: 1,
+                  artist: addrShort(creatorId, 7),
+                  asset: {
+                    creatorId: addrShort(creatorId, 7),
+                    description: post.heading,
+                    issuer: 'issuer',
+                    limit: 0,
+                    mediaType: MediaType.MUSIC,
+                    privacy: 'PUBLIC',
+                    tierId: 1,
+                    code: 'video1',
+                    id: 1,
+                    mediaUrl: item.url,
+                    name: post.heading,
+                    thumbnail: 'https://bandcoin.io/images/logo.png',
+                  },
+                  assetId: 1,
+                  createdAt: new Date(),
                   id: 1,
-                  mediaUrl: item.url,
-                  name: post.heading,
-                  thumbnail: 'https://bandcoin.io/images/logo.png',
-                },
-                assetId: 1,
-                createdAt: new Date(),
-                id: 1,
-                price: 0,
-                priceUSD: 0,
+                  price: 0,
+                  priceUSD: 0,
 
-              })
-              setCurrentAudioPlayingId(item.id);
+                })
+                setCurrentAudioPlayingId(item.id);
+              }
             }}
           >
             {

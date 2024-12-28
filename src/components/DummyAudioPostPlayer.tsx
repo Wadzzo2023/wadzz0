@@ -93,9 +93,9 @@ export default function DummyAudioPostPlayer({ audioId, name, artist, mediaUrl }
                                     setCurrentAudioPlayingId(audioId)
                                     setCurrentTrack({
                                         albumId: 1,
-                                        artist: artist,
+                                        artist: addrShort(artist, 7),
                                         asset: {
-                                            creatorId: artist,
+                                            creatorId: addrShort(artist, 7),
                                             description: name,
                                             issuer: 'issuer',
                                             limit: 0,
