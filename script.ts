@@ -50,7 +50,7 @@ async function uploadToS3WithProgress(
   });
 
   if (response.status === 200) {
-    return `https://${process.env.NEXT_AWS_BUCKET_NAME}.s3.${process.env.NEXT_AWS_BUCKET_REGION}.amazonaws.com/${fileName}`;
+    return `https://${process.env.NEXT_AWS_BUCKET_NAME}.s3.amazonaws.com/${fileName}`;
   }
 
   throw new Error("Upload failed");

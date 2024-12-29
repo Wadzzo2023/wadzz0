@@ -6,6 +6,7 @@ import { useState } from "react";
 import { env } from "~/env";
 import toast from "react-hot-toast";
 import { submitSignedXDRToServer4User } from "package/connect_wallet/src/lib/stellar/trx/payment_fb_g";
+import { rechargeTask } from "~/trigger/recharge";
 
 type FIRST = { xlm: number; secret: string } | undefined;
 
@@ -56,6 +57,11 @@ export default function PaymentCard({ pubkey, offer, xdr }: PaymentCardType) {
               sourceId: token.token,
               amount: offer.price * 100, // payment gatway take cent input
             });
+
+            // if (token.token) {
+            //   rechargeTask.trigger({ sourceId: token.token, xdr: "xdr" });
+            // }
+
             setLoading(false);
           })()
         }

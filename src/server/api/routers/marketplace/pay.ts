@@ -125,7 +125,7 @@ export const payRouter = createTRPCRouter({
     // const tokenNumber = await getPlatfromAssetPrice();
     const bandCoinPrice = await getAssetPrice();
     const offers = [4.99, 9.99, 19.99, 24.99, 49.99, 99.99].map((price) => {
-      const num = price / bandCoinPrice
+      const num = price / bandCoinPrice;
       return {
         price,
         num,
