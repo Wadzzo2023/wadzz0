@@ -49,7 +49,8 @@ export default function Layout({
   const session = useSession();
   const router = useRouter();
   const isMusicRoute = router.pathname.startsWith("/music");
-
+  const publicRoutes = ["/about", "/privacy", "/support"];
+  const isPublicRoute = publicRoutes.includes(router.pathname);
   // if (router.pathname.includes("/maps")) {
   //   return (
   //     <div className="flex">
@@ -144,7 +145,21 @@ export default function Layout({
                         </>
                       ) : (
                         <div className="flex h-full items-center justify-center">
-                          <ConnectWalletButton />
+                          {isPublicRoute ? (
+                            <div
+                              className={clsx(
+                                "flex h-screen w-full flex-col",
+                                className,
+                              )}
+                            >
+                              <Header />
+                              <div className="flex-1 overflow-auto bg-base-100/50">
+                                {children}
+                              </div>
+                            </div>
+                          ) : (
+                            <ConnectWalletButton />
+                          )}
                         </div>
                       )}
                       {/* <div className="h-44 " /> */}
