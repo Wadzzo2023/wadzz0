@@ -1,8 +1,12 @@
 import Head from "next/head";
-import Image from "next/image";
-import Link from "next/link";
-import { Button } from "~/components/shadcn/ui/button";
+import changeLogJson from "../../changelog.json";
+import packageJson from "../../package.json";
+import { LOGO_BLURDATA } from "~/lib/defaults";
 import { env } from "~/env";
+import SAPage from "~/components/about/SAPage";
+import Image from "next/image";
+import { Button } from "~/components/shadcn/ui/button";
+import Link from "next/link";
 
 export default function About() {
   return (
@@ -19,22 +23,21 @@ export default function About() {
         >
           <div className="relative mx-auto max-w-5xl text-center">
             <h2 className="block w-full  text-3xl font-bold  sm:text-4xl">
-              About {env.NEXT_PUBLIC_SITE}
+              About Bandcoin
             </h2>
             <p className="mx-auto my-4 w-full max-w-xl  text-center font-medium leading-relaxed tracking-wide ">
-              {env.NEXT_PUBLIC_SITE} is the best place for creators to build
-              community with their biggest fans, share exclusive work, and turn
-              their passions into lasting creative businesses. Starting a{" "}
-              {env.NEXT_PUBLIC_SITE} account is free for creators and their
-              fans. If they want to start earning an income, they can choose to
-              launch their own digital shop or run a paid membership. Here,
-              creators get a direct line to their communities. That means they
-              never have to worry about ads or algorithms getting in between
-              them and the people who matter most.
+              Bandcoin is the best place for creators to build community with
+              their biggest fans, share exclusive work, and turn their passions
+              into lasting creative businesses. Starting a Bandcoin account is
+              free for creators and their fans. If they want to start earning an
+              income, they can choose to launch their own digital shop or run a
+              paid membership. Here, creators get a direct line to their
+              communities. That means they never have to worry about ads or
+              algorithms getting in between them and the people who matter most.
             </p>
           </div>
 
-          <div className=" flex flex-col items-center justify-center  gap-10 py-5  md:flex-row ">
+          {/* <div className=" flex flex-col items-center justify-center  gap-10 py-5  md:flex-row ">
             <div className=" flex  rounded-md border ">
               <Image
                 src={"/images/about/explore.png"}
@@ -53,7 +56,7 @@ export default function About() {
                 className="h-full w-full"
               />
             </div>
-          </div>
+          </div> */}
 
           <div className="flex flex-col items-center justify-center py-10">
             <h1 className="mb-2 text-xl font-bold">
@@ -61,7 +64,7 @@ export default function About() {
             </h1>
 
             <div className="flex items-center justify-center gap-4  md:items-start md:justify-start">
-              <Link href="https://apps.apple.com/pk/app/{env.NEXT_PUBLIC_SITE}/id1639649037">
+              <Link href="">
                 <Button className="inline-flex w-full items-center justify-center rounded-lg bg-gray-800 px-4 py-2.5 text-white hover:bg-gray-700 focus:outline-none focus:ring-4 focus:ring-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 dark:focus:ring-gray-700 sm:w-auto">
                   <svg
                     className="me-3 h-7 w-7"
@@ -86,9 +89,7 @@ export default function About() {
                   </div>
                 </Button>
               </Link>
-              <Link
-                href={`https://play.google.com/store/apps/details?id=com.${env.NEXT_PUBLIC_SITE}.${env.NEXT_PUBLIC_SITE}&pli=1`}
-              >
+              <Link href="">
                 <Button className="inline-flex w-full items-center justify-center rounded-lg bg-gray-800 px-4 py-2.5 text-white hover:bg-gray-700 focus:outline-none focus:ring-4 focus:ring-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 dark:focus:ring-gray-700 sm:w-auto">
                   <svg
                     className="me-3 h-7 w-7"
