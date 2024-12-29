@@ -21,7 +21,7 @@ export default function PaymentCard({ pubkey, offer, xdr }: PaymentCardType) {
   const paymentMutation = api.marketplace.pay.payment.useMutation({
     async onSuccess(data, variables, context) {
       if (data) {
-        const tostId = toast.loading("Submitting xdr");
+        const tostId = toast.loading("Submitting transaction");
         submitSignedXDRToServer4User(xdr)
           .then((data) => {
             if (data) {
