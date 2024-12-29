@@ -33,7 +33,7 @@ export type PlaceMarketFormType = z.TypeOf<typeof PlaceMarketFormSchema>;
 export default function PlaceNFT2Storage({
   item,
 }: {
-  item: { code: string; issuer: string; copies: number, name: string };
+  item: { code: string; issuer: string; copies: number; name: string };
 }) {
   const modalRef = useRef<HTMLDialogElement>(null);
 
@@ -80,7 +80,6 @@ export default function PlaceNFT2Storage({
   function resetState() {
     reset();
     xdrMutation.reset();
-
   }
 
   const handleModal = () => {

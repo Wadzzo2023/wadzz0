@@ -1,18 +1,14 @@
 import clsx from "clsx";
 import AssetView from "~/components/marketplace/asset/asset_view";
 import { MoreAssetsSkeleton } from "~/components/marketplace/platforms_nfts";
-import { getTailwindScreenSize } from "~/utils/clientUtils";
-import { useAssetRightStore } from "~/lib/state/assets_right";
 import {
   AssetMenu,
   useAssetMenu,
 } from "~/lib/state/marketplace/asset-tab-menu";
-import { usePopUpState } from "~/lib/state/right-pop";
 
+import { useModal } from "~/lib/state/play/use-modal-store";
 import { api } from "~/utils/api";
 import { ValidCreateCreator } from "../fans/creator";
-import { useModal } from "~/lib/state/play/use-modal-store";
-
 
 export default function MyAssetsPage() {
   return (
@@ -37,7 +33,7 @@ function RenderTabs() {
 
 function MyStorageAsset() {
   const acc = api.wallate.acc.getCreatorStorageInfo.useQuery();
-  const { onOpen } = useModal()
+  const { onOpen } = useModal();
   if (acc.isLoading) return <MoreAssetsSkeleton className="flex gap-2" />;
   if (acc.data)
     return (
@@ -45,22 +41,22 @@ function MyStorageAsset() {
         style={{
           scrollbarGutter: "stable",
         }}
-        className="grid grid-cols-2 md:grid-cols-4  xl:grid-cols-6 gap-2 "
+        className="grid grid-cols-2 gap-2  md:grid-cols-4 xl:grid-cols-6 "
       >
         {acc.data.accAssets.length === 0 && (
           <p className="w-full text-center">You have no asset</p>
         )}
         {acc.data.dbAssets.map((asset, i) => {
           return (
-            <div key={i} onClick={() => {
-              onOpen("my asset info modal", {
-                MyAsset: asset
-              })
-            }}>
-              <button
-                className="btn relative h-fit w-full overflow-hidden  py-4 "
-
-              >
+            <div
+              key={i}
+              onClick={() => {
+                onOpen("my asset info modal", {
+                  MyAsset: asset,
+                });
+              }}
+            >
+              <button className="btn relative h-fit w-full overflow-hidden  py-4 ">
                 {/* <p>{acc.data.accAssets[i]?.copies}</p> */}
                 <AssetView code={asset.name} thumbnail={asset.thumbnail} />
               </button>
@@ -81,7 +77,7 @@ function MyStorageAsset() {
 function MyAssets() {
   const acc = api.wallate.acc.getAccountInfo.useQuery();
 
-  const { onOpen } = useModal()
+  const { onOpen } = useModal();
 
   if (acc.isLoading) return <MoreAssetsSkeleton className="flex gap-2" />;
   if (acc.data)
@@ -90,7 +86,7 @@ function MyAssets() {
         style={{
           scrollbarGutter: "stable",
         }}
-        className="grid grid-cols-2 md:grid-cols-4  xl:grid-cols-6 gap-2 "
+        className="grid grid-cols-2 gap-2  md:grid-cols-4 xl:grid-cols-6 "
       >
         {acc.data.accAssets.length === 0 && (
           <p className="w-full text-center">You have no asset</p>
@@ -98,17 +94,15 @@ function MyAssets() {
         {acc.data.dbAssets.map((asset, i) => {
           // if (asset.copies > 0)
           return (
-            <div key={i} onClick={() => {
-
-              onOpen("my asset info modal", {
-                MyAsset: asset
-              })
-
-            }}>
-              <button
-                className="btn relative h-fit w-full overflow-hidden  py-4 "
-
-              >
+            <div
+              key={i}
+              onClick={() => {
+                onOpen("my asset info modal", {
+                  MyAsset: asset,
+                });
+              }}
+            >
+              <button className="btn relative h-fit w-full overflow-hidden  py-4 ">
                 <AssetView code={asset.name} thumbnail={asset.thumbnail} />
               </button>
             </div>
@@ -122,8 +116,6 @@ function AssetTabs() {
   const { selectedMenu, setSelectedMenu } = useAssetMenu();
 
   const creator = api.fan.creator.meCreator.useQuery();
-
-
 
   return (
     <div role="tablist" className="tabs-boxed tabs my-5 w-full max-w-md">
@@ -150,7 +142,6 @@ function AssetTabs() {
   function handleClick(key: AssetMenu) {
     return () => {
       setSelectedMenu(key);
-
     };
   }
 }

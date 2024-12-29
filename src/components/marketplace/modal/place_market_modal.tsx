@@ -35,7 +35,7 @@ export default function EnableInMarket({
   item,
   copy,
 }: {
-  item: { code: string; issuer: string };
+  item: { code: string; issuer: string, name: string };
   copy: number;
 }) {
   const modalRef = useRef<HTMLDialogElement>(null);
@@ -90,7 +90,7 @@ export default function EnableInMarket({
           <form onSubmit={handleSubmit(onSubmit)}>
             <div className="mt-4 flex flex-col items-center gap-y-2">
               <div className="flex w-full  max-w-sm flex-col rounded-lg bg-base-200 p-2 py-5">
-                <p>Asset Name: {item.code}</p>
+                <p>Asset Name: {item.name}</p>
                 <p>
                   Asset Code:{" "}
                   <span className="badge badge-primary">{item.code}</span>

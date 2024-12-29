@@ -3,7 +3,10 @@ import {
   adminProcedure,
   createTRPCRouter,
   protectedProcedure,
+  publicProcedure,
 } from "~/server/api/trpc";
+
+import { createTransport, Transporter } from "nodemailer";
 
 export const userRouter = createTRPCRouter({
   getUsers: protectedProcedure.query(({ ctx, input }) => {
@@ -21,4 +24,43 @@ export const userRouter = createTRPCRouter({
   deleteAPost: adminProcedure.input(z.number()).mutation(({ ctx, input }) => {
     return ctx.db.post.delete({ where: { id: input } });
   }),
+  sendEmail: publicProcedure
+    .input(
+      z.object({
+        userEmail: z.string(),
+        name: z.string(),
+        message: z.string(),
+      }),
+    )
+    .mutation(({ input }) => {
+      return sendEmail(input.userEmail, input.name, input.message);
+    }),
 });
+
+const transporter: Transporter = createTransport({
+  service: "Gmail",
+  auth: {
+    user: process.env.NEXT_PUBLIC_NODEMAILER_USER,
+    pass: process.env.NEXT_PUBLIC_NODEMAILER_PASS,
+  },
+});
+
+const sendEmail = async (
+  userEmail: string,
+  name: string,
+  message: string,
+): Promise<void> => {
+  try {
+    const mailOptions = {
+      from: userEmail,
+      to: "support@bandcoin.io",
+      subject: `Support Request: ${name}`,
+      text: message,
+    };
+
+    const result = transporter.sendMail(mailOptions);
+  } catch (error) {
+    console.error("Error sending email: ", error);
+    throw new Error("Failed to send email");
+  }
+};
