@@ -2,6 +2,7 @@ import { SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { api } from "~/utils/api";
+import toast from "react-hot-toast";
 export const TierSchema = z.object({
   name: z.string(),
 

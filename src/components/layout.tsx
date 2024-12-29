@@ -50,6 +50,8 @@ export default function Layout({
   const session = useSession();
   const router = useRouter();
   const isMusicRoute = router.pathname.startsWith("/music");
+  const publicRoutes = ["/about", "/privacy", "/support"];
+  const isPublicRoute = publicRoutes.includes(router.pathname);
 
   // if (router.pathname.includes("/maps")) {
   //   return (
@@ -61,8 +63,7 @@ export default function Layout({
   //   );
   // }
 
-  const publicRoutes = ["/about", "/privacy", "/support"];
-  const isPublicRoute = publicRoutes.includes(router.pathname);
+  const creator = api.fan.creator.meCreator.useQuery();
 
   if (router.pathname.includes("/albedo")) {
     return <div>{children}</div>;

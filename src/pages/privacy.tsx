@@ -1,13 +1,10 @@
 const PrivacyPage = () => {
   return (
-    <div className="min-h-screen bg-gray-50">
-      <main className="container mx-auto px-4 py-8 md:py-16">
-        <div className="flex gap-2">
-          <div>
-            <Logo className="bg-yellow-500 px-2" />
-          </div>
-          <h1 className="mb-8 items-center text-center text-4xl font-bold">
-            Privacy Policy
+    <>
+      <div className="">
+        <div className="container mx-auto p-8">
+          <h1 className="mb-4 text-center text-3xl font-bold">
+            Our commitment to protecting your privacy
           </h1>
 
           <p className="mb-4 text-center">
@@ -163,5 +160,9 @@ const PrivacyPage = () => {
             </tbody>
           </table>
         </div>
+      </div>
+    </>
+  );
+};
 
-        export default PrivacyPage;
+export default PrivacyPage;
