@@ -139,7 +139,7 @@ export function PostCard({
                     id: 1,
                     mediaUrl: item.url,
                     name: post.heading,
-                    thumbnail: 'https://bandcoin.io/images/logo.png',
+                    thumbnail: creator.profileUrl ?? 'https://bandcoin.io/images/logo.png',
                   },
                   assetId: 1,
                   createdAt: new Date(),
@@ -159,7 +159,7 @@ export function PostCard({
                 <DummyAudioPostPlayer audioId={item.id}
                   name={post.heading}
                   artist={creatorId}
-
+                  creatorProfileUrl={creatorProfileUrl}
                   mediaUrl={item.url}
                 />
               )

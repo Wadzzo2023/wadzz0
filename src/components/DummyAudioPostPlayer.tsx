@@ -16,7 +16,7 @@ const formatTime = (time: number) => {
     return `${minutes}:${seconds.toString().padStart(2, "0")}`;
 };
 
-export default function DummyAudioPostPlayer({ audioId, name, artist, mediaUrl }: { audioId: number, name: string, artist: string, mediaUrl: string }) {
+export default function DummyAudioPostPlayer({ audioId, name, artist, mediaUrl, creatorProfileUrl }: { audioId: number, name: string, artist: string, mediaUrl: string, creatorProfileUrl?: string }) {
     const {
         isPlayerOpen,
         currentTrack,
@@ -106,7 +106,7 @@ export default function DummyAudioPostPlayer({ audioId, name, artist, mediaUrl }
                                             id: 1,
                                             mediaUrl: mediaUrl,
                                             name: name,
-                                            thumbnail: 'https://bandcoin.io/images/logo.png',
+                                            thumbnail: creatorProfileUrl ?? 'https://bandcoin.io/images/logo.png',
                                         },
                                         assetId: 1,
                                         createdAt: new Date(),
