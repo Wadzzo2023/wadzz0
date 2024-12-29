@@ -22,8 +22,8 @@ export default function Privacy() {
           <p className="mb-4">
             At Bandcoin, your privacy is our priority. This policy explains what
             information we collect, how it is used, and the rights you have as a
-            user. By using Bandcoin's services, you agree to the collection and
-            use of your data as outlined here.
+            user. By using Bandcoin&apos;s services, you agree to the collection
+            and use of your data as outlined here.
           </p>
         </div>
 
@@ -66,7 +66,7 @@ export default function Privacy() {
                     href="#childrens-privacy"
                     className="text-blue-600 hover:underline"
                   >
-                    Children's Privacy
+                    Children&apos;s Privacy
                   </a>
                 </li>
                 <li>
@@ -160,7 +160,7 @@ export default function Privacy() {
                 4. Location Information
               </h3>
               <p>
-                Some services may require access to your device's location.
+                Some services may require access to your device&apos;s location.
                 Location data is used only within the scope necessary for the
                 intended service and is not shared without your consent.
               </p>
@@ -194,7 +194,7 @@ export default function Privacy() {
 
             <section id="childrens-privacy">
               <h2 className="mb-4 text-2xl font-semibold">
-                Children's Privacy
+                Children&apos;s Privacy
               </h2>
               <p>
                 Bandcoin does not target or knowingly collect personal
@@ -241,7 +241,7 @@ export default function Privacy() {
                 </a>
               </p>
               <p className="mt-4">
-                Thank you for trusting Bandcoin. Together, we're empowering
+                Thank you for trusting Bandcoin. Together, we&apos;re empowering
                 bands and redefining music experiences on the Stellar
                 blockchain.
               </p>
