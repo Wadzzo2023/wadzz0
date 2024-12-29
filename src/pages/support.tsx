@@ -1,22 +1,12 @@
 import { SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { api } from "~/utils/api";
 export const TierSchema = z.object({
-  name: z
-    .string()
-    .min(4, { message: "Must be a minimum of 4 characters" })
-    .max(12, { message: "Must be a maximum of 12 characters" })
-    .refine(
-      (value) => {
-        // Check if the input is a single word
-        return /^\w+$/.test(value);
-      },
-      {
-        message: "Input must be a single word",
-      },
-    ),
+  name: z.string(),
+
   email: z.string().email({ message: "Invalid email address" }),
-  message: z.string().min(20, { message: "Make description longer" }),
+  message: z.string().min(5, { message: "Make description longer" }),
 });
 
 const Support = () => {
@@ -25,16 +15,29 @@ const Support = () => {
     handleSubmit,
     formState: { errors },
     getValues,
+
     setValue,
     reset,
   } = useForm<z.infer<typeof TierSchema>>({
     resolver: zodResolver(TierSchema),
     defaultValues: {},
   });
+  const sendMail = api.admin.user.sendEmail.useMutation({
+    onSuccess: () => {
+      reset();
+      toast.success("Message sent successfully");
+    },
+  });
 
   const onSubmit: SubmitHandler<z.infer<typeof TierSchema>> = (data) => {
-    console.log(data);
+    sendMail.mutate({
+      message: data.message,
+      name: data.name,
+      userEmail: data.email,
+    });
   };
+
+  console.log(errors);
   return (
     <div className="mx-auto  h-screen  px-2 md:px-4">
       <section className="mb-32">
@@ -47,7 +50,10 @@ const Support = () => {
         </div>
 
         <div className="flex flex-wrap ">
-          <form className="  w-full shrink-0 grow-0 basis-auto rounded-xl bg-white py-3 md:px-3 lg:mb-0 lg:w-5/12 lg:px-6">
+          <form
+            onSubmit={handleSubmit(onSubmit)}
+            className="  w-full shrink-0 grow-0 basis-auto rounded-xl bg-white py-3 md:px-3 lg:mb-0 lg:w-5/12 lg:px-6"
+          >
             <div className="mb-3 w-full">
               <label
                 className="mb-[2px] block font-medium text-teal-700"
@@ -56,6 +62,7 @@ const Support = () => {
                 Name
               </label>
               <input
+                {...register("name")}
                 type="text"
                 className="w-full rounded-md border px-2 py-2 outline-none"
                 id="exampleInput90"
@@ -72,10 +79,14 @@ const Support = () => {
               </label>
               <input
                 type="email"
+                {...register("email")}
                 className="w-full rounded-md border px-2 py-2 outline-none"
                 id="exampleInput90"
                 placeholder="Enter your email address"
               />
+              {errors.email && (
+                <span className="text-red-500">{errors.email.message}</span>
+              )}
             </div>
 
             <div className="mb-3 w-full">
@@ -86,17 +97,19 @@ const Support = () => {
                 Message
               </label>
               <textarea
+                {...register("message")}
                 className="w-full rounded-[5px] border px-2 py-2 outline-none"
-                name=""
-                id=""
               ></textarea>
+              {errors.message && (
+                <span className="text-red-500">{errors.message.message}</span>
+              )}
             </div>
 
             <button
-              type="button"
+              type="submit"
               className="mb-6 inline-block w-full rounded bg-teal-400 px-6 py-2.5 font-medium uppercase leading-normal text-white hover:bg-teal-500 hover:shadow-md"
             >
-              Send
+              {sendMail.isLoading ? "Sending..." : "Send"}
             </button>
           </form>
 
