@@ -51,19 +51,13 @@ export default function Layout({
   const router = useRouter();
   const isMusicRoute = router.pathname.startsWith("/music");
 
-  // if (router.pathname.includes("/maps")) {
-  //   return (
-  //     <div className="flex">
-  //       <MapLeft className="hidden md:flex" />
-  //       {/* <LeftBar className="hidden md:flex" /> */}
-  //       {children}
-  //     </div>
-  //   );
-  // }
-
   const creator = api.fan.creator.meCreator.useQuery();
 
-  if (router.pathname.includes("/albedo")) {
+  if (
+    router.pathname.includes("/albedo") ||
+    router.pathname.includes("/about") ||
+    router.pathname.includes("/privacy")
+  ) {
     return <div>{children}</div>;
   }
 
@@ -108,7 +102,9 @@ export default function Layout({
           <PostVideoProvider>
             <PlayerProvider>
               <BackgroundMusicProvider>
-                <div className={clsx(" flex h-screen w-full flex-col", className)}>
+                <div
+                  className={clsx(" flex h-screen w-full flex-col", className)}
+                >
                   <Header />
 
                   <div className="flex-1 overflow-auto bg-base-100/50">
@@ -134,7 +130,6 @@ export default function Layout({
                           backgroundImage: `url("christmas-bg.png")`,
                           backgroundSize: "100%",
                           backgroundRepeat: "no-repeat",
-
                         }}
                       >
                         <div className=" h-full overflow-y-auto bg-base-100/80 scrollbar-hide">
