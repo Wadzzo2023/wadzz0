@@ -1,123 +1,180 @@
-import Head from "next/head";
-import changeLogJson from "../../changelog.json";
-import packageJson from "../../package.json";
-import { LOGO_BLURDATA } from "~/lib/defaults";
-import { env } from "~/env";
-import SAPage from "~/components/about/SAPage";
 import Image from "next/image";
-import { Button } from "~/components/shadcn/ui/button";
 import Link from "next/link";
+import Logo from "~/components/logo";
+import { Button } from "~/components/shadcn/ui/button";
+import { Card, CardContent } from "~/components/shadcn/ui/card";
 
-export default function About() {
+export default function AboutPage() {
   return (
-    <>
-      <Head>
-        <title>About | ${env.NEXT_PUBLIC_SITE}</title>
-        <meta name="description" content={env.NEXT_PUBLIC_DESC} />
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
-      <div className="">
-        <section
-          id="features"
-          className="relative block   px-6 py-10 md:px-10 md:py-20"
-        >
-          <div className="relative mx-auto max-w-5xl text-center">
-            <h2 className="block w-full  text-3xl font-bold  sm:text-4xl">
-              About Bandcoin
-            </h2>
-            <p className="mx-auto my-4 w-full max-w-xl  text-center font-medium leading-relaxed tracking-wide ">
-              Bandcoin is the best place for creators to build community with
-              their biggest fans, share exclusive work, and turn their passions
-              into lasting creative businesses. Starting a Bandcoin account is
-              free for creators and their fans. If they want to start earning an
-              income, they can choose to launch their own digital shop or run a
-              paid membership. Here, creators get a direct line to their
-              communities. That means they never have to worry about ads or
-              algorithms getting in between them and the people who matter most.
-            </p>
-          </div>
+    <div className="min-h-screen bg-gradient-to-b from-purple-100 to-blue-100">
+      <main className="container mx-auto px-4 py-16">
+        <h1 className="mb-8 text-center text-4xl font-bold text-purple-800">
+          About <Logo />
+        </h1>
 
-          {/* <div className=" flex flex-col items-center justify-center  gap-10 py-5  md:flex-row ">
-            <div className=" flex  rounded-md border ">
-              <Image
-                src={"/images/about/explore.png"}
-                alt=""
-                height={1000}
-                width={1000}
-                className="h-full w-full"
-              />
-            </div>
-            <div className="flex  rounded-md border">
-              <Image
-                src={"/images/about/win.png"}
-                alt=""
-                height={1000}
-                width={1000}
-                className="h-full w-full"
-              />
-            </div>
-          </div> */}
+        <div className="mx-auto mb-12 max-w-3xl text-center">
+          <p className="mb-6 text-lg text-gray-700">
+            Wadzzo is an innovative platform designed to transform the way people engage with brands through gamified experiences. Our mission is to bridge the digital and physical worlds by enabling users to explore their surroundings, discover rewards, and connect with brands in a fun, interactive way.
+          </p>
 
-          <div className="flex flex-col items-center justify-center py-10">
-            <h1 className="mb-2 text-xl font-bold">
-              Download our application from
-            </h1>
+        </div>
 
-            <div className="flex items-center justify-center gap-4  md:items-start md:justify-start">
-              <Link href="">
-                <Button className="inline-flex w-full items-center justify-center rounded-lg bg-gray-800 px-4 py-2.5 text-white hover:bg-gray-700 focus:outline-none focus:ring-4 focus:ring-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 dark:focus:ring-gray-700 sm:w-auto">
-                  <svg
-                    className="me-3 h-7 w-7"
-                    aria-hidden="true"
-                    focusable="false"
-                    data-prefix="fab"
-                    data-icon="apple"
-                    role="img"
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 384 512"
-                  >
-                    <path
-                      fill="currentColor"
-                      d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zm-56.6-164.2c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z"
-                    ></path>
-                  </svg>
-                  <div className="text-left rtl:text-right">
-                    <div className="mb-1 text-xs">Download on the</div>
-                    <div className="-mt-1 font-sans text-sm font-semibold">
-                      App Store
-                    </div>
-                  </div>
-                </Button>
-              </Link>
-              <Link href="">
-                <Button className="inline-flex w-full items-center justify-center rounded-lg bg-gray-800 px-4 py-2.5 text-white hover:bg-gray-700 focus:outline-none focus:ring-4 focus:ring-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 dark:focus:ring-gray-700 sm:w-auto">
-                  <svg
-                    className="me-3 h-7 w-7"
-                    aria-hidden="true"
-                    focusable="false"
-                    data-prefix="fab"
-                    data-icon="google-play"
-                    role="img"
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 512 512"
-                  >
-                    <path
-                      fill="currentColor"
-                      d="M325.3 234.3L104.6 13l280.8 161.2-60.1 60.1zM47 0C34 6.8 25.3 19.2 25.3 35.3v441.3c0 16.1 8.7 28.5 21.7 35.3l256.6-256L47 0zm425.2 225.6l-58.9-34.1-65.7 64.5 65.7 64.5 60.1-34.1c18-14.3 18-46.5-1.2-60.8zM104.6 499l280.8-161.2-60.1-60.1L104.6 499z"
-                    ></path>
-                  </svg>
-                  <div className="text-left rtl:text-right">
-                    <div className="mb-1 text-xs">Get in on</div>
-                    <div className="-mt-1 font-sans text-sm font-semibold">
-                      Google Play
-                    </div>
-                  </div>
-                </Button>
-              </Link>
-            </div>
+        <div className="mb-16 grid gap-8 md:grid-cols-2">
+          <Card className="bg-white shadow-lg">
+            <CardContent className="p-6">
+              <h2 className="mb-4 text-2xl font-semibold text-purple-700">
+                For Brands:
+              </h2>
+              <p className="mb-4">
+                Wadzzo offers a dynamic platform for brands to create impactful, localized campaigns. With our intuitive dashboard, brands can:
+              </p>
+              <ul className="list-disc space-y-2 pl-6 text-gray-700">
+                <li>Place virtual pins at any GPS location, each holding a unique reward.</li>
+                <li>
+                  Customize campaigns with brand details, descriptions, and collection limits.
+                </li>
+                <li>Build memorable connections with customers through immersive experiences.</li>
+              </ul>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-white shadow-lg">
+            <CardContent className="p-6">
+              <h2 className="mb-4 text-2xl font-semibold text-purple-700">
+                For Users:
+              </h2>
+              <p className="mb-4">
+                Wadzzo turns the world into your playground. Embark on exciting virtual scavenger hunts where you can:
+              </p>
+              <ul className="list-disc space-y-2 pl-6 text-gray-700">
+                <li>
+                  Discover GPS-based pins placed by brands worldwide.
+                </li>
+                <li>
+                  Collect and claim rewards in real-time by exploring your surroundings.
+                </li>
+                <li>
+                  Enjoy a unique mix of augmented reality (AR) and gamification tailored to your lifestyle.
+                </li>
+              </ul>
+            </CardContent>
+          </Card>
+        </div>
+
+        <section className="mb-16">
+          <h2 className="mb-6 text-center text-3xl font-semibold text-purple-800">
+            Why Choose Wadzzo?
+          </h2>
+          <div className="grid gap-8 md:grid-cols-3">
+            {[
+              {
+                title: "Interactive Engagement",
+                description: "Elevate customer engagement with gamified experiences.",
+                icon: "🎸",
+              },
+              {
+                title: "calable Reach",
+                description: "Connect with users globally using real-time, location-based technology.",
+                icon: "🎧",
+              },
+              {
+                title: "Seamless Experience",
+                description:
+                  "Enjoy an intuitive platform powered by cutting-edge AR and GPS integration.",
+                icon: "🚀",
+              },
+            ].map((item, index) => (
+              <Card key={index} className="bg-white shadow-lg">
+                <CardContent className="p-6 text-center">
+                  <div className="mb-4 text-4xl">{item.icon}</div>
+                  <h3 className="mb-2 text-xl font-semibold text-purple-700">
+                    {item.title}
+                  </h3>
+                  <p className="text-gray-700">{item.description}</p>
+                </CardContent>
+              </Card>
+            ))}
           </div>
         </section>
-      </div>
-    </>
+
+        <div className="mb-16 text-center">
+          <p className="mb-6 text-xl text-gray-700">
+            Whether you’re hunting for rewards or driving brand visibility, Wadzzo redefines engagement by merging technology, fun, and creativity.
+          </p>
+          <Button className="bg-purple-600 px-8 py-3 text-lg text-white hover:bg-purple-700">
+            Download Wadzzo now and start your adventure!
+          </Button>
+        </div>
+
+        {/* only for wadzzo */}
+        <div className="flex flex-col items-center justify-center py-10">
+          <h1 className="mb-2 text-xl font-bold">
+            Download our application from
+          </h1>
+
+          <div className="flex items-center justify-center gap-4  md:items-start md:justify-start">
+            <Link href="">
+              <Button className="inline-flex w-full items-center justify-center rounded-lg bg-gray-800 px-4 py-2.5 text-white hover:bg-gray-700 focus:outline-none focus:ring-4 focus:ring-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 dark:focus:ring-gray-700 sm:w-auto">
+                <svg
+                  className="me-3 h-7 w-7"
+                  aria-hidden="true"
+                  focusable="false"
+                  data-prefix="fab"
+                  data-icon="apple"
+                  role="img"
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 384 512"
+                >
+                  <path
+                    fill="currentColor"
+                    d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zm-56.6-164.2c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z"
+                  ></path>
+                </svg>
+                <div className="text-left rtl:text-right">
+                  <div className="mb-1 text-xs">Download on the</div>
+                  <div className="-mt-1 font-sans text-sm font-semibold">
+                    App Store
+                  </div>
+                </div>
+              </Button>
+            </Link>
+            <Link href="">
+              <Button className="inline-flex w-full items-center justify-center rounded-lg bg-gray-800 px-4 py-2.5 text-white hover:bg-gray-700 focus:outline-none focus:ring-4 focus:ring-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 dark:focus:ring-gray-700 sm:w-auto">
+                <svg
+                  className="me-3 h-7 w-7"
+                  aria-hidden="true"
+                  focusable="false"
+                  data-prefix="fab"
+                  data-icon="google-play"
+                  role="img"
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 512 512"
+                >
+                  <path
+                    fill="currentColor"
+                    d="M325.3 234.3L104.6 13l280.8 161.2-60.1 60.1zM47 0C34 6.8 25.3 19.2 25.3 35.3v441.3c0 16.1 8.7 28.5 21.7 35.3l256.6-256L47 0zm425.2 225.6l-58.9-34.1-65.7 64.5 65.7 64.5 60.1-34.1c18-14.3 18-46.5-1.2-60.8zM104.6 499l280.8-161.2-60.1-60.1L104.6 499z"
+                  ></path>
+                </svg>
+                <div className="text-left rtl:text-right">
+                  <div className="mb-1 text-xs">Get in on</div>
+                  <div className="-mt-1 font-sans text-sm font-semibold">
+                    Google Play
+                  </div>
+                </div>
+              </Button>
+            </Link>
+          </div>
+        </div>
+        {/* <div className="relative h-64 overflow-hidden rounded-lg">
+          <Image
+            src="/placeholder.svg?height=256&width=1024"
+            alt="Music collaboration"
+            layout="fill"
+            objectFit="cover"
+            className="rounded-lg"
+          />
+        </div> */}
+      </main>
+    </div>
   );
 }

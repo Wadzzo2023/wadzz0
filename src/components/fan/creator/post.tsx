@@ -139,7 +139,7 @@ export function PostCard({
                     id: 1,
                     mediaUrl: item.url,
                     name: post.heading,
-                    thumbnail: creator.profileUrl ?? 'https://bandcoin.io/images/logo.png',
+                    thumbnail: creator.profileUrl ?? "https://app.wadzzo.com/images/loading.png",
                   },
                   assetId: 1,
                   createdAt: new Date(),
