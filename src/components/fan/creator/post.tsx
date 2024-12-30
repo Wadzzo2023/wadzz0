@@ -26,6 +26,8 @@ import { usePlayer } from "~/components/context/PlayerContext";
 import DummyAudioPostPlayer from "~/components/DummyAudioPostPlayer";
 import DummmyVideoPostPlayer from "~/components/DummyVideoPostPlayer";
 import { addrShort } from "~/utils/utils";
+import CommentView from "../post/comment";
+import { Separator } from "~/components/shadcn/ui/separator";
 
 export function PostCard({
   post,
@@ -54,7 +56,10 @@ export function PostCard({
   const creatorProfileUrl = `/fans/creator/${post.creatorId}`;
   const postUrl = `/fans/posts/${post.id}`;
   const { onOpen } = useModal();
-
+  const comments = api.fan.post.getComments.useQuery({
+    postId: post.id,
+    limit: 5,
+  });
   const getBadgeStyle = (priority: number) => {
     switch (priority) {
       case 1:
@@ -278,6 +283,8 @@ export function PostCard({
               )}
             </Button>
 
+
+
             <Button
               variant="outline"
               size="sm"
@@ -302,12 +309,38 @@ export function PostCard({
       }
 
       {
-        showCommentBox && show && (
+        show && (
           <div className="px-4 pb-4">
             <AddComment postId={post.id} />
           </div>
         )
       }
+      {showCommentBox && comments.data && comments.data.length > 0 && (
+        <div className="mt-1 flex flex-col  border-2 border-base-200">
+          <div className=" flex flex-col   px-4 py-2">
+            {comments.data?.map((comment) => (
+              <>
+                <CommentView
+                  key={comment.id}
+                  comment={comment}
+                  childrenComments={comment.childComments}
+                />
+                <Separator className="m-2" />
+              </>
+            ))}
+          </div>
+          {
+            commentCount > 5 && (
+              <div className="flex justify-center items-center p-2">
+                <Link href={postUrl}>
+
+                  See More
+                </Link>
+              </div>
+            )
+          }
+        </div>
+      )}
     </Card >
   );
 }
