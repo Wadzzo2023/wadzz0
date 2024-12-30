@@ -5,6 +5,7 @@ import { SongItemType } from '~/lib/state/play/use-modal-store'
 
 type PlayerContextType = {
     currentTrack: SongItemType | null
+    currentAudioPlayingId: number | null
     isPlaying: boolean
     volume: number
     isPIP: boolean
@@ -23,7 +24,7 @@ type PlayerContextType = {
     previousTrack: () => void
     skipForward: () => void
     skipBackward: () => void
-
+    setCurrentAudioPlayingId: (id: number | null) => void
     setIsPlayerOpen: (isOpen: boolean) => void;
 }
 const PlayerContext = createContext<PlayerContextType | undefined>(undefined)
@@ -44,6 +45,7 @@ export const PlayerProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     const [currentTime, setCurrentTime] = useState(0)
     const [duration, setDuration] = useState(0)
     const [isPlayerOpen, setIsPlayerOpen] = useState(true);
+    const [currentAudioPlayingId, setCurrentAudioPlayingId] = useState<number | null>(null)
     const [playlist, setPlaylist] = useState<SongItemType[]>([
 
         // {
@@ -74,7 +76,6 @@ export const PlayerProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     useEffect(() => {
         if (currentTrack) {
             setCurrentTrack(currentTrack);
-            setIsPlaying(true);
         }
     }, [currentTrack]);
 
@@ -126,6 +127,7 @@ export const PlayerProvider: React.FC<{ children: React.ReactNode }> = ({ childr
                 currentTime,
                 duration,
                 isPlayerOpen,
+                currentAudioPlayingId,
                 setCurrentTrack,
                 setIsPlaying,
                 setVolume,
@@ -137,7 +139,8 @@ export const PlayerProvider: React.FC<{ children: React.ReactNode }> = ({ childr
                 skipForward,
                 skipBackward,
                 setPlaylist,
-                setIsPlayerOpen
+                setIsPlayerOpen,
+                setCurrentAudioPlayingId
 
             }
             }

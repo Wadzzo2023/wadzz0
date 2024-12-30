@@ -1,6 +1,5 @@
 import { logger, task } from "@trigger.dev/sdk/v3";
 import { submitSignedXDRToServer4User } from "package/connect_wallet/src/lib/stellar/trx/payment_fb_g";
-import { db } from "~/server/db";
 
 export const swapTask = task({
   id: "swap-asset-usdt",
@@ -21,15 +20,16 @@ export const swapTask = task({
     }
   },
   onSuccess: async (payload: { xdr: string; bountyId: number }) => {
-    console.log("Swap success Swap success Swap success Swap success Swap success");
-    await db.bounty.update({
-      where: {
-        id: payload.bountyId,
-      },
-      data: {
-        isSwaped: true,
-      },
-    });
+    console.log(
+      "Swap success Swap success Swap success Swap success Swap success",
+    );
+    // await db.bounty.update({
+    //   where: {
+    //     id: payload.bountyId,
+    //   },
+    //   data: {
+    //     isSwaped: true,
+    //   },
+    // });
   },
-
 });

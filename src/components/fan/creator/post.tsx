@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Heart, Lock, MessageCircle, Music, ImageIcon, Video, Share, ChevronLeft, ChevronRight } from 'lucide-react';
@@ -18,8 +18,16 @@ import { PostContextMenu } from "../post/post-context-menu";
 import { PostReadMore } from "../post/post-read-more";
 import { AddComment } from "../post/add-comment";
 import Avater from "~/components/ui/avater";
-import AudioPlayerCard from "~/components/PostAudioPlayer";
-import VideoPlayerCard from "~/components/PostVideoPlayer";
+import PostAudioPlayer from "~/components/PostAudioPlayer";
+import PostVideoPlayer from "~/components/PostVideoPlayer";
+import { usePostVideoMedia } from "~/components/context/PostVideoContext";
+import { usePostAudioMedia } from "~/components/context/PostAudioContext";
+import { usePlayer } from "~/components/context/PlayerContext";
+import DummyAudioPostPlayer from "~/components/DummyAudioPostPlayer";
+import DummmyVideoPostPlayer from "~/components/DummyVideoPostPlayer";
+import { addrShort } from "~/utils/utils";
+import CommentView from "../post/comment";
+import { Separator } from "~/components/shadcn/ui/separator";
 
 export function PostCard({
   post,
@@ -43,11 +51,15 @@ export function PostCard({
   const deleteLike = api.fan.post.unLike.useMutation();
   const { data: liked } = api.fan.post.isLiked.useQuery(post.id);
   const [currentMediaIndex, setCurrentMediaIndex] = useState(0);
-
+  const { setCurrentVideo, currentVideo, isPlaying, currentVideoPlayingId, setVideoCurrentPlayingId } = usePostVideoMedia();
+  const { setCurrentTrack, currentAudioPlayingId, setCurrentAudioPlayingId } = usePlayer()
   const creatorProfileUrl = `/fans/creator/${post.creatorId}`;
   const postUrl = `/fans/posts/${post.id}`;
   const { onOpen } = useModal();
-
+  const comments = api.fan.post.getComments.useQuery({
+    postId: post.id,
+    limit: 5,
+  });
   const getBadgeStyle = (priority: number) => {
     switch (priority) {
       case 1:
@@ -60,6 +72,13 @@ export function PostCard({
         return "bg-gray-500 text-white";
     }
   }
+
+  useEffect(() => {
+    if (currentVideo) {
+      setCurrentVideo(null);
+      setVideoCurrentPlayingId(null);
+    }
+  }, [post.id])
 
   const renderMediaItem = (item: Media, creatorId: string) => {
     switch (item.type) {
@@ -77,24 +96,79 @@ export function PostCard({
       case 'VIDEO':
         return (
           <div
-
             className="max-h-[400px] min-h-[400px] w-full  md:max-h-[500px]  md:min-h-[500px] flex items-center justify-center bg-gray-100 rounded-lg"
+            onClick={() => {
+              setCurrentTrack(null);
+              setCurrentAudioPlayingId(null);
+              !isPlaying && currentVideoPlayingId !== item.id && setCurrentVideo({
+                id: item.id,
+                creatorId: creatorId,
+                src: item.url,
+                title: post.heading
+              });
+              setVideoCurrentPlayingId(item.id);
+            }}
           >
-            <VideoPlayerCard
-              creatorId={creatorId}
-              videoSrc={item.url}
-              title={post.heading}
-            />
+            {
+              currentVideoPlayingId === item.id ? (
+                <PostVideoPlayer videoId={item.id} />
+              ) : (
+                <DummmyVideoPostPlayer videoId={item.id}
+                  name={post.heading}
+                  artist={creatorId}
+                  mediaUrl={item.url}
+                />
+              )
+            }
           </div>
         );
       case 'MUSIC':
         return (
-          <div className="max-h-[400px] min-h-[400px] w-full  md:max-h-[500px]  md:min-h-[500px] flex items-center justify-center bg-gray-100 rounded-lg">
-            <AudioPlayerCard
-              creatorId={creatorId}
-              audioSrc={item.url}
-              title={post.heading}
-            />
+          <div className="max-h-[400px] min-h-[400px] w-full  md:max-h-[500px]  md:min-h-[500px] flex items-center justify-center bg-gray-100 rounded-lg"
+            onClick={() => {
+              setCurrentVideo(null);
+              setVideoCurrentPlayingId(null);
+              if (!isPlaying && currentAudioPlayingId !== item.id) {
+                setCurrentTrack({
+                  albumId: 1,
+                  artist: addrShort(creatorId, 7),
+                  asset: {
+                    creatorId: addrShort(creatorId, 7),
+                    description: post.heading,
+                    issuer: 'issuer',
+                    limit: 0,
+                    mediaType: MediaType.MUSIC,
+                    privacy: 'PUBLIC',
+                    tierId: 1,
+                    code: 'video1',
+                    id: 1,
+                    mediaUrl: item.url,
+                    name: post.heading,
+                    thumbnail: creator.profileUrl ?? "https://app.wadzzo.com/images/loading.png",
+                  },
+                  assetId: 1,
+                  createdAt: new Date(),
+                  id: 1,
+                  price: 0,
+                  priceUSD: 0,
+
+                })
+                setCurrentAudioPlayingId(item.id);
+              }
+            }}
+          >
+            {
+              currentAudioPlayingId === item.id ? (
+                <PostAudioPlayer />
+              ) : (
+                <DummyAudioPostPlayer audioId={item.id}
+                  name={post.heading}
+                  artist={creatorId}
+                  creatorProfileUrl={creatorProfileUrl}
+                  mediaUrl={item.url}
+                />
+              )
+            }
           </div>
         );
       default:
@@ -209,6 +283,8 @@ export function PostCard({
               )}
             </Button>
 
+
+
             <Button
               variant="outline"
               size="sm"
@@ -233,12 +309,38 @@ export function PostCard({
       }
 
       {
-        showCommentBox && show && (
+        show && (
           <div className="px-4 pb-4">
             <AddComment postId={post.id} />
           </div>
         )
       }
+      {showCommentBox && comments.data && comments.data.length > 0 && (
+        <div className="mt-1 flex flex-col  border-2 border-base-200">
+          <div className=" flex flex-col   px-4 py-2">
+            {comments.data?.map((comment) => (
+              <>
+                <CommentView
+                  key={comment.id}
+                  comment={comment}
+                  childrenComments={comment.childComments}
+                />
+                <Separator className="m-2" />
+              </>
+            ))}
+          </div>
+          {
+            commentCount > 5 && (
+              <div className="flex justify-center items-center p-2">
+                <Link href={postUrl}>
+
+                  See More
+                </Link>
+              </div>
+            )
+          }
+        </div>
+      )}
     </Card >
   );
 }
