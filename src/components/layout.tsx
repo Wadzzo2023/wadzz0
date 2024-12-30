@@ -156,7 +156,6 @@ export default function Layout({
                                     className,
                                   )}
                                 >
-                                  <Header />
                                   <div className="flex-1 overflow-auto bg-base-100/50">
                                     {children}
                                   </div>
