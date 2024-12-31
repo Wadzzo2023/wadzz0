@@ -1,18 +1,28 @@
-import React from "react";
-
+import React, { useEffect, useState } from "react";
+import dynamic from 'next/dynamic';
 import Hamburger from "./hamburger";
 import Logo from "./logo";
 import { SiteAssetBalance } from "./marketplace/recharge/site_asset_bal";
 
+const NewYearAnimation = dynamic(() => import('./NewYearAnimation'), {
+  ssr: false,
+});
+const TextNewYearAnimation = dynamic(() => import('./Text-NewYearAnimation'), {
+  ssr: false,
+});
+
 import Image from "next/image";
-import MusicControls from "./BackgroundMusic";
 
 interface HeaderProps {
   key?: React.Key;
 }
 
 function Header(_props: HeaderProps) {
+  const [isMounted, setIsMounted] = useState(false);
 
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
   return (
     <header className="h-20 bg-base-100/20 px-2 py-4 md:px-6">
       <div className="flex w-full items-center justify-between xl:hidden">
@@ -66,20 +76,8 @@ function Header(_props: HeaderProps) {
         height={80}
         className="absolute z-10 right-4 top-[4rem] transform rotate-45  "
       />
-      <Image
-        src="/christmas-tree.png"
-        alt="Christmas Tree"
-        width={60}
-        height={80}
-        className="h-16 w-10 absolute left-1/4 transform -translate-x-1/2 top-[1rem]  hidden md:flex"
-      />
-      <Image
-        src="/christmas-tree.png"
-        alt="Christmas Tree"
-        width={60}
-        height={80}
-        className="h-16 w-10 absolute right-1/3 transform -translate-x-1/2 top-[1rem] hidden md:flex"
-      />
+      {isMounted && <NewYearAnimation />}
+      {isMounted && <TextNewYearAnimation />}
     </header>
   );
 }
