@@ -17,39 +17,37 @@ function Asset({ asset }: { asset: AdminAssetWithTag }) {
   const { onOpen } = useModal();
 
   return (
-    <div>
-      <button
-        onClick={() => {
-          onOpen("view admin asset", {
-            adminAssetNtag: asset,
-          });
-        }}
-        className="btn relative h-fit w-full  overflow-hidden py-4 hover:bg-green-300/50"
-      >
-        <div
-          className="absolute m-0 h-full w-full bg-secondary p-0 opacity-30"
+    <div
+      onClick={() => {
+        onOpen("view admin asset", {
+          adminAssetNtag: asset,
+        });
+      }}>
 
-        />
-        <div className="flex flex-col space-y-2 ">
-          <div className=" m-0   rounded-xl bg-green-200 p-0 ">
-            <div className="h-40 w-full rounded-xl">
-              <Image
-                height={1000}
-                width={1000}
-                alt={code ?? "asset"}
-                style={{
-                  // backgroundColor: "red" ?? undefined,
-                  height: "100%",
+      <div
+        className="absolute m-0 h-full w-full bg-secondary p-0 opacity-30"
 
-                  width: "100%",
-                }}
-                src={logoUrl ?? ""}
-              />
-            </div>
+      />
+      <div className="flex flex-col space-y-2 ">
+        <div className=" m-0   rounded-xl bg-green-200 p-0 ">
+          <div className="h-40 w-full rounded-xl">
+            <Image
+              height={1000}
+              width={1000}
+              alt={code ?? "asset"}
+              style={{
+                // backgroundColor: "red" ?? undefined,
+                height: "100%",
+
+                width: "100%",
+              }}
+              src={logoUrl ?? ""}
+            />
           </div>
-          <p>{code}</p>
         </div>
-      </button>
+        <p>{code}</p>
+      </div>
+
     </div>
   );
 }

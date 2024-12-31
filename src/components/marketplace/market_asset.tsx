@@ -11,18 +11,16 @@ function MarketAssetComponent({ item }: { item: MarketAssetType }) {
   const urs = useMarketRightStore();
   const pop = usePopUpState();
   return (
-    <div className="">
-      <button
-        onClick={() => {
-          onOpen("buy modal", {
-            Asset: item
-          });
+    <div className=""
+      onClick={() => {
+        onOpen("buy modal", {
+          Asset: item
+        });
 
-        }}
-        className="btn relative h-fit w-full  overflow-hidden py-4 hover:bg-green-300/50"
-      >
-        <AssetView code={asset.name} thumbnail={asset.thumbnail} />
-      </button>
+      }}>
+
+      <AssetView code={asset.name} thumbnail={asset.thumbnail} />
+
     </div>
   );
 }

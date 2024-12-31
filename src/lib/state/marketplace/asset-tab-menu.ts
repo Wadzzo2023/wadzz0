@@ -1,8 +1,9 @@
 import { create } from "zustand";
 
 export enum AssetMenu {
-  OWN = "WALLET",
+  OWN = "MY COLLECTION",
   STORAGE = "SECONDARY MARKETPLACE",
+
 }
 
 interface MarketMenurState {
