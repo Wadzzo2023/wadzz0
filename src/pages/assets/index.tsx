@@ -9,6 +9,7 @@ import {
 import { useModal } from "~/lib/state/play/use-modal-store";
 import { api } from "~/utils/api";
 import { ValidCreateCreator } from "../fans/creator";
+import { usePlayer } from "~/components/context/PlayerContext";
 
 export default function MyAssetsPage() {
   return (
@@ -32,6 +33,8 @@ function RenderTabs() {
 }
 
 function MyStorageAsset() {
+  const { setCurrentTrack } = usePlayer();
+
   const acc = api.wallate.acc.getCreatorStorageInfo.useQuery();
   const { onOpen } = useModal();
   if (acc.isLoading) return <MoreAssetsSkeleton className="flex gap-2" />;
@@ -51,6 +54,7 @@ function MyStorageAsset() {
             <div
               key={i}
               onClick={() => {
+                setCurrentTrack(null)
                 onOpen("my asset info modal", {
                   MyAsset: asset,
                 });
@@ -78,6 +82,7 @@ function MyAssets() {
   const acc = api.wallate.acc.getAccountInfo.useQuery();
 
   const { onOpen } = useModal();
+  const { setCurrentTrack } = usePlayer();
 
   if (acc.isLoading) return <MoreAssetsSkeleton className="flex gap-2" />;
   if (acc.data)
@@ -97,6 +102,7 @@ function MyAssets() {
             <div
               key={i}
               onClick={() => {
+                setCurrentTrack(null)
                 onOpen("my asset info modal", {
                   MyAsset: asset,
                 });

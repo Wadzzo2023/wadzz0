@@ -121,7 +121,7 @@ export function SinglePostView({ post }: { post: extendedPost }) {
                     id: 1,
                     mediaUrl: item.url,
                     name: post.heading,
-                    thumbnail: 'https://bandcoin.io/images/logo.png',
+                    thumbnail: post.creator.profileUrl ?? 'https://bandcoin.io/images/logo.png',
                   },
                   assetId: 1,
                   createdAt: new Date(),
