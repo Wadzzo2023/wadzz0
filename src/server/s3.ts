@@ -3,7 +3,7 @@ import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import crypto from "crypto";
 import { env } from "~/env";
 
-const s3Client = new S3Client({
+export const s3Client = new S3Client({
   region: env.AWS_BUCKET_REGION,
   credentials: {
     accessKeyId: env.AWS_ACCESS_KEY,
@@ -60,7 +60,6 @@ const allowedFileTypes = [
   "text/tab-separated-values", // TSV
   "application/pdf", // PDF
   "application/vnd.oasis.opendocument.spreadsheet",
-
 ];
 
 export const endPoints = [
