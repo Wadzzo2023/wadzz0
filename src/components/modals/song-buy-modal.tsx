@@ -168,8 +168,8 @@ export default function SongBuyModal() {
                 </CardContent>
                 <CardFooter className="flex flex-col gap-1 p-2">
                   {session.status === "authenticated" &&
-                  data.Song.asset.creatorId === session.data.user.id &&
-                  isCollectionRoute ? (
+                    data.Song.asset.creatorId === session.data.user.id &&
+                    isCollectionRoute ? (
                     <>
                       <DisableFromMarketButton
                         code={data.Song.asset.code}
@@ -326,7 +326,7 @@ function DeleteAssetByAdmin({ id }: { id: number }) {
           <DialogTrigger asChild>
             <Button variant={"destructive"} className="w-full ">
               {del.isLoading && <span className="loading loading-spinner" />}
-              Delete (Admin)
+              Remove from market
             </Button>
           </DialogTrigger>
           <DialogContent className="sm:max-w-[425px]">

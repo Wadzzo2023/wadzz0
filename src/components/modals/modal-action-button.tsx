@@ -140,7 +140,7 @@ export function DeleteAssetByAdmin({ id }: { id: number }) {
           <DialogTrigger asChild>
             <Button variant={"destructive"} className="w-full ">
               {del.isLoading && <span className="loading loading-spinner" />}
-              Delete (Admin)
+              Remove from market
             </Button>
           </DialogTrigger>
           <DialogContent className="sm:max-w-[425px]">
