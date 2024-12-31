@@ -139,6 +139,9 @@ export const marketRouter = createTRPCRouter({
       });
 
       if (!asset) throw new Error("asset not found");
+      ``;
+
+      console.log("asset", asset, code, issuer);
 
       await ctx.db.marketAsset.deleteMany({
         where: {
@@ -355,7 +358,11 @@ export const marketRouter = createTRPCRouter({
     .query(async ({ ctx, input }) => {
       const { id } = input;
 
-      if (!id) throw new Error("id is required");
+      if (!id) {
+        //  throw new Error("id is required");
+
+        return 0;
+      }
 
       const marketItem = await ctx.db.marketAsset.findUnique({
         where: { id },

@@ -6,10 +6,8 @@ import {
   AssetMenu,
   useAssetMenu,
 } from "~/lib/state/marketplace/asset-tab-menu";
-import { api } from "~/utils/api";
 import PlaceNFT2Storage from "../marketplace/modal/place_2storage_modal";
-import EnableInMarket from "../marketplace/modal/place_market_modal";
-import NftBackModal from "../marketplace/modal/revert_place_market_modal";
+import { MarketButtons } from "../modals/modal-action-button";
 import {
   AudioViewer,
   ThumbNailView,
@@ -96,31 +94,6 @@ function OtherButtons() {
       );
     }
   }
-}
-
-function MarketButtons({
-  code,
-  issuer,
-  copy,
-}: {
-  code: string;
-  issuer: string;
-  copy: number;
-}) {
-  const inMarket = api.wallate.acc.getAStorageAssetInMarket.useQuery({
-    code,
-    issuer,
-  });
-  if (inMarket.isLoading) return <div>Loading...</div>;
-
-  if (inMarket.data)
-    return (
-      <div>
-        Item has been placed in market
-        <NftBackModal copy={copy} item={{ code, issuer }} />
-      </div>
-    );
-  else return <EnableInMarket copy={copy} item={{ code, issuer }} />;
 }
 
 function MediaViewer(props: {

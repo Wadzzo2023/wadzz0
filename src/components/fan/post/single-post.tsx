@@ -3,6 +3,7 @@ import { ChevronLeft, ChevronRight, Heart, MessageCircle, ShareIcon } from "luci
 import Link from "next/link";
 import { api } from "~/utils/api";
 import { formatPostCreatedAt } from "~/utils/format-date";
+import PostAudioPlayer from "~/components/PostAudioPlayer";
 
 import Avater from "../../ui/avater";
 import { AddComment } from "./add-comment";
@@ -17,7 +18,13 @@ import { Button } from "~/components/shadcn/ui/button";
 import { useState } from "react";
 import ReplyCommentView from "./reply";
 import { useModal } from "~/lib/state/play/use-modal-store";
-import { Media, Post } from "@prisma/client";
+import { Media, MediaType, Post } from "@prisma/client";
+import { usePostVideoMedia } from "~/components/context/PostVideoContext";
+import { usePlayer } from "~/components/context/PlayerContext";
+import PostVideoPlayer from "~/components/PostVideoPlayer";
+import DummmyVideoPostPlayer from "~/components/DummyVideoPostPlayer";
+import DummyAudioPostPlayer from "~/components/DummyAudioPostPlayer";
+import { addrShort } from "~/utils/utils";
 
 type extendedPost = Post & {
   creator: {
@@ -36,7 +43,8 @@ type extendedPost = Post & {
 export function SinglePostView({ post }: { post: extendedPost }) {
 
   const { onOpen } = useModal();
-
+  const { setCurrentVideo, currentVideo, isPlaying: isVideoPlaying, currentVideoPlayingId, setVideoCurrentPlayingId } = usePostVideoMedia();
+  const { setCurrentTrack, currentAudioPlayingId, isPlaying, setCurrentAudioPlayingId } = usePlayer()
   const likeMutation = api.fan.post.likeApost.useMutation();
   const deleteLike = api.fan.post.unLike.useMutation();
   // const { data: likes, isLoading } = api.post.getLikes.useQuery(post.id);
@@ -47,7 +55,7 @@ export function SinglePostView({ post }: { post: extendedPost }) {
   const [commentBox, setCommentBox] = useState(false);
   const [currentMediaIndex, setCurrentMediaIndex] = useState(0);
 
-  const renderMediaItem = (item: Media) => {
+  const renderMediaItem = (item: Media, creatorId: string) => {
     switch (item.type) {
       case 'IMAGE':
         return (
@@ -55,29 +63,89 @@ export function SinglePostView({ post }: { post: extendedPost }) {
             key={item.id}
             src={item.url}
             alt="Post image"
-            width={500}
-            height={300}
-            className="rounded-lg object-cover  max-h-[400px] min-h-[400px] w-full  md:max-h-[500px]  md:min-h-[500px]"
+            width={1000}
+            height={1000}
+            className=" max-h-[450px] min-h-[450px] w-full  md:max-h-[550px]  md:min-h-[550px] flex items-center justify-center bg-gray-100 rounded-lg object-cover"
           />
         );
       case 'VIDEO':
         return (
-          <video
-            key={item.id}
-            src={item.url}
-            controls
-            className="max-h-[400px] min-h-[400px] w-full  md:max-h-[500px]  md:min-h-[500px] rounded-lg  object-cover"
-          />
+          <div
+            className=" max-h-[450px] min-h-[450px] w-full  md:max-h-[550px]  md:min-h-[550px] flex items-center justify-center bg-gray-100 rounded-lg "
+            onClick={() => {
+              setCurrentTrack(null)
+              setCurrentAudioPlayingId(null)
+              if (!isVideoPlaying && currentVideoPlayingId !== item.id) {
+                setCurrentVideo({
+                  id: item.id,
+                  creatorId: creatorId,
+                  src: item.url,
+                  title: post.heading
+                });
+                setVideoCurrentPlayingId(item.id);
+              }
+            }}
+          >
+            {
+              currentVideoPlayingId === item.id ? (
+                <PostVideoPlayer videoId={item.id} />
+              ) : (
+                <DummmyVideoPostPlayer videoId={item.id}
+                  name={post.heading}
+                  artist={creatorId}
+                  mediaUrl={item.url}
+                />
+              )
+            }
+          </div>
         );
       case 'MUSIC':
         return (
-          <div className="max-h-[400px] min-h-[400px] w-full  md:max-h-[500px]  md:min-h-[500px] flex items-center justify-center bg-gray-100 rounded-lg">
-            <audio
-              key={item.id}
-              src={item.url}
-              controls
-              className="w-full max-w-md"
-            />
+          <div className=" max-h-[450px] min-h-[450px] w-full  md:max-h-[550px]  md:min-h-[550px] flex items-center justify-center bg-gray-100 rounded-lg "
+            onClick={() => {
+              setCurrentVideo(null)
+              setVideoCurrentPlayingId(null)
+              if (!isPlaying && currentAudioPlayingId !== item.id) {
+                setCurrentTrack({
+                  albumId: 1,
+                  artist: addrShort(creatorId, 7),
+                  asset: {
+                    creatorId: addrShort(creatorId, 7),
+                    description: post.heading,
+                    issuer: 'issuer',
+                    limit: 0,
+                    mediaType: MediaType.MUSIC,
+                    privacy: 'PUBLIC',
+                    tierId: 1,
+                    code: 'video1',
+                    id: 1,
+                    mediaUrl: item.url,
+                    name: post.heading,
+                    thumbnail: post.creator.profileUrl ?? "https://app.wadzzo.com/images/loading.png",
+                  },
+                  assetId: 1,
+                  createdAt: new Date(),
+                  id: 1,
+                  price: 0,
+                  priceUSD: 0,
+
+                })
+                setCurrentAudioPlayingId(item.id);
+              }
+            }}
+          >
+            {
+              currentAudioPlayingId === item.id ? (
+                <PostAudioPlayer />
+              ) : (
+                <DummyAudioPostPlayer audioId={item.id}
+                  name={post.heading}
+                  artist={creatorId}
+
+                  mediaUrl={item.url}
+                />
+              )
+            }
           </div>
         );
       default:
@@ -103,7 +171,7 @@ export function SinglePostView({ post }: { post: extendedPost }) {
   const postUrl = `/fans/posts/${post.id}`;
 
   return (
-    <div className=" flex h-full flex-col  items-center  md:p-5 ">
+    <div className=" flex h-full flex-col items-center  md:p-5 ">
       <h2 className="mb-5 text-center text-2xl font-bold">
         Post by {post.creator.name}
       </h2>
@@ -153,12 +221,12 @@ export function SinglePostView({ post }: { post: extendedPost }) {
                         />
                       </div>
                     </div>
-                    <div className="mt-2">
+                    <div className="mt-2 ">
                       <p className="ml-4 font-bold">{post.heading}</p>
                       <Preview value={post.content} />
                       {post.medias && post.medias.length > 0 && (
-                        <div className="mt-4 relative">
-                          {post.medias[currentMediaIndex] ? renderMediaItem(post.medias[currentMediaIndex]) : null}
+                        <div className="relative max-h-[450px] min-h-[450px] w-full  md:max-h-[550px]  md:min-h-[550px] flex items-center justify-center bg-gray-100 rounded-lg">
+                          {post.medias[currentMediaIndex] ? renderMediaItem(post.medias[currentMediaIndex], post.creatorId) : null}
                           {post.medias.length > 1 && (
                             <>
                               <Button

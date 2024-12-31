@@ -5,8 +5,9 @@ import {
   Horizon,
   TransactionBuilder,
 } from "@stellar/stellar-sdk";
-import { STORAGE_SECRET } from "../SECRET";
+import { MOTHER_SECRET, STORAGE_SECRET } from "../SECRET";
 import { STELLAR_URL, PLATFORM_ASSET, networkPassphrase } from "../../constant";
+import { StellarAccount } from "../test/Account";
 
 async function checkSiteAssetTrustLine(accPub: string) {
   const server = new Horizon.Server(STELLAR_URL);
@@ -39,51 +40,38 @@ export async function sendSiteAsset2pub(
 
   const server = new Horizon.Server(STELLAR_URL);
 
-  const storageAcc = Keypair.fromSecret(STORAGE_SECRET);
+  const motherAcc = Keypair.fromSecret(MOTHER_SECRET);
   // const userAcc = Keypair.fromSecret(secret);
 
-  const transactionInializer = await server.loadAccount(storageAcc.publicKey());
+  const transactionInitializer = await server.loadAccount(
+    motherAcc.publicKey(),
+  );
 
-  const balances = transactionInializer.balances;
-  const trust = balances.find((balance) => {
-    if (
-      balance.asset_type === "credit_alphanum12" ||
-      balance.asset_type === "credit_alphanum4"
-    ) {
-      if (
-        balance.asset_code === PLATFORM_ASSET.code &&
-        balance.asset_issuer === PLATFORM_ASSET.issuer
-      ) {
-        return true;
-      }
-    }
-  });
+  const userAcc = await StellarAccount.create(pubkey);
+  const hasTrust = userAcc.hasTrustline(
+    PLATFORM_ASSET.code,
+    PLATFORM_ASSET.issuer,
+  );
 
-  if (!trust) throw new Error("No trustline for platform asset");
+  if (!hasTrust)
+    throw new Error(`User does not have trustline for ${PLATFORM_ASSET.code}`);
 
-  // if (!hasWadzzoTrust) {
-  const Tx = new TransactionBuilder(transactionInializer, {
+  const Tx = new TransactionBuilder(transactionInitializer, {
     fee: BASE_FEE,
     networkPassphrase,
   })
-    .addOperation(
-      Operation.changeTrust({
-        asset: PLATFORM_ASSET,
-        source: pubkey,
-      }),
-    )
     .addOperation(
       Operation.payment({
         destination: pubkey,
         amount: siteAssetAmount.toFixed(7).toString(), //copy,
         asset: PLATFORM_ASSET,
-        source: storageAcc.publicKey(),
+        source: motherAcc.publicKey(),
       }),
     )
     .setTimeout(0)
     .build();
 
-  Tx.sign(storageAcc);
+  Tx.sign(motherAcc);
 
   return Tx.toXDR();
 }

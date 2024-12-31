@@ -23,7 +23,7 @@ export default function BuyWithSquire({
         toast.success("xdr get");
         if (data) {
           const id = data;
-          const tostId = toast.loading("Submitting xdr");
+          const tostId = toast.loading("Submitting transaction");
           submitSignedXDRToServer4User(xdr)
             .then((data) => {
               if (data) {

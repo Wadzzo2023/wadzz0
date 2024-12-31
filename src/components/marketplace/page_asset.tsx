@@ -19,22 +19,19 @@ function PageAssetComponent({ item }: { item: CreatorPageAssetType }) {
   const pop = usePopUpState();
   const router = useRouter();
   return (
-    <div>
-      <button
-        onClick={async () => {
-          await router.push(`/fans/creator/${item.creatorId}`);
-        }}
-        className="btn relative h-fit w-full overflow-hidden  py-4 "
-      >
-        <AssetView
-          code={
-            selectedTag == AssetVariant.Artists
-              ? item?.creator?.name
-              : item.code
-          }
-          thumbnail={item.thumbnail ?? item.creator?.profileUrl}
-        />
-      </button>
+    <div onClick={async () => {
+      await router.push(`/fans/creator/${item.creatorId}`);
+    }}>
+
+      <AssetView
+        code={
+          selectedTag == AssetVariant.Artists
+            ? item?.creator?.name
+            : item.code
+        }
+        thumbnail={item.thumbnail ?? item.creator?.profileUrl}
+      />
+
     </div>
   );
 }

@@ -52,6 +52,9 @@ const config = {
       { hostname: "daisyui.com" },
       { hostname: "picsum.photos" },
       { hostname: `${process.env.NEXT_AWS_BUCKET_NAME}.s3.amazonaws.com` },
+      {
+        hostname: `${process.env.NEXT_AWS_BUCKET_NAME}.s3.us-east-1.amazonaws.com`,
+      },
     ],
   },
 
