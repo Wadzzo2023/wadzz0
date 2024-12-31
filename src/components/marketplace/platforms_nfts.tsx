@@ -13,7 +13,7 @@ export default function WallateNFTs() {
 
   if (assets.isLoading)
     return (
-      <MoreAssetsSkeleton className="grid grid-cols-2 gap-2 md:grid-cols-4 lg:grid-cols-5" />
+      <MoreAssetsSkeleton className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6" />
     );
 
   if (assets.data) {
@@ -26,7 +26,7 @@ export default function WallateNFTs() {
           style={{
             scrollbarGutter: "stable",
           }}
-          className="grid grid-cols-2 gap-2 md:grid-cols-4 lg:grid-cols-5"
+          className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6"
         >
           {assets.data.pages.map((page) =>
             page.nfts.map((item, i) => (
@@ -58,6 +58,8 @@ export function MoreAssetsSkeleton({ className }: skeletonProps) {
       }}
       className={clsx("main-asset-area", className)}
     >
+      <MarketAssetSkeleton />
+      <MarketAssetSkeleton />
       <MarketAssetSkeleton />
       <MarketAssetSkeleton />
       <MarketAssetSkeleton />

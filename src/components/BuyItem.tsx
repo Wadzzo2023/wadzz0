@@ -324,7 +324,7 @@ export function MethodDetails({
                 </span>
               </div>
               <div className="flex justify-between">
-                <span>Fee:</span>
+                <span>Transaction Fee:</span>
                 <span>
                   {requiredFee} {PLATFORM_ASSET.code}
                 </span>

@@ -3,6 +3,7 @@ import {
   AdminAsset,
   Asset,
   ItemPrivacy,
+  LocationGroup,
   MarketAsset,
   Song,
   SubmissionAttachment,
@@ -24,6 +25,13 @@ export type AdminAssetWithTag = AdminAsset & {
     tagName: string;
   }[];
 };
+export type collectedPinInfoType = {
+
+  location: Location & {
+    locationGroup: LocationGroup | null;
+  }
+
+}
 export type Transaction = {
   source: string;
   successful: boolean;
@@ -80,6 +88,7 @@ export type ModalType =
   | "song buy modal"
   | "creator asset info"
   | 'view admin asset'
+  | 'pin info modal'
 
 export interface ModalData {
   pinId?: string;
@@ -114,6 +123,7 @@ export interface ModalData {
   Song?: SongItemType,
   creatorStoreAsset?: MarketAssetType,
   adminAssetNtag?: AdminAssetWithTag,
+  collectedPinInfo?: collectedPinInfoType,
 }
 
 interface ModalStore {

@@ -1,44 +1,50 @@
 import Image from "next/image";
-import { twMerge } from "tailwind-merge";
+import { Badge } from "~/components/shadcn/ui/badge";
+import { Card, CardContent } from "~/components/shadcn/ui/card";
+import { Pin, Gem } from 'lucide-react';
 
-function AssetView({
-  code,
-  thumbnail,
-}: {
+interface AssetViewProps {
   code?: string;
   thumbnail: string | null;
-}) {
-  return (
-    <>
-      <div
-        className="absolute m-0 h-full w-full bg-secondary p-0 opacity-30 "
-        style={
-          {
-            // backgroundColor: "red",
-          }
-        }
-      />
-      <div className="flex flex-col gap-4">
-        <div className="avatar m-0   rounded-xl bg-green-200 p-0">
-          <div className="h-40 w-full rounded-xl  ">
-            <Image
-              height={1000}
-              width={1000}
-              alt={code ?? "asset"}
-              style={{
-                // backgroundColor: "red" ?? undefined,
-                height: "100%",
+  isNFT?: boolean;
+  isPinned?: boolean;
+}
 
-                width: "100%",
-              }}
-              src={thumbnail ?? ""}
-            />
+function ModernAssetView({ code, thumbnail, isNFT = true, isPinned = false }: AssetViewProps) {
+  return (
+    <Card className="group relative overflow-hidden rounded-lg transition-all hover:shadow-lg">
+      <CardContent className="p-0">
+        <div className="relative aspect-square overflow-hidden">
+          <Image
+            fill
+            alt={code ?? "asset"}
+            src={thumbnail ?? "https://app.wadzzo.com/images/loading.png"}
+            className="object-cover transition-transform duration-300 group-hover:scale-105"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-70 transition-opacity duration-300 group-hover:opacity-90" />
+          <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
+            <p className="mb-2 truncate text-lg font-bold">{code}</p>
+            <div className="flex gap-2">
+
+              {isPinned ? (
+                <Badge variant="secondary" className="bg-secondary text-secondary-foreground">
+                  <Pin className="mr-1 h-3 w-3" />
+                  PIN
+                </Badge>
+              ) :
+                (
+                  <Badge variant="secondary" className="bg-primary text-primary-foreground">
+                    <Gem className="mr-1 h-3 w-3" />
+                    NFT
+                  </Badge>
+                )}
+            </div>
           </div>
         </div>
-        <p className="font-bold">{code}</p>
-      </div>
-    </>
+      </CardContent>
+    </Card>
   );
 }
 
-export default AssetView;
+export default ModernAssetView;
+

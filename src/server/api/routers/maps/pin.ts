@@ -5,6 +5,8 @@ import {
   PAGE_ASSET_NUM,
   createPinFormSchema,
 } from "~/components/maps/modals/create-pin";
+import { avaterIconUrl } from "~/pages/api/game/brands";
+import { WadzzoIconURL } from "~/pages/api/game/locations";
 import { LocationWithConsumers } from "~/pages/maps/pins/creator";
 
 import {
@@ -14,6 +16,7 @@ import {
   protectedProcedure,
   publicProcedure,
 } from "~/server/api/trpc";
+import { ConsumedLocation } from "~/types/game/location";
 import { PinLocation } from "~/types/pin";
 import { BADWORDS } from "~/utils/banned-word";
 import { randomLocation as getLocationInLatLngRad } from "~/utils/map";
@@ -804,6 +807,46 @@ export const pinRouter = createTRPCRouter({
       });
       return {
         item: items.id,
+      };
+    }),
+
+  getMyCollectedPins: protectedProcedure
+    .input(
+      z.object({
+        limit: z.number().min(1).max(100).nullish(),
+        cursor: z.string().nullish(),
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      const limit = input.limit ?? 20;
+      const cursor = input.cursor;
+
+      const userId = ctx.session.user.id;
+      const consumedLocations = await ctx.db.locationConsumer.findMany({
+        where: {
+          userId,
+        },
+        include: { location: { include: { locationGroup: true }, } },
+        orderBy: { createdAt: "desc" },
+        take: limit + 1,
+        ...(cursor
+          ? {
+            cursor: {
+              id: cursor,
+            },
+          }
+          : {}),
+      });
+
+      let nextCursor: typeof cursor | undefined = undefined;
+      if (consumedLocations.length > limit) {
+        const nextItem = consumedLocations.pop();
+        nextCursor = nextItem!.id;
+      }
+
+      return {
+        items: consumedLocations,
+        nextCursor,
       };
     }),
 });
