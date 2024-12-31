@@ -42,7 +42,7 @@ function MyStorageAsset() {
 
 
 
-  if (acc.isLoading) return <MoreAssetsSkeleton className="flex gap-2" />;
+  if (acc.isLoading) return <MoreAssetsSkeleton className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6" />;
 
   if (acc.data)
     return (
@@ -50,7 +50,7 @@ function MyStorageAsset() {
         style={{
           scrollbarGutter: "stable",
         }}
-        className="grid grid-cols-2 gap-2  md:grid-cols-4 xl:grid-cols-6 "
+        className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 "
       >
         {acc.data?.accAssets.length === 0 && (
           <p className="w-full text-center">You have no asset</p>
@@ -60,22 +60,27 @@ function MyStorageAsset() {
             <div
               key={i}
               onClick={() => {
-                setCurrentTrack(null)
+                setCurrentTrack(null);
                 onOpen("my asset info modal", {
                   MyAsset: asset,
                 });
               }}
+              className="cursor-pointer"
             >
-              <button className="btn relative h-fit w-full overflow-hidden  py-4 ">
-                {/* <p>{acc.data.accAssets[i]?.copies}</p> */}
-                <AssetView code={asset.name} thumbnail={asset.thumbnail} />
-              </button>
+
+              <AssetView
+                code={asset.name}
+                thumbnail={asset.thumbnail}
+                isNFT={true}
+              />
+
+
             </div>
           );
         })}
 
 
-      </div>
+      </div >
     );
 
   if (acc.data === undefined)
