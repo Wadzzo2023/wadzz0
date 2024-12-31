@@ -143,30 +143,26 @@ export default function Layout({
                             <>
                               <ModalProvider />
                               <PlayModalProvider />
-
                               {children}
-                            </>
-                          ) : (
-                            <div className="flex h-full items-center justify-center">
-                              {isPublicRoute ? (
-                                <div
-                                  className={clsx(
-                                    "flex h-screen w-full flex-col",
-                                    className,
-                                  )}
-                                >
-                                  <Header />
-                                  <div className="flex-1 overflow-auto bg-base-100/50">
-                                    {children}
-                                  </div>
-                                </div>
-                              ) : (
-                                <ConnectWalletButton />
+                        </>
+                      ) : (
+                        <div className="flex h-full items-center justify-center">
+                          {isPublicRoute ? (
+                            <div
+                              className={clsx(
+                                "flex h-screen w-full flex-col",
+                                className,
                               )}
+                            >
+                              <Header />
+                              <div className="flex-1 overflow-auto bg-base-100/50">
+                                {children}
+                              </div>
                             </div>
+                          ) : (
+                            <ConnectWalletButton />
                           )}
-                          {/* <div className="h-44 " /> */}
-                          {/* <BottomNav /> */}
+
                         </div>
                       </div>
 
