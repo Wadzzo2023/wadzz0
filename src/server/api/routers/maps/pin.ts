@@ -786,11 +786,14 @@ export const pinRouter = createTRPCRouter({
           data: { latitude: lat, longitude: long },
         });
       } else {
+        if (!location.locationGroup)
+          throw new Error("Location group not found");
         await ctx.db.location.create({
           data: {
             autoCollect: location.autoCollect,
             latitude: lat,
             longitude: long,
+            locationGroupId: location.locationGroup.id,
           },
         });
       }
