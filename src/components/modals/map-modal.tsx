@@ -204,6 +204,7 @@ const MapModalComponent = () => {
                     startDate={data?.startDate}
                     endDate={data?.endDate}
                     collectionLimit={data?.pinCollectionLimit}
+                    remainingLimit={data?.pinRemainingLimit}
                     pinNumber={data?.pinNumber}
                     link={data.link}
                     assetId={data.assetId}
@@ -347,6 +348,7 @@ const updateMapFormSchema = z.object({
     .optional(),
   url: z.string().url().optional(),
   autoCollect: z.boolean(),
+  pinRemainingLimit: z.number().optional(),
 });
 
 type FormData = z.infer<typeof updateMapFormSchema>;
@@ -359,6 +361,7 @@ function PinInfoUpdate({
   startDate,
   endDate,
   collectionLimit,
+  remainingLimit,
   multiPin,
   autoCollect,
   lat,
@@ -376,6 +379,7 @@ function PinInfoUpdate({
   startDate?: Date;
   endDate?: Date;
   collectionLimit?: number;
+  remainingLimit?: number;
   multiPin?: boolean;
   autoCollect?: boolean;
   lat?: number;
@@ -387,7 +391,7 @@ function PinInfoUpdate({
   privacy?: ItemPrivacy;
 }) {
   const [coverUrl, setCover] = React.useState("");
-  const { data, updateData, onClose } = useModal();
+  const { onClose } = useModal();
   const utils = api.useUtils();
   console.log("collectionrm", collectionLimit);
   const [isPageAsset, setIsPageAsset] = useState<boolean>();
@@ -417,6 +421,7 @@ function PinInfoUpdate({
       lat: lat ?? 0,
       lng: long ?? 0,
       url: link ?? "",
+      pinRemainingLimit: remainingLimit,
     },
   });
   const tiers = api.fan.member.getAllMembership.useQuery();
@@ -507,6 +512,34 @@ function PinInfoUpdate({
 
         {/* <AvailableTokenField balance={selectedToken?.bal} /> */}
 
+        <label className="form-control w-full">
+          <div className="label">
+            <span className="label-text">Update Remaining limit</span>
+          </div>
+          <p>Original Limit: {collectionLimit}</p>
+
+          <input
+            type="number"
+            min={0}
+            id="perUserTokenAmount"
+            {...register("pinRemainingLimit", {
+              valueAsNumber: true,
+              min: 0,
+              max: 2147483647,
+            })} // default value
+            className="input input-bordered"
+            max={2147483647}
+          />
+
+          {errors.pinRemainingLimit && (
+            <div className="label">
+              <span className="label-text-alt text-red-500">
+                {errors.pinRemainingLimit.message}
+              </span>
+            </div>
+          )}
+        </label>
+
         <div className="mt ">
           <label className="text-sm font-medium">Pin Cover Image</label>
 
@@ -525,7 +558,6 @@ function PinInfoUpdate({
               toast.error(`ERROR! ${error.message}`);
             }}
           />
-
 
           {/* {uploading && <progress className="progress w-56"></progress>} */}
           {coverUrl && (

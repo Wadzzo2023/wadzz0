@@ -31,10 +31,10 @@ import Link from "next/link";
 
 type Pin = {
   locationGroup:
-  | (LocationGroup & {
-    creator: { profileUrl: string | null };
-  })
-  | null;
+    | (LocationGroup & {
+        creator: { profileUrl: string | null };
+      })
+    | null;
   _count: {
     consumers: number;
   };
@@ -131,7 +131,8 @@ function App() {
   const [loading, setLoading] = useState<boolean>(false);
   const [RangedPins, setRangedPins] = useState<Pin[]>([]);
   const [isCordsSearch, setIsCordsSearch] = useState<boolean>(false);
-  const [searchCoordinates, setSearchCoordinates] = useState<google.maps.LatLngLiteral>();
+  const [searchCoordinates, setSearchCoordinates] =
+    useState<google.maps.LatLngLiteral>();
 
   const {
     selectedPlace: alreadySelectedPlace,
@@ -230,7 +231,6 @@ function App() {
         onClick={handleMapClick}
         mapId={"bf51eea910020fa25a"}
         className="h-screen w-full"
-
         defaultCenter={{ lat: 22.54992, lng: 0 }}
         defaultZoom={3}
         minZoom={2}
@@ -377,7 +377,7 @@ function ManualPinButton({ handleClick }: { handleClick: () => void }) {
 function ReportCollection() {
   return (
     <Link href="/maps/report" className="absolute bottom-16 right-2">
-      <div className="btn" >
+      <div className="btn">
         <ClipboardList /> Collection Report
       </div>
     </Link>
@@ -423,6 +423,7 @@ function MyPins({
                 endDate: pin.locationGroup?.endDate,
                 startDate: pin.locationGroup?.startDate,
                 pinCollectionLimit: pin.locationGroup?.limit,
+                pinRemainingLimit: pin.locationGroup?.remaining,
                 multiPin: pin.locationGroup?.multiPin,
                 subscriptionId: pin.locationGroup?.subscriptionId ?? undefined,
                 autoCollect: pin.autoCollect,
@@ -431,7 +432,6 @@ function MyPins({
                 pinNumber: pin.locationGroup?.remaining,
                 link: pin.locationGroup?.link ?? undefined,
                 assetId: pin.locationGroup?.assetId ?? undefined,
-
               });
               setIsAutoCollect(pin.autoCollect); // Set isAutoCollect to true when a pin is clicked
             }}
@@ -441,8 +441,9 @@ function MyPins({
               width={30}
               height={30}
               alt="Creator"
-              className={`h-10 w-10 bg-white ${!pin.autoCollect ? "rounded-full " : ""
-                } ${pin._count.consumers <= 0 ? "opacity-100" : "opacity-50 "}`}
+              className={`h-10 w-10 bg-white ${
+                !pin.autoCollect ? "rounded-full " : ""
+              } ${pin._count.consumers <= 0 ? "opacity-100" : "opacity-50 "}`}
             />
           </AdvancedMarker>
         ))}
