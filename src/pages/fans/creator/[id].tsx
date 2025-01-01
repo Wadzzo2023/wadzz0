@@ -394,29 +394,31 @@ function CreatorStoreItem({ creatorId }: { creatorId: string }) {
 
   if (assets.data) {
     return (
-      <div className="p-2">
-        <div
-          style={{
-            scrollbarGutter: "stable",
-          }}
-          className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6"
-        >
-          {assets.data.pages.map((page) =>
-            page.nfts.map((item, i) => (
-              <ShopAssetComponent key={i} item={item} />
+      <div className="w-full grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
 
-            )),
-          )}
-        </div>
-        {assets.hasNextPage && (
-          <button
-            className="btn btn-outline btn-primary"
-            onClick={() => void assets.fetchNextPage()}
-          >
-            Load More
-          </button>
+        {assets.data.pages.map((page) =>
+          page.nfts.map((item, i) => (
+            <div
+
+              className=""
+            >
+              <ShopAssetComponent key={i} item={item} />
+            </div>
+
+          )),
         )}
-      </div>
+
+        {
+          assets.hasNextPage && (
+            <button
+              className="btn btn-outline btn-primary"
+              onClick={() => void assets.fetchNextPage()}
+            >
+              Load More
+            </button>
+          )
+        }
+      </div >
     );
   }
 }

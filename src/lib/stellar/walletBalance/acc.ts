@@ -154,7 +154,7 @@ export async function SendAssets({
       balance.asset_type === "credit_alphanum4" ||
       balance.asset_type === "credit_alphanum12"
     ) {
-      return balance.asset_code === asset_code;
+      return balance.asset_code === asset_code && balance.asset_issuer === asset_issuer;
     } else if (balance.asset_type === "native") {
       return balance.asset_type === asset_type;
     }
