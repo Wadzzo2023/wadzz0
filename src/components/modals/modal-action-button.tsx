@@ -21,7 +21,7 @@ import {
 } from "~/lib/state/marketplace/asset-tab-menu";
 import { useMarketRightStore } from "~/lib/state/marketplace/right";
 import { AssetType } from "~/lib/state/play/use-modal-store";
-import PlaceNFT2Storage from "../marketplace/modal/place_2storage_modal";
+import StorageCreateDialog from "../marketplace/modal/place_2storage_modal";
 import EnableInMarket from "../marketplace/modal/place_market_modal";
 import NftBackModal from "../marketplace/modal/revert_place_market_modal";
 import toast from "react-hot-toast";
@@ -190,7 +190,7 @@ export function OtherButtons({
   const { selectedMenu, setSelectedMenu } = useAssetMenu();
   if (currentData && copies) {
     if (selectedMenu == AssetMenu.OWN) {
-      return <PlaceNFT2Storage item={{ ...currentData, copies }} />;
+      return <StorageCreateDialog item={{ ...currentData, copies }} />;
     }
     if (selectedMenu == AssetMenu.STORAGE) {
       return (
@@ -214,12 +214,11 @@ export function MarketButtons({
   code: string;
   issuer: string;
   copy: number;
-  name: string
+  name: string;
 }) {
   const inMarket = api.wallate.acc.getAStorageAssetInMarket.useQuery({
     code,
     issuer,
-
   });
   if (inMarket.isLoading) return <div>Loading...</div>;
   if (inMarket.error) return <div>Error...</div>;
