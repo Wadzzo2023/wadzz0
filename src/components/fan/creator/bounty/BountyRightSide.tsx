@@ -30,14 +30,24 @@ const BountyRightBar = () => {
     joinBountyMutation.mutate({ BountyId: id });
   };
 
-  const { data: Owner } = api.bounty.Bounty.isOwnerOfBounty.useQuery({
+  const { data: Owner, isLoading } = api.bounty.Bounty.isOwnerOfBounty.useQuery({
     BountyId: currentData?.id ?? 0,
+  }, {
+    enabled: !!currentData
   });
 
   const isAlreadyJoin = api.bounty.Bounty.isAlreadyJoined.useQuery({
     BountyId: currentData?.id ?? 0,
+  }, {
+    enabled: !!currentData
   });
-  console.log(currentData);
+
+  if (!currentData || isLoading || isAlreadyJoin.isLoading) {
+    return (
+      <div>Loading...</div>
+    )
+  }
+
   if (currentData && Owner && isAlreadyJoin.data)
     return (
       <div className="scrollbar-style relative h-full w-full overflow-y-auto rounded-xl">

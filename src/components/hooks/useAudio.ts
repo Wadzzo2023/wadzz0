@@ -61,7 +61,7 @@ export const useAudio = () => {
     }, [currentTrack, setIsPlaying, setCurrentTime, setDuration])
 
     useEffect(() => {
-        console.log('isPlaying', isPlaying)
+
         if (audioRef.current) {
             if (isPlaying) {
                 audioRef.current.play()

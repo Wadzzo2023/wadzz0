@@ -95,7 +95,6 @@ export default function CreateTrade() {
 
   // 2. Define a submit handler.
   function onSubmit(values: z.infer<typeof tradeFormSchema>) {
-    console.log(values);
     xdrMutation.mutate({ ...values, signWith: needSign() });
   }
   return (

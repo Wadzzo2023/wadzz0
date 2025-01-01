@@ -23,7 +23,7 @@ export default function ViewAdminAsset() {
   const session = useSession();
   const router = useRouter();
 
-  console.log("isOpen", isOpen);
+
   const isModalOpen = isOpen && type === "view admin asset";
   const handleClose = () => {
     onClose();
@@ -31,7 +31,11 @@ export default function ViewAdminAsset() {
 
   const copy = api.marketplace.market.getMarketAssetAvailableCopy.useQuery({
     id: data.adminAssetNtag?.id,
-  });
+  },
+    {
+      enabled: !!data.adminAssetNtag?.id
+    }
+  );
 
   if (data.adminAssetNtag)
     return (

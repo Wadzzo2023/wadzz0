@@ -290,7 +290,6 @@ function NftCreateForm({
 
       setUploading(false);
     } catch (e) {
-      console.log(e);
       setUploading(false);
       toast.error("Failed to upload file");
     }

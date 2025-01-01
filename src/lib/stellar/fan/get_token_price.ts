@@ -43,7 +43,7 @@ export async function getXLMPrice(): Promise<number> {
     // console.log(response.data);
 
     const xlmUsdPrice = parseFloat(response.data.price);
-    console.log("xlmUsdPrice", xlmUsdPrice);
+
     return xlmUsdPrice;
   } catch (error) {
     console.error("Error fetching XLM USD price:", error);
@@ -96,7 +96,7 @@ export async function getAssetToUSDCRate(): Promise<number> {
 
     const platformAssetInfo = response.data;
     const price = platformAssetInfo.price;
-    console.log("price", price);
+
     return price ?? 0.000531;
   } catch (error) {
     console.error(

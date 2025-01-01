@@ -42,7 +42,7 @@ export default function AssetTransfer() {
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     // Here you would typically send the asset transfer request to your backend
-    console.log(values);
+
     setIsDialogOpen(false);
     form.reset();
   }

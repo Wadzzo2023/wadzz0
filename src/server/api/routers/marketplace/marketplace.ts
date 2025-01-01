@@ -200,26 +200,28 @@ export const marketRouter = createTRPCRouter({
     .query(async ({ ctx, input }) => {
       const { limit, cursor, skip } = input;
 
-      const items = await ctx.db.creatorPageAsset.findMany({
-        include: {
-          creator: {
-            select: {
-              name: true,
-              profileUrl: true,
-            },
-          },
+      const items = await ctx.db.creator.findMany({
+        select: {
+          id: true,
+          name: true,
+          profileUrl: true,
+          pageAsset: true,
         },
         take: limit + 1,
         skip: skip,
-        cursor: cursor ? { creatorId: cursor } : undefined,
+        cursor: cursor ? { id: cursor } : undefined,
+        orderBy: {
+          pageAsset: {
+            creatorId: "asc"
+          }
+        },
       });
 
       let nextCursor: typeof cursor | undefined = undefined;
       if (items.length > limit) {
         const nextItem = items.pop(); // return the last item from the array
-        nextCursor = nextItem?.creatorId;
+        nextCursor = nextItem?.id;
       }
-
       return {
         nfts: items,
         nextCursor,

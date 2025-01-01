@@ -91,7 +91,6 @@ export function CreatPost() {
   };
 
   const handleWantMediaType = (type: MediaType) => {
-    console.log(type);
     setWantMedia((prevType) => (prevType === type ? undefined : type));
   };
 

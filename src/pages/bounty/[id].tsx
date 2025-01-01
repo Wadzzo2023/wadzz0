@@ -760,9 +760,11 @@ const AdminBountyPage = () => {
   const [isDialogOpenWinner, setIsDialogOpenWinner] = useState(false);
   const { id } = router.query;
   const [selectedSubmission, setSelectedSubmission] = useState<BountySubmission | null>(null);
-  console.log(id);
+
   const { data } = api.bounty.Bounty.getBountyByID.useQuery({
     BountyId: Number(id),
+  }, {
+    enabled: !!id
   });
 
   const DeleteMutation = api.bounty.Bounty.deleteBounty.useMutation({
@@ -865,7 +867,7 @@ const AdminBountyPage = () => {
       status: status,
     });
   };
-  console.log("Submission", allSubmission);
+
   if (data)
     return (
       <div className=" ">

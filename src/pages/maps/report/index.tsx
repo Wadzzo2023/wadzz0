@@ -25,7 +25,6 @@ type ConsumerType = {
 
 const CreatorCollectionReport = () => {
     const pins = api.maps.pin.getCreatorPinTConsumedByUser.useQuery();
-    console.log("pins", pins);
     if (pins.isLoading) {
         return (
             <div className="flex h-screen items-center justify-center">
@@ -61,7 +60,7 @@ export default CreatorCollectionReport;
 
 export function TableData({ pins }: { pins: CreatorConsumedPin[] }) {
     const { onOpen } = useModal();
-    console.log("Pins:", pins);
+
 
     if (pins.length === 0) {
         return (
@@ -138,7 +137,7 @@ function ReportDownload({
 }) {
     const download = api.maps.pin.downloadCreatorPinTConsumedByUser.useMutation({
         onSuccess: (data) => {
-            console.log(data.length);
+
             // download this data that is an array of PinLocation as csv
             // Convert array of PinLocation objects to CSV format
             DownloadPinLocationAsCSV(data);
