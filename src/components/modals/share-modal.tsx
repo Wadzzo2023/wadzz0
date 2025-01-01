@@ -16,6 +16,7 @@ import {
 } from "next-share";
 import { FaXTwitter } from "react-icons/fa6";
 import { Check, Copy, Link } from 'lucide-react';
+import { env } from "~/env";
 
 const ShareModal = () => {
   const { isOpen, onClose, type, data } = useModal();
@@ -27,12 +28,11 @@ const ShareModal = () => {
     onClose();
   };
 
-  const fullUrl = `${process.env.NEXT_PUBLIC_URL}${postUrl}`;
-  const sanitizedUrl = fullUrl.replace(/\/\/www\./, '//');
+  const fullUrl = `${env.NEXT_PUBLIC_ASSET_CODE.toLocaleLowerCase() === 'wadzzo' ? 'https://app.wadzzo.com' : 'https://bandcoin.io'}${postUrl}`;
 
   const handleCopy = async () => {
     try {
-      await navigator.clipboard.writeText(sanitizedUrl);
+      await navigator.clipboard.writeText(fullUrl);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000); // Reset after 2 seconds
     } catch (err) {
@@ -125,7 +125,7 @@ const ShareModal = () => {
               className="w-full bg-transparent px-2 outline-none"
               type="text"
               readOnly
-              value={sanitizedUrl}
+              value={fullUrl}
               aria-label="Share link"
             />
 
