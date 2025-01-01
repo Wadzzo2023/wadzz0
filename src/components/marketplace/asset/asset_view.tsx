@@ -31,13 +31,13 @@ function ModernAssetView({ code, thumbnail, isNFT = true, isPinned = false }: As
                   <Pin className="mr-1 h-3 w-3" />
                   PIN
                 </Badge>
-              ) :
+              ) : isNFT ?
                 (
                   <Badge variant="secondary" className="bg-primary text-primary-foreground">
                     <Gem className="mr-1 h-3 w-3" />
                     NFT
                   </Badge>
-                )}
+                ) : null}
             </div>
           </div>
         </div>
