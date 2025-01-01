@@ -25,7 +25,7 @@ const Model: React.FC = () => {
 
       },
       (xhr) => {
-
+        console.log((xhr.loaded / xhr.total) * 100 + "% loaded");
       },
       (error) => {
         console.error("An error happened", error);
@@ -35,6 +35,7 @@ const Model: React.FC = () => {
 
   if (!model) return null; // Optionally return a loading state
 
+  console.log("Model", model);
 
   return <primitive object={model} />;
 };

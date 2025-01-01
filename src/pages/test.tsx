@@ -16,7 +16,7 @@ export default function TestPage() {
       <UploadS3Button endpoint="blobUploader" />
       <MultiUploadS3Button
         onClientUploadComplete={(files) => {
-
+          console.log(files)
         }}
       />
     </div>
