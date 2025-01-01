@@ -191,7 +191,6 @@ const ARPage = () => {
         // }
 
         const objectData = intersect.object.userData as ConsumedLocation;
-        console.log("Clicked object:", objectData);
 
         // Set the info box content and position
         setInfoText(objectData);
@@ -416,7 +415,7 @@ export function ProgressButton({
 // Example usage
 export function Example() {
   const handleComplete = () => {
-    console.log("Button press completed!");
+
   };
 
   return (

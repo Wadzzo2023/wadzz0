@@ -54,13 +54,23 @@ export default function BuyModal() {
     setStep((prev) => prev - 1);
   };
 
+
   const copy = api.marketplace.market.getMarketAssetAvailableCopy.useQuery({
     id: data.Asset?.id,
-  });
 
-  const { data: canBuyUser, isLoading: canBuyUserLoading } =
+  },
+    {
+      enabled: !!data.Asset
+    }
+  );
+
+
+  const { data: canBuyUser } =
     api.marketplace.market.userCanBuyThisMarketAsset.useQuery(
       data.Asset?.id ?? 0,
+      {
+        enabled: !!data.Asset
+      }
     );
 
   if (!data.Asset || !data.Asset.asset)
@@ -183,7 +193,7 @@ export default function BuyModal() {
                 </CardContent>
                 <CardFooter className="flex flex-col gap-1 p-2">
                   {session.status === "authenticated" &&
-                  data.Asset.placerId === session.data.user.id ? (
+                    data.Asset.placerId === session.data.user.id ? (
                     <>
                       <DisableFromMarketButton
                         code={data.Asset.asset.code}

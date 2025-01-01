@@ -60,7 +60,7 @@ const PendingAssetList = ({
           test: clientSelect(),
         })
           .then((result) => {
-            console.log("result", result);
+
             if (result) {
               toast.success("Claim Balance successful");
             } else {
@@ -167,7 +167,7 @@ const PendingAssetList = ({
                       <AvatarImage src="/avatars/05.png" alt="Image" />
                       <AvatarFallback>
                         {balance?.asset.split(":")[0]?.toLowerCase() ===
-                        "native"
+                          "native"
                           ? "XM"
                           : balance?.asset.toString().slice(0, 2).toUpperCase()}
                       </AvatarFallback>
@@ -175,7 +175,7 @@ const PendingAssetList = ({
                     <div>
                       <p className="text-sm font-medium leading-none">
                         {balance?.asset.split(":")[0]?.toLowerCase() ===
-                        "native"
+                          "native"
                           ? "XLM"
                           : balance?.asset.split(":")[0]?.toUpperCase()}
                       </p>

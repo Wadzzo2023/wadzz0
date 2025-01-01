@@ -15,7 +15,7 @@ export default function Page() {
 
 function ConsumedPins() {
   const consumedPins = api.maps.pin.getAUserConsumedPin.useQuery();
-  console.log(consumedPins);
+
   if (consumedPins.isLoading) return <p>Loading...</p>;
   if (consumedPins.isError) return <p>Error</p>;
 

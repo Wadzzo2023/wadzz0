@@ -160,14 +160,14 @@ export async function SendAssets({
     }
     return false;
   });
-  console.log('accBalance', accBalance);
+
   if (!accBalance || parseFloat(accBalance.balance) < amount) {
     throw new Error("Balance is not enough to send the asset.");
   }
 
   const receiverAccount = await server.loadAccount(recipientId);
   const hasTrust = receiverAccount.balances.some((balance) => {
-    console.log(balance);
+
     return (
       (balance.asset_type === "credit_alphanum4" || balance.asset_type === "credit_alphanum12") &&
       balance.asset_code === asset_code &&
@@ -331,7 +331,7 @@ export async function RecentTransactionHistory({
     })
   );
 
-  console.log("Items", newItem);
+
   return {
     items: newItem,
     nextCursor:
@@ -354,7 +354,6 @@ export async function PendingAssetList({
     .limit(20)
     .order("desc")
     .call();
-  console.log("Pending", pendingItems.records);
 
   const parsedItems = pendingItems.records.map((record) => {
     return {
@@ -457,7 +456,7 @@ export async function CheckHasTrustLineOnPlatformAsset({
 
   const account = await server.loadAccount(userPubKey);
   const findAsset = account.balances.some((balance) => {
-    console.log("Balance", balance);
+
     if (
       (balance.asset_type === "credit_alphanum4" ||
         balance.asset_type === "credit_alphanum12") &&
@@ -468,7 +467,7 @@ export async function CheckHasTrustLineOnPlatformAsset({
     }
     return false;
   });
-  console.log("FindAsset", findAsset);
+
   return findAsset;
 }
 

@@ -162,7 +162,7 @@ function CreateCreator({ requiredToken }: { requiredToken: number }) {
   const xdr = api.fan.trx.createStorageAccount.useMutation({
     onSuccess: (data) => {
       const { xdr, storage } = data;
-      console.log("xdr", xdr);
+
       setSingLoading(true);
 
       const toastId = toast.loading("Creating account");

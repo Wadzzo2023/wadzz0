@@ -160,7 +160,6 @@ const SendAssets = () => {
                 .useUtils()
                 .walletBalance.wallBalance.getWalletsBalance.refetch();
             } catch (balanceError) {
-              console.log("Error refetching wallets balance", balanceError);
             }
 
             try {
