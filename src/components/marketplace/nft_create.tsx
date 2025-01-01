@@ -335,21 +335,22 @@ function NftCreateForm({
         <DialogHeader className="text-lg font-bold">Add Store Item</DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="rounded-lg bg-base-200 p-2">
-            <div className="flex flex-col gap-2 sm:flex-row sm:justify-between">
+            <div className="flex flex-col gap-2 sm:flex-row sm:justify-between w-full">
               <div className="w-full sm:w-auto">
-                <ul className="menu menu-horizontal rounded-box bg-base-300 p-1 flex-wrap justify-center">
+                <ul className="w-full rounded-box bg-base-300 p-1 flex gap-1  justify-center">
                   {Object.values(MediaType).map((media, i) => (
-                    <li key={i} className="mr-1 mb-1">
-                      <button
+                    <li key={i} className={clsx(
+                      " text-sm w-full ",
+                      media === mediaType ? "bg-primary text-primary-foreground rounded-lg" : ""
+                    )}>
+                      <Button
                         type="button"
-                        className={clsx(
-                          "px-2 py-1 text-sm",
-                          media == mediaType ? "bg-primary text-primary-foreground" : ""
-                        )}
+                        variant={media === mediaType ? "default" : "outline"}
                         onClick={() => handleMediaChange(media)}
+                        className="w-full"
                       >
                         {media === MediaType.THREE_D ? "3D" : media}
-                      </button>
+                      </Button>
                     </li>
                   ))}
                 </ul>
