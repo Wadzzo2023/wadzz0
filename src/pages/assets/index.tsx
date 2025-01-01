@@ -53,7 +53,7 @@ function MyStorageAsset() {
         style={{
           scrollbarGutter: "stable",
         }}
-        className="grid grid-cols-2 gap-2  md:grid-cols-4 xl:grid-cols-6 "
+        className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6"
       >
         {acc.data?.accAssets.length === 0 && (
           <p className="w-full text-center">You have no asset</p>
@@ -69,10 +69,8 @@ function MyStorageAsset() {
                 });
               }}
             >
-              <button className="btn relative h-fit w-full overflow-hidden  py-4 ">
-                {/* <p>{acc.data.accAssets[i]?.copies}</p> */}
-                <AssetView code={asset.name} thumbnail={asset.thumbnail} />
-              </button>
+              {/* <p>{acc.data.accAssets[i]?.copies}</p> */}
+              <AssetView code={asset.name} thumbnail={asset.thumbnail} />
             </div>
           );
         })}
