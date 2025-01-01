@@ -196,7 +196,7 @@ export default function AssetInfoModal() {
                       </Button>
                     )
                   )}
-                  <DeleteAssetByAdmin id={data.MyAsset.id} />
+                  <DeleteAssetByAdmin assetId={data.MyAsset.id} />
                 </CardFooter>
               </Card>
 

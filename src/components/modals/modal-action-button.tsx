@@ -123,7 +123,13 @@ export function SparkleEffect() {
     </motion.div>
   );
 }
-export function DeleteAssetByAdmin({ id }: { id: number }) {
+export function DeleteAssetByAdmin({
+  assetId,
+  marketId,
+}: {
+  marketId?: number;
+  assetId?: number;
+}) {
   const [isOpen, setIsOpen] = useState(false);
   const admin = api.wallate.admin.checkAdmin.useQuery();
   const del = api.marketplace.market.deleteMarketAsset.useMutation({
@@ -163,7 +169,7 @@ export function DeleteAssetByAdmin({ id }: { id: number }) {
                 <Button
                   variant="destructive"
                   type="submit"
-                  onClick={() => del.mutate(id)}
+                  onClick={() => del.mutate({ assetId, marketId })}
                   disabled={del.isLoading}
                   className="w-full"
                 >
