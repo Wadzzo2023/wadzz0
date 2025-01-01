@@ -134,7 +134,7 @@ export function PostCard({
                 <DummyAudioPostPlayer audioId={item.id}
                   name={post.heading}
                   artist={creatorId}
-                  creatorProfileUrl={creatorProfileUrl}
+                  creatorProfileUrl={creator.profileUrl}
                   mediaUrl={item.url}
                 />
               )
