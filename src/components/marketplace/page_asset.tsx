@@ -15,23 +15,19 @@ export type CreatorPageAssetType = CreatorPageAsset & {
 
 function PageAssetComponent({ item }: { item: CreatorPageAssetType }) {
   const { selectedTag } = useTagStore();
-  const urs = usePageAssetRightStore();
-  const pop = usePopUpState();
   const router = useRouter();
   return (
-    <div onClick={async () => {
-      await router.push(`/fans/creator/${item.creatorId}`);
-    }}>
-
+    <div
+      onClick={async () => {
+        await router.push(`/fans/creator/${item.creatorId}`);
+      }}
+    >
       <AssetView
         code={
-          selectedTag == AssetVariant.Artists
-            ? item?.creator?.name
-            : item.code
+          selectedTag == AssetVariant.Artists ? item?.creator?.name : item.code
         }
         thumbnail={item.thumbnail ?? item.creator?.profileUrl}
       />
-
     </div>
   );
 }
