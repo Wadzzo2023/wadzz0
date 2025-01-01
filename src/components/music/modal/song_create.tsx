@@ -117,7 +117,7 @@ export default function SongCreate({ albumId }: { albumId: number }) {
     },
     onError(err, variables, context) {
       toast.error("Error");
-      console.log(err);
+
     },
   });
 
@@ -135,7 +135,6 @@ export default function SongCreate({ albumId }: { albumId: number }) {
     }
   };
 
-  console.log("errors", errors);
 
   const handleModal = () => {
     modalRef.current?.showModal();

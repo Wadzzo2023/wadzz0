@@ -1,15 +1,11 @@
-import Image from "next/image";
-import Logo from "~/components/logo";
 import { Button } from "~/components/shadcn/ui/button";
 import { Card, CardContent } from "~/components/shadcn/ui/card";
 
 export default function AboutPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-purple-100 to-blue-100">
+    <div className="min-h-screen bg-gradient-to-b from-green-100 to-[#39BD2B]">
       <main className="container mx-auto px-4 py-16">
-        <h1 className="mb-8 text-center text-4xl font-bold text-purple-800">
-          About <Logo />
-        </h1>
+        <h1 className="mb-8 text-center text-4xl font-bold ">About</h1>
 
         <div className="mx-auto mb-12 max-w-3xl text-center">
           <p className="mb-6 text-lg text-gray-700">
@@ -93,9 +89,7 @@ export default function AboutPage() {
               <Card key={index} className="bg-white shadow-lg">
                 <CardContent className="p-6 text-center">
                   <div className="mb-4 text-4xl">{item.icon}</div>
-                  <h3 className="mb-2 text-xl font-semibold text-purple-700">
-                    {item.title}
-                  </h3>
+                  <h3 className="mb-2 text-xl font-semibold ">{item.title}</h3>
                   <p className="text-gray-700">{item.description}</p>
                 </CardContent>
               </Card>
@@ -111,16 +105,6 @@ export default function AboutPage() {
           <Button className="bg-purple-600 px-8 py-3 text-lg text-white hover:bg-purple-700">
             Join Bandcoin and be part of the future of music
           </Button>
-        </div>
-
-        <div className="relative h-64 overflow-hidden rounded-lg">
-          <Image
-            src="/placeholder.svg?height=256&width=1024"
-            alt="Music collaboration"
-            layout="fill"
-            objectFit="cover"
-            className="rounded-lg"
-          />
         </div>
       </main>
     </div>

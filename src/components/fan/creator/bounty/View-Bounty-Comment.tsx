@@ -32,8 +32,6 @@ export default function ViewBountyComment({
 }) {
   const [replyBox, setReplyBox] = useState<boolean>(false);
 
-  console.log("bountyChildComments", bountyChildComments);
-  console.log("comment", comment);
   return (
     <div className="flex items-start justify-between text-sm ">
       <div className="flex w-full gap-2">

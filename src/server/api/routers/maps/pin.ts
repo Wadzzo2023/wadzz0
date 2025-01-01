@@ -273,7 +273,6 @@ export const pinRouter = createTRPCRouter({
         }
 
         // console.log(">> prev", pinRemainingLimit);
-
         // console.log(">> updated", updatedLimit, updatedRemainingLimit);
 
         const updatedLocationGroup = await ctx.db.locationGroup.update({

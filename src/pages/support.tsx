@@ -38,7 +38,6 @@ const Support = () => {
     });
   };
 
-  console.log(errors);
   return (
     <div className="mx-auto  h-screen  px-2 md:px-4">
       <section className="mb-32">

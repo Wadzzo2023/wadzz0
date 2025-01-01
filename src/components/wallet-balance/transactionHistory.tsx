@@ -55,8 +55,6 @@ const TransactionHistory = () => {
     }
   };
 
-  console.log("transactions", data); // Verify transactions length and cursor logic
-
 
 
   return (

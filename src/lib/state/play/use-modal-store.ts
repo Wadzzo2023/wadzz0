@@ -109,7 +109,6 @@ export interface ModalData {
   endDate?: Date;
   pinCollectionLimit?: number;
   pinRemainingLimit?: number;
-
   multiPin?: boolean;
   pinNumber?: number;
   autoCollect?: boolean;

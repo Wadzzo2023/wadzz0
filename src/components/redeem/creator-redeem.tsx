@@ -200,7 +200,7 @@ const Redeem = ({ creatorId }: { creatorId: string }) => {
     });
 
     const onSubmit: SubmitHandler<z.infer<typeof RedeemSchema>> = (data) => {
-        console.log("maxRedeems", data.maxRedeems);
+
         setLoading(true);
         if (selectedAsset?.limit && data.maxRedeems > selectedAsset?.limit) {
             toast.error("Max redeems must be less than or equal to the asset limit");
@@ -251,7 +251,7 @@ const Redeem = ({ creatorId }: { creatorId: string }) => {
 
 
     }
-    console.log("creatorAssets", creatorAssets);
+
 
     const totalFee = totalFees.data ?? 0;
     console.log("totalAmount...................", totalFee);

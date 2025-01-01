@@ -22,8 +22,9 @@ function Page({ postId }: { postId: string }) {
 
   const { data, error, isLoading } = api.fan.post.getAPost.useQuery(Number(postId), {
     refetchOnWindowFocus: false,
+    enabled: !!postId
   });
-  console.log("data...................", data);
+
   if (isLoading) {
     return (
 

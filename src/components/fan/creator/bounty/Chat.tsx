@@ -64,7 +64,7 @@ const Chat = ({ bountyId }: { bountyId: number }) => {
   const [selectedDoubt, setSelectedDoubt] =
     useState<BountyDoubtListItem | null>(null);
 
-  console.log(listBountyDoubt);
+
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const handleDialogSelect = (item: BountyDoubtListItem) => {
@@ -264,14 +264,14 @@ const ChatItem = ({ item }: { item: BountyDoubtListItem }) => {
       setMessages(oldMessage);
     }
   }, [oldMessage, oldMessageSucess]);
-  console.log(messages);
+
 
   const scrollToBottom = () => {
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
   };
-  console.log("oldMessage", oldMessage);
+
   // Call scrollToBottom on initial render and whenever new content is added
   useEffect(() => {
     scrollToBottom();
@@ -391,7 +391,7 @@ const ChatItem = ({ item }: { item: BountyDoubtListItem }) => {
 
                 setUploadingFile(null); // Reset uploading file
                 const data = res[0];
-                console.log(data);
+
                 if (data?.url) {
                   addMediaItem(data.url, data.name, data.size, data.type);
                 }

@@ -184,7 +184,7 @@ const CreateBounty = () => {
       },
     });
   const onSubmit: SubmitHandler<z.infer<typeof BountySchema>> = (data) => {
-    console.log("data...................", data);
+
     data.medias = media;
     setLoading(true);
     SendBalanceToBountyMother.mutate({

@@ -39,7 +39,10 @@ function MyStorageAsset() {
   const acc = api.wallate.acc.getCreatorStorageInfo.useQuery();
   const { onOpen } = useModal();
 
-  if (acc.isLoading) return <MoreAssetsSkeleton className="flex gap-2" />;
+  if (acc.isLoading)
+    return (
+      <MoreAssetsSkeleton className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6" />
+    );
 
   if (acc.data)
     return (
@@ -47,7 +50,7 @@ function MyStorageAsset() {
         style={{
           scrollbarGutter: "stable",
         }}
-        className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6"
+        className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 "
       >
         {acc.data?.accAssets.length === 0 && (
           <p className="w-full text-center">You have no asset</p>
@@ -62,9 +65,13 @@ function MyStorageAsset() {
                   MyAsset: asset,
                 });
               }}
+              className="cursor-pointer"
             >
-              {/* <p>{acc.data.accAssets[i]?.copies}</p> */}
-              <AssetView code={asset.name} thumbnail={asset.thumbnail} />
+              <AssetView
+                code={asset.name}
+                thumbnail={asset.thumbnail}
+                isNFT={true}
+              />
             </div>
           );
         })}
@@ -102,7 +109,7 @@ function MyAssets() {
 
   if (acc.isLoading || status === "loading")
     return <MoreAssetsSkeleton className="flex gap-2" />;
-  if (acc.data || data) {
+  if (acc.data ?? data) {
     return (
       <>
         <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
