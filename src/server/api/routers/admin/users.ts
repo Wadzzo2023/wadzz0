@@ -35,6 +35,16 @@ export const userRouter = createTRPCRouter({
     .mutation(({ input }) => {
       return sendEmail(input.userEmail, input.name, input.message);
     }),
+
+  hasStorage: protectedProcedure.query(async ({ ctx }) => {
+    const creator = await ctx.db.creator.findUnique({
+      where: {
+        id: ctx.session.user.id,
+      },
+    });
+
+    return { storage: creator?.storagePub };
+  }),
 });
 
 const transporter: Transporter = createTransport({

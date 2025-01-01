@@ -214,7 +214,7 @@ export default function BuyModal() {
                     )
                   )}
 
-                  <DeleteAssetByAdmin id={data.Asset.id} />
+                  <DeleteAssetByAdmin marketId={data.Asset.id} />
                   <p className="text-xs text-gray-400">
                     Once purchased, this item will be placed on collection.
                   </p>
