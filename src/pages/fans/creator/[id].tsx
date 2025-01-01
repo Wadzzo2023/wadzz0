@@ -399,10 +399,10 @@ function CreatorStoreItem({ creatorId }: { creatorId: string }) {
         {assets.data.pages.map((page) =>
           page.nfts.map((item, i) => (
             <div
-
+              key={i}
               className=""
             >
-              <ShopAssetComponent key={i} item={item} />
+              <ShopAssetComponent item={item} />
             </div>
 
           )),
