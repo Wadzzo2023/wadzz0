@@ -5,7 +5,12 @@ import {
   AssetMenu,
   useAssetMenu,
 } from "~/lib/state/marketplace/asset-tab-menu";
-import { Card, CardContent, CardHeader, CardTitle } from "~/components/shadcn/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "~/components/shadcn/ui/card";
 import { ScrollArea } from "~/components/shadcn/ui/scroll-area";
 
 import { useModal } from "~/lib/state/play/use-modal-store";
@@ -40,8 +45,6 @@ function MyStorageAsset() {
   const { onOpen } = useModal();
   const { setCurrentTrack } = usePlayer();
 
-
-
   if (acc.isLoading) return <MoreAssetsSkeleton className="flex gap-2" />;
 
   if (acc.data)
@@ -60,7 +63,7 @@ function MyStorageAsset() {
             <div
               key={i}
               onClick={() => {
-                setCurrentTrack(null)
+                setCurrentTrack(null);
                 onOpen("my asset info modal", {
                   MyAsset: asset,
                 });
@@ -73,8 +76,6 @@ function MyStorageAsset() {
             </div>
           );
         })}
-
-
       </div>
     );
 
@@ -103,16 +104,17 @@ function MyAssets() {
     },
     {
       getNextPageParam: (lastPage) => lastPage.nextCursor,
-    }
+    },
   );
 
-  if (acc.isLoading || status === "loading") return <MoreAssetsSkeleton className="flex gap-2" />;
-  if (acc.data ?? data)
+  if (acc.isLoading || status === "loading")
+    return <MoreAssetsSkeleton className="flex gap-2" />;
+  if (acc.data || data) {
     return (
       <>
         <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
-          {acc.data?.accAssets.length === 0 && (
-            acc.data.dbAssets.map((asset, i) => (
+          <>
+            {acc.data?.dbAssets.map((asset, i) => (
               <div
                 key={i}
                 onClick={() => {
@@ -129,52 +131,47 @@ function MyAssets() {
                   isNFT={true}
                 />
               </div>
-            ))
-          )}
-          {
-
-            data?.pages.map((pin, i) => (
+            ))}
+          </>
+          <>
+            {data?.pages.map((pin, i) => (
               <React.Fragment key={i}>
-                {
-                  pin.items.map((item, j) => (
-                    <div
-                      key={j}
-                      onClick={() => {
-                        setCurrentTrack(null);
-                        onOpen("pin info modal", {
-                          collectedPinInfo: item,
-                        });
-                      }}
-                      className="cursor-pointer"
-                    >
-                      <AssetView
-                        code={item.location.locationGroup?.title}
-                        thumbnail={item.location.locationGroup?.image ?? "https://app.wadzzo.com/images/loading.png"}
-
-                        isPinned={true}
-                      />
-                    </div>
-                  )
-                  )
-                }
+                {pin.items.map((item, j) => (
+                  <div
+                    key={j}
+                    onClick={() => {
+                      setCurrentTrack(null);
+                      onOpen("pin info modal", {
+                        collectedPinInfo: item,
+                      });
+                    }}
+                    className="cursor-pointer"
+                  >
+                    <AssetView
+                      code={item.location.locationGroup?.title}
+                      thumbnail={
+                        item.location.locationGroup?.image ??
+                        "https://app.wadzzo.com/images/loading.png"
+                      }
+                      isPinned={true}
+                    />
+                  </div>
+                ))}
               </React.Fragment>
-            ))
-
-          }
-
+            ))}
+          </>
         </div>
-        {
-          hasNextPage && (
-            <button
-              onClick={() => fetchNextPage()}
-              className="btn btn-outline btn-primary"
-            >
-              {isFetchingNextPage ? "Loading..." : "Load More"}
-            </button>
-          )
-        }
+        {hasNextPage && (
+          <button
+            onClick={() => fetchNextPage()}
+            className="btn btn-outline btn-primary"
+          >
+            {isFetchingNextPage ? "Loading..." : "Load More"}
+          </button>
+        )}
       </>
     );
+  }
 
   return null;
 }
@@ -212,7 +209,3 @@ function AssetTabs() {
     };
   }
 }
-
-
-
-
