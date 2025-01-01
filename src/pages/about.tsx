@@ -6,23 +6,27 @@ import { Card, CardContent } from "~/components/shadcn/ui/card";
 
 export default function AboutPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-purple-100 to-blue-100">
+    <div className="min-h-screen bg-gradient-to-b from-green-100 to-[#39BD2B]">
       <main className="container mx-auto px-4 py-16">
-        <h1 className="mb-8 text-center text-4xl font-bold text-purple-800">
-          About <Logo />
+        <h1 className="mb-8 text-center text-4xl font-bold ">
+          About
         </h1>
 
         <div className="mx-auto mb-12 max-w-3xl text-center">
           <p className="mb-6 text-lg text-gray-700">
             Wadzzo is an innovative platform designed to transform the way people engage with brands through gamified experiences. Our mission is to bridge the digital and physical worlds by enabling users to explore their surroundings, discover rewards, and connect with brands in a fun, interactive way.
           </p>
-
+          <Link href="/fans/home">
+            <Button >
+              Join as BRANDS
+            </Button>
+          </Link>
         </div>
 
         <div className="mb-16 grid gap-8 md:grid-cols-2">
           <Card className="bg-white shadow-lg">
             <CardContent className="p-6">
-              <h2 className="mb-4 text-2xl font-semibold text-purple-700">
+              <h2 className="mb-4 text-2xl font-semibold ">
                 For Brands:
               </h2>
               <p className="mb-4">
@@ -40,7 +44,7 @@ export default function AboutPage() {
 
           <Card className="bg-white shadow-lg">
             <CardContent className="p-6">
-              <h2 className="mb-4 text-2xl font-semibold text-purple-700">
+              <h2 className="mb-4 text-2xl font-semibold ">
                 For Users:
               </h2>
               <p className="mb-4">
@@ -62,7 +66,7 @@ export default function AboutPage() {
         </div>
 
         <section className="mb-16">
-          <h2 className="mb-6 text-center text-3xl font-semibold text-purple-800">
+          <h2 className="mb-6 text-center text-3xl font-semibold">
             Why Choose Wadzzo?
           </h2>
           <div className="grid gap-8 md:grid-cols-3">
@@ -87,7 +91,7 @@ export default function AboutPage() {
               <Card key={index} className="bg-white shadow-lg">
                 <CardContent className="p-6 text-center">
                   <div className="mb-4 text-4xl">{item.icon}</div>
-                  <h3 className="mb-2 text-xl font-semibold text-purple-700">
+                  <h3 className="mb-2 text-xl font-semibold ">
                     {item.title}
                   </h3>
                   <p className="text-gray-700">{item.description}</p>
@@ -101,7 +105,7 @@ export default function AboutPage() {
           <p className="mb-6 text-xl text-gray-700">
             Whether you’re hunting for rewards or driving brand visibility, Wadzzo redefines engagement by merging technology, fun, and creativity.
           </p>
-          <Button className="bg-purple-600 px-8 py-3 text-lg text-white hover:bg-purple-700">
+          <Button >
             Download Wadzzo now and start your adventure!
           </Button>
         </div>
