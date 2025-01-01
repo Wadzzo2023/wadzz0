@@ -53,9 +53,8 @@ export default async function handler(
 
     const userAcc = await server.loadAccount(userId);
 
-    console.log("asset_code", code, "asset_issuer", issuer);
     const hasTrust = userAcc.balances.some((balance) => {
-      console.log(balance);
+
       return (
         (balance.asset_type === "credit_alphanum4" ||
           balance.asset_type === "credit_alphanum12") &&

@@ -1,6 +1,15 @@
 import { clientsign } from "package/connect_wallet/src/lib/stellar/utils";
 import { useRef } from "react";
 import { api } from "~/utils/api";
+import { useState } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "~/components/shadcn/ui/dialog";
 
 import { z } from "zod";
 
@@ -12,6 +21,7 @@ import { Button } from "~/components/shadcn/ui/button";
 import useNeedSign from "~/lib/hook";
 import { clientSelect } from "~/lib/stellar/fan/utils";
 import { addrShort } from "~/utils/utils";
+import { ValidCreateCreator } from "~/pages/fans/creator";
 
 export const PlaceMarketFormSchema = z.object({
   placingCopies: z
@@ -30,10 +40,55 @@ export const PlaceMarketFormSchema = z.object({
 
 export type PlaceMarketFormType = z.TypeOf<typeof PlaceMarketFormSchema>;
 
-export default function PlaceNFT2Storage({
+export default function StorageCreateDialog({
   item,
 }: {
   item: { code: string; issuer: string; copies: number; name: string };
+}) {
+  const storage = api.admin.user.hasStorage.useQuery();
+
+  if (storage.data) {
+    const storagePub = storage.data.storage;
+    if (storagePub) {
+      return <PlaceNFT2StorageModal item={item} />;
+    } else {
+      // create storage
+      return <StorageCreate />;
+    }
+  }
+}
+
+function StorageCreate() {
+  const [isOpen, setIsOpen] = useState(false);
+
+  return (
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogTrigger asChild>
+        <Button variant="outline">Place in storage (*)</Button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Need to Create Storage Account</DialogTitle>
+          <DialogDescription>
+            First you need to create your storage account , then try placing the
+            item to the storage
+          </DialogDescription>
+        </DialogHeader>
+        <ValidCreateCreator message="No storage account. Create one" />;
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function PlaceNFT2StorageModal({
+  item,
+}: {
+  item: {
+    code: string;
+    issuer: string;
+    copies: number;
+    name: string;
+  };
 }) {
   const modalRef = useRef<HTMLDialogElement>(null);
 
@@ -70,7 +125,6 @@ export default function PlaceNFT2Storage({
           if (res) toast.success("NFT has been placed to storage");
         })
         .catch((e) => {
-          console.log(e);
           toast.error("Error signing transaction");
         })
         .finally(() => toast.dismiss(tostId));

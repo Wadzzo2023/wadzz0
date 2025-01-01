@@ -165,8 +165,6 @@ export default function Layout({
                               )}
                             </div>
                           )}
-                          {/* <div className="h-44 " /> */}
-                          {/* <BottomNav /> */}
                         </div>
                       </div>
 

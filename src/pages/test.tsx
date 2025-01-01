@@ -7,6 +7,8 @@ import axios, { AxiosError } from "axios";
 import { EndPointType } from "~/server/s3";
 import { Progress } from "~/components/shadcn/ui/progress";
 import { allowedSubmissionTypes } from "~/components/modals/file-upload-modal";
+import { Button } from "~/components/shadcn/ui/button";
+import { Loader2, Upload } from "lucide-react";
 
 export default function TestPage() {
   return (
@@ -14,7 +16,7 @@ export default function TestPage() {
       <UploadS3Button endpoint="blobUploader" />
       <MultiUploadS3Button
         onClientUploadComplete={(files) => {
-          console.log(files, "xlckjlsdkfjsdlkf sdlkjkjl");
+          console.log(files)
         }}
       />
     </div>
@@ -119,31 +121,42 @@ export function UploadS3Button({
         endPoint: endpoint,
         fileName: targetFile.name,
       });
-      console.log("Selected file: ", targetFile);
-      console.log(`Selected file: ${targetFile.name}`);
+
     } else {
       console.error("No file selected");
     }
   };
 
   return (
-    <div className="grid w-full  items-center gap-1.5">
-      {loading && <div>Uploading...</div>}
-      <Input
-        onChange={handleFileChange}
-        id="picture"
-        disabled={disabled}
+    <div className="grid w-full items-center gap-2">
+      <Button
+        variant="default"
+        type="button"
+        className="w-full bg-blue-600 hover:bg-blue-700"
+        disabled={disabled ?? loading}
+        onClick={() => document.getElementById('file-upload')?.click()}
+      >
+        {loading ? (
+          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+        ) : (
+          <Upload className="mr-2 h-4 w-4" />
+        )}
+        {loading ? 'Uploading...' : 'Add Media'}
+      </Button>
+      <input
+        id="file-upload"
         type="file"
-        className="bg-slate-200"
         accept={getAcceptString(endpoint)}
+        disabled={disabled ?? loading}
+        className="hidden"
+        onChange={handleFileChange}
       />
-
-      <Progress
-        className="w-full"
-        value={progress}
-
-        style={{ height: "0.5rem" }}
-      />
+      {loading && (
+        <Progress
+          value={progress}
+          className="h-1 w-full"
+        />
+      )}
     </div>
   );
 
@@ -210,12 +223,12 @@ export function MultiUploadS3Button({
       const finished: { url: string; name: string, size: number, type: string }[] = [];
       if (!files) return;
 
-      console.log("xxx", files, urls);
+
       for (const file of files) {
         const data = urls.find((url) => url.fileName === file.name);
         if (!data) continue;
 
-        console.log("xxx: Uploading file", file, data);
+
 
         try {
           const res = await axios.put(data.uploadUrl, file, {
@@ -254,7 +267,7 @@ export function MultiUploadS3Button({
         }
       }
 
-      console.log(finished);
+
       onClientUploadComplete?.(finished);
       setLoading(false);
     },
@@ -271,7 +284,7 @@ export function MultiUploadS3Button({
 
     if (fileInputs) {
       let targetFiles = Array.from(fileInputs);
-      console.log("xxx", targetFiles);
+
       if (onBeforeUploadBegin) {
         const processedFile = await onBeforeUploadBegin(targetFiles);
         if (!processedFile) {
@@ -292,7 +305,6 @@ export function MultiUploadS3Button({
         }),
       );
 
-      console.log("filesMeta xxx.........", filesMeta);
 
       setFiles(fileInputs);
 

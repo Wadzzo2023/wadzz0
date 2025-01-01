@@ -3,6 +3,7 @@ import {
   AdminAsset,
   Asset,
   ItemPrivacy,
+  LocationGroup,
   MarketAsset,
   Song,
   SubmissionAttachment,
@@ -24,6 +25,11 @@ export type AdminAssetWithTag = AdminAsset & {
     tagName: string;
   }[];
 };
+export type collectedPinInfoType = {
+  location: Location & {
+    locationGroup: LocationGroup | null;
+  };
+};
 export type Transaction = {
   source: string;
   successful: boolean;
@@ -40,7 +46,7 @@ export type Transaction = {
   signatures: string[];
   fee_charged: string | number;
   operations: Horizon.ServerApi.OperationRecord[];
-}
+};
 export type CreatorConsumedPin = {
   id: string;
   startDate: Date;
@@ -79,7 +85,8 @@ export type ModalType =
   | "my asset info modal"
   | "song buy modal"
   | "creator asset info"
-  | 'view admin asset'
+  | "view admin asset"
+  | "pin info modal";
 
 export interface ModalData {
   pinId?: string;
@@ -98,22 +105,24 @@ export interface ModalData {
   attachment?: SubmissionAttachment[];
   submissionId?: number;
   transaction?: Transaction;
-  startDate?: Date,
-  endDate?: Date,
-  pinCollectionLimit?: number,
-  multiPin?: boolean,
-  pinNumber?: number,
-  autoCollect?: boolean,
-  subscriptionId?: number,
-  assetId?: number,
-  link?: string,
-  pageAsset?: boolean,
-  privacy?: ItemPrivacy,
-  Asset?: MarketAssetType,
-  MyAsset?: AssetType,
-  Song?: SongItemType,
-  creatorStoreAsset?: MarketAssetType,
-  adminAssetNtag?: AdminAssetWithTag,
+  startDate?: Date;
+  endDate?: Date;
+  pinCollectionLimit?: number;
+  pinRemainingLimit?: number;
+  multiPin?: boolean;
+  pinNumber?: number;
+  autoCollect?: boolean;
+  subscriptionId?: number;
+  assetId?: number;
+  link?: string;
+  pageAsset?: boolean;
+  privacy?: ItemPrivacy;
+  Asset?: MarketAssetType;
+  MyAsset?: AssetType;
+  Song?: SongItemType;
+  creatorStoreAsset?: MarketAssetType;
+  adminAssetNtag?: AdminAssetWithTag;
+  collectedPinInfo?: collectedPinInfoType;
 }
 
 interface ModalStore {

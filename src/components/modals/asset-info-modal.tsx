@@ -2,7 +2,7 @@ import { useSession } from "next-auth/react";
 import Image from "next/image";
 import { api } from "~/utils/api";
 
-import { X } from "lucide-react";
+import { X } from 'lucide-react';
 import { Button } from "~/components/shadcn/ui/button";
 import {
   Dialog,
@@ -63,20 +63,23 @@ export default function AssetInfoModal() {
       console.log(error);
     },
     refetchOnWindowFocus: false,
-  });
+    enabled: !!data.MyAsset
 
-  const copyCreatorAssetBalance =
-    selectedMenu === AssetMenu.OWN
+  })
+
+  const copyCreatorAssetBalance = data.MyAsset
+    ? selectedMenu === AssetMenu.OWN
       ? creatorAssetBalance({
-          code: data?.MyAsset?.code,
-          issuer: data?.MyAsset?.issuer,
-        })
+        code: data.MyAsset.code,
+        issuer: data.MyAsset.issuer,
+      })
       : creatorStorageAssetBalance({
-          code: data?.MyAsset?.code,
-          issuer: data?.MyAsset?.issuer,
-        });
+        code: data.MyAsset.code,
+        issuer: data.MyAsset.issuer,
+      })
+    : 0;
 
-  if (data.MyAsset)
+  if (data.MyAsset) {
     return (
       <>
         <Dialog open={isModalOpen} onOpenChange={handleClose}>
@@ -196,7 +199,7 @@ export default function AssetInfoModal() {
                       </Button>
                     )
                   )}
-                  <DeleteAssetByAdmin id={data.MyAsset.id} />
+                  <DeleteAssetByAdmin assetId={data.MyAsset.id} />
                 </CardFooter>
               </Card>
 
@@ -259,4 +262,8 @@ export default function AssetInfoModal() {
         </Dialog>
       </>
     );
+  }
+
+  return null;
 }
+

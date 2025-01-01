@@ -26,7 +26,7 @@ const Bounty = () => {
     onSuccess: async () => {
       toast.success("Bounty Deleted");
       utils.bounty.Bounty.getAllBounties.refetch().catch((e) => {
-        console.log(e);
+        //console.log(e);
       });
     },
   });

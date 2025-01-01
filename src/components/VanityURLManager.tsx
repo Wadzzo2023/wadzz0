@@ -108,7 +108,7 @@ export function VanityURLManager({ creator }: { creator: CreatorWithSubscription
         { vanityURL: watch('vanityURL') },
         {
             onSuccess: (data) => {
-                console.log("data", data)
+                //console.log("data", data)
                 setIsAvailable(data.isAvailable);
             },
         }
@@ -154,7 +154,7 @@ export function VanityURLManager({ creator }: { creator: CreatorWithSubscription
 
     };
     const copyToClipboard = () => {
-        const vanityURL = `${env.NEXT_PUBLIC_URL}/${watch('vanityURL')}`;
+        const vanityURL = `${env.NEXT_PUBLIC_ASSET_CODE.toLocaleLowerCase() === 'wadzzo' ? 'https://app.wadzzo.com' : 'https://bandcoin.io'}/${watch('vanityURL')}`;
         navigator.clipboard.writeText(vanityURL).then(() => {
             toast.success('Vanity URL copied to clipboard');
         }).catch((err) => {
@@ -179,7 +179,7 @@ export function VanityURLManager({ creator }: { creator: CreatorWithSubscription
                         </button>
                     </label>
                     <div className="flex items-center space-x-2 w-full">
-                        <span className="text-base-content/70">{env.NEXT_PUBLIC_URL}/</span>
+                        <span className="text-base-content/70">{env.NEXT_PUBLIC_ASSET_CODE.toLocaleLowerCase() === 'wadzzo' ? 'https://app.wadzzo.com' : 'https://bandcoin.io'}/</span>
                         <div className="flex flex-col relative">
                             <input
                                 disabled={subscriptionStatus === 'expired'}

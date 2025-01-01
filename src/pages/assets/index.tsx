@@ -6,10 +6,11 @@ import {
   useAssetMenu,
 } from "~/lib/state/marketplace/asset-tab-menu";
 
+import React from "react";
+import { usePlayer } from "~/components/context/PlayerContext";
 import { useModal } from "~/lib/state/play/use-modal-store";
 import { api } from "~/utils/api";
 import { ValidCreateCreator } from "../fans/creator";
-import { usePlayer } from "~/components/context/PlayerContext";
 
 export default function MyAssetsPage() {
   return (
@@ -37,33 +38,40 @@ function MyStorageAsset() {
 
   const acc = api.wallate.acc.getCreatorStorageInfo.useQuery();
   const { onOpen } = useModal();
-  if (acc.isLoading) return <MoreAssetsSkeleton className="flex gap-2" />;
+
+  if (acc.isLoading)
+    return (
+      <MoreAssetsSkeleton className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6" />
+    );
+
   if (acc.data)
     return (
       <div
         style={{
           scrollbarGutter: "stable",
         }}
-        className="grid grid-cols-2 gap-2  md:grid-cols-4 xl:grid-cols-6 "
+        className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 "
       >
-        {acc.data.accAssets.length === 0 && (
+        {acc.data?.accAssets.length === 0 && (
           <p className="w-full text-center">You have no asset</p>
         )}
-        {acc.data.dbAssets.map((asset, i) => {
+        {acc.data?.dbAssets.map((asset, i) => {
           return (
             <div
               key={i}
               onClick={() => {
-                setCurrentTrack(null)
+                setCurrentTrack(null);
                 onOpen("my asset info modal", {
                   MyAsset: asset,
                 });
               }}
+              className="cursor-pointer"
             >
-              <button className="btn relative h-fit w-full overflow-hidden  py-4 ">
-                {/* <p>{acc.data.accAssets[i]?.copies}</p> */}
-                <AssetView code={asset.name} thumbnail={asset.thumbnail} />
-              </button>
+              <AssetView
+                code={asset.name}
+                thumbnail={asset.thumbnail}
+                isNFT={true}
+              />
             </div>
           );
         })}
@@ -83,39 +91,89 @@ function MyAssets() {
 
   const { onOpen } = useModal();
   const { setCurrentTrack } = usePlayer();
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetching,
+    isFetchingNextPage,
+    status,
+  } = api.maps.pin.getMyCollectedPins.useInfiniteQuery(
+    {
+      limit: 10,
+    },
+    {
+      getNextPageParam: (lastPage) => lastPage.nextCursor,
+    },
+  );
 
-  if (acc.isLoading) return <MoreAssetsSkeleton className="flex gap-2" />;
-  if (acc.data)
+  if (acc.isLoading || status === "loading")
+    return <MoreAssetsSkeleton className="flex gap-2" />;
+  if (acc.data ?? data) {
     return (
-      <div
-        style={{
-          scrollbarGutter: "stable",
-        }}
-        className="grid grid-cols-2 gap-2  md:grid-cols-4 xl:grid-cols-6 "
-      >
-        {acc.data.accAssets.length === 0 && (
-          <p className="w-full text-center">You have no asset</p>
+      <>
+        <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
+          <>
+            {acc.data?.dbAssets.map((asset, i) => (
+              <div
+                key={i}
+                onClick={() => {
+                  setCurrentTrack(null);
+                  onOpen("my asset info modal", {
+                    MyAsset: asset,
+                  });
+                }}
+                className="cursor-pointer"
+              >
+                <AssetView
+                  code={asset.name}
+                  thumbnail={asset.thumbnail}
+                  isNFT={true}
+                />
+              </div>
+            ))}
+          </>
+          <>
+            {data?.pages.map((pin, i) => (
+              <React.Fragment key={i}>
+                {pin.items.map((item, j) => (
+                  <div
+                    key={j}
+                    onClick={() => {
+                      setCurrentTrack(null);
+                      onOpen("pin info modal", {
+                        collectedPinInfo: item,
+                      });
+                    }}
+                    className="cursor-pointer"
+                  >
+                    <AssetView
+                      code={item.location.locationGroup?.title}
+                      thumbnail={
+                        item.location.locationGroup?.image ??
+                        "https://app.wadzzo.com/images/loading.png"
+                      }
+                      isPinned={true}
+                    />
+                  </div>
+                ))}
+              </React.Fragment>
+            ))}
+          </>
+        </div>
+        {hasNextPage && (
+          <button
+            onClick={() => fetchNextPage()}
+            className="btn btn-outline btn-primary"
+          >
+            {isFetchingNextPage ? "Loading..." : "Load More"}
+          </button>
         )}
-        {acc.data.dbAssets.map((asset, i) => {
-          // if (asset.copies > 0)
-          return (
-            <div
-              key={i}
-              onClick={() => {
-                setCurrentTrack(null)
-                onOpen("my asset info modal", {
-                  MyAsset: asset,
-                });
-              }}
-            >
-              <button className="btn relative h-fit w-full overflow-hidden  py-4 ">
-                <AssetView code={asset.name} thumbnail={asset.thumbnail} />
-              </button>
-            </div>
-          );
-        })}
-      </div>
+      </>
     );
+  }
+
+  return null;
 }
 
 function AssetTabs() {

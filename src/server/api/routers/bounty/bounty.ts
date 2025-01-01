@@ -106,7 +106,7 @@ export const BountyRoute = createTRPCRouter({
       }),
     )
     .mutation(async ({ input, ctx }) => {
-      console.log("data......................", input.medias);
+
       const bounty = await ctx.db.bounty.create({
         data: {
           title: input.title,
@@ -488,7 +488,7 @@ export const BountyRoute = createTRPCRouter({
       }),
     )
     .mutation(async ({ input, ctx }) => {
-      console.log("input", input.content);
+
       const bounty = await ctx.db.bounty.findUnique({
         where: {
           id: input.BountyId,
@@ -544,7 +544,7 @@ export const BountyRoute = createTRPCRouter({
           id: input.submissionId,
         },
       });
-      console.log(input.medias);
+
       if (!bounty) {
         throw new Error("Bounty not found");
       }
@@ -821,7 +821,7 @@ export const BountyRoute = createTRPCRouter({
         },
       });
       const isOwner = input.creatorId === ctx.session.user.id;
-      console.log("isOwner", isOwner);
+
       if (!isOwner && !isUserIsAdmin) {
         throw new Error(
           "You do not have permission to update this submission status",
@@ -895,7 +895,7 @@ export const BountyRoute = createTRPCRouter({
       }),
     )
     .mutation(async ({ input, ctx }) => {
-      console.log("data", input);
+
       const bounty = await ctx.db.bounty.findUnique({
         where: {
           id: input.BountyId,
@@ -1140,7 +1140,7 @@ export const BountyRoute = createTRPCRouter({
         }),
       );
 
-      console.log("detailedSubmissions", detailedSubmissions);
+
       return detailedSubmissions;
     }),
   swapAssetToUSDC: protectedProcedure
@@ -1182,7 +1182,7 @@ export const BountyRoute = createTRPCRouter({
         secretKey: secretKey,
         signWith: input.signWith,
       });
-      console.log("res", res);
+
       if (res.xdr) {
         await ctx.db.bounty.update({
           where: {
@@ -1451,7 +1451,7 @@ export const BountyRoute = createTRPCRouter({
         orderBy: { updatedAt: "desc" },
         distinct: ["userId"],
       });
-      console.log("doubts", doubts);
+
       const users = doubts.map((doubt) => doubt.user.id);
 
       const winnerCounts = await ctx.db.bountyWinner.groupBy({
@@ -1511,7 +1511,7 @@ export const BountyRoute = createTRPCRouter({
       });
 
       // Debugging purposes: check the retrieved bounty doubts
-      console.log("bountyDoubts", bountyDoubts);
+
 
       // Map messages to extract content and role
       const messages = bountyDoubts.flatMap((doubt) =>
@@ -1560,7 +1560,7 @@ export const BountyRoute = createTRPCRouter({
       });
 
       // Debugging purposes: check the retrieved bounty doubts
-      console.log("bountyDoubts", bountyDoubts);
+
 
       // Map messages to extract content and role
       const messages = bountyDoubts.flatMap((doubt) =>

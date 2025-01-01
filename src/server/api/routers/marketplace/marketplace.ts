@@ -1,4 +1,3 @@
-import { where } from "firebase/firestore";
 import { Keypair } from "@stellar/stellar-sdk";
 import { z } from "zod";
 import { PlaceMarketFormSchema } from "~/components/marketplace/modal/place_2storage_modal";
@@ -11,13 +10,12 @@ import {
 } from "~/lib/stellar/marketplace/trx/nft_2_storage";
 import { SignUser } from "~/lib/stellar/utils";
 
+import { ItemPrivacy } from "@prisma/client";
 import {
   adminProcedure,
   createTRPCRouter,
   protectedProcedure,
 } from "~/server/api/trpc";
-import { getAssetBalance } from "~/lib/stellar/marketplace/test/acc";
-import { ItemPrivacy } from "@prisma/client";
 
 export const AssetSelectAllProperty = {
   code: true,
@@ -200,26 +198,28 @@ export const marketRouter = createTRPCRouter({
     .query(async ({ ctx, input }) => {
       const { limit, cursor, skip } = input;
 
-      const items = await ctx.db.creatorPageAsset.findMany({
-        include: {
-          creator: {
-            select: {
-              name: true,
-              profileUrl: true,
-            },
-          },
+      const items = await ctx.db.creator.findMany({
+        select: {
+          id: true,
+          name: true,
+          profileUrl: true,
+          pageAsset: true,
         },
         take: limit + 1,
         skip: skip,
-        cursor: cursor ? { creatorId: cursor } : undefined,
+        cursor: cursor ? { id: cursor } : undefined,
+        orderBy: {
+          pageAsset: {
+            creatorId: "asc"
+          }
+        },
       });
 
       let nextCursor: typeof cursor | undefined = undefined;
       if (items.length > limit) {
         const nextItem = items.pop(); // return the last item from the array
-        nextCursor = nextItem?.creatorId;
+        nextCursor = nextItem?.id;
       }
-
       return {
         nfts: items,
         nextCursor,
@@ -406,12 +406,34 @@ export const marketRouter = createTRPCRouter({
     }),
 
   deleteMarketAsset: adminProcedure
-    .input(z.number())
+    .input(
+      z.object({
+        assetId: z.number().optional(),
+        marketId: z.number().optional(),
+      }),
+    )
     .mutation(async ({ ctx, input }) => {
-      await ctx.db.marketAsset.delete({
-        where: { id: input },
-        include: { asset: true },
-      });
+      const { assetId, marketId } = input;
+
+      if (assetId) {
+        await ctx.db.asset.delete({
+          where: {
+            id: assetId,
+          },
+        });
+      } else if (marketId) {
+        const marketAsset = await ctx.db.marketAsset.findUniqueOrThrow({
+          where: {
+            id: marketId,
+          },
+        });
+
+        await ctx.db.asset.delete({
+          where: {
+            id: marketAsset.assetId,
+          },
+        });
+      }
     }),
 
   userCanBuyThisMarketAsset: protectedProcedure

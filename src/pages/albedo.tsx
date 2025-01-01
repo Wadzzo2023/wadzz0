@@ -76,7 +76,7 @@ const AlbedoPage = () => {
   const handleAlbedoButtonClick = (token: string) => {
     // @ts-ignore:
     albedo.publicKey({ token: token }).then((res) => {
-      console.log(res);
+
       // @ts-ignore:
       window.ReactNativeWebView?.postMessage(
         JSON.stringify({
@@ -95,13 +95,7 @@ const AlbedoPage = () => {
       })
       // @ts-ignore:
       .then((res) => {
-        console.log(
-          res.xdr,
-          res.tx_hash,
-          res.signed_envelope_xdr,
-          res.network,
-          res.result,
-        );
+
         // @ts-ignore:
         window.ReactNativeWebView?.postMessage(
           JSON.stringify({

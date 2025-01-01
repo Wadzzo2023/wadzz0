@@ -474,7 +474,6 @@ export default function CreatePinModal() {
                       }}
                     />
 
-
                     {/* {uploading && <progress className="progress w-56"></progress>} */}
                     {coverUrl && (
                       <>

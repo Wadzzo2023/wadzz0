@@ -50,7 +50,6 @@ export const PlaceAutocompleteClassic = ({
         const latLng = { lat, lng };
         setSelectedPlace(latLng);
         setSearchCoordinates(latLng);
-        console.log("Place selected:", latLng);
         onCenterChange(latLng); // Center map on selected place
       }
     });
@@ -65,7 +64,6 @@ export const PlaceAutocompleteClassic = ({
 
       if (!isNaN(lat) && !isNaN(lng)) {
         const latLng: google.maps.LatLngLiteral = { lat, lng };
-        console.log("Coordinates entered:", latLng);
         onCenterChange(latLng);
         setSelectedPlace(latLng);
         setIsCordsSearch(true);

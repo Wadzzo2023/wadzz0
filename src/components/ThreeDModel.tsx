@@ -23,12 +23,12 @@ const Model = ({ url, setLoadingProgress }: { url: string; setLoadingProgress: (
                 object.position.set(0, 0, 0);
                 setModel(object);
                 setLoadingProgress(100);
-                console.log("Object loaded", object);
+                //console.log("Object loaded", object);
             },
             (xhr) => {
                 const progress = (xhr.loaded / xhr.total) * 100;
                 setLoadingProgress(progress);
-                console.log(progress + "% loaded");
+                //console.log(progress + "% loaded");
             },
             (error) => {
                 console.error("An error happened", error);
@@ -39,7 +39,7 @@ const Model = ({ url, setLoadingProgress }: { url: string; setLoadingProgress: (
 
     if (!model) return null;
 
-    console.log("Model", model);
+    //console.log("Model", model);
 
     return <primitive object={model} />;
 };

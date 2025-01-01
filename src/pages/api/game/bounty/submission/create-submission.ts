@@ -20,7 +20,7 @@ export default async function handler(
 
     const session = await getToken({ req });
 
-    console.log(session);
+    //console.log(session);
     if (!session) {
         res.status(401).json({
             error: "User is not authenticated",
@@ -41,8 +41,8 @@ export default async function handler(
         });
         return;
     }
-    console.log("boyd", req.body);
-    console.log("data", data.data);
+    //console.log("boyd", req.body);
+    //console.log("data", data.data);
 
     const userId = session.sub;
     const input = data.data;
@@ -53,7 +53,7 @@ export default async function handler(
         });
     }
 
-    console.log("input", input.content);
+    //console.log("input", input.content);
     const bounty = await db.bounty.findUnique({
         where: {
             id: input.bountyId,
