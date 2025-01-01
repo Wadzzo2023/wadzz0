@@ -204,6 +204,7 @@ model Creator {
     LocationGroup      LocationGroup[]
     Bounty             Bounty[]
     vanitySubscription VanitySubscription?
+    Album              Album[]
 
     @@index([bio, name])
 }
@@ -313,13 +314,14 @@ model VerificationToken {
 // ------------------------MUSIC SCHEMA-------------------------
 
 model Album {
-    id          Int    @id @default(autoincrement())
+    id          Int      @id @default(autoincrement())
     name        String
     description String
     coverImgUrl String
-
-    createdAt DateTime @default(now())
-    songs     Song[]
+    creatorId   String?
+    creator     Creator? @relation(fields: [creatorId], references: [id], onDelete: SetNull)
+    createdAt   DateTime @default(now())
+    songs       Song[]
 }
 
 model Song {

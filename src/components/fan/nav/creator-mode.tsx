@@ -6,7 +6,7 @@ export const CreatorNavigation = {
   Page: { path: "/fans/creator", icon: PenSquare, text: "PAGE" },
   Create: { path: "/fans/creator/posts", icon: PenSquare, text: "POST" },
   Store: { path: "/fans/creator/store", icon: Store, text: "STORE" },
-
+  Music: { path: "/fans/creator/music", icon: Bell, text: "MUSIC" },
   Settings: {
     path: "/fans/creator/settings",
     icon: Settings2,

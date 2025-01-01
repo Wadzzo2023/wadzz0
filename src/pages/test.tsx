@@ -7,6 +7,8 @@ import axios, { AxiosError } from "axios";
 import { EndPointType } from "~/server/s3";
 import { Progress } from "~/components/shadcn/ui/progress";
 import { allowedSubmissionTypes } from "~/components/modals/file-upload-modal";
+import { Button } from "~/components/shadcn/ui/button";
+import { Loader2, Upload } from "lucide-react";
 
 export default function TestPage() {
   return (
@@ -127,23 +129,35 @@ export function UploadS3Button({
   };
 
   return (
-    <div className="grid w-full  items-center gap-1.5">
-      {loading && <div>Uploading...</div>}
-      <Input
-        onChange={handleFileChange}
-        id="picture"
-        disabled={disabled}
+    <div className="grid w-full max-w-sm items-center gap-2">
+      <Button
+        variant="default"
+        type="button"
+        className="w-full bg-blue-600 hover:bg-blue-700"
+        disabled={disabled || loading}
+        onClick={() => document.getElementById('file-upload')?.click()}
+      >
+        {loading ? (
+          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+        ) : (
+          <Upload className="mr-2 h-4 w-4" />
+        )}
+        {loading ? 'Uploading...' : 'Add Media'}
+      </Button>
+      <input
+        id="file-upload"
         type="file"
-        className="bg-slate-200"
         accept={getAcceptString(endpoint)}
+        disabled={disabled || loading}
+        className="hidden"
+        onChange={handleFileChange}
       />
-
-      <Progress
-        className="w-full"
-        value={progress}
-
-        style={{ height: "0.5rem" }}
-      />
+      {loading && (
+        <Progress
+          value={progress}
+          className="h-1 w-full"
+        />
+      )}
     </div>
   );
 
