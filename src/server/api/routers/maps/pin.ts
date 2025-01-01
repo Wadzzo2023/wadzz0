@@ -818,4 +818,45 @@ export const pinRouter = createTRPCRouter({
         item: items.id,
       };
     }),
+
+  getMyCollectedPins: protectedProcedure
+    .input(
+      z.object({
+        limit: z.number().min(1).max(100).nullish(),
+        cursor: z.string().nullish(),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      const limit = input.limit ?? 20;
+      const cursor = input.cursor;
+
+      const userId = ctx.session.user.id;
+      const consumedLocations = await ctx.db.locationConsumer.findMany({
+        where: {
+          userId,
+          hidden: false,
+        },
+        include: { location: { include: { locationGroup: true } } },
+        orderBy: { createdAt: "desc" },
+        take: limit + 1,
+        ...(cursor
+          ? {
+              cursor: {
+                id: cursor,
+              },
+            }
+          : {}),
+      });
+
+      let nextCursor: typeof cursor | undefined = undefined;
+      if (consumedLocations.length > limit) {
+        const nextItem = consumedLocations.pop();
+        nextCursor = nextItem!.id;
+      }
+
+      return {
+        items: consumedLocations,
+        nextCursor,
+      };
+    }),
 });

@@ -1,12 +1,9 @@
 import { Creator } from "@prisma/client";
+import AssetView from "~/components/marketplace/asset/asset_view";
 import NftCreate from "~/components/marketplace/nft_create";
 import { MoreAssetsSkeleton } from "~/components/marketplace/platforms_nfts";
-import { api } from "~/utils/api";
-import ViewMediaModal from "../shop/asset_view_modal";
-import ShopAssetComponent from "../shop/shop_asset";
-import AssetView from "~/components/marketplace/asset/asset_view";
 import { useModal } from "~/lib/state/play/use-modal-store";
-import RedeeemPage from "~/components/redeem/creator-redeem";
+import { api } from "~/utils/api";
 
 export default function Shop({ creator }: { creator?: Creator }) {
   return (
@@ -46,16 +43,22 @@ function AllShopItems() {
           style={{
             scrollbarGutter: "stable",
           }}
-          className="grid grid-cols-2 gap-2 md:grid-cols-4 lg:grid-cols-5"
+          className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6"
+          // className="grid grid-cols-2 gap-2 md:grid-cols-4 lg:grid-cols-5"
         >
           {assets.data.pages.map((page) =>
             page.nfts.map((item, i) => (
-              <button
+              <div
                 key={i}
-                onClick={() => onOpen("creator asset info", { creatorStoreAsset: item })} // Pass the closeModal function
-                className="btn relative h-fit w-full overflow-hidden  py-4 ">
-                <AssetView code={item.asset.name} thumbnail={item.asset.thumbnail} />
-              </button>
+                onClick={() =>
+                  onOpen("creator asset info", { creatorStoreAsset: item })
+                } // Pass the closeModal function
+              >
+                <AssetView
+                  code={item.asset.name}
+                  thumbnail={item.asset.thumbnail}
+                />
+              </div>
             )),
           )}
         </div>
