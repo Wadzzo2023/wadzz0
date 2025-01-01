@@ -1,7 +1,6 @@
+'use client'
 import { CreatorPageAsset } from "@prisma/client";
 import { useRouter } from "next/router";
-import { usePopUpState } from "~/lib/state/right-pop";
-import { usePageAssetRightStore } from "~/lib/state/wallete/page_asset_right";
 import { useTagStore } from "~/lib/state/wallete/tag";
 import { AssetVariant } from "../right-sidebar";
 import AssetView from "./asset/asset_view";
