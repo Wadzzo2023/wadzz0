@@ -3,7 +3,7 @@ export async function fetchPubkeyfromEmail(email: string): Promise<string> {
     `https://accounts.action-tokens.com/api/pub?email=${email}`,
   );
   if (response.ok) {
-    console.log(response);
+
     const data = (await response.json()) as { publicKey: string };
     return data.publicKey;
   } else {

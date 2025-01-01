@@ -40,7 +40,6 @@ export default function SongBuyModal() {
   const router = useRouter();
   const isCollectionRoute = router.pathname.startsWith("/assets");
 
-  console.log("isOpen", isOpen);
   const isModalOpen = isOpen && type === "song buy modal";
   const handleClose = () => {
     setStep(1);
@@ -49,9 +48,13 @@ export default function SongBuyModal() {
 
   const copy = api.marketplace.market.getMarketAssetAvailableCopy.useQuery({
     id: data.Song?.asset?.id,
-  });
 
-  console.log("data", copy);
+  },
+    {
+      enabled: !!data.Song?.asset
+    }
+  );
+
 
   const handleNext = () => {
     setStep((prev) => prev + 1);
@@ -64,6 +67,9 @@ export default function SongBuyModal() {
   const { data: canBuyUser } =
     api.marketplace.market.userCanBuyThisMarketAsset.useQuery(
       data.Song?.asset?.id ?? 0,
+      {
+        enabled: !!data.Song?.asset
+      }
     );
 
   if (!data.Song || !data.Song.asset)
@@ -168,8 +174,8 @@ export default function SongBuyModal() {
                 </CardContent>
                 <CardFooter className="flex flex-col gap-1 p-2">
                   {session.status === "authenticated" &&
-                  data.Song.asset.creatorId === session.data.user.id &&
-                  isCollectionRoute ? (
+                    data.Song.asset.creatorId === session.data.user.id &&
+                    isCollectionRoute ? (
                     <>
                       <DisableFromMarketButton
                         code={data.Song.asset.code}

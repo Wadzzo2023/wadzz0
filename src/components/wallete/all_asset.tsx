@@ -54,7 +54,6 @@ export default function AllAsset() {
   // if (assets.isError)
   //   return <MyError text="Error catch. Please reload this page." />;
 
-  console.log(assets.data, musicAssets.data, adminAssets.data, fanAssets.data);
 
   if (assets.data ?? musicAssets.data ?? adminAssets.data ?? fanAssets.data)
     return (

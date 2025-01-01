@@ -70,7 +70,6 @@ export default function PlaceNFT2Storage({
           if (res) toast.success("NFT has been placed to storage");
         })
         .catch((e) => {
-          console.log(e);
           toast.error("Error signing transaction");
         })
         .finally(() => toast.dismiss(tostId));

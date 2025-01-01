@@ -108,7 +108,7 @@ export function VanityURLManager({ creator }: { creator: CreatorWithSubscription
         { vanityURL: watch('vanityURL') },
         {
             onSuccess: (data) => {
-                console.log("data", data)
+                //console.log("data", data)
                 setIsAvailable(data.isAvailable);
             },
         }

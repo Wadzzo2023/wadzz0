@@ -16,7 +16,7 @@ export default function TestPage() {
       <UploadS3Button endpoint="blobUploader" />
       <MultiUploadS3Button
         onClientUploadComplete={(files) => {
-          console.log(files, "xlckjlsdkfjsdlkf sdlkjkjl");
+
         }}
       />
     </div>
@@ -121,8 +121,7 @@ export function UploadS3Button({
         endPoint: endpoint,
         fileName: targetFile.name,
       });
-      console.log("Selected file: ", targetFile);
-      console.log(`Selected file: ${targetFile.name}`);
+
     } else {
       console.error("No file selected");
     }
@@ -224,12 +223,12 @@ export function MultiUploadS3Button({
       const finished: { url: string; name: string, size: number, type: string }[] = [];
       if (!files) return;
 
-      console.log("xxx", files, urls);
+
       for (const file of files) {
         const data = urls.find((url) => url.fileName === file.name);
         if (!data) continue;
 
-        console.log("xxx: Uploading file", file, data);
+
 
         try {
           const res = await axios.put(data.uploadUrl, file, {
@@ -268,7 +267,7 @@ export function MultiUploadS3Button({
         }
       }
 
-      console.log(finished);
+
       onClientUploadComplete?.(finished);
       setLoading(false);
     },
@@ -285,7 +284,7 @@ export function MultiUploadS3Button({
 
     if (fileInputs) {
       let targetFiles = Array.from(fileInputs);
-      console.log("xxx", targetFiles);
+
       if (onBeforeUploadBegin) {
         const processedFile = await onBeforeUploadBegin(targetFiles);
         if (!processedFile) {
@@ -306,7 +305,6 @@ export function MultiUploadS3Button({
         }),
       );
 
-      console.log("filesMeta xxx.........", filesMeta);
 
       setFiles(fileInputs);
 

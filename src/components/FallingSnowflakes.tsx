@@ -14,7 +14,6 @@ interface SnowflakeData {
 export default function FallingSnowflakes() {
     const [snowflakes, setSnowflakes] = useState<SnowflakeData[]>([])
     const { isPlaying } = useBackgroundMusic()
-    console.log("isPlaying in FallingSnowflakes", isPlaying)
     useEffect(() => {
         if (!isPlaying) {
             setSnowflakes([])

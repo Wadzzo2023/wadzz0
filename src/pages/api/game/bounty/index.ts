@@ -17,7 +17,7 @@ export default async function handler(
   }
 
   const currentUserId = token.sub;
-  console.log(currentUserId);
+
   const allBounty = await db.bounty.findMany({
     select: {
       id: true,
@@ -55,13 +55,13 @@ export default async function handler(
     },
   });
 
-  console.log(allBounty);
+
   const bountiesWithJoinStatus = allBounty.map((bounty) => ({
     ...bounty,
     isJoined: bounty.participants.length > 0,
     isOwner: bounty.creatorId === currentUserId,
   }));
-  console.log(bountiesWithJoinStatus);
+
 
   res.status(200).json({ allBounty: bountiesWithJoinStatus });
 }

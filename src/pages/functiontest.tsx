@@ -22,10 +22,10 @@ const Model: React.FC = () => {
         object.scale.set(0.1, 0.1, 0.1); // Adjust the scale as needed (0.5 = 50% of the original size)
         object.position.set(-2.5, -2, 0.0); // Adjust the scale as needed (0.5 = 50% of the original size)
         setModel(object);
-        console.log("Object loaded", object);
+
       },
       (xhr) => {
-        console.log((xhr.loaded / xhr.total) * 100 + "% loaded");
+
       },
       (error) => {
         console.error("An error happened", error);
@@ -35,7 +35,6 @@ const Model: React.FC = () => {
 
   if (!model) return null; // Optionally return a loading state
 
-  console.log("Model", model);
 
   return <primitive object={model} />;
 };

@@ -31,7 +31,7 @@ export default function BuyWithSquire({
               }
             })
             .catch((e) => {
-              console.log(e);
+
               toast.error("Payment failed");
             })
             .finally(() => {
@@ -44,7 +44,7 @@ export default function BuyWithSquire({
     },
     onError: (e) => {
       toast.error("Something went wrong. Please try again.");
-      console.log(e.message);
+
     },
   });
 
