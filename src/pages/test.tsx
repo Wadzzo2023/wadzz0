@@ -134,7 +134,7 @@ export function UploadS3Button({
         variant="default"
         type="button"
         className="w-full bg-blue-600 hover:bg-blue-700"
-        disabled={disabled || loading}
+        disabled={disabled ?? loading}
         onClick={() => document.getElementById('file-upload')?.click()}
       >
         {loading ? (
@@ -148,7 +148,7 @@ export function UploadS3Button({
         id="file-upload"
         type="file"
         accept={getAcceptString(endpoint)}
-        disabled={disabled || loading}
+        disabled={disabled ?? loading}
         className="hidden"
         onChange={handleFileChange}
       />
