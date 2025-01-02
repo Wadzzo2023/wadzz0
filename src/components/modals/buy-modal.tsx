@@ -215,7 +215,7 @@ export default function BuyModal() {
                     )
                   )}
 
-                  <DeleteAssetByAdmin id={data.Asset.id}
+                  <DeleteAssetByAdmin marketId={data.Asset.id}
                     handleClose={handleClose}
                   />
                   <p className="text-xs text-gray-400">

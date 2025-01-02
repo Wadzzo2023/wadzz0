@@ -27,8 +27,12 @@ import { useRouter } from "next/router";
 import { Card, CardContent, CardFooter } from "~/components/shadcn/ui/card";
 import { useModal } from "~/lib/state/play/use-modal-store";
 import BuyItem from "../BuyItem";
-import { DisableFromMarketButton, OtherButtons } from "./modal-action-button";
-import toast from "react-hot-toast";
+import {
+  DeleteAssetByAdmin,
+  DisableFromMarketButton,
+  OtherButtons,
+  SparkleEffect,
+} from "./modal-action-button";
 
 export const PaymentMethodEnum = z.enum(["asset", "xlm", "card"]);
 export type PaymentMethod = z.infer<typeof PaymentMethodEnum>;
@@ -197,7 +201,7 @@ export default function SongBuyModal() {
                     )
                   )}
 
-                  <DeleteAssetByAdmin id={data.Song.id}
+                  <DeleteAssetByAdmin assetId={data.Song.assetId}
                     handleClose={handleClose} />
 
                   <p className="text-xs text-gray-400">
@@ -283,96 +287,4 @@ export default function SongBuyModal() {
       </Dialog>
     </>
   );
-}
-
-function SparkleEffect() {
-  return (
-    <motion.div
-      className="absolute inset-0"
-      initial="initial"
-      animate="animate"
-    >
-      {[...Array({ length: 20 })].map((_, i) => (
-        <motion.div
-          key={i}
-          className="absolute h-2 w-2 rounded-full bg-yellow-300"
-          initial={{
-            opacity: 0,
-            scale: 0,
-            x: Math.random() * 400 - 200,
-            y: Math.random() * 400 - 200,
-          }}
-          animate={{
-            opacity: [0, 1, 0],
-            scale: [0, 1, 0],
-            x: Math.random() * 400 - 200,
-            y: Math.random() * 400 - 200,
-          }}
-          transition={{
-            duration: 2,
-            repeat: Infinity,
-            delay: Math.random() * 2,
-            ease: "easeInOut",
-          }}
-        />
-      ))}
-    </motion.div>
-  );
-}
-function DeleteAssetByAdmin({ id, handleClose }: { id: number, handleClose: () => void }) {
-  const [isOpen, setIsOpen] = useState(false);
-  const admin = api.wallate.admin.checkAdmin.useQuery();
-  const del = api.marketplace.market.deleteMarketAsset.useMutation({
-    onSuccess: () => {
-      toast.success("Asset deleted successfully");
-      setIsOpen(false);
-      handleClose();
-    },
-  });
-
-  if (admin.data)
-    return (
-      <>
-        <Dialog open={isOpen} onOpenChange={setIsOpen}>
-          <DialogTrigger asChild>
-            <Button variant={"destructive"} className="w-full ">
-              {del.isLoading && <span className="loading loading-spinner" />}
-              Delete (Admin)
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-[425px]">
-            <DialogHeader>
-              <DialogTitle>Confirmation </DialogTitle>
-            </DialogHeader>
-            <div>
-              <p>
-                Are you sure you want to delete this item? This action is
-                irreversible.
-              </p>
-            </div>
-            <DialogFooter className=" w-full">
-              <div className="flex w-full gap-4  ">
-                <DialogClose className="w-full">
-                  <Button variant="outline" className="w-full">
-                    Cancel
-                  </Button>
-                </DialogClose>
-                <Button
-                  variant="destructive"
-                  type="submit"
-                  onClick={() => del.mutate(id)}
-                  disabled={del.isLoading}
-                  className="w-full"
-                >
-                  {del.isLoading && (
-                    <span className="loading loading-spinner" />
-                  )}
-                  Confirm
-                </Button>
-              </div>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-      </>
-    );
 }

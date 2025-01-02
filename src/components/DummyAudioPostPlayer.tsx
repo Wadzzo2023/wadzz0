@@ -15,7 +15,7 @@ const formatTime = (time: number) => {
     return `${minutes}:${seconds.toString().padStart(2, "0")}`;
 };
 
-export default function DummyAudioPostPlayer({ audioId, name, artist, mediaUrl, creatorProfileUrl }: { audioId: number, name: string, artist: string, mediaUrl: string, creatorProfileUrl?: string }) {
+export default function DummyAudioPostPlayer({ audioId, name, artist, mediaUrl, creatorProfileUrl }: { audioId: number, name: string, artist: string, mediaUrl: string, creatorProfileUrl: string | null }) {
     const {
         isPlayerOpen,
         currentTrack,

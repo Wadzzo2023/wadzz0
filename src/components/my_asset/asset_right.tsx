@@ -6,7 +6,7 @@ import {
   AssetMenu,
   useAssetMenu,
 } from "~/lib/state/marketplace/asset-tab-menu";
-import PlaceNFT2Storage from "../marketplace/modal/place_2storage_modal";
+import StorageCreateDialog from "../marketplace/modal/place_2storage_modal";
 import { MarketButtons } from "../modals/modal-action-button";
 import {
   AudioViewer,
@@ -82,11 +82,12 @@ function OtherButtons() {
 
   if (currentData) {
     if (selectedMenu == AssetMenu.OWN) {
-      return <PlaceNFT2Storage item={{ ...currentData }} />;
+      return <StorageCreateDialog item={{ ...currentData }} />;
     }
     if (selectedMenu == AssetMenu.STORAGE) {
       return (
         <MarketButtons
+          name={currentData.name}
           copy={currentData.copies}
           code={currentData.code}
           issuer={currentData.issuer}
