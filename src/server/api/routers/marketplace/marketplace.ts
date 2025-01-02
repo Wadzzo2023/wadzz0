@@ -406,34 +406,12 @@ export const marketRouter = createTRPCRouter({
     }),
 
   deleteMarketAsset: adminProcedure
-    .input(
-      z.object({
-        assetId: z.number().optional(),
-        marketId: z.number().optional(),
-      }),
-    )
+    .input(z.number())
     .mutation(async ({ ctx, input }) => {
-      const { assetId, marketId } = input;
-
-      if (assetId) {
-        await ctx.db.asset.delete({
-          where: {
-            id: assetId,
-          },
-        });
-      } else if (marketId) {
-        const marketAsset = await ctx.db.marketAsset.findUniqueOrThrow({
-          where: {
-            id: marketId,
-          },
-        });
-
-        await ctx.db.asset.delete({
-          where: {
-            id: marketAsset.assetId,
-          },
-        });
-      }
+      await ctx.db.marketAsset.delete({
+        where: { id: input },
+        include: { asset: true },
+      });
     }),
 
   userCanBuyThisMarketAsset: protectedProcedure
