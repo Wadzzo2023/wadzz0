@@ -103,7 +103,7 @@ const BountyRightBar = () => {
                   <Badge
                     variant={currentData._count.BountyWinner === 0 ? "destructive" : "default"}
                   >
-                    {currentData.totalWinner === currentData._count.BountyWinner ? "Finished" : (currentData.totalWinner - currentData._count.BountyWinner) + " Winner Left"}
+                    {currentData.totalWinner <= currentData._count.BountyWinner ? "Finished" : (currentData.totalWinner - currentData._count.BountyWinner) + " Winner Left"}
                   </Badge>
                 </p>
               </div>
@@ -127,7 +127,7 @@ const BountyRightBar = () => {
                 <Button className="w-full" disabled variant={"destructive"}>
                   Required {currentData.requiredBalance} {PLATFORM_ASSET.code}
                 </Button>
-              ) : currentData.totalWinner === currentData._count.BountyWinner ? (
+              ) : currentData.totalWinner <= currentData._count.BountyWinner ? (
                 <Button className="w-full" disabled variant={"destructive"}>
                   Bounty Finished
                 </Button>

@@ -113,6 +113,7 @@
     "react-daisyui": "^5.0.0",
     "react-dom": "18.2.0",
     "react-draggable": "^4.4.6",
+    "react-dropzone": "^14.3.5",
     "react-h5-audio-player": "^3.9.3",
     "react-hook-form": "^7.52.1",
     "react-hot-toast": "^2.4.1",

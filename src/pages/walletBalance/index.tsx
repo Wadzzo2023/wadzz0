@@ -201,9 +201,10 @@ const Wallets = () => {
                           <br />
                           <button
                             onClick={handleSubmit}
+                            disabled={AddTrustMutation.isLoading}
                             className="text-sm underline"
                           >
-                            CLICK HERE TO TRUST
+                            {AddTrustMutation.isLoading ? "Adding Trustline" : "Add Trustline"}
                           </button>
                         </h1>
                       </>
