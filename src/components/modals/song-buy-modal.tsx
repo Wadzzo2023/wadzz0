@@ -22,11 +22,8 @@ import { useRouter } from "next/router";
 import { Card, CardContent, CardFooter } from "~/components/shadcn/ui/card";
 import { useModal } from "~/lib/state/play/use-modal-store";
 import BuyItem from "../BuyItem";
-import {
-  DeleteAssetByAdmin,
-  DisableFromMarketButton,
-  SparkleEffect,
-} from "./modal-action-button";
+import { DeleteAssetByAdmin, DisableFromMarketButton, OtherButtons, SparkleEffect } from "./modal-action-button";
+import toast from "react-hot-toast";
 
 export const PaymentMethodEnum = z.enum(["asset", "xlm", "card"]);
 export type PaymentMethod = z.infer<typeof PaymentMethodEnum>;
@@ -172,8 +169,8 @@ export default function SongBuyModal() {
                 </CardContent>
                 <CardFooter className="flex flex-col gap-1 p-2">
                   {session.status === "authenticated" &&
-                  data.Song.asset.creatorId === session.data.user.id &&
-                  isCollectionRoute ? (
+                    data.Song.asset.creatorId === session.data.user.id &&
+                    isCollectionRoute ? (
                     <>
                       <DisableFromMarketButton
                         code={data.Song.asset.code}
@@ -194,39 +191,30 @@ export default function SongBuyModal() {
                     )
                   )}
 
-                  <DeleteAssetByAdmin assetId={data.Song.assetId} />
+                  <DeleteAssetByAdmin id={data.Song.id}
+                    handleClose={handleClose} />
+
                   <p className="text-xs text-gray-400">
                     Once purchased, this item will be placed on collection.
                   </p>
-                </CardFooter>
-              </Card>
+                </CardFooter >
+              </Card >
 
               {/* Right Column - Bundle Info */}
-              <div className=" hidden rounded-sm bg-gray-300   p-1  md:col-span-4 md:grid ">
-                {data.Song.asset.mediaType === "IMAGE" ? (
-                  <Image
-                    src={data.Song.asset.mediaUrl}
-                    alt={data.Song.asset.name}
-                    width={1000}
-                    height={1000}
-                    className={clsx(
-                      "h-full w-full object-cover ",
-                      data.Song.asset.tierId ? " blur-md" : "",
-                    )}
-                  />
-                ) : data.Song.asset.mediaType === "VIDEO" ? (
-                  <Image
-                    src={data.Song.asset.thumbnail}
-                    alt={data.Song.asset.name}
-                    width={1000}
-                    height={1000}
-                    className={clsx(
-                      "h-full w-full object-cover ",
-                      data.Song.asset.tierId ? " blur-md" : "",
-                    )}
-                  />
-                ) : (
-                  data.Song.asset.mediaType === "MUSIC" && (
+              < div className=" hidden rounded-sm bg-gray-300   p-1  md:col-span-4 md:grid " >
+                {
+                  data.Song.asset.mediaType === "IMAGE" ? (
+                    <Image
+                      src={data.Song.asset.mediaUrl}
+                      alt={data.Song.asset.name}
+                      width={1000}
+                      height={1000}
+                      className={clsx(
+                        "h-full w-full object-cover ",
+                        data.Song.asset.tierId ? " blur-md" : "",
+                      )}
+                    />
+                  ) : data.Song.asset.mediaType === "VIDEO" ? (
                     <Image
                       src={data.Song.asset.thumbnail}
                       alt={data.Song.asset.name}
@@ -237,31 +225,47 @@ export default function SongBuyModal() {
                         data.Song.asset.tierId ? " blur-md" : "",
                       )}
                     />
+                  ) : (
+                    data.Song.asset.mediaType === "MUSIC" && (
+                      <Image
+                        src={data.Song.asset.thumbnail}
+                        alt={data.Song.asset.name}
+                        width={1000}
+                        height={1000}
+                        className={clsx(
+                          "h-full w-full object-cover ",
+                          data.Song.asset.tierId ? " blur-md" : "",
+                        )}
+                      />
+                    )
                   )
-                )}
-              </div>
-            </div>
-          )}
-          {step === 2 && (
-            <Card>
-              <CardContent className="p-0">
-                <BuyItem
-                  marketItemId={data.Song.asset.id}
-                  priceUSD={data.Song.priceUSD}
-                  item={data.Song.asset}
-                  price={data.Song.price}
-                  setClose={handleClose}
-                />
-              </CardContent>
-              <CardFooter className="p-2">
-                {step === 2 && (
-                  <Button onClick={handleBack} variant="secondary" className="">
-                    <ArrowLeft className="h-4 w-4" /> Back
-                  </Button>
-                )}
-              </CardFooter>
-            </Card>
-          )}
+                }
+              </div >
+            </div >
+          )
+          }
+          {
+            step === 2 && (
+              <Card>
+                <CardContent className="p-0">
+                  <BuyItem
+                    marketItemId={data.Song.asset.id}
+                    priceUSD={data.Song.priceUSD}
+                    item={data.Song.asset}
+                    price={data.Song.price}
+                    setClose={handleClose}
+                  />
+                </CardContent>
+                <CardFooter className="p-2">
+                  {step === 2 && (
+                    <Button onClick={handleBack} variant="secondary" className="">
+                      <ArrowLeft className="h-4 w-4" /> Back
+                    </Button>
+                  )}
+                </CardFooter>
+              </Card>
+            )
+          }
           {/* <DialogFooter>
                             {step > 1 && (
                                 <Button onClick={handleBack} variant="outline">
@@ -274,8 +278,8 @@ export default function SongBuyModal() {
                                 <Button onClick={handleSubmit}>Submit</Button>
                             )}
                         </DialogFooter> */}
-        </DialogContent>
-      </Dialog>
+        </DialogContent >
+      </Dialog >
     </>
   );
 }
