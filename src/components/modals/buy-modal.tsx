@@ -73,6 +73,7 @@ export default function BuyModal() {
       }
     );
 
+  console.log(data.Asset)
   if (!data.Asset || !data.Asset.asset)
     return (
       <Dialog open={isModalOpen} onOpenChange={handleClose}>
@@ -214,7 +215,9 @@ export default function BuyModal() {
                     )
                   )}
 
-                  <DeleteAssetByAdmin marketId={data.Asset.id} />
+                  <DeleteAssetByAdmin marketId={data.Asset.id}
+                    handleClose={handleClose}
+                  />
                   <p className="text-xs text-gray-400">
                     Once purchased, this item will be placed on collection.
                   </p>
@@ -231,7 +234,7 @@ export default function BuyModal() {
                     height={1000}
                     className={clsx(
                       "h-full max-h-[800px] w-full overflow-y-auto object-cover ",
-                      data.Asset.asset.tierId ? " blur-md" : "",
+                      canBuyUser ? " " : "blur-md",
                     )}
                   />
                 ) : data.Asset.asset.mediaType === "VIDEO" ? (
@@ -242,7 +245,7 @@ export default function BuyModal() {
                     height={1000}
                     className={clsx(
                       "h-full max-h-[800px] w-full overflow-y-hidden object-cover ",
-                      data.Asset.asset.tierId ? " blur-md" : "",
+                      canBuyUser ? " " : "blur-md",
                     )}
                   />
                 ) : data.Asset.asset.mediaType === "MUSIC" ? (
@@ -253,7 +256,7 @@ export default function BuyModal() {
                     height={1000}
                     className={clsx(
                       " h-full max-h-[800px] w-full overflow-y-hidden object-cover ",
-                      data.Asset.asset.tierId ? " blur-md" : "",
+                      canBuyUser ? " " : "blur-md",
                     )}
                   />
                 ) : (
@@ -267,14 +270,10 @@ export default function BuyModal() {
                         height: "100%",
                         width: "100%",
                       }}
-                      className={clsx(
-                        "h-full max-h-[800px] w-full overflow-y-hidden object-cover ",
-                        data.Asset.asset.tierId ? " blur-md" : "",
-                      )}
                     >
                       <ShowModel
                         url={data.Asset.asset.mediaUrl}
-                        blur={data.Asset.asset.tierId ? true : false}
+                        blur={canBuyUser ? false : true}
                       />
                     </div>
                   </>

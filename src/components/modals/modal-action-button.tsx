@@ -126,15 +126,18 @@ export function SparkleEffect() {
 export function DeleteAssetByAdmin({
   assetId,
   marketId,
+  handleClose,
 }: {
   marketId?: number;
   assetId?: number;
+  handleClose: () => void;
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const admin = api.wallate.admin.checkAdmin.useQuery();
   const del = api.marketplace.market.deleteMarketAsset.useMutation({
     onSuccess: () => {
       toast.success("Asset deleted successfully");
+      handleClose();
       setIsOpen(false);
     },
   });

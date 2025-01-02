@@ -452,7 +452,7 @@ export const marketRouter = createTRPCRouter({
               tier: { include: { creator: { include: { pageAsset: true } } } },
             },
           },
-        },
+        }
       });
 
       if (!marketAsset) return false;
@@ -465,21 +465,24 @@ export const marketRouter = createTRPCRouter({
       if (marketAsset.placerId !== marketAsset.asset.creatorId) {
         return true;
       }
-
+      if (marketAsset.privacy === ItemPrivacy.PRIVATE && marketAsset.placerId) {
+        const creatorPageAsset = await ctx.db.creator.findUniqueOrThrow({
+          where: { id: marketAsset.placerId },
+          select: {
+            pageAsset: true
+          }
+        })
+        if (!creatorPageAsset.pageAsset) return false;
+        const hasTrust = stellarAcc.hasTrustline(creatorPageAsset.pageAsset?.code, creatorPageAsset.pageAsset?.issuer);
+        if (hasTrust) {
+          return true;
+        }
+      }
       const tier = marketAsset.asset.tier;
-
       if (tier) {
         const pageAsset = tier.creator.pageAsset;
-
         if (pageAsset) {
-          if (marketAsset.privacy === ItemPrivacy.PRIVATE) {
-            const { code, issuer } = pageAsset;
-            const hasTrust = stellarAcc.hasTrustline(code, issuer);
-
-            if (hasTrust) {
-              return true;
-            }
-          } else if (marketAsset.privacy === ItemPrivacy.TIER) {
+          if (marketAsset.privacy === ItemPrivacy.TIER) {
             const { code, issuer } = pageAsset;
             const bal = stellarAcc.getTokenBalance(code, issuer);
             if (bal >= tier.price) {
