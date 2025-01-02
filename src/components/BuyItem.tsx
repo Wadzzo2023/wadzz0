@@ -63,12 +63,15 @@ export default function BuyItem({
   const [paymentSuccess, setPaymentSuccess] = useState(false);
   const [isBuyDialogOpen, setIsBuyDialogOpen] = useState(true);
   const [submitLoading, setSubmitLoading] = useState(false);
+
   const showUSDPrice =
     walletType == WalletType.emailPass ||
     walletType == WalletType.google ||
     walletType == WalletType.facebook;
   const copy = api.marketplace.market.getMarketAssetAvailableCopy.useQuery({
     id: marketItemId,
+  }, {
+    enabled: !!marketItemId,
   });
 
   const xdrMutation =
