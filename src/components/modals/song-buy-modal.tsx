@@ -28,6 +28,7 @@ import { Card, CardContent, CardFooter } from "~/components/shadcn/ui/card";
 import { useModal } from "~/lib/state/play/use-modal-store";
 import BuyItem from "../BuyItem";
 import { DisableFromMarketButton, OtherButtons } from "./modal-action-button";
+import toast from "react-hot-toast";
 
 export const PaymentMethodEnum = z.enum(["asset", "xlm", "card"]);
 export type PaymentMethod = z.infer<typeof PaymentMethodEnum>;
@@ -196,7 +197,9 @@ export default function SongBuyModal() {
                     )
                   )}
 
-                  <DeleteAssetByAdmin id={data.Song.id} />
+                  <DeleteAssetByAdmin id={data.Song.id}
+                    handleClose={handleClose} />
+
                   <p className="text-xs text-gray-400">
                     Once purchased, this item will be placed on collection.
                   </p>
@@ -316,12 +319,14 @@ function SparkleEffect() {
     </motion.div>
   );
 }
-function DeleteAssetByAdmin({ id }: { id: number }) {
+function DeleteAssetByAdmin({ id, handleClose }: { id: number, handleClose: () => void }) {
   const [isOpen, setIsOpen] = useState(false);
   const admin = api.wallate.admin.checkAdmin.useQuery();
   const del = api.marketplace.market.deleteMarketAsset.useMutation({
     onSuccess: () => {
+      toast.success("Asset deleted successfully");
       setIsOpen(false);
+      handleClose();
     },
   });
 
