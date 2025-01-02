@@ -232,10 +232,8 @@ export default function BuyModal() {
                     alt={data.Asset.asset.name}
                     width={1000}
                     height={1000}
-                    className={clsx(
-                      "h-full max-h-[800px] w-full overflow-y-auto object-cover ",
-                      canBuyUser ? " " : "blur-md",
-                    )}
+                    className=
+                    "h-full max-h-[800px] w-full overflow-y-auto object-cover blur-lg"
                   />
                 ) : data.Asset.asset.mediaType === "VIDEO" ? (
                   <Image
@@ -243,10 +241,8 @@ export default function BuyModal() {
                     alt={data.Asset.asset.name}
                     width={1000}
                     height={1000}
-                    className={clsx(
-                      "h-full max-h-[800px] w-full overflow-y-hidden object-cover ",
-                      canBuyUser ? " " : "blur-md",
-                    )}
+                    className=
+                    "h-full max-h-[800px] w-full overflow-y-hidden object-cover blur-lg"
                   />
                 ) : data.Asset.asset.mediaType === "MUSIC" ? (
                   <Image
@@ -254,10 +250,7 @@ export default function BuyModal() {
                     alt={data.Asset.asset.name}
                     width={1000}
                     height={1000}
-                    className={clsx(
-                      " h-full max-h-[800px] w-full overflow-y-hidden object-cover ",
-                      canBuyUser ? " " : "blur-md",
-                    )}
+                    className=" h-full max-h-[800px] w-full overflow-y-hidden object-cover blur-lg"
                   />
                 ) : (
                   <>
@@ -273,7 +266,7 @@ export default function BuyModal() {
                     >
                       <ShowModel
                         url={data.Asset.asset.mediaUrl}
-                        blur={canBuyUser ? false : true}
+                        blur={true}
                       />
                     </div>
                   </>
