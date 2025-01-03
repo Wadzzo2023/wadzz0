@@ -13,7 +13,7 @@ export function CoverChange() {
     });
   // coverChangeMutation.isLoading && toast.loading("Uploading Cover");
 
-  if (router.pathname == "/fans/creator/settings")
+  if (router.pathname === "/fans/creator/settings")
     return (
       <div className="">
         <span className="text-xs">Cover Dimension of 851 x 315 pixels</span>

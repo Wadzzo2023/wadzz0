@@ -111,7 +111,8 @@ export function VanityURLManager({ creator }: { creator: CreatorWithSubscription
                 //console.log("data", data)
                 setIsAvailable(data.isAvailable);
             },
-        }
+        },
+
     );
     useEffect(() => {
         const subscription = watch((value, { name }) => {

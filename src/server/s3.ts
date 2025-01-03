@@ -70,6 +70,8 @@ export const endPoints = [
   "multiBlobUploader",
   "modelUploader",
   "svgUploader",
+  "coverUploader",
+  "profileUploader",
 ] as const;
 export type EndPointType = (typeof endPoints)[number];
 
@@ -108,6 +110,12 @@ const uploaderType: Record<
     expireIn: 60 * 10,
   },
   svgUploader: { maxFileSize: "1024MB", maxFileCount: 1, expireIn: 60 * 10 },
+  coverUploader: { maxFileSize: "1024MB", maxFileCount: 1, expireIn: 60 * 10 },
+  profileUploader: {
+    maxFileSize: "1024MB",
+    maxFileCount: 1,
+    expireIn: 60 * 10,
+  },
 };
 
 type GetSignedURLParams = {
