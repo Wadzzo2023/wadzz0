@@ -10,7 +10,7 @@ import {
 } from "~/lib/stellar/marketplace/trx/nft_2_storage";
 import { SignUser } from "~/lib/stellar/utils";
 
-import { ItemPrivacy } from "@prisma/client";
+import { ItemPrivacy, MarketAsset } from "@prisma/client";
 import {
   adminProcedure,
   createTRPCRouter,
@@ -148,18 +148,20 @@ export const marketRouter = createTRPCRouter({
       });
     }),
 
+
+
+
   getFanMarketNfts: protectedProcedure
     .input(
       z.object({
         limit: z.number(),
-        // cursor is a reference to the last item in the previous batch
-        // it's used to fetch the next batch
         cursor: z.number().nullish(),
         skip: z.number().optional(),
       }),
     )
     .query(async ({ ctx, input }) => {
       const { limit, cursor, skip } = input;
+      const currentUserId = ctx.session.user.id;
 
       const items = await ctx.db.marketAsset.findMany({
         take: limit + 1,
@@ -167,20 +169,67 @@ export const marketRouter = createTRPCRouter({
         cursor: cursor ? { id: cursor } : undefined,
         include: {
           asset: {
-            select: AssetSelectAllProperty,
+            select: {
+              ...AssetSelectAllProperty,
+              tier: {
+                select: {
+                  price: true,
+                },
+              },
+              creator: {
+                select: {
+                  pageAsset: {
+                    select: {
+                      code: true,
+                      issuer: true,
+                    },
+                  },
+                },
+              },
+            },
           },
         },
         where: { placerId: { not: null }, type: { equals: "FAN" } },
       });
 
+      const stellarAcc = await StellarAccount.create(currentUserId);
+
+      // Filter items based on privacy and conditions
+      const array = items.filter((item) => {
+        const creatorPageAsset = item.asset.creator?.pageAsset;
+
+        if (item.asset.privacy === ItemPrivacy.PUBLIC) {
+          return true;
+        }
+
+        if (item.asset.creatorId !== item.placerId) {
+          return true;
+        }
+
+        if (item.asset.privacy === ItemPrivacy.PRIVATE) {
+          return creatorPageAsset && stellarAcc.hasTrustline(creatorPageAsset.code, creatorPageAsset.issuer);
+        }
+
+        if (item.asset.privacy === ItemPrivacy.TIER) {
+          return (
+            creatorPageAsset &&
+            item.asset.tier &&
+            item.asset.tier.price <= stellarAcc.getTokenBalance(creatorPageAsset.code, creatorPageAsset.issuer)
+          );
+        }
+
+        return false;
+      });
+
+      // Handle pagination
       let nextCursor: typeof cursor | undefined = undefined;
-      if (items.length > limit) {
-        const nextItem = items.pop(); // return the last item from the array
+      if (array.length > limit) {
+        const nextItem = array.pop();
         nextCursor = nextItem?.id;
       }
 
       return {
-        nfts: items,
+        nfts: array,
         nextCursor,
       };
     }),
@@ -230,14 +279,13 @@ export const marketRouter = createTRPCRouter({
     .input(
       z.object({
         limit: z.number(),
-        // cursor is a reference to the last item in the previous batch
-        // it's used to fetch the next batch
         cursor: z.number().nullish(),
         skip: z.number().optional(),
       }),
     )
     .query(async ({ ctx, input }) => {
       const { limit, cursor, skip } = input;
+      const currentUserId = ctx.session.user.id;
 
       const items = await ctx.db.marketAsset.findMany({
         take: limit + 1,
@@ -245,23 +293,69 @@ export const marketRouter = createTRPCRouter({
         cursor: cursor ? { id: cursor } : undefined,
         include: {
           asset: {
-            select: AssetSelectAllProperty,
+            select: {
+              ...AssetSelectAllProperty,
+              tier: {
+                select: {
+                  price: true,
+                },
+              },
+              creator: {
+                select: {
+                  pageAsset: {
+                    select: {
+                      code: true,
+                      issuer: true,
+                    },
+                  },
+                },
+              },
+            },
           },
         },
         where: { type: "ADMIN" },
       });
 
+      const stellarAcc = await StellarAccount.create(currentUserId);
+      const array = items.filter((item) => {
+        if (item.asset.privacy === ItemPrivacy.PUBLIC) {
+          return true;
+        }
+
+        if (item.asset.creatorId !== item.placerId) {
+          return true;
+        }
+
+        if (item.asset.privacy === ItemPrivacy.PRIVATE) {
+          const creatorPageAsset = item.asset.creator?.pageAsset;
+          if (creatorPageAsset && stellarAcc.hasTrustline(creatorPageAsset.code, creatorPageAsset.issuer)) {
+            return true;
+          }
+        } else if (item.asset.privacy === ItemPrivacy.TIER) {
+          const creatorPageAsset = item.asset.creator?.pageAsset;
+          if (
+            creatorPageAsset &&
+            item.asset.tier &&
+            item.asset.tier.price <= stellarAcc.getTokenBalance(creatorPageAsset.code, creatorPageAsset.issuer)
+          ) {
+            return true;
+          }
+        }
+        return false;
+      });
+
       let nextCursor: typeof cursor | undefined = undefined;
-      if (items.length > limit) {
-        const nextItem = items.pop(); // return the last item from the array
+      if (array.length > limit) {
+        const nextItem = array.pop();
         nextCursor = nextItem?.id;
       }
 
       return {
-        nfts: items,
+        nfts: array,
         nextCursor,
       };
     }),
+
 
   getCreatorNftsByCreatorID: protectedProcedure
     .input(

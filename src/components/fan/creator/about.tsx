@@ -34,7 +34,12 @@ export default function About({ creator }: { creator: Creator }) {
         toast.success("Profile Picture changes successfully");
       },
     });
-
+  const coverChangeMutation =
+    api.fan.creator.changeCreatorCoverPicture.useMutation({
+      onSuccess: () => {
+        toast.success("Cover Changed Successfully");
+      },
+    });
   const {
     register,
     handleSubmit,
@@ -61,7 +66,7 @@ export default function About({ creator }: { creator: Creator }) {
           <div className="space-y-4 ">
             <span className="text-xs">Profile Dimension 200 x 200 pixels</span>
             <UploadS3Button
-              endpoint="imageUploader"
+              endpoint="profileUploader"
               onClientUploadComplete={(res) => {
                 const fileUrl = res.url;
                 updateProfileMutation.mutate(fileUrl);
@@ -71,11 +76,28 @@ export default function About({ creator }: { creator: Creator }) {
                 toast.error(`ERROR! ${error.message}`);
 
               }}
+              type="profile"
             />
 
           </div>
 
-          <CoverChange />
+          <div className="">
+            <span className="text-xs">Cover Dimension of 851 x 315 pixels</span>
+            <UploadS3Button
+              endpoint="coverUploader"
+              onClientUploadComplete={(res) => {
+                const fileUrl = res.url;
+                coverChangeMutation.mutate(fileUrl);
+              }}
+              onUploadError={(error: Error) => {
+                // Do something with the error.
+                toast.error(`ERROR! ${error.message}`);
+
+              }}
+              type="cover"
+            />
+
+          </div>
           <PadSVG />
         </div>
 

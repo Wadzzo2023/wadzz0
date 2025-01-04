@@ -9,6 +9,8 @@ import {
   publicProcedure,
 } from "~/server/api/trpc";
 import { AssetSelectAllProperty } from "../marketplace/marketplace";
+import { StellarAccount } from "~/lib/stellar/marketplace/test/Account";
+import { ItemPrivacy } from "@prisma/client";
 
 export const songRouter = createTRPCRouter({
   getAllSong: publicProcedure.query(async ({ ctx }) => {
@@ -56,14 +58,13 @@ export const songRouter = createTRPCRouter({
     .input(
       z.object({
         limit: z.number(),
-        // cursor is a reference to the last item in the previous batch
-        // it's used to fetch the next batch
         cursor: z.number().nullish(),
         skip: z.number().optional(),
       }),
     )
     .query(async ({ ctx, input }) => {
       const { limit, cursor, skip } = input;
+      const currentUserId = ctx.session.user.id;
 
       const items = await ctx.db.marketAsset.findMany({
         take: limit + 1,
@@ -71,23 +72,71 @@ export const songRouter = createTRPCRouter({
         cursor: cursor ? { id: cursor } : undefined,
         include: {
           asset: {
-            select: AssetSelectAllProperty,
+            select: {
+              ...AssetSelectAllProperty,
+              tier: {
+                select: {
+                  price: true,
+                },
+              },
+              creator: {
+                select: {
+                  pageAsset: {
+                    select: {
+                      code: true,
+                      issuer: true,
+                    },
+                  },
+                },
+              },
+            },
           },
         },
         where: { type: { equals: "SONG" }, placerId: null },
       });
 
+      const stellarAcc = await StellarAccount.create(currentUserId);
+
+      // Filter items based on privacy and conditions
+      const array = items.filter((item) => {
+        const creatorPageAsset = item.asset.creator?.pageAsset;
+
+        if (item.asset.privacy === ItemPrivacy.PUBLIC) {
+          return true;
+        }
+
+        if (item.asset.creatorId !== item.placerId) {
+          return true;
+        }
+
+        if (item.asset.privacy === ItemPrivacy.PRIVATE) {
+          return creatorPageAsset && stellarAcc.hasTrustline(creatorPageAsset.code, creatorPageAsset.issuer);
+        }
+
+        if (item.asset.privacy === ItemPrivacy.TIER) {
+          return (
+            creatorPageAsset &&
+            item.asset.tier &&
+            item.asset.tier.price <= stellarAcc.getTokenBalance(creatorPageAsset.code, creatorPageAsset.issuer)
+          );
+        }
+
+        return false;
+      });
+
+      // Handle pagination
       let nextCursor: typeof cursor | undefined = undefined;
-      if (items.length > limit) {
-        const nextItem = items.pop(); // return the last item from the array
+      if (array.length > limit) {
+        const nextItem = array.pop();
         nextCursor = nextItem?.id;
       }
 
       return {
-        nfts: items,
+        nfts: array,
         nextCursor,
       };
     }),
+
 
   getAllSongsByPrivacy: publicProcedure.query(async ({ input }) => {
     return [];

@@ -40,6 +40,7 @@ export function UploadS3Button({
   onClientUploadComplete,
   onUploadError,
   disabled,
+  type,
 }: {
   endpoint: EndPointType;
   onUploadProgress?: (p: number) => void;
@@ -47,6 +48,7 @@ export function UploadS3Button({
   onBeforeUploadBegin?: (files: File) => Promise<File> | File;
   onUploadError?: (error: Error) => void;
   disabled?: boolean;
+  type?: "profile" | "cover";
 }) {
   const [progress, setProgress] = useState(0);
   const [file, setFile] = useState<File>();
@@ -134,7 +136,7 @@ export function UploadS3Button({
         type="button"
         className="w-full bg-blue-600 hover:bg-blue-700"
         disabled={disabled ?? loading}
-        onClick={() => document.getElementById('file-upload')?.click()}
+        onClick={() => document.getElementById(`file-upload-${type}`)?.click()}
       >
         {loading ? (
           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -144,7 +146,7 @@ export function UploadS3Button({
         {loading ? 'Uploading...' : 'Add Media'}
       </Button>
       <input
-        id="file-upload"
+        id={`file-upload-${type}`}
         type="file"
         accept={getAcceptString(endpoint)}
         disabled={disabled ?? loading}
@@ -166,6 +168,11 @@ export function UploadS3Button({
 function getAcceptString(endpoint: EndPointType) {
   switch (endpoint) {
     case "imageUploader":
+      return "image/jpeg,image/png,image/webp,image/gif";
+    case "profileUploader":
+      return "image/jpeg,image/png,image/webp,image/gif";
+
+    case "coverUploader":
       return "image/jpeg,image/png,image/webp,image/gif";
 
     case "videoUploader":
