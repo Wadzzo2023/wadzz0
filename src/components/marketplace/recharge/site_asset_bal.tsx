@@ -100,7 +100,7 @@ export function SiteAssetBalance() {
         )}
         <Bell />
       </Button>
-      <MusicControls />
+
     </div>
   );
 }

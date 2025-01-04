@@ -1,14 +1,30 @@
 
+import { ItemPrivacy } from "@prisma/client";
 import { z } from "zod";
+import { SongFormSchema } from "~/components/fan/creator/music/create-song";
 import {
     createTRPCRouter,
     creatorProcedure,
 
 } from "~/server/api/trpc";
+import { AssetSelectAllProperty } from "../marketplace/marketplace";
 
 export const musicRouter = createTRPCRouter({
 
     getCreatorAlbums: creatorProcedure.query(async ({ ctx }) => {
+        const creatorId = ctx.session.user.id;
+
+        const creator = await ctx.db.creator.findUnique({
+            where: {
+                id: creatorId,
+            }
+
+        });
+
+
+        if (!creator) {
+            throw new Error("Creator not found");
+        }
         const albums = await ctx.db.album.findMany({
             where: {
                 creatorId: ctx.session.user.id,
@@ -40,4 +56,144 @@ export const musicRouter = createTRPCRouter({
         return album;
     }),
 
+    getAlbum: creatorProcedure.input(z.object({
+        id: z.number(),
+    })).query(async ({ ctx, input }) => {
+        const album = await ctx.db.album.findUnique({
+            where: {
+                id: Number(input.id),
+            },
+            include: {
+                songs: {
+                    include: {
+                        asset: {
+                            select: {
+                                id: true,
+                                code: true,
+                                issuer: true,
+                                name: true,
+                                tierId: true,
+                                privacy: true,
+                                thumbnail: true,
+                            }
+                        },
+
+                    },
+                },
+            }
+        });
+        if (!album) {
+            throw new Error("Album not found");
+        }
+        return album;
+    }),
+    create: creatorProcedure
+        .input(SongFormSchema)
+        .mutation(async ({ input, ctx }) => {
+            const {
+                artist,
+                coverImgUrl,
+                albumId,
+                musicUrl,
+                description,
+                priceUSD,
+                price,
+                limit,
+                name,
+                code,
+                issuer,
+                tier
+            } = input;
+
+            if (issuer) {
+                const userId = ctx.session.user.id;
+
+
+                let tierId: number | undefined;
+                let privacy: ItemPrivacy = ItemPrivacy.PUBLIC;
+
+                if (!tier) {
+                    privacy = ItemPrivacy.PUBLIC;
+                } else if (tier == "public") {
+                    privacy = ItemPrivacy.PUBLIC;
+                } else if (tier == "private") {
+                    privacy = ItemPrivacy.PRIVATE;
+                } else {
+                    tierId = Number(tier);
+                    privacy = ItemPrivacy.TIER;
+                }
+
+                return await ctx.db.asset.create({
+                    data: {
+                        code,
+                        issuer: issuer.publicKey,
+                        issuerPrivate: issuer.secretKey,
+                        song: {
+                            create: {
+                                artist,
+                                price,
+                                albumId,
+                                priceUSD,
+                                creatorId: userId,
+                            },
+                        },
+                        marketItems: { create: { price, type: "SONG" } },
+                        mediaType: "MUSIC",
+                        name,
+                        mediaUrl: musicUrl,
+                        thumbnail: coverImgUrl,
+                        description: description,
+                        limit,
+                        privacy,
+                        tierId,
+                    },
+                });
+            }
+        }),
+
+
+    getUnlistedSongs: creatorProcedure
+        .input(
+            z.object({
+                limit: z.number(),
+                // cursor is a reference to the last item in the previous batch
+                // it's used to fetch the next batch
+                cursor: z.number().nullish(),
+                skip: z.number().optional(),
+            }),
+        )
+        .query(async ({ ctx, input }) => {
+            const { limit, cursor, skip } = input;
+            const creatorId = ctx.session.user.id;
+
+            const items = await ctx.db.marketAsset.findMany({
+                take: limit + 1,
+                skip: skip,
+                cursor: cursor ? { id: cursor } : undefined,
+                include: {
+                    asset: {
+                        select: AssetSelectAllProperty,
+                    },
+                },
+                where: {
+                    asset: {
+                        creatorId,
+                        AND: {
+                            mediaType: "MUSIC",
+                        }
+                    }
+                }
+            });
+
+            let nextCursor: typeof cursor | undefined = undefined;
+            if (items.length > limit) {
+                const nextItem = items.pop(); // return the last item from the array
+                nextCursor = nextItem?.id;
+            }
+
+            return {
+                nfts: items,
+                nextCursor,
+            };
+        }),
 });

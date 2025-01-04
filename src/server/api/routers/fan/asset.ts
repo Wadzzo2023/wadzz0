@@ -26,7 +26,6 @@ export const shopRouter = createTRPCRouter({
         limit,
         tier,
         priceUSD,
-
         isAdmin,
       } = input;
 

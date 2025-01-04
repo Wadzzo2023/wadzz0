@@ -14,18 +14,34 @@ import { ItemPrivacy } from "@prisma/client";
 
 export const songRouter = createTRPCRouter({
   getAllSong: publicProcedure.query(async ({ ctx }) => {
-    return await ctx.db.song.findMany({
+    const songs = await ctx.db.song.findMany({
       include: { asset: { select: AssetSelectAllProperty } },
       // take: 10,
     });
+
+    return songs
   }),
 
   getCreatorPublicSong: protectedProcedure.query(async ({ ctx }) => {
-    const assets = await ctx.db.asset.findMany({
-      where: { mediaType: "MUSIC", tier: { is: null }, song: { is: null } },
-
-      select: AssetSelectAllProperty,
+    const assets = await ctx.db.song.findMany({
+      where: {
+        asset: {
+          privacy: "PUBLIC",
+        },
+      },
+      select: {
+        asset: { select: AssetSelectAllProperty },
+        id: true,
+        price: true,
+        priceUSD: true,
+        createdAt: true,
+        artist: true,
+        albumId: true,
+        assetId: true,
+        creatorId: true,
+      },
     });
+    console.log(assets);
 
     return assets;
   }),
@@ -255,6 +271,7 @@ export const songRouter = createTRPCRouter({
         name,
         code,
         issuer,
+        tier
       } = input;
       const serialNumber = 1; // will query based on createdAt
 
@@ -280,6 +297,7 @@ export const songRouter = createTRPCRouter({
             thumbnail: coverImgUrl,
             description: description,
             limit,
+
           },
         });
       }

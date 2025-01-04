@@ -43,7 +43,7 @@ function Header(_props: HeaderProps) {
           <SiteAssetBalance />
         </div>
       </div>
-      <div className="absolute left-0 right-0 top-[4.6rem] z-50 flex w-full overflow-hidden">
+      {/* <div className="absolute left-0 right-0 top-[4.6rem] z-50 flex w-full overflow-hidden">
         {Array.from({ length: 5 }, (_, index) => (
           <Image
             key={index}
@@ -55,7 +55,7 @@ function Header(_props: HeaderProps) {
             priority={index === 0}
           />
         ))}
-      </div>
+      </div> */}
       <Image
         src="/candy-cane.png"
         alt="Candy Cane"
@@ -72,7 +72,7 @@ function Header(_props: HeaderProps) {
       />
 
       {/* Happy New Year Lottie Animation */}
-      {isMounted && <NewYearAnimation />}
+      {/* {isMounted && <NewYearAnimation />} */}
       {isMounted && <TextNewYearAnimation />}
     </header>
   );

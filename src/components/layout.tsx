@@ -49,7 +49,7 @@ export default function Layout({
 }) {
   const session = useSession();
   const router = useRouter();
-  const isMusicRoute = router.pathname.startsWith("/music");
+  const isMusicRoute = router.pathname === '/music';
   const publicRoutes = ["/about", "/privacy", "/support"];
   const isPublicRoute = publicRoutes.includes(router.pathname);
 
@@ -109,87 +109,86 @@ export default function Layout({
         <PostAudioProvider>
           <PostVideoProvider>
             <PlayerProvider>
-              <BackgroundMusicProvider>
-                <div
-                  className={clsx(" flex h-screen w-full flex-col", className)}
-                >
-                  <Header />
 
-                  <div className="flex-1 overflow-auto bg-base-100/50">
-                    <div className="flex h-full border-t-2">
-                      <LeftBar className="hidden xl:flex" />
-                      <div
-                        // id="ih"
-                        className="flex-1 border-x-2"
-                        // style={
-                        //   router.pathname.includes("/fans/creator") && creator.data
-                        //     ? {
-                        //       background: `url("${creator.data.backgroundSVG}")`,
-                        //       backgroundSize: "10%",
-                        //       animation: "pan 135s linear infinite",
-                        //     }
-                        //     : {
-                        //       background: `url("images/guitar.svg")`,
-                        //       backgroundSize: "10%",
-                        //       animation: "pan 135s linear infinite",
-                        //     }
-                        // }
-                        style={{
-                          backgroundImage: `url("christmas-bg.png")`,
-                          backgroundSize: "100%",
-                          backgroundRepeat: "no-repeat",
-                        }}
-                      >
-                        <div className=" h-full overflow-y-auto bg-base-100/80 scrollbar-hide">
-                          {session.status == "authenticated" ? (
-                            <>
-                              <ModalProvider />
-                              <PlayModalProvider />
-                              {children}
-                            </>
-                          ) : (
-                            <div className="flex h-full items-center justify-center">
-                              {isPublicRoute ? (
-                                <div
-                                  className={clsx(
-                                    "flex h-screen w-full flex-col",
-                                    className,
-                                  )}
-                                >
-                                  <div className="flex-1 overflow-auto bg-base-100/50">
-                                    {children}
-                                  </div>
+              <div
+                className={clsx(" flex h-screen w-full flex-col", className)}
+              >
+                <Header />
+
+                <div className="flex-1 overflow-auto bg-base-100/50">
+                  <div className="flex h-full border-t-2">
+                    <LeftBar className="hidden xl:flex" />
+                    <div
+                      // id="ih"
+                      className="flex-1 border-x-2"
+                      // style={
+                      //   router.pathname.includes("/fans/creator") && creator.data
+                      //     ? {
+                      //       background: `url("${creator.data.backgroundSVG}")`,
+                      //       backgroundSize: "10%",
+                      //       animation: "pan 135s linear infinite",
+                      //     }
+                      //     : {
+                      //       background: `url("images/guitar.svg")`,
+                      //       backgroundSize: "10%",
+                      //       animation: "pan 135s linear infinite",
+                      //     }
+                      // }
+                      style={{
+                        backgroundImage: `url("christmas-bg.png")`,
+                        backgroundSize: "100%",
+                        backgroundRepeat: "no-repeat",
+                      }}
+                    >
+                      <div className=" h-full overflow-y-auto bg-base-100/80 scrollbar-hide">
+                        {session.status == "authenticated" ? (
+                          <>
+                            <ModalProvider />
+                            <PlayModalProvider />
+                            {children}
+                          </>
+                        ) : (
+                          <div className="flex h-full items-center justify-center">
+                            {isPublicRoute ? (
+                              <div
+                                className={clsx(
+                                  "flex h-screen w-full flex-col",
+                                  className,
+                                )}
+                              >
+                                <div className="flex-1 overflow-auto bg-base-100/50">
+                                  {children}
                                 </div>
-                              ) : (
-                                <ConnectWalletButton />
-                              )}
-                            </div>
-                          )}
-                        </div>
+                              </div>
+                            ) : (
+                              <ConnectWalletButton />
+                            )}
+                          </div>
+                        )}
                       </div>
-
-                      {router.pathname !== "/walletBalance" &&
-                        router.pathname !== "/assets" &&
-                        router.pathname !== "/" &&
-                        router.pathname !== "/[vanityURL]" &&
-                        router.pathname !== "/notification" &&
-                        router.pathname !== "/bounty/[id]" &&
-                        router.pathname !== "/settings" &&
-                        router.pathname !== "/marketplace" &&
-                        router.pathname !== "/about" &&
-                        router.pathname !== "/support" &&
-                        router.pathname !== "/privacy" &&
-                        session.status == "authenticated" && <RightSideBar />}
                     </div>
+
+                    {router.pathname !== "/walletBalance" &&
+                      router.pathname !== "/assets" &&
+                      router.pathname !== "/" &&
+                      router.pathname !== "/[vanityURL]" &&
+                      router.pathname !== "/notification" &&
+                      router.pathname !== "/bounty/[id]" &&
+                      router.pathname !== "/settings" &&
+                      router.pathname !== "/marketplace" &&
+                      router.pathname !== "/about" &&
+                      router.pathname !== "/support" &&
+                      router.pathname !== "/privacy" &&
+                      session.status == "authenticated" && <RightSideBar />}
                   </div>
-                  <RightDialog />
-                  <Player />
-                  {/* <BottomPlayerContainer /> */}
-                  <Toaster />
                 </div>
-                {isMusicRoute && <PlayerToggle />}
-                <FallingSnowflakes />
-              </BackgroundMusicProvider>
+                <RightDialog />
+                <Player />
+                {/* <BottomPlayerContainer /> */}
+                <Toaster />
+              </div>
+              <PlayerToggle />
+
             </PlayerProvider>
           </PostVideoProvider>
         </PostAudioProvider>

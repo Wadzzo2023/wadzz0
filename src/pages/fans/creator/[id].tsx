@@ -23,6 +23,7 @@ import { useUserStellarAcc } from "~/lib/state/wallete/stellar-balances";
 import { CreatorBack } from "~/pages/fans/creator";
 import { CREATOR_TERM } from "~/utils/term";
 import { getAssetBalanceFromBalance } from "~/lib/stellar/marketplace/test/acc";
+import { Card, CardContent } from "~/components/shadcn/ui/card";
 
 export default function CreatorPage() {
   const router = useRouter();
@@ -83,6 +84,16 @@ function CreatorPosts({ creatorId }: { creatorId: string }) {
   if (data.pages.length > 0) {
     return (
       <div className="flex w-full flex-col gap-4 items-center p-2 md:mx-auto md:container bg-base-100">
+        {
+          data.pages[0]?.posts.length === 0 && (
+            <Card className="text-center">
+              <CardContent className="pt-6">
+                <p className="text-lg font-semibold">No Post Found Yet!</p>
+              </CardContent>
+            </Card>
+          )
+        }
+
         {data.pages.map((page) =>
           page.posts.map((el) => (
             <PostCard
@@ -343,7 +354,7 @@ function SubscriptionCard({
   return (
     <MemberShipCard
       key={subscription.id}
-      className=" bg-neutral text-neutral-content"
+
       creator={creator}
       priority={priority}
       subscription={subscription}
@@ -399,6 +410,7 @@ function CreatorStoreItem({ creatorId }: { creatorId: string }) {
 
         className="w-full p-4 grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6"
       >
+
         {assets.data.pages.map((page) =>
           page.nfts.map((item, i) => (
             <div key={i}>

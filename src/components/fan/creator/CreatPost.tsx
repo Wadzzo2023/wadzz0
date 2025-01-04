@@ -313,6 +313,15 @@ export function PostList(props: { id: string }) {
   if (posts.data) {
     return (
       <div className="flex w-full flex-col gap-4 items-center p-2 md:mx-auto md:container bg-base-100 ">
+        {
+          posts.data.pages[0]?.posts.length === 0 && (
+            <Card className="text-center">
+              <CardContent className="pt-6">
+                <p className="text-lg font-semibold">No Post Found Yet!</p>
+              </CardContent>
+            </Card>
+          )
+        }
         {posts.data?.pages.map((page) =>
           page.posts.map((post) => (
             <PostCard

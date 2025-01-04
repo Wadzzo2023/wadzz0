@@ -44,6 +44,7 @@ export const SongFormSchema = z.object({
     .min(4, { message: "Must be a minimum of 4 characters" })
     .max(12, { message: "Must be a maximum of 12 characters" }),
   issuer: AccountSchema.optional(),
+  tier: z.string().optional(),
 });
 
 type SongFormType = z.TypeOf<typeof SongFormSchema>;

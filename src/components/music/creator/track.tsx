@@ -23,13 +23,10 @@ type AssetWithArtist = AssetType & {
 
 function CreatorTrack({
   item,
-  assetItem,
   playable,
-  buyModal,
-  index,
   adminId
 }: {
-  item: AssetWithArtist;
+  item: SongItemType;
   assetItem?: AssetType;
   playable?: boolean;
   buyModal?: ReactNode;
@@ -42,20 +39,9 @@ function CreatorTrack({
 
   const { onOpen } = useModal();
   const trackUrlStore = usePlayerStore();
-  const { setCurrentTrack } = usePlayer();
+  const { setCurrentTrack, setCurrentAudioPlayingId, setIsPlaying } = usePlayer();
   const session = useSession()
-  function playSong() {
-    setCurrentTrack({
-      id: item.id,
-      artist: item.artist,
-      assetId: item.id,
-      price: 0,
-      priceUSD: 0,
-      albumId: 0,
-      createdAt: new Date(),
-      asset: item,
-    });
-  }
+
 
   const DeleteMutation = api.music.song.deletePublicSong.useMutation({
     onSuccess: () => {
@@ -75,17 +61,21 @@ function CreatorTrack({
     <div className="group relative overflow-hidden rounded-lg bg-white shadow-md transition-all duration-300 hover:shadow-lg">
       <div className="relative aspect-square overflow-hidden">
         <Image
-          src={item.thumbnail}
+          src={item.asset.thumbnail}
           layout="fill"
           objectFit="cover"
-          alt={`${item.code} cover`}
+          alt={`${item.asset.code} cover`}
           className="transition-transform duration-300 group-hover:scale-110"
         />
         <div className="absolute inset-0 bg-black bg-opacity-40 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
         <div className="absolute inset-0 flex items-center justify-center opacity-0 transition-opacity duration-300 group-hover:opacity-100">
           {playable ? (
             <Button
-              onClick={playSong}
+              onClick={() => {
+                setCurrentAudioPlayingId(item.id);
+                setCurrentTrack(item);
+                setIsPlaying(true);
+              }}
               variant="secondary"
               size="icon"
               className="h-12 w-12 rounded-full"
@@ -107,9 +97,9 @@ function CreatorTrack({
       </div>
       <div className="p-4">
         <div className="flex items-center justify-between">
-          <h3 className="text-lg font-semibold text-gray-800 truncate">{item.name}</h3>
+          <h3 className="text-lg font-semibold text-gray-800 truncate">{item.asset.name}</h3>
           {
-            (session.data?.user?.id === item.creatorId || adminId) && (
+            (session.data?.user?.id === item.creatorId) && (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" size="icon" className="h-8 w-8">
@@ -129,7 +119,7 @@ function CreatorTrack({
             )
           }
         </div>
-        <p className="mt-1 text-sm text-gray-600 truncate">{item.code}</p>
+        <p className="mt-1 text-sm text-gray-600 truncate">{item.asset.code}</p>
       </div>
     </div>
   );

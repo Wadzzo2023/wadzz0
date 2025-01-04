@@ -16,11 +16,13 @@ import {
   CardTitle,
 } from "~/components/shadcn/ui/card";
 import { Loader2 } from "lucide-react";
+import CreatorLayout from "./layout";
 
 export default function CreatorsPost() {
   const creator = api.fan.creator.meCreator.useQuery();
-  if (creator.data)
-    return (
+
+  return (
+    <CreatorLayout>
       <div className="min-h-screen bg-gradient-to-b from-background to-secondary/10 p-1 md:p-8">
         <Card className=" shadow-lg">
           <CardHeader>
@@ -38,12 +40,9 @@ export default function CreatorsPost() {
           </CardContent>
         </Card>
       </div>
-    );
-  return (
-    <div className="flex h-screen items-center justify-center">
-      <Loader2 className="h-8 w-8 animate-spin text-primary" />
-    </div>
+    </CreatorLayout>
   );
+
 }
 
 function RenderTabs() {

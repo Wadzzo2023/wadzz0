@@ -44,7 +44,7 @@ export function RightComponent() {
   const router = useRouter();
   const { selectedTag } = useTagStore();
   const pop = usePopUpState();
-  if (router.pathname.includes("/music") && router.pathname !== '/fans/creator/music') return <MusicRightSide />;
+  if (router.pathname.includes("/music") && router.pathname !== '/fans/creator/music' && router.pathname !== '/fans/creator/music/album/[id]') return <MusicRightSide />;
   else if (router.pathname.includes("/fans")) return <RightBar />;
   else if (router.pathname.includes("/fans/creator")) return <RightBar />;
   else if (router.pathname.includes("/admin")) {

@@ -205,6 +205,7 @@ model Creator {
     Bounty             Bounty[]
     vanitySubscription VanitySubscription?
     Album              Album[]
+    Song               Song[]
 
     @@index([bio, name])
 }
@@ -331,6 +332,9 @@ model Song {
 
     assetId Int   @unique
     asset   Asset @relation(fields: [assetId], references: [id])
+
+    creatorId String?
+    creator   Creator? @relation(fields: [creatorId], references: [id], onDelete: SetNull)
 
     price    Float
     priceUSD Float
