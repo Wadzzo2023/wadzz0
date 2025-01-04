@@ -39,8 +39,6 @@ export default function CreatorStoreAssetInfoModal() {
   const session = useSession();
   const router = useRouter();
   const [step, setStep] = useState(1);
-
-  console.log("isOpen", isOpen);
   const isModalOpen = isOpen && type === "creator asset info";
   const handleClose = () => {
     setStep(1);
@@ -57,7 +55,12 @@ export default function CreatorStoreAssetInfoModal() {
 
   const copy = api.marketplace.market.getMarketAssetAvailableCopy.useQuery({
     id: data.creatorStoreAsset?.id,
-  });
+
+  },
+    {
+      enabled: !!data.creatorStoreAsset?.id
+    }
+  );
 
   if (data.creatorStoreAsset && data.creatorStoreAsset.asset)
     return (

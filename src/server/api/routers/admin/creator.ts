@@ -15,7 +15,7 @@ export const creatorRouter = createTRPCRouter({
   deleteCreator: adminProcedure
     .input(z.string())
     .mutation(async ({ ctx, input }) => {
-      return ctx.db.creator.delete({ where: { id: input } });
+      return await ctx.db.creator.delete({ where: { id: input } });
     }),
 
   creatorAction: adminProcedure
@@ -30,13 +30,15 @@ export const creatorRouter = createTRPCRouter({
   getSecretMessage: protectedProcedure.query(() => {
     return "you can now see this secret message!";
   }),
-  creatorIDfromVanityURL: creatorProcedure.input(z.string()).query(async ({ input, ctx }) => {
-    const creator = await ctx.db.creator.findUnique({
-      where: { vanityURL: input },
-      include: {
-        vanitySubscription: true
-      }
-    });
-    return creator;
-  }),
+  creatorIDfromVanityURL: creatorProcedure
+    .input(z.string())
+    .query(async ({ input, ctx }) => {
+      const creator = await ctx.db.creator.findUnique({
+        where: { vanityURL: input },
+        include: {
+          vanitySubscription: true,
+        },
+      });
+      return creator;
+    }),
 });

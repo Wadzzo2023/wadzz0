@@ -56,7 +56,7 @@ function CreatorTrack({
       asset: item,
     });
   }
-  console.log("session", session)
+
   const DeleteMutation = api.music.song.deletePublicSong.useMutation({
     onSuccess: () => {
       toast.success("Song deleted successfully");

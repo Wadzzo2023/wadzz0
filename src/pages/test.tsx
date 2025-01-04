@@ -16,7 +16,7 @@ export default function TestPage() {
       <UploadS3Button endpoint="blobUploader" />
       <MultiUploadS3Button
         onClientUploadComplete={(files) => {
-          console.log(files, "xlckjlsdkfjsdlkf sdlkjkjl");
+          console.log(files)
         }}
       />
     </div>
@@ -40,6 +40,7 @@ export function UploadS3Button({
   onClientUploadComplete,
   onUploadError,
   disabled,
+  type,
 }: {
   endpoint: EndPointType;
   onUploadProgress?: (p: number) => void;
@@ -47,6 +48,7 @@ export function UploadS3Button({
   onBeforeUploadBegin?: (files: File) => Promise<File> | File;
   onUploadError?: (error: Error) => void;
   disabled?: boolean;
+  type?: "profile" | "cover";
 }) {
   const [progress, setProgress] = useState(0);
   const [file, setFile] = useState<File>();
@@ -121,21 +123,20 @@ export function UploadS3Button({
         endPoint: endpoint,
         fileName: targetFile.name,
       });
-      console.log("Selected file: ", targetFile);
-      console.log(`Selected file: ${targetFile.name}`);
+
     } else {
       console.error("No file selected");
     }
   };
 
   return (
-    <div className="grid w-full max-w-sm items-center gap-2">
+    <div className="grid w-full items-center gap-2">
       <Button
         variant="default"
         type="button"
         className="w-full bg-blue-600 hover:bg-blue-700"
-        disabled={disabled || loading}
-        onClick={() => document.getElementById('file-upload')?.click()}
+        disabled={disabled ?? loading}
+        onClick={() => document.getElementById(`file-upload-${type}`)?.click()}
       >
         {loading ? (
           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -145,10 +146,10 @@ export function UploadS3Button({
         {loading ? 'Uploading...' : 'Add Media'}
       </Button>
       <input
-        id="file-upload"
+        id={`file-upload-${type}`}
         type="file"
         accept={getAcceptString(endpoint)}
-        disabled={disabled || loading}
+        disabled={disabled ?? loading}
         className="hidden"
         onChange={handleFileChange}
       />
@@ -167,6 +168,11 @@ export function UploadS3Button({
 function getAcceptString(endpoint: EndPointType) {
   switch (endpoint) {
     case "imageUploader":
+      return "image/jpeg,image/png,image/webp,image/gif";
+    case "profileUploader":
+      return "image/jpeg,image/png,image/webp,image/gif";
+
+    case "coverUploader":
       return "image/jpeg,image/png,image/webp,image/gif";
 
     case "videoUploader":
@@ -217,19 +223,19 @@ export function MultiUploadS3Button({
   const [progress, setProgress] = useState(0);
   const [loading, setLoading] = useState(false);
   const [files, setFiles] = useState<FileList>();
-
+  const [completedCount, setCompletedCount] = useState(0);
   const singedUrls = api.s3.getSignedMultiURLs.useMutation({
     onSuccess: async (urls, variables) => {
       setLoading(true);
       const finished: { url: string; name: string, size: number, type: string }[] = [];
       if (!files) return;
 
-      console.log("xxx", files, urls);
+
       for (const file of files) {
         const data = urls.find((url) => url.fileName === file.name);
         if (!data) continue;
 
-        console.log("xxx: Uploading file", file, data);
+
 
         try {
           const res = await axios.put(data.uploadUrl, file, {
@@ -252,6 +258,8 @@ export function MultiUploadS3Button({
               url: data.fileUrl, name: file.name, size: file.size, type: file.type
 
             });
+            setCompletedCount(prevCount => prevCount + 1);
+
           } else {
             // onUploadError?.(new Error("Failed to upload file"));
             console.log(res);
@@ -268,7 +276,7 @@ export function MultiUploadS3Button({
         }
       }
 
-      console.log(finished);
+
       onClientUploadComplete?.(finished);
       setLoading(false);
     },
@@ -285,7 +293,7 @@ export function MultiUploadS3Button({
 
     if (fileInputs) {
       let targetFiles = Array.from(fileInputs);
-      console.log("xxx", targetFiles);
+
       if (onBeforeUploadBegin) {
         const processedFile = await onBeforeUploadBegin(targetFiles);
         if (!processedFile) {
@@ -306,7 +314,6 @@ export function MultiUploadS3Button({
         }),
       );
 
-      console.log("filesMeta xxx.........", filesMeta);
 
       setFiles(fileInputs);
 
@@ -320,22 +327,41 @@ export function MultiUploadS3Button({
   };
 
   return (
-    <div className="grid w-full  items-center gap-1.5">
-      {loading && <div>Uploading...</div>}
-      <Input
-        onChange={handleFileChange}
-        id="picture"
+
+    <div className="grid w-full items-center gap-2">
+      <Button
+        variant="default"
+        type="button"
+        className="w-full bg-blue-600 hover:bg-blue-700"
+        disabled={loading}
+        onClick={() => document.getElementById('file-upload')?.click()}
+      >
+        {loading ? (
+          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+        ) : (
+          <Upload className="mr-2 h-4 w-4" />
+        )}
+        {loading ? 'Uploading...' : 'Add Media'}
+      </Button>
+      <input
+        id="file-upload"
         type="file"
-        className="bg-slate-200"
         accept={getAcceptString(endpoint)}
+        disabled={loading}
+        className="hidden"
+        onChange={handleFileChange}
         multiple
       />
+      {loading && (
+        <Progress
+          value={progress}
+          className="h-1 w-full"
+        />
+      )}
+      {loading && <div className="text-sm text-gray-600">Completed: {completedCount}/{files?.length}</div>}
 
-      <Progress
-        className="w-full"
-        value={progress}
-        style={{ height: "0.5rem" }}
-      />
     </div>
+
+
   );
 }

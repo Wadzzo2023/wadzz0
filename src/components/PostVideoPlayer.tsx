@@ -106,12 +106,8 @@ export const PostVideoPlayer: React.FC<{ videoId?: number }> = ({ videoId }) => 
     if (!currentVideo) {
         return null;
     }
-    console.log("isIntersecting",)
     return (
         <div className="relative w-full ">
-
-
-
 
             <Card className="w-full text-black">
                 <CardContent className="p-6">

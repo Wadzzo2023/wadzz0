@@ -65,20 +65,20 @@ async function getNewUrl(imageUrl: string | undefined | null) {
     return undefined;
   }
 
-  console.log(`Downloading from ${imageUrl}`);
+  //console.log(`Downloading from ${imageUrl}`);
   const { buffer, contentType } = await downloadImage(imageUrl);
 
-  console.log(`Uploading to S3: ${fileName} (${contentType})`);
+  //console.log(`Uploading to S3: ${fileName} (${contentType})`);
   const newImageUrl = await uploadToS3WithProgress(
     buffer,
     fileName, // Using original filename with extension
     contentType,
     (progress) => {
-      console.log(`Upload progress: ${progress}%`);
+      //console.log(`Upload progress: ${progress}%`);
     },
   );
 
-  console.log(`New URL: ${newImageUrl}`);
+  //console.log(`New URL: ${newImageUrl}`);
   return newImageUrl;
 }
 
@@ -112,7 +112,7 @@ async function updateUserTable() {
     },
   });
 
-  console.log(`remaning utfs.io`, newUsers.length);
+  //console.log(`remaning utfs.io`, newUsers.length);
 }
 
 async function updateCreatorTable() {
@@ -174,7 +174,7 @@ async function updateCreatorTable() {
     },
   });
 
-  console.log(`remaning utfs.io`, newCreators.length);
+  //console.log(`remaning utfs.io`, newCreators.length);
 }
 
 async function updateCreatorPageAsset() {
@@ -235,7 +235,7 @@ async function updateAlbumTable() {
     },
   });
 
-  console.log(`remaning utfs.io`, newAlbumss.length);
+  //console.log(`remaning utfs.io`, newAlbumss.length);
 }
 
 async function updateAssetTable() {
@@ -269,7 +269,7 @@ async function updateAssetTable() {
     },
   });
 
-  console.log(`remaning utfs.io`, newAssets.length);
+  //console.log(`remaning utfs.io`, newAssets.length);
 }
 
 async function updateAdmin() {
@@ -331,7 +331,7 @@ async function updateAdmin() {
     },
   });
 
-  console.log(`remaning utfs.io`, newAdmins.length);
+  //console.log(`remaning utfs.io`, newAdmins.length);
 
   const adminAssets = await db.adminAsset.findMany({
     where: {

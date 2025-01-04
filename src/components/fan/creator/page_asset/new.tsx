@@ -101,7 +101,7 @@ function NewPageAssetFrom({ requiredToken }: { requiredToken: number }) {
       })
         .then((res) => {
           if (res) {
-            console.log(getValues("thumbnail"));
+
             mutation.mutate({
               code: getValues("code"),
               limit: getValues("limit"),
@@ -121,7 +121,7 @@ function NewPageAssetFrom({ requiredToken }: { requiredToken: number }) {
           shadToast({
             title: "Transaction failed",
           });
-          console.log(e);
+
         })
         .finally(() => {
           toast.dismiss(toastId);
@@ -170,7 +170,7 @@ function NewPageAssetFrom({ requiredToken }: { requiredToken: number }) {
 
       setUploading(false);
     } catch (e) {
-      console.log(e);
+
       setUploading(false);
       alert("Trouble uploading file");
     }

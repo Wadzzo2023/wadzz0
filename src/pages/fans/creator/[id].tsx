@@ -385,7 +385,7 @@ function CreatorStoreItem({ creatorId }: { creatorId: string }) {
 
   if (assets.isLoading)
     return (
-      <MoreAssetsSkeleton className="grid grid-cols-2 gap-2 md:grid-cols-4 lg:grid-cols-5" />
+      <MoreAssetsSkeleton className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6" />
     );
 
   if (assets.data?.pages[0]?.nfts.length === 0) {
@@ -394,20 +394,20 @@ function CreatorStoreItem({ creatorId }: { creatorId: string }) {
 
   if (assets.data) {
     return (
-      <div className="p-2">
-        <div
-          style={{
-            scrollbarGutter: "stable",
-          }}
-          className="grid grid-cols-2 gap-2 md:grid-cols-4 lg:grid-cols-5"
-        >
-          {assets.data.pages.map((page) =>
-            page.nfts.map((item, i) => (
-              <ShopAssetComponent key={i} item={item} />
 
-            )),
-          )}
-        </div>
+      <div
+
+        className="w-full p-4 grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6"
+      >
+        {assets.data.pages.map((page) =>
+          page.nfts.map((item, i) => (
+            <div key={i}>
+              <ShopAssetComponent item={item} />
+
+            </div>
+          )),
+        )}
+
         {assets.hasNextPage && (
           <button
             className="btn btn-outline btn-primary"
@@ -416,7 +416,18 @@ function CreatorStoreItem({ creatorId }: { creatorId: string }) {
             Load More
           </button>
         )}
-      </div>
+
+        {
+          assets.hasNextPage && (
+            <button
+              className="btn btn-outline btn-primary"
+              onClick={() => void assets.fetchNextPage()}
+            >
+              Load More
+            </button>
+          )
+        }
+      </div >
     );
   }
 }

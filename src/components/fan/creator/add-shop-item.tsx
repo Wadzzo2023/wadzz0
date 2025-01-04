@@ -68,7 +68,7 @@ export default function AddItem2Shop() {
             })
             .catch((e) => console.log(e));
         } else {
-          console.log("Error happened");
+          // console.log("Error happened");
         }
       } else {
         toast.error("Error happened");
@@ -95,7 +95,7 @@ export default function AddItem2Shop() {
     });
   };
 
-  console.log(errors, "errors");
+
 
   const handleModal = () => {
     modalRef.current?.showModal();

@@ -119,7 +119,7 @@ const Bounty: React.FC = () => {
                       {bounty._count.participants} participants
                     </Badge>
                     <Badge variant={bounty._count.BountyWinner === 0 ? "outline" : "default"}>
-                      {bounty.totalWinner === bounty._count.BountyWinner
+                      {bounty.totalWinner <= bounty._count.BountyWinner
                         ? "Finished"
                         : `${bounty.totalWinner - bounty._count.BountyWinner} Winner${bounty.totalWinner - bounty._count.BountyWinner !== 1 ? "s" : ""
                         } Left`}

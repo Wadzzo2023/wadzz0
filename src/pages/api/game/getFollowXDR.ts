@@ -54,7 +54,7 @@ export default async function handler(
       userPubkey: userId,
       signWith: { email: userEmail },
     });
-    console.log(xdr);
+
     res.status(200).json({ xdr });
   } else {
     if (creator.customPageAssetCodeIssuer) {

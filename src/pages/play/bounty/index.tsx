@@ -118,8 +118,7 @@ export default function BountyScreen() {
       if (filterButton && joinButton) {
         const filterRect = filterButton.getBoundingClientRect();
         const joinRect = joinButton.getBoundingClientRect();
-        console.log("filterRect", filterRect);
-        // Only update state if layout values have actually changed
+
         setButtonLayouts((prevLayouts) => {
           const newLayouts = [
             {
@@ -193,7 +192,7 @@ export default function BountyScreen() {
   if (response.isLoading) return <Loading />;
 
   const toggleJoin = (id: string, isAlreadyJoin: boolean, bounty: Bounty) => {
-    console.log("toggleJoin", id, isAlreadyJoin, bounty);
+
     if (isAlreadyJoin || bounty.isOwner) {
       setData({ item: bounty });
       router.push(`/play/bounty/${bounty.id}`);

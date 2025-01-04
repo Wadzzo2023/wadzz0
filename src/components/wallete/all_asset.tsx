@@ -48,21 +48,17 @@ export default function AllAsset() {
     artistAssets.isLoading
   )
     return (
-      <MoreAssetsSkeleton className="grid grid-cols-2 gap-2 md:grid-cols-4 lg:grid-cols-5" />
+      <MoreAssetsSkeleton className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6" />
     );
 
   // if (assets.isError)
   //   return <MyError text="Error catch. Please reload this page." />;
 
-  console.log(assets.data, musicAssets.data, adminAssets.data, fanAssets.data);
 
   if (assets.data ?? musicAssets.data ?? adminAssets.data ?? fanAssets.data)
     return (
       <div
-        style={{
-          scrollbarGutter: "stable",
-        }}
-        className="grid grid-cols-2 gap-2 md:grid-cols-4 lg:grid-cols-5"
+        className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6"
       >
         {assets.data?.pages.map((page) =>
           page.assets.map((item, i) => <Asset key={i} asset={item} />),

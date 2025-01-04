@@ -120,37 +120,37 @@ export function PostCard({
       case 'MUSIC':
         return (
           <div className="max-h-[400px] min-h-[400px] w-full  md:max-h-[500px]  md:min-h-[500px] flex items-center justify-center bg-gray-100 rounded-lg"
-            onClick={() => {
-              setCurrentVideo(null);
-              setVideoCurrentPlayingId(null);
-              if (!isPlaying && currentAudioPlayingId !== item.id) {
-                setCurrentTrack({
-                  albumId: 1,
-                  artist: addrShort(creatorId, 7),
-                  asset: {
-                    creatorId: addrShort(creatorId, 7),
-                    description: post.heading,
-                    issuer: 'issuer',
-                    limit: 0,
-                    mediaType: MediaType.MUSIC,
-                    privacy: 'PUBLIC',
-                    tierId: 1,
-                    code: 'video1',
-                    id: 1,
-                    mediaUrl: item.url,
-                    name: post.heading,
-                    thumbnail: creator.profileUrl ?? 'https://bandcoin.io/images/logo.png',
-                  },
-                  assetId: 1,
-                  createdAt: new Date(),
-                  id: 1,
-                  price: 0,
-                  priceUSD: 0,
+          // onClick={() => {
+          //   setCurrentVideo(null);
+          //   setVideoCurrentPlayingId(null);
+          //   if (!isPlaying && currentAudioPlayingId !== item.id) {
+          //     setCurrentTrack({
+          //       albumId: 1,
+          //       artist: addrShort(creatorId, 7),
+          //       asset: {
+          //         creatorId: addrShort(creatorId, 7),
+          //         description: post.heading,
+          //         issuer: 'issuer',
+          //         limit: 0,
+          //         mediaType: MediaType.MUSIC,
+          //         privacy: 'PUBLIC',
+          //         tierId: 1,
+          //         code: 'video1',
+          //         id: 1,
+          //         mediaUrl: item.url,
+          //         name: post.heading,
+          //         thumbnail: creator.profileUrl ?? 'https://bandcoin.io/images/logo.png',
+          //       },
+          //       assetId: 1,
+          //       createdAt: new Date(),
+          //       id: 1,
+          //       price: 0,
+          //       priceUSD: 0,
 
-                })
-                setCurrentAudioPlayingId(item.id);
-              }
-            }}
+          //     })
+          //     setCurrentAudioPlayingId(item.id);
+          //   }
+          // }}
           >
             {
               currentAudioPlayingId === item.id ? (
@@ -159,7 +159,7 @@ export function PostCard({
                 <DummyAudioPostPlayer audioId={item.id}
                   name={post.heading}
                   artist={creatorId}
-                  creatorProfileUrl={creatorProfileUrl}
+                  creatorProfileUrl={creator.profileUrl}
                   mediaUrl={item.url}
                 />
               )

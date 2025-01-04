@@ -135,7 +135,7 @@ export async function SendBountyBalanceToUserAccount({
     }
     return false;
   });
-  console.log("platformAssetBalance.............", platformAssetBalance);
+  //console.log("platformAssetBalance.............", platformAssetBalance);
 
   if (
     !platformAssetBalance ||
@@ -212,7 +212,7 @@ export async function SendBountyBalanceToWinner({
   const server = new Horizon.Server(STELLAR_URL);
   const motherAcc = Keypair.fromSecret(MOTHER_SECRET);
   const account = await server.loadAccount(motherAcc.publicKey());
-  console.log("account", account);
+  //console.log("account", account);
   const receiverAcc = await server.loadAccount(recipientID);
 
   const platformAssetBalance = account.balances.find((balance) => {
@@ -238,10 +238,10 @@ export async function SendBountyBalanceToWinner({
       "Please make sure you have at least 1 XLM in your account.",
     );
   }
-  console.log("XLMBalance", XLMBalance);
+  //console.log("XLMBalance", XLMBalance);
 
   const hasTrust = receiverAcc.balances.some((balance) => {
-    console.log(balance);
+    //console.log(balance);
     return (
       (balance.asset_type === "credit_alphanum4" ||
         balance.asset_type === "credit_alphanum12") &&
@@ -256,8 +256,10 @@ export async function SendBountyBalanceToWinner({
   });
 
   if (!hasTrust) {
-    throw new Error(`Please trust the ${PLATFORM_ASSET.code} first.`);
+    throw new Error(`User Doesn't have trust, Please trust the ${PLATFORM_ASSET.code} first.`);
   }
+
+
 
   transaction.addOperation(
     Operation.payment({
@@ -362,7 +364,7 @@ export async function SwapUserAssetToMotherUSDC({
   const asset = new Asset(assetCode, assetIssuer);
 
   const senderHasTrustOnUSDC = senderAcc.balances.some((balance) => {
-    console.log(balance);
+    //console.log(balance);
     return (
       (balance.asset_type === "credit_alphanum4" ||
         balance.asset_type === "credit_alphanum12") &&
@@ -372,7 +374,7 @@ export async function SwapUserAssetToMotherUSDC({
   });
 
   const receiverHasTrustOnUSDC = account.balances.some((balance) => {
-    console.log(balance);
+    //console.log(balance);
     return (
       (balance.asset_type === "credit_alphanum4" ||
         balance.asset_type === "credit_alphanum12") &&
@@ -448,7 +450,7 @@ export async function getHasMotherTrustOnUSDC() {
   const motherAcc = Keypair.fromSecret(MOTHER_SECRET);
   const account = await server.loadAccount(motherAcc.publicKey());
   const motherHasTrust = account.balances.some((balance) => {
-    console.log(balance);
+    //console.log(balance);
     return (
       (balance.asset_type === "credit_alphanum4" ||
         balance.asset_type === "credit_alphanum12") &&
@@ -466,7 +468,7 @@ export async function getHasUserHasTrustOnUSDC(userPubKey: string) {
   const server = new Horizon.Server(STELLAR_URL);
   const account = await server.loadAccount(userPubKey);
   const userHasTrust = account.balances.some((balance) => {
-    console.log(balance);
+    //console.log(balance);
     return (
       (balance.asset_type === "credit_alphanum4" ||
         balance.asset_type === "credit_alphanum12") &&
@@ -489,14 +491,14 @@ export async function checkXDRSubmitted(xdr: string) {
         .transactions()
         .transaction(txHash)
         .call();
-      console.log("Transaction already submitted:", transactionResult);
+      //console.log("Transaction already submitted:", transactionResult);
       return true;
     } catch (error) {
-      console.log("Transaction not submitted yet:", error);
+      //console.log("Transaction not submitted yet:", error);
       return false;
     }
   } catch (error) {
-    console.log("Error in checkXDRSubmitted:", error);
+    //console.log("Error in checkXDRSubmitted:", error);
     return true;
   }
 }

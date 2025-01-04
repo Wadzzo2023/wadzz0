@@ -1,14 +1,13 @@
 import React, { useEffect, useState } from "react";
-import dynamic from 'next/dynamic';
-
+import dynamic from "next/dynamic";
 import Hamburger from "./hamburger";
 import Logo from "./logo";
 import { SiteAssetBalance } from "./marketplace/recharge/site_asset_bal";
 
-const NewYearAnimation = dynamic(() => import('./NewYearAnimation'), {
+const NewYearAnimation = dynamic(() => import("./NewYearAnimation"), {
   ssr: false,
 });
-const TextNewYearAnimation = dynamic(() => import('./Text-NewYearAnimation'), {
+const TextNewYearAnimation = dynamic(() => import("./Text-NewYearAnimation"), {
   ssr: false,
 });
 
@@ -43,9 +42,8 @@ function Header(_props: HeaderProps) {
         <div className="ml-auto hidden md:flex">
           <SiteAssetBalance />
         </div>
-
       </div>
-      <div className="absolute top-[4.6rem] left-0 right-0 w-full z-50 flex overflow-hidden">
+      <div className="absolute left-0 right-0 top-[4.6rem] z-50 flex w-full overflow-hidden">
         {Array.from({ length: 5 }, (_, index) => (
           <Image
             key={index}
@@ -63,14 +61,14 @@ function Header(_props: HeaderProps) {
         alt="Candy Cane"
         width={40}
         height={80}
-        className="absolute z-10 left-4 top-[4rem] transform -rotate-45 "
+        className="absolute left-4 top-[4rem] z-10 -rotate-45 transform "
       />
       <Image
         src="/candy-cane.png"
         alt="Candy Cane"
         width={40}
         height={80}
-        className="absolute z-10 right-4 top-[4rem] transform rotate-45  "
+        className="absolute right-4 top-[4rem] z-10 rotate-45 transform  "
       />
 
       {/* Happy New Year Lottie Animation */}

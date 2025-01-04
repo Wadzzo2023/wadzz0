@@ -1,4 +1,3 @@
-import { motion } from "framer-motion";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
 import { useState } from "react";
@@ -10,10 +9,6 @@ import {
   Dialog,
   DialogClose,
   DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
 } from "~/components/shadcn/ui/dialog";
 
 import { Badge } from "~/components/shadcn/ui/badge";
@@ -27,7 +22,12 @@ import { useRouter } from "next/router";
 import { Card, CardContent, CardFooter } from "~/components/shadcn/ui/card";
 import { useModal } from "~/lib/state/play/use-modal-store";
 import BuyItem from "../BuyItem";
-import { DisableFromMarketButton, OtherButtons } from "./modal-action-button";
+import {
+  DeleteAssetByAdmin,
+  DisableFromMarketButton,
+  OtherButtons,
+  SparkleEffect,
+} from "./modal-action-button";
 
 export const PaymentMethodEnum = z.enum(["asset", "xlm", "card"]);
 export type PaymentMethod = z.infer<typeof PaymentMethodEnum>;
@@ -40,18 +40,20 @@ export default function SongBuyModal() {
   const router = useRouter();
   const isCollectionRoute = router.pathname.startsWith("/assets");
 
-  console.log("isOpen", isOpen);
   const isModalOpen = isOpen && type === "song buy modal";
   const handleClose = () => {
     setStep(1);
     onClose();
   };
 
-  const copy = api.marketplace.market.getMarketAssetAvailableCopy.useQuery({
-    id: data.Song?.asset?.id,
-  });
-
-  console.log("data", copy);
+  const copy = api.marketplace.market.getMarketAssetAvailableCopy.useQuery(
+    {
+      id: data.Song?.asset?.id,
+    },
+    {
+      enabled: !!data.Song?.asset,
+    },
+  );
 
   const handleNext = () => {
     setStep((prev) => prev + 1);
@@ -64,6 +66,9 @@ export default function SongBuyModal() {
   const { data: canBuyUser } =
     api.marketplace.market.userCanBuyThisMarketAsset.useQuery(
       data.Song?.asset?.id ?? 0,
+      {
+        enabled: !!data.Song?.asset,
+      },
     );
 
   if (!data.Song || !data.Song.asset)
@@ -190,39 +195,30 @@ export default function SongBuyModal() {
                     )
                   )}
 
-                  <DeleteAssetByAdmin id={data.Song.id} />
+                  <DeleteAssetByAdmin assetId={data.Song.assetId}
+                    handleClose={handleClose} />
+
                   <p className="text-xs text-gray-400">
                     Once purchased, this item will be placed on collection.
                   </p>
-                </CardFooter>
-              </Card>
+                </CardFooter >
+              </Card >
 
               {/* Right Column - Bundle Info */}
-              <div className=" hidden rounded-sm bg-gray-300   p-1  md:col-span-4 md:grid ">
-                {data.Song.asset.mediaType === "IMAGE" ? (
-                  <Image
-                    src={data.Song.asset.mediaUrl}
-                    alt={data.Song.asset.name}
-                    width={1000}
-                    height={1000}
-                    className={clsx(
-                      "h-full w-full object-cover ",
-                      data.Song.asset.tierId ? " blur-md" : "",
-                    )}
-                  />
-                ) : data.Song.asset.mediaType === "VIDEO" ? (
-                  <Image
-                    src={data.Song.asset.thumbnail}
-                    alt={data.Song.asset.name}
-                    width={1000}
-                    height={1000}
-                    className={clsx(
-                      "h-full w-full object-cover ",
-                      data.Song.asset.tierId ? " blur-md" : "",
-                    )}
-                  />
-                ) : (
-                  data.Song.asset.mediaType === "MUSIC" && (
+              < div className=" hidden rounded-sm bg-gray-300   p-1  md:col-span-4 md:grid " >
+                {
+                  data.Song.asset.mediaType === "IMAGE" ? (
+                    <Image
+                      src={data.Song.asset.mediaUrl}
+                      alt={data.Song.asset.name}
+                      width={1000}
+                      height={1000}
+                      className={clsx(
+                        "h-full w-full object-cover ",
+                        data.Song.asset.tierId ? " blur-md" : "",
+                      )}
+                    />
+                  ) : data.Song.asset.mediaType === "VIDEO" ? (
                     <Image
                       src={data.Song.asset.thumbnail}
                       alt={data.Song.asset.name}
@@ -233,31 +229,47 @@ export default function SongBuyModal() {
                         data.Song.asset.tierId ? " blur-md" : "",
                       )}
                     />
+                  ) : (
+                    data.Song.asset.mediaType === "MUSIC" && (
+                      <Image
+                        src={data.Song.asset.thumbnail}
+                        alt={data.Song.asset.name}
+                        width={1000}
+                        height={1000}
+                        className={clsx(
+                          "h-full w-full object-cover ",
+                          data.Song.asset.tierId ? " blur-md" : "",
+                        )}
+                      />
+                    )
                   )
-                )}
-              </div>
-            </div>
-          )}
-          {step === 2 && (
-            <Card>
-              <CardContent className="p-0">
-                <BuyItem
-                  marketItemId={data.Song.asset.id}
-                  priceUSD={data.Song.priceUSD}
-                  item={data.Song.asset}
-                  price={data.Song.price}
-                  setClose={handleClose}
-                />
-              </CardContent>
-              <CardFooter className="p-2">
-                {step === 2 && (
-                  <Button onClick={handleBack} variant="secondary" className="">
-                    <ArrowLeft className="h-4 w-4" /> Back
-                  </Button>
-                )}
-              </CardFooter>
-            </Card>
-          )}
+                }
+              </div >
+            </div >
+          )
+          }
+          {
+            step === 2 && (
+              <Card>
+                <CardContent className="p-0">
+                  <BuyItem
+                    marketItemId={data.Song.asset.id}
+                    priceUSD={data.Song.priceUSD}
+                    item={data.Song.asset}
+                    price={data.Song.price}
+                    setClose={handleClose}
+                  />
+                </CardContent>
+                <CardFooter className="p-2">
+                  {step === 2 && (
+                    <Button onClick={handleBack} variant="secondary" className="">
+                      <ArrowLeft className="h-4 w-4" /> Back
+                    </Button>
+                  )}
+                </CardFooter>
+              </Card>
+            )
+          }
           {/* <DialogFooter>
                             {step > 1 && (
                                 <Button onClick={handleBack} variant="outline">
@@ -270,98 +282,8 @@ export default function SongBuyModal() {
                                 <Button onClick={handleSubmit}>Submit</Button>
                             )}
                         </DialogFooter> */}
-        </DialogContent>
-      </Dialog>
+        </DialogContent >
+      </Dialog >
     </>
   );
-}
-
-function SparkleEffect() {
-  return (
-    <motion.div
-      className="absolute inset-0"
-      initial="initial"
-      animate="animate"
-    >
-      {[...Array({ length: 20 })].map((_, i) => (
-        <motion.div
-          key={i}
-          className="absolute h-2 w-2 rounded-full bg-yellow-300"
-          initial={{
-            opacity: 0,
-            scale: 0,
-            x: Math.random() * 400 - 200,
-            y: Math.random() * 400 - 200,
-          }}
-          animate={{
-            opacity: [0, 1, 0],
-            scale: [0, 1, 0],
-            x: Math.random() * 400 - 200,
-            y: Math.random() * 400 - 200,
-          }}
-          transition={{
-            duration: 2,
-            repeat: Infinity,
-            delay: Math.random() * 2,
-            ease: "easeInOut",
-          }}
-        />
-      ))}
-    </motion.div>
-  );
-}
-function DeleteAssetByAdmin({ id }: { id: number }) {
-  const [isOpen, setIsOpen] = useState(false);
-  const admin = api.wallate.admin.checkAdmin.useQuery();
-  const del = api.marketplace.market.deleteMarketAsset.useMutation({
-    onSuccess: () => {
-      setIsOpen(false);
-    },
-  });
-
-  if (admin.data)
-    return (
-      <>
-        <Dialog open={isOpen} onOpenChange={setIsOpen}>
-          <DialogTrigger asChild>
-            <Button variant={"destructive"} className="w-full ">
-              {del.isLoading && <span className="loading loading-spinner" />}
-              Remove from market
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-[425px]">
-            <DialogHeader>
-              <DialogTitle>Confirmation </DialogTitle>
-            </DialogHeader>
-            <div>
-              <p>
-                Are you sure you want to delete this item? This action is
-                irreversible.
-              </p>
-            </div>
-            <DialogFooter className=" w-full">
-              <div className="flex w-full gap-4  ">
-                <DialogClose className="w-full">
-                  <Button variant="outline" className="w-full">
-                    Cancel
-                  </Button>
-                </DialogClose>
-                <Button
-                  variant="destructive"
-                  type="submit"
-                  onClick={() => del.mutate(id)}
-                  disabled={del.isLoading}
-                  className="w-full"
-                >
-                  {del.isLoading && (
-                    <span className="loading loading-spinner" />
-                  )}
-                  Confirm
-                </Button>
-              </div>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-      </>
-    );
 }

@@ -20,7 +20,7 @@ import { addrShort } from "~/utils/utils";
 
 import clsx from "clsx";
 import { Card, CardContent, CardFooter } from "~/components/shadcn/ui/card";
-import { useModal } from "~/lib/state/play/use-modal-store";
+import { SongItemType, useModal } from "~/lib/state/play/use-modal-store";
 
 import { useRouter } from "next/router";
 import BuyItem from "../BuyItem";
@@ -30,6 +30,9 @@ import {
   DisableFromMarketButton,
   SparkleEffect,
 } from "./modal-action-button";
+import { useUserStellarAcc } from "~/lib/state/wallete/stellar-balances";
+import { usePlayer } from "../context/PlayerContext";
+import { RightSidePlayer } from "../RightSidePlayer";
 
 export const PaymentMethodEnum = z.enum(["asset", "xlm", "card"]);
 export type PaymentMethod = z.infer<typeof PaymentMethodEnum>;
@@ -39,12 +42,16 @@ export default function BuyModal() {
   const session = useSession();
   const router = useRouter();
   const [step, setStep] = useState(1);
-
+  const { setCurrentTrack, currentTrack } = usePlayer();
   const isModalOpen = isOpen && type === "buy modal";
   const handleClose = () => {
+    setCurrentTrack(null);
     setStep(1);
     onClose();
   };
+
+  const { getAssetBalance, hasTrust, balances } = useUserStellarAcc()
+
 
   const handleNext = () => {
     setStep((prev) => prev + 1);
@@ -54,16 +61,33 @@ export default function BuyModal() {
     setStep((prev) => prev - 1);
   };
 
+
   const copy = api.marketplace.market.getMarketAssetAvailableCopy.useQuery({
     id: data.Asset?.id,
-  });
 
-  const { data: canBuyUser, isLoading: canBuyUserLoading } =
+  },
+    {
+      enabled: !!data.Asset
+    }
+  );
+
+
+  const hasTrustonAsset = hasTrust(data.Asset?.asset.code ?? "", data.Asset?.asset.issuer ?? "");
+
+
+
+  const { data: canBuyUser } =
     api.marketplace.market.userCanBuyThisMarketAsset.useQuery(
       data.Asset?.id ?? 0,
+      {
+        enabled: !!data.Asset
+      }
     );
 
+  console.log(data.Asset)
   if (!data.Asset || !data.Asset.asset)
+
+
     return (
       <Dialog open={isModalOpen} onOpenChange={handleClose}>
         <DialogContent className="max-w-2xl overflow-hidden p-1   ">
@@ -182,8 +206,53 @@ export default function BuyModal() {
                   </div>
                 </CardContent>
                 <CardFooter className="flex flex-col gap-1 p-2">
+                  {data.Asset.asset.mediaType === "MUSIC" && hasTrustonAsset ? (
+                    <Button
+                      onClick={() => {
+                        setCurrentTrack(null);
+                        setCurrentTrack({
+                          asset: data.Asset?.asset,
+                          albumId: 2,
+                          artist: " ",
+                          assetId: 1,
+                          createdAt: new Date(),
+                          price: 15,
+                          priceUSD: 50,
+                          id: 1,
+                        } as SongItemType);
+                      }}
+
+                      className="w-full bg-[#39BD2B] text-white hover:bg-sky-700 "
+
+                    >
+                      Play
+                    </Button>
+                  ) : (
+                    data.Asset.asset.mediaType === "VIDEO" && hasTrustonAsset && (
+                      <Button
+                        onClick={() => {
+                          setCurrentTrack(null);
+                          setCurrentTrack({
+                            asset: data.Asset?.asset,
+                            albumId: 2,
+                            artist: " ",
+                            assetId: 1,
+                            createdAt: new Date(),
+                            price: 15,
+                            priceUSD: 50,
+                            id: 1,
+                          } as SongItemType);
+                        }}
+
+                        className="w-full bg-[#39BD2B] text-white hover:bg-sky-700"
+
+                      >
+                        Play
+                      </Button>
+                    )
+                  )}
                   {session.status === "authenticated" &&
-                  data.Asset.placerId === session.data.user.id ? (
+                    data.Asset.placerId === session.data.user.id ? (
                     <>
                       <DisableFromMarketButton
                         code={data.Asset.asset.code}
@@ -204,7 +273,9 @@ export default function BuyModal() {
                     )
                   )}
 
-                  <DeleteAssetByAdmin id={data.Asset.id} />
+                  <DeleteAssetByAdmin marketId={data.Asset.id}
+                    handleClose={handleClose}
+                  />
                   <p className="text-xs text-gray-400">
                     Once purchased, this item will be placed on collection.
                   </p>
@@ -214,38 +285,77 @@ export default function BuyModal() {
               {/* Right Column - Bundle Info */}
               <div className=" rounded-sm bg-gray-300 p-1   md:col-span-4 ">
                 {data.Asset.asset.mediaType === "IMAGE" ? (
-                  <Image
+                  hasTrustonAsset ? (
+                    <>
+                      <Image
+                        src={data.Asset.asset.mediaUrl}
+                        alt={data.Asset.asset.name}
+                        width={1000}
+                        height={1000}
+                        className=
+                        "h-full max-h-[800px] w-full overflow-y-auto object-cover"
+                      />
+                    </>
+                  ) : (<Image
                     src={data.Asset.asset.mediaUrl}
                     alt={data.Asset.asset.name}
                     width={1000}
                     height={1000}
-                    className={clsx(
-                      "h-full max-h-[800px] w-full overflow-y-auto object-cover ",
-                      data.Asset.asset.tierId ? " blur-md" : "",
-                    )}
-                  />
+                    className=
+                    "h-full max-h-[800px] w-full overflow-y-auto object-cover blur-lg"
+                  />)
                 ) : data.Asset.asset.mediaType === "VIDEO" ? (
-                  <Image
-                    src={data.Asset.asset.thumbnail}
+                  hasTrustonAsset ? (
+                    <div
+                      style={{
+                        backgroundImage: `url(${data.Asset.asset.thumbnail})`,
+                        backgroundSize: "cover",
+                        backgroundPosition: "center",
+                        backgroundRepeat: "no-repeat",
+                        height: "100%",
+                        width: "100%",
+                      }}
+                      className={clsx(
+                        "h-full max-h-[800px] w-full overflow-y-auto object-cover",
+                      )}
+                    >
+                      <RightSidePlayer />
+                    </div>
+                  ) : (<Image
+                    src={data.Asset.asset.mediaUrl}
                     alt={data.Asset.asset.name}
                     width={1000}
                     height={1000}
-                    className={clsx(
-                      "h-full max-h-[800px] w-full overflow-y-hidden object-cover ",
-                      data.Asset.asset.tierId ? " blur-md" : "",
-                    )}
-                  />
+                    className=
+                    "h-full max-h-[800px] w-full overflow-y-auto object-cover blur-lg"
+                  />)
                 ) : data.Asset.asset.mediaType === "MUSIC" ? (
-                  <Image
-                    src={data.Asset.asset.thumbnail}
+                  hasTrustonAsset ? (
+                    <>
+                      <div
+                        style={{
+                          backgroundImage: `url(${data.Asset.asset.thumbnail})`,
+                          backgroundSize: "cover",
+                          backgroundPosition: "center",
+                          backgroundRepeat: "no-repeat",
+                          height: "100%",
+                          width: "100%",
+                        }}
+                        className={clsx(
+                          "h-full max-h-[800px] w-full overflow-y-auto object-cover",
+                        )}
+                      >
+                        <RightSidePlayer />
+                      </div>
+                    </>
+                  ) : (<Image
+                    src={data.Asset.asset.mediaUrl}
                     alt={data.Asset.asset.name}
                     width={1000}
                     height={1000}
-                    className={clsx(
-                      " h-full max-h-[800px] w-full overflow-y-hidden object-cover ",
-                      data.Asset.asset.tierId ? " blur-md" : "",
-                    )}
-                  />
+                    className=
+                    "h-full max-h-[800px] w-full overflow-y-auto object-cover blur-lg"
+                  />)
                 ) : (
                   <>
                     <div
@@ -257,14 +367,10 @@ export default function BuyModal() {
                         height: "100%",
                         width: "100%",
                       }}
-                      className={clsx(
-                        "h-full max-h-[800px] w-full overflow-y-hidden object-cover ",
-                        data.Asset.asset.tierId ? " blur-md" : "",
-                      )}
                     >
                       <ShowModel
                         url={data.Asset.asset.mediaUrl}
-                        blur={data.Asset.asset.tierId ? true : false}
+                        blur={hasTrustonAsset ? false : true}
                       />
                     </div>
                   </>

@@ -30,14 +30,24 @@ const BountyRightBar = () => {
     joinBountyMutation.mutate({ BountyId: id });
   };
 
-  const { data: Owner } = api.bounty.Bounty.isOwnerOfBounty.useQuery({
+  const { data: Owner, isLoading } = api.bounty.Bounty.isOwnerOfBounty.useQuery({
     BountyId: currentData?.id ?? 0,
+  }, {
+    enabled: !!currentData
   });
 
   const isAlreadyJoin = api.bounty.Bounty.isAlreadyJoined.useQuery({
     BountyId: currentData?.id ?? 0,
+  }, {
+    enabled: !!currentData
   });
-  console.log(currentData);
+
+  if (!currentData || isLoading || isAlreadyJoin.isLoading) {
+    return (
+      <div>Loading...</div>
+    )
+  }
+
   if (currentData && Owner && isAlreadyJoin.data)
     return (
       <div className="scrollbar-style relative h-full w-full overflow-y-auto rounded-xl">
@@ -93,7 +103,7 @@ const BountyRightBar = () => {
                   <Badge
                     variant={currentData._count.BountyWinner === 0 ? "destructive" : "default"}
                   >
-                    {currentData.totalWinner === currentData._count.BountyWinner ? "Finished" : (currentData.totalWinner - currentData._count.BountyWinner) + " Winner Left"}
+                    {currentData.totalWinner <= currentData._count.BountyWinner ? "Finished" : (currentData.totalWinner - currentData._count.BountyWinner) + " Winner Left"}
                   </Badge>
                 </p>
               </div>
@@ -117,7 +127,7 @@ const BountyRightBar = () => {
                 <Button className="w-full" disabled variant={"destructive"}>
                   Required {currentData.requiredBalance} {PLATFORM_ASSET.code}
                 </Button>
-              ) : currentData.totalWinner === currentData._count.BountyWinner ? (
+              ) : currentData.totalWinner <= currentData._count.BountyWinner ? (
                 <Button className="w-full" disabled variant={"destructive"}>
                   Bounty Finished
                 </Button>
