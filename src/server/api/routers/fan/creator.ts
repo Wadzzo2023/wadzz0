@@ -265,13 +265,19 @@ export const creatorRouter = createTRPCRouter({
       } else {
         if (creator.customPageAssetCodeIssuer) {
           const [code, issuer] = creator.customPageAssetCodeIssuer.split("-");
+
           const assetCode = z.string().max(12).min(1).parse(code);
           const assetIssuer = z.string().length(56).safeParse(issuer);
+
           if (assetIssuer.success === false) throw new Error("invalid issuer");
+
+          console.log("storage Acc", storageAcc);
 
           const bal = storageAcc.getTokenBalance(assetCode, assetIssuer.data);
 
-          if (bal) {
+
+
+          if (bal >= 0) {
             return { balance: bal, asset: assetCode };
           } else {
             throw new Error("Invalid asset code or issuer");

@@ -223,7 +223,37 @@ export const shopRouter = createTRPCRouter({
       select: { code: true, issuer: true, creatorId: true, thumbnail: true },
     });
 
-    return { shopAsset, pageAsset };
+    let customPageAsset = {
+      code: "",
+      issuer: "",
+      creatorId: ctx.session.user.id,
+      thumbnail: "",
+    };
+
+
+    if (!pageAsset) {
+      const customPageAssetCodeIssuer = await ctx.db.creator.findUnique({
+        where: { id: ctx.session.user.id },
+        select: { customPageAssetCodeIssuer: true },
+      });
+      if (customPageAssetCodeIssuer) {
+        if (customPageAssetCodeIssuer.customPageAssetCodeIssuer) {
+          const [code, issuer] = customPageAssetCodeIssuer.customPageAssetCodeIssuer.split("-");
+          if (code && issuer) {
+            customPageAsset = {
+              code,
+              issuer,
+              creatorId: ctx.session.user.id,
+              thumbnail: "",
+            };
+          }
+        }
+      }
+
+    }
+
+    return { shopAsset, pageAsset: pageAsset ?? customPageAsset };
+
   }),
 
   getCreatorAsset: protectedProcedure
