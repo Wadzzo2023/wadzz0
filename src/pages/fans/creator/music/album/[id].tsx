@@ -208,7 +208,7 @@ function AlbumSkeleton() {
                             <Skeleton className="h-8 w-1/4 mb-4" />
                             <Card>
                                 <Skeleton className="h-10 w-full mb-2" />
-                                {[...Array(5)].map((_, i) => (
+                                {Array.from({ length: 5 }).map((_, i) => (
                                     <Skeleton key={i} className="h-12 w-full mb-2" />
                                 ))}
                             </Card>

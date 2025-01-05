@@ -1,3 +1,5 @@
+
+
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import { ConnectWalletButton } from "package/connect_wallet";
@@ -40,7 +42,6 @@ export function AlbumPage({ albumId }: { albumId: number }) {
       return (
         <>
           <AdminCreateSong albumId={albumId} />
-
           {
             album.data.songs.length === 0 && (
               <div className="mt-10">
@@ -62,7 +63,7 @@ export function AlbumPage({ albumId }: { albumId: number }) {
 
   if (album.isLoading) return <AlbumSkeleton />;
 
-  if (album.data && album.data.songs) {
+  if (album.data?.songs) {
     return (
       <div className="">
         <div className="flex flex-col md:flex-row items-center md:items-end space-y-4 md:space-y-0 md:space-x-6">
