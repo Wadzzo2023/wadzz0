@@ -31,7 +31,7 @@ export const CreatorCustomPageAssetSchema = z.object({
 function CustomPageAssetFrom({ requiredToken }: { requiredToken: number }) {
   const [isModalOpen, setIsModalOpen] = React.useState(false);
   const [signLoading, setSignLoading] = React.useState(false);
-  const [xdr, setXDR] = React.useState<string>();
+  const [xdr, setXDR] = React.useState<string | true>();
 
   const session = useSession();
   const { needSign } = useNeedSign();
@@ -61,6 +61,7 @@ function CustomPageAssetFrom({ requiredToken }: { requiredToken: number }) {
   const xdrMutation = api.fan.trx.trustCustomPageAssetXDR.useMutation({
     onSuccess: (data) => {
       setXDR(data);
+      console.log("data", data);
     },
     onError: (error) => {
       toast.error(`error ${error.message}`);
@@ -139,22 +140,28 @@ function CustomPageAssetFrom({ requiredToken }: { requiredToken: number }) {
           disabled={loading}
           onClick={() => {
             setSignLoading(true);
-            clientsign({
-              presignedxdr: xdr,
-              pubkey: session.data?.user.id,
-              walletType: session.data?.user.walletType,
-              test: clientSelect(),
-            })
-              .then((res) => {
-                if (res) {
-                  mutation.mutate(getValues());
-                } else {
-                  toast.error("Transaction Failed");
-                }
+            if (xdr === true) {
+              mutation.mutate(getValues());
+            }
+            else {
+              clientsign({
+                presignedxdr: xdr,
+                pubkey: session.data?.user.id,
+                walletType: session.data?.user.walletType,
+                test: clientSelect(),
               })
-              .catch((e) => console.log(e))
-              .finally(() => setSignLoading(false));
-          }}
+                .then((res) => {
+                  if (res) {
+                    mutation.mutate(getValues());
+                  } else {
+                    toast.error("Transaction Failed");
+                  }
+                })
+                .catch((e) => console.log(e))
+                .finally(() => setSignLoading(false));
+            }
+          }
+          }
         >
           {loading && <span className="loading loading-spinner"></span>}
           Set Page Asset
