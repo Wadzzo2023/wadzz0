@@ -6,7 +6,10 @@ import {
   createRedeemXDRNative,
 } from "~/lib/stellar/fan/redeem";
 import { AccountSchema } from "~/lib/stellar/fan/utils";
-import { createOrRenewVanitySubscription, getVanitySubscriptionXDR } from "~/lib/stellar/fan/vanity-url";
+import {
+  createOrRenewVanitySubscription,
+  getVanitySubscriptionXDR,
+} from "~/lib/stellar/fan/vanity-url";
 import { getAssetBalance } from "~/lib/stellar/marketplace/test/acc";
 import { StellarAccount } from "~/lib/stellar/marketplace/test/Account";
 import { SignUser } from "~/lib/stellar/utils";
@@ -40,13 +43,26 @@ export const creatorRouter = createTRPCRouter({
   getCreatorPageAsset: protectedProcedure.query(async ({ ctx }) => {
     const pageAsset = await ctx.db.creatorPageAsset.findFirst({
       where: { creatorId: ctx.session.user.id },
+      select: {
+        code: true,
+        issuer: true,
+        creatorId: true,
+      },
     });
 
     if (!pageAsset) {
-      const creator = await ctx.db.creator.findUnique({
+      const creator = await ctx.db.creator.findUniqueOrThrow({
         where: { id: ctx.session.user.id },
       });
-      return creator?.customPageAssetCodeIssuer;
+      const customAsset = creator.customPageAssetCodeIssuer;
+      if (customAsset) {
+        const [code, issuer] = customAsset.split("-");
+        return {
+          code,
+          issuer,
+          creatorId: creator.id,
+        };
+      }
     }
     return pageAsset;
   }),
@@ -60,11 +76,10 @@ export const creatorRouter = createTRPCRouter({
     const creator = ctx.db.creator.findFirst({
       where: { user: { id: ctx.session.user.id } },
       include: {
-        vanitySubscription: true
-      }
+        vanitySubscription: true,
+      },
     });
     return creator;
-
   }),
   getCreatorSecret: protectedProcedure
     .input(
@@ -287,8 +302,6 @@ export const creatorRouter = createTRPCRouter({
       }
       const storagePubKey = creator.storagePub;
 
-
-
       const Asset = await ctx.db.asset.findMany({
         where: { creatorId },
         select: {
@@ -313,15 +326,14 @@ export const creatorRouter = createTRPCRouter({
 
       const acc = await StellarAccount.create(storagePubKey);
 
-      const assetsWithRemaining = Asset.map((asset) => (
-        {
-          ...asset,
-          limit: acc.getTokenBalance(asset.code, asset.issuer),
-          Redeem: asset.Redeem.map((redeem) => ({
-            ...redeem,
-            remaining: redeem.totalRedeemable - redeem.redeemConsumers.length, // Calculate remaining redemptions
-          })),
-        }));
+      const assetsWithRemaining = Asset.map((asset) => ({
+        ...asset,
+        limit: acc.getTokenBalance(asset.code, asset.issuer),
+        Redeem: asset.Redeem.map((redeem) => ({
+          ...redeem,
+          remaining: redeem.totalRedeemable - redeem.redeemConsumers.length, // Calculate remaining redemptions
+        })),
+      }));
       return assetsWithRemaining;
     }),
   generateRedeemCode: protectedProcedure
@@ -420,7 +432,7 @@ export const creatorRouter = createTRPCRouter({
       }
     }),
 
-  // Vanity URL Section 
+  // Vanity URL Section
 
   updateVanityURL: protectedProcedure
     .input(
@@ -429,8 +441,7 @@ export const creatorRouter = createTRPCRouter({
         isChanging: z.boolean(),
         signWith: SignUser,
         cost: z.number(),
-
-      })
+      }),
     )
     .mutation(async ({ ctx, input }) => {
       const userId = ctx.session.user.id;
@@ -446,8 +457,7 @@ export const creatorRouter = createTRPCRouter({
         amount: input.cost,
         signWith: input.signWith,
         userPubKey: userId,
-      })
-
+      });
     }),
 
   createOrUpdateVanityURL: protectedProcedure
@@ -456,7 +466,7 @@ export const creatorRouter = createTRPCRouter({
         vanityURL: z.string().min(2).max(30).optional().nullable(),
         isChanging: z.boolean(),
         amount: z.number(),
-      })
+      }),
     )
     .mutation(async ({ ctx, input }) => {
       const userId = ctx.session.user.id;
@@ -474,8 +484,7 @@ export const creatorRouter = createTRPCRouter({
         isChanging: input.isChanging,
         amount: input.amount,
         vanityURL: input.vanityURL,
-      })
-
+      });
     }),
 
   checkVanityURLAvailability: protectedProcedure
@@ -489,5 +498,4 @@ export const creatorRouter = createTRPCRouter({
 
       return { isAvailable: !exixt };
     }),
-
 });
