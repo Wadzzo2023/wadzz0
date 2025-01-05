@@ -13,13 +13,89 @@ import { StellarAccount } from "~/lib/stellar/marketplace/test/Account";
 import { ItemPrivacy } from "@prisma/client";
 
 export const songRouter = createTRPCRouter({
-  getAllSong: publicProcedure.query(async ({ ctx }) => {
-    const songs = await ctx.db.song.findMany({
-      include: { asset: { select: AssetSelectAllProperty } },
-      // take: 10,
-    });
+  getAllSong: protectedProcedure.query(async ({ ctx }) => {
+    const currentUserId = ctx.session.user.id;
 
-    return songs
+    const songs = await ctx.db.song.findMany({
+      include: {
+        asset: {
+          select: {
+            ...AssetSelectAllProperty,
+            tier: {
+              select: {
+                price: true,
+              },
+            },
+            creator: {
+              select: {
+                pageAsset: {
+                  select: {
+                    code: true,
+                    issuer: true,
+                  },
+                },
+                customPageAssetCodeIssuer: true
+              },
+            },
+          },
+        },
+      },
+    });
+    const stellarAcc = await StellarAccount.create(currentUserId);
+
+
+    // Filter items based on privacy and conditions
+    const array = songs.filter((item) => {
+      if (item.asset.creator?.pageAsset) {
+        const creatorPageAsset = item.asset.creator?.pageAsset;
+        if (item.creatorId === currentUserId) {
+          return true;
+        }
+        if (item.asset.privacy === ItemPrivacy.PUBLIC) {
+          return true;
+        }
+        if (item.asset.privacy === ItemPrivacy.PRIVATE) {
+          return creatorPageAsset && stellarAcc.hasTrustline(creatorPageAsset.code, creatorPageAsset.issuer);
+        }
+        if (item.asset.privacy === ItemPrivacy.TIER) {
+          return (
+            creatorPageAsset &&
+            item.asset.tier &&
+            item.asset.tier.price <= stellarAcc.getTokenBalance(creatorPageAsset.code, creatorPageAsset.issuer)
+          );
+        }
+      }
+      else if (item.asset.creator?.customPageAssetCodeIssuer) {
+
+        const customPageAsset = item.asset.creator.customPageAssetCodeIssuer;
+        console.log("customPageAsset", customPageAsset);
+        const [code, issuer] = customPageAsset.split("-");
+        if (item.creatorId === currentUserId) {
+          return true;
+        }
+        if (item.asset.privacy === ItemPrivacy.PUBLIC) {
+          return true;
+        }
+        if (item.asset.privacy === ItemPrivacy.PRIVATE) {
+          if (code && issuer)
+            return stellarAcc.hasTrustline(code, issuer);
+        }
+        if (item.asset.privacy === ItemPrivacy.TIER) {
+          return (
+            code && issuer &&
+            item.asset.tier &&
+            item.asset.tier.price <= stellarAcc.getTokenBalance(code, issuer)
+          );
+        }
+
+      }
+      else if (item.creatorId === null) {
+        return true
+      }
+
+      return false;
+    });
+    return array
   }),
 
   getCreatorPublicSong: protectedProcedure.query(async ({ ctx }) => {
@@ -41,7 +117,6 @@ export const songRouter = createTRPCRouter({
         creatorId: true,
       },
     });
-    console.log(assets);
 
     return assets;
   }),
@@ -108,12 +183,12 @@ export const songRouter = createTRPCRouter({
             },
           },
         },
+        orderBy: { id: "desc" },
         where: { type: { equals: "SONG" }, placerId: null },
       });
 
       const stellarAcc = await StellarAccount.create(currentUserId);
 
-      // Filter items based on privacy and conditions
       const array = items.filter((item) => {
         const creatorPageAsset = item.asset.creator?.pageAsset;
 
@@ -271,7 +346,7 @@ export const songRouter = createTRPCRouter({
         name,
         code,
         issuer,
-        tier
+
       } = input;
       const serialNumber = 1; // will query based on createdAt
 

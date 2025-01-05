@@ -418,7 +418,7 @@ export const marketRouter = createTRPCRouter({
             select: AssetSelectAllProperty,
           },
         },
-        where: { asset: { creatorId: creatorId } },
+        where: { asset: { creatorId: creatorId, song: null }, },
       });
 
       let nextCursor: typeof cursor | undefined = undefined;
@@ -446,6 +446,7 @@ export const marketRouter = createTRPCRouter({
       const copy = bal.getTokenBalance(code, issuer);
       return copy;
     }),
+
 
   getMarketAssetAvailableCopy: protectedProcedure
     .input(z.object({ id: z.number().optional() }))
@@ -499,6 +500,55 @@ export const marketRouter = createTRPCRouter({
       // return copies.length;
     }),
 
+  getSongAvailableCopy: protectedProcedure
+    .input(z.object({ songId: z.number().optional() }))
+    .query(async ({ ctx, input }) => {
+      const { songId } = input;
+
+      if (!songId) {
+        //  throw new Error("id is required");
+
+        return 0;
+      }
+
+      const song = await ctx.db.song.findUniqueOrThrow({
+        where: { id: songId },
+        select: {
+          creator: true,
+          asset: {
+            select: { code: true, issuer: true }
+          },
+        }
+      });
+
+
+      if (song.creator) {
+        const storage = song?.creator?.storagePub;
+
+        if (!storage) throw new Error("Song item not found");
+
+
+        const acc = await StellarAccount.create(storage);
+        const copy = acc.getTokenBalance(
+          song.asset.code,
+          song.asset.issuer,
+        );
+        return copy;
+      }
+      else {
+
+        const adminStorage = Keypair.fromSecret(env.STORAGE_SECRET).publicKey();
+
+        const bal = await StellarAccount.create(adminStorage);
+        const copy = bal.getTokenBalance(
+          song.asset.code,
+          song.asset.issuer,
+        );
+
+        return copy;
+      }
+      // return copies.length;
+    }),
   deleteMarketAsset: adminProcedure
     .input(
       z.object({
@@ -510,6 +560,10 @@ export const marketRouter = createTRPCRouter({
       const { assetId, marketId } = input;
 
       if (assetId) {
+        const asset = await ctx.db.asset.findUnique({
+          where: { id: assetId },
+        });
+        console.log("asset", asset);
         await ctx.db.asset.delete({
           where: {
             id: assetId,

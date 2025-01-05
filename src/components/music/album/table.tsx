@@ -23,7 +23,7 @@ export default function SongList({
     <div className="py-2">
       <Table className="bg-base-300 rounded-md">
         <TableHeader>
-          <TableRow className="flex justify-between items-center border-b-2 border-base-200">
+          <TableRow className=" border-b-2 border-base-200">
             <TableHead>Song</TableHead>
             <TableHead>Action</TableHead>
             {
@@ -36,7 +36,7 @@ export default function SongList({
           {songs.map((song, index) => (
             <TableRow
               key={song.id}
-              className="bg-base-300 hover:bg-base-100 flex justify-between border-b-2 border-base-200"
+              className="bg-base-300 hover:bg-base-100  w-full border-b-2 border-base-200"
             >
               <TableCell >
                 <div className="space-x-3 ">
@@ -98,7 +98,7 @@ export function PlayOrBuy({ song }: { song: SongItemType }) {
     return (
       <Button
         variant="ghost"
-        size="sm"
+
         onClick={() => {
 
           setCurrentTrack(song)
@@ -120,23 +120,18 @@ export function PlayOrBuy({ song }: { song: SongItemType }) {
     );
   } else {
     return (
-      <div className="w-12">
-        <Button
-          variant="default"
-          size="sm"
-          onClick={() => onOpen("song buy modal", {
-            Song: song,
-          })}
-        >
-          Buy
-        </Button>
-        {/* <BuyModal
-          marketItemId={song.asset.id}
-          priceUSD={song.priceUSD}
-          item={song.asset}
-          price={song.price}
-        /> */}
-      </div>
+
+      <Button
+        variant="default"
+
+        onClick={() => onOpen("song buy modal", {
+          Song: song,
+        })}
+      >
+        Buy
+      </Button>
+
+
     );
   }
 }
@@ -192,7 +187,7 @@ export function MusicItem({
         </div> */}
       </div>
       <div className="flex-grow min-w-0">
-        <p className="text-base font-medium text-gray-800 truncate">{item.asset.code}</p>
+        <p className="text-base font-medium text-gray-800 truncate">{item.asset.name}</p>
         <p className="text-sm text-gray-600 truncate">{item.artist}</p>
       </div>
     </div >

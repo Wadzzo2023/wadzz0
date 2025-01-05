@@ -331,7 +331,7 @@ model Song {
     artist String
 
     assetId Int   @unique
-    asset   Asset @relation(fields: [assetId], references: [id])
+    asset   Asset @relation(fields: [assetId], references: [id], onDelete: Cascade)
 
     creatorId String?
     creator   Creator? @relation(fields: [creatorId], references: [id], onDelete: SetNull)

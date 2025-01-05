@@ -60,28 +60,21 @@ export default function AllAsset() {
       <div
         className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6"
       >
-        {assets.data?.pages.map((page) =>
-          page.assets.map((item, i) => <Asset key={i} asset={item} />),
+        {assets.data?.pages.map((page, i) =>
+          page.assets.map((item, j) => <Asset key={`asset-${i}-${j}`} asset={item} />)
         )}
-        {musicAssets.data?.pages.map((page) => {
-          return page.nfts.map((item, id) => (
-            <MarketAssetComponent key={id} item={item} />
-          ));
-        })}
-        {adminAssets.data?.pages.map((page) =>
-          page.nfts.map((item, i) => (
-            <MarketAssetComponent key={i} item={item} />
-          )),
+        {musicAssets.data?.pages.map((page, i) =>
+          page.nfts.map((item, j) => <MarketAssetComponent key={`music-${i}-${j}`} item={item}
+          />)
         )}
-        {fanAssets.data?.pages.map((page) =>
-          page.nfts.map((item, i) => (
-            <MarketAssetComponent key={i} item={item} />
-          )),
+        {adminAssets.data?.pages.map((page, i) =>
+          page.nfts.map((item, j) => <MarketAssetComponent key={`admin-${i}-${j}`} item={item} />)
         )}
-        {artistAssets.data?.pages.map((page) =>
-          page.nfts.map((item, i) => (
-            <PageAssetComponent key={i} item={item} />
-          )),
+        {fanAssets.data?.pages.map((page, i) =>
+          page.nfts.map((item, j) => <MarketAssetComponent key={`fan-${i}-${j}`} item={item} />)
+        )}
+        {artistAssets.data?.pages.map((page, i) =>
+          page.nfts.map((item, j) => <PageAssetComponent key={`artist-${i}-${j}`} item={item} />)
         )}
 
         <LoadMore />
@@ -99,7 +92,8 @@ export default function AllAsset() {
     if (
       assets.hasNextPage ??
       musicAssets.hasNextPage ??
-      adminAssets.hasNextPage
+      adminAssets.hasNextPage ??
+      fanAssets.hasNextPage
     ) {
       return (
         <button className="btn btn-outline btn-primary" onClick={loadMore}>

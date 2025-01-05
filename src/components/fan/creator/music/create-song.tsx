@@ -105,6 +105,8 @@ export default function SongCreate({ albumId, onSuccess }: { albumId: number; on
         reset,
         formState: { errors },
     } = useForm<SongFormType>({
+        mode: "onChange",
+
         resolver: zodResolver(SongFormSchema),
         defaultValues: { albumId, price: 2, priceUSD: 2 },
     })

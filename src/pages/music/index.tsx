@@ -159,7 +159,7 @@ function CreatorPublicSongs({ adminId }: { adminId?: string }) {
 
 function AllSongs() {
   const allSongs = api.music.song.getAllSong.useQuery();
-
+  console.log("allSongs", allSongs.data);
   const header = "Recently Added Songs";
 
   if (allSongs.isLoading) return <TrackSectionSkeleton header={header} />;

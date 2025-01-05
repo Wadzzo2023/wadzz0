@@ -22,12 +22,13 @@ import {
 import CreatorLayout from "../../layout"
 import SongCreate from "~/components/fan/creator/music/create-song"
 import { PLATFORM_ASSET } from "~/lib/stellar/constant"
-import { DeleteSongButton } from "~/components/music/album/table"
+import { DeleteSongButton, PlayOrBuy } from "~/components/music/album/table"
+import { usePlayer } from "~/components/context/PlayerContext"
 
 export default function Album() {
     const params = useParams()
     const [isDialogOpen, setIsDialogOpen] = useState(false)
-
+    const { setCurrentAudioPlayingId, setCurrentTrack, setIsPlaying } = usePlayer()
     const { data: album, isLoading, error } = api.fan.music.getAlbum.useQuery({
         id: Number(params?.id),
     }, {
@@ -113,6 +114,7 @@ export default function Album() {
                                                 <TableHead>Asset Code</TableHead>
                                                 <TableHead>Price</TableHead>
                                                 <TableHead>Price in {PLATFORM_ASSET.code}</TableHead>
+                                                <TableHead>Action</TableHead>
                                             </TableRow>
                                         </TableHeader>
                                         <TableBody>
@@ -137,7 +139,7 @@ export default function Album() {
                                                             />
 
                                                         </div>
-                                                        <div className="ml-2">
+                                                        <div className="ml-2 truncate">
                                                             {song.asset.name}
                                                         </div>
 
@@ -147,9 +149,29 @@ export default function Album() {
                                                     <TableCell>
                                                         {song.price.toFixed(2)}
                                                     </TableCell>
-                                                    <TableCell>
+                                                    <TableCell >
                                                         <DeleteSongButton songId={song.id} />
-                                                    </TableCell>+
+                                                        <Button
+                                                            className="ml-2"
+                                                            onClick={() => {
+                                                                setCurrentAudioPlayingId(song.id)
+                                                                setCurrentTrack({
+                                                                    artist: song.asset.name,
+                                                                    albumId: album.id,
+                                                                    assetId: song.asset.id,
+                                                                    id: song.id,
+                                                                    asset: song.asset,
+                                                                    createdAt: song.createdAt,
+                                                                    creatorId: song.creatorId,
+                                                                    price: song.price,
+                                                                    priceUSD: song.priceUSD,
+                                                                })
+                                                                setIsPlaying(true)
+                                                            }}
+                                                        >
+                                                            Play
+                                                        </Button>
+                                                    </TableCell>
                                                 </TableRow>
                                             ))}
                                         </TableBody>

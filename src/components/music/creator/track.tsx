@@ -42,7 +42,7 @@ function CreatorTrack({
   const { setCurrentTrack, setCurrentAudioPlayingId, setIsPlaying } = usePlayer();
   const session = useSession()
 
-
+  const admin = api.wallate.admin.checkAdmin.useQuery();
   const DeleteMutation = api.music.song.deletePublicSong.useMutation({
     onSuccess: () => {
       toast.success("Song deleted successfully");
@@ -56,6 +56,7 @@ function CreatorTrack({
   function handleDeleteSong(id: number) {
     DeleteMutation.mutate({ songId: id });
   }
+  console.log(item.asset.creatorId, session.data?.user?.id, admin.data?.id)
 
   return (
     <div className="group relative overflow-hidden rounded-lg bg-white shadow-md transition-all duration-300 hover:shadow-lg">
@@ -69,37 +70,27 @@ function CreatorTrack({
         />
         <div className="absolute inset-0 bg-black bg-opacity-40 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
         <div className="absolute inset-0 flex items-center justify-center opacity-0 transition-opacity duration-300 group-hover:opacity-100">
-          {playable ? (
-            <Button
-              onClick={() => {
-                setCurrentAudioPlayingId(item.id);
-                setCurrentTrack(item);
-                setIsPlaying(true);
-              }}
-              variant="secondary"
-              size="icon"
-              className="h-12 w-12 rounded-full"
-            >
-              <PlayIcon className="h-6 w-6" />
-            </Button>
-          ) : (
-            <Button
-              onClick={() => onOpen("song buy modal", { Song: song.data as SongItemType })}
-              variant="secondary"
-              size="sm"
-              className="flex items-center space-x-2"
-            >
-              <ShoppingCartIcon className="h-4 w-4" />
-              <span>Buy Now</span>
-            </Button>
-          )}
+
+          <Button
+            onClick={() => {
+              setCurrentAudioPlayingId(item.id);
+              setCurrentTrack(item);
+              setIsPlaying(true);
+            }}
+            variant="secondary"
+            size="icon"
+            className="h-12 w-12 rounded-full"
+          >
+            <PlayIcon className="h-6 w-6" />
+          </Button>
+
         </div>
       </div>
       <div className="p-4">
         <div className="flex items-center justify-between">
           <h3 className="text-lg font-semibold text-gray-800 truncate">{item.asset.name}</h3>
           {
-            (session.data?.user?.id === item.creatorId) && (
+            (session.data?.user?.id === item.asset.creatorId || admin.data?.id) && (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" size="icon" className="h-8 w-8">
@@ -119,7 +110,7 @@ function CreatorTrack({
             )
           }
         </div>
-        <p className="mt-1 text-sm text-gray-600 truncate">{item.asset.code}</p>
+        <p className="mt-1 text-sm text-gray-600 truncate">{item.artist}</p>
       </div>
     </div>
   );

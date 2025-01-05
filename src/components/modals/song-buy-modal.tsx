@@ -46,12 +46,12 @@ export default function SongBuyModal() {
     onClose();
   };
 
-  const copy = api.marketplace.market.getMarketAssetAvailableCopy.useQuery(
+  const copy = api.marketplace.market.getSongAvailableCopy.useQuery(
     {
-      id: data.Song?.asset?.id,
+      songId: data.Song?.id,
     },
     {
-      enabled: !!data.Song?.asset,
+      enabled: !!data.Song?.id,
     },
   );
 

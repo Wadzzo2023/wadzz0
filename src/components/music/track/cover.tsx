@@ -78,7 +78,7 @@ export default function TrackCover({
             >
               <button
                 className="btn btn-warning btn-sm w-20"
-                // onClick={handleTrackDelete}
+              // onClick={handleTrackDelete}
               >
                 Delete
               </button>
@@ -86,7 +86,7 @@ export default function TrackCover({
             <div>
               <button
                 className="btn btn-primary btn-sm"
-                // onClick={() => setNewTrack(song)}
+              // onClick={() => setNewTrack(song)}
               >
                 Play
               </button>

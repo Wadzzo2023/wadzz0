@@ -64,7 +64,6 @@ export default function BuyModal() {
 
   const copy = api.marketplace.market.getMarketAssetAvailableCopy.useQuery({
     id: data.Asset?.id,
-
   },
     {
       enabled: !!data.Asset

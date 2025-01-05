@@ -76,7 +76,7 @@ const UnlistedSongsList: React.FC = () => {
                                 </div>
                                 <div className="flex items-center">
                                     <span className="text-sm text-gray-500 mr-4">{song.asset.code}</span>
-                                    <Button variant="outline" size="sm">Add to Album</Button>
+
                                 </div>
                             </li>
                         ))}

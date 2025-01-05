@@ -67,15 +67,7 @@ export const musicRouter = createTRPCRouter({
                 songs: {
                     include: {
                         asset: {
-                            select: {
-                                id: true,
-                                code: true,
-                                issuer: true,
-                                name: true,
-                                tierId: true,
-                                privacy: true,
-                                thumbnail: true,
-                            }
+                            select: AssetSelectAllProperty,
                         },
 
                     },
@@ -137,7 +129,7 @@ export const musicRouter = createTRPCRouter({
                                 creatorId: userId,
                             },
                         },
-                        marketItems: { create: { price, type: "SONG" } },
+                        marketItems: { create: { price, type: "SONG", placerId: userId } },
                         mediaType: "MUSIC",
                         name,
                         mediaUrl: musicUrl,
@@ -146,6 +138,7 @@ export const musicRouter = createTRPCRouter({
                         limit,
                         privacy,
                         tierId,
+                        creatorId: userId,
                     },
                 });
             }
@@ -180,7 +173,8 @@ export const musicRouter = createTRPCRouter({
                         creatorId,
                         AND: {
                             mediaType: "MUSIC",
-                        }
+                        },
+                        song: null
                     }
                 }
             });

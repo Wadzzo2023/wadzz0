@@ -39,7 +39,21 @@ export default function CreatorPage() {
 function CreatorPageView({ creatorId }: { creatorId: string }) {
   const { data: creator } = api.fan.creator.getCreator.useQuery({
     id: creatorId,
-  });
+  },
+    {
+      enabled: creatorId.length === 56,
+    }
+  );
+
+  let code: string | undefined
+  let issuer: string | undefined
+
+  if (creator?.customPageAssetCodeIssuer) {
+
+    code = creator.customPageAssetCodeIssuer.split("-")[0];
+    issuer = creator.customPageAssetCodeIssuer.split("-")[1];
+
+  }
 
   if (creator)
     return (
@@ -49,12 +63,21 @@ function CreatorPageView({ creatorId }: { creatorId: string }) {
             <CreatorBack creator={creator} />
             <div className="my-2 flex flex-col items-center justify-center">
               <FollowButton creator={creator} />
-              {creator.pageAsset && (
+              {creator.pageAsset ? (
                 <UserCreatorBalance
                   code={creator.pageAsset?.code}
                   issuer={creator.pageAsset?.issuer}
                 />
-              )}
+              ) :
+                creator.customPageAssetCodeIssuer && code && issuer && (
+
+                  <UserCreatorBalance
+                    code={code}
+                    issuer={issuer}
+                  />
+
+                )
+              }
             </div>
 
             <ChooseMemberShip creator={creator} />
