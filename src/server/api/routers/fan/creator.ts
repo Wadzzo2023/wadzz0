@@ -249,14 +249,16 @@ export const creatorRouter = createTRPCRouter({
 
       const creatorStoragePub = creator.storagePub;
       const creatorPageAsset = creator.pageAsset;
+
+      const storageAcc = await StellarAccount.create(creatorStoragePub);
+
       if (creatorPageAsset) {
-        const bal = await getAssetBalance({
-          pubkey: creatorStoragePub,
-          code: creatorPageAsset.code,
-          issuer: creatorPageAsset.issuer,
-        });
+        const bal = storageAcc.getTokenBalance(
+          creatorPageAsset.code,
+          creatorPageAsset.issuer,
+        );
         if (bal) {
-          return { balance: bal.balance, asset: creatorPageAsset.code };
+          return { balance: bal, asset: creatorPageAsset.code };
         } else {
           return { balance: 0, asset: creatorPageAsset.code };
         }
@@ -267,14 +269,10 @@ export const creatorRouter = createTRPCRouter({
           const assetIssuer = z.string().length(56).safeParse(issuer);
           if (assetIssuer.success === false) throw new Error("invalid issuer");
 
-          const bal = await getAssetBalance({
-            pubkey: creatorStoragePub,
-            code: assetCode,
-            issuer: assetIssuer.data,
-          });
+          const bal = storageAcc.getTokenBalance(assetCode, assetIssuer.data);
 
           if (bal) {
-            return { balance: bal.balance, asset: assetCode };
+            return { balance: bal, asset: assetCode };
           } else {
             throw new Error("Invalid asset code or issuer");
           }

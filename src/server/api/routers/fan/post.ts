@@ -179,7 +179,13 @@ export const postRouter = createTRPCRouter({
         include: {
           _count: { select: { likes: true, comments: true } },
           creator: {
-            select: { name: true, id: true, profileUrl: true, pageAsset: true },
+            select: {
+              name: true,
+              id: true,
+              profileUrl: true,
+              pageAsset: true,
+              customPageAssetCodeIssuer: true,
+            },
           },
           subscription: { select: { price: true } },
           medias: true,
@@ -187,14 +193,29 @@ export const postRouter = createTRPCRouter({
       });
       if (post) {
         if (post.subscription) {
+          let pageAssetCode: string | undefined;
+          let pageAssetIssuer: string | undefined;
+
           const pageAsset = post.creator.pageAsset;
-          if (!pageAsset) {
-            throw new Error("Page Asset not found");
+          if (pageAsset) {
+            pageAssetCode = pageAsset.code;
+            pageAssetIssuer = pageAsset.issuer;
+          } else {
+            const customPageAssetCodeIssuer =
+              post.creator.customPageAssetCodeIssuer;
+            if (customPageAssetCodeIssuer) {
+              const [code, issuer] = customPageAssetCodeIssuer.split("-");
+              pageAssetCode = code;
+              pageAssetIssuer = issuer;
+            }
           }
-          const { code, issuer } = pageAsset;
+
           const acc = await StellarAccount.create(userId);
 
-          if (acc.getTokenBalance(code, issuer) >= post.subscription.price) {
+          if (
+            acc.getTokenBalance(pageAssetCode ?? "", pageAssetIssuer ?? "") >=
+            post.subscription.price
+          ) {
             return post;
           } else {
             return false;
