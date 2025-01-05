@@ -142,6 +142,8 @@ const CreateAlbum = ({ open, setOpen }: CreateAlbumDialogProps) => {
                 </form>
                 <DialogFooter>
                     <Button type="submit" className="w-full"
+                        onClick={handleSubmit(onSubmit)}
+
                         disabled={CreateAlbumMutation.isLoading}
                     >
                         {CreateAlbumMutation.isLoading ? "Creating..." : "Create Album"}
