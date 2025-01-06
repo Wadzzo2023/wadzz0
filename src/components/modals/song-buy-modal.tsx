@@ -72,7 +72,6 @@ export default function SongBuyModal() {
     );
 
 
-
   if (!data.Song || !data.Song.asset)
     return (
       <Dialog open={isModalOpen} onOpenChange={handleClose}>
@@ -259,6 +258,7 @@ export default function SongBuyModal() {
                     priceUSD={data.Song.priceUSD}
                     item={data.Song.asset}
                     price={data.Song.price}
+                    placerId={data.Song.creatorId}
                     setClose={handleClose}
                   />
                 </CardContent>

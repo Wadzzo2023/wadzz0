@@ -84,42 +84,42 @@ export function DeleteSongButton({ songId }: { songId: number }) {
 
 export function PlayOrBuy({ song }: { song: SongItemType }) {
   const trackUrlStore = usePlayerStore();
-  const { currentTrack, isPlaying } = usePlayer()
+  const { } = usePlayer()
   const userAssets = api.wallate.acc.getAccountInfo.useQuery();
   const { onOpen } = useModal();
-  const { setCurrentTrack, setIsPlaying } = usePlayer()
+  const { setCurrentTrack, setIsPlaying, setCurrentAudioPlayingId, currentTrack, isPlaying } = usePlayer()
   if (userAssets.isLoading) return <Skeleton className="h-9 w-20" />;
+  return (
+    <>
+      {
+        userAssets.data?.dbAssets?.some(
+          (el) => el.code === song.asset.code && el.issuer === song.asset.issuer,
+        ) && (<Button
+          variant="ghost"
 
-  if (
-    userAssets.data?.dbAssets?.some(
-      (el) => el.code === song.asset.code && el.issuer === song.asset.issuer,
-    )
-  ) {
-    return (
-      <Button
-        variant="ghost"
+          onClick={() => {
+            setCurrentAudioPlayingId(song.id)
+            setIsPlaying(true)
+            setCurrentTrack(song)
+            trackUrlStore.setNewTrack({
+              artist: song.artist,
+              mediaUrl: song.asset.mediaUrl,
+              thumbnail: song.asset.thumbnail,
+              code: song.asset.code,
+              name: song.asset.name,
+            });
+          }}
+        >
+          {
+            currentTrack?.id === song.id && isPlaying ? (
+              <Pause className="h-6 w-6" />) : <Play className="h-6 w-6" />
 
-        onClick={() => {
+          }
+        </Button>)
+      }
 
-          setCurrentTrack(song)
-          trackUrlStore.setNewTrack({
-            artist: song.artist,
-            mediaUrl: song.asset.mediaUrl,
-            thumbnail: song.asset.thumbnail,
-            code: song.asset.code,
-            name: song.asset.name,
-          });
-        }}
-      >
-        {
-          currentTrack?.id === song.id && isPlaying ? (
-            <Pause className="h-6 w-6" />) : <Play className="h-6 w-6" />
 
-        }
-      </Button>
-    );
-  } else {
-    return (
+
 
       <Button
         variant="default"
@@ -130,11 +130,11 @@ export function PlayOrBuy({ song }: { song: SongItemType }) {
       >
         Buy
       </Button>
+    </>
+  )
 
-
-    );
-  }
 }
+
 
 
 export function MusicItem({

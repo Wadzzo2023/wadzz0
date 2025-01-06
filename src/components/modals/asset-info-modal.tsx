@@ -48,7 +48,7 @@ export default function AssetInfoModal() {
   const { getAssetBalance: creatorAssetBalance } = useUserStellarAcc();
   const { getAssetBalance: creatorStorageAssetBalance, setBalance } =
     useCreatorStorageAcc();
-  const { setCurrentTrack, currentTrack } = usePlayer();
+  const { setCurrentTrack, currentTrack, setCurrentAudioPlayingId } = usePlayer();
   const isModalOpen = isOpen && type === "my asset info modal";
   const handleClose = () => {
     setCurrentTrack(null);
@@ -148,7 +148,7 @@ export default function AssetInfoModal() {
                     copies={Number(copyCreatorAssetBalance)}
                   />
                   {session.status === "authenticated" &&
-                    data.Asset?.placerId === session.data.user.id && (
+                    data.MyAsset?.creatorId === session.data.user.id && (
                       <>
                         <DisableFromMarketButton
                           code={data.MyAsset.code}
@@ -160,6 +160,7 @@ export default function AssetInfoModal() {
                     <Button
                       onClick={() => {
                         setCurrentTrack(null);
+                        setCurrentAudioPlayingId(data.MyAsset?.id ?? -1);
                         setCurrentTrack({
                           asset: data.MyAsset,
                           albumId: 2,
@@ -181,6 +182,7 @@ export default function AssetInfoModal() {
                       <Button
                         onClick={() => {
                           setCurrentTrack(null);
+
                           setCurrentTrack({
                             asset: data.MyAsset,
                             albumId: 2,

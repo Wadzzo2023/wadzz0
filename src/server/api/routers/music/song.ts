@@ -184,7 +184,7 @@ export const songRouter = createTRPCRouter({
           },
         },
         orderBy: { id: "desc" },
-        where: { type: { equals: "SONG" }, placerId: null },
+        where: { type: { equals: "SONG" } },
       });
 
       const stellarAcc = await StellarAccount.create(currentUserId);

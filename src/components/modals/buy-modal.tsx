@@ -83,7 +83,7 @@ export default function BuyModal() {
       }
     );
 
-  console.log(data.Asset)
+
   if (!data.Asset || !data.Asset.asset)
 
 

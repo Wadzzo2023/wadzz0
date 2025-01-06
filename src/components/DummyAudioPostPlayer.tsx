@@ -113,6 +113,7 @@ export default function DummyAudioPostPlayer({ audioId, name, artist, mediaUrl, 
                                         id: 1,
                                         price: 0,
                                         priceUSD: 0,
+                                        creatorId: addrShort(artist, 7),
 
                                     })
                                     setIsPlaying(true)

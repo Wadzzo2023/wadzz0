@@ -90,7 +90,7 @@ function MyAssets() {
   const acc = api.wallate.acc.getAccountInfo.useQuery();
 
   const { onOpen } = useModal();
-  const { setCurrentTrack } = usePlayer();
+  const { setCurrentTrack, setCurrentAudioPlayingId } = usePlayer();
   const {
     data,
     fetchNextPage,
