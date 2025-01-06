@@ -190,4 +190,14 @@ export const musicRouter = createTRPCRouter({
                 nextCursor,
             };
         }),
+    deleteAlbum: creatorProcedure.input(z.object({
+        id: z.number(),
+    })).mutation(async ({ ctx, input }) => {
+        const album = await ctx.db.album.delete({
+            where: {
+                id: input.id,
+            },
+        });
+        return album;
+    }),
 });

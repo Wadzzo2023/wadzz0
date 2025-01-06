@@ -218,6 +218,7 @@ export default function BuyModal() {
                           price: 15,
                           priceUSD: 50,
                           id: 1,
+
                         } as SongItemType);
                       }}
 

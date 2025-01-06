@@ -36,9 +36,15 @@ import { useUserStellarAcc } from "~/lib/state/wallete/stellar-balances"
 export const SongFormSchema = z.object({
     name: z.string().min(2, "Name must be at least 2 characters"),
     artist: z.string().min(2, "Artist must be at least 2 characters"),
-    musicUrl: z.string(),
+    musicUrl: z.string({
+        required_error:
+            "Music file is required",
+    }),
     description: z.string(),
-    coverImgUrl: z.string(),
+    coverImgUrl: z.string({
+        required_error:
+            "Cover image is required",
+    }),
     albumId: z.number(),
     price: z.number({
         required_error:
@@ -103,7 +109,7 @@ export default function SongCreate({ albumId, onSuccess }: { albumId: number; on
         setValue,
         getValues,
         reset,
-        formState: { errors },
+        formState: { errors, isValid },
     } = useForm<SongFormType>({
         mode: "onChange",
 
@@ -116,6 +122,8 @@ export default function SongCreate({ albumId, onSuccess }: { albumId: number; on
             toast.success("Song added")
             reset()
             onSuccess()
+            setPaymentModalOpen(false)
+
         },
     })
 
@@ -226,14 +234,7 @@ export default function SongCreate({ albumId, onSuccess }: { albumId: number; on
                     <Input id="artist" {...register("artist")} placeholder="Enter Artist Name" />
                 </div>
 
-                <div>
-                    <Label htmlFor="coverImg">Cover Image</Label>
-                    <Input id="coverImg" type="file" accept=".jpg, .png" onChange={handleChange} />
-                    {uploading && <progress className="progress w-56"></progress>}
-                    {coverImgUrl && (
-                        <Image width={120} height={120} alt="preview image" src={coverImgUrl} className="mt-2 rounded" />
-                    )}
-                </div>
+
 
                 <div>
                     <Label htmlFor="musicFile">Music File</Label>
@@ -337,13 +338,42 @@ export default function SongCreate({ albumId, onSuccess }: { albumId: number; on
                         <Input id="artist" {...register("artist")} placeholder="Enter Artist Name" />
                     </div>
 
-                    <div>
+                    <div className="space-y-4">
                         <Label htmlFor="coverImg">Cover Image</Label>
-                        <Input id="coverImg" type="file" accept=".jpg, .png" onChange={handleChange} />
-                        {uploading && <progress className="progress w-56"></progress>}
+                        <div className="flex flex-col items-center gap-2">
+                            <Button
+                                type="button"
+                                onClick={() => document.getElementById('coverImg')?.click()}
+                                className="w-full "
+                            >
+                                Choose Cover Image
+                            </Button>
+                            <Input
+                                id="coverImg"
+                                type="file"
+                                accept=".jpg, .png"
+                                onChange={handleChange}
+                                className="hidden"
+                                required
+                            />
+                            {uploading && <progress className="progress w-56"></progress>}
+                        </div>
                         {coverImgUrl && (
-                            <Image width={120} height={120} alt="preview image" src={coverImgUrl} className="mt-2 rounded" />
+                            <div className="mt-4 ">
+                                <Image
+                                    width={120}
+                                    height={120}
+                                    alt="preview image"
+                                    src={coverImgUrl}
+                                    className="rounded"
+                                />
+                            </div>
                         )}
+                        {
+                            errors.coverImgUrl && (
+                                <p className="text-sm text-red-500">{errors.coverImgUrl.message}</p>
+                            )
+                        }
                     </div>
 
                     <div>
@@ -366,6 +396,11 @@ export default function SongCreate({ albumId, onSuccess }: { albumId: number; on
                                 <source src={musicUrl} type="audio/mpeg" />
                             </audio>
                         )}
+                        {
+                            errors.musicUrl && (
+                                <p className="text-sm text-red-500">{errors.musicUrl.message}</p>
+                            )
+                        }
                     </div>
 
                     <div>
@@ -441,12 +476,12 @@ export default function SongCreate({ albumId, onSuccess }: { albumId: number; on
                             },
                         ]}
                         XLM_EQUIVALENT={4}
-                        handleConfirm={() => onSubmit()}
+                        handleConfirm={handleSubmit(onSubmit)}
                         loading={xdrMutation.isLoading || addSong.isLoading}
                         requiredToken={requiredTokenAmount}
                         trigger={
                             <Button
-                                disabled={xdrMutation.isLoading || addSong.isLoading || requiredTokenAmount > platformAssetBalance}
+                                disabled={xdrMutation.isLoading || addSong.isLoading || requiredTokenAmount > platformAssetBalance || !isValid}
                                 className="w-full"
                             >
                                 {(xdrMutation.isLoading || addSong.isLoading) && (
@@ -488,7 +523,7 @@ function TiersOptions({
                                 <SelectItem
                                     key={model.id}
                                     value={model.id.toString()}
-                                >{`${model.name} - $${model.price}`}</SelectItem>
+                                >{`${model.name} - ${model.price}`}</SelectItem>
                             ))}
                         </SelectGroup>
                     </SelectContent>

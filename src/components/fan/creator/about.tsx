@@ -62,8 +62,8 @@ export default function About({ creator }: { creator: Creator }) {
         onSubmit={handleSubmit(onSubmit)}
         className="w-full"
       >
-        <div className="flex flex-col items-center   gap-2">
-          <div className="space-y-4 ">
+        <div className="flex flex-col items-center w-full   gap-2">
+          <div className="space-y-4  w-1/2 text-center">
             <span className="text-xs">Profile Dimension 200 x 200 pixels</span>
             <UploadS3Button
               endpoint="profileUploader"
@@ -81,7 +81,7 @@ export default function About({ creator }: { creator: Creator }) {
 
           </div>
 
-          <div className="">
+          <div className="space-y-4  w-1/2 text-center">
             <span className="text-xs">Cover Dimension of 851 x 315 pixels</span>
             <UploadS3Button
               endpoint="coverUploader"

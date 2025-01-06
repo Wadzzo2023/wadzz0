@@ -36,12 +36,12 @@ export default function AlbumPageWrapper() {
 export function AlbumPage({ albumId }: { albumId: number }) {
   const { status } = useSession();
   const album = api.music.album.getById.useQuery({ albumId });
-
+  console.log("album", album);
   const logicalRender = () => {
     if (status === "authenticated" && album.data) {
       return (
         <>
-          <AdminCreateSong albumId={albumId} />
+          {/* <AdminCreateSong albumId={albumId} /> */}
           {
             album.data.songs.length === 0 && (
               <div className="mt-10">
