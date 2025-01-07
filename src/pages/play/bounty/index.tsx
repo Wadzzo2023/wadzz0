@@ -96,6 +96,7 @@ export default function BountyScreen() {
         participants: 10,
         BountyWinner: 1,
       },
+      currentWinnerCount: 1,
       imageUrls: ["https://app.wadzzo.com/images/loading.png"],
       totalWinner: 4,
       BountyWinner: [],
@@ -197,7 +198,7 @@ export default function BountyScreen() {
       setData({ item: bounty });
       router.push(`/play/bounty/${bounty.id}`);
     }
-    else if (bounty.totalWinner === bounty._count.BountyWinner) {
+    else if (bounty.totalWinner === bounty.currentWinnerCount) {
       toast.error("Bounty is already finished");
     }
     else {
@@ -290,10 +291,10 @@ export default function BountyScreen() {
                             : "default"
                         }
                       >
-                        {bounty.totalWinner === bounty._count.BountyWinner
+                        {bounty.totalWinner === bounty.currentWinnerCount
                           ? "Finished"
                           : bounty.totalWinner -
-                          bounty._count.BountyWinner +
+                          bounty.currentWinnerCount +
                           " Winner Left"}
                       </Badge>
                     </div>
@@ -308,7 +309,7 @@ export default function BountyScreen() {
                     >
                       {bounty.isJoined || bounty.isOwner
                         ? "View Bounty"
-                        : bounty.totalWinner !== bounty._count.BountyWinner ? "Join Bounty" : "Finished"}
+                        : bounty.totalWinner !== bounty.currentWinnerCount ? "Join Bounty" : "Finished"}
                     </Button>
                   </CardFooter>
                 </Card>
@@ -364,10 +365,10 @@ export default function BountyScreen() {
                                 : "default"
                             }
                           >
-                            {bounty.totalWinner === bounty._count.BountyWinner
+                            {bounty.totalWinner === bounty.currentWinnerCount
                               ? "Finished"
                               : bounty.totalWinner -
-                              bounty._count.BountyWinner +
+                              bounty.currentWinnerCount +
                               " Winner Left"}
                           </Badge>
                         </div>
@@ -381,7 +382,7 @@ export default function BountyScreen() {
                         >
                           {bounty.isJoined || bounty.isOwner
                             ? "View Bounty"
-                            : bounty.totalWinner !== bounty._count.BountyWinner ? "Join Bounty" : "Finished"}
+                            : bounty.totalWinner !== bounty.currentWinnerCount ? "Join Bounty" : "Finished"}
                         </Button>
                       </CardFooter>
                     </Card>

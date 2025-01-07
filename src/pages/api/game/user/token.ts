@@ -9,7 +9,6 @@ export default async function handler(
   await EnableCors(req, res);
   try {
     const decodedData = await getToken({ req });
-
     if (decodedData?.sub) {
       const user = {
         ...decodedData,

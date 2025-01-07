@@ -598,7 +598,7 @@ const UserBountyPage = () => {
               <div className="flex   space-x-4">
                 <Button
                   variant="destructive"
-                  disabled={data._count.BountyWinner === data.totalWinner}
+                  disabled={data.currentWinnerCount === data.totalWinner}
                   className=""
                   onClick={() =>
                     onOpen("upload file", {
@@ -1010,7 +1010,7 @@ const AdminBountyPage = () => {
                             disabled={
                               loadingBountyId === data.id ||
                               data.totalWinner ===
-                              data._count.BountyWinner ||
+                              data.currentWinnerCount ||
                               data.BountyWinner.some(
                                 (winner) =>
                                   winner.user.id ===
@@ -1076,7 +1076,7 @@ const AdminBountyPage = () => {
                                           disabled={
                                             loadingBountyId === data.id ||
                                             data.totalWinner <=
-                                            data._count.BountyWinner ||
+                                            data.currentWinnerCount ||
                                             data.BountyWinner.some(
                                               (winner) =>
                                                 winner.user.id ===
@@ -1205,7 +1205,7 @@ const AdminBountyPage = () => {
                       <Button
                         disabled={
                           DeleteMutation.isLoading || loadingBountyId === data.id ||
-                            data._count.BountyWinner > 0
+                            data.currentWinnerCount > 0
                             ? true
                             : false
                         }
@@ -1233,7 +1233,7 @@ const AdminBountyPage = () => {
                           <Button
                             disabled={
                               loadingBountyId === data.id ||
-                                data._count.BountyWinner > 0
+                                data.currentWinnerCount > 0
                                 ? true
                                 : false
                             }
