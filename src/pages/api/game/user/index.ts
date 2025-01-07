@@ -10,7 +10,7 @@ export default async function handler(
   await EnableCors(req, res);
   try {
     const session = await getSession({ req });
-
+    console.log(session);
     if (session) {
       // console.log(session.user);
       return res.status(200).json(session.user);

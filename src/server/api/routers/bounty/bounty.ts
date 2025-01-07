@@ -698,15 +698,16 @@ export const BountyRoute = createTRPCRouter({
           },
           totalWinner: true,
           priceInXLM: true,
+          currentWinnerCount: true,
         },
       });
       if (!winners) {
         throw new Error("Bounty not found");
       }
 
-      if (winners._count.BountyWinner === winners.totalWinner) {
+      if (winners.currentWinnerCount === winners.totalWinner) {
         throw new Error(
-          "Bounty has a winner, you can't send balance to winner",
+          "Bounty has finished, you can't send balance to winner",
         );
       }
 
@@ -744,12 +745,13 @@ export const BountyRoute = createTRPCRouter({
           },
           totalWinner: true,
           creatorId: true,
+          currentWinnerCount: true,
         },
       });
       if (!bounty) {
         throw new Error("Bounty not found");
       }
-      if (bounty._count.BountyWinner === bounty.totalWinner) {
+      if (bounty.currentWinnerCount === bounty.totalWinner) {
         throw new Error("Bounty has reached the maximum number of winners");
       }
       if (bounty.creatorId !== ctx.session.user.id) {
@@ -765,6 +767,9 @@ export const BountyRoute = createTRPCRouter({
               userId: input.userId,
             },
           },
+          currentWinnerCount: {
+            increment: 1,
+          }
         },
       });
 
