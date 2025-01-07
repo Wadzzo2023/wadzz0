@@ -1,3 +1,5 @@
+/* eslint-disable */
+
 import {
   Asset,
   BASE_FEE,
@@ -19,6 +21,8 @@ import {
   STELLAR_URL,
   TrxBaseFee,
 } from "../constant";
+import { api } from "~/utils/api";
+import { db } from "~/server/db";
 
 export type Balances = (
   | Horizon.HorizonApi.BalanceLineNative
@@ -154,7 +158,7 @@ export async function SendAssets({
       balance.asset_type === "credit_alphanum4" ||
       balance.asset_type === "credit_alphanum12"
     ) {
-      return balance.asset_code === asset_code;
+      return balance.asset_code === asset_code && balance.asset_issuer === asset_issuer;
     } else if (balance.asset_type === "native") {
       return balance.asset_type === asset_type;
     }
@@ -289,13 +293,13 @@ export async function RecentTransactionHistory({
 }: {
   userPubKey: string;
   input: {
-    limit: number | null | undefined;
-    cursor: string | null | undefined;
+    limit?: number | null;
+    cursor?: string | null;
   };
 }) {
   const server = new Horizon.Server(STELLAR_URL);
   const limit = input.limit ?? 10;
-  const cursor = input.cursor ?? "";
+  const cursor = input.cursor ?? undefined;
 
   let transactionCall = server
     .transactions()
@@ -308,9 +312,50 @@ export async function RecentTransactionHistory({
   }
 
   const items = await transactionCall.call();
-  const newItem = await Promise.all(
-    items.records.map(async (record) => {
+
+  if (!items.records) {
+    return {
+      items: [],
+      nextCursor: null,
+    };
+  }
+
+  // creating set of string pubkey
+  const PubKey: Set<string> = new Set();
+
+  const newItems = await Promise.all(
+    items.records.map(async (record: Horizon.ServerApi.TransactionRecord) => {
       const ops = await record.operations();
+      ops.records.forEach((op) => {
+        if (op.type === "payment" || op.type === "path_payment_strict_receive" || op.type === "path_payment_strict_send") {
+          op.from = op.from ?? record.source_account;
+          op.to = op.to ?? record.source_account;
+          PubKey.add(op.from);
+          PubKey.add(op.to);
+        }
+        else {
+          PubKey.add(op.source_account);
+        }
+      });
+
+      const users = await db.user.findMany({
+        where: {
+          id: {
+            in: Array.from(PubKey),
+          },
+
+        },
+      });
+
+      const creators = await db.creator.findMany({
+        where: {
+          storagePub: {
+            in: Array.from(PubKey),
+          },
+        },
+      });
+
+
       return {
         source: record.source_account,
         sequence: record.source_account_sequence,
@@ -326,20 +371,46 @@ export async function RecentTransactionHistory({
         resultXdr: record.result_xdr,
         resultMetaXdr: record.result_meta_xdr,
         fee_charged: record.fee_charged,
-        operations: ops.records,
+
+        operations: ops.records.map((op) => {
+          if (op.type === 'payment' || op.type === 'path_payment_strict_receive' || op.type === 'path_payment_strict_send') {
+
+            let userFrom = users.find((user) => user.id === op.from);
+            let creatorFrom = creators.find((creator) => creator.storagePub === op.from);
+            let userTo = users.find((user) => user.id === op.to);
+            let creatorTo = creators.find((creator) => creator.storagePub === op.to);
+            return {
+              ...op,
+              from:
+                userFrom?.name
+                  ? `${userFrom.name} :: ${op.from}`
+                  : creatorFrom?.name
+                    ? `${creatorFrom.name}'s storage :: ${op.from}`
+                    : op.from,
+              to:
+                userTo?.name
+                  ? `${userTo.name} :: ${op.to}`
+                  : creatorTo?.name
+                    ? `${creatorTo.name}'s storage :: ${op.to}`
+                    : op.to,
+            };
+          }
+          return {
+            ...op,
+            source_account: users.find((user) => user.id === op.source_account)?.name ? `${users.find((user) => user.id === op.source_account)?.name} :: ${op.source_account}` : creators.find((creator) => creator.storagePub === op.source_account)?.name ? `${creators.find((creator) => creator.storagePub === op.source_account)?.name} :: ${op.source_account}` : op.source_account
+
+          };
+        })
       };
     })
   );
 
-
   return {
-    items: newItem,
-    nextCursor:
-      items.records.length > 0
-        ? String(items.records[items.records.length - 1]?.paging_token)
-        : null,
+    items: newItems,
+    nextCursor: items.records.length > 0 ? items.records[items.records.length - 1]?.paging_token : null,
   };
 }
+
 
 export async function PendingAssetList({
   userPubKey,
@@ -379,7 +450,6 @@ export async function AcceptClaimableBalance({
   signWith: SignUserType;
   secretKey?: string | undefined;
 }) {
-  // console.log("BalanceId", balanceId)
   const server = new Horizon.Server(STELLAR_URL);
   const account = await server.loadAccount(userPubKey);
   try {
@@ -494,6 +564,4 @@ export async function PlatformAssetBalance({
   } catch (e) {
     return -1
   }
-
-
 }

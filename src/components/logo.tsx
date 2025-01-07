@@ -4,21 +4,24 @@ import { twMerge } from "tailwind-merge";
 import { PLATFORM_ASSET } from "~/lib/stellar/constant";
 export default function Logo({ className }: { className?: string }) {
   return (
-    <div className="flex w-full items-center justify-center">
-      <Link href="/" className="flex items-center gap-2 justify-center ">
-        <div className=" flex items-center gap-2 justify-center ">
-          <Image
-            alt="Wadzzo logo"
-            src="/images/logo.png"
-            blurDataURL={"vongCong"}
-            placeholder="blur"
-            height={1000}
-            width={1000}
-            className="h-10 w-28 md:h-12 md:w-40 "
-          />
+    <Link
+      href="/"
+      className="flex cursor-alias items-center justify-center gap-2  "
+    >
+      <div className="btn btn-ghost">
+        <div className="relative hidden h-12 w-11 md:flex">
+          <Image fill={true} alt="logo" src="/images/logo.png" />
         </div>
-      </Link>
-
-    </div>
+        <h1
+          className={twMerge(
+            "relative text-4xl font-bold capitalize  text-white",
+            className,
+          )}
+        >
+          {PLATFORM_ASSET.code.toLocaleUpperCase()}
+          <p className="absolute right-0 top-0 -mr-4 -mt-1 text-xs">TM</p>
+        </h1>
+      </div>
+    </Link>
   );
 }

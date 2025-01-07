@@ -191,6 +191,12 @@ export const postRouter = createTRPCRouter({
           medias: true,
         },
       });
+
+
+
+
+
+
       if (post) {
         if (post.subscription) {
           let pageAssetCode: string | undefined;

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Album } from "@prisma/client";
 import Image from "next/image";
+import { addrShort } from "~/utils/utils";
 
 export default function AlbumSection({ albums }: { albums: Album[] }) {
   if (albums.length > 0) {
@@ -20,7 +21,7 @@ export default function AlbumSection({ albums }: { albums: Album[] }) {
               </div>
               <div>
                 <h3 className="text-base font-medium text-gray-800 line-clamp-1">{album.name}</h3>
-                <p className="text-sm text-gray-600 line-clamp-2">{album.description}</p>
+                <p className="text-sm text-gray-600 line-clamp-2">{album.creatorId ? addrShort(album.creatorId, 5) : "Admin"}</p>
               </div>
             </div>
           </Link>

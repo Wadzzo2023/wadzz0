@@ -1,9 +1,10 @@
 import { Button } from "~/components/shadcn/ui/button";
-import { Card, CardContent, CardTitle } from "~/components/shadcn/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "~/components/shadcn/ui/card";
 import { PLATFORM_ASSET } from "~/lib/stellar/constant";
 
 import { useSession } from "next-auth/react";
 import WBRightSideBar from "~/components/wallet-balance/wb-right-sidebar";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/shadcn/ui/tabs";
 
 import { Plus, QrCode, Send } from "lucide-react";
 import {
@@ -43,17 +44,24 @@ const Wallets = () => {
   const {
     data: hasTrustLineOnPlatformAsset,
     isLoading: checkingPlatformLoading,
-  } = api.walletBalance.wallBalance.checkingPlatformTrustLine.useQuery();
+  } = api.walletBalance.wallBalance.checkingPlatformTrustLine.useQuery(
+    undefined,
+    {
+      enabled: !!session.data?.user,
+      refetchOnWindowFocus: false,
+    },
+  );
 
   const { data: platformBalance, isLoading: getPlatformLoading } =
     api.walletBalance.wallBalance.getPlatformAssetBalance.useQuery(undefined, {
       enabled: hasTrustLineOnPlatformAsset,
+      refetchOnWindowFocus: false,
     });
   useEffect(() => {
     if (router.query.id) {
       onOpen("send assets"); // Update state when id is available
     }
-  }, [router.query.id, onOpen]);
+  }, [router.query.id]);
 
   const checkStatus = useCallback(async () => {
     const user = session.data?.user;
@@ -61,11 +69,12 @@ const Wallets = () => {
       // console.log("user", user);
       await checkAccountActivity(user.id);
     }
-  }, [session]);
+  }, [session.data?.user]);
 
   useEffect(() => {
     void checkStatus();
-  }, [checkStatus, session]);
+  }, []);
+
   const AddTrustMutation =
     api.walletBalance.wallBalance.addTrustLine.useMutation({
       onSuccess: async (data) => {
@@ -174,80 +183,97 @@ const Wallets = () => {
   }
 
   return (
-    <div className=" min-h-screen overflow-hidden p-1">
-      <div className="grid gap-6 xl:grid-cols-3">
-        <div className="flex flex-col md:px-20 xl:col-span-3">
-          <div className="space-y-4">
-            <Card>
-              <CardContent className="m-2 p-2">
-                <div className="flex flex-col items-center justify-center xl:flex-row xl:items-center xl:justify-between ">
-                  <div className="flex flex-col items-center justify-center xl:items-start">
-                    {hasTrustLineOnPlatformAsset ? (
-                      <>
-                        <CardTitle className="text-xl font-bold xl:text-2xl">
-                          Current Balance
-                        </CardTitle>
-                        <h1 className="text-xl font-bold xl:text-3xl">
-                          {platformBalance?.toString() === "0.0000000"
-                            ? "0"
-                            : platformBalance?.toString()}{" "}
-                          <span className="text-lg">{PLATFORM_ASSET.code}</span>
-                        </h1>
-                      </>
-                    ) : (
-                      <>
-                        <h1 className="text-xl text-red-500 ">
-                          You haven{"'"}t trust to {PLATFORM_ASSET.code} yet !
-                          <br />
-                          <button
-                            onClick={handleSubmit}
-                            className="text-sm underline"
-                          >
-                            CLICK HERE TO TRUST
-                          </button>
-                        </h1>
-                      </>
-                    )}
-                  </div>
-                  <div className="mt-2  flex items-center justify-between gap-1 xl:items-end xl:justify-end">
-                    <Button
-                      size="sm"
-                      variant={"default"}
-                      className=""
-                      onClick={() => onOpen("receive assets")}
-                    >
-                      <QrCode size={14} className="mr-1 md:mr-2" />
-                      RECEIVE ASSET
-                    </Button>
-                    <Button
-                      variant="default"
-                      size="sm"
-                      className=""
-                      onClick={() => onOpen("send assets")}
-                    >
-                      <Send size={14} className="mr-1 md:mr-2 " /> SEND ASSETS
-                    </Button>
-                    {/* <Button
-                      size="sm"
-                      variant="default"
-                      className=" "
-                      onClick={() => onOpen("add assets")}
-                    >
-                      <Plus size={14} className="mr-1 md:mr-2 " /> ADD ASSETS
-                    </Button> */}
-                  </div>
+    <div className=" p-4 space-y-6">
+      <Card className="bg-gradient-to-r  from-yellow-400 to-blue-400 text-white">
+        <CardContent className="p-6">
+          <div className="flex flex-col md:flex-row justify-between items-center">
+            <div className="mb-4 md:mb-0">
+              {hasTrustLineOnPlatformAsset ? (
+                <>
+                  <h2 className="text-2xl font-semibold mb-2">Current Balance</h2>
+                  <p className="text-4xl font-bold">
+                    {platformBalance?.toString() === "0.0000000" ? "0" : platformBalance?.toString()}
+                    <span className="text-2xl ml-2">{PLATFORM_ASSET.code}</span>
+                  </p>
+                </>
+              ) : (
+                <div className="text-center md:text-left">
+                  <p className="text-xl mb-2">You haven{"'t"} added trust for {PLATFORM_ASSET.code} yet!</p>
+                  <Button
+                    onClick={() => AddTrustMutation.mutate({
+                      asset_code: PLATFORM_ASSET.code,
+                      asset_issuer: PLATFORM_ASSET.issuer,
+                      signWith: needSign(),
+                    })}
+                    disabled={AddTrustMutation.isLoading}
+                    variant="secondary"
+                  >
+                    {AddTrustMutation.isLoading ? "Adding Trustline..." : "Add Trustline"}
+                  </Button>
                 </div>
+              )}
+            </div>
+            <div className="flex gap-2">
+              <Button variant="secondary" onClick={() => onOpen("receive assets")}>
+                <QrCode size={18} className="mr-2" />
+                Receive
+              </Button>
+              <Button variant="secondary" onClick={() => onOpen("send assets")}>
+                <Send size={18} className="mr-2" />
+                Send
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <div className="hidden md:grid  md:grid-cols-2 gap-6 ">
+        <Card className="md:col-span-1 h-[calc(100vh-30vh)]">
+          <CardHeader>
+            <CardTitle>Transaction History</CardTitle>
+          </CardHeader>
+          <CardContent className="">
+            <TransactionHistory />
+          </CardContent>
+        </Card>
+        <Card className="h-[calc(100vh-30vh)]">
+          <CardHeader>
+            <CardTitle>My Assets</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <WBRightSideBar />
+          </CardContent>
+        </Card>
+      </div>
+      <div className="md:hidden">
+        <Tabs defaultValue="history" className="w-full">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="history">Transaction History</TabsTrigger>
+            <TabsTrigger value="assets">My Assets</TabsTrigger>
+          </TabsList>
+          <TabsContent value="history">
+            <Card className="h-[calc(100vh-40vh)]">
+              <CardHeader>
+                <CardTitle>Transaction History</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <TransactionHistory />
               </CardContent>
             </Card>
-            <TransactionHistory />
-            {/* <WBRightSideBar /> */}
-          </div>
-        </div>
-
-        {/* <div className="lg:col-span-1">
-          <TransactionHistory />
-        </div> */}
+          </TabsContent>
+          <TabsContent value="assets">
+            <Card className="h-[calc(100vh-40vh)]">
+              <CardHeader>
+                <CardTitle>My Assets</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <WBRightSideBar />
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
       </div>
+
     </div>
   );
 };

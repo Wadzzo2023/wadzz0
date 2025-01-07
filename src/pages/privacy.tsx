@@ -20,9 +20,9 @@ export default function Privacy() {
           </p>
 
           <p className="mb-4">
-            At Wadzzo, your privacy is our priority. This policy explains what
+            At Bandcoin, your privacy is our priority. This policy explains what
             information we collect, how it is used, and the rights you have as a
-            user. By using Wadzzo&apos;s services, you agree to the collection
+            user. By using Bandcoin&apos;s services, you agree to the collection
             and use of your data as outlined here.
           </p>
         </div>
@@ -90,7 +90,9 @@ export default function Privacy() {
             <section id="introduction">
               <h2 className="mb-4 text-2xl font-semibold">Introduction</h2>
               <p>
-                Wadzzo is an innovative platform designed to transform the way people engage with brands through gamified experiences. Our mission is to bridge the digital and physical worlds by enabling users to explore their surroundings, discover rewards, and connect with brands in a fun, interactive way. This <strong>Privacy Policy</strong> governs how we
+                Bandcoin is a music platform that empowers bands and artists to
+                connect with the Stellar blockchain for seamless and innovative
+                experiences. This <strong>Privacy Policy</strong> governs how we
                 collect, use, and protect the information you provide when using
                 our services. Unless otherwise defined, the terms used in this
                 Privacy Policy have the same meanings as in our{" "}
@@ -130,7 +132,7 @@ export default function Privacy() {
               <h3 className="mb-2 mt-4 text-xl font-semibold">2. Cookies</h3>
               <p>
                 Cookies are small files stored on your device, often used to
-                identify users anonymously. While Wadzzo does not use cookies
+                identify users anonymously. While Bandcoin does not use cookies
                 directly, third-party tools integrated into our services may use
                 cookies to collect and improve data. You can manage cookie
                 preferences through your browser settings. Note that refusing
@@ -168,7 +170,7 @@ export default function Privacy() {
               <h2 className="mb-4 text-2xl font-semibold">
                 Third-Party Services
               </h2>
-              <p>Wadzzo may engage trusted third-party providers to:</p>
+              <p>Bandcoin may engage trusted third-party providers to:</p>
               <ul className="mb-4 mt-2 list-disc pl-6">
                 <li>Facilitate our services</li>
                 <li>Analyze usage data</li>
@@ -195,7 +197,7 @@ export default function Privacy() {
                 Children&apos;s Privacy
               </h2>
               <p>
-                Wadzzo does not target or knowingly collect personal
+                Bandcoin does not target or knowingly collect personal
                 information from users under the age of 13. If we learn that we
                 have inadvertently collected such data, we will delete it
                 promptly. Parents or guardians aware of any such cases should
@@ -208,7 +210,7 @@ export default function Privacy() {
                 Changes to This Privacy Policy
               </h2>
               <p>
-                Wadzzo may update this policy periodically. Changes will be
+                Bandcoin may update this policy periodically. Changes will be
                 communicated via updates to this document. Continued use of our
                 services after such updates constitutes acceptance of the
                 revised policy.
@@ -224,22 +226,22 @@ export default function Privacy() {
               <p className="mt-2">
                 <strong>Email:</strong>{" "}
                 <a
-                  href="mailto:support@Wadzzo.com"
+                  href="mailto:support@bandcoin.io"
                   className="text-blue-600 hover:underline"
                 >
-                  support@wadzzo.com
+                  support@bandcoin.io
                 </a>
                 <br />
                 <strong>Website:</strong>{" "}
                 <a
-                  href="https://app.wadzzo.com"
+                  href="https://bandcoin.io"
                   className="text-blue-600 hover:underline"
                 >
-                  app.wadzzo.com
+                  bandcoin.io
                 </a>
               </p>
               <p className="mt-4">
-                Thank you for trusting Wadzzo. Together, we&apos;re empowering
+                Thank you for trusting Bandcoin. Together, we&apos;re empowering
                 bands and redefining music experiences on the Stellar
                 blockchain.
               </p>

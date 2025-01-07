@@ -26,12 +26,10 @@ export type AdminAssetWithTag = AdminAsset & {
   }[];
 };
 export type collectedPinInfoType = {
-
   location: Location & {
     locationGroup: LocationGroup | null;
-  }
-
-}
+  };
+};
 export type Transaction = {
   source: string;
   successful: boolean;
@@ -88,7 +86,7 @@ export type ModalType =
   | "song buy modal"
   | "creator asset info"
   | "view admin asset"
-  | "pin info modal"
+  | "pin info modal";
 
 export interface ModalData {
   pinId?: string;
@@ -124,7 +122,7 @@ export interface ModalData {
   Song?: SongItemType;
   creatorStoreAsset?: MarketAssetType;
   adminAssetNtag?: AdminAssetWithTag;
-  collectedPinInfo?: collectedPinInfoType,
+  collectedPinInfo?: collectedPinInfoType;
 }
 
 interface ModalStore {

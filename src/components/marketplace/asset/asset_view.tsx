@@ -10,7 +10,7 @@ interface AssetViewProps {
   isPinned?: boolean;
 }
 
-function ModernAssetView({ code, thumbnail, isNFT = true, isPinned = false }: AssetViewProps) {
+function AssetView({ code, thumbnail, isNFT = true, isPinned = false }: AssetViewProps) {
   return (
     <Card className="group relative overflow-hidden rounded-lg transition-all hover:shadow-lg">
       <CardContent className="p-0">
@@ -46,5 +46,4 @@ function ModernAssetView({ code, thumbnail, isNFT = true, isPinned = false }: As
   );
 }
 
-export default ModernAssetView;
-
+export default AssetView;

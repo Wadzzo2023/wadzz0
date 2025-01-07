@@ -64,7 +64,6 @@ export default function BuyModal() {
 
   const copy = api.marketplace.market.getMarketAssetAvailableCopy.useQuery({
     id: data.Asset?.id,
-
   },
     {
       enabled: !!data.Asset
@@ -84,7 +83,7 @@ export default function BuyModal() {
       }
     );
 
-  console.log(data.Asset)
+
   if (!data.Asset || !data.Asset.asset)
 
 
@@ -219,6 +218,7 @@ export default function BuyModal() {
                           price: 15,
                           priceUSD: 50,
                           id: 1,
+
                         } as SongItemType);
                       }}
 

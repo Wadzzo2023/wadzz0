@@ -2,6 +2,7 @@ import { Creator } from "@prisma/client";
 import AssetView from "~/components/marketplace/asset/asset_view";
 import NftCreate from "~/components/marketplace/nft_create";
 import { MoreAssetsSkeleton } from "~/components/marketplace/platforms_nfts";
+import RedeeemPage from "~/components/redeem/creator-redeem";
 import { useModal } from "~/lib/state/play/use-modal-store";
 import { api } from "~/utils/api";
 
@@ -11,9 +12,9 @@ export default function Shop({ creator }: { creator?: Creator }) {
       <div className="fixed bottom-10 right-0 p-4 lg:bottom-0 lg:right-80">
         <NftCreate />
       </div>
-      {/* <div className="fixed bottom-24 right-0 p-4 lg:bottom-0 lg:right-[26rem]">
+      <div className="fixed bottom-24 right-0 p-4 lg:bottom-0 lg:right-[26rem]">
         <RedeeemPage />
-      </div> */}
+      </div>
       <AllShopItems />
     </div>
   );

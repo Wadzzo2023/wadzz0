@@ -4,6 +4,7 @@ import clsx from "clsx";
 import EditTierModal from "./edit-tier-modal";
 import { SubscriptionType } from "~/pages/fans/creator/[id]";
 import { Preview } from "~/components/preview";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "~/components/shadcn/ui/card";
 
 export default function MemberShipCard({
   creator,
@@ -22,16 +23,15 @@ export default function MemberShipCard({
 }) {
 
   return (
-    <div className=" m-4 flex    flex-col justify-between rounded border bg-white p-2 shadow-sm">
-      <div className="mb-6">
-        <div className="mb-6 flex items-center justify-between border-b pb-2">
+    <Card className={`w-full rounded-md max-w-sm mt-4 ${className}`}>
+
+      <CardHeader>
+        <div className="flex items-center justify-between">
           <div>
-            <p className="text-sm font-bold uppercase tracking-wider">
-              Requirement: {subscription.price} {pageAsset}
-            </p>
-            <p className="text-3xl font-extrabold">
-              {subscription.name.toLocaleUpperCase()}
-            </p>
+            <CardTitle className="text-2xl font-bold">{subscription.name}</CardTitle>
+            <CardDescription className="text-sm font-medium">
+              Requirement: <span className="text-lg font-bold">{subscription.price} {pageAsset}</span>
+            </CardDescription>
           </div>
           <div className="bg-blue-gray-50 flex h-24 w-24 items-center justify-center rounded-full">
             <div
@@ -39,46 +39,43 @@ export default function MemberShipCard({
             ></div>
           </div>
         </div>
-        <div className="">{children}</div>
-        <div>
-          <p className="mb-2 font-bold tracking-wide">Features</p>
-          <ul className="space-y-2">
-            <li className="flex items-center">
-              <div className="">
-                <svg
-                  className="h-4 w-4 text-purple-600"
-                  viewBox="0 0 24 24"
-                  stroke-linecap="round"
-                  strokeWidth="2"
-                >
-                  <polyline
-                    fill="none"
-                    stroke="currentColor"
-                    points="6,12 10,16 18,8"
-                  ></polyline>
-                  <circle
-                    cx="12"
-                    cy="12"
-                    fill="none"
-                    r="11"
-                    stroke="currentColor"
-                  ></circle>
-                </svg>
-              </div>
-              <p className="font-medium text-gray-800">
-                <Preview value={subscription.features} />
-              </p>
-              <EditTierModal item={subscription} />
-            </li>
-          </ul>
-        </div>
-      </div>
-      <div>
-        {/* <p className="text-sm text-gray-600">
-          Forever free plan. Feature availablity subject to change.
-        </p> */}
-      </div>
-    </div>
+      </CardHeader>
+
+      <div className="">{children}</div>
+      <CardContent className="max-h-[300px] overflow-y-auto scrollbar-none">
+        <p className="mb-2 font-bold tracking-wide">Features</p>
+        <ul className="space-y-2">
+          <li className="flex items-center">
+            <div className="">
+              <svg
+                className="h-4 w-4 text-purple-600"
+                viewBox="0 0 24 24"
+                stroke-linecap="round"
+                strokeWidth="2"
+              >
+                <polyline
+                  fill="none"
+                  stroke="currentColor"
+                  points="6,12 10,16 18,8"
+                ></polyline>
+                <circle
+                  cx="12"
+                  cy="12"
+                  fill="none"
+                  r="11"
+                  stroke="currentColor"
+                ></circle>
+              </svg>
+            </div>
+            <p className="font-medium text-gray-800">
+              <Preview value={subscription.features} />
+            </p>
+            <EditTierModal item={subscription} />
+          </li>
+        </ul>
+      </CardContent>
+
+    </Card>
   );
 }
 

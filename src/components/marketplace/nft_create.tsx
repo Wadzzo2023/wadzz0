@@ -53,6 +53,8 @@ import {
 } from "~/components/ui/tooltip";
 import { ipfsHashToUrl } from "~/utils/ipfs";
 import { UploadS3Button } from "~/pages/test";
+import { Label } from "../shadcn/ui/label";
+import { Input } from "../shadcn/ui/input";
 
 export const ExtraSongInfo = z.object({
   artist: z.string(),
@@ -240,7 +242,7 @@ function NftCreateForm({
   // Function to upload the selected file to Pinata
 
   const onSubmit = () => {
-    if (ipfs)
+    if (ipfs) {
       xdrMutation.mutate({
         code: getValues("code"),
         limit: getValues("limit"),
@@ -248,6 +250,11 @@ function NftCreateForm({
         ipfsHash: ipfs,
         native: paymentMethod === "xlm",
       });
+    }
+    else {
+      toast.error("Please upload a thumbnail image.")
+    }
+
   };
 
   function getEndpoint(mediaType: MediaType) {
@@ -390,24 +397,35 @@ function NftCreateForm({
                 )}
               </div>
 
-              <div>
-                <label className="label">
-                  Choose a thumbnail Max 1MB (this will be used as NFT Image)
-                </label>
-                <input
-                  type="file"
-                  accept=".jpg, .png, .jpeg"
-                  onChange={handleChange}
-                  className="file-input file-input-bordered file-input-sm w-full"
-                />
-                {coverUrl && (
-                  <Image
-                    className="mt-2"
-                    width={100}
-                    height={100}
-                    alt="preview image"
-                    src={coverUrl}
+              <div className="space-y-4">
+                <Label htmlFor="coverImg">Cover Image</Label>
+                <div className="flex flex-col items-center gap-2">
+                  <Button
+                    type="button"
+                    onClick={() => document.getElementById('coverImg')?.click()}
+                    className="w-full "
+                  >
+                    Choose Cover Image
+                  </Button>
+                  <Input
+                    id="coverImg"
+                    type="file"
+                    accept=".jpg, .png"
+                    onChange={handleChange}
+                    className="hidden"
                   />
+                  {uploading && <progress className="progress w-56"></progress>}
+                </div>
+                {coverUrl && (
+                  <div className="mt-4 ">
+                    <Image
+                      width={120}
+                      height={120}
+                      alt="preview image"
+                      src={coverUrl}
+                      className="rounded"
+                    />
+                  </div>
                 )}
               </div>
 
@@ -437,6 +455,11 @@ function NftCreateForm({
                   <PlayableMedia mediaType={mediaType} mediaUrl={mediaUrl} />
                 )}
               </div>
+              {
+                errors.mediaUrl && (
+                  <p className="text-warning text-sm mt-1">{errors.mediaUrl.message}</p>
+                )
+              }
             </div>
           </div>
 
@@ -547,7 +570,7 @@ function NftCreateForm({
               },
             ]}
             XLM_EQUIVALENT={4}
-            handleConfirm={() => onSubmit()}
+            handleConfirm={handleSubmit(onSubmit)}
             loading={loading}
             requiredToken={requiredTokenAmount}
             trigger={

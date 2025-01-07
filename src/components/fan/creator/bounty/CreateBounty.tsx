@@ -107,6 +107,7 @@ const CreateBounty = () => {
     getValues,
     reset,
     trigger,
+
     formState: { errors, isValid },
   } = useForm<z.infer<typeof BountySchema>>({
     resolver: zodResolver(BountySchema),
@@ -169,7 +170,6 @@ const CreateBounty = () => {
             setLoading(false);
             console.error("Error sending balance to bounty mother", error);
             reset();
-            toast.success("Bounty Created");
             setMedia([]);
           }
         }
@@ -202,14 +202,15 @@ const CreateBounty = () => {
     setValue("content", value);
   }
 
-  const RequiredBalance = 5;
+  const RequiredBalance = 5000;
   const isCardDisabled = platformAssetBalance < RequiredBalance;
   const removeMediaItem = (index: number) => {
     setMedia((prevMedia) => prevMedia.filter((_, i) => i !== index));
   };
 
   //OnlyForWadzzo
-  const prize = 0.01;
+  const { data: prize } = api.bounty.Bounty.getCurrentUSDFromAsset.useQuery();
+  console.log("prize", prize);
 
   return (
     <>
@@ -232,7 +233,7 @@ const CreateBounty = () => {
               </CardTitle>
               <CardDescription></CardDescription>
             </CardHeader>
-            <CardContent className="px-1">
+            <CardContent className="px-1 ">
               <form
                 onSubmit={handleSubmit(onSubmit)}
                 className="flex w-full flex-col gap-4 rounded-3xl bg-base-200 p-5"
@@ -265,7 +266,7 @@ const CreateBounty = () => {
                     </div>
                   )}
                 </label>
-                <div className="h-[240px]">
+                <label className="h-[240px]">
                   {/* <textarea
                 {...register("content")}
                 className="textarea textarea-bordered h-48"
@@ -285,7 +286,7 @@ const CreateBounty = () => {
                       </span>
                     </div>
                   )}
-                </div>
+                </label>
                 <div>
                   <div className="flex flex-col items-center gap-2">
 
@@ -446,13 +447,13 @@ const CreateBounty = () => {
                           },
                           {
                             label: "Platform Fee",
-                            amount: totalFeees,
+                            amount: paymentMethod === "asset" ? totalFeees : 2 + 1,
                             highlighted: false,
                             type: "fee",
                           },
                           {
                             label: "Total Cost",
-                            amount: paymentMethod === "asset" ? prizeInAsset + totalFeees : prizeInAsset * 0.7 + totalFeees,
+                            amount: paymentMethod === "asset" ? prizeInAsset + totalFeees : prizeInAsset * 0.7 + 2 + 1,
                             highlighted: false,
                             type: "total",
                           },

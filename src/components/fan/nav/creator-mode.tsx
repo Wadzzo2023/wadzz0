@@ -6,16 +6,17 @@ export const CreatorNavigation = {
   Page: { path: "/fans/creator", icon: PenSquare, text: "PAGE" },
   Create: { path: "/fans/creator/posts", icon: PenSquare, text: "POST" },
   Store: { path: "/fans/creator/store", icon: Store, text: "STORE" },
+  Music: { path: "/fans/creator/music", icon: Bell, text: "MUSIC" },
 
+  Gift: { path: "/fans/creator/gift", icon: Bell, text: "GIFT" },
+  // Map: { path: "/maps", icon: Bell, text: "MAP" },
+  // Pins: { path: "/maps/pins/creator/", icon: Bell, text: "PINS" },
+  Bounty: { path: "/fans/creator/bounty", icon: Bell, text: "BOUNTY" },
   Settings: {
     path: "/fans/creator/settings",
     icon: Settings2,
     text: "SETTINGS",
   },
-  Gift: { path: "/fans/creator/gift", icon: Bell, text: "GIFT" },
-  Map: { path: "/maps", icon: Bell, text: "MAP" },
-  Pins: { path: "/maps/pins/creator/", icon: Bell, text: "PINS" },
-  Bounty: { path: "/fans/creator/bounty", icon: Bell, text: "BOUNTY" },
 } as const;
 
 export function CreatorNavButtons() {

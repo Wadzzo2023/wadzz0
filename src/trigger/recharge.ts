@@ -1,4 +1,3 @@
-/* eslint-disable */
 import { task } from "@trigger.dev/sdk/v3";
 
 import { randomUUID } from "crypto";

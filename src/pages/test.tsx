@@ -223,7 +223,7 @@ export function MultiUploadS3Button({
   const [progress, setProgress] = useState(0);
   const [loading, setLoading] = useState(false);
   const [files, setFiles] = useState<FileList>();
-
+  const [completedCount, setCompletedCount] = useState(0);
   const singedUrls = api.s3.getSignedMultiURLs.useMutation({
     onSuccess: async (urls, variables) => {
       setLoading(true);
@@ -258,6 +258,8 @@ export function MultiUploadS3Button({
               url: data.fileUrl, name: file.name, size: file.size, type: file.type
 
             });
+            setCompletedCount(prevCount => prevCount + 1);
+
           } else {
             // onUploadError?.(new Error("Failed to upload file"));
             console.log(res);
@@ -325,22 +327,41 @@ export function MultiUploadS3Button({
   };
 
   return (
-    <div className="grid w-full  items-center gap-1.5">
-      {loading && <div>Uploading...</div>}
-      <Input
-        onChange={handleFileChange}
-        id="picture"
+
+    <div className="grid w-full items-center gap-2">
+      <Button
+        variant="default"
+        type="button"
+        className="w-full bg-blue-600 hover:bg-blue-700"
+        disabled={loading}
+        onClick={() => document.getElementById('file-upload')?.click()}
+      >
+        {loading ? (
+          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+        ) : (
+          <Upload className="mr-2 h-4 w-4" />
+        )}
+        {loading ? 'Uploading...' : 'Add Media'}
+      </Button>
+      <input
+        id="file-upload"
         type="file"
-        className="bg-slate-200"
         accept={getAcceptString(endpoint)}
+        disabled={loading}
+        className="hidden"
+        onChange={handleFileChange}
         multiple
       />
+      {loading && (
+        <Progress
+          value={progress}
+          className="h-1 w-full"
+        />
+      )}
+      {loading && <div className="text-sm text-gray-600">Completed: {completedCount}/{files?.length}</div>}
 
-      <Progress
-        className="w-full"
-        value={progress}
-        style={{ height: "0.5rem" }}
-      />
     </div>
+
+
   );
 }

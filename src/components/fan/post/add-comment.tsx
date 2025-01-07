@@ -5,6 +5,9 @@ import { SubmitHandler, useForm } from "react-hook-form";
 import { z } from "zod";
 import { api } from "~/utils/api";
 import CommentView from "./comment";
+import { Form, FormControl, FormField, FormItem, FormMessage } from "~/components/shadcn/ui/form";
+import { Textarea } from "~/components/shadcn/ui/textarea";
+import { Button } from "~/components/shadcn/ui/button";
 
 export const CommentSchema = z.object({
   postId: z.number(),
@@ -14,61 +17,61 @@ export const CommentSchema = z.object({
     .min(1, { message: "Minimum 5 character is required!" })
     .trim(),
 });
+export type CommentSchemaType = z.infer<typeof CommentSchema>;
 
 export function AddComment({ postId }: { postId: number }) {
-  const commentM = api.fan.post.createComment.useMutation({
+
+  const commentMutation = api.fan.post.createComment.useMutation({
     onSuccess: () => {
-      reset();
+      form.reset();
     },
   });
-  const {
-    register,
-    handleSubmit,
-    reset,
-    control,
-    watch,
-    formState: { errors },
-  } = useForm<z.infer<typeof CommentSchema>>({
-    resolver: zodResolver(CommentSchema),
-    defaultValues: { postId: postId },
-  });
-  const contentValue = watch("content");
 
-  const onSubmit: SubmitHandler<z.infer<typeof CommentSchema>> = (data) => {
-    commentM.mutate(data);
+  const form = useForm<CommentSchemaType>({
+    resolver: zodResolver(CommentSchema),
+    defaultValues: { postId, content: "" },
+  });
+
+  const onSubmit: SubmitHandler<CommentSchemaType> = (data) => {
+    commentMutation.mutate(data);
   };
 
   return (
     <div className=" px-4 pb-2 ">
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <label className="form-control ">
-          <div className="flex items-center  gap-2">
-            <textarea
-              {...register("content")}
-              className="textarea textarea-bordered h-10 w-full"
-            />
-            <button
-              disabled={commentM.isLoading || !contentValue?.trim()}
-              className="btn"
-              type="submit"
-            >
-              {commentM.isLoading ? (
-                <span className="loading loading-spinner h-5 w-5" />
-              ) : (
-                <Send size={14} />
-              )}
-              Comment
-            </button>
-          </div>
-          {errors.content && (
-            <div className="label">
-              <span className="label-text-alt text-warning">
-                {errors.content.message}
-              </span>
-            </div>
-          )}
-        </label>
-      </form>
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <FormField
+            control={form.control}
+            name="content"
+            render={({ field }) => (
+              <FormItem>
+                <FormControl>
+                  <div className="flex items-center gap-2">
+                    <textarea
+                      {...field}
+                      rows={1}
+                      placeholder="Write your comment..."
+                      className="textarea textarea-bordered h-10 w-full"
+                    />
+                    <Button
+                      type="submit"
+                      disabled={commentMutation.isLoading || !field.value.trim()}
+                    >
+                      {commentMutation.isLoading ? (
+                        <span className="loading loading-spinner h-5 w-5" />
+                      ) : (
+                        <Send className="mr-2 h-4 w-4" />
+                      )}
+                      Comment
+                    </Button>
+                  </div>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </form>
+      </Form>
     </div>
   );
 }
