@@ -1,5 +1,6 @@
 'use client'
 
+import { useState, useRef, useEffect } from "react"
 import { SkipBack, Play, Pause, SkipForward, Volume2 } from 'lucide-react'
 import { Card, CardContent } from "~/components/shadcn/ui/card"
 import { Button } from "~/components/shadcn/ui/button"
@@ -105,13 +106,14 @@ export default function DummyAudioPostPlayer({ audioId, name, artist, mediaUrl, 
                                             id: 1,
                                             mediaUrl: mediaUrl,
                                             name: name,
-                                            thumbnail: creatorProfileUrl ?? "https://app.wadzzo.com/images/loading.png",
+                                            thumbnail: creatorProfileUrl ?? 'https://bandcoin.io/images/logo.png',
                                         },
                                         assetId: 1,
                                         createdAt: new Date(),
                                         id: 1,
                                         price: 0,
                                         priceUSD: 0,
+                                        creatorId: addrShort(artist, 7),
 
                                     })
                                     setIsPlaying(true)

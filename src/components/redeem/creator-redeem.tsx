@@ -254,6 +254,7 @@ const Redeem = ({ creatorId }: { creatorId: string }) => {
 
 
     const totalFee = totalFees.data ?? 0;
+    console.log("totalAmount...................", totalFee);
 
     const xlmPlatformFee = 2;
 

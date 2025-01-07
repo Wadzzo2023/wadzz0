@@ -41,6 +41,7 @@ import {
 } from "~/server/api/trpc";
 import { db } from "~/server/db";
 import { PaymentMethodEnum } from "~/components/BuyItem";
+import { useCreatorStorageAcc } from "~/lib/state/wallete/stellar-balances";
 
 export const trxRouter = createTRPCRouter({
   createCreatorPageAsset: protectedProcedure
@@ -364,10 +365,20 @@ export const trxRouter = createTRPCRouter({
       const { code, issuer, signWith } = input;
 
       const creator = await ctx.db.creator.findUniqueOrThrow({
-        where: { id: ctx.session.user.id },
+        where: { id: ctx.session.user.id, },
+        select: {
+          storageSecret: true,
+          storagePub: true,
+        }
       });
-      const requiredPlatformAsset = await getplatformAssetNumberForXLM(0.5);
 
+      const requiredPlatformAsset = await getplatformAssetNumberForXLM(0.5);
+      const creatorAcc = await StellarAccount.create(creator.storagePub);
+      const hasTrust = creatorAcc.hasTrustline(code, issuer);
+
+      if (hasTrust) {
+        return true;
+      }
       return await trustCustomPageAsset({
         signWith,
         code,

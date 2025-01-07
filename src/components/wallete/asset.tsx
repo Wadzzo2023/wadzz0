@@ -25,7 +25,7 @@ function Asset({ asset }: { asset: AdminAssetWithTag }) {
       }}>
 
       <div
-        className="absolute m-0 h-full w-full bg-secondary p-0 opacity-30"
+        className=""
 
       />
       <div className="flex flex-col space-y-2 ">

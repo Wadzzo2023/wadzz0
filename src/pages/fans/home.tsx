@@ -30,7 +30,7 @@ function AuthShowcase() {
   // if (status == "authenticated") return <div>{data.user.id}</div>;
   return (
     <div className="w-full">
-      <h1 className="bg-base-100 flex items-center justify-center  rounded-md py-3 text-center text-2xl font-bold shadow-md">
+      <h1 className="flex items-center justify-center rounded-md  bg-base-100 py-3 text-center text-2xl font-bold shadow-md">
         News Feed
       </h1>
       {/* <div className="flex flex-col items-center">
@@ -75,7 +75,7 @@ function AllRecentPost() {
 
   if (posts.data) {
     return (
-      <div className="flex w-full flex-col gap-4 items-center p-2 md:mx-auto md:container bg-base-100">
+      <div className="flex w-full flex-col items-center gap-4 bg-base-100 p-2 md:container md:mx-auto">
         {posts.data.pages.map((page) => (
           <>
             {page.posts.length === 0 && <p>There are no post yet</p>}
@@ -89,10 +89,27 @@ function AllRecentPost() {
                 likeCount={post._count.likes}
                 show={(() => {
                   if (post.subscription) {
+                    let pageAssetCode: string | undefined;
+                    let pageAssetIssuer: string | undefined;
+
+                    const customPageAsset =
+                      post.creator.customPageAssetCodeIssuer;
+                    const pageAsset = post.creator.pageAsset;
+
+                    if (pageAsset) {
+                      pageAssetCode = pageAsset.code;
+                      pageAssetIssuer = pageAsset.issuer;
+                    } else {
+                      if (customPageAsset) {
+                        const [code, issuer] = customPageAsset.split("-");
+                        pageAssetCode = code;
+                        pageAssetIssuer = issuer;
+                      }
+                    }
                     const bal = getAssetBalanceFromBalance({
                       balances: accBalances.data,
-                      code: post.creator.pageAsset?.code,
-                      issuer: post.creator.pageAsset?.issuer,
+                      code: pageAssetCode,
+                      issuer: pageAssetIssuer,
                     });
                     if (post.subscription.price <= bal) {
                       return true;

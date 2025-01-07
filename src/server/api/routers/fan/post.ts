@@ -28,10 +28,10 @@ export const postRouter = createTRPCRouter({
             : null,
           medias: input.medias
             ? {
-              createMany: {
-                data: input.medias,
-              },
-            }
+                createMany: {
+                  data: input.medias,
+                },
+              }
             : undefined,
         },
       });
@@ -41,9 +41,7 @@ export const postRouter = createTRPCRouter({
         select: { userId: true },
       });
 
-
       const followerIds = followers.map((follower) => follower.userId);
-
 
       const createNotification = async (notifierId: string) => {
         await ctx.db.notificationObject.create({
@@ -63,7 +61,6 @@ export const postRouter = createTRPCRouter({
           },
         });
       };
-
 
       for (const followerId of followerIds) {
         await createNotification(followerId);
@@ -103,7 +100,9 @@ export const postRouter = createTRPCRouter({
           },
           medias: true,
           subscription: true,
-          creator: { select: { name: true, id: true, profileUrl: true, pageAsset: true } },
+          creator: {
+            select: { name: true, id: true, profileUrl: true, pageAsset: true },
+          },
         },
         orderBy: { createdAt: "desc" },
       });
@@ -151,6 +150,7 @@ export const postRouter = createTRPCRouter({
               id: true,
               pageAsset: { select: { code: true, issuer: true } },
               profileUrl: true,
+              customPageAssetCodeIssuer: true,
             },
           },
           medias: true,
@@ -178,25 +178,53 @@ export const postRouter = createTRPCRouter({
         where: { id: input },
         include: {
           _count: { select: { likes: true, comments: true } },
-          creator: { select: { name: true, id: true, profileUrl: true, pageAsset: true } },
+          creator: {
+            select: {
+              name: true,
+              id: true,
+              profileUrl: true,
+              pageAsset: true,
+              customPageAssetCodeIssuer: true,
+            },
+          },
           subscription: { select: { price: true } },
           medias: true,
         },
       });
+
+
+
+
+
+
       if (post) {
         if (post.subscription) {
+          let pageAssetCode: string | undefined;
+          let pageAssetIssuer: string | undefined;
+
           const pageAsset = post.creator.pageAsset;
-          if (!pageAsset) {
-            throw new Error("Page Asset not found");
+          if (pageAsset) {
+            pageAssetCode = pageAsset.code;
+            pageAssetIssuer = pageAsset.issuer;
+          } else {
+            const customPageAssetCodeIssuer =
+              post.creator.customPageAssetCodeIssuer;
+            if (customPageAssetCodeIssuer) {
+              const [code, issuer] = customPageAssetCodeIssuer.split("-");
+              pageAssetCode = code;
+              pageAssetIssuer = issuer;
+            }
           }
-          const { code, issuer } = pageAsset;
+
           const acc = await StellarAccount.create(userId);
 
-          if (acc.getTokenBalance(code, issuer) >= post.subscription.price) {
+          if (
+            acc.getTokenBalance(pageAssetCode ?? "", pageAssetIssuer ?? "") >=
+            post.subscription.price
+          ) {
             return post;
-          }
-          else {
-            return false
+          } else {
+            return false;
           }
         }
 
@@ -374,7 +402,6 @@ export const postRouter = createTRPCRouter({
       const userId = ctx.session.user.id;
       let comment;
 
-
       if (input.parentId) {
         comment = await ctx.db.comment.create({
           data: {
@@ -394,31 +421,25 @@ export const postRouter = createTRPCRouter({
         });
       }
 
-
       const post = await ctx.db.post.findUnique({
         where: { id: input.postId },
         select: { creatorId: true },
       });
-
 
       const previousCommenters = await ctx.db.comment.findMany({
         where: {
           postId: input.postId,
           userId: { not: userId },
         },
-        distinct: ['userId'],
+        distinct: ["userId"],
         select: { userId: true },
       });
 
+      const previousCommenterIds = previousCommenters.map(
+        (comment) => comment.userId,
+      );
 
-      const previousCommenterIds = previousCommenters.map(comment => comment.userId);
-
-
-      const usersToNotify = new Set([
-        post?.creatorId,
-        ...previousCommenterIds,
-      ]);
-
+      const usersToNotify = new Set([post?.creatorId, ...previousCommenterIds]);
 
       usersToNotify.delete(userId);
 
@@ -426,12 +447,17 @@ export const postRouter = createTRPCRouter({
         await ctx.db.notificationObject.create({
           data: {
             actorId: userId,
-            entityType: input.parentId ? NotificationType.REPLY : NotificationType.COMMENT,
+            entityType: input.parentId
+              ? NotificationType.REPLY
+              : NotificationType.COMMENT,
             entityId: input.postId,
             isUser: false,
             Notification: {
               create: Array.from(usersToNotify)
-                .filter((notifierId): notifierId is string => notifierId !== undefined)
+                .filter(
+                  (notifierId): notifierId is string =>
+                    notifierId !== undefined,
+                )
                 .map((notifierId) => ({
                   notifierId,
                   isCreator: notifierId === post?.creatorId, // Mark if the notifier is the post creator
@@ -442,9 +468,7 @@ export const postRouter = createTRPCRouter({
       }
 
       return comment;
-    })
-  ,
-
+    }),
   deleteComment: protectedProcedure
     .input(z.number())
     .mutation(async ({ input: commentId, ctx }) => {

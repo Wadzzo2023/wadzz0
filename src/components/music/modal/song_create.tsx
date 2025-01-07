@@ -44,6 +44,7 @@ export const SongFormSchema = z.object({
     .min(4, { message: "Must be a minimum of 4 characters" })
     .max(12, { message: "Must be a maximum of 12 characters" }),
   issuer: AccountSchema.optional(),
+  tier: z.string().optional(),
 });
 
 type SongFormType = z.TypeOf<typeof SongFormSchema>;
@@ -193,7 +194,7 @@ export default function SongCreate({ albumId }: { albumId: number }) {
               ✕
             </button>
           </form>
-          <h3 className="text-lg font-bold">Add Music Asset</h3>
+          <h3 className="text-lg font-bold">Admin Music Asset</h3>
           <form onSubmit={handleSubmit(onSubmit)}>
             <div className="flex flex-col gap-4">
               <div className="rounded-md bg-base-200 p-2">

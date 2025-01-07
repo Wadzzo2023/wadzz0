@@ -1,39 +1,32 @@
-import React from "react";
-import MemberShipCard from "./card";
 import { Creator } from "@prisma/client";
-import { api } from "~/utils/api";
-import AddCreatorPageAssetModal from "./add-createpage-asset";
-import { SubscriptionGridWrapper } from "~/pages/fans/creator/[id]";
-import AddTierModal from "./add-tier-modal";
-import Loading from "~/components/wallete/loading";
-import ReceiveCustomAssetModal from "./page_asset/custom_asset_recieve_modal";
 import { z } from "zod";
-import { Button } from "~/components/shadcn/ui/button";
 import {
   Card,
   CardContent,
-  CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "~/components/shadcn/ui/card";
+import Loading from "~/components/wallete/loading";
+import { SubscriptionGridWrapper } from "~/pages/fans/creator/[id]";
+import { api } from "~/utils/api";
+import AddCreatorPageAssetModal from "./add-createpage-asset";
+import AddTierModal from "./add-tier-modal";
+import MemberShipCard from "./card";
+import ReceiveCustomAssetModal from "./page_asset/custom_asset_recieve_modal";
 
+import { CircleDollarSign, Info } from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "~/components/shadcn/ui/tooltip";
-import { CircleDollarSign, Info } from "lucide-react";
-import { CREATOR_TERM } from "~/utils/term";
 
 export default function MemberShip({ creator }: { creator: Creator }) {
   const { data: subscriptions, isLoading } =
     api.fan.member.getAllMembership.useQuery();
 
   const pageAsset = api.fan.creator.getCreatorPageAsset.useQuery();
-
-  // console.log(creator.pageAssetId, creator.pageAsset);
 
   return (
     <div className="my-7 flex flex-col items-center">
@@ -47,10 +40,7 @@ export default function MemberShip({ creator }: { creator: Creator }) {
         {subscriptions
           ?.sort((a, b) => a.price - b.price)
           .map((el) => {
-            const pageCode =
-              pageAsset?.data && typeof pageAsset.data === "object"
-                ? pageAsset.data.code
-                : "";
+            const pageCode = pageAsset.data?.code;
             return (
               <MemberShipCard
                 key={el.id}

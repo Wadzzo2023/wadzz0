@@ -7,7 +7,7 @@ import {
 } from "@stellar/stellar-sdk";
 import { env } from "~/env";
 import { SignUserType, WithSing } from "../utils";
-import { PLATFORM_ASSET, STELLAR_URL, networkPassphrase } from "../constant";
+import { PLATFORM_ASSET, STELLAR_URL, TrxBaseFee, TrxBaseFeeInPlatformAsset, networkPassphrase } from "../constant";
 
 export async function trustCustomPageAsset({
   creator,
@@ -32,7 +32,7 @@ export async function trustCustomPageAsset({
   const motherAcc = Keypair.fromSecret(env.MOTHER_SECRET);
   const creatorStorageAcc = Keypair.fromSecret(storageSecret);
 
-  const transactionInializer = await server.loadAccount(creator);
+  const transactionInializer = await server.loadAccount(motherAcc.publicKey());
 
   const Tx1 = new TransactionBuilder(transactionInializer, {
     fee: "200",
@@ -41,9 +41,10 @@ export async function trustCustomPageAsset({
 
   Tx1.addOperation(
     Operation.payment({
-      amount: requiredPlatformAsset,
+      amount: (Number(requiredPlatformAsset) + Number(TrxBaseFeeInPlatformAsset)).toFixed(7).toString(),
       destination: motherAcc.publicKey(),
       asset: PLATFORM_ASSET,
+      source: creator
     }),
   )
     .addOperation(

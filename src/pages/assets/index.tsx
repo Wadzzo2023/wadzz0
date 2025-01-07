@@ -34,9 +34,10 @@ function RenderTabs() {
 }
 
 function MyStorageAsset() {
+  const { setCurrentTrack } = usePlayer();
+
   const acc = api.wallate.acc.getCreatorStorageInfo.useQuery();
   const { onOpen } = useModal();
-  const { setCurrentTrack } = usePlayer();
 
   if (acc.isLoading)
     return (
@@ -87,8 +88,9 @@ function MyStorageAsset() {
 
 function MyAssets() {
   const acc = api.wallate.acc.getAccountInfo.useQuery();
-  const { setCurrentTrack } = usePlayer();
+
   const { onOpen } = useModal();
+  const { setCurrentTrack, setCurrentAudioPlayingId } = usePlayer();
   const {
     data,
     fetchNextPage,

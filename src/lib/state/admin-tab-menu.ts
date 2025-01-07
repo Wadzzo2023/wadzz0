@@ -3,7 +3,7 @@ import { create } from "zustand";
 export enum AdminNavigation {
   // WALLET = "wallet",
   NFT = "nft",
-  ALBUM = "album",
+  // ALBUM = "album",
   ADMIN = "admin",
   PINS = "pins",
   COLLECTION_REPORTS = "pins-report",

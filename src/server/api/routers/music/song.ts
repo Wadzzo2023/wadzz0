@@ -13,18 +13,109 @@ import { StellarAccount } from "~/lib/stellar/marketplace/test/Account";
 import { ItemPrivacy } from "@prisma/client";
 
 export const songRouter = createTRPCRouter({
-  getAllSong: publicProcedure.query(async ({ ctx }) => {
-    return await ctx.db.song.findMany({
-      include: { asset: { select: AssetSelectAllProperty } },
-      // take: 10,
+  getAllSong: protectedProcedure.query(async ({ ctx }) => {
+    const currentUserId = ctx.session.user.id;
+
+    const songs = await ctx.db.song.findMany({
+      include: {
+        asset: {
+          select: {
+            ...AssetSelectAllProperty,
+            tier: {
+              select: {
+                price: true,
+              },
+            },
+            creator: {
+              select: {
+                pageAsset: {
+                  select: {
+                    code: true,
+                    issuer: true,
+                  },
+                },
+                customPageAssetCodeIssuer: true
+              },
+            },
+          },
+        },
+      },
     });
+    const stellarAcc = await StellarAccount.create(currentUserId);
+
+
+    // Filter items based on privacy and conditions
+    const array = songs.filter((item) => {
+      if (item.asset.creator?.pageAsset) {
+        const creatorPageAsset = item.asset.creator?.pageAsset;
+        if (item.creatorId === currentUserId) {
+          return true;
+        }
+        if (item.asset.privacy === ItemPrivacy.PUBLIC) {
+          return true;
+        }
+        if (item.asset.privacy === ItemPrivacy.PRIVATE) {
+          return creatorPageAsset && stellarAcc.hasTrustline(creatorPageAsset.code, creatorPageAsset.issuer);
+        }
+        if (item.asset.privacy === ItemPrivacy.TIER) {
+          return (
+            creatorPageAsset &&
+            item.asset.tier &&
+            item.asset.tier.price <= stellarAcc.getTokenBalance(creatorPageAsset.code, creatorPageAsset.issuer)
+          );
+        }
+      }
+      else if (item.asset.creator?.customPageAssetCodeIssuer) {
+
+        const customPageAsset = item.asset.creator.customPageAssetCodeIssuer;
+        console.log("customPageAsset", customPageAsset);
+        const [code, issuer] = customPageAsset.split("-");
+        if (item.creatorId === currentUserId) {
+          return true;
+        }
+        if (item.asset.privacy === ItemPrivacy.PUBLIC) {
+          return true;
+        }
+        if (item.asset.privacy === ItemPrivacy.PRIVATE) {
+          if (code && issuer)
+            return stellarAcc.hasTrustline(code, issuer);
+        }
+        if (item.asset.privacy === ItemPrivacy.TIER) {
+          return (
+            code && issuer &&
+            item.asset.tier &&
+            item.asset.tier.price <= stellarAcc.getTokenBalance(code, issuer)
+          );
+        }
+
+      }
+      else if (item.creatorId === null) {
+        return true
+      }
+
+      return false;
+    });
+    return array
   }),
 
   getCreatorPublicSong: protectedProcedure.query(async ({ ctx }) => {
-    const assets = await ctx.db.asset.findMany({
-      where: { mediaType: "MUSIC", tier: { is: null }, song: { is: null } },
-
-      select: AssetSelectAllProperty,
+    const assets = await ctx.db.song.findMany({
+      where: {
+        asset: {
+          privacy: "PUBLIC",
+        },
+      },
+      select: {
+        asset: { select: AssetSelectAllProperty },
+        id: true,
+        price: true,
+        priceUSD: true,
+        createdAt: true,
+        artist: true,
+        albumId: true,
+        assetId: true,
+        creatorId: true,
+      },
     });
 
     return assets;
@@ -92,12 +183,12 @@ export const songRouter = createTRPCRouter({
             },
           },
         },
-        where: { type: { equals: "SONG" }, placerId: null },
+        orderBy: { id: "desc" },
+        where: { type: { equals: "SONG" } },
       });
 
       const stellarAcc = await StellarAccount.create(currentUserId);
 
-      // Filter items based on privacy and conditions
       const array = items.filter((item) => {
         const creatorPageAsset = item.asset.creator?.pageAsset;
 
@@ -255,6 +346,7 @@ export const songRouter = createTRPCRouter({
         name,
         code,
         issuer,
+
       } = input;
       const serialNumber = 1; // will query based on createdAt
 
@@ -280,6 +372,7 @@ export const songRouter = createTRPCRouter({
             thumbnail: coverImgUrl,
             description: description,
             limit,
+
           },
         });
       }

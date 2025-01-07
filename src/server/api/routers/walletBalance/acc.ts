@@ -21,6 +21,7 @@ import {
   publicProcedure,
 } from "~/server/api/trpc";
 import { getAccSecretFromRubyApi } from "package/connect_wallet/src/lib/stellar/get-acc-secret";
+import { Input } from "~/components/shadcn/ui/input";
 
 export const WBalanceRouter = createTRPCRouter({
   getWalletsBalance: protectedProcedure.query(async ({ ctx, input }) => {
@@ -54,7 +55,7 @@ export const WBalanceRouter = createTRPCRouter({
     )
     .mutation(async ({ input, ctx }) => {
       const userPubKey = ctx.session.user.id;
-   
+
       let secretKey;
       if (ctx.session.user.email && ctx.session.user.email.length > 0) {
         secretKey = await getAccSecretFromRubyApi(ctx.session.user.email);
@@ -106,12 +107,16 @@ export const WBalanceRouter = createTRPCRouter({
     .input(
       z.object({
         limit: z.number().min(1).max(100).nullish().default(10),
-        cursor: z.string().nullish().default(null), // Ensure cursor is a string
-      }),
+        cursor: z.string().nullish(),
+      })
     )
     .query(async ({ input, ctx }) => {
       const userId = ctx.session.user.id;
-      return await RecentTransactionHistory({ userPubKey: userId, input });
+      const result = await RecentTransactionHistory({ userPubKey: userId, input });
+      return {
+        items: result.items,
+        nextCursor: result.nextCursor,
+      };
     }),
 
   getPendingAssetList: protectedProcedure.query(async ({ ctx, input }) => {
@@ -181,4 +186,6 @@ export const WBalanceRouter = createTRPCRouter({
     const userPubKey = ctx.session.user.id;
     return await PlatformAssetBalance({ userPubKey: userPubKey });
   }),
+
+
 });

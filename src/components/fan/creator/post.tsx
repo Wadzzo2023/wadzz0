@@ -285,6 +285,15 @@ export function PostCard({
           </div>
         )
       }
+      {
+        showCommentBox && (
+          comments.isLoading && (
+            <div className="flex justify-center items-center p-2">
+              <span className="loading loading-spinner loading-sm"></span>
+            </div>
+          )
+        )
+      }
       {showCommentBox && comments.data && comments.data.length > 0 && (
         <div className="mt-1 flex flex-col  border-2 border-base-200">
           <div className=" flex flex-col   px-4 py-2">

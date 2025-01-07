@@ -40,7 +40,9 @@ export default function CreatorProfile() {
 
   if (!session) return <div>LogIn First</div>;
 
-  return <CreatorExist user={session.user} />;
+  return (
+    <CreatorExist user={session.user} />
+  );
 }
 
 function CreatorExist(props: { user: Session["user"] }) {

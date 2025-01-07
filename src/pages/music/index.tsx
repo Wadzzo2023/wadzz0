@@ -26,7 +26,7 @@ export default function Home() {
               <AllSongs />
               <MySongs />
               <CreatorPublicSongs adminId={data?.id} />
-              <CreatorMarketSongs adminId={data?.id} />
+              {/* <CreatorMarketSongs adminId={data?.id} /> */}
             </div>
           </div>
         </div>
@@ -88,12 +88,9 @@ function CreatorPublicSongs({ adminId }: { adminId?: string }) {
             <CreatorTrack
               key={song.id}
               playable={true}
-              adminId={adminId}
+
               item={
-                {
-                  ...song,
-                  artist: song.creatorId?.substring(0, 4) ?? "creator",
-                }
+                song
               }
               index={index + 1}
             />
@@ -104,70 +101,71 @@ function CreatorPublicSongs({ adminId }: { adminId?: string }) {
   }
 }
 
-function CreatorMarketSongs({ adminId }: { adminId?: string }) {
-  const creatorSongs = api.music.song.getCreatorMarketSong.useQuery();
-  const accBalances = api.wallate.acc.getUserPubAssetBallances.useQuery();
+// function CreatorMarketSongs({ adminId }: { adminId?: string }) {
+//   const creatorSongs = api.music.song.getCreatorMarketSong.useQuery();
+//   const accBalances = api.wallate.acc.getUserPubAssetBallances.useQuery();
 
-  const header = "Creators Market Songs";
+//   const header = "Creators Market Songs";
 
-  if (creatorSongs.isLoading) return <TrackSectionSkeleton header={header} />;
+//   if (creatorSongs.isLoading) return <TrackSectionSkeleton header={header} />;
 
-  if (creatorSongs.data && creatorSongs.data.length > 0) {
-    return (
-      <div>
-        <h2 className="mb-4 text-2xl font-bold text-gray-800">{header}</h2>
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
-          {creatorSongs.data.map((marketItem, index: number) => {
+//   if (creatorSongs.data && creatorSongs.data.length > 0) {
+//     return (
+//       <div>
+//         <h2 className="mb-4 text-2xl font-bold text-gray-800">{header}</h2>
+//         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
+//           {creatorSongs.data.map((marketItem, index: number) => {
 
-            if (marketItem.asset.tier) {
-              const bal = getAssetBalanceFromBalance({
-                balances: accBalances.data,
-                code: marketItem.asset.code,
-                issuer: marketItem.asset.issuer,
-              });
-              if (marketItem.asset.tier.price <= bal) {
-                return (
-                  <CreatorTrack
-                    key={marketItem.id}
-                    playable={true}
-                    adminId={adminId}
-                    item={{
-                      ...marketItem.asset,
-                      artist: marketItem.asset.creatorId?.substring(0, 4) ?? "creator",
-                    }}
-                    index={index + 1}
-                  />
-                );
-              } else {
-                return (
-                  <CreatorTrack
-                    key={marketItem.id}
-                    adminId={adminId}
-                    item={{
-                      ...marketItem.asset,
-                      artist: marketItem.asset.creatorId?.substring(0, 4) ?? "creator",
-                    }}
+//             if (marketItem.asset.tier) {
+//               const bal = getAssetBalanceFromBalance({
+//                 balances: accBalances.data,
+//                 code: marketItem.asset.code,
+//                 issuer: marketItem.asset.issuer,
+//               });
+//               if (marketItem.asset.tier.price <= bal) {
+//                 return (
+//                   <CreatorTrack
+//                     key={marketItem.id}
+//                     playable={true}
+//                     adminId={adminId}
+//                     item={{
+//                       ...marketItem.asset,
+//                       artist: marketItem.asset.creatorId?.substring(0, 4) ?? "creator",
+//                     }}
+//                     index={index + 1}
+//                   />
+//                 );
+//               } else {
+//                 return (
+//                   <CreatorTrack
+//                     key={marketItem.id}
+//                     adminId={adminId}
+//                     item={{
+//                       ...marketItem.asset,
+//                       artist: marketItem.asset.creatorId?.substring(0, 4) ?? "creator",
+//                     }}
 
-                    index={index + 1}
-                  />
-                );
-              }
-            }
-          })}
-        </div>
-      </div>
-    );
-  }
-}
+//                     index={index + 1}
+//                   />
+//                 );
+//               }
+//             }
+//           })}
+//         </div>
+//       </div>
+//     );
+//   }
+// }
 
 function AllSongs() {
   const allSongs = api.music.song.getAllSong.useQuery();
-
+  console.log("allSongs", allSongs.data);
   const header = "Recently Added Songs";
 
   if (allSongs.isLoading) return <TrackSectionSkeleton header={header} />;
 
   if (allSongs.data && allSongs.data.length > 0) {
-    return <TrackSection songs={allSongs.data} header={header} />;
+    return <TrackSection
+      songs={allSongs.data} header={header} />;
   }
 }

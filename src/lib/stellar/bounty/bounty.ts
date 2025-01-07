@@ -256,8 +256,10 @@ export async function SendBountyBalanceToWinner({
   });
 
   if (!hasTrust) {
-    throw new Error(`Please trust the ${PLATFORM_ASSET.code} first.`);
+    throw new Error(`User Doesn't have trust, Please trust the ${PLATFORM_ASSET.code} first.`);
   }
+
+
 
   transaction.addOperation(
     Operation.payment({
