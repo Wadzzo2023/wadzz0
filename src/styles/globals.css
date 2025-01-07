@@ -151,7 +151,6 @@ body {
   0% {
     transform: translateY(-10%) rotate(0deg);
   }
-
   100% {
     transform: translateY(110vh) rotate(360deg);
   }

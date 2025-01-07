@@ -28,7 +28,7 @@ export default function OfferCard({
         <div className="flex flex-col items-center justify-center">
           <div className="flex items-center gap-1">
             <Image alt="Site logo" width={20} height={16} src="/favicon.ico" />
-            <p className="text-lg">{num.toFixed(0)}</p>
+            <p className="text-lg">{num}</p>
           </div>
           {extra}
         </div>

@@ -137,7 +137,7 @@ const Support = () => {
                   </div>
                   <div className="ml-6 grow">
                     <p className="mb-2 font-bold">Technical support</p>
-                    <p className="text-neutral-500 ">support@bandcoin.io</p>
+                    <p className="text-neutral-500 ">support@wadzzo.com</p>
                     {/* <p className="text-neutral-500 ">+1 234-567-89</p> */}
                   </div>
                 </div>
@@ -164,7 +164,7 @@ const Support = () => {
                   </div>
                   <div className="ml-6 grow">
                     <p className="mb-2 font-bold ">Sales questions</p>
-                    <p className="text-neutral-500 ">sales@bandcoin.io</p>
+                    <p className="text-neutral-500 ">sales@wadzzo.com</p>
                     {/* <p className="text-neutral-500 ">+1 234-567-89</p> */}
                   </div>
                 </div>
@@ -191,7 +191,7 @@ const Support = () => {
                   </div>
                   <div className="ml-6 grow">
                     <p className="mb-2 font-bold ">Press</p>
-                    <p className="text-neutral-500 ">press@bandcoin.io</p>
+                    <p className="text-neutral-500 ">press@wadzzo.com</p>
                     {/* <p className="text-neutral-500 ">+1 234-567-89</p> */}
                   </div>
                 </div>
@@ -218,7 +218,7 @@ const Support = () => {
                   </div>
                   <div className="ml-6 grow">
                     <p className="mb-2 font-bold">Bug report</p>
-                    <p className="text-neutral-500 ">bugs@bandcoin.io</p>
+                    <p className="text-neutral-500 ">bugs@wadzzo.com</p>
                     {/* <p className="text-neutral-500">+1 234-567-89</p> */}
                   </div>
                 </div>

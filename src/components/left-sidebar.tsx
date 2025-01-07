@@ -30,7 +30,7 @@ export const LeftNavigation = {
   Settings: { path: "/settings", icon: Settings2, text: "MY PROFILE" },
 } as const;
 export const BottomNavigation = {
-  Claim: { path: "/claim-redeem", icon: HomeIcon, text: "REDEEM" },
+  Claim: { path: "/maps/pins/my", icon: HomeIcon, text: "CLAIM" },
 } as const;
 
 export default function LeftBar({ className }: { className?: string }) {
@@ -59,21 +59,19 @@ function NavigationButtons() {
     <div className="flex h-full min-h-full flex-col justify-between gap-2">
       <div className="flex  flex-col  gap-2">
         {Object.entries(LeftNavigation).map(
-          ([key, { path, icon: Icon, text }]) => (
-            <Link
-              href={path}
-              className="w-full"
-              key={key}
-              onClick={() => setIsOpen(false)}
-            >
-              <Button
-                className=""
-                path={path}
-                icon={<Icon className="h-5 w-5" />}
-                text={text}
-              />
-            </Link>
-          ),
+          ([key, { path, icon: Icon, text }]) => {
+            if (text == "MUSIC") return;
+
+            return (
+              <Link href={path} className="w-full" key={key}>
+                <Button
+                  path={path}
+                  icon={<Icon className="h-5 w-5" />}
+                  text={text}
+                />
+              </Link>
+            );
+          },
         )}
       </div>
       <div className="flex   flex-col  gap-2">
@@ -81,7 +79,7 @@ function NavigationButtons() {
           ([key, { path, icon: Icon, text }]) => (
             <Link href={path} className="w-full " key={key}>
               <Button
-                className="mb-2  rounded-lg bg-gradient-to-br from-yellow-400 to-blue-400  text-center text-sm font-medium text-white hover:bg-gradient-to-bl focus:outline-none focus:ring-4 focus:ring-green-200 dark:focus:ring-green-800"
+                className="mb-2  rounded-lg bg-gradient-to-br from-green-400 to-blue-600  text-center text-sm font-medium text-white hover:bg-gradient-to-bl focus:outline-none focus:ring-4 focus:ring-green-200 dark:focus:ring-green-800"
                 path={path}
                 icon={<Icon className="h-5 w-5" />}
                 text={text}
@@ -100,7 +98,7 @@ function LeftBottom() {
       <ConnectWalletButton />
       <div className="flex justify-between space-x-2">
         <Link
-          href={"https://facebook.com/bandcoinio"}
+          href={"https://facebook.com/wadzzo"}
           className="btn flex h-16 flex-col items-center  text-xs normal-case"
           target="_blank"
         >
@@ -108,7 +106,7 @@ function LeftBottom() {
           <span>Facebook</span>
         </Link>
         <Link
-          href={"https://x.com/bandcoinio"}
+          href={"https://x.com/WadzzoApp"}
           className="btn flex h-16 flex-1 flex-col items-center text-xs normal-case "
           target="_blank"
         >
@@ -116,7 +114,7 @@ function LeftBottom() {
           <span>X</span>
         </Link>
         <Link
-          href={"https://www.instagram.com/bandcoin"}
+          href={"https://www.instagram.com/wadzzo"}
           className="btn flex h-16 flex-col items-center text-xs normal-case"
           target="_blank"
         >

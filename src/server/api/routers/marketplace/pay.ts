@@ -1,6 +1,5 @@
 import { z } from "zod";
 import {
-  getAssetPrice,
   getPlatformAssetNumberForUSD,
   getPlatformTokenNumberForUSD,
 } from "~/lib/stellar/fan/get_token_price";
@@ -123,9 +122,9 @@ export const payRouter = createTRPCRouter({
 
   getOffers: protectedProcedure.query(async ({ ctx }) => {
     // const tokenNumber = await getPlatfromAssetPrice();
-    const bandCoinPrice = await getAssetPrice();
+
     const offers = [4.99, 9.99, 19.99, 24.99, 49.99, 99.99].map((price) => {
-      const num = price / bandCoinPrice;
+      const num = Number((price * 100 + 1).toFixed(1));
       return {
         price,
         num,

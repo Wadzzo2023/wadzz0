@@ -82,7 +82,14 @@ const config: Config = {
     },
   },
   daisyui: {
-    themes: ["light"],
+    themes: [
+      {
+        light: {
+          ...require("daisyui/src/theming/themes")["light"],
+          primary: "#7ec34e",
+        },
+      },
+    ],
   },
   plugins: [
     require("tailwindcss-animate"),

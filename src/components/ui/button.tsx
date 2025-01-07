@@ -20,7 +20,7 @@ export default function Button({
     <button
       className={clsx(
         "btn  w-full",
-        router.pathname == path && "btn-primary",
+        router.pathname == path && "bg-[#39BD2B] text-white",
         className,
       )}
     >
