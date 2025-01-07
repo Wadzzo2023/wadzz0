@@ -15,8 +15,8 @@ export const CreatorAboutShema = z.object({
     .nullable(),
   name: z
     .string()
-    .min(3, { message: "Name must be between 3 to 21 characters" })
-    .max(20, { message: "Name must be between 3 to 21 characters" }),
+    .min(3, { message: "Name must be between 3 to 98 characters" })
+    .max(98, { message: "Name must be between 3 to 98 characters" }),
   profileUrl: z.string().nullable().optional(),
 });
 
@@ -112,7 +112,7 @@ export default function About({ creator }: { creator: Creator }) {
             className="input input-bordered w-full "
           />
           <span className="text-xs">
-            * Hint : Name must be between 3 to 21 characters
+            * Hint : Name must be between 3 to 98 characters
           </span>
           {errors.name && (
             <div className="label">

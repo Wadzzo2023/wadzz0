@@ -5,8 +5,14 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export function addrShort(addr: string, size?: number) {
+export function addrShort(addr: string | undefined, size?: number) {
   const cropSize = size ?? 3;
+  if (!addr) {
+    return "";
+  }
+  if (addr.length <= cropSize * 2) {
+    return addr;
+  }
   return `${addr.substring(0, cropSize)}...${addr.substring(
     addr.length - cropSize,
     addr.length,
