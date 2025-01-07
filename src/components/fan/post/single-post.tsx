@@ -121,7 +121,7 @@ export function SinglePostView({ post }: { post: extendedPost }) {
           //         id: 1,
           //         mediaUrl: item.url,
           //         name: post.heading,
-          //         thumbnail: post.creator.profileUrl ?? 'https://bandcoin.io/images/logo.png',
+          //         thumbnail: post.creator.profileUrl ?? 'https://app.wadzzo.com/images/loading.png',
           //       },
           //       assetId: 1,
           //       createdAt: new Date(),
