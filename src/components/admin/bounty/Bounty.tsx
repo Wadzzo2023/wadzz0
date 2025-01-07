@@ -235,7 +235,7 @@ const Bounty = () => {
                               <Badge
                                 variant={bounty._count.BountyWinner === 0 ? "destructive" : "default"}
                               >
-                                {bounty.totalWinner === bounty._count.BountyWinner ? "Finished" : "Active"}
+                                {bounty.totalWinner === bounty.currentWinnerCount ? "Finished" : "Active"}
                               </Badge>
                             </div>
                           </td>

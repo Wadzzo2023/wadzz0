@@ -28,6 +28,7 @@ export default async function handler(
       requiredBalance: true,
       priceInBand: true,
       priceInUSD: true,
+      currentWinnerCount: true,
       BountyWinner: {
         select: {
           userId: true,
