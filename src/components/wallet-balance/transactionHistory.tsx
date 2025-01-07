@@ -98,7 +98,7 @@ const TransactionHistory = () => {
 
 
                     <TableRow key={j}
-                      className={j % 2 === 1 ? "bg-yellow-50 hover:bg-red-100" : "bg-white hover:bg-red-100"}
+                      className={j % 2 === 1 ? "bg-green-50 hover:bg-red-100" : "bg-white hover:bg-red-100"}
                       onClick={() => onOpen("transaction history", { transaction: transaction })}
                     >
                       <TableCell >{new Date(transaction.createdAt).toLocaleString()}</TableCell>
