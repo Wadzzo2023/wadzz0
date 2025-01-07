@@ -198,7 +198,7 @@ const Wallets = () => {
                 </>
               ) : (
                 <div className="text-center md:text-left">
-                  <p className="text-xl mb-2">You haven't added trust for {PLATFORM_ASSET.code} yet!</p>
+                  <p className="text-xl mb-2">You haven{"'t"} added trust for {PLATFORM_ASSET.code} yet!</p>
                   <Button
                     onClick={() => AddTrustMutation.mutate({
                       asset_code: PLATFORM_ASSET.code,

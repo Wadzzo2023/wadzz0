@@ -35,7 +35,7 @@ function AddressWithTooltip({ address }: { address: string }) {
         <span className="cursor-help">{addrShort(shortAddr, 5)}</span>
       </TooltipTrigger>
       <TooltipContent>
-        <p>{fullAddr || shortAddr}</p>
+        <p>{fullAddr ?? shortAddr}</p>
       </TooltipContent>
     </Tooltip>
   )
@@ -245,7 +245,7 @@ export default function TransactionDetails() {
                       {
                         operation.type === "create_claimable_balance" && (
                           <>
-                            <div><AddressWithTooltip address={operation.source_account} /> create claimable balance {operation.amount} {operation.asset.split(":")[0]} with {addrShort(operation.claimants[0]?.destination!)} </div>
+                            <div><AddressWithTooltip address={operation.source_account} /> create claimable balance {operation.amount} {operation.asset.split(":")[0]} with {addrShort(operation.claimants[0]?.destination)} </div>
                           </>
                         )
                       }
@@ -345,7 +345,7 @@ export default function TransactionDetails() {
 }
 
 
-function addrShort(addr: string | undefined, size: number = 7) {
+function addrShort(addr: string | undefined, size = 7) {
   if (!addr) return ""
 
   if (addr.length >= 56) {
