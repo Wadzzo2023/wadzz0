@@ -6,6 +6,7 @@ import { shopRouter } from "./asset";
 import { trxRouter } from "./trx";
 import { notificationRouter } from "./notification";
 import { userRouter } from "./user";
+import { musicRouter } from "./music";
 
 /**
  * This is the primary router for your server.
@@ -20,6 +21,7 @@ export const fanRouter = createTRPCRouter({
   trx: trxRouter,
   notification: notificationRouter,
   user: userRouter,
+  music: musicRouter,
 });
 
 // export type definition of API

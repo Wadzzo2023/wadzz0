@@ -204,6 +204,8 @@ model Creator {
     LocationGroup      LocationGroup[]
     Bounty             Bounty[]
     vanitySubscription VanitySubscription?
+    Album              Album[]
+    Song               Song[]
 
     @@index([bio, name])
 }
@@ -313,13 +315,14 @@ model VerificationToken {
 // ------------------------MUSIC SCHEMA-------------------------
 
 model Album {
-    id          Int    @id @default(autoincrement())
+    id          Int      @id @default(autoincrement())
     name        String
     description String
     coverImgUrl String
-
-    createdAt DateTime @default(now())
-    songs     Song[]
+    creatorId   String?
+    creator     Creator? @relation(fields: [creatorId], references: [id], onDelete: SetNull)
+    createdAt   DateTime @default(now())
+    songs       Song[]
 }
 
 model Song {
@@ -328,7 +331,10 @@ model Song {
     artist String
 
     assetId Int   @unique
-    asset   Asset @relation(fields: [assetId], references: [id])
+    asset   Asset @relation(fields: [assetId], references: [id], onDelete: Cascade)
+
+    creatorId String?
+    creator   Creator? @relation(fields: [creatorId], references: [id], onDelete: SetNull)
 
     price    Float
     priceUSD Float

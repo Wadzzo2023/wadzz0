@@ -8,11 +8,16 @@ import { MarketAssetType, useModal } from "~/lib/state/play/use-modal-store";
 function ShopAssetComponent({ item }: { item: MarketAssetType }) {
   const { asset } = item;
   const { onOpen } = useModal()
+
   return (
-    <div onClick={() => {
-      onOpen("buy modal", { Asset: item })
-    }}>
-      <AssetView code={asset.name} thumbnail={asset.thumbnail} />
+    <div
+      className=""
+      onClick={() => {
+        onOpen("buy modal", { Asset: item })
+      }}>
+      <AssetView code={asset.code} thumbnail={asset.thumbnail}
+
+      />
     </div>
   );
 }

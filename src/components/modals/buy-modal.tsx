@@ -42,7 +42,7 @@ export default function BuyModal() {
   const session = useSession();
   const router = useRouter();
   const [step, setStep] = useState(1);
-  const { setCurrentTrack, currentTrack } = usePlayer();
+  const { setCurrentTrack, currentTrack, setIsPlaying, setCurrentAudioPlayingId } = usePlayer();
   const isModalOpen = isOpen && type === "buy modal";
   const handleClose = () => {
     setCurrentTrack(null);
@@ -64,7 +64,6 @@ export default function BuyModal() {
 
   const copy = api.marketplace.market.getMarketAssetAvailableCopy.useQuery({
     id: data.Asset?.id,
-
   },
     {
       enabled: !!data.Asset
@@ -84,7 +83,7 @@ export default function BuyModal() {
       }
     );
 
-  console.log(data.Asset)
+
   if (!data.Asset || !data.Asset.asset)
 
 
@@ -209,7 +208,8 @@ export default function BuyModal() {
                   {data.Asset.asset.mediaType === "MUSIC" && hasTrustonAsset ? (
                     <Button
                       onClick={() => {
-                        setCurrentTrack(null);
+                        setCurrentAudioPlayingId(data.Asset?.id ?? 0);
+                        setIsPlaying(true);
                         setCurrentTrack({
                           asset: data.Asset?.asset,
                           albumId: 2,
@@ -219,6 +219,7 @@ export default function BuyModal() {
                           price: 15,
                           priceUSD: 50,
                           id: 1,
+
                         } as SongItemType);
                       }}
 

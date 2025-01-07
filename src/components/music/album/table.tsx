@@ -23,7 +23,7 @@ export default function SongList({
     <div className="py-2">
       <Table className="bg-base-300 rounded-md">
         <TableHeader>
-          <TableRow className="flex justify-between items-center border-b-2 border-base-200">
+          <TableRow className=" border-b-2 border-base-200">
             <TableHead>Song</TableHead>
             <TableHead>Action</TableHead>
             {
@@ -36,7 +36,7 @@ export default function SongList({
           {songs.map((song, index) => (
             <TableRow
               key={song.id}
-              className="bg-base-300 hover:bg-base-100 flex justify-between border-b-2 border-base-200"
+              className="bg-base-300 hover:bg-base-100  w-full border-b-2 border-base-200"
             >
               <TableCell >
                 <div className="space-x-3 ">
@@ -84,62 +84,57 @@ export function DeleteSongButton({ songId }: { songId: number }) {
 
 export function PlayOrBuy({ song }: { song: SongItemType }) {
   const trackUrlStore = usePlayerStore();
-  const { currentTrack, isPlaying } = usePlayer()
+  const { } = usePlayer()
   const userAssets = api.wallate.acc.getAccountInfo.useQuery();
   const { onOpen } = useModal();
-  const { setCurrentTrack, setIsPlaying } = usePlayer()
+  const { setCurrentTrack, setIsPlaying, setCurrentAudioPlayingId, currentTrack, isPlaying } = usePlayer()
   if (userAssets.isLoading) return <Skeleton className="h-9 w-20" />;
+  return (
+    <>
+      {
+        userAssets.data?.dbAssets?.some(
+          (el) => el.code === song.asset.code && el.issuer === song.asset.issuer,
+        ) && (<Button
+          variant="ghost"
 
-  if (
-    userAssets.data?.dbAssets?.some(
-      (el) => el.code === song.asset.code && el.issuer === song.asset.issuer,
-    )
-  ) {
-    return (
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={() => {
-
-          setCurrentTrack(song)
-          trackUrlStore.setNewTrack({
-            artist: song.artist,
-            mediaUrl: song.asset.mediaUrl,
-            thumbnail: song.asset.thumbnail,
-            code: song.asset.code,
-            name: song.asset.name,
-          });
-        }}
-      >
-        {
-          currentTrack?.id === song.id && isPlaying ? (
-            <Pause className="h-6 w-6" />) : <Play className="h-6 w-6" />
-
-        }
-      </Button>
-    );
-  } else {
-    return (
-      <div className="w-12">
-        <Button
-          variant="default"
-          size="sm"
-          onClick={() => onOpen("song buy modal", {
-            Song: song,
-          })}
+          onClick={() => {
+            setCurrentAudioPlayingId(song.id)
+            setIsPlaying(true)
+            setCurrentTrack(song)
+            trackUrlStore.setNewTrack({
+              artist: song.artist,
+              mediaUrl: song.asset.mediaUrl,
+              thumbnail: song.asset.thumbnail,
+              code: song.asset.code,
+              name: song.asset.name,
+            });
+          }}
         >
-          Buy
-        </Button>
-        {/* <BuyModal
-          marketItemId={song.asset.id}
-          priceUSD={song.priceUSD}
-          item={song.asset}
-          price={song.price}
-        /> */}
-      </div>
-    );
-  }
+          {
+            currentTrack?.id === song.id && isPlaying ? (
+              <Pause className="h-6 w-6" />) : <Play className="h-6 w-6" />
+
+          }
+        </Button>)
+      }
+
+
+
+
+      <Button
+        variant="default"
+
+        onClick={() => onOpen("song buy modal", {
+          Song: song,
+        })}
+      >
+        Buy
+      </Button>
+    </>
+  )
+
 }
+
 
 
 export function MusicItem({
@@ -192,7 +187,7 @@ export function MusicItem({
         </div> */}
       </div>
       <div className="flex-grow min-w-0">
-        <p className="text-base font-medium text-gray-800 truncate">{item.asset.code}</p>
+        <p className="text-base font-medium text-gray-800 truncate">{item.asset.name}</p>
         <p className="text-sm text-gray-600 truncate">{item.artist}</p>
       </div>
     </div >

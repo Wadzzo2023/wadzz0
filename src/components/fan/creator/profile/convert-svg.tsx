@@ -39,7 +39,7 @@ export default function PadSVG() {
   };
 
   return (
-    <div className="text-center">
+    <div className="space-y-4   w-1/2 text-center">
       <span className="text-xs">SVG Dimension 200 x 200 pixels</span>
 
       <UploadS3Button

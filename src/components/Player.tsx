@@ -40,6 +40,7 @@ export const Player: React.FC = () => {
     previousTrack,
     skipForward,
     skipBackward,
+
   } = usePlayer();
   const audioRef = useAudio();
   const videoRef = useRef<HTMLVideoElement>(null);

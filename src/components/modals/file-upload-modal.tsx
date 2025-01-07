@@ -166,7 +166,7 @@ const FileUploadModal = () => {
   return (
     <>
       <Dialog open={isModalOpen} onOpenChange={handleClose}>
-        <DialogContent className=" p-0">
+        <DialogContent className=" p-0 max-h-[800px]">
           <DialogHeader className="px-6 pt-2 md:pt-8">
             <DialogTitle className="text-center text-2xl font-bold">
               {getSubmittedAttachment.data && !getSubmittedAttachment.isLoading
