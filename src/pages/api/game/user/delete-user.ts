@@ -3,6 +3,7 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { getToken } from "next-auth/jwt";
 
 import { createTransport, Transporter } from "nodemailer";
+import { initAdmin } from "package/connect_wallet/src/lib/firebase/admin/config";
 
 import { EnableCors } from "~/server/api-cors";
 import { db } from "~/server/db";
@@ -44,9 +45,11 @@ export default async function handler(req: NextApiRequest,
             error: "User is not authenticated",
         });
     }
-    console.log("Token:", token);
-
-
+    if (token.email) {
+        const admin = initAdmin();
+        const userRecord = await admin.auth().getUserByEmail(token.email);
+        const deleteUser = await admin.auth().deleteUser(userRecord.uid);
+    }
     try {
         const user = await db.user.findUnique({
             where: {
@@ -83,6 +86,8 @@ export default async function handler(req: NextApiRequest,
                 creator: true,
             }
         })
+
+
         res.status(200).json({ message: "User data is deleted successfully!" });
     } catch (error) {
         res.status(500).json({ message: "Error deleting data or sending email" });
