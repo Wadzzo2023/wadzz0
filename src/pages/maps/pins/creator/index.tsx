@@ -151,7 +151,7 @@ export const columns: ColumnDef<LocationWithConsumers>[] = [
   },
 
   {
-    accessorKey: "createdAt",
+    accessorKey: "Date Created",
     header: ({ column }) => {
       return (
         <Button
@@ -165,7 +165,7 @@ export const columns: ColumnDef<LocationWithConsumers>[] = [
     },
     cell: ({ row }) => {
       // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
-      const createdAt = row.getValue("createdAt") as Date;
+      const createdAt = row.getValue("Date Created") as Date;
       const formattedDate = createdAt.toLocaleDateString("en-US", {
         month: "2-digit",
         day: "2-digit",
@@ -290,9 +290,9 @@ export function DataTableDemo({ pins }: { pins: LocationWithConsumers[] }) {
                       {header.isPlaceholder
                         ? null
                         : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext(),
-                          )}
+                          header.column.columnDef.header,
+                          header.getContext(),
+                        )}
                     </TableHead>
                   );
                 })}
