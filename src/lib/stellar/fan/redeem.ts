@@ -10,6 +10,7 @@ import {
   PLATFORM_ASSET,
   PLATFORM_FEE,
   STELLAR_URL,
+  TRUST_XLM,
   TrxBaseFee,
   TrxBaseFeeInPlatformAsset,
   networkPassphrase,
@@ -41,9 +42,11 @@ export async function createRedeemXDRAsset({
   });
 
   // (0.5 xlm + trxBaseFee + platformFee ) * maxRedeems
-  const trustPrice = await getplatformAssetNumberForXLM(0.5);
+  const trustPrice = await getplatformAssetNumberForXLM(TRUST_XLM);
   const totalAmount =
-    Number(trustPrice + Number(TrxBaseFeeInPlatformAsset) + Number(PLATFORM_FEE)) * maxRedeems;
+    Number(
+      trustPrice + Number(TrxBaseFeeInPlatformAsset) + Number(PLATFORM_FEE),
+    ) * maxRedeems;
 
   Tx1.addOperation(
     Operation.payment({
@@ -77,7 +80,7 @@ export async function createRedeemXDRNative({
 
   const motherAccount = Keypair.fromSecret(env.MOTHER_SECRET);
 
-  const trustPrice = 0.5;
+  const trustPrice = TRUST_XLM;
   const xlmPlatformFee = 2;
   const amount = Number(trustPrice + TrxBaseFee) * maxRedeems + xlmPlatformFee;
 
@@ -147,7 +150,7 @@ export async function claimRedeemXDR({
     Operation.payment({
       destination: userPub,
       asset: Asset.native(),
-      amount: "0.5",
+      amount: TRUST_XLM.toString(),
     }),
   )
     .addOperation(

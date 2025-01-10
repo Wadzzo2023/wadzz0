@@ -7,7 +7,14 @@ import {
 } from "@stellar/stellar-sdk";
 import { env } from "~/env";
 import { SignUserType, WithSing } from "../utils";
-import { PLATFORM_ASSET, STELLAR_URL, TrxBaseFee, TrxBaseFeeInPlatformAsset, networkPassphrase } from "../constant";
+import {
+  PLATFORM_ASSET,
+  STELLAR_URL,
+  TRUST_XLM,
+  TrxBaseFee,
+  TrxBaseFeeInPlatformAsset,
+  networkPassphrase,
+} from "../constant";
 
 export async function trustCustomPageAsset({
   creator,
@@ -41,15 +48,19 @@ export async function trustCustomPageAsset({
 
   Tx1.addOperation(
     Operation.payment({
-      amount: (Number(requiredPlatformAsset) + Number(TrxBaseFeeInPlatformAsset)).toFixed(7).toString(),
+      amount: (
+        Number(requiredPlatformAsset) + Number(TrxBaseFeeInPlatformAsset)
+      )
+        .toFixed(7)
+        .toString(),
       destination: motherAcc.publicKey(),
       asset: PLATFORM_ASSET,
-      source: creator
+      source: creator,
     }),
   )
     .addOperation(
       Operation.payment({
-        amount: "0.5",
+        amount: TRUST_XLM.toString(),
         asset: Asset.native(),
         destination: creatorStorageAcc.publicKey(),
         source: motherAcc.publicKey(),

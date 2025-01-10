@@ -19,6 +19,7 @@ import { env } from "~/env";
 import {
   PLATFORM_ASSET,
   PLATFORM_FEE,
+  TRUST_XLM,
   TrxBaseFeeInPlatformAsset,
 } from "~/lib/stellar/constant";
 import {
@@ -365,14 +366,15 @@ export const trxRouter = createTRPCRouter({
       const { code, issuer, signWith } = input;
 
       const creator = await ctx.db.creator.findUniqueOrThrow({
-        where: { id: ctx.session.user.id, },
+        where: { id: ctx.session.user.id },
         select: {
           storageSecret: true,
           storagePub: true,
-        }
+        },
       });
 
-      const requiredPlatformAsset = await getplatformAssetNumberForXLM(0.5);
+      const requiredPlatformAsset =
+        await getplatformAssetNumberForXLM(TRUST_XLM);
       const creatorAcc = await StellarAccount.create(creator.storagePub);
       const hasTrust = creatorAcc.hasTrustline(code, issuer);
 

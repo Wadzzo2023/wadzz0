@@ -19,6 +19,7 @@ import { useUserStellarAcc } from "~/lib/state/wallete/stellar-balances";
 import {
   PLATFORM_ASSET,
   PLATFORM_FEE,
+  TRUST_XLM,
   TrxBaseFeeInPlatformAsset,
 } from "~/lib/stellar/constant";
 import { clientSelect } from "~/lib/stellar/fan/utils";
@@ -55,7 +56,7 @@ export default function BuyItem({
   const walletType = session.data?.user.walletType;
 
   const requiredFee = api.fan.trx.getRequiredPlatformAsset.useQuery({
-    xlm: hasTrust(code, issuer) ? 0 : 0.5,
+    xlm: hasTrust(code, issuer) ? 0 : TRUST_XLM,
   });
 
   const [xdr, setXdr] = useState<string>();
@@ -68,11 +69,14 @@ export default function BuyItem({
     walletType == WalletType.emailPass ||
     walletType == WalletType.google ||
     walletType == WalletType.facebook;
-  const copy = api.marketplace.market.getMarketAssetAvailableCopy.useQuery({
-    id: marketItemId,
-  }, {
-    enabled: !!marketItemId,
-  });
+  const copy = api.marketplace.market.getMarketAssetAvailableCopy.useQuery(
+    {
+      id: marketItemId,
+    },
+    {
+      enabled: !!marketItemId,
+    },
+  );
 
   const xdrMutation =
     api.marketplace.steller.buyFromMarketPaymentXDR.useMutation({
@@ -366,7 +370,7 @@ export function MethodDetails({
 
     if (paymentMethod === "xlm") {
       const requiredXlmBalance =
-        priceUSD + 2 + (hasTrust(code, issuer) ? 0 : 0.5);
+        priceUSD + 2 + (hasTrust(code, issuer) ? 0 : TRUST_XLM);
       const isSufficientAssetBalance =
         getXLMBalance() ?? 0 >= requiredXlmBalance;
 

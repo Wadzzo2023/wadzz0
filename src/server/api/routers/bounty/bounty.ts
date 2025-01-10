@@ -37,6 +37,7 @@ import {
 } from "~/server/api/trpc";
 import { SubmissionMediaInfo } from "~/components/modals/file-upload-modal";
 import { PaymentMethodEnum } from "~/components/BuyItem";
+import { TRUST_XLM } from "~/lib/stellar/constant";
 
 const getAllBountyByUserIdInput = z.object({
   limit: z.number().min(1).max(100).default(10),
@@ -106,7 +107,6 @@ export const BountyRoute = createTRPCRouter({
       }),
     )
     .mutation(async ({ input, ctx }) => {
-
       const bounty = await ctx.db.bounty.create({
         data: {
           title: input.title,
@@ -488,7 +488,6 @@ export const BountyRoute = createTRPCRouter({
       }),
     )
     .mutation(async ({ input, ctx }) => {
-
       const bounty = await ctx.db.bounty.findUnique({
         where: {
           id: input.BountyId,
@@ -504,10 +503,10 @@ export const BountyRoute = createTRPCRouter({
           bountyId: input.BountyId,
           medias: input.medias
             ? {
-              createMany: {
-                data: input.medias,
-              },
-            }
+                createMany: {
+                  data: input.medias,
+                },
+              }
             : undefined,
         },
       });
@@ -562,11 +561,11 @@ export const BountyRoute = createTRPCRouter({
             createMany: {
               data: input.medias
                 ? input.medias.map((media) => ({
-                  url: media.url,
-                  name: media.name,
-                  size: media.size,
-                  type: media.type,
-                }))
+                    url: media.url,
+                    name: media.name,
+                    size: media.size,
+                    type: media.type,
+                  }))
                 : [],
             },
           },
@@ -667,7 +666,7 @@ export const BountyRoute = createTRPCRouter({
     return await getAssetToUSDCRate();
   }),
   getTrustCost: protectedProcedure.query(async ({ ctx }) => {
-    return await getplatformAssetNumberForXLM(0.5);
+    return await getplatformAssetNumberForXLM(TRUST_XLM);
   }),
 
   getSendBalanceToWinnerXdr: protectedProcedure
@@ -769,7 +768,7 @@ export const BountyRoute = createTRPCRouter({
           },
           currentWinnerCount: {
             increment: 1,
-          }
+          },
         },
       });
 
@@ -900,7 +899,6 @@ export const BountyRoute = createTRPCRouter({
       }),
     )
     .mutation(async ({ input, ctx }) => {
-
       const bounty = await ctx.db.bounty.findUnique({
         where: {
           id: input.BountyId,
@@ -1144,7 +1142,6 @@ export const BountyRoute = createTRPCRouter({
           };
         }),
       );
-
 
       return detailedSubmissions;
     }),
@@ -1517,7 +1514,6 @@ export const BountyRoute = createTRPCRouter({
 
       // Debugging purposes: check the retrieved bounty doubts
 
-
       // Map messages to extract content and role
       const messages = bountyDoubts.flatMap((doubt) =>
         doubt.messages.map((message) => ({
@@ -1565,7 +1561,6 @@ export const BountyRoute = createTRPCRouter({
       });
 
       // Debugging purposes: check the retrieved bounty doubts
-
 
       // Map messages to extract content and role
       const messages = bountyDoubts.flatMap((doubt) =>

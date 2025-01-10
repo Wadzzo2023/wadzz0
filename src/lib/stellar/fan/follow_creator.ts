@@ -6,7 +6,12 @@ import {
   TransactionBuilder,
 } from "@stellar/stellar-sdk";
 import { env } from "~/env";
-import { STELLAR_URL, TrxBaseFee, networkPassphrase } from "../constant";
+import {
+  STELLAR_URL,
+  TRUST_XLM,
+  TrxBaseFee,
+  networkPassphrase,
+} from "../constant";
 import { SignUserType, WithSing } from "../utils";
 import { MyAssetType } from "./utils";
 
@@ -43,7 +48,7 @@ export async function follow_creator({
     Operation.payment({
       destination: userPubkey,
       asset: Asset.native(),
-      amount: "0.5",
+      amount: TRUST_XLM.toString(),
     }),
   )
     .addOperation(

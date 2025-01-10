@@ -12,6 +12,7 @@ import {
   PLATFORM_ASSET,
   PLATFORM_FEE,
   STELLAR_URL,
+  TRUST_XLM,
   TrxBaseFee,
   TrxBaseFeeInPlatformAsset,
 } from "../../constant";
@@ -50,7 +51,7 @@ export async function sendNft2StorageXDR({
   const totalFee =
     Number(PLATFORM_FEE) +
     Number(TrxBaseFeeInPlatformAsset) +
-    (hasTrust ? 0 : await getplatformAssetNumberForXLM(0.5));
+    (hasTrust ? 0 : await getplatformAssetNumberForXLM(TRUST_XLM));
 
   const Tx2 = new TransactionBuilder(transactionInitializer, {
     fee: TrxBaseFee,
@@ -61,7 +62,7 @@ export async function sendNft2StorageXDR({
     Tx2.addOperation(
       Operation.payment({
         destination: storageAcc.publicKey(),
-        amount: "0.5",
+        amount: TRUST_XLM.toString(),
         asset: Asset.native(),
       }),
     ).addOperation(
@@ -125,7 +126,7 @@ export async function sendNftback({
   const totalFee =
     Number(TrxBaseFeeInPlatformAsset) +
     Number(PLATFORM_FEE) +
-    (hasTrust ? 0 : await getplatformAssetNumberForXLM(0.5));
+    (hasTrust ? 0 : await getplatformAssetNumberForXLM(TRUST_XLM));
 
   const transactionInializer = await server.loadAccount(motherAcc.publicKey());
 
@@ -146,7 +147,7 @@ export async function sendNftback({
   if (!hasTrust) {
     Tx1.addOperation(
       Operation.payment({
-        amount: "0.5",
+        amount: TRUST_XLM.toString(),
         asset: Asset.native(),
         destination: userPub,
       }),

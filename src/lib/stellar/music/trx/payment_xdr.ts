@@ -12,6 +12,7 @@ import {
   PLATFORM_ASSET,
   PLATFORM_FEE,
   STELLAR_URL,
+  TRUST_XLM,
   TrxBaseFee,
   TrxBaseFeeInPlatformAsset,
 } from "../../constant";
@@ -53,7 +54,7 @@ export async function XDR4BuyAsset({
 
   const requiredAsset2refundXlm = hasTrust
     ? 0
-    : await getplatformAssetNumberForXLM(0.5);
+    : await getplatformAssetNumberForXLM(TRUST_XLM);
   const totalPlatformFee =
     requiredAsset2refundXlm +
     Number(PLATFORM_FEE) +
@@ -89,7 +90,7 @@ export async function XDR4BuyAsset({
     Tx2.addOperation(
       Operation.payment({
         destination: buyer,
-        amount: "0.5",
+        amount: TRUST_XLM.toString(),
         asset: Asset.native(),
         source: motherAcc.publicKey(),
       }),
@@ -272,7 +273,7 @@ export async function XDR4BuyAssetWithSquire({
     Tx2.addOperation(
       Operation.payment({
         destination: buyer,
-        amount: "0.5",
+        amount: TRUST_XLM.toString(),
         asset: Asset.native(),
       }),
     );
