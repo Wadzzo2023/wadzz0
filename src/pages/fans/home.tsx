@@ -87,6 +87,7 @@ function AllRecentPost() {
                 key={post.id}
                 post={post}
                 likeCount={post._count.likes}
+                locked={post.subscription ? true : false}
                 show={(() => {
                   if (post.subscription) {
                     let pageAssetCode: string | undefined;
