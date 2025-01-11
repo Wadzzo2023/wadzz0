@@ -94,9 +94,9 @@ export default function Privacy() {
                 collect, use, and protect the information you provide when using
                 our services. Unless otherwise defined, the terms used in this
                 Privacy Policy have the same meanings as in our{" "}
-                <Link href="#" className="text-blue-600 hover:underline">
-                  Terms and Conditions
-                </Link>
+
+                Terms and Conditions
+
                 .
               </p>
             </section>

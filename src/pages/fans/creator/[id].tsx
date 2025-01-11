@@ -126,12 +126,29 @@ function CreatorPosts({ creatorId }: { creatorId: string }) {
               likeCount={el._count.likes}
               key={el.id}
               post={el}
+              locked={el.subscription ? true : false}
               show={(() => {
                 if (el.subscription) {
+                  let pageAssetCode: string | undefined;
+                  let pageAssetIssuer: string | undefined;
+                  const customPageAsset =
+                    el.creator.customPageAssetCodeIssuer;
+                  const pageAsset = el.creator.pageAsset;
+
+                  if (pageAsset) {
+                    pageAssetCode = pageAsset.code;
+                    pageAssetIssuer = pageAsset.issuer;
+                  } else {
+                    if (customPageAsset) {
+                      const [code, issuer] = customPageAsset.split("-");
+                      pageAssetCode = code;
+                      pageAssetIssuer = issuer;
+                    }
+                  }
                   const bal = getAssetBalanceFromBalance({
                     balances: accBalances.data,
-                    code: el.creator.pageAsset?.code,
-                    issuer: el.creator.pageAsset?.issuer,
+                    code: pageAssetCode,
+                    issuer: pageAssetIssuer,
                   });
                   if (el.subscription.price <= bal) {
                     return true;

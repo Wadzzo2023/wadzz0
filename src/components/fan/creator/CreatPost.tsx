@@ -330,6 +330,7 @@ export function PostList(props: { id: string }) {
               key={post.id}
               post={post}
               likeCount={post._count.likes}
+              locked={post.subscription ? true : false}
               media={post.medias ? post.medias : []}
               show
             />

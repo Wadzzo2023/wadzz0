@@ -23,6 +23,7 @@ import { Skeleton } from "~/components/shadcn/ui/skeleton";
 import { AlertCircle, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { Button } from "~/components/shadcn/ui/button";
+import { getAssetBalanceFromBalance } from "~/lib/stellar/marketplace/test/acc";
 
 const VanityCreator = () => {
   const router = useRouter();
@@ -189,6 +190,7 @@ function CreatorStoreItem({ creatorId }: { creatorId: string }) {
 }
 
 function CreatorPosts({ creatorId }: { creatorId: string }) {
+  const accBalances = api.wallate.acc.getUserPubAssetBallances.useQuery();
   const { data, isLoading, error } = api.fan.post.getPosts.useInfiniteQuery(
     {
       pubkey: creatorId,
@@ -212,11 +214,36 @@ function CreatorPosts({ creatorId }: { creatorId: string }) {
               likeCount={el._count.likes}
               key={el.id}
               post={el}
+              locked={el.subscription ? true : false}
               show={(() => {
-                if (el.subscription == null) return true;
                 if (el.subscription) {
-                  return el.subscription.price <= 10;
-                }
+                  let pageAssetCode: string | undefined;
+                  let pageAssetIssuer: string | undefined;
+                  const customPageAsset =
+                    el.creator.customPageAssetCodeIssuer;
+                  const pageAsset = el.creator.pageAsset;
+
+                  if (pageAsset) {
+                    pageAssetCode = pageAsset.code;
+                    pageAssetIssuer = pageAsset.issuer;
+                  } else {
+                    if (customPageAsset) {
+                      const [code, issuer] = customPageAsset.split("-");
+                      pageAssetCode = code;
+                      pageAssetIssuer = issuer;
+                    }
+                  }
+                  const bal = getAssetBalanceFromBalance({
+                    balances: accBalances.data,
+                    code: pageAssetCode,
+                    issuer: pageAssetIssuer,
+                  });
+                  if (el.subscription.price <= bal) {
+                    return true;
+                  }
+
+                  return false;
+                } else return true;
               })()}
               media={el.medias ? el.medias : []}
             />

@@ -28,10 +28,10 @@ export const postRouter = createTRPCRouter({
             : null,
           medias: input.medias
             ? {
-                createMany: {
-                  data: input.medias,
-                },
-              }
+              createMany: {
+                data: input.medias,
+              },
+            }
             : undefined,
         },
       });
@@ -101,7 +101,7 @@ export const postRouter = createTRPCRouter({
           medias: true,
           subscription: true,
           creator: {
-            select: { name: true, id: true, profileUrl: true, pageAsset: true },
+            select: { name: true, id: true, profileUrl: true, pageAsset: true, customPageAssetCodeIssuer: true },
           },
         },
         orderBy: { createdAt: "desc" },
