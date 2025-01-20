@@ -6,12 +6,16 @@ export const albedoSchema = z.object({
   pubkey: z.string(),
   signature: z.string(),
   token: z.string(),
+  fromAppSign: z.string().optional(),
+
 });
 
 const emailPassSchema = z.object({
   walletType: z.literal(WalletType.emailPass),
   email: z.string(),
   password: z.string(),
+  fromAppSign: z.string().optional(),
+
 });
 
 export const walleteAuthSchema = z.object({
@@ -22,6 +26,8 @@ export const walleteAuthSchema = z.object({
   ]),
   pubkey: z.string(),
   signedXDR: z.string(),
+  fromAppSign: z.string().optional(),
+
 });
 
 export const providerAuthShema = z.object({
@@ -31,6 +37,8 @@ export const providerAuthShema = z.object({
     z.literal(WalletType.google),
     z.literal(WalletType.facebook),
   ]),
+  fromAppSign: z.string().optional(),
+
 });
 
 export const appleAuthSchema = z.object({
@@ -38,6 +46,8 @@ export const appleAuthSchema = z.object({
   token: z.string().optional(),
   email: z.string(),
   appleToken: z.string().optional(),
+  fromAppSign: z.string().optional(),
+
 });
 
 export const authCredentialSchema = z.union([

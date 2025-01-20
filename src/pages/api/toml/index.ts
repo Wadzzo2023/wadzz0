@@ -2,13 +2,20 @@
 
 import { Asset } from "@prisma/client";
 import type { NextApiRequest, NextApiResponse } from "next";
-import { env } from "~/env";
+import NextCors from "nextjs-cors";
 import { db } from "~/server/db";
 
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse,
 ) {
+  await NextCors(req, res, {
+    // Options
+    methods: ["GET", "HEAD", "PUT", "PATCH", "POST", "DELETE"],
+    origin: "*",
+    optionsSuccessStatus: 200, // some legacy browsers (IE11, various SmartTVs) choke on 204
+  });
+
   let Fulltomlstring = defaultTomlString;
 
   const assets = await db.asset.findMany({
@@ -47,15 +54,25 @@ export function dictinaryToTomlString(dict: Asset) {
 }
 
 const defaultTomlString = `[DOCUMENTATION]
-ORG_URL="<${env.NEXT_PUBLIC_URL}>"
+ORG_NAME="Wadzzo"
+ORG_URL="https://wadzzo.com/"
+ORG_LOGO="https://raw.githubusercontent.com/Bandcoin2023/assets/refs/heads/main/public/wadzzo.webp"
+ORG_DESCRIPTION="Wadzzo: Explore, Collect, Win"
+ORG_TWITTER="WadzzoApp"
+ORG_OFFICIAL_EMAIL="support@wadzzo.com"
+
+[[PRINCIPALS]]
+name="Arnob Dey"
+twitter="ArnobDey_Dev"
+github="arnob016"
 
 [[CURRENCIES]]
-issuer="get asset issuer"
-code="get asset code"
-name="get asset name"
+issuer="asset issuer"
+code="asset code"
+name="asset name"
 desc="This is a description of the cool NFT."
 image="ipfs link ending with file format extension"
-limit=limit
+limit="limit"
 display_decimals=7
 
 `;
