@@ -47,8 +47,8 @@ export function dictinaryToTomlString(dict: Asset) {
   tomlString += `display_decimals=7\n`;
   tomlString += `name="${dict.name}"\n`;
   tomlString += `desc="${dict.description}"\n`;
-  tomlString += `image="${ipfsHash}"\n`;
-  if (dict.limit) tomlString += `limit="${dict.limit}"\n`;
+  tomlString += `image="${dict.thumbnail}"\n`;
+  if (dict.limit) tomlString += `limit=${dict.limit}\n`;
 
   return tomlString + "\n";
 }
@@ -65,14 +65,5 @@ ORG_OFFICIAL_EMAIL="support@wadzzo.com"
 name="Arnob Dey"
 twitter="ArnobDey_Dev"
 github="arnob016"
-
-[[CURRENCIES]]
-issuer="asset issuer"
-code="asset code"
-name="asset name"
-desc="This is a description of the cool NFT."
-image="ipfs link ending with file format extension"
-limit="limit"
-display_decimals=7
 
 `;
