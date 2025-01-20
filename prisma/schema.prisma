@@ -278,8 +278,8 @@ model User {
     image         String?
     emailVerified DateTime?
 
-    joinedAt DateTime? @default(now())
-
+    joinedAt         DateTime?          @default(now())
+    fromAppSignup    Boolean?           @default(false)
     accounts         Account[]
     sessions         Session[]
     creator          Creator?

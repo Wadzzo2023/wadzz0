@@ -94,7 +94,7 @@ export const authOptions: NextAuthOptions = {
 
         // email pass login
         if (cred.walletType == WalletType.emailPass) {
-          const { email, password } = cred;
+          const { email, password, fromAppSign } = cred;
           const userCredential = await signInWithEmailAndPassword(
             auth,
             email,
@@ -107,7 +107,7 @@ export const authOptions: NextAuthOptions = {
             throw new Error("Email is not verified");
           }
           const data = await getUserPublicKey({ email: email, uid: user.uid });
-          const sessionUser = await dbUser(data.publicKey);
+          const sessionUser = await dbUser(data.publicKey, fromAppSign);
           return {
             ...sessionUser,
             walletType: WalletType.emailPass,
@@ -119,12 +119,12 @@ export const authOptions: NextAuthOptions = {
         // wallet login
 
         if (cred.walletType == WalletType.albedo) {
-          const { pubkey, signature, token } = cred;
+          const { pubkey, signature, token, fromAppSign } = cred;
 
 
           const isValid = verifyMessageSignature(pubkey, token, signature);
           if (isValid) {
-            const sessionUser = await dbUser(pubkey);
+            const sessionUser = await dbUser(pubkey, fromAppSign);
             return {
               ...sessionUser,
               walletType: WalletType.albedo,
@@ -139,13 +139,13 @@ export const authOptions: NextAuthOptions = {
           cred.walletType == WalletType.frieghter ||
           cred.walletType == WalletType.walletConnect
         ) {
-          const { pubkey, signedXDR } = cred;
+          const { pubkey, signedXDR, fromAppSign } = cred;
           const isValid = await verifyXDRsSignature({
             publicKey: pubkey,
             xdr: signedXDR,
           });
           if (isValid) {
-            const sessionUser = await dbUser(pubkey);
+            const sessionUser = await dbUser(pubkey, fromAppSign);
             return {
               ...sessionUser,
               walletType: cred.walletType,
@@ -160,11 +160,11 @@ export const authOptions: NextAuthOptions = {
           cred.walletType == WalletType.google ||
           cred.walletType == WalletType.facebook
         ) {
-          const { token, email } = cred;
+          const { token, email, fromAppSign } = cred;
 
           const { uid } = await verifyIdToken(token);
           const data = await getUserPublicKey({ uid, email });
-          const sessionUser = await dbUser(data.publicKey);
+          const sessionUser = await dbUser(data.publicKey, fromAppSign);
           return {
             ...sessionUser,
             walletType: cred.walletType,
@@ -174,12 +174,12 @@ export const authOptions: NextAuthOptions = {
         }
 
         if (cred.walletType == WalletType.apple) {
-          const { appleToken, token, email } = cred;
+          const { appleToken, token, email, fromAppSign } = cred;
 
           if (token) {
             const { uid } = await verifyIdToken(token);
             const data = await getUserPublicKey({ uid, email });
-            const sessionUser = await dbUser(data.publicKey);
+            const sessionUser = await dbUser(data.publicKey, fromAppSign);
             return {
               ...sessionUser,
               walletType: cred.walletType,
@@ -191,7 +191,7 @@ export const authOptions: NextAuthOptions = {
               const { uid } = await appleTokenToUser(appleToken, email);
 
               const data = await getUserPublicKey({ uid, email });
-              const sessionUser = await dbUser(data.publicKey);
+              const sessionUser = await dbUser(data.publicKey, fromAppSign);
               return {
                 ...sessionUser,
                 walletType: cred.walletType,
@@ -248,14 +248,16 @@ export const getServerAuthSession = (ctx: {
   return getServerSession(ctx.req, ctx.res, authOptions);
 };
 
-async function dbUser(pubkey: string) {
+async function dbUser(pubkey: string, fromAppSign?: string) {
   const user = await db.user.findUnique({ where: { id: pubkey } });
-  // if user is not created create user.
   if (user) {
     return user;
   } else {
     const data = await db.user.create({
-      data: { id: pubkey, name: truncateString(pubkey) },
+      data: {
+        id: pubkey, name: truncateString(pubkey),
+        fromAppSignup: fromAppSign === 'true' ? true : false
+      },
     });
     return data;
   }
