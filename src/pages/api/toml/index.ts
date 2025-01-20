@@ -47,7 +47,7 @@ export function dictinaryToTomlString(dict: Asset) {
   tomlString += `display_decimals=7\n`;
   tomlString += `name="${dict.name}"\n`;
   tomlString += `desc="${dict.description}"\n`;
-  tomlString += `image="${dict.thumbnail}"\n`;
+  tomlString += `image="https://gateway.pinata.cloud/ipfs/${ipfsHash}"\n`;
   if (dict.limit) tomlString += `limit=${dict.limit}\n`;
 
   return tomlString + "\n";
