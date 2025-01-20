@@ -55,7 +55,7 @@ export function dictinaryToTomlString(dict: Asset) {
 
 const defaultTomlString = `[DOCUMENTATION]
 ORG_NAME="Wadzzo"
-ORG_URL="https://wadzzo.com/
+ORG_URL="https://wadzzo.com/"
 ORG_LOGO="https://raw.githubusercontent.com/Bandcoin2023/assets/refs/heads/main/public/wadzzo.webp"
 ORG_DESCRIPTION="Wadzzo: Explore, Collect, Win"
 ORG_TWITTER="WadzzoApp"
