@@ -94,7 +94,7 @@ export const authOptions: NextAuthOptions = {
 
         // email pass login
         if (cred.walletType == WalletType.emailPass) {
-          const { email, password } = cred;
+          const { email, password, fromAppSign } = cred;
           const userCredential = await signInWithEmailAndPassword(
             auth,
             email,
@@ -107,7 +107,7 @@ export const authOptions: NextAuthOptions = {
             throw new Error("Email is not verified");
           }
           const data = await getUserPublicKey({ email: email, uid: user.uid });
-          const sessionUser = await dbUser(data.publicKey);
+          const sessionUser = await dbUser(data.publicKey, fromAppSign);
           return {
             ...sessionUser,
             walletType: WalletType.emailPass,
@@ -248,14 +248,16 @@ export const getServerAuthSession = (ctx: {
   return getServerSession(ctx.req, ctx.res, authOptions);
 };
 
-async function dbUser(pubkey: string) {
+async function dbUser(pubkey: string, fromAppSign?: string) {
   const user = await db.user.findUnique({ where: { id: pubkey } });
-  // if user is not created create user.
   if (user) {
     return user;
   } else {
     const data = await db.user.create({
-      data: { id: pubkey, name: truncateString(pubkey) },
+      data: {
+        id: pubkey, name: truncateString(pubkey),
+        fromAppSignup: fromAppSign === 'true' ? true : false
+      },
     });
     return data;
   }
