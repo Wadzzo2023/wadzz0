@@ -1,3 +1,4 @@
+const pinataGatewayUrl = "https://gateway.pinata.cloud";
 export function ipfsHashToUrl(ipfsHash: string) {
-  return "https://ipfs.io/ipfs/" + ipfsHash;
+  return `${pinataGatewayUrl}/ipfs/${ipfsHash}`;
 }

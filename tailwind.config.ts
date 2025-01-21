@@ -1,4 +1,3 @@
-import { withUt } from "uploadthing/tw";
 import type { Config } from "tailwindcss";
 
 const config: Config = {
@@ -77,7 +76,6 @@ const config: Config = {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
         // 'scrolling-text': 'scrolling-text 20s linear infinite',
-
       },
     },
   },
@@ -100,4 +98,4 @@ const config: Config = {
   ],
 };
 
-export default withUt(config);
+export default config;
