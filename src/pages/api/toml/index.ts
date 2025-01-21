@@ -5,6 +5,7 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import NextCors from "nextjs-cors";
 import { PLATFORM_ASSET } from "~/lib/stellar/constant";
 import { db } from "~/server/db";
+import { ipfsHashToUrl } from "~/utils/ipfs";
 
 export default async function handler(
   req: NextApiRequest,
@@ -76,7 +77,7 @@ export function dictionaryToTomlString(dict: {
   tomlString += `display_decimals=7\n`;
   tomlString += `name="${dict.name}"\n`;
   tomlString += `desc="${dict.description}"\n`;
-  tomlString += `image="https://gateway.pinata.cloud/ipfs/${ipfsHash}"\n`;
+  if (ipfsHash) tomlString += `image="${ipfsHashToUrl(ipfsHash)}"\n`;
 
   return tomlString + "\n";
 }

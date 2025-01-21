@@ -31,7 +31,7 @@ import {
   USER_ACCOUNT_URL,
   USER_ACCOUNT_URL_APPLE,
 } from "package/connect_wallet/src/lib/stellar/constant";
-import { verifyXDRsSignature } from "package/connect_wallet/src/lib/stellar/trx/deummy";
+import { verifyXDRSignature } from "package/connect_wallet/src/lib/stellar/trx/deummy";
 
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
@@ -121,7 +121,6 @@ export const authOptions: NextAuthOptions = {
         if (cred.walletType == WalletType.albedo) {
           const { pubkey, signature, token, fromAppSign } = cred;
 
-
           const isValid = verifyMessageSignature(pubkey, token, signature);
           if (isValid) {
             const sessionUser = await dbUser(pubkey, fromAppSign);
@@ -140,7 +139,7 @@ export const authOptions: NextAuthOptions = {
           cred.walletType == WalletType.walletConnect
         ) {
           const { pubkey, signedXDR, fromAppSign } = cred;
-          const isValid = await verifyXDRsSignature({
+          const isValid = await verifyXDRSignature({
             publicKey: pubkey,
             xdr: signedXDR,
           });
@@ -255,8 +254,9 @@ async function dbUser(pubkey: string, fromAppSign?: string) {
   } else {
     const data = await db.user.create({
       data: {
-        id: pubkey, name: truncateString(pubkey),
-        fromAppSignup: fromAppSign === 'true' ? true : false
+        id: pubkey,
+        name: truncateString(pubkey),
+        fromAppSignup: fromAppSign === "true" ? true : false,
       },
     });
     return data;
