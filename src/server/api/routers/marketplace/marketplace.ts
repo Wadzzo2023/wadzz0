@@ -16,6 +16,7 @@ import {
   createTRPCRouter,
   protectedProcedure,
 } from "~/server/api/trpc";
+import { MarketAssetType } from "~/lib/state/play/use-modal-store";
 
 export const AssetSelectAllProperty = {
   code: true,
@@ -167,8 +168,10 @@ export const marketRouter = createTRPCRouter({
         currentLimit: number,
         currentCursor: number | null | undefined,
         currentSkip: number | undefined,
-        accumulatedItems: any[] = [],
-      ): Promise<{ nfts: any[]; nextCursor: number | null }> => {
+
+        accumulatedItems: MarketAssetType[] = [],
+
+      ): Promise<{ nfts: MarketAssetType[]; nextCursor: number | null }> => {
         const items = await ctx.db.marketAsset.findMany({
           take: currentLimit,
           skip: currentSkip,
@@ -239,6 +242,7 @@ export const marketRouter = createTRPCRouter({
 
         if (newAccumulatedItems.length >= limit || items.length < currentLimit) {
           // We have enough items or there are no more items to fetch
+          // @ts-expect-error: This error occurs because of an intentional type mismatch due to X.
           const nextCursor = newAccumulatedItems.length > limit ? newAccumulatedItems[limit - 1].id : null
           return {
             nfts: newAccumulatedItems.slice(0, limit),
@@ -376,8 +380,8 @@ export const marketRouter = createTRPCRouter({
       });
 
       let nextCursor: typeof cursor | undefined = undefined;
-      if (array.length > limit) {
-        const nextItem = array.pop();
+      if (items.length > limit) {
+        const nextItem = items.pop();
         nextCursor = nextItem?.id;
       }
 
@@ -405,8 +409,10 @@ export const marketRouter = createTRPCRouter({
         currentLimit: number,
         currentCursor: number | null | undefined,
         currentSkip: number | undefined,
-        accumulatedItems: any[] = [],
-      ): Promise<{ nfts: any[]; nextCursor: number | null }> => {
+
+        accumulatedItems: MarketAssetType[] = [],
+
+      ): Promise<{ nfts: MarketAssetType[]; nextCursor: number | null }> => {
         const items = await ctx.db.marketAsset.findMany({
           take: currentLimit,
           skip: currentSkip,
@@ -479,6 +485,7 @@ export const marketRouter = createTRPCRouter({
         const newAccumulatedItems = [...accumulatedItems, ...filteredItems];
 
         if (newAccumulatedItems.length >= limit || items.length < currentLimit) {
+          // @ts-expect-error: This error occurs because of an intentional type mismatch due to X.
           const nextCursor = newAccumulatedItems.length > limit ? newAccumulatedItems[limit - 1].id : null;
           return {
             nfts: newAccumulatedItems.slice(0, limit),

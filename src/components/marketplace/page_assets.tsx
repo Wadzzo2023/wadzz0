@@ -28,7 +28,7 @@ export default function ArtistsPageTokens() {
           style={{
             scrollbarGutter: "stable",
           }}
-          className="grid grid-cols-2 gap-2 md:grid-cols-4 lg:grid-cols-5"
+          className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 min-h-[calc(100vh-28vh)] max-h-[calc(100vh-28vh)] overflow-y-auto scrollbar-hide"
         >
           {assets.data.pages.map((page) =>
             page.nfts.map((item, i) => (

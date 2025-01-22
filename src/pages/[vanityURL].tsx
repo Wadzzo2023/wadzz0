@@ -24,6 +24,7 @@ import { AlertCircle, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { Button } from "~/components/shadcn/ui/button";
 import { getAssetBalanceFromBalance } from "~/lib/stellar/marketplace/test/acc";
+import { MarketAssetType } from "~/lib/state/play/use-modal-store";
 
 const VanityCreator = () => {
   const router = useRouter();
@@ -187,7 +188,7 @@ function CreatorStoreItem({ creatorId }: { creatorId: string }) {
           className="grid grid-cols-2 gap-2 md:grid-cols-4 lg:grid-cols-5"
         >
           {assets.data.pages.map((page) =>
-            page.nfts.map((item, i) => (
+            page.nfts.map((item: MarketAssetType, i) => (
               <ShopAssetComponent key={i} item={item} />
             )),
           )}
