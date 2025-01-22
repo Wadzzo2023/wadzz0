@@ -50,7 +50,9 @@ export default function AllAsset() {
   //   return <MyError text="Error catch. Please reload this page." />;
 
 
-  if (musicAssets.data ?? adminAssets.data ?? fanAssets.data)
+  if (musicAssets.data?.pages?.length ??
+    adminAssets.data?.pages?.length ??
+    fanAssets.data?.pages?.length)
     return (
       <div
         className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6"
@@ -70,33 +72,33 @@ export default function AllAsset() {
           page.nfts.map((item, j) => <PageAssetComponent key={`artist-${i}-${j}`} item={item} />)
         )}
 
-        <LoadMore />
+        {musicAssets.hasNextPage ? (
+          <button
+            className="btn btn-outline btn-primary"
+            onClick={() => void musicAssets.fetchNextPage()}
+          >
+            Load More
+          </button>
+        ) :
+          adminAssets.hasNextPage ? (
+            <button
+              className="btn btn-outline btn-primary"
+              onClick={() => void adminAssets.fetchNextPage()}
+            >
+              Load More
+            </button>
+          ) :
+            fanAssets.hasNextPage ? (
+              <button
+                className="btn btn-outline btn-primary"
+                onClick={() => void fanAssets.fetchNextPage()}
+              >
+                Load More
+              </button>
+            ) : null
+        }
       </div>
     );
 
-  function LoadMore() {
-    console.log("musicAssets.hasNextPage", musicAssets.hasNextPage);
-    console.log("adminAssets.hasNextPage", adminAssets.hasNextPage);
-    console.log("fanAssets.hasNextPage", fanAssets.hasNextPage);
 
-
-    function loadMore() {
-      if (musicAssets.hasNextPage) void musicAssets.fetchNextPage();
-      if (adminAssets.hasNextPage) void adminAssets.fetchNextPage();
-      if (fanAssets.hasNextPage) void fanAssets.fetchNextPage();
-    }
-
-    if (
-      musicAssets.hasNextPage ||
-      adminAssets.hasNextPage ||
-      fanAssets.hasNextPage
-    ) {
-      return (
-        <button className="btn btn-outline btn-primary" onClick={loadMore}>
-          Load More
-        </button>
-      );
-    }
-
-  }
 }
