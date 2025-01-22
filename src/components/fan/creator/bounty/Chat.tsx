@@ -26,7 +26,6 @@ import { File, Paperclip, Plus, Send, Trash, Upload } from "lucide-react";
 import { UserRole } from "@prisma/client";
 import { cn } from "~/lib/utils";
 import { Button } from "~/components/shadcn/ui/button";
-import { UploadButton } from "~/utils/uploadthing";
 import toast from "react-hot-toast";
 import { z } from "zod";
 import Link from "next/link";

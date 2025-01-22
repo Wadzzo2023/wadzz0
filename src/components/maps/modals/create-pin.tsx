@@ -12,7 +12,6 @@ import { useMapModalStore } from "~/pages/maps";
 import { api } from "~/utils/api";
 import { BADWORDS } from "~/utils/banned-word";
 import { error, loading, success } from "~/utils/trcp/patterns";
-import { UploadButton } from "~/utils/uploadthing";
 
 import {
   Dialog,
