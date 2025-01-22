@@ -357,8 +357,8 @@ export function UnFollowButton({ creator }: { creator: CreatorWithPageAsset }) {
 
   let code: string | undefined
   let issuer: string | undefined
-  let price: number = 0
-  let priceUSD: number = 0
+  let price = 0
+  let priceUSD = 0
 
   if (creator?.customPageAssetCodeIssuer) {
     [code, issuer] = creator.customPageAssetCodeIssuer.split("-")

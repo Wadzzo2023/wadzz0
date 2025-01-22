@@ -128,7 +128,7 @@ function AllShopItems({ pageAsset }: { pageAsset: pageAsset }) {
                 <DialogTrigger>
                   <AssetView
                     code={pageAsset.code}
-                    thumbnail={pageAsset.thumbnail || "https://app.wadzzo.com/images/loading.png"}
+                    thumbnail={pageAsset.thumbnail ?? "https://app.wadzzo.com/images/loading.png"}
                   />
                 </DialogTrigger>
                 <DialogContent>
