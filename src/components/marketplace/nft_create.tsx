@@ -22,7 +22,7 @@ import { PLATFORM_ASSET, PLATFORM_FEE, TrxBaseFeeInPlatformAsset } from "~/lib/s
 import { AccountSchema, clientSelect } from "~/lib/stellar/fan/utils";
 import { api } from "~/utils/api";
 import { BADWORDS } from "~/utils/banned-word";
-import { UploadButton } from "~/utils/uploadthing";
+
 import {
   PaymentChoose,
   usePaymentMethodStore,

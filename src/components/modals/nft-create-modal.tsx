@@ -16,7 +16,6 @@ import { useUserStellarAcc } from "~/lib/state/wallete/stellar-balances";
 import { PLATFORM_ASSET, PLATFORM_FEE } from "~/lib/stellar/constant";
 import { AccountSchema, clientSelect } from "~/lib/stellar/fan/utils";
 import { api } from "~/utils/api";
-import { UploadButton } from "~/utils/uploadthing";
 import { useModal } from "../../lib/state/play/use-modal-store";
 import Alert from "../ui/alert";
 import Loading from "../wallete/loading";
