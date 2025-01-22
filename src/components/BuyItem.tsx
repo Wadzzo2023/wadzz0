@@ -295,7 +295,13 @@ export function MethodDetails({
   paymentSuccess,
 }: MethodDetailsProps) {
   if (xdrMutation.isLoading) return <Loader className="animate-spin" />;
-
+  const { data: PriceInXLM } = api.marketplace.steller.getPlatformAssetToXLM.useQuery({
+    price: price,
+  },
+    {
+      enabled: paymentMethod === "xlm",
+    }
+  )
   if (xdrMutation.isError) {
     return (
       <Alert
@@ -366,7 +372,7 @@ export function MethodDetails({
 
     if (paymentMethod === "xlm") {
       const requiredXlmBalance =
-        priceUSD + 2 + (hasTrust(code, issuer) ? 0 : 0.5);
+        PriceInXLM?.priceInXLM ?? Infinity + 2 + (hasTrust(code, issuer) ? 0 : 0.5);
       const isSufficientAssetBalance =
         getXLMBalance() ?? 0 >= requiredXlmBalance;
 

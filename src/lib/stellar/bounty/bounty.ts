@@ -74,29 +74,32 @@ export async function SendBountyBalanceToMotherAccountViaXLM({
   signWith,
   userPubKey,
   secretKey,
+
 }: {
   prizeInXLM: number;
   signWith: SignUserType;
   userPubKey: string;
   secretKey?: string | undefined;
+
 }) {
   const server = new Horizon.Server(STELLAR_URL);
   const motherAcc = Keypair.fromSecret(MOTHER_SECRET);
 
-  const account = await server.loadAccount(userPubKey);
+  const account = await server.loadAccount(motherAcc.publicKey());
 
   const transaction = new TransactionBuilder(account, {
     fee: TrxBaseFee,
     networkPassphrase,
   });
 
-  const totalAmount = prizeInXLM + 2 + 1;
+  const totalAmount = prizeInXLM;
 
   transaction.addOperation(
     Operation.payment({
       destination: motherAcc.publicKey(),
       asset: Asset.native(),
       amount: totalAmount.toFixed(7).toString(),
+      source: userPubKey,
     }),
   );
   transaction.setTimeout(0);

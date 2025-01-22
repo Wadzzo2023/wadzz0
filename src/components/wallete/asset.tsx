@@ -27,11 +27,10 @@ function Asset({ asset, isNFT = true, isPinned = false }: { asset: AdminAssetWit
       <Card className="group relative overflow-hidden rounded-lg transition-all hover:shadow-lg">
         <CardContent className="p-0">
           <div className="relative aspect-square overflow-hidden">
-            <Image
-              fill
-              alt={code ?? "asset"}
+            <img
+              alt="asset"
               src={logoUrl ?? "https://app.wadzzo.com/images/loading.png"}
-              className="object-cover transition-transform duration-300 group-hover:scale-105"
+              className="object-cover  transition-transform duration-300 group-hover:scale-105"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-70 transition-opacity duration-300 group-hover:opacity-90" />
             <div className="absolute bottom-0 left-0 right-0 p-4 text-white">

@@ -181,11 +181,9 @@ function CreatorStoreItem({ creatorId }: { creatorId: string }) {
 
   if (assets.data) {
     return (
-      <div className="p-2">
+      <div className="p-2 w-full">
         <div
-          style={{
-            scrollbarGutter: "stable",
-          }}
+
           className="grid grid-cols-2 gap-2 md:grid-cols-4 lg:grid-cols-5"
         >
           {assets.data.pages.map((page) =>
