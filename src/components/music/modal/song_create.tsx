@@ -42,7 +42,8 @@ export const SongFormSchema = z.object({
   code: z
     .string()
     .min(4, { message: "Must be a minimum of 4 characters" })
-    .max(12, { message: "Must be a maximum of 12 characters" }),
+    .max(12, { message: "Must be a maximum of 12 characters" })
+    .regex(/^ [a - zA - Z] * $ /, { message: "Asset Name can only contain letters" }),
   issuer: AccountSchema.optional(),
   tier: z.string().optional(),
 });

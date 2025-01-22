@@ -28,6 +28,7 @@ import {
   getAssetToUSDCRate,
   getplatformAssetNumberForXLM,
   getPlatformAssetPrice,
+  getXLMPriceByPlatformAsset,
 } from "~/lib/stellar/fan/get_token_price";
 import { SignUser } from "~/lib/stellar/utils";
 import {
@@ -57,6 +58,7 @@ export const BountyRoute = createTRPCRouter({
         signWith: SignUser,
         prize: z.number().min(0.00001, { message: "Prize can't less than 0" }),
         method: PaymentMethodEnum,
+        costInXLM: z.number(),
       }),
     )
     .mutation(async ({ input, ctx }) => {
@@ -67,10 +69,13 @@ export const BountyRoute = createTRPCRouter({
         secretKey = await getAccSecretFromRubyApi(ctx.session.user.email);
       }
 
+
       if (input.method === PaymentMethodEnum.enum.xlm) {
+        const priceInXLM = await getXLMPriceByPlatformAsset(input.prize);
+
         return await SendBountyBalanceToMotherAccountViaXLM({
           userPubKey: userPubKey,
-          prizeInXLM: input.prize * 0.7,
+          prizeInXLM: priceInXLM + input.costInXLM,
           signWith: input.signWith,
           secretKey: secretKey,
         });

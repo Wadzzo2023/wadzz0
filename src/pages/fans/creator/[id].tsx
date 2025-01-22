@@ -429,7 +429,7 @@ export function UnFollowButton({ creator }: { creator: CreatorWithPageAsset }) {
   const getPlatformAssetToXLM = api.marketplace.steller.getPlatformAssetToXLM.useQuery({
     price: price,
     cost: totalFeees
-  })
+  },)
 
   return (
     <div className="flex gap-2">
@@ -637,11 +637,8 @@ function CreatorStoreItem({ creatorId }: { creatorId: string }) {
 
   if (assets.data) {
     return (
-      <div className="p-2">
+      <div className="p-2 w-full">
         <div
-          style={{
-            scrollbarGutter: "stable",
-          }}
           className="grid grid-cols-2 gap-2 md:grid-cols-4 lg:grid-cols-5"
         >
           {assets.data.pages.map((page) =>
@@ -649,6 +646,7 @@ function CreatorStoreItem({ creatorId }: { creatorId: string }) {
               <ShopAssetComponent key={i} item={item} />
             )),
           )}
+
         </div>
         {assets.hasNextPage && (
           <button

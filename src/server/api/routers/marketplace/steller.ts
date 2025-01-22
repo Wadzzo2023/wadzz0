@@ -19,6 +19,7 @@ import {
   protectedProcedure,
   publicProcedure,
 } from "~/server/api/trpc";
+import { api } from "~/utils/api";
 
 export type authDocType = {
   pubkey: string;
@@ -81,14 +82,14 @@ export const stellarRouter = createTRPCRouter({
 
       switch (input.method) {
         case "xlm": {
-          const nativePrice = marketAsset.priceUSD;
+          const priceInNative = await getXLMPriceByPlatformAsset(marketAsset.price)
           return await XDR4BuyAssetWithXLM({
             seller: seller,
             storageSecret: sellerStorageSec,
             code: assetCode,
             issuerPub,
             buyer,
-            priceInNative: nativePrice.toString(),
+            priceInNative: priceInNative.toFixed(7),
             signWith,
           });
         }

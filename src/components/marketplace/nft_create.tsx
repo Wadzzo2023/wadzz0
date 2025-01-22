@@ -94,10 +94,12 @@ export const NftFormSchema = z.object({
       invalid_type_error: "Limit must be entered as a number",
     })
     .nonnegative(),
+  //code can't contain any spaces
   code: z
     .string()
     .min(4, { message: "Must be a minimum of 4 characters" })
-    .max(12, { message: "Must be a maximum of 12 characters" }),
+    .max(12, { message: "Must be a maximum of 12 characters" }).
+    regex(/^[a-zA-Z]*$/, { message: "Asset Name can only contain letters" }),
   issuer: AccountSchema.optional(),
   songInfo: ExtraSongInfo.optional(),
   isAdmin: z.boolean().optional(),
