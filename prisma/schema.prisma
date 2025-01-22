@@ -166,6 +166,8 @@ model CreatorPageAsset {
     issuer        String
     issuerPrivate String?
     thumbnail     String?
+    priceUSD      Float   @default(1)
+    price         Float   @default(2)
 
     limit Int
 
@@ -192,7 +194,7 @@ model Creator {
     // pageAsset
     pageAssetId Int?
 
-    customPageAssetCodeIssuer String? // CODE-ISSUER
+    customPageAssetCodeIssuer String? // CODE-ISSUER-ASSET-USD
 
     user               User                @relation(fields: [id], references: [id], onDelete: Cascade)
     posts              Post[]

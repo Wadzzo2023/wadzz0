@@ -45,7 +45,7 @@ export const membershipRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       const creatorId = ctx.session.user.id;
 
-      const { code: code, issuer, limit, thumbnail } = input;
+      const { code: code, price, priceUSD, issuer, limit, thumbnail } = input;
 
       if (thumbnail) {
         await ctx.db.creatorPageAsset.create({
@@ -54,6 +54,8 @@ export const membershipRouter = createTRPCRouter({
             limit: limit,
             code,
             thumbnail: thumbnail,
+            price,
+            priceUSD,
             issuer: issuer.publicKey,
             issuerPrivate: issuer.secretKey,
           },
@@ -64,6 +66,8 @@ export const membershipRouter = createTRPCRouter({
             creatorId,
             limit: limit,
             code,
+            price,
+            priceUSD,
             issuer: issuer.publicKey,
             issuerPrivate: issuer.secretKey,
           },
@@ -72,11 +76,11 @@ export const membershipRouter = createTRPCRouter({
     }),
 
   createCustomPageAsset: protectedProcedure
-    .input(z.object({ code: z.string(), issuer: z.string() }))
+    .input(z.object({ code: z.string(), issuer: z.string(), price: z.number(), priceUSD: z.number() }))
     .mutation(async ({ ctx, input }) => {
       const creatorId = ctx.session.user.id;
-      const { code, issuer } = input;
-      const assetIssuer = `${code}-${issuer}`;
+      const { code, issuer, price, priceUSD } = input;
+      const assetIssuer = `${code}-${issuer}-${price}-${priceUSD}`;
 
       const creator = await ctx.db.creator.update({
         data: { customPageAssetCodeIssuer: assetIssuer },

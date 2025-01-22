@@ -30,12 +30,12 @@ function RenderTabs() {
   const { selectedMenu } = useAdminMenu();
 
   switch (selectedMenu) {
-    // case AdminNavigation.WALLET:
-    //   return (
-    //     <div className=" w-full max-w-xl">
-    //       <MintedItemAdd />
-    //     </div>
-    //   );
+    case AdminNavigation.WALLET:
+      return (
+        <div className=" w-full max-w-xl">
+          <MintedItemAdd />
+        </div>
+      );
     case AdminNavigation.NFT:
       return (
         <div className="min-w-xl p-4">
@@ -47,13 +47,13 @@ function RenderTabs() {
           <NftCreate admin />
         </div>
       );
-    case AdminNavigation.ALBUM:
-      return (
-        <div className="min-w-xl p-4">
-          <h2 className="mb-5 text-lg font-bold">Add Music Album</h2>
-          <AlbumCreate mode={ModalMode.ADD} />
-        </div>
-      );
+    // case AdminNavigation.ALBUM:
+    //   return (
+    //     <div className="min-w-xl p-4">
+    //       <h2 className="mb-5 text-lg font-bold">Add Music Album</h2>
+    //       <AlbumCreate mode={ModalMode.ADD} />
+    //     </div>
+    //   );
 
     case AdminNavigation.ADMIN:
       return (

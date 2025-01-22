@@ -1,6 +1,11 @@
+import { User } from "lucide-react";
 import { getAccSecret } from "package/connect_wallet";
+import { env } from "process";
 import { z } from "zod";
+import { PaymentMethodEnum } from "~/components/BuyItem";
 import { CreatorAboutShema } from "~/components/fan/creator/about";
+import { sendAssetXDRForAsset, sendAssetXDRForNative } from "~/lib/stellar/fan/creator_pageasset_buy";
+import { getAssetPriceByCoddenIssuer, getPlatformAssetPrice, getXLMPrice, getXlmUsdPrice } from "~/lib/stellar/fan/get_token_price";
 import {
   createRedeemXDRAsset,
   createRedeemXDRNative,
@@ -33,7 +38,19 @@ export const creatorRouter = createTRPCRouter({
       }
       const creator = await ctx.db.creator.findFirst({
         where: { id: id },
-        include: { pageAsset: true },
+        include: {
+          pageAsset: {
+            select: {
+              code: true,
+              issuer: true,
+              price: true,
+              priceUSD: true,
+              thumbnail: true
+
+            },
+          },
+
+        },
       });
       if (creator) {
         return creator;
@@ -47,6 +64,9 @@ export const creatorRouter = createTRPCRouter({
         code: true,
         issuer: true,
         creatorId: true,
+        price: true,
+        priceUSD: true,
+        thumbnail: true,
       },
     });
 
@@ -55,12 +75,17 @@ export const creatorRouter = createTRPCRouter({
         where: { id: ctx.session.user.id },
       });
       const customAsset = creator.customPageAssetCodeIssuer;
+      console.log("custom asset", customAsset);
       if (customAsset) {
-        const [code, issuer] = customAsset.split("-");
+        const [code, issuer, asset, usd] = customAsset.split("-");
+
         return {
           code,
           issuer,
           creatorId: creator.id,
+          price: Number(asset),
+          priceUSD: Number(usd),
+          thumbnail: "https://app.wadzzo.com/images/loading.png",
         };
       }
     }
@@ -502,4 +527,137 @@ export const creatorRouter = createTRPCRouter({
 
       return { isAvailable: !exixt };
     }),
+
+  getAssetPriceByCodeIssuser: protectedProcedure.input(
+    z.object({
+      code: z.string().optional(),
+      issuer: z.string().optional(),
+    }),
+  ).query(async ({ input, ctx }) => {
+    const { code, issuer } = input;
+    if (!code || !issuer) {
+      throw new Error("Code and issuer are required");
+    }
+
+    const priceUSDAsset = await getAssetPriceByCoddenIssuer({
+      code, issuer
+    });
+
+    const priceXLMUSD = await getXLMPrice();
+    const platformAssetUSD = await getPlatformAssetPrice();
+    return {
+      xlmInUSD: priceXLMUSD,
+      AssetInUSD: priceUSDAsset,
+      platformAssetInUSD: platformAssetUSD,
+    }
+  }),
+  updatePageAssetPrice: protectedProcedure
+    .input(z.object({
+      price: z.number().nonnegative(),
+      priceUSD: z.number().nonnegative(),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const creatorId = ctx.session.user.id;
+      const creator = await ctx.db.creator.findUnique({
+        where: { id: creatorId },
+        select: {
+          customPageAssetCodeIssuer: true,
+          pageAsset: true
+        }
+      });
+
+      if (!creator) {
+        throw new Error("Creator not found");
+      }
+
+      const { price, priceUSD } = input;
+
+      if (creator.pageAsset) {
+        await ctx.db.creatorPageAsset.update({
+          data: {
+            price,
+            priceUSD,
+          },
+          where: { creatorId: creatorId },
+        });
+      } else if (creator.customPageAssetCodeIssuer) {
+
+        const [code, issuer] = creator.customPageAssetCodeIssuer.split("-");
+        await ctx.db.creator.update({
+          data: {
+            customPageAssetCodeIssuer: `${code}-${issuer}-${price}-${priceUSD}`,
+          },
+          where: { id: creatorId },
+        });
+
+      }
+      return { success: true }
+    }),
+  getSendAssetXDR: protectedProcedure
+    .input(
+      z.object({
+        code: z.string(),
+        issuer: z.string(),
+        price: z.number(),
+        signWith: SignUser,
+        creatorId: z.string(),
+        method: PaymentMethodEnum,
+        priceInXLM: z.number(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      const { code, issuer, price, signWith, creatorId, method, priceInXLM } = input;
+
+      const currentUser = ctx.session.user.id;
+      const creator = await ctx.db.creator.findUnique({
+        where: { id: creatorId },
+        select: {
+          storagePub: true,
+          customPageAssetCodeIssuer: true,
+          pageAsset: true,
+          storageSecret: true
+        }
+      });
+
+      if (!creator) {
+        throw new Error("Creator not found");
+      }
+
+
+
+      const acc = await StellarAccount.create(creator.storagePub);
+
+
+      const getTotalToken = acc.getTokenBalance(code, issuer);
+
+
+
+      if (method === "xlm") {
+        return await sendAssetXDRForNative({
+          creatorId: creatorId,
+          priceInXLMWithCost: priceInXLM,
+          code: code,
+          issuer: issuer,
+          totoalTokenToSend: getTotalToken,
+          storageSecret: creator.storageSecret,
+          signWith,
+          userPublicKey: currentUser
+        });
+      } else if (method === "asset") {
+        return await sendAssetXDRForAsset({
+          creatorId: creatorId,
+          priceWithCost: price,
+          code: code,
+          issuer: issuer,
+          totoalTokenToSend: getTotalToken,
+          storageSecret: creator.storageSecret,
+          signWith,
+          userPublicKey: currentUser
+        });
+      }
+
+
+    }),
 });
+
+
