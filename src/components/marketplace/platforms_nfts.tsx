@@ -26,7 +26,7 @@ export default function WallateNFTs() {
         )}
         <div
 
-          className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6"
+          className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6  min-h-[calc(100vh-30vh)] max-h-[calc(100vh-30vh)] overflow-y-auto scrollbar-hide"
         >
           {assets.data?.pages.map((page, i) =>
             page.assets.map((item, j) => <Asset key={`asset-${i}-${j}`} asset={item} />)

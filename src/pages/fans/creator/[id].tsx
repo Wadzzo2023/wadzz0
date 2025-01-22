@@ -50,6 +50,7 @@ import {
   usePaymentMethodStore,
 } from "~/components/payment/payment-options";
 import { PLATFORM_FEE, TrxBaseFeeInPlatformAsset } from "~/lib/stellar/constant";
+import { MarketAssetType } from "~/lib/state/play/use-modal-store";
 
 export default function CreatorPage() {
   const router = useRouter();
@@ -429,7 +430,10 @@ export function UnFollowButton({ creator }: { creator: CreatorWithPageAsset }) {
   const getPlatformAssetToXLM = api.marketplace.steller.getPlatformAssetToXLM.useQuery({
     price: price,
     cost: totalFeees
-  },)
+  }, {
+    enabled: !!price && !!totalFeees
+  }
+  )
 
   return (
     <div className="flex gap-2">
@@ -642,7 +646,7 @@ function CreatorStoreItem({ creatorId }: { creatorId: string }) {
           className="grid grid-cols-2 gap-2 md:grid-cols-4 lg:grid-cols-5"
         >
           {assets.data.pages.map((page) =>
-            page.nfts.map((item, i) => (
+            page.nfts.map((item: MarketAssetType, i) => (
               <ShopAssetComponent key={i} item={item} />
             )),
           )}

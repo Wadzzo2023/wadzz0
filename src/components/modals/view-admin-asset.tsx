@@ -49,7 +49,7 @@ export default function ViewAdminAsset() {
                   {/* Image Container */}
                   <div className="relative aspect-square bg-[#1e1f22]">
                     <SparkleEffect />
-                    <Image
+                    <img
                       src={data.adminAssetNtag.logoUrl}
                       alt={data.adminAssetNtag.logoUrl}
                       width={1000}
@@ -101,7 +101,7 @@ export default function ViewAdminAsset() {
 
               {/* Right Column - Bundle Info */}
               <div className=" rounded-sm bg-gray-300 p-1   md:col-span-4">
-                <Image
+                <img
                   src={data.adminAssetNtag.logoUrl}
                   alt={data.adminAssetNtag.logoUrl}
                   width={1000}
