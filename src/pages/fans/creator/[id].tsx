@@ -2,7 +2,7 @@ import { Creator, Subscription } from "@prisma/client";
 import clsx from "clsx";
 import { useRouter } from "next/router";
 import { clientsign } from "package/connect_wallet";
-import React from "react";
+import React, { useState } from "react";
 import toast from "react-hot-toast";
 import MemberShipCard from "~/components/fan/creator/card";
 import { PostCard } from "~/components/fan/creator/post";
@@ -19,11 +19,37 @@ import ShopAssetComponent from "~/components/fan/shop/shop_asset";
 import { MoreAssetsSkeleton } from "~/components/marketplace/platforms_nfts";
 import { Button } from "~/components/shadcn/ui/button";
 import useNeedSign from "~/lib/hook";
-import { useUserStellarAcc } from "~/lib/state/wallete/stellar-balances";
+import { useCreatorStorageAcc, useUserStellarAcc } from "~/lib/state/wallete/stellar-balances";
 import { CreatorBack } from "~/pages/fans/creator";
 import { CREATOR_TERM } from "~/utils/term";
 import { getAssetBalanceFromBalance } from "~/lib/stellar/marketplace/test/acc";
 import { Card, CardContent } from "~/components/shadcn/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "~/components/shadcn/ui/dialog"
+import { Input } from "~/components/shadcn/ui/input";
+import { SubmitHandler, useForm } from "react-hook-form";
+import { getAssetPriceByCoddenIssuer } from "~/lib/stellar/fan/get_token_price";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+type CreatorWithPageAsset = Creator & {
+  pageAsset: {
+    code: string; issuer: string,
+    price: number
+    priceUSD: number
+  } | null
+};
+import {
+  PaymentChoose,
+  usePaymentMethodStore,
+} from "~/components/payment/payment-options";
+import { PLATFORM_FEE, TrxBaseFeeInPlatformAsset } from "~/lib/stellar/constant";
 
 export default function CreatorPage() {
   const router = useRouter();
@@ -37,22 +63,39 @@ export default function CreatorPage() {
 }
 
 function CreatorPageView({ creatorId }: { creatorId: string }) {
-  const { data: creator } = api.fan.creator.getCreator.useQuery({
-    id: creatorId,
-  },
+  const { setBalance } =
+    useCreatorStorageAcc();
+
+
+  const acc = api.wallate.acc.getCreatorStorageBallancesByID.useQuery({
+    creatorId: creatorId,
+  }, {
+    onSuccess: (data) => {
+      setBalance(data);
+    },
+    onError: (error) => {
+      console.log(error);
+    },
+    refetchOnWindowFocus: false,
+    enabled: !!creatorId
+  })
+
+  const { data: creator } = api.fan.creator.getCreator.useQuery(
+    {
+      id: creatorId,
+    },
     {
       enabled: creatorId.length === 56,
-    }
+    },
   );
 
-  let code: string | undefined
-  let issuer: string | undefined
+
+  let code: string | undefined;
+  let issuer: string | undefined;
 
   if (creator?.customPageAssetCodeIssuer) {
-
     code = creator.customPageAssetCodeIssuer.split("-")[0];
     issuer = creator.customPageAssetCodeIssuer.split("-")[1];
-
   }
 
   if (creator)
@@ -68,16 +111,11 @@ function CreatorPageView({ creatorId }: { creatorId: string }) {
                   code={creator.pageAsset?.code}
                   issuer={creator.pageAsset?.issuer}
                 />
-              ) :
-                creator.customPageAssetCodeIssuer && code && issuer && (
-
-                  <UserCreatorBalance
-                    code={code}
-                    issuer={issuer}
-                  />
-
-                )
-              }
+              ) : (
+                creator.customPageAssetCodeIssuer &&
+                code &&
+                issuer && <UserCreatorBalance code={code} issuer={issuer} />
+              )}
             </div>
 
             <ChooseMemberShip creator={creator} />
@@ -106,16 +144,14 @@ function CreatorPosts({ creatorId }: { creatorId: string }) {
   if (!data) return <div>No data</div>;
   if (data.pages.length > 0) {
     return (
-      <div className="flex w-full flex-col gap-4 items-center p-2 md:mx-auto md:container bg-base-100">
-        {
-          data.pages[0]?.posts.length === 0 && (
-            <Card className="text-center">
-              <CardContent className="pt-6">
-                <p className="text-lg font-semibold">No Post Found Yet!</p>
-              </CardContent>
-            </Card>
-          )
-        }
+      <div className="flex w-full flex-col items-center gap-4 bg-base-100 p-2 md:container md:mx-auto">
+        {data.pages[0]?.posts.length === 0 && (
+          <Card className="text-center">
+            <CardContent className="pt-6">
+              <p className="text-lg font-semibold">No Post Found Yet!</p>
+            </CardContent>
+          </Card>
+        )}
 
         {data.pages.map((page) =>
           page.posts.map((el) => (
@@ -131,8 +167,7 @@ function CreatorPosts({ creatorId }: { creatorId: string }) {
                 if (el.subscription) {
                   let pageAssetCode: string | undefined;
                   let pageAssetIssuer: string | undefined;
-                  const customPageAsset =
-                    el.creator.customPageAssetCodeIssuer;
+                  const customPageAsset = el.creator.customPageAssetCodeIssuer;
                   const pageAsset = el.creator.pageAsset;
 
                   if (pageAsset) {
@@ -270,11 +305,11 @@ export function FollowButton({ creator }: { creator: Creator }) {
   if (isFollower.data ?? follow.isSuccess)
     return (
       <div className="flex flex-col justify-center p-2">
-        <p>You are a follower</p>
-        <UnFollowButton creator={creator} />
+        <p className="text-center">You are a follower</p>
+        <UnFollowButton creator={creator as CreatorWithPageAsset} />
       </div>
     );
-  else if (isFollower.isSuccess || isFollower.data === undefined)
+  else if (isFollower.isSuccess || isFollower.data === undefined && !isFollower.isLoading)
     return (
       <div>
         <button
@@ -291,33 +326,192 @@ export function FollowButton({ creator }: { creator: Creator }) {
     );
 }
 
-export function UnFollowButton({ creator }: { creator: Creator }) {
-  const router = useRouter();
-  const utils = api.useUtils();
+
+
+export function UnFollowButton({ creator }: { creator: CreatorWithPageAsset }) {
+  const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const { getAssetBalance } = useCreatorStorageAcc()
+  const router = useRouter()
+  const { needSign } = useNeedSign();
+  const { isOpen, setIsOpen, paymentMethod } = usePaymentMethodStore();
+  const [loading, setLoading] = useState(false)
+  const session = useSession()
+
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    getValues,
+    formState: { errors, isValid },
+  } = useForm({
+
+    defaultValues: {
+      amount: 0,
+    },
+  })
+  const totalFeees =
+    Number(TrxBaseFeeInPlatformAsset) + Number(PLATFORM_FEE);
+
+
+
+
+  let code: string | undefined
+  let issuer: string | undefined
+  let price: number = 0
+  let priceUSD: number = 0
+
+  if (creator?.customPageAssetCodeIssuer) {
+    [code, issuer] = creator.customPageAssetCodeIssuer.split("-")
+    price = Number(creator.customPageAssetCodeIssuer.split("-")[2])
+    priceUSD = Number(creator.customPageAssetCodeIssuer.split("-")[3])
+  } else if (creator.pageAsset) {
+    code = creator.pageAsset.code
+    issuer = creator.pageAsset.issuer
+    price = Number(creator.pageAsset.price)
+    priceUSD = Number(creator.pageAsset.priceUSD)
+  }
+
+  const assetBalance = getAssetBalance({ code, issuer })
+
+
+
   const unFollow = api.fan.member.unFollowCreator.useMutation({
     onSuccess: async () => {
-      toast.success("Unfollowed successfully");
-
-      // await utils.fan.member.isFollower.refetch({
-      //   creatorId: creator.id,
-      // });
-      // await utils.fan.member.invalidate();
-      router.reload();
+      toast.success("Unfollowed successfully")
+      router.reload()
     },
     onError: (e) => toast.error(e.message),
-  });
+  })
+
+  const sendAssetToUser =
+    api.fan.creator.getSendAssetXDR.useMutation({
+      onSuccess: async (data) => {
+        if (data) {
+          try {
+            setLoading(true);
+            await clientsign({
+              presignedxdr: data,
+              walletType: session.data?.user?.walletType,
+              pubkey: session.data?.user.id,
+              test: clientSelect(),
+            });
+            setIsOpen(false);
+          } catch (error) {
+            setLoading(false);
+            console.error(error);
+            toast.success("Error sending asset to user");
+          }
+        }
+      },
+      onError: (error) => {
+        console.error(error);
+        toast.error(error.message);
+        setLoading(false);
+        setIsOpen(false);
+      },
+    });
+
+  const onSubmit = () => {
+    if (!price || !code || !issuer) return toast.error("Invalid asset")
+    sendAssetToUser.mutate({
+      code: code,
+      issuer: issuer,
+      price: price + totalFeees,
+      priceInXLM: (getPlatformAssetToXLM.data?.costInXLM ?? 0) + (getPlatformAssetToXLM.data?.priceInXLM ?? 0),
+      creatorId: creator.id,
+      signWith: needSign(),
+      method: paymentMethod,
+
+    })
+
+    setIsDialogOpen(false)
+  }
+  const getPlatformAssetToXLM = api.marketplace.steller.getPlatformAssetToXLM.useQuery({
+    price: price,
+    cost: totalFeees
+  })
+
   return (
-    <Button
-      disabled={unFollow.isLoading}
-      onClick={() => {
-        unFollow.mutate({ creatorId: creator.id });
-      }}
-    >
-      {unFollow.isLoading && <Loader2 className="animate mr-2 animate-spin" />}{" "}
-      Unfollow
-    </Button>
-  );
+    <div className="flex gap-2">
+      <Button
+        disabled={unFollow.isLoading}
+        onClick={() => {
+          unFollow.mutate({ creatorId: creator.id })
+        }}
+      >
+        {unFollow.isLoading && <Loader2 className="animate mr-2 animate-spin" />} UNFOLLOW
+      </Button>
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        {
+          assetBalance && assetBalance > 0 ? (
+            <DialogTrigger asChild>
+              <Button>BUY {code}</Button>
+            </DialogTrigger>
+          ) : null
+        }
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Buy {code}</DialogTitle>
+          </DialogHeader>
+
+          <div className="text-lg">
+            Creator has total{" "}
+            <span className="font-bold">
+              {assetBalance} {code}
+            </span>
+          </div>
+          <form onSubmit={handleSubmit(onSubmit)}>
+
+            <DialogFooter>
+              <div className="flex w-full flex-col gap-2">
+                <PaymentChoose
+                  costBreakdown={[
+                    {
+                      label: "Cost",
+                      amount: paymentMethod === "asset" ? price : getPlatformAssetToXLM.data?.priceInXLM ?? 0,
+                      highlighted: true,
+                      type: "cost",
+                    },
+                    {
+                      label: "Platform Fee",
+                      amount: paymentMethod === "asset" ? totalFeees : getPlatformAssetToXLM.data?.costInXLM ?? 0,
+                      highlighted: false,
+                      type: "fee",
+                    },
+                    {
+                      label: "Total Cost",
+                      amount: paymentMethod === "asset" ? price + totalFeees : (getPlatformAssetToXLM.data?.costInXLM ?? 0) + (getPlatformAssetToXLM.data?.priceInXLM ?? 0),
+                      highlighted: false,
+                      type: "total",
+                    },
+                  ]}
+                  loading={unFollow.isLoading}
+                  XLM_EQUIVALENT={(getPlatformAssetToXLM.data?.costInXLM ?? 0) + (getPlatformAssetToXLM.data?.priceInXLM ?? 0)}
+                  handleConfirm={handleSubmit(onSubmit)}
+                  requiredToken={price + totalFeees}
+                  trigger={
+                    <Button
+                      className="w-full"
+                    >
+                      Buy {code}
+                    </Button>
+                  }
+                />
+              </div>
+              <Button
+                variant={'secondary'}
+                className="w-full"
+                onClick={() => setIsDialogOpen(false)}
+              >Cancel</Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+    </div>
+  )
 }
+
+
 
 export function ChooseMemberShip({ creator }: { creator: Creator }) {
   const { data: subscriptonModel, isLoading } =
@@ -339,7 +533,6 @@ export function ChooseMemberShip({ creator }: { creator: Creator }) {
                 creator={creator}
                 subscription={el}
                 pageAsset={el.creator.pageAsset?.code}
-
               />
             ))}
         </SubscriptionGridWrapper>
@@ -389,12 +582,11 @@ function SubscriptionCard({
   subscription: SubscriptionType;
   creator: Creator;
   priority?: number;
-  pageAsset?: string
+  pageAsset?: string;
 }) {
   return (
     <MemberShipCard
       key={subscription.id}
-
       creator={creator}
       priority={priority}
       subscription={subscription}
@@ -445,21 +637,19 @@ function CreatorStoreItem({ creatorId }: { creatorId: string }) {
 
   if (assets.data) {
     return (
-
-      <div
-
-        className="w-full p-4 grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6"
-      >
-
-        {assets.data.pages.map((page) =>
-          page.nfts.map((item, i) => (
-            <div key={i}>
-              <ShopAssetComponent item={item} />
-
-            </div>
-          )),
-        )}
-
+      <div className="p-2">
+        <div
+          style={{
+            scrollbarGutter: "stable",
+          }}
+          className="grid grid-cols-2 gap-2 md:grid-cols-4 lg:grid-cols-5"
+        >
+          {assets.data.pages.map((page) =>
+            page.nfts.map((item, i) => (
+              <ShopAssetComponent key={i} item={item} />
+            )),
+          )}
+        </div>
         {assets.hasNextPage && (
           <button
             className="btn btn-outline btn-primary"
@@ -468,18 +658,7 @@ function CreatorStoreItem({ creatorId }: { creatorId: string }) {
             Load More
           </button>
         )}
-
-        {
-          assets.hasNextPage && (
-            <button
-              className="btn btn-outline btn-primary"
-              onClick={() => void assets.fetchNextPage()}
-            >
-              Load More
-            </button>
-          )
-        }
-      </div >
+      </div>
     );
   }
 }

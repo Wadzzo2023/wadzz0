@@ -2,9 +2,10 @@ import React from "react";
 import { api } from "~/utils/api";
 import MarketAssetComponent from "./market_asset";
 import { clsx } from "clsx";
+import Asset from "../wallete/asset";
 
 export default function WallateNFTs() {
-  const assets = api.marketplace.market.getMarketAdminNfts.useInfiniteQuery(
+  const assets = api.wallate.asset.getBancoinAssets.useInfiniteQuery(
     { limit: 10 },
     {
       getNextPageParam: (lastPage) => lastPage.nextCursor,
@@ -19,19 +20,15 @@ export default function WallateNFTs() {
   if (assets.data) {
     return (
       <div className="p-2">
-        {assets.data.pages[0]?.nfts.length === 0 && (
+        {assets.data.pages[0]?.assets.length === 0 && (
           <p className="w-full text-center">There is no curated asset yet</p>
         )}
         <div
-          style={{
-            scrollbarGutter: "stable",
-          }}
+
           className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6"
         >
-          {assets.data.pages.map((page) =>
-            page.nfts.map((item, i) => (
-              <MarketAssetComponent key={i} item={item} />
-            )),
+          {assets.data?.pages.map((page, i) =>
+            page.assets.map((item, j) => <Asset key={`asset-${i}-${j}`} asset={item} />)
           )}
         </div>
         {assets.hasNextPage && (

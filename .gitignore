@@ -53,3 +53,5 @@ analyze
 pnpm-lock.yml
 package-lock.json
 .trigger
+
+.vscode

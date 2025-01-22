@@ -3,7 +3,9 @@
 import { Asset } from "@prisma/client";
 import type { NextApiRequest, NextApiResponse } from "next";
 import NextCors from "nextjs-cors";
+import { PLATFORM_ASSET } from "~/lib/stellar/constant";
 import { db } from "~/server/db";
+import { ipfsHashToUrl } from "~/utils/ipfs";
 
 export default async function handler(
   req: NextApiRequest,
@@ -16,7 +18,7 @@ export default async function handler(
     optionsSuccessStatus: 200, // some legacy browsers (IE11, various SmartTVs) choke on 204
   });
 
-  let Fulltomlstring = defaultTomlString;
+  let FullTomlContent = defaultTomlString;
 
   const assets = await db.asset.findMany({
     select: {
@@ -29,17 +31,45 @@ export default async function handler(
     },
   });
 
+  const PageAssets = await db.creatorPageAsset.findMany({
+    select: {
+      issuer: true,
+      code: true,
+      thumbnail: true,
+      limit: true,
+      creator: true,
+    },
+  });
+
   for (const asset of assets) {
-    Fulltomlstring += dictinaryToTomlString(asset as Asset);
+    FullTomlContent += dictionaryToTomlString(asset);
   }
 
-  res.send(Fulltomlstring);
+  for (const asset of PageAssets) {
+    const ipfsHash = asset.thumbnail?.split("/").pop();
+    FullTomlContent += dictionaryToTomlString({
+      code: asset.code,
+      issuer: asset.issuer,
+      name: asset.creator?.name || PLATFORM_ASSET.code,
+      description: `Page Asset of ${asset.creator?.name}`,
+      thumbnail: asset.thumbnail ?? "",
+    });
+  }
+
+  res.send(FullTomlContent);
+
   return;
 
   // res.status(200).json({ message: assets });
 }
 
-export function dictinaryToTomlString(dict: Asset) {
+export function dictionaryToTomlString(dict: {
+  thumbnail: string;
+  code: string;
+  issuer: string;
+  name: string;
+  description: string | null;
+}) {
   const ipfsHash = dict.thumbnail.split("/").pop();
   let tomlString = "[[CURRENCIES]]\n";
   tomlString += `code="${dict.code}"\n`;
@@ -47,8 +77,7 @@ export function dictinaryToTomlString(dict: Asset) {
   tomlString += `display_decimals=7\n`;
   tomlString += `name="${dict.name}"\n`;
   tomlString += `desc="${dict.description}"\n`;
-  tomlString += `image="${ipfsHash}"\n`;
-  if (dict.limit) tomlString += `limit="${dict.limit}"\n`;
+  if (ipfsHash) tomlString += `image="${ipfsHashToUrl(ipfsHash)}"\n`;
 
   return tomlString + "\n";
 }
@@ -65,14 +94,5 @@ ORG_OFFICIAL_EMAIL="support@wadzzo.com"
 name="Arnob Dey"
 twitter="ArnobDey_Dev"
 github="arnob016"
-
-[[CURRENCIES]]
-issuer="asset issuer"
-code="asset code"
-name="asset name"
-desc="This is a description of the cool NFT."
-image="ipfs link ending with file format extension"
-limit="limit"
-display_decimals=7
 
 `;

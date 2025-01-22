@@ -98,7 +98,7 @@ export default async function handler(
 
     if (creatorsId) {
       extraFilter.creatorId = { in: creatorsId };
-      extraFilter.privacy = { in: [ItemPrivacy.PRIVATE, ItemPrivacy.TIER] };
+      extraFilter.privacy = { in: [ItemPrivacy.PRIVATE, ItemPrivacy.TIER, ItemPrivacy.PUBLIC] };
     }
 
     const locationGroup = await db.locationGroup.findMany({
@@ -132,7 +132,7 @@ export default async function handler(
         },
       },
     });
-
+    console.log("locationGroup", locationGroup);
     const pins = locationGroup
       .flatMap((group) => {
         const multiPin = group.multiPin;

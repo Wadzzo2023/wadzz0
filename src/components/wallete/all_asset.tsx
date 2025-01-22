@@ -5,12 +5,7 @@ import Asset from "./asset";
 import PageAssetComponent from "../marketplace/page_asset";
 
 export default function AllAsset() {
-  const assets = api.wallate.asset.getBancoinAssets.useInfiniteQuery(
-    { limit: 10 },
-    {
-      getNextPageParam: (lastPage) => lastPage.nextCursor,
-    },
-  );
+
 
   const musicAssets = api.music.song.getAllSongMarketAssets.useInfiniteQuery(
     { limit: 10 },
@@ -41,7 +36,7 @@ export default function AllAsset() {
   );
 
   if (
-    assets.isLoading &&
+
     musicAssets.isLoading &&
     adminAssets.isLoading &&
     fanAssets.isLoading &&
@@ -55,14 +50,12 @@ export default function AllAsset() {
   //   return <MyError text="Error catch. Please reload this page." />;
 
 
-  if (assets.data ?? musicAssets.data ?? adminAssets.data ?? fanAssets.data)
+  if (musicAssets.data ?? adminAssets.data ?? fanAssets.data)
     return (
       <div
         className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6"
       >
-        {assets.data?.pages.map((page, i) =>
-          page.assets.map((item, j) => <Asset key={`asset-${i}-${j}`} asset={item} />)
-        )}
+
         {musicAssets.data?.pages.map((page, i) =>
           page.nfts.map((item, j) => <MarketAssetComponent key={`music-${i}-${j}`} item={item}
           />)
@@ -82,17 +75,20 @@ export default function AllAsset() {
     );
 
   function LoadMore() {
+    console.log("musicAssets.hasNextPage", musicAssets.hasNextPage);
+    console.log("adminAssets.hasNextPage", adminAssets.hasNextPage);
+    console.log("fanAssets.hasNextPage", fanAssets.hasNextPage);
+
+
     function loadMore() {
-      if (assets.hasNextPage) void assets.fetchNextPage();
       if (musicAssets.hasNextPage) void musicAssets.fetchNextPage();
       if (adminAssets.hasNextPage) void adminAssets.fetchNextPage();
       if (fanAssets.hasNextPage) void fanAssets.fetchNextPage();
     }
 
     if (
-      assets.hasNextPage ??
-      musicAssets.hasNextPage ??
-      adminAssets.hasNextPage ??
+      musicAssets.hasNextPage ||
+      adminAssets.hasNextPage ||
       fanAssets.hasNextPage
     ) {
       return (
@@ -101,5 +97,6 @@ export default function AllAsset() {
         </button>
       );
     }
+
   }
 }

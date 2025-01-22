@@ -446,7 +446,7 @@ const CreateBounty = () => {
                           },
                           {
                             label: "Platform Fee",
-                            amount: totalFeees,
+                            amount: paymentMethod === "asset" ? totalFeees : 2,
                             highlighted: false,
                             type: "fee",
                           },

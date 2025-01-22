@@ -3,6 +3,7 @@ import { AwardIcon } from "lucide-react";
 import { getAccSecretFromRubyApi } from "package/connect_wallet/src/lib/stellar/get-acc-secret";
 import { z } from "zod";
 import { env } from "~/env";
+import { getXLMPriceByPlatformAsset } from "~/lib/stellar/fan/get_token_price";
 
 // import { getUserSecret } from "~/components/recharge/utils";
 import { covertSiteAsset2XLM } from "~/lib/stellar/marketplace/trx/convert_site_asset";
@@ -161,4 +162,34 @@ export const stellarRouter = createTRPCRouter({
   getSecretMessage: protectedProcedure.query(() => {
     return "you can now see this secret message!";
   }),
+
+  getPlatformAssetToXLM: protectedProcedure
+    .input(
+      z.object({
+
+        price: z.number().optional().nullable(),
+        cost: z.number().optional().nullable(),
+
+      })
+    )
+    .query(async ({ input }) => {
+      if (!input.price && !input.cost) {
+        throw new Error("price or cost is required");
+      }
+      if (input.price && input.cost) {
+        const priceInXLM = await getXLMPriceByPlatformAsset(input.price);
+        const costInXLM = await getXLMPriceByPlatformAsset(input.cost);
+        return { priceInXLM, costInXLM };
+      }
+      if (input.price) {
+        const priceInXLM = await getXLMPriceByPlatformAsset(input.price);
+        return { priceInXLM };
+      }
+      if (input.cost) {
+        const costInXLM = await getXLMPriceByPlatformAsset(input.cost);
+        return { costInXLM };
+      }
+
+
+    }),
 });

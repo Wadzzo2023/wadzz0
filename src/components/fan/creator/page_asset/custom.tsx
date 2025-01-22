@@ -11,6 +11,7 @@ import { clientSelect } from "~/lib/stellar/fan/utils";
 import { api } from "~/utils/api";
 
 import { Button } from "~/components/shadcn/ui/button";
+import { PLATFORM_ASSET } from "~/lib/stellar/constant";
 
 export const CreatorCustomPageAssetSchema = z.object({
   code: z
@@ -26,6 +27,23 @@ export const CreatorCustomPageAssetSchema = z.object({
       },
     ),
   issuer: z.string().length(56),
+  price: z
+    .number({
+      required_error: "Price must be entered as a number",
+      invalid_type_error: "Price must be entered as a number",
+    })
+    .nonnegative().min(.01, {
+      message: "Price must be greater than 0"
+    }).default(2),
+  priceUSD: z
+    .number({
+      required_error: "Price must be entered as a number",
+      invalid_type_error: "Price must be entered as a number",
+    })
+    .nonnegative().min(.01, {
+      message: "Price must be greater than 0"
+    })
+    .default(1),
 });
 
 function CustomPageAssetFrom({ requiredToken }: { requiredToken: number }) {
@@ -45,7 +63,10 @@ function CustomPageAssetFrom({ requiredToken }: { requiredToken: number }) {
     reset,
   } = useForm<z.infer<typeof CreatorCustomPageAssetSchema>>({
     resolver: zodResolver(CreatorCustomPageAssetSchema),
-    defaultValues: {},
+    defaultValues: {
+      price: 2,
+      priceUSD: 1,
+    },
   });
 
   const mutation = api.fan.member.createCustomPageAsset.useMutation({
@@ -119,7 +140,47 @@ function CustomPageAssetFrom({ requiredToken }: { requiredToken: number }) {
           </div>
         )}
       </label>
-
+      <label className=" form-control w-full px-2 ">
+        <div className="label">
+          <span className="label-text">
+            Price in $USD<span className="text-red-600">*</span>
+          </span>
+        </div>
+        <input
+          // disabled={trxdata?.successful ? true : false}
+          type="number"
+          {...register("priceUSD", { valueAsNumber: true })}
+          className="input input-bordered w-full"
+          placeholder="Enter Price in USD"
+        />
+        {errors.priceUSD && (
+          <div className="label">
+            <span className="label-text-alt text-warning">
+              {errors.priceUSD.message}
+            </span>
+          </div>
+        )}
+      </label>
+      <label className="form-control w-full px-2">
+        <span className="label-text">
+          Price in {PLATFORM_ASSET.code}
+          <span className="text-red-600">*</span>
+        </span>
+        <input
+          // disabled={trxdata?.successful ? true : false}
+          type="number"
+          {...register("price", { valueAsNumber: true })}
+          className="input input-bordered w-full"
+          placeholder={`Enter Price in ${PLATFORM_ASSET.code}`}
+        />
+        {errors.price && (
+          <div className="label">
+            <span className="label-text-alt text-warning">
+              {errors.price.message}
+            </span>
+          </div>
+        )}
+      </label>
       <div className="px-2 text-sm">
         <Alert
           type={mutation.error ? "warning" : "normal"}

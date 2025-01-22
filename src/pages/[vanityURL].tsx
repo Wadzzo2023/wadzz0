@@ -2,7 +2,7 @@ import { useRouter } from "next/router";
 import { api } from "~/utils/api";
 import { CreatorBack } from "./fans/creator";
 import { ChooseMemberShip, FollowButton } from "./fans/creator/[id]";
-import { useUserStellarAcc } from "~/lib/state/wallete/stellar-balances";
+import { useCreatorStorageAcc, useUserStellarAcc } from "~/lib/state/wallete/stellar-balances";
 import {
   CreatorProfileMenu,
   useCreatorProfileMenu,
@@ -30,6 +30,9 @@ const VanityCreator = () => {
   const { vanityURL } = router.query as { vanityURL: string };
   const { data, isLoading, error } =
     api.admin.creator.creatorIDfromVanityURL.useQuery(vanityURL);
+
+
+
 
   if (isLoading) {
     return (
@@ -108,6 +111,21 @@ function CreatorPageView({ creatorId }: { creatorId: string }) {
   const { data: creator } = api.fan.creator.getCreator.useQuery({
     id: creatorId,
   });
+  const { setBalance } =
+    useCreatorStorageAcc();
+
+  const acc = api.wallate.acc.getCreatorStorageBallancesByID.useQuery({
+    creatorId: creatorId,
+  }, {
+    onSuccess: (data) => {
+      setBalance(data);
+    },
+    onError: (error) => {
+      console.log(error);
+    },
+    refetchOnWindowFocus: false,
+    enabled: !!creatorId
+  })
   if (creator)
     return (
       <div className="container mx-auto flex w-full flex-col gap-4 overflow-y-auto">

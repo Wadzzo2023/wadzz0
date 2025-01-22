@@ -31,7 +31,7 @@ import {
   USER_ACCOUNT_URL,
   USER_ACCOUNT_URL_APPLE,
 } from "package/connect_wallet/src/lib/stellar/constant";
-import { verifyXDRsSignature } from "package/connect_wallet/src/lib/stellar/trx/deummy";
+import { verifyXDRSignature } from "package/connect_wallet/src/lib/stellar/trx/deummy";
 
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
@@ -119,12 +119,11 @@ export const authOptions: NextAuthOptions = {
         // wallet login
 
         if (cred.walletType == WalletType.albedo) {
-          const { pubkey, signature, token } = cred;
-
+          const { pubkey, signature, token, fromAppSign } = cred;
 
           const isValid = verifyMessageSignature(pubkey, token, signature);
           if (isValid) {
-            const sessionUser = await dbUser(pubkey);
+            const sessionUser = await dbUser(pubkey, fromAppSign);
             return {
               ...sessionUser,
               walletType: WalletType.albedo,
@@ -139,13 +138,13 @@ export const authOptions: NextAuthOptions = {
           cred.walletType == WalletType.frieghter ||
           cred.walletType == WalletType.walletConnect
         ) {
-          const { pubkey, signedXDR } = cred;
-          const isValid = await verifyXDRsSignature({
+          const { pubkey, signedXDR, fromAppSign } = cred;
+          const isValid = await verifyXDRSignature({
             publicKey: pubkey,
             xdr: signedXDR,
           });
           if (isValid) {
-            const sessionUser = await dbUser(pubkey);
+            const sessionUser = await dbUser(pubkey, fromAppSign);
             return {
               ...sessionUser,
               walletType: cred.walletType,
@@ -160,11 +159,11 @@ export const authOptions: NextAuthOptions = {
           cred.walletType == WalletType.google ||
           cred.walletType == WalletType.facebook
         ) {
-          const { token, email } = cred;
+          const { token, email, fromAppSign } = cred;
 
           const { uid } = await verifyIdToken(token);
           const data = await getUserPublicKey({ uid, email });
-          const sessionUser = await dbUser(data.publicKey);
+          const sessionUser = await dbUser(data.publicKey, fromAppSign);
           return {
             ...sessionUser,
             walletType: cred.walletType,
@@ -174,12 +173,12 @@ export const authOptions: NextAuthOptions = {
         }
 
         if (cred.walletType == WalletType.apple) {
-          const { appleToken, token, email } = cred;
+          const { appleToken, token, email, fromAppSign } = cred;
 
           if (token) {
             const { uid } = await verifyIdToken(token);
             const data = await getUserPublicKey({ uid, email });
-            const sessionUser = await dbUser(data.publicKey);
+            const sessionUser = await dbUser(data.publicKey, fromAppSign);
             return {
               ...sessionUser,
               walletType: cred.walletType,
@@ -191,7 +190,7 @@ export const authOptions: NextAuthOptions = {
               const { uid } = await appleTokenToUser(appleToken, email);
 
               const data = await getUserPublicKey({ uid, email });
-              const sessionUser = await dbUser(data.publicKey);
+              const sessionUser = await dbUser(data.publicKey, fromAppSign);
               return {
                 ...sessionUser,
                 walletType: cred.walletType,
@@ -255,8 +254,9 @@ async function dbUser(pubkey: string, fromAppSign?: string) {
   } else {
     const data = await db.user.create({
       data: {
-        id: pubkey, name: truncateString(pubkey),
-        fromAppSignup: fromAppSign === 'true' ? true : false
+        id: pubkey,
+        name: truncateString(pubkey),
+        fromAppSignup: fromAppSign === "true" ? true : false,
       },
     });
     return data;
