@@ -32,6 +32,7 @@ import {
   USER_ACCOUNT_URL_APPLE,
 } from "package/connect_wallet/src/lib/stellar/constant";
 import { verifyXDRSignature } from "package/connect_wallet/src/lib/stellar/trx/deummy";
+import { FirebaseError } from "firebase/app";
 
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
@@ -104,7 +105,8 @@ export const authOptions: NextAuthOptions = {
 
           if (!user.emailVerified) {
             await sendEmailVerification(user);
-            throw new Error("Email is not verified");
+            const errorCode = "auth/unverified-email";
+            throw new Error(`Firebase: Error (${errorCode}).`);
           }
           const data = await getUserPublicKey({ email: email, uid: user.uid });
           const sessionUser = await dbUser(data.publicKey, fromAppSign);

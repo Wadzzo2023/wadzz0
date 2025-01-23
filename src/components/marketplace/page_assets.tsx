@@ -20,7 +20,7 @@ export default function ArtistsPageTokens() {
 
   if (assets.data) {
     return (
-      <div className="p-2">
+      <>
         {assets.data.pages[0]?.nfts.length === 0 && (
           <p className="w-full text-center">There is no page asset yet</p>
         )}
@@ -28,15 +28,13 @@ export default function ArtistsPageTokens() {
           style={{
             scrollbarGutter: "stable",
           }}
-          className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 min-h-[calc(100vh-28vh)] max-h-[calc(100vh-28vh)] overflow-y-auto scrollbar-hide"
+          className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6  overflow-y-auto scrollbar-hide"
         >
           {assets.data.pages.map((page) =>
             page.nfts.map((item, i) => (
               <PageAssetComponent key={i} item={item} />
             )),
           )}
-        </div>
-        <div className="mt-5">
           {assets.hasNextPage && (
             <Button
               className="focus:outline-none text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800"
@@ -60,7 +58,10 @@ export default function ArtistsPageTokens() {
             </Button>
           )}
         </div>
-      </div>
+
+
+
+      </>
     );
   }
 }

@@ -217,10 +217,8 @@ export default function CreatePinModal() {
     if (position) {
       setValue("lat", position.lat);
       setValue("lng", position.lng);
-
       addPinM.mutate({ ...data, lat: position.lat, lng: position.lng });
     } else {
-      // toast.error("Please select a location on the map");
       addPinM.mutate({ ...data });
     }
   };
@@ -249,6 +247,8 @@ export default function CreatePinModal() {
           id: PAGE_ASSET_NUM,
           thumbnail: pageAsset.thumbnail ?? "",
         });
+        setValue("token", PAGE_ASSET_NUM);
+
       } else {
         toast.error("No page asset found");
       }
