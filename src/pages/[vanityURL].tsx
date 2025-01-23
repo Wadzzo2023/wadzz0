@@ -2,7 +2,7 @@ import { useRouter } from "next/router";
 import { api } from "~/utils/api";
 import { CreatorBack } from "./fans/creator";
 import { ChooseMemberShip, FollowButton } from "./fans/creator/[id]";
-import { useUserStellarAcc } from "~/lib/state/wallete/stellar-balances";
+import { useCreatorStorageAcc, useUserStellarAcc } from "~/lib/state/wallete/stellar-balances";
 import {
   CreatorProfileMenu,
   useCreatorProfileMenu,
@@ -24,12 +24,16 @@ import { AlertCircle, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { Button } from "~/components/shadcn/ui/button";
 import { getAssetBalanceFromBalance } from "~/lib/stellar/marketplace/test/acc";
+import { MarketAssetType } from "~/lib/state/play/use-modal-store";
 
 const VanityCreator = () => {
   const router = useRouter();
   const { vanityURL } = router.query as { vanityURL: string };
   const { data, isLoading, error } =
     api.admin.creator.creatorIDfromVanityURL.useQuery(vanityURL);
+
+
+
 
   if (isLoading) {
     return (
@@ -108,6 +112,21 @@ function CreatorPageView({ creatorId }: { creatorId: string }) {
   const { data: creator } = api.fan.creator.getCreator.useQuery({
     id: creatorId,
   });
+  const { setBalance } =
+    useCreatorStorageAcc();
+
+  const acc = api.wallate.acc.getCreatorStorageBallancesByID.useQuery({
+    creatorId: creatorId,
+  }, {
+    onSuccess: (data) => {
+      setBalance(data);
+    },
+    onError: (error) => {
+      console.log(error);
+    },
+    refetchOnWindowFocus: false,
+    enabled: !!creatorId
+  })
   if (creator)
     return (
       <div className="container mx-auto flex w-full flex-col gap-4 overflow-y-auto">
@@ -163,15 +182,13 @@ function CreatorStoreItem({ creatorId }: { creatorId: string }) {
 
   if (assets.data) {
     return (
-      <div className="p-2">
+      <div className="p-2 w-full">
         <div
-          style={{
-            scrollbarGutter: "stable",
-          }}
+
           className="grid grid-cols-2 gap-2 md:grid-cols-4 lg:grid-cols-5"
         >
           {assets.data.pages.map((page) =>
-            page.nfts.map((item, i) => (
+            page.nfts.map((item: MarketAssetType, i) => (
               <ShopAssetComponent key={i} item={item} />
             )),
           )}

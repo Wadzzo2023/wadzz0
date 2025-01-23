@@ -16,6 +16,7 @@ import {
   createTRPCRouter,
   protectedProcedure,
 } from "~/server/api/trpc";
+import { MarketAssetType } from "~/lib/state/play/use-modal-store";
 
 export const AssetSelectAllProperty = {
   code: true,
@@ -160,78 +161,109 @@ export const marketRouter = createTRPCRouter({
       }),
     )
     .query(async ({ ctx, input }) => {
-      const { limit, cursor, skip } = input;
-      const currentUserId = ctx.session.user.id;
+      const { limit, cursor, skip } = input
+      const currentUserId = ctx.session.user.id
 
-      const items = await ctx.db.marketAsset.findMany({
-        take: limit + 1,
-        skip: skip,
-        cursor: cursor ? { id: cursor } : undefined,
-        include: {
-          asset: {
-            select: {
-              ...AssetSelectAllProperty,
-              tier: {
-                select: {
-                  price: true,
+      const fetchAndFilterItems = async (
+        currentLimit: number,
+        currentCursor: number | null | undefined,
+        currentSkip: number | undefined,
+
+        accumulatedItems: MarketAssetType[] = [],
+
+      ): Promise<{ nfts: MarketAssetType[]; nextCursor: number | null }> => {
+        const items = await ctx.db.marketAsset.findMany({
+          take: currentLimit,
+          skip: currentSkip,
+          cursor: currentCursor ? { id: currentCursor } : undefined,
+          include: {
+            asset: {
+              select: {
+                ...AssetSelectAllProperty,
+                tier: {
+                  select: {
+                    price: true,
+                  },
                 },
-              },
-              creator: {
-                select: {
-                  pageAsset: {
-                    select: {
-                      code: true,
-                      issuer: true,
+                creator: {
+                  select: {
+                    pageAsset: {
+                      select: {
+                        code: true,
+                        issuer: true,
+                      },
                     },
+                    customPageAssetCodeIssuer: true,
                   },
                 },
               },
             },
           },
-        },
-        where: { placerId: { not: null }, type: { equals: "FAN" } },
-      });
+          where: { placerId: { not: null }, type: { equals: "FAN" } },
+        })
 
-      const stellarAcc = await StellarAccount.create(currentUserId);
+        const stellarAcc = await StellarAccount.create(currentUserId)
 
-      // Filter items based on privacy and conditions
-      const array = items.filter((item) => {
-        const creatorPageAsset = item.asset.creator?.pageAsset;
+        const filteredItems = items.filter((item) => {
+          const creatorPageAsset = item.asset.creator?.pageAsset
+          const creatorCustomPageAsset = item.asset.creator?.customPageAssetCodeIssuer
+          let code: string | undefined
+          let issuer: string | undefined
 
-        if (item.asset.privacy === ItemPrivacy.PUBLIC) {
-          return true;
+          if (creatorCustomPageAsset) {
+            [code, issuer] = creatorCustomPageAsset.split("-")
+          } else if (creatorPageAsset) {
+            code = creatorPageAsset.code
+            issuer = creatorPageAsset.issuer
+          }
+
+          if (!code || !issuer) return false
+
+          if (item.asset.privacy === ItemPrivacy.PUBLIC) {
+            return true
+          }
+
+          if (item.asset.creatorId !== item.placerId) {
+            return true
+          }
+
+          if (item.asset.privacy === ItemPrivacy.PRIVATE) {
+            return stellarAcc.hasTrustline(code, issuer)
+          }
+
+          if (item.asset.privacy === ItemPrivacy.TIER) {
+            return item.asset.tier && item.asset.tier.price <= stellarAcc.getTokenBalance(code, issuer)
+          }
+
+          return false
+        })
+
+        const newAccumulatedItems = [...accumulatedItems, ...filteredItems]
+
+        if (newAccumulatedItems.length >= limit || items.length < currentLimit) {
+          // We have enough items or there are no more items to fetch
+          // @ts-expect-error: This error occurs because of an intentional type mismatch due to X.
+          const nextCursor = newAccumulatedItems.length > limit ? newAccumulatedItems[limit - 1].id : null
+          return {
+            nfts: newAccumulatedItems.slice(0, limit),
+            nextCursor,
+          }
+        } else {
+          // We need to fetch more items
+          const lastItem = items[items.length - 1]
+          if (lastItem) {
+            return fetchAndFilterItems(currentLimit, lastItem.id, 0, newAccumulatedItems)
+          } else {
+            // If there are no items left, return what we have
+            return {
+              nfts: newAccumulatedItems,
+              nextCursor: null,
+            }
+          }
         }
-
-        if (item.asset.creatorId !== item.placerId) {
-          return true;
-        }
-
-        if (item.asset.privacy === ItemPrivacy.PRIVATE) {
-          return creatorPageAsset && stellarAcc.hasTrustline(creatorPageAsset.code, creatorPageAsset.issuer);
-        }
-
-        if (item.asset.privacy === ItemPrivacy.TIER) {
-          return (
-            creatorPageAsset &&
-            item.asset.tier &&
-            item.asset.tier.price <= stellarAcc.getTokenBalance(creatorPageAsset.code, creatorPageAsset.issuer)
-          );
-        }
-
-        return false;
-      });
-
-      // Handle pagination
-      let nextCursor: typeof cursor | undefined = undefined;
-      if (array.length > limit) {
-        const nextItem = array.pop();
-        nextCursor = nextItem?.id;
       }
 
-      return {
-        nfts: array,
-        nextCursor,
-      };
+      return fetchAndFilterItems(limit, cursor, skip)
     }),
 
   getPageAssets: protectedProcedure
@@ -248,6 +280,9 @@ export const marketRouter = createTRPCRouter({
       const { limit, cursor, skip } = input;
 
       const items = await ctx.db.creator.findMany({
+        where: {
+          profileUrl: { not: null }
+        },
         select: {
           id: true,
           name: true,
@@ -345,8 +380,8 @@ export const marketRouter = createTRPCRouter({
       });
 
       let nextCursor: typeof cursor | undefined = undefined;
-      if (array.length > limit) {
-        const nextItem = array.pop();
+      if (items.length > limit) {
+        const nextItem = items.pop();
         nextCursor = nextItem?.id;
       }
 
@@ -361,8 +396,6 @@ export const marketRouter = createTRPCRouter({
     .input(
       z.object({
         limit: z.number(),
-        // cursor is a reference to the last item in the previous batch
-        // it's used to fetch the next batch
         cursor: z.number().nullish(),
         skip: z.number().optional(),
         creatorId: z.string(),
@@ -370,30 +403,110 @@ export const marketRouter = createTRPCRouter({
     )
     .query(async ({ ctx, input }) => {
       const { limit, cursor, skip, creatorId } = input;
+      const currentUserId = ctx.session.user.id;
 
-      const items = await ctx.db.marketAsset.findMany({
-        take: limit + 1,
-        skip: skip,
-        cursor: cursor ? { id: cursor } : undefined,
-        include: {
-          asset: {
-            select: AssetSelectAllProperty,
+      const fetchAndFilterItems = async (
+        currentLimit: number,
+        currentCursor: number | null | undefined,
+        currentSkip: number | undefined,
+
+        accumulatedItems: MarketAssetType[] = [],
+
+      ): Promise<{ nfts: MarketAssetType[]; nextCursor: number | null }> => {
+        const items = await ctx.db.marketAsset.findMany({
+          take: currentLimit,
+          skip: currentSkip,
+          cursor: currentCursor ? { id: currentCursor } : undefined,
+          include: {
+            asset: {
+              select: {
+                ...AssetSelectAllProperty,
+                tier: {
+                  select: {
+                    price: true,
+                  },
+                },
+                creator: {
+                  select: {
+                    pageAsset: {
+                      select: {
+                        code: true,
+                        issuer: true,
+                      },
+                    },
+                    customPageAssetCodeIssuer: true,
+                  },
+                },
+              },
+            },
           },
-        },
-        where: { asset: { creatorId: creatorId } },
-      });
+          where: { asset: { creatorId: creatorId } },
+        });
 
-      let nextCursor: typeof cursor | undefined = undefined;
-      if (items.length > limit) {
-        const nextItem = items.pop(); // return the last item from the array
-        nextCursor = nextItem?.id;
-      }
+        const stellarAcc = await StellarAccount.create(currentUserId);
 
-      return {
-        nfts: items,
-        nextCursor,
+        const filteredItems = items.filter((item) => {
+          const creatorPageAsset = item.asset.creator?.pageAsset;
+          const creatorCustomPageAsset = item.asset.creator?.customPageAssetCodeIssuer;
+          let code: string | undefined;
+          let issuer: string | undefined;
+
+          if (creatorCustomPageAsset) {
+            [code, issuer] = creatorCustomPageAsset.split("-");
+          } else if (creatorPageAsset) {
+            code = creatorPageAsset.code;
+            issuer = creatorPageAsset.issuer;
+          }
+
+          if (!code || !issuer) return false;
+
+          if (item.asset.privacy === ItemPrivacy.PUBLIC) {
+            return true;
+          }
+
+          if (item.asset.creatorId !== item.placerId) {
+            return true;
+          }
+
+          if (item.asset.privacy === ItemPrivacy.PRIVATE) {
+            return stellarAcc.hasTrustline(code, issuer);
+          }
+
+          if (item.asset.privacy === ItemPrivacy.TIER) {
+            return (
+              item.asset.tier &&
+              item.asset.tier.price <= stellarAcc.getTokenBalance(code, issuer)
+            );
+          }
+
+          return false;
+        });
+
+        const newAccumulatedItems = [...accumulatedItems, ...filteredItems];
+
+        if (newAccumulatedItems.length >= limit || items.length < currentLimit) {
+          // @ts-expect-error: This error occurs because of an intentional type mismatch due to X.
+          const nextCursor = newAccumulatedItems.length > limit ? newAccumulatedItems[limit - 1].id : null;
+          return {
+            nfts: newAccumulatedItems.slice(0, limit),
+            nextCursor,
+          };
+        } else {
+          const lastItem = items[items.length - 1];
+          if (lastItem) {
+            return fetchAndFilterItems(currentLimit, lastItem.id, 0, newAccumulatedItems);
+          } else {
+            return {
+              nfts: newAccumulatedItems,
+              nextCursor: null,
+            };
+          }
+        }
       };
+
+      return fetchAndFilterItems(limit, cursor, skip);
     }),
+
 
   getACreatorNfts: protectedProcedure
     .input(

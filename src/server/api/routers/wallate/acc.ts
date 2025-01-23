@@ -61,7 +61,18 @@ export const accRouter = createTRPCRouter({
 
     return await accountBalances({ userPub: storage.storagePub });
   }),
+  getCreatorStorageBallancesByID: creatorProcedure.input(z.object({
+    creatorId: z.string(),
+  })).query(async ({ ctx, input }) => {
+    const { creatorId } = input;
 
+    const storage = await ctx.db.creator.findUniqueOrThrow({
+      where: { id: creatorId },
+      select: { storagePub: true },
+    });
+
+    return await accountBalances({ userPub: storage.storagePub });
+  }),
   getCreatorStorageInfo: protectedProcedure.query(async ({ ctx, input }) => {
     const creatorId = ctx.session.user.id;
     const storage = await ctx.db.creator.findUnique({

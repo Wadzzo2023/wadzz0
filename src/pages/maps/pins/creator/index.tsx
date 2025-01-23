@@ -166,7 +166,7 @@ export const columns: ColumnDef<LocationWithConsumers>[] = [
     cell: ({ row }) => {
       // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
       const createdAt = row.getValue("Date Created") as Date;
-      const formattedDate = createdAt.toLocaleDateString("en-US", {
+      const formattedDate = createdAt?.toLocaleDateString("en-US", {
         month: "2-digit",
         day: "2-digit",
         year: "2-digit",

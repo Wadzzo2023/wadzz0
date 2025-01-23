@@ -107,7 +107,7 @@ function AddCreatorPageAssetModalFrom({
           </Tabs>
           <DialogFooter className="flex w-full">
             <DialogClose asChild>
-              <Button className="" variant="secondary">
+              <Button className="w-full" variant="secondary">
                 Close
               </Button>
             </DialogClose>

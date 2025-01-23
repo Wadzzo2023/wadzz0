@@ -1,7 +1,6 @@
 import toast from "react-hot-toast";
 import { UploadS3Button } from "~/pages/test";
 import { api } from "~/utils/api";
-import { UploadButton } from "~/utils/uploadthing";
 
 export default function PadSVG() {
   const updateSVg = api.fan.creator.changeCreatorBackgroundSVG.useMutation({

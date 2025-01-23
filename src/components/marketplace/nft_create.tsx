@@ -22,7 +22,7 @@ import { PLATFORM_ASSET, PLATFORM_FEE, TrxBaseFeeInPlatformAsset } from "~/lib/s
 import { AccountSchema, clientSelect } from "~/lib/stellar/fan/utils";
 import { api } from "~/utils/api";
 import { BADWORDS } from "~/utils/banned-word";
-import { UploadButton } from "~/utils/uploadthing";
+
 import {
   PaymentChoose,
   usePaymentMethodStore,
@@ -94,10 +94,12 @@ export const NftFormSchema = z.object({
       invalid_type_error: "Limit must be entered as a number",
     })
     .nonnegative(),
+  //code can't contain any spaces
   code: z
     .string()
     .min(4, { message: "Must be a minimum of 4 characters" })
-    .max(12, { message: "Must be a maximum of 12 characters" }),
+    .max(12, { message: "Must be a maximum of 12 characters" }).
+    regex(/^[a-zA-Z]*$/, { message: "Asset Name can only contain letters" }),
   issuer: AccountSchema.optional(),
   songInfo: ExtraSongInfo.optional(),
   isAdmin: z.boolean().optional(),

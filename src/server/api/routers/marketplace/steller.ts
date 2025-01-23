@@ -3,6 +3,7 @@ import { AwardIcon } from "lucide-react";
 import { getAccSecretFromRubyApi } from "package/connect_wallet/src/lib/stellar/get-acc-secret";
 import { z } from "zod";
 import { env } from "~/env";
+import { getXLMPriceByPlatformAsset } from "~/lib/stellar/fan/get_token_price";
 
 // import { getUserSecret } from "~/components/recharge/utils";
 import { covertSiteAsset2XLM } from "~/lib/stellar/marketplace/trx/convert_site_asset";
@@ -18,6 +19,7 @@ import {
   protectedProcedure,
   publicProcedure,
 } from "~/server/api/trpc";
+import { api } from "~/utils/api";
 
 export type authDocType = {
   pubkey: string;
@@ -80,14 +82,14 @@ export const stellarRouter = createTRPCRouter({
 
       switch (input.method) {
         case "xlm": {
-          const nativePrice = marketAsset.priceUSD;
+          const priceInNative = await getXLMPriceByPlatformAsset(marketAsset.price)
           return await XDR4BuyAssetWithXLM({
             seller: seller,
             storageSecret: sellerStorageSec,
             code: assetCode,
             issuerPub,
             buyer,
-            priceInNative: nativePrice.toString(),
+            priceInNative: priceInNative.toFixed(7),
             signWith,
           });
         }
@@ -161,4 +163,34 @@ export const stellarRouter = createTRPCRouter({
   getSecretMessage: protectedProcedure.query(() => {
     return "you can now see this secret message!";
   }),
+
+  getPlatformAssetToXLM: protectedProcedure
+    .input(
+      z.object({
+
+        price: z.number().optional().nullable(),
+        cost: z.number().optional().nullable(),
+
+      })
+    )
+    .query(async ({ input }) => {
+      if (!input.price && !input.cost) {
+        throw new Error("price or cost is required");
+      }
+      if (input.price && input.cost) {
+        const priceInXLM = await getXLMPriceByPlatformAsset(input.price);
+        const costInXLM = await getXLMPriceByPlatformAsset(input.cost);
+        return { priceInXLM, costInXLM };
+      }
+      if (input.price) {
+        const priceInXLM = await getXLMPriceByPlatformAsset(input.price);
+        return { priceInXLM };
+      }
+      if (input.cost) {
+        const costInXLM = await getXLMPriceByPlatformAsset(input.cost);
+        return { costInXLM };
+      }
+
+
+    }),
 });

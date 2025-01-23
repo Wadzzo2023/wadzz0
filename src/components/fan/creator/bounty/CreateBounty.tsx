@@ -151,7 +151,7 @@ const CreateBounty = () => {
                 prize: getValues("prize"),
                 requiredBalance: getValues("requiredBalance") ?? 0,
                 priceInXLM:
-                  method == "xlm" ? getValues("prize") * 0.7 : undefined,
+                  method === "xlm" ? getPlatformAssetToXLM.data?.priceInXLM : undefined,
                 content: getValues("content"),
                 medias: media,
               });
@@ -191,6 +191,7 @@ const CreateBounty = () => {
       signWith: needSign(),
       prize: data.prize,
       method: paymentMethod,
+      costInXLM: getPlatformAssetToXLM.data?.costInXLM ?? 0,
     });
     setLoading(false);
   };
@@ -211,6 +212,10 @@ const CreateBounty = () => {
   //OnlyForWadzzo
   const prize = 0.01;
 
+  const getPlatformAssetToXLM = api.marketplace.steller.getPlatformAssetToXLM.useQuery({
+    price: prizeInAsset,
+    cost: totalFeees
+  })
   return (
     <>
       {isCardDisabled ? (
@@ -440,25 +445,25 @@ const CreateBounty = () => {
                         costBreakdown={[
                           {
                             label: "Cost",
-                            amount: paymentMethod === "asset" ? prizeInAsset : prizeInAsset * 0.7,
+                            amount: paymentMethod === "asset" ? prizeInAsset : getPlatformAssetToXLM.data?.priceInXLM ?? 0,
                             highlighted: true,
                             type: "cost",
                           },
                           {
                             label: "Platform Fee",
-                            amount: totalFeees,
+                            amount: paymentMethod === "asset" ? totalFeees : getPlatformAssetToXLM.data?.costInXLM ?? 0,
                             highlighted: false,
                             type: "fee",
                           },
                           {
                             label: "Total Cost",
-                            amount: paymentMethod === "asset" ? prizeInAsset + totalFeees : prizeInAsset * 0.7 + totalFeees,
+                            amount: paymentMethod === "asset" ? prizeInAsset + totalFeees : (getPlatformAssetToXLM.data?.costInXLM ?? 0) + (getPlatformAssetToXLM.data?.priceInXLM ?? 0),
                             highlighted: false,
                             type: "total",
                           },
                         ]}
 
-                        XLM_EQUIVALENT={prizeInAsset * 0.7 + 2 + 1}
+                        XLM_EQUIVALENT={(getPlatformAssetToXLM.data?.costInXLM ?? 0) + (getPlatformAssetToXLM.data?.priceInXLM ?? 0)}
                         handleConfirm={handleSubmit(onSubmit)}
                         loading={loading}
                         requiredToken={prizeInAsset + totalFeees}

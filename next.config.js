@@ -22,6 +22,9 @@ const config = {
       {
         hostname: "utfs.io",
       },
+      {
+        hostname: "gateway.pinata.cloud",
+      },
       { hostname: "app.wadzzo.com" },
       {
         hostname: "firebasestorage.googleapis.com",

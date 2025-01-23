@@ -1,7 +1,7 @@
 import { create } from "zustand";
 
 export enum AdminNavigation {
-  // WALLET = "wallet",
+  WALLET = "wallet",
   NFT = "nft",
   // ALBUM = "album",
   ADMIN = "admin",
