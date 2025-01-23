@@ -20,22 +20,20 @@ export default function FanAssetNfts() {
 
   if (assets.data) {
     return (
-      <div className="flex flex-col  gap-4 ">
+      <>
         {assets.data.pages[0]?.nfts.length === 0 && (
           <p className="w-full text-center">There is no market asset yet</p>
         )}
         <div
 
-          className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 min-h-[calc(100vh-30vh)] max-h-[calc(100vh-30vh)] overflow-y-auto scrollbar-hide"
+          className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 overflow-y-auto scrollbar-hide"
         >
           {assets.data.pages.map((page) =>
             page.nfts.map((item: MarketAssetType, i) => (
               <MarketAssetComponent key={i} item={item} />
             )),
           )}
-        </div>
 
-        <div>
           {assets.hasNextPage && (
             <Button
 
@@ -61,7 +59,10 @@ export default function FanAssetNfts() {
           )}
         </div>
 
-      </div>
+
+
+
+      </>
     );
   }
 }
