@@ -510,10 +510,10 @@ export const pinRouter = createTRPCRouter({
         where: {
           createdAt: input
             ? {
-                gte: new Date(
-                  new Date().getTime() - input.day * 24 * 60 * 60 * 1000,
-                ),
-              }
+              gte: new Date(
+                new Date().getTime() - input.day * 24 * 60 * 60 * 1000,
+              ),
+            }
             : {},
           creatorId,
         },
@@ -591,10 +591,10 @@ export const pinRouter = createTRPCRouter({
         where: {
           createdAt: input
             ? {
-                gte: new Date(
-                  new Date().getTime() - input.day * 24 * 60 * 60 * 1000,
-                ),
-              }
+              gte: new Date(
+                new Date().getTime() - input.day * 24 * 60 * 60 * 1000,
+              ),
+            }
             : {},
         },
         include: {
@@ -650,10 +650,10 @@ export const pinRouter = createTRPCRouter({
         where: {
           createdAt: input
             ? {
-                gte: new Date(
-                  new Date().getTime() - input.day * 24 * 60 * 60 * 1000,
-                ),
-              }
+              gte: new Date(
+                new Date().getTime() - input.day * 24 * 60 * 60 * 1000,
+              ),
+            }
             : {},
         },
         include: {
@@ -707,10 +707,10 @@ export const pinRouter = createTRPCRouter({
         where: {
           createdAt: input
             ? {
-                gte: new Date(
-                  new Date().getTime() - input.day * 24 * 60 * 60 * 1000,
-                ),
-              }
+              gte: new Date(
+                new Date().getTime() - input.day * 24 * 60 * 60 * 1000,
+              ),
+            }
             : {},
         },
         include: {
@@ -840,10 +840,10 @@ export const pinRouter = createTRPCRouter({
         take: limit + 1,
         ...(cursor
           ? {
-              cursor: {
-                id: cursor,
-              },
-            }
+            cursor: {
+              id: cursor,
+            },
+          }
           : {}),
       });
 

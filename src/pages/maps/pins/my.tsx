@@ -129,8 +129,11 @@ function ClaimConsumedPin({
   );
 
   function ClaimButton() {
+    console.log("location........", location, location.locationGroup)
+
     if (!location.locationGroup) return;
     if (pin.claimedAt) {
+
       return (
         <Button variant="secondary" className="" disabled>
           Claimed
