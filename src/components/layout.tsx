@@ -118,12 +118,6 @@ export default function Layout({
                       <div
                         // id="ih"
                         className="flex-1 border-x-2"
-                        style={{
-                          backgroundImage: `url("christmas-bg.png")`,
-                          backgroundSize: "100%",
-                          backgroundRepeat: "no-repeat",
-
-                        }}
                       // style={
                       //   router.pathname.includes("/fans/creator") && creator.data
                       //     ? {
