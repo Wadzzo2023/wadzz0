@@ -77,7 +77,7 @@ export default function AboutPage() {
                 icon: "🎸",
               },
               {
-                title: "Calable Reach",
+                title: "Scalable Reach",
                 description: "Connect with users globally using real-time, location-based technology.",
                 icon: "🎧",
               },
