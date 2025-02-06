@@ -19,7 +19,7 @@ import { clientSelect } from "~/lib/stellar/fan/utils";
 import { api } from "~/utils/api";
 import { CREATOR_TERM } from "~/utils/term";
 
-import { Coins, DollarSign, Loader } from "lucide-react";
+import { Coins, DollarSign, Loader, User } from "lucide-react";
 import { Label } from "~/components/shadcn/ui/label";
 import { RadioGroup, RadioGroupItem } from "~/components/shadcn/ui/radio-group";
 
@@ -34,21 +34,22 @@ import {
 } from "~/components/shadcn/ui/dialog";
 import { PLATFORM_ASSET } from "~/lib/stellar/constant";
 import { PaymentMethod, PaymentMethodEnum } from "~/components/BuyItem";
+import CreateBrandButton from "~/components/fan/creator/onboarding/create-button";
 
 export default function CreatorProfile() {
   const { data: session } = useSession();
 
   if (!session) return <div>LogIn First</div>;
 
-  return (
-    <CreatorExist user={session.user} />
-  );
+  if (session?.user.id) {
+    return <CreatorExist user={session.user.id} />;
+  }
 }
 
-function CreatorExist(props: { user: Session["user"] }) {
+function CreatorExist(props: { user: string }) {
   const { data: creator, isLoading } = api.fan.creator.getCreator.useQuery(
     {
-      id: props.user.id,
+      id: props.user,
     },
     { refetchOnWindowFocus: false },
   );
@@ -57,7 +58,7 @@ function CreatorExist(props: { user: Session["user"] }) {
   if (creator) {
     return <CreatorPageTemplate creator={creator} />;
   } else {
-    return <ValidCreateCreator />;
+    return <CreateBrandButton />;
   }
 }
 

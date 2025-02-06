@@ -4,8 +4,18 @@ import { env } from "process";
 import { z } from "zod";
 import { PaymentMethodEnum } from "~/components/BuyItem";
 import { CreatorAboutShema } from "~/components/fan/creator/about";
-import { sendAssetXDRForAsset, sendAssetXDRForNative } from "~/lib/stellar/fan/creator_pageasset_buy";
-import { getAssetPriceByCoddenIssuer, getPlatformAssetPrice, getXLMPrice, getXlmUsdPrice } from "~/lib/stellar/fan/get_token_price";
+import { brandCreateRequestSchema } from "~/components/fan/creator/onboarding/create-form";
+import { MAX_ASSET_LIMIT } from "~/components/fan/creator/page_asset/new";
+import {
+  sendAssetXDRForAsset,
+  sendAssetXDRForNative,
+} from "~/lib/stellar/fan/creator_pageasset_buy";
+import {
+  getAssetPriceByCoddenIssuer,
+  getPlatformAssetPrice,
+  getXLMPrice,
+  getXlmUsdPrice,
+} from "~/lib/stellar/fan/get_token_price";
 import {
   createRedeemXDRAsset,
   createRedeemXDRNative,
@@ -45,11 +55,9 @@ export const creatorRouter = createTRPCRouter({
               issuer: true,
               price: true,
               priceUSD: true,
-              thumbnail: true
-
+              thumbnail: true,
             },
           },
-
         },
       });
       if (creator) {
@@ -300,8 +308,6 @@ export const creatorRouter = createTRPCRouter({
 
           const bal = storageAcc.getTokenBalance(assetCode, assetIssuer.data);
 
-
-
           if (bal >= 0) {
             return { balance: bal, asset: assetCode };
           } else {
@@ -528,42 +534,47 @@ export const creatorRouter = createTRPCRouter({
       return { isAvailable: !exixt };
     }),
 
-  getAssetPriceByCodeIssuser: protectedProcedure.input(
-    z.object({
-      code: z.string().optional(),
-      issuer: z.string().optional(),
+  getAssetPriceByCodeIssuser: protectedProcedure
+    .input(
+      z.object({
+        code: z.string().optional(),
+        issuer: z.string().optional(),
+      }),
+    )
+    .query(async ({ input, ctx }) => {
+      const { code, issuer } = input;
+      if (!code || !issuer) {
+        throw new Error("Code and issuer are required");
+      }
+
+      const priceUSDAsset = await getAssetPriceByCoddenIssuer({
+        code,
+        issuer,
+      });
+
+      const priceXLMUSD = await getXLMPrice();
+      const platformAssetUSD = await getPlatformAssetPrice();
+      return {
+        xlmInUSD: priceXLMUSD,
+        AssetInUSD: priceUSDAsset,
+        platformAssetInUSD: platformAssetUSD,
+      };
     }),
-  ).query(async ({ input, ctx }) => {
-    const { code, issuer } = input;
-    if (!code || !issuer) {
-      throw new Error("Code and issuer are required");
-    }
-
-    const priceUSDAsset = await getAssetPriceByCoddenIssuer({
-      code, issuer
-    });
-
-    const priceXLMUSD = await getXLMPrice();
-    const platformAssetUSD = await getPlatformAssetPrice();
-    return {
-      xlmInUSD: priceXLMUSD,
-      AssetInUSD: priceUSDAsset,
-      platformAssetInUSD: platformAssetUSD,
-    }
-  }),
   updatePageAssetPrice: protectedProcedure
-    .input(z.object({
-      price: z.number().nonnegative(),
-      priceUSD: z.number().nonnegative(),
-    }))
+    .input(
+      z.object({
+        price: z.number().nonnegative(),
+        priceUSD: z.number().nonnegative(),
+      }),
+    )
     .mutation(async ({ ctx, input }) => {
       const creatorId = ctx.session.user.id;
       const creator = await ctx.db.creator.findUnique({
         where: { id: creatorId },
         select: {
           customPageAssetCodeIssuer: true,
-          pageAsset: true
-        }
+          pageAsset: true,
+        },
       });
 
       if (!creator) {
@@ -581,7 +592,6 @@ export const creatorRouter = createTRPCRouter({
           where: { creatorId: creatorId },
         });
       } else if (creator.customPageAssetCodeIssuer) {
-
         const [code, issuer] = creator.customPageAssetCodeIssuer.split("-");
         await ctx.db.creator.update({
           data: {
@@ -589,9 +599,8 @@ export const creatorRouter = createTRPCRouter({
           },
           where: { id: creatorId },
         });
-
       }
-      return { success: true }
+      return { success: true };
     }),
   getSendAssetXDR: protectedProcedure
     .input(
@@ -603,10 +612,11 @@ export const creatorRouter = createTRPCRouter({
         creatorId: z.string(),
         method: PaymentMethodEnum,
         priceInXLM: z.number(),
-      })
+      }),
     )
     .mutation(async ({ input, ctx }) => {
-      const { code, issuer, price, signWith, creatorId, method, priceInXLM } = input;
+      const { code, issuer, price, signWith, creatorId, method, priceInXLM } =
+        input;
 
       const currentUser = ctx.session.user.id;
       const creator = await ctx.db.creator.findUnique({
@@ -615,22 +625,17 @@ export const creatorRouter = createTRPCRouter({
           storagePub: true,
           customPageAssetCodeIssuer: true,
           pageAsset: true,
-          storageSecret: true
-        }
+          storageSecret: true,
+        },
       });
 
       if (!creator) {
         throw new Error("Creator not found");
       }
 
-
-
       const acc = await StellarAccount.create(creator.storagePub);
 
-
       const getTotalToken = acc.getTokenBalance(code, issuer);
-
-
 
       if (method === "xlm") {
         return await sendAssetXDRForNative({
@@ -641,7 +646,7 @@ export const creatorRouter = createTRPCRouter({
           totoalTokenToSend: getTotalToken,
           storageSecret: creator.storageSecret,
           signWith,
-          userPublicKey: currentUser
+          userPublicKey: currentUser,
         });
       } else if (method === "asset") {
         return await sendAssetXDRForAsset({
@@ -652,12 +657,35 @@ export const creatorRouter = createTRPCRouter({
           totoalTokenToSend: getTotalToken,
           storageSecret: creator.storageSecret,
           signWith,
-          userPublicKey: currentUser
+          userPublicKey: currentUser,
         });
       }
+    }),
 
-
+  requestBrandCreate: protectedProcedure
+    .input(brandCreateRequestSchema)
+    .mutation(async ({ ctx, input }) => {
+      console.log(input)
+      return;
+      await ctx.db.creator.create({
+        data: {
+          id: ctx.session.user.id,
+          profileUrl: input.profileUrl,
+          coverUrl: input.coverUrl,
+          bio: input.bio,
+          storagePub: "no",
+          storageSecret: "no",
+          name: input.displayName,
+          aprovalSend: true,
+          pageAsset: {
+            create: {
+              code: input.pageAssetName,
+              issuer: "no",
+              thumbnail: input.assetThumbnail,
+              limit: MAX_ASSET_LIMIT,
+            },
+          },
+        },
+      });
     }),
 });
-
-
