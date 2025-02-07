@@ -56,7 +56,13 @@ function CreatorExist(props: { user: string }) {
 
   if (isLoading) return <Loading />;
   if (creator) {
-    return <CreatorPageTemplate creator={creator} />;
+    if (creator.approved) {
+      return <CreatorPageTemplate creator={creator} />;
+    } else {
+      if (creator.aprovalSend) {
+        return <p>Approval sent to the admin</p>;
+      }
+    }
   } else {
     return <CreateBrandButton />;
   }

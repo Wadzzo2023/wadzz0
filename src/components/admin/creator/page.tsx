@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import toast from "react-hot-toast";
 import { Button } from "~/components/shadcn/ui/button";
 import { api } from "~/utils/api";
@@ -14,6 +14,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "~/components/shadcn/ui/dialog";
+import { clientsign, WalletType } from "package/connect_wallet";
 
 export default function CreatorPage() {
   return (
@@ -78,20 +79,62 @@ function ActionButton({
   status: boolean | null;
   creatorId: string;
 }) {
+  const [submitLoading, setSubmitLoading] = useState(false);
   const actionM = api.admin.creator.creatorAction.useMutation();
 
+  const xdr = api.admin.creator.creatorRequestXdr.useMutation({
+    onSuccess: (data) => {
+      console.log("ih >>", data);
+      // return;
+      if (data) {
+        setSubmitLoading(true);
+        const toastId = toast.loading("signing transaction...");
+
+        clientsign({
+          presignedxdr: data.xdr,
+          pubkey: "admin",
+          walletType: WalletType.isAdmin,
+        })
+          .then((res) => {
+            if (res) {
+              actionM.mutate({
+                creatorId: creatorId,
+                status: true,
+                escrow: data.escrow,
+                storage: data.storage,
+              });
+            } else {
+              toast.error(
+                "Transection failed in Steller Network. Please try again.",
+              );
+            }
+          })
+          .catch((e) => {
+            console.log(e);
+            toast.error("Error in signing transaction. Please try again.");
+          })
+          .finally(() => {
+            toast.dismiss(toastId);
+            setSubmitLoading(false);
+          });
+      }
+    },
+  });
+
   function handleClick(action: boolean | null) {
-    actionM.mutate({ creatorId: creatorId, status: action });
+    if (action) {
+      xdr.mutate({
+        creatorId: creatorId,
+      });
+    }
   }
+
+  const loading = xdr.isLoading || actionM.isLoading || submitLoading;
   if (status === null)
     return (
-      <Button
-        disabled={actionM.isLoading}
-        className=""
-        onClick={() => handleClick(true)}
-      >
+      <Button disabled={loading} className="" onClick={() => handleClick(true)}>
         Approve
-        {actionM.isLoading && (
+        {loading && (
           <span className="loading loading-spinner ml-1 h-4 w-4"></span>
         )}
       </Button>

@@ -56,6 +56,7 @@ export const creatorRouter = createTRPCRouter({
               price: true,
               priceUSD: true,
               thumbnail: true,
+              
             },
           },
         },
@@ -666,7 +667,7 @@ export const creatorRouter = createTRPCRouter({
     .input(brandCreateRequestSchema)
     .mutation(async ({ ctx, input }) => {
       console.log(input)
-      return;
+      // return;
       await ctx.db.creator.create({
         data: {
           id: ctx.session.user.id,
@@ -682,7 +683,7 @@ export const creatorRouter = createTRPCRouter({
               code: input.pageAssetName,
               issuer: "no",
               thumbnail: input.assetThumbnail,
-              limit: MAX_ASSET_LIMIT,
+              limit: 0,
             },
           },
         },
