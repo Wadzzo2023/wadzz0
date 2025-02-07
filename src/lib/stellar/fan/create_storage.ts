@@ -133,7 +133,7 @@ export async function createStorageTrxWithXLM({
     .setTimeout(0)
     .build();
 
-  Tx1.sign(storageAcc);
+  // Tx1.sign(storageAcc);
 
   const storage: AccountType = {
     publicKey: storageAcc.publicKey(),

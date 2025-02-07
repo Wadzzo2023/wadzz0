@@ -127,10 +127,12 @@ function ConditionallyRenderMenuPage({ creator }: { creator: Creator }) {
 }
 
 export function ValidCreateCreator({ message }: { message?: string }) {
-  const { platformAssetBalance } = useUserStellarAcc();
+  const { platformAssetBalance, getXLMBalance } = useUserStellarAcc();
   const requiredToken = api.fan.trx.getRequiredPlatformAsset.useQuery({
     xlm: 1,
   });
+
+  const xlmBalance = getXLMBalance() ?? "0";
 
   if (requiredToken.isLoading) return <Loading />;
 
@@ -138,11 +140,14 @@ export function ValidCreateCreator({ message }: { message?: string }) {
 
   if (requiredToken.data) {
     const requiredTokenNumber = requiredToken.data;
-    if (platformAssetBalance >= requiredTokenNumber) {
+    if (
+      platformAssetBalance >= requiredTokenNumber ||
+      Number(xlmBalance) >= 1
+    ) {
       return <CreateCreator requiredToken={requiredTokenNumber} />;
     } else {
       return (
-        <div className="flex h-full w-full flex-col items-center  justify-center gap-2">
+        <div className="flex w-full flex-col items-center justify-center  gap-2 ">
           {message && (
             <Alert className="max-w-xl" content={message} type="info" />
           )}
@@ -158,6 +163,7 @@ export function ValidCreateCreator({ message }: { message?: string }) {
   }
 }
 
+// now only using this while creating storage account for secondary market
 function CreateCreator({ requiredToken }: { requiredToken: number }) {
   const [isOpen, setIsOpen] = useState(false);
   const { needSign } = useNeedSign();
@@ -168,7 +174,7 @@ function CreateCreator({ requiredToken }: { requiredToken: number }) {
   const session = useSession();
   const makeCreatorMutation = api.fan.creator.makeMeCreator.useMutation({
     onSuccess: () => {
-      toast.success("You are now a creator");
+      toast.success("You have successfully created storage account");
       setIsOpen(false);
     },
   });
@@ -215,21 +221,22 @@ function CreateCreator({ requiredToken }: { requiredToken: number }) {
   const loading = xdr.isLoading || makeCreatorMutation.isLoading || signLoading;
 
   return (
-    <div className="flex h-screen flex-col items-center justify-center gap-4 bg-gray-100 p-4">
+    <div className="flex  flex-col items-center justify-center gap-4 bg-gray-100 p-4">
       <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-lg">
-        <h2 className="mb-4 text-center text-2xl font-bold">
+        {/* <h2 className="mb-4 text-center text-2xl font-bold">
           You are not a {CREATOR_TERM}
-        </h2>
+        </h2> */}
         <p className="mb-6 text-center text-gray-600">
           Your account will be charged {requiredToken} {PLATFORM_ASSET.code} or
-          equivalent XLM to be a {CREATOR_TERM.toLowerCase()}.
+          equivalent XLM to create storage account
         </p>
 
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
           <DialogTrigger asChild>
             <Button className="w-full">
               {loading && <Loader className="animate mr-2 animate-spin" />}
-              Join as a {CREATOR_TERM.toLowerCase()}
+              {/* Join as a {CREATOR_TERM.toLowerCase()} */}
+              Create Storage Account
             </Button>
           </DialogTrigger>
           <DialogContent className="sm:max-w-[425px]">
@@ -249,6 +256,7 @@ function CreateCreator({ requiredToken }: { requiredToken: number }) {
                     value={PaymentMethodEnum.enum.asset}
                     id={PaymentMethodEnum.enum.asset}
                     className="border-primary"
+                    // disabled
                   />
                   <Label
                     htmlFor={PLATFORM_ASSET.code}
@@ -297,7 +305,8 @@ function CreateCreator({ requiredToken }: { requiredToken: number }) {
               {paymentMethod == PaymentMethodEnum.enum.asset
                 ? `${requiredToken} ${PLATFORM_ASSET.code}`
                 : `${XLM_EQUIVALENT} XLM`}{" "}
-              to be a {CREATOR_TERM.toLowerCase()}.
+              {/* to be a {CREATOR_TERM.toLowerCase()}. */}
+              to create storage account
             </div>
             <DialogFooter className="mt-6">
               <Button

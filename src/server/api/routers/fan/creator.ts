@@ -673,6 +673,7 @@ export const creatorRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       console.log(input);
       const { data, alreadyCreator } = input;
+      // console.log(alreadyCreator, data);
       // return;
       if (alreadyCreator) {
         await ctx.db.creator.update({
@@ -681,19 +682,20 @@ export const creatorRouter = createTRPCRouter({
             coverUrl: data.coverUrl,
             bio: data.bio,
             name: data.displayName,
-            pageAsset: {
-              update: {
-                // where: { creatorId: ctx.session.user.id },
-                data: {
-                  code: data.pageAssetName,
-                  issuer: BLANK_KEYWORD,
-                  thumbnail: data.assetThumbnail,
-                  limit: 0,
-                },
-              },
-            },
+            aprovalSend: true,
           },
           where: { id: ctx.session.user.id },
+        });
+
+        await ctx.db.creatorPageAsset.create({
+          data: {
+            code: data.pageAssetName,
+            thumbnail: data.assetThumbnail,
+            creatorId: ctx.session.user.id,
+            issuer: BLANK_KEYWORD,
+            limit: 0,
+          },
+          // where: { creatorId: ctx.session.user.id },
         });
       } else {
         await ctx.db.creator.create({
