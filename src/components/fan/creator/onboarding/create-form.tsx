@@ -22,6 +22,7 @@ import Image from "next/image";
 import { api } from "~/utils/api";
 import { Loader2 } from "lucide-react";
 import { Creator } from "@prisma/client";
+import { set } from "date-fns";
 
 export const brandCreateRequestSchema = z.object({
   displayName: z.string().min(1, "Display name is required"),
@@ -54,11 +55,16 @@ export default function BrandCreationForm({
   const [pageAssetThumbnail, setPageAssetThumbnail] = useState<string>();
   const [file, setFile] = useState<File>();
   const [ipfs, setCid] = useState<string>();
+
+  const [profileUrl, setProfileUrl] = useState<string>();
+  const [coverUrl, setCoverUrl] = useState<string>();
+
   const {
     control,
     handleSubmit,
     formState: { errors },
     setValue,
+    getValues,
   } = useForm<BrandFormData>({
     resolver: zodResolver(brandCreateRequestSchema),
     defaultValues: {
@@ -176,6 +182,7 @@ export default function BrandCreationForm({
               onClientUploadComplete={(res) => {
                 const fileUrl = res.url;
                 setValue("profileUrl", fileUrl);
+                setProfileUrl(fileUrl);
                 // updateProfileMutation.mutate(fileUrl);
               }}
               onUploadError={(error: Error) => {
@@ -184,6 +191,18 @@ export default function BrandCreationForm({
               }}
               type="profile"
             />
+
+            {profileUrl && (
+              <>
+                <Image
+                  className="p-2"
+                  width={120}
+                  height={120}
+                  alt="preview image"
+                  src={profileUrl}
+                />
+              </>
+            )}
             {/* <Input id="profilePhoto" type="file" accept="image/*" /> */}
           </div>
 
@@ -194,6 +213,7 @@ export default function BrandCreationForm({
               onClientUploadComplete={(res) => {
                 const fileUrl = res.url;
                 setValue("coverUrl", fileUrl);
+                setCoverUrl(fileUrl);
                 // coverChangeMutation.mutate(fileUrl);
               }}
               onUploadError={(error: Error) => {
@@ -202,6 +222,17 @@ export default function BrandCreationForm({
               }}
               type="cover"
             />
+            {coverUrl && (
+              <>
+                <Image
+                  className="p-2"
+                  width={120}
+                  height={120}
+                  alt="preview image"
+                  src={coverUrl}
+                />
+              </>
+            )}
             {/* <Input id="profilePhoto" type="file" accept="image/*" /> */}
           </div>
 

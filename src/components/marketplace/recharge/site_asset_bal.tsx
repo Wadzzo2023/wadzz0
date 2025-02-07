@@ -1,4 +1,4 @@
-import { Bell, Plus, ShoppingBag, ShoppingCart } from "lucide-react";
+import { Bell, ShoppingCart } from "lucide-react";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
@@ -69,25 +69,24 @@ export function SiteAssetBalance() {
           </span>
 
           <span className="flex">
-            <span className="hidden md:flex" >{" : "}</span>
+            <span className="hidden md:flex">{" : "}</span>
             {bal.data?.platformAssetBal.toFixed(0)}
           </span>
         </Button>
 
         {/* <Plus className="btn btn-square btn-primary btn-sm -mr-4 " /> */}
       </Link>
-      {
-        isFBorGoogle &&
+      {isFBorGoogle && (
         <Link
           className=" "
           href={"/recharge"}
-        // href="/recharge"
+          // href="/recharge"
         >
           <Button className="">
             <ShoppingCart />
           </Button>
         </Link>
-      }
+      )}
       <Button
         className=" relative "
         onClick={async () => {

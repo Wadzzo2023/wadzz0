@@ -66,6 +66,12 @@ export const creatorRouter = createTRPCRouter({
       }
     }),
 
+  getMeCreator: protectedProcedure.query(async ({ ctx }) => {
+    return ctx.db.creator.findFirst({
+      where: { user: { id: ctx.session.user.id } },
+    });
+  }),
+
   getCreatorPageAsset: protectedProcedure.query(async ({ ctx }) => {
     const pageAsset = await ctx.db.creatorPageAsset.findFirst({
       where: { creatorId: ctx.session.user.id },
@@ -138,6 +144,7 @@ export const creatorRouter = createTRPCRouter({
         data: {
           name: truncateString(id),
           bio: id,
+          aprovalSend: true,
           user: { connect: { id: id } },
           storagePub: i.publicKey,
           storageSecret: i.secretKey,

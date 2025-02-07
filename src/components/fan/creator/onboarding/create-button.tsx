@@ -4,18 +4,43 @@ import { useState } from "react";
 import { Button } from "~/components/shadcn/ui/button";
 import BrandCreationForm from "./create-form";
 import { Creator } from "@prisma/client";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+} from "~/components/shadcn/ui/card";
 
 export default function CreateBrandButton({ creator }: { creator?: Creator }) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   return (
-    <>
-      <Button onClick={() => setIsDialogOpen(true)}>Create Your Brand</Button>
+    <div className="flex h-screen items-center justify-center p-4">
+      <Card className="w-full max-w-md">
+        <CardHeader>
+          <CardTitle className="text-center text-2xl font-bold">
+            Brand Creation
+          </CardTitle>
+          <CardDescription className="text-center">
+            Start your journey by creating your unique brand identity
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="flex justify-center">
+          <Button
+            onClick={() => setIsDialogOpen(true)}
+            size="lg"
+            className="w-full sm:w-auto"
+          >
+            Create Your Brand
+          </Button>
+        </CardContent>
+      </Card>
       <BrandCreationForm
         isOpen={isDialogOpen}
         onClose={() => setIsDialogOpen(false)}
         creator={creator}
       />
-    </>
+    </div>
   );
 }

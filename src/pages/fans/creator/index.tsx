@@ -47,11 +47,11 @@ export default function CreatorProfile() {
 }
 
 function CreatorExist(props: { user: string }) {
-  const { data: creator, isLoading } = api.fan.creator.getCreator.useQuery(
+  const { data: creator, isLoading } = api.fan.creator.getMeCreator.useQuery(
+    undefined,
     {
-      id: props.user,
+      refetchOnWindowFocus: false,
     },
-    { refetchOnWindowFocus: false },
   );
 
   if (isLoading) return <Loading />;
