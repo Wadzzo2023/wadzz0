@@ -28,6 +28,7 @@ import {
 import { getAssetBalance } from "~/lib/stellar/marketplace/test/acc";
 import { StellarAccount } from "~/lib/stellar/marketplace/test/Account";
 import { SignUser } from "~/lib/stellar/utils";
+import { BLANK_KEYWORD } from "~/lib/utils";
 
 import {
   createTRPCRouter,
@@ -56,7 +57,6 @@ export const creatorRouter = createTRPCRouter({
               price: true,
               priceUSD: true,
               thumbnail: true,
-              
             },
           },
         },
@@ -664,29 +664,58 @@ export const creatorRouter = createTRPCRouter({
     }),
 
   requestBrandCreate: protectedProcedure
-    .input(brandCreateRequestSchema)
+    .input(
+      z.object({
+        data: brandCreateRequestSchema,
+        alreadyCreator: z.boolean().optional(),
+      }),
+    )
     .mutation(async ({ ctx, input }) => {
-      console.log(input)
+      console.log(input);
+      const { data, alreadyCreator } = input;
       // return;
-      await ctx.db.creator.create({
-        data: {
-          id: ctx.session.user.id,
-          profileUrl: input.profileUrl,
-          coverUrl: input.coverUrl,
-          bio: input.bio,
-          storagePub: "no",
-          storageSecret: "no",
-          name: input.displayName,
-          aprovalSend: true,
-          pageAsset: {
-            create: {
-              code: input.pageAssetName,
-              issuer: "no",
-              thumbnail: input.assetThumbnail,
-              limit: 0,
+      if (alreadyCreator) {
+        await ctx.db.creator.update({
+          data: {
+            profileUrl: data.profileUrl,
+            coverUrl: data.coverUrl,
+            bio: data.bio,
+            name: data.displayName,
+            pageAsset: {
+              update: {
+                // where: { creatorId: ctx.session.user.id },
+                data: {
+                  code: data.pageAssetName,
+                  issuer: BLANK_KEYWORD,
+                  thumbnail: data.assetThumbnail,
+                  limit: 0,
+                },
+              },
             },
           },
-        },
-      });
+          where: { id: ctx.session.user.id },
+        });
+      } else {
+        await ctx.db.creator.create({
+          data: {
+            id: ctx.session.user.id,
+            profileUrl: data.profileUrl,
+            coverUrl: data.coverUrl,
+            bio: data.bio,
+            storagePub: BLANK_KEYWORD,
+            storageSecret: BLANK_KEYWORD,
+            name: data.displayName,
+            aprovalSend: true,
+            pageAsset: {
+              create: {
+                code: data.pageAssetName,
+                issuer: BLANK_KEYWORD,
+                thumbnail: data.assetThumbnail,
+                limit: 0,
+              },
+            },
+          },
+        });
+      }
     }),
 });

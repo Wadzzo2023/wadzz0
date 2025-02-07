@@ -21,6 +21,7 @@ import { ipfsHashToUrl } from "~/utils/ipfs";
 import Image from "next/image";
 import { api } from "~/utils/api";
 import { Loader2 } from "lucide-react";
+import { Creator } from "@prisma/client";
 
 export const brandCreateRequestSchema = z.object({
   displayName: z.string().min(1, "Display name is required"),
@@ -41,11 +42,13 @@ export type BrandFormData = z.infer<typeof brandCreateRequestSchema>;
 interface BrandCreationFormProps {
   isOpen: boolean;
   onClose: () => void;
+  creator?: Creator;
 }
 
 export default function BrandCreationForm({
   isOpen,
   onClose,
+  creator,
 }: BrandCreationFormProps) {
   const [uploading, setUploading] = useState(false);
   const [pageAssetThumbnail, setPageAssetThumbnail] = useState<string>();
@@ -59,8 +62,10 @@ export default function BrandCreationForm({
   } = useForm<BrandFormData>({
     resolver: zodResolver(brandCreateRequestSchema),
     defaultValues: {
-      displayName: "",
-      bio: "",
+      displayName: creator?.name ?? "",
+      bio: creator?.bio ?? "",
+      profileUrl: creator?.profileUrl ?? undefined,
+      coverUrl: creator?.coverUrl ?? undefined,
       pageAssetName: "",
       vanityUrl: "",
     },
@@ -75,7 +80,7 @@ export default function BrandCreationForm({
 
     // data.assetThumbnail = pageAssetThumbnail;
 
-    req.mutate(data);
+    req.mutate({ data, alreadyCreator: creator ? true : false });
 
     // Here you would typically send the data to your backend
     // onClose();

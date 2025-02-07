@@ -56,12 +56,18 @@ function CreatorExist(props: { user: string }) {
 
   if (isLoading) return <Loading />;
   if (creator) {
-    if (creator.approved) {
-      return <CreatorPageTemplate creator={creator} />;
-    } else {
+    if (creator.approved === null) {
       if (creator.aprovalSend) {
         return <p>Approval sent to the admin</p>;
+      } else {
+        // this case is when already creator is created , with just storage acc for secondary market send.
+        return <CreateBrandButton creator={creator} />;
       }
+    } else if (creator.approved) {
+      return <CreatorPageTemplate creator={creator} />;
+    } else {
+      // here approval is false, means banned
+      return <p>You are banned. Contact to admin</p>;
     }
   } else {
     return <CreateBrandButton />;

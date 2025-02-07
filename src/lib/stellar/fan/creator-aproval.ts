@@ -10,20 +10,25 @@ import { env } from "~/env";
 import { networkPassphrase, STELLAR_URL, TrxBaseFee } from "../constant";
 import { SignUserType } from "../utils";
 import { AccountType } from "./utils";
+import { Key } from "lucide-react";
 
 const log = console;
 
 export async function creatorAprovalTrx({
   pageAsset,
+  storage,
 }: {
   pageAsset: {
     code: string;
     ipfs: string;
     limit: string;
   };
+  storage?: AccountType;
 }) {
   const server = new Horizon.Server(STELLAR_URL);
-  const storageAcc = Keypair.random();
+  const storageAcc = storage
+    ? Keypair.fromSecret(storage.secretKey)
+    : Keypair.random();
 
   const motherAcc = Keypair.fromSecret(env.MOTHER_SECRET);
 
@@ -39,22 +44,33 @@ export async function creatorAprovalTrx({
   const Tx1 = new TransactionBuilder(transactionInitializer, {
     fee: TrxBaseFee,
     networkPassphrase,
-  })
+  });
+
+  if (!storage) {
     // create storage account
-    .addOperation(
+    Tx1.addOperation(
       Operation.createAccount({
         destination: storageAcc.publicKey(),
-        startingBalance: "3", // 1 (own) + 1.5 (for issuer) + 0.5 (for trust)
+        startingBalance: "1.5", //
       }),
-    )
-    /** create page asset
-     * 1. create issuer
-     * 2. set home domain
-     * 3. set ipfs
-     * 4. change trust
-     * 5. payment
-     */
+    );
+  }
 
+  /** create page asset
+   * 1. create issuer
+   * 2. set home domain
+   * 3. set ipfs
+   * 4. change trust
+   * 5. payment
+   */
+
+  const Tx2 = Tx1.addOperation(
+    Operation.payment({
+      destination: storageAcc.publicKey(),
+      amount: "2",
+      asset: Asset.native(),
+    }),
+  )
     .addOperation(
       Operation.createAccount({
         destination: issuerAcc.publicKey(),
@@ -92,11 +108,11 @@ export async function creatorAprovalTrx({
     .setTimeout(0)
     .build();
 
-  Tx1.sign(motherAcc, storageAcc, issuerAcc);
+  Tx2.sign(motherAcc, storageAcc, issuerAcc);
 
-  const xdr = Tx1.toXDR();
+  const xdr = Tx2.toXDR();
 
-  const storage: AccountType = {
+  const storageInfo: AccountType = {
     publicKey: storageAcc.publicKey(),
     secretKey: storageAcc.secret(),
   };
@@ -106,5 +122,5 @@ export async function creatorAprovalTrx({
     secretKey: issuerAcc.secret(),
   };
 
-  return { xdr, storage, escrow };
+  return { xdr, storage: storage ? undefined : storageInfo, escrow };
 }

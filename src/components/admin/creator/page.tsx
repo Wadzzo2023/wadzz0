@@ -99,7 +99,7 @@ function ActionButton({
             if (res) {
               actionM.mutate({
                 creatorId: creatorId,
-                status: true,
+                action: "approve",
                 escrow: data.escrow,
                 storage: data.storage,
               });
@@ -121,10 +121,20 @@ function ActionButton({
     },
   });
 
-  function handleClick(action: boolean | null) {
-    if (action) {
+  function handleClick(action: "approve" | "ban" | "unban") {
+    if (action === "approve") {
       xdr.mutate({
         creatorId: creatorId,
+      });
+    } else if (action == "ban") {
+      actionM.mutate({
+        creatorId: creatorId,
+        action: "ban",
+      });
+    } else if (action == "unban") {
+      actionM.mutate({
+        creatorId: creatorId,
+        action: "unban",
       });
     }
   }
@@ -132,7 +142,11 @@ function ActionButton({
   const loading = xdr.isLoading || actionM.isLoading || submitLoading;
   if (status === null)
     return (
-      <Button disabled={loading} className="" onClick={() => handleClick(true)}>
+      <Button
+        disabled={loading}
+        className=""
+        onClick={() => handleClick("approve")}
+      >
         Approve
         {loading && (
           <span className="loading loading-spinner ml-1 h-4 w-4"></span>
@@ -144,7 +158,7 @@ function ActionButton({
       <Button
         className=""
         disabled={actionM.isLoading}
-        onClick={() => handleClick(true)}
+        onClick={() => handleClick("unban")}
       >
         Unban
         {actionM.isLoading && (
@@ -158,7 +172,7 @@ function ActionButton({
         className=""
         variant="destructive"
         disabled={actionM.isLoading}
-        onClick={() => handleClick(false)}
+        onClick={() => handleClick("ban")}
       >
         Ban
         {actionM.isLoading && (
