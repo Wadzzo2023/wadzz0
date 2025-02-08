@@ -1,6 +1,7 @@
 import { User } from "lucide-react";
 import { getAccSecret } from "package/connect_wallet";
 import { env } from "process";
+import { aC } from "vitest/dist/reporters-yx5ZTtEV";
 import { z } from "zod";
 import { PaymentMethodEnum } from "~/components/BuyItem";
 import { CreatorAboutShema } from "~/components/fan/creator/about";
@@ -65,6 +66,20 @@ export const creatorRouter = createTRPCRouter({
         return creator;
       }
     }),
+
+  getMeCreator: protectedProcedure.query(async ({ ctx }) => {
+    return ctx.db.creator.findFirst({
+      where: { user: { id: ctx.session.user.id } },
+      include: {
+        pageAsset: {
+          select: {
+            code: true,
+            thumbnail: true,
+          },
+        },
+      },
+    });
+  }),
 
   getCreatorPageAsset: protectedProcedure.query(async ({ ctx }) => {
     const pageAsset = await ctx.db.creatorPageAsset.findFirst({
@@ -668,15 +683,15 @@ export const creatorRouter = createTRPCRouter({
     .input(
       z.object({
         data: brandCreateRequestSchema,
-        alreadyCreator: z.boolean().optional(),
+        action: z.enum(["create", "update", "page_asset"]),
       }),
     )
     .mutation(async ({ ctx, input }) => {
       console.log(input);
-      const { data, alreadyCreator } = input;
+      const { data, action } = input;
       // console.log(alreadyCreator, data);
       // return;
-      if (alreadyCreator) {
+      if (action === "page_asset") {
         await ctx.db.creator.update({
           data: {
             profileUrl: data.profileUrl,
@@ -684,6 +699,7 @@ export const creatorRouter = createTRPCRouter({
             bio: data.bio,
             name: data.displayName,
             aprovalSend: true,
+            vanityURL: data.vanityUrl,
           },
           where: { id: ctx.session.user.id },
         });
@@ -698,7 +714,7 @@ export const creatorRouter = createTRPCRouter({
           },
           // where: { creatorId: ctx.session.user.id },
         });
-      } else {
+      } else if (action === "create") {
         await ctx.db.creator.create({
           data: {
             id: ctx.session.user.id,
@@ -709,6 +725,7 @@ export const creatorRouter = createTRPCRouter({
             storageSecret: BLANK_KEYWORD,
             name: data.displayName,
             aprovalSend: true,
+            vanityURL: data.vanityUrl,
             pageAsset: {
               create: {
                 code: data.pageAssetName,
@@ -718,6 +735,27 @@ export const creatorRouter = createTRPCRouter({
               },
             },
           },
+        });
+      } else if (action === "update") {
+        await ctx.db.creator.update({
+          data: {
+            profileUrl: data.profileUrl,
+            coverUrl: data.coverUrl,
+            vanityURL: data.vanityUrl,
+            bio: data.bio,
+            name: data.displayName,
+            aprovalSend: true,
+            pageAsset: {
+              update: {
+                where: { creatorId: ctx.session.user.id },
+                data: {
+                  code: data.pageAssetName,
+                  thumbnail: data.assetThumbnail,
+                },
+              },
+            },
+          },
+          where: { id: ctx.session.user.id },
         });
       }
     }),

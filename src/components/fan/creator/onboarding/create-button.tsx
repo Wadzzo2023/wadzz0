@@ -5,11 +5,24 @@ import { Button } from "~/components/shadcn/ui/button";
 import BrandCreationForm from "./create-form";
 import { Creator } from "@prisma/client";
 
+export type CreateBrand = {
+  name: string;
+  bio: string | null;
+  profileUrl: string | null;
+  coverUrl: string | null;
+  vanityURL: string | null;
+
+  pageAsset: {
+    code: string;
+    thumbnail: string | null;
+  } | null;
+};
+
 export default function CreateBrandButton({
   creator,
   edit,
 }: {
-  creator?: Creator;
+  creator?: CreateBrand;
   edit?: boolean;
 }) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -23,6 +36,7 @@ export default function CreateBrandButton({
         isOpen={isDialogOpen}
         onClose={() => setIsDialogOpen(false)}
         creator={creator}
+        edit={edit}
       />
     </>
   );

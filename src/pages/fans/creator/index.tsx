@@ -37,20 +37,12 @@ import { PaymentMethod, PaymentMethodEnum } from "~/components/BuyItem";
 import CreateBrandButton from "~/components/fan/creator/onboarding/create-button";
 
 export default function CreatorProfile() {
-  const { data: session } = useSession();
-
-  if (!session) return <div>LogIn First</div>;
-
-  if (session?.user.id) {
-    return <CreatorExist user={session.user.id} />;
-  }
+  return <CreatorExist />;
 }
 
-function CreatorExist(props: { user: string }) {
-  const { data: creator, isLoading } = api.fan.creator.getCreator.useQuery(
-    {
-      id: props.user,
-    },
+function CreatorExist() {
+  const { data: creator, isLoading } = api.fan.creator.getMeCreator.useQuery(
+    undefined,
     { refetchOnWindowFocus: false },
   );
 

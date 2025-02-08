@@ -22,6 +22,8 @@ import Image from "next/image";
 import { api } from "~/utils/api";
 import { Loader2 } from "lucide-react";
 import { Creator } from "@prisma/client";
+import { CreateBrand } from "./create-button";
+import { set } from "date-fns";
 
 export const brandCreateRequestSchema = z.object({
   displayName: z.string().min(1, "Display name is required"),
@@ -45,18 +47,27 @@ export type BrandFormData = z.infer<typeof brandCreateRequestSchema>;
 interface BrandCreationFormProps {
   isOpen: boolean;
   onClose: () => void;
-  creator?: Creator;
+  creator?: CreateBrand;
+  edit?: boolean;
 }
 
 export default function BrandCreationForm({
   isOpen,
   onClose,
   creator,
+  edit,
 }: BrandCreationFormProps) {
   const [uploading, setUploading] = useState(false);
-  const [pageAssetThumbnail, setPageAssetThumbnail] = useState<string>();
+  const [pageAssetThumbnail, setPageAssetThumbnail] = useState<
+    string | undefined
+  >(creator?.pageAsset?.thumbnail ?? undefined);
   const [file, setFile] = useState<File>();
   const [ipfs, setCid] = useState<string>();
+
+  const [profileUrl, setProfileUrl] = useState(
+    creator?.profileUrl ?? undefined,
+  );
+  const [coverUrl, setCoverUrl] = useState(creator?.coverUrl ?? undefined);
   const {
     control,
     handleSubmit,
@@ -69,21 +80,26 @@ export default function BrandCreationForm({
       bio: creator?.bio ?? "",
       profileUrl: creator?.profileUrl ?? undefined,
       coverUrl: creator?.coverUrl ?? undefined,
-      pageAssetName: "",
-      vanityUrl: "",
+      pageAssetName: creator?.pageAsset?.code ?? undefined,
+      vanityUrl: creator?.vanityURL ?? undefined,
     },
   });
 
-  const req = api.fan.creator.requestBrandCreate.useMutation();
+  const req = api.fan.creator.requestBrandCreate.useMutation({
+    onSuccess: () => onClose(),
+  });
 
   const onSubmit: SubmitHandler<z.infer<typeof brandCreateRequestSchema>> = (
     data,
   ) => {
     console.log("Form submitted:", data);
 
-    // data.assetThumbnail = pageAssetThumbnail;
+    data.assetThumbnail = pageAssetThumbnail;
 
-    req.mutate({ data, alreadyCreator: creator ? true : false });
+    req.mutate({
+      data,
+      action: edit ? "update" : creator ? "page_asset" : "create",
+    });
 
     // Here you would typically send the data to your backend
     // onClose();
@@ -133,9 +149,12 @@ export default function BrandCreationForm({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-2xl">
         <DialogHeader>
-          <DialogTitle>Create Your Brand</DialogTitle>
+          <DialogTitle>{edit ? "Update" : "Create"} Your Brand</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="max-h-[80vh] space-y-4 overflow-y-auto"
+        >
           <div>
             <Label htmlFor="displayName">Display Name</Label>
             <Controller
@@ -179,6 +198,7 @@ export default function BrandCreationForm({
               onClientUploadComplete={(res) => {
                 const fileUrl = res.url;
                 setValue("profileUrl", fileUrl);
+                setProfileUrl(fileUrl);
                 // updateProfileMutation.mutate(fileUrl);
               }}
               onUploadError={(error: Error) => {
@@ -187,6 +207,18 @@ export default function BrandCreationForm({
               }}
               type="profile"
             />
+
+            {profileUrl && (
+              <>
+                <Image
+                  className="p-2"
+                  width={120}
+                  height={120}
+                  alt="preview image"
+                  src={profileUrl}
+                />
+              </>
+            )}
             {/* <Input id="profilePhoto" type="file" accept="image/*" /> */}
           </div>
 
@@ -197,6 +229,7 @@ export default function BrandCreationForm({
               onClientUploadComplete={(res) => {
                 const fileUrl = res.url;
                 setValue("coverUrl", fileUrl);
+                setCoverUrl(fileUrl);
                 // coverChangeMutation.mutate(fileUrl);
               }}
               onUploadError={(error: Error) => {
@@ -205,6 +238,17 @@ export default function BrandCreationForm({
               }}
               type="cover"
             />
+            {coverUrl && (
+              <>
+                <Image
+                  className="p-2"
+                  width={120}
+                  height={120}
+                  alt="preview image"
+                  src={coverUrl}
+                />
+              </>
+            )}
             {/* <Input id="profilePhoto" type="file" accept="image/*" /> */}
           </div>
 
@@ -294,7 +338,7 @@ export default function BrandCreationForm({
           </div>
           <Button type="submit" className="w-full">
             {req.isLoading && <Loader2 className="animate mr-2 animate-spin" />}
-            Create Brand
+            {edit ? "Update" : "Create"} Brand
           </Button>
         </form>
       </DialogContent>
