@@ -15,6 +15,14 @@ import { urlToIpfsHash } from "~/utils/ipfs";
 export const creatorRouter = createTRPCRouter({
   getCreators: adminProcedure.query(async ({ ctx }) => {
     const creators = await ctx.db.creator.findMany({
+      include: {
+        pageAsset: {
+          select: {
+            code: true,
+            thumbnail: true,
+          },
+        },
+      },
       where: { aprovalSend: true },
     });
     return creators;

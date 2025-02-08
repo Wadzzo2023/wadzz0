@@ -137,6 +137,7 @@ export const creatorRouter = createTRPCRouter({
       const data = await ctx.db.creator.create({
         data: {
           name: truncateString(id),
+          aprovalSend: true,
           bio: id,
           user: { connect: { id: id } },
           storagePub: i.publicKey,

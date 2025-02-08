@@ -31,7 +31,10 @@ export const brandCreateRequestSchema = z.object({
     .min(1, "Page asset name is required")
     .max(12, "Page asset name must be 12 characters or less")
     .regex(/^[^\s]+$/, "Page asset name cannot contain spaces"),
-  vanityUrl: z.string().min(1, "Vanity URL is required"),
+  vanityUrl: z
+    .string()
+    .regex(/^[^\s]+$/, "Vanity URL cannot contain spaces")
+    .optional(),
   profileUrl: z.string().url().optional(),
   coverUrl: z.string().url().optional(),
   assetThumbnail: z.string().url().optional(),
@@ -206,7 +209,15 @@ export default function BrandCreationForm({
           </div>
 
           <div>
-            <Label htmlFor="pageAssetName">Page Asset Name</Label>
+            <Label htmlFor="pageAssetName">
+              Asset Name
+              <span
+                className="ml-1 cursor-help text-gray-500"
+                title="This is the name for your stellar asset."
+              >
+                (?)
+              </span>
+            </Label>
             <Controller
               name="pageAssetName"
               control={control}
@@ -214,7 +225,7 @@ export default function BrandCreationForm({
                 <Input
                   {...field}
                   id="pageAssetName"
-                  placeholder="Name for your page asset"
+                  placeholder="Name for your stellar asset"
                 />
               )}
             />
@@ -224,13 +235,17 @@ export default function BrandCreationForm({
               </p>
             )}
           </div>
-          {/* <div>
-            <Label htmlFor="assetPic">Asset Picture</Label>
-            <Input id="assetPic" type="file" accept="image/*" />
-          </div> */}
 
           <div>
-            <Label htmlFor="assetPic">Asset Picture</Label>
+            <Label htmlFor="assetPic">
+              Asset Thumbnail
+              <span
+                className="ml-1 cursor-help text-gray-500"
+                title="Upload a picture for your stellar asset."
+              >
+                (?)
+              </span>
+            </Label>
             <label className="form-control w-full px-2">
               <input
                 type="file"
@@ -255,7 +270,15 @@ export default function BrandCreationForm({
             </label>
           </div>
           <div>
-            <Label htmlFor="vanityUrl">Vanity URL</Label>
+            <Label htmlFor="vanityUrl">
+              Vanity URL
+              <span
+                className="ml-1 cursor-help text-gray-500"
+                title="This is an optional field. You can set a custom URL for your brand page."
+              >
+                (?)
+              </span>
+            </Label>
             <Controller
               name="vanityUrl"
               control={control}

@@ -58,7 +58,12 @@ function CreatorExist(props: { user: string }) {
   if (creator) {
     if (creator.approved === null) {
       if (creator.aprovalSend) {
-        return <p>Approval sent to the admin</p>;
+        return (
+          <div className="flex h-screen w-full flex-col items-center justify-center gap-2 ">
+            <p>Approval sent to the admin</p>
+            <CreateBrandButton edit creator={creator} />
+          </div>
+        );
       } else {
         // this case is when already creator is created , with just storage acc for secondary market send.
         return <CreateBrandButton creator={creator} />;
