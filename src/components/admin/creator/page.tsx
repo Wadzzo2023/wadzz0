@@ -15,6 +15,7 @@ import {
   DialogTrigger,
 } from "~/components/shadcn/ui/dialog";
 import { clientsign, WalletType } from "package/connect_wallet";
+import { CreatorDialog } from "./view";
 
 export default function CreatorPage() {
   return (
@@ -42,6 +43,7 @@ function Creators() {
               <th>Name</th>
               <th>Pubkey</th>
               <th>Jointed At</th>
+              <th></th>
               <th>Action</th>
             </tr>
           </thead>
@@ -53,6 +55,9 @@ function Creators() {
                   <th>{creator.name}</th>
                   <td>{addrShort(creator.id, 10)}</td>
                   <td>{creator.joinedAt.toLocaleDateString()}</td>
+                  <td>
+                    <CreatorDialog creator={creator} />
+                  </td>
                   <td>
                     <ActionButton
                       creatorId={creator.id}

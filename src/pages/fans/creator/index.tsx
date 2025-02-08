@@ -17,7 +17,6 @@ import { CreatorMenu, useCreator } from "~/lib/state/fan/creator-menu";
 import { useUserStellarAcc } from "~/lib/state/wallete/stellar-balances";
 import { clientSelect } from "~/lib/stellar/fan/utils";
 import { api } from "~/utils/api";
-import { CREATOR_TERM } from "~/utils/term";
 
 import { Coins, DollarSign, Loader, User } from "lucide-react";
 import { Label } from "~/components/shadcn/ui/label";
@@ -37,28 +36,25 @@ import { PaymentMethod, PaymentMethodEnum } from "~/components/BuyItem";
 import CreateBrandButton from "~/components/fan/creator/onboarding/create-button";
 
 export default function CreatorProfile() {
-  const { data: session } = useSession();
-
-  if (!session) return <div>LogIn First</div>;
-
-  if (session?.user.id) {
-    return <CreatorExist user={session.user.id} />;
-  }
+  return <CreatorExist />;
 }
 
-function CreatorExist(props: { user: string }) {
+function CreatorExist() {
   const { data: creator, isLoading } = api.fan.creator.getMeCreator.useQuery(
     undefined,
-    {
-      refetchOnWindowFocus: false,
-    },
+    { refetchOnWindowFocus: false },
   );
 
   if (isLoading) return <Loading />;
   if (creator) {
     if (creator.approved === null) {
       if (creator.aprovalSend) {
-        return <p>Approval sent to the admin</p>;
+        return (
+          <div className="flex h-screen w-full flex-col items-center justify-center gap-2 ">
+            <p>Approval sent to the admin</p>
+            <CreateBrandButton edit creator={creator} />
+          </div>
+        );
       } else {
         // this case is when already creator is created , with just storage acc for secondary market send.
         return <CreateBrandButton creator={creator} />;

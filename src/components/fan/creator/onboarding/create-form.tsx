@@ -22,6 +22,7 @@ import Image from "next/image";
 import { api } from "~/utils/api";
 import { Loader2 } from "lucide-react";
 import { Creator } from "@prisma/client";
+import { CreateBrand } from "./create-button";
 import { set } from "date-fns";
 
 export const brandCreateRequestSchema = z.object({
@@ -32,7 +33,10 @@ export const brandCreateRequestSchema = z.object({
     .min(1, "Page asset name is required")
     .max(12, "Page asset name must be 12 characters or less")
     .regex(/^[^\s]+$/, "Page asset name cannot contain spaces"),
-  vanityUrl: z.string().min(1, "Vanity URL is required"),
+  vanityUrl: z
+    .string()
+    .regex(/^[^\s]+$/, "Vanity URL cannot contain spaces")
+    .optional(),
   profileUrl: z.string().url().optional(),
   coverUrl: z.string().url().optional(),
   assetThumbnail: z.string().url().optional(),
@@ -43,22 +47,27 @@ export type BrandFormData = z.infer<typeof brandCreateRequestSchema>;
 interface BrandCreationFormProps {
   isOpen: boolean;
   onClose: () => void;
-  creator?: Creator;
+  creator?: CreateBrand;
+  edit?: boolean;
 }
 
 export default function BrandCreationForm({
   isOpen,
   onClose,
   creator,
+  edit,
 }: BrandCreationFormProps) {
   const [uploading, setUploading] = useState(false);
-  const [pageAssetThumbnail, setPageAssetThumbnail] = useState<string>();
+  const [pageAssetThumbnail, setPageAssetThumbnail] = useState<
+    string | undefined
+  >(creator?.pageAsset?.thumbnail ?? undefined);
   const [file, setFile] = useState<File>();
   const [ipfs, setCid] = useState<string>();
 
-  const [profileUrl, setProfileUrl] = useState<string>();
-  const [coverUrl, setCoverUrl] = useState<string>();
-
+  const [profileUrl, setProfileUrl] = useState(
+    creator?.profileUrl ?? undefined,
+  );
+  const [coverUrl, setCoverUrl] = useState(creator?.coverUrl ?? undefined);
   const {
     control,
     handleSubmit,
@@ -72,21 +81,26 @@ export default function BrandCreationForm({
       bio: creator?.bio ?? "",
       profileUrl: creator?.profileUrl ?? undefined,
       coverUrl: creator?.coverUrl ?? undefined,
-      pageAssetName: "",
-      vanityUrl: "",
+      pageAssetName: creator?.pageAsset?.code ?? undefined,
+      vanityUrl: creator?.vanityURL ?? undefined,
     },
   });
 
-  const req = api.fan.creator.requestBrandCreate.useMutation();
+  const req = api.fan.creator.requestBrandCreate.useMutation({
+    onSuccess: () => onClose(),
+  });
 
   const onSubmit: SubmitHandler<z.infer<typeof brandCreateRequestSchema>> = (
     data,
   ) => {
     console.log("Form submitted:", data);
 
-    // data.assetThumbnail = pageAssetThumbnail;
+    data.assetThumbnail = pageAssetThumbnail;
 
-    req.mutate({ data, alreadyCreator: creator ? true : false });
+    req.mutate({
+      data,
+      action: edit ? "update" : creator ? "page_asset" : "create",
+    });
 
     // Here you would typically send the data to your backend
     // onClose();
@@ -136,9 +150,12 @@ export default function BrandCreationForm({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-2xl">
         <DialogHeader>
-          <DialogTitle>Create Your Brand</DialogTitle>
+          <DialogTitle>{edit ? "Update" : "Create"} Your Brand</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="max-h-[80vh] space-y-4 overflow-y-auto"
+        >
           <div>
             <Label htmlFor="displayName">Display Name</Label>
             <Controller
@@ -237,7 +254,15 @@ export default function BrandCreationForm({
           </div>
 
           <div>
-            <Label htmlFor="pageAssetName">Page Asset Name</Label>
+            <Label htmlFor="pageAssetName">
+              Asset Name
+              <span
+                className="ml-1 cursor-help text-gray-500"
+                title="This is the name for your stellar asset."
+              >
+                (?)
+              </span>
+            </Label>
             <Controller
               name="pageAssetName"
               control={control}
@@ -245,7 +270,7 @@ export default function BrandCreationForm({
                 <Input
                   {...field}
                   id="pageAssetName"
-                  placeholder="Name for your page asset"
+                  placeholder="Name for your stellar asset"
                 />
               )}
             />
@@ -255,13 +280,17 @@ export default function BrandCreationForm({
               </p>
             )}
           </div>
-          {/* <div>
-            <Label htmlFor="assetPic">Asset Picture</Label>
-            <Input id="assetPic" type="file" accept="image/*" />
-          </div> */}
 
           <div>
-            <Label htmlFor="assetPic">Asset Picture</Label>
+            <Label htmlFor="assetPic">
+              Asset Thumbnail
+              <span
+                className="ml-1 cursor-help text-gray-500"
+                title="Upload a picture for your stellar asset."
+              >
+                (?)
+              </span>
+            </Label>
             <label className="form-control w-full px-2">
               <input
                 type="file"
@@ -286,7 +315,15 @@ export default function BrandCreationForm({
             </label>
           </div>
           <div>
-            <Label htmlFor="vanityUrl">Vanity URL</Label>
+            <Label htmlFor="vanityUrl">
+              Vanity URL
+              <span
+                className="ml-1 cursor-help text-gray-500"
+                title="This is an optional field. You can set a custom URL for your brand page."
+              >
+                (?)
+              </span>
+            </Label>
             <Controller
               name="vanityUrl"
               control={control}
@@ -302,7 +339,7 @@ export default function BrandCreationForm({
           </div>
           <Button type="submit" className="w-full">
             {req.isLoading && <Loader2 className="animate mr-2 animate-spin" />}
-            Create Brand
+            {edit ? "Update" : "Create"} Brand
           </Button>
         </form>
       </DialogContent>
