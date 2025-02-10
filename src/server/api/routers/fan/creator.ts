@@ -118,7 +118,14 @@ export const creatorRouter = createTRPCRouter({
 
   meCreator: protectedProcedure.query(async ({ ctx }) => {
     return ctx.db.creator.findFirst({
-      where: { user: { id: ctx.session.user.id } },
+      where: {
+        AND: {
+          id: ctx.session.user.id,
+          approved: {
+            equals: true,
+          },
+        },
+      },
     });
   }),
   vanitySubscription: protectedProcedure.query(async ({ ctx }) => {
@@ -188,6 +195,7 @@ export const creatorRouter = createTRPCRouter({
         take: limit + 1,
         skip: skip,
         cursor: cursor ? { id: cursor } : undefined,
+        where: { approved: { equals: true } },
       });
 
       let nextCursor: typeof cursor | undefined = undefined;

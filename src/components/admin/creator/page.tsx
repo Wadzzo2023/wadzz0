@@ -33,7 +33,7 @@ function Creators() {
   if (creators.error) return <div>Error</div>;
 
   return (
-    <div>
+    <div className="">
       <div className="overflow-x-auto bg-base-100">
         <table className="table table-zebra">
           {/* head */}
