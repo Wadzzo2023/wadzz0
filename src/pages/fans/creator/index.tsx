@@ -17,9 +17,8 @@ import { CreatorMenu, useCreator } from "~/lib/state/fan/creator-menu";
 import { useUserStellarAcc } from "~/lib/state/wallete/stellar-balances";
 import { clientSelect } from "~/lib/stellar/fan/utils";
 import { api } from "~/utils/api";
-import { CREATOR_TERM } from "~/utils/term";
 
-import { Coins, DollarSign, Loader } from "lucide-react";
+import { Coins, DollarSign, Loader, User } from "lucide-react";
 import { Label } from "~/components/shadcn/ui/label";
 import { RadioGroup, RadioGroupItem } from "~/components/shadcn/ui/radio-group";
 
@@ -34,30 +33,40 @@ import {
 } from "~/components/shadcn/ui/dialog";
 import { PLATFORM_ASSET } from "~/lib/stellar/constant";
 import { PaymentMethod, PaymentMethodEnum } from "~/components/BuyItem";
+import CreateBrandButton from "~/components/fan/creator/onboarding/create-button";
 
 export default function CreatorProfile() {
-  const { data: session } = useSession();
-
-  if (!session) return <div>LogIn First</div>;
-
-  return (
-    <CreatorExist user={session.user} />
-  );
+  return <CreatorExist />;
 }
 
-function CreatorExist(props: { user: Session["user"] }) {
-  const { data: creator, isLoading } = api.fan.creator.getCreator.useQuery(
-    {
-      id: props.user.id,
-    },
+function CreatorExist() {
+  const { data: creator, isLoading } = api.fan.creator.getMeCreator.useQuery(
+    undefined,
     { refetchOnWindowFocus: false },
   );
 
   if (isLoading) return <Loading />;
   if (creator) {
-    return <CreatorPageTemplate creator={creator} />;
+    if (creator.approved === null) {
+      if (creator.aprovalSend) {
+        return (
+          <div className="flex h-screen w-full flex-col items-center justify-center gap-2 ">
+            <p>Approval sent to the admin</p>
+            <CreateBrandButton edit creator={creator} />
+          </div>
+        );
+      } else {
+        // this case is when already creator is created , with just storage acc for secondary market send.
+        return <CreateBrandButton creator={creator} />;
+      }
+    } else if (creator.approved) {
+      return <CreatorPageTemplate creator={creator} />;
+    } else {
+      // here approval is false, means banned
+      return <p>You are banned. Contact to admin</p>;
+    }
   } else {
-    return <ValidCreateCreator />;
+    return <CreateBrandButton />;
   }
 }
 
@@ -114,10 +123,12 @@ function ConditionallyRenderMenuPage({ creator }: { creator: Creator }) {
 }
 
 export function ValidCreateCreator({ message }: { message?: string }) {
-  const { platformAssetBalance } = useUserStellarAcc();
+  const { platformAssetBalance, getXLMBalance } = useUserStellarAcc();
   const requiredToken = api.fan.trx.getRequiredPlatformAsset.useQuery({
     xlm: 1,
   });
+
+  const xlmBalance = getXLMBalance() ?? "0";
 
   if (requiredToken.isLoading) return <Loading />;
 
@@ -125,11 +136,14 @@ export function ValidCreateCreator({ message }: { message?: string }) {
 
   if (requiredToken.data) {
     const requiredTokenNumber = requiredToken.data;
-    if (platformAssetBalance >= requiredTokenNumber) {
+    if (
+      platformAssetBalance >= requiredTokenNumber ||
+      Number(xlmBalance) >= 1
+    ) {
       return <CreateCreator requiredToken={requiredTokenNumber} />;
     } else {
       return (
-        <div className="flex h-full w-full flex-col items-center  justify-center gap-2">
+        <div className="flex w-full flex-col items-center justify-center  gap-2 ">
           {message && (
             <Alert className="max-w-xl" content={message} type="info" />
           )}
@@ -145,6 +159,7 @@ export function ValidCreateCreator({ message }: { message?: string }) {
   }
 }
 
+// now only using this while creating storage account for secondary market
 function CreateCreator({ requiredToken }: { requiredToken: number }) {
   const [isOpen, setIsOpen] = useState(false);
   const { needSign } = useNeedSign();
@@ -155,7 +170,7 @@ function CreateCreator({ requiredToken }: { requiredToken: number }) {
   const session = useSession();
   const makeCreatorMutation = api.fan.creator.makeMeCreator.useMutation({
     onSuccess: () => {
-      toast.success("You are now a creator");
+      toast.success("You have successfully created storage account");
       setIsOpen(false);
     },
   });
@@ -202,21 +217,22 @@ function CreateCreator({ requiredToken }: { requiredToken: number }) {
   const loading = xdr.isLoading || makeCreatorMutation.isLoading || signLoading;
 
   return (
-    <div className="flex h-screen flex-col items-center justify-center gap-4 bg-gray-100 p-4">
+    <div className="flex  flex-col items-center justify-center gap-4 bg-gray-100 p-4">
       <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-lg">
-        <h2 className="mb-4 text-center text-2xl font-bold">
+        {/* <h2 className="mb-4 text-center text-2xl font-bold">
           You are not a {CREATOR_TERM}
-        </h2>
+        </h2> */}
         <p className="mb-6 text-center text-gray-600">
           Your account will be charged {requiredToken} {PLATFORM_ASSET.code} or
-          equivalent XLM to be a {CREATOR_TERM.toLowerCase()}.
+          equivalent XLM to create storage account
         </p>
 
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
           <DialogTrigger asChild>
             <Button className="w-full">
               {loading && <Loader className="animate mr-2 animate-spin" />}
-              Join as a {CREATOR_TERM.toLowerCase()}
+              {/* Join as a {CREATOR_TERM.toLowerCase()} */}
+              Create Storage Account
             </Button>
           </DialogTrigger>
           <DialogContent className="sm:max-w-[425px]">
@@ -236,6 +252,7 @@ function CreateCreator({ requiredToken }: { requiredToken: number }) {
                     value={PaymentMethodEnum.enum.asset}
                     id={PaymentMethodEnum.enum.asset}
                     className="border-primary"
+                    // disabled
                   />
                   <Label
                     htmlFor={PLATFORM_ASSET.code}
@@ -284,7 +301,8 @@ function CreateCreator({ requiredToken }: { requiredToken: number }) {
               {paymentMethod == PaymentMethodEnum.enum.asset
                 ? `${requiredToken} ${PLATFORM_ASSET.code}`
                 : `${XLM_EQUIVALENT} XLM`}{" "}
-              to be a {CREATOR_TERM.toLowerCase()}.
+              {/* to be a {CREATOR_TERM.toLowerCase()}. */}
+              to create storage account
             </div>
             <DialogFooter className="mt-6">
               <Button

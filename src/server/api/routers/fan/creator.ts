@@ -1,11 +1,22 @@
 import { User } from "lucide-react";
 import { getAccSecret } from "package/connect_wallet";
 import { env } from "process";
+import { aC } from "vitest/dist/reporters-yx5ZTtEV";
 import { z } from "zod";
 import { PaymentMethodEnum } from "~/components/BuyItem";
 import { CreatorAboutShema } from "~/components/fan/creator/about";
-import { sendAssetXDRForAsset, sendAssetXDRForNative } from "~/lib/stellar/fan/creator_pageasset_buy";
-import { getAssetPriceByCoddenIssuer, getPlatformAssetPrice, getXLMPrice, getXlmUsdPrice } from "~/lib/stellar/fan/get_token_price";
+import { brandCreateRequestSchema } from "~/components/fan/creator/onboarding/create-form";
+import { MAX_ASSET_LIMIT } from "~/components/fan/creator/page_asset/new";
+import {
+  sendAssetXDRForAsset,
+  sendAssetXDRForNative,
+} from "~/lib/stellar/fan/creator_pageasset_buy";
+import {
+  getAssetPriceByCoddenIssuer,
+  getPlatformAssetPrice,
+  getXLMPrice,
+  getXlmUsdPrice,
+} from "~/lib/stellar/fan/get_token_price";
 import {
   createRedeemXDRAsset,
   createRedeemXDRNative,
@@ -18,6 +29,7 @@ import {
 import { getAssetBalance } from "~/lib/stellar/marketplace/test/acc";
 import { StellarAccount } from "~/lib/stellar/marketplace/test/Account";
 import { SignUser } from "~/lib/stellar/utils";
+import { BLANK_KEYWORD } from "~/lib/utils";
 
 import {
   createTRPCRouter,
@@ -45,17 +57,29 @@ export const creatorRouter = createTRPCRouter({
               issuer: true,
               price: true,
               priceUSD: true,
-              thumbnail: true
-
+              thumbnail: true,
             },
           },
-
         },
       });
       if (creator) {
         return creator;
       }
     }),
+
+  getMeCreator: protectedProcedure.query(async ({ ctx }) => {
+    return ctx.db.creator.findFirst({
+      where: { user: { id: ctx.session.user.id } },
+      include: {
+        pageAsset: {
+          select: {
+            code: true,
+            thumbnail: true,
+          },
+        },
+      },
+    });
+  }),
 
   getCreatorPageAsset: protectedProcedure.query(async ({ ctx }) => {
     const pageAsset = await ctx.db.creatorPageAsset.findFirst({
@@ -94,7 +118,14 @@ export const creatorRouter = createTRPCRouter({
 
   meCreator: protectedProcedure.query(async ({ ctx }) => {
     return ctx.db.creator.findFirst({
-      where: { user: { id: ctx.session.user.id } },
+      where: {
+        AND: {
+          id: ctx.session.user.id,
+          approved: {
+            equals: true,
+          },
+        },
+      },
     });
   }),
   vanitySubscription: protectedProcedure.query(async ({ ctx }) => {
@@ -128,7 +159,9 @@ export const creatorRouter = createTRPCRouter({
       const data = await ctx.db.creator.create({
         data: {
           name: truncateString(id),
+          aprovalSend: true,
           bio: id,
+
           user: { connect: { id: id } },
           storagePub: i.publicKey,
           storageSecret: i.secretKey,
@@ -162,6 +195,7 @@ export const creatorRouter = createTRPCRouter({
         take: limit + 1,
         skip: skip,
         cursor: cursor ? { id: cursor } : undefined,
+        where: { approved: { equals: true } },
       });
 
       let nextCursor: typeof cursor | undefined = undefined;
@@ -299,8 +333,6 @@ export const creatorRouter = createTRPCRouter({
           console.log("storage Acc", storageAcc);
 
           const bal = storageAcc.getTokenBalance(assetCode, assetIssuer.data);
-
-
 
           if (bal >= 0) {
             return { balance: bal, asset: assetCode };
@@ -528,42 +560,47 @@ export const creatorRouter = createTRPCRouter({
       return { isAvailable: !exixt };
     }),
 
-  getAssetPriceByCodeIssuser: protectedProcedure.input(
-    z.object({
-      code: z.string().optional(),
-      issuer: z.string().optional(),
+  getAssetPriceByCodeIssuser: protectedProcedure
+    .input(
+      z.object({
+        code: z.string().optional(),
+        issuer: z.string().optional(),
+      }),
+    )
+    .query(async ({ input, ctx }) => {
+      const { code, issuer } = input;
+      if (!code || !issuer) {
+        throw new Error("Code and issuer are required");
+      }
+
+      const priceUSDAsset = await getAssetPriceByCoddenIssuer({
+        code,
+        issuer,
+      });
+
+      const priceXLMUSD = await getXLMPrice();
+      const platformAssetUSD = await getPlatformAssetPrice();
+      return {
+        xlmInUSD: priceXLMUSD,
+        AssetInUSD: priceUSDAsset,
+        platformAssetInUSD: platformAssetUSD,
+      };
     }),
-  ).query(async ({ input, ctx }) => {
-    const { code, issuer } = input;
-    if (!code || !issuer) {
-      throw new Error("Code and issuer are required");
-    }
-
-    const priceUSDAsset = await getAssetPriceByCoddenIssuer({
-      code, issuer
-    });
-
-    const priceXLMUSD = await getXLMPrice();
-    const platformAssetUSD = await getPlatformAssetPrice();
-    return {
-      xlmInUSD: priceXLMUSD,
-      AssetInUSD: priceUSDAsset,
-      platformAssetInUSD: platformAssetUSD,
-    }
-  }),
   updatePageAssetPrice: protectedProcedure
-    .input(z.object({
-      price: z.number().nonnegative(),
-      priceUSD: z.number().nonnegative(),
-    }))
+    .input(
+      z.object({
+        price: z.number().nonnegative(),
+        priceUSD: z.number().nonnegative(),
+      }),
+    )
     .mutation(async ({ ctx, input }) => {
       const creatorId = ctx.session.user.id;
       const creator = await ctx.db.creator.findUnique({
         where: { id: creatorId },
         select: {
           customPageAssetCodeIssuer: true,
-          pageAsset: true
-        }
+          pageAsset: true,
+        },
       });
 
       if (!creator) {
@@ -581,7 +618,6 @@ export const creatorRouter = createTRPCRouter({
           where: { creatorId: creatorId },
         });
       } else if (creator.customPageAssetCodeIssuer) {
-
         const [code, issuer] = creator.customPageAssetCodeIssuer.split("-");
         await ctx.db.creator.update({
           data: {
@@ -589,9 +625,8 @@ export const creatorRouter = createTRPCRouter({
           },
           where: { id: creatorId },
         });
-
       }
-      return { success: true }
+      return { success: true };
     }),
   getSendAssetXDR: protectedProcedure
     .input(
@@ -603,10 +638,11 @@ export const creatorRouter = createTRPCRouter({
         creatorId: z.string(),
         method: PaymentMethodEnum,
         priceInXLM: z.number(),
-      })
+      }),
     )
     .mutation(async ({ input, ctx }) => {
-      const { code, issuer, price, signWith, creatorId, method, priceInXLM } = input;
+      const { code, issuer, price, signWith, creatorId, method, priceInXLM } =
+        input;
 
       const currentUser = ctx.session.user.id;
       const creator = await ctx.db.creator.findUnique({
@@ -615,22 +651,17 @@ export const creatorRouter = createTRPCRouter({
           storagePub: true,
           customPageAssetCodeIssuer: true,
           pageAsset: true,
-          storageSecret: true
-        }
+          storageSecret: true,
+        },
       });
 
       if (!creator) {
         throw new Error("Creator not found");
       }
 
-
-
       const acc = await StellarAccount.create(creator.storagePub);
 
-
       const getTotalToken = acc.getTokenBalance(code, issuer);
-
-
 
       if (method === "xlm") {
         return await sendAssetXDRForNative({
@@ -641,7 +672,7 @@ export const creatorRouter = createTRPCRouter({
           totoalTokenToSend: getTotalToken,
           storageSecret: creator.storageSecret,
           signWith,
-          userPublicKey: currentUser
+          userPublicKey: currentUser,
         });
       } else if (method === "asset") {
         return await sendAssetXDRForAsset({
@@ -652,12 +683,89 @@ export const creatorRouter = createTRPCRouter({
           totoalTokenToSend: getTotalToken,
           storageSecret: creator.storageSecret,
           signWith,
-          userPublicKey: currentUser
+          userPublicKey: currentUser,
         });
       }
+    }),
 
+  requestBrandCreate: protectedProcedure
+    .input(
+      z.object({
+        data: brandCreateRequestSchema,
+        action: z.enum(["create", "update", "page_asset"]),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      console.log(input);
+      const { data, action } = input;
+      // console.log(alreadyCreator, data);
+      // return;
+      if (action === "page_asset") {
+        await ctx.db.creator.update({
+          data: {
+            profileUrl: data.profileUrl,
+            coverUrl: data.coverUrl,
+            bio: data.bio,
+            name: data.displayName,
+            aprovalSend: true,
+            vanityURL: data.vanityUrl,
+          },
+          where: { id: ctx.session.user.id },
+        });
 
+        await ctx.db.creatorPageAsset.create({
+          data: {
+            code: data.pageAssetName,
+            thumbnail: data.assetThumbnail,
+            creatorId: ctx.session.user.id,
+            issuer: BLANK_KEYWORD,
+            limit: 0,
+          },
+          // where: { creatorId: ctx.session.user.id },
+        });
+      } else if (action === "create") {
+        await ctx.db.creator.create({
+          data: {
+            id: ctx.session.user.id,
+            profileUrl: data.profileUrl,
+            coverUrl: data.coverUrl,
+            bio: data.bio,
+            storagePub: BLANK_KEYWORD,
+            storageSecret: BLANK_KEYWORD,
+            name: data.displayName,
+            aprovalSend: true,
+            vanityURL: data.vanityUrl,
+            pageAsset: {
+              create: {
+                code: data.pageAssetName,
+                issuer: BLANK_KEYWORD,
+                thumbnail: data.assetThumbnail,
+                limit: 0,
+              },
+            },
+          },
+        });
+      } else if (action === "update") {
+        await ctx.db.creator.update({
+          data: {
+            profileUrl: data.profileUrl,
+            coverUrl: data.coverUrl,
+            vanityURL: data.vanityUrl,
+            bio: data.bio,
+            name: data.displayName,
+            aprovalSend: true,
+            pageAsset: {
+              update: {
+                where: { creatorId: ctx.session.user.id },
+                data: {
+                  code: data.pageAssetName,
+                  thumbnail: data.assetThumbnail,
+                },
+              },
+            },
+          },
+          where: { id: ctx.session.user.id },
+        });
+      }
     }),
 });
-
-

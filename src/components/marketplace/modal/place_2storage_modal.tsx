@@ -74,7 +74,7 @@ function StorageCreate() {
             item to the storage
           </DialogDescription>
         </DialogHeader>
-        <ValidCreateCreator message="No storage account. Create one" />;
+        <ValidCreateCreator message="No storage account. Create one" />
       </DialogContent>
     </Dialog>
   );

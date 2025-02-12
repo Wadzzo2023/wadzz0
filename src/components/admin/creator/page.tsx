@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import toast from "react-hot-toast";
 import { Button } from "~/components/shadcn/ui/button";
 import { api } from "~/utils/api";
@@ -14,6 +14,8 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "~/components/shadcn/ui/dialog";
+import { clientsign, WalletType } from "package/connect_wallet";
+import { CreatorDialog } from "./view";
 
 export default function CreatorPage() {
   return (
@@ -31,7 +33,7 @@ function Creators() {
   if (creators.error) return <div>Error</div>;
 
   return (
-    <div>
+    <div className="">
       <div className="overflow-x-auto bg-base-100">
         <table className="table table-zebra">
           {/* head */}
@@ -41,6 +43,7 @@ function Creators() {
               <th>Name</th>
               <th>Pubkey</th>
               <th>Jointed At</th>
+              <th></th>
               <th>Action</th>
             </tr>
           </thead>
@@ -52,6 +55,9 @@ function Creators() {
                   <th>{creator.name}</th>
                   <td>{addrShort(creator.id, 10)}</td>
                   <td>{creator.joinedAt.toLocaleDateString()}</td>
+                  <td>
+                    <CreatorDialog creator={creator} />
+                  </td>
                   <td>
                     <ActionButton
                       creatorId={creator.id}
@@ -78,20 +84,76 @@ function ActionButton({
   status: boolean | null;
   creatorId: string;
 }) {
+  const [submitLoading, setSubmitLoading] = useState(false);
   const actionM = api.admin.creator.creatorAction.useMutation();
 
-  function handleClick(action: boolean | null) {
-    actionM.mutate({ creatorId: creatorId, status: action });
+  const xdr = api.admin.creator.creatorRequestXdr.useMutation({
+    onSuccess: (data) => {
+      console.log("ih >>", data);
+      // return;
+      if (data) {
+        setSubmitLoading(true);
+        const toastId = toast.loading("signing transaction...");
+
+        clientsign({
+          presignedxdr: data.xdr,
+          pubkey: "admin",
+          walletType: WalletType.isAdmin,
+        })
+          .then((res) => {
+            if (res) {
+              actionM.mutate({
+                creatorId: creatorId,
+                action: "approve",
+                escrow: data.escrow,
+                storage: data.storage,
+              });
+            } else {
+              toast.error(
+                "Transection failed in Steller Network. Please try again.",
+              );
+            }
+          })
+          .catch((e) => {
+            console.log(e);
+            toast.error("Error in signing transaction. Please try again.");
+          })
+          .finally(() => {
+            toast.dismiss(toastId);
+            setSubmitLoading(false);
+          });
+      }
+    },
+  });
+
+  function handleClick(action: "approve" | "ban" | "unban") {
+    if (action === "approve") {
+      xdr.mutate({
+        creatorId: creatorId,
+      });
+    } else if (action == "ban") {
+      actionM.mutate({
+        creatorId: creatorId,
+        action: "ban",
+      });
+    } else if (action == "unban") {
+      actionM.mutate({
+        creatorId: creatorId,
+        action: "unban",
+      });
+    }
   }
+
+  const loading = xdr.isLoading || actionM.isLoading || submitLoading;
   if (status === null)
     return (
       <Button
-        disabled={actionM.isLoading}
+        disabled={loading}
         className=""
-        onClick={() => handleClick(true)}
+        onClick={() => handleClick("approve")}
       >
         Approve
-        {actionM.isLoading && (
+        {loading && (
           <span className="loading loading-spinner ml-1 h-4 w-4"></span>
         )}
       </Button>
@@ -101,7 +163,7 @@ function ActionButton({
       <Button
         className=""
         disabled={actionM.isLoading}
-        onClick={() => handleClick(true)}
+        onClick={() => handleClick("unban")}
       >
         Unban
         {actionM.isLoading && (
@@ -115,7 +177,7 @@ function ActionButton({
         className=""
         variant="destructive"
         disabled={actionM.isLoading}
-        onClick={() => handleClick(false)}
+        onClick={() => handleClick("ban")}
       >
         Ban
         {actionM.isLoading && (

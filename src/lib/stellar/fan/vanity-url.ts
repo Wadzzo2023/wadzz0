@@ -81,7 +81,7 @@ export async function createOrRenewVanitySubscription(
                     },
                 },
             },
-        })
+        })  
     }
 
     const now = new Date()
