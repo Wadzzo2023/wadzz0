@@ -10,6 +10,7 @@ import Drawer from "./drawer";
 import { CREATOR_PLURAL_TERM } from "~/utils/term";
 import BountyRightBar from "./fan/creator/bounty/BountyRightSide";
 import FunctionTest from "~/pages/functiontest";
+import { useBountyRightStore } from "~/lib/state/bounty/use-bounty-store";
 
 export const AssetVariant = {
   ...MarketType,
@@ -43,13 +44,15 @@ function RightSideBarComponent() {
 export function RightComponent() {
   const router = useRouter();
   const { selectedTag } = useTagStore();
+  const { currentData } = useBountyRightStore();
+
   const pop = usePopUpState();
   if (router.pathname.includes("/music") && router.pathname !== '/fans/creator/music' && router.pathname !== '/fans/creator/music/album/[id]') return <MusicRightSide />;
   else if (router.pathname.includes("/fans")) return <RightBar />;
   else if (router.pathname.includes("/fans/creator")) return <RightBar />;
   else if (router.pathname.includes("/admin")) {
     return <AdminRightSide />;
-  } else if (router.pathname.includes("/bounty")) {
+  } else if (router.pathname.includes("/bounty") && currentData) {
     return <BountyRightBar />;
   } else if (router.pathname.includes("/functiontest")) return <FunctionTest />;
 }
