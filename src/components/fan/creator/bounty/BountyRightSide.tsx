@@ -14,6 +14,7 @@ import { api } from "~/utils/api";
 
 const BountyRightBar = () => {
   const { currentData } = useBountyRightStore();
+  console.log(currentData);
   const router = useRouter();
   const { platformAssetBalance } = useUserStellarAcc();
   const utils = api.useUtils();
@@ -42,9 +43,32 @@ const BountyRightBar = () => {
     enabled: !!currentData
   });
 
-  if (!currentData || isLoading || isAlreadyJoin.isLoading) {
+  if (isLoading || isAlreadyJoin.isLoading) {
     return (
-      <div>Loading...</div>
+      <div className="scrollbar-style relative h-full w-full overflow-y-auto rounded-xl">
+        <div className="flex h-full flex-col justify-between space-y-2 p-2">
+          <div className="flex h-full flex-col gap-2">
+            <div className="avatar relative w-full rounded-xl border-4 border-base-100">
+              <div className="relative m-8 w-full">
+                <Skeleton className="aspect-video w-full" />
+              </div>
+            </div>
+            <div className="relative flex-1 space-y-2 rounded-xl border-4 border-base-100 p-4 text-sm tracking-wider">
+              <div className="flex flex-col gap-2">
+                <Skeleton className="h-6 w-3/4" />
+                <Skeleton className="h-20 w-full" />
+                <Skeleton className="h-6 w-1/2" />
+                <Skeleton className="h-6 w-1/2" />
+                <Skeleton className="h-6 w-1/3" />
+                <Skeleton className="h-6 w-1/4" />
+              </div>
+            </div>
+            <div className="p-2">
+              <Skeleton className="h-10 w-full" />
+            </div>
+          </div>
+        </div>
+      </div>
     )
   }
 

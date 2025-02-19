@@ -33,7 +33,7 @@ function PageAssetComponent({ item }: { item: CreatorPageAssetType }) {
           item.name
         }
         thumbnail={item.profileUrl}
-        isNFT={item.pageAsset?.code ? true : false}
+        isNFT={false}
       />
 
     </div>
