@@ -64,7 +64,7 @@ export function VanityURLManager({ creator }: { creator: CreatorWithSubscription
                         CreateOrUpdateVanityURL.mutate({
                             amount: variables.cost,
                             isChanging: variables.isChanging,
-                            vanityURL: variables.vanityURL,
+                            vanityURL: variables.vanityURL ?? '',
                         })
                         setLoading(false);
                         reset();
@@ -185,6 +185,7 @@ export function VanityURLManager({ creator }: { creator: CreatorWithSubscription
                             <input
                                 disabled={subscriptionStatus === 'expired'}
                                 type="text"
+                                onInput={(e) => (e.currentTarget.value = e.currentTarget.value.toLowerCase())}
                                 {...register('vanityURL')}
                                 className={`input input-bordered w-full ${isAvailable === true ? 'border-success' : isAvailable === false ? 'border-error' : ''
                                     }`}

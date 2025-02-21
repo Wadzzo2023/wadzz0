@@ -1,7 +1,6 @@
 import { User } from "lucide-react";
 import { getAccSecret } from "package/connect_wallet";
 import { env } from "process";
-import { aC } from "vitest/dist/reporters-yx5ZTtEV";
 import { z } from "zod";
 import { PaymentMethodEnum } from "~/components/BuyItem";
 import { CreatorAboutShema } from "~/components/fan/creator/about";
@@ -524,7 +523,7 @@ export const creatorRouter = createTRPCRouter({
   createOrUpdateVanityURL: protectedProcedure
     .input(
       z.object({
-        vanityURL: z.string().min(2).max(30).optional().nullable(),
+        vanityURL: z.string().min(2).max(30),
         isChanging: z.boolean(),
         amount: z.number(),
       }),
@@ -698,8 +697,7 @@ export const creatorRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       console.log(input);
       const { data, action } = input;
-      // console.log(alreadyCreator, data);
-      // return;
+      console.log(data);
       if (action === "page_asset") {
         await ctx.db.creator.update({
           data: {
@@ -708,7 +706,7 @@ export const creatorRouter = createTRPCRouter({
             bio: data.bio,
             name: data.displayName,
             aprovalSend: true,
-            vanityURL: data.vanityUrl,
+            vanityURL: data.vanityUrl.toLocaleLowerCase(),
           },
           where: { id: ctx.session.user.id },
         });
@@ -734,7 +732,6 @@ export const creatorRouter = createTRPCRouter({
             storageSecret: BLANK_KEYWORD,
             name: data.displayName,
             aprovalSend: true,
-            vanityURL: data.vanityUrl,
             pageAsset: {
               create: {
                 code: data.pageAssetName,
@@ -745,12 +742,18 @@ export const creatorRouter = createTRPCRouter({
             },
           },
         });
+        await createOrRenewVanitySubscription({
+          creatorId: ctx.session.user.id,
+          isChanging: false,
+          amount: 0,
+          vanityURL: data.vanityUrl.toLocaleLowerCase(),
+        });
       } else if (action === "update") {
         await ctx.db.creator.update({
           data: {
             profileUrl: data.profileUrl,
             coverUrl: data.coverUrl,
-            vanityURL: data.vanityUrl,
+            vanityURL: data.vanityUrl.toLocaleLowerCase(),
             bio: data.bio,
             name: data.displayName,
             aprovalSend: true,

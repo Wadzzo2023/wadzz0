@@ -77,7 +77,7 @@ export default function AboutPage() {
                 icon: "🎸",
               },
               {
-                title: "calable Reach",
+                title: "Scalable Reach",
                 description: "Connect with users globally using real-time, location-based technology.",
                 icon: "🎧",
               },
@@ -105,9 +105,6 @@ export default function AboutPage() {
           <p className="mb-6 text-xl text-gray-700">
             Whether you’re hunting for rewards or driving brand visibility, Wadzzo redefines engagement by merging technology, fun, and creativity.
           </p>
-          <Button >
-            Download Wadzzo now and start your adventure!
-          </Button>
         </div>
 
         {/* only for wadzzo */}
@@ -117,7 +114,7 @@ export default function AboutPage() {
           </h1>
 
           <div className="flex items-center justify-center gap-4  md:items-start md:justify-start">
-            <Link href="">
+            <Link href="https://apps.apple.com/us/app/wadzzo/id1639649037">
               <Button className="inline-flex w-full items-center justify-center rounded-lg bg-gray-800 px-4 py-2.5 text-white hover:bg-gray-700 focus:outline-none focus:ring-4 focus:ring-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 dark:focus:ring-gray-700 sm:w-auto">
                 <svg
                   className="me-3 h-7 w-7"
@@ -142,7 +139,7 @@ export default function AboutPage() {
                 </div>
               </Button>
             </Link>
-            <Link href="">
+            <Link href="https://play.google.com/store/apps/details?id=com.thebillboardapp.wadzzo">
               <Button className="inline-flex w-full items-center justify-center rounded-lg bg-gray-800 px-4 py-2.5 text-white hover:bg-gray-700 focus:outline-none focus:ring-4 focus:ring-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 dark:focus:ring-gray-700 sm:w-auto">
                 <svg
                   className="me-3 h-7 w-7"
