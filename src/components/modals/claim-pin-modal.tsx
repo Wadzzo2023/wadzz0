@@ -35,14 +35,22 @@ const ClaimPinModal = () => {
 
   const xdrMutation = api.maps.trx.getClaimXDR.useMutation({
     onSuccess: (data, Variable) => {
-      setXdr(data);
+      console.log("data", data);
+      if (data)
+        setXdr(data);
       return;
+    },
+    onError: (error) => {
+      toast.error(error.message);
     },
   });
   const claimPin = api.maps.pin.claimAPin.useMutation({
     onSuccess: () => {
       setpaymetSucess(true);
       toast.success("Claimed Successfully");
+    },
+    onError: (error) => {
+      toast.error(error.message);
     },
   });
 
