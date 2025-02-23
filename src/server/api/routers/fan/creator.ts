@@ -7,6 +7,7 @@ import { CreatorAboutShema } from "~/components/fan/creator/about";
 import { brandCreateRequestSchema } from "~/components/fan/creator/onboarding/create-form";
 import { MAX_ASSET_LIMIT } from "~/components/fan/creator/page_asset/new";
 import {
+  getCreatorShopAssetBalance,
   sendAssetXDRForAsset,
   sendAssetXDRForNative,
 } from "~/lib/stellar/fan/creator_pageasset_buy";
@@ -316,9 +317,15 @@ export const creatorRouter = createTRPCRouter({
           creatorPageAsset.issuer,
         );
         if (bal) {
-          return { balance: bal, asset: creatorPageAsset.code };
+          return {
+            balance: bal, assetCode: creatorPageAsset.code,
+            assetIssuer: creatorPageAsset.issuer
+          };
         } else {
-          return { balance: 0, asset: creatorPageAsset.code };
+          return {
+            balance: 0, assetCode: creatorPageAsset.code,
+            assetIssuer: creatorPageAsset.issuer
+          };
         }
       } else {
         if (creator.customPageAssetCodeIssuer) {
@@ -334,12 +341,31 @@ export const creatorRouter = createTRPCRouter({
           const bal = storageAcc.getTokenBalance(assetCode, assetIssuer.data);
 
           if (bal >= 0) {
-            return { balance: bal, asset: assetCode };
+            return { balance: bal, assetCode: assetCode, assetIssuer: assetIssuer.data };
           } else {
             throw new Error("Invalid asset code or issuer");
           }
         } else throw new Error("creator has no page asset");
       }
+    },
+  ),
+  getCreatorShopAssetBalance: creatorProcedure.query(
+    async ({ ctx }) => {
+      const creator = await ctx.db.creator.findUnique({
+        where: { id: ctx.session.user.id },
+
+      });
+
+      if (!creator) {
+        throw new Error("Creator not found");
+      }
+
+      const creatorStoragePub = creator.storagePub;
+
+      return await getCreatorShopAssetBalance({
+        creatorStoragePub,
+      });
+
     },
   ),
   getFansList: protectedProcedure.query(async ({ ctx }) => {

@@ -26,7 +26,7 @@ import {
   createStorageTrxWithXLM,
 } from "~/lib/stellar/fan/create_storage";
 import { follow_creator } from "~/lib/stellar/fan/follow_creator";
-import { sendGift } from "~/lib/stellar/fan/send_gift";
+import { sendGift, sendGitfAsPlatformAsset } from "~/lib/stellar/fan/send_gift";
 import { trustCustomPageAsset } from "~/lib/stellar/fan/trust_custom_page_asset";
 import { StellarAccount } from "~/lib/stellar/marketplace/test/Account";
 import {
@@ -42,7 +42,11 @@ import {
 import { db } from "~/server/db";
 import { PaymentMethodEnum } from "~/components/BuyItem";
 import { useCreatorStorageAcc } from "~/lib/state/wallete/stellar-balances";
-
+enum assetType {
+  PAGEASSET = "PAGEASSET",
+  PLATFORMASSET = "PLATFORMASSET",
+  SHOPASSET = "SHOPASSET"
+}
 export const trxRouter = createTRPCRouter({
   createCreatorPageAsset: protectedProcedure
     .input(
@@ -303,10 +307,21 @@ export const trxRouter = createTRPCRouter({
     }),
 
   giftFollowerXDR: protectedProcedure // only logged creator can do that
-    .input(FanGitFormSchema)
+    .input(z.object({
+      pubkey: z.string().length(56),
+      amount: z.number({
+        required_error: "Amount is required",
+        invalid_type_error: "Amount must be a number",
+        message: "Amount must be a number",
+      }).int().positive(),
+      assetCode: z.string().nonempty(),
+      assetIssuer: z.string().nonempty(),
+      assetType: z.nativeEnum(assetType),
+      signWith: SignUser,
+    }))
     .mutation(async ({ input, ctx }) => {
       const creatorId = ctx.session.user.id;
-      const pubkey = input.pubkey;
+      const { pubkey, amount, assetCode, assetIssuer } = input
 
       const isFollower = await ctx.db.follow.findUnique({
         where: {
@@ -322,21 +337,66 @@ export const trxRouter = createTRPCRouter({
         where: { id: creatorId },
         include: { pageAsset: true },
       });
+      const { storageSecret } = creator;
 
-      if (creator.pageAsset) {
-        const { code, issuer } = creator.pageAsset;
+      if (input.assetType === assetType.PAGEASSET) {
+        if (creator.pageAsset) {
+          const { code, issuer } = creator.pageAsset;
+          console.log(code, issuer)
+          // send email
 
-        // send email
-        const { storageSecret } = creator;
-
+          return await sendGift({
+            customerPubkey: pubkey,
+            creatorPageAsset: { code, issuer },
+            creatorStorageSec: storageSecret,
+            creatorPub: creatorId,
+            price: input.amount,
+            signWith: input.signWith,
+          });
+        } else if (creator.customPageAssetCodeIssuer) {
+          const [code, issuer] = creator.customPageAssetCodeIssuer.split("-");
+          const issuerVal = z.string().length(56).safeParse(issuer);
+          if (issuerVal.success && code) {
+            const { storageSecret } = creator;
+            return await sendGift({
+              customerPubkey: pubkey,
+              creatorPageAsset: { code, issuer: issuerVal.data },
+              creatorStorageSec: storageSecret,
+              creatorPub: creatorId,
+              price: input.amount,
+              signWith: input.signWith,
+            });
+          } else {
+            throw new Error("Issuer is invalid");
+          }
+        }
+        else {
+          throw new Error("creator has no page asset");
+        }
+      }
+      else if (input.assetType === assetType.PLATFORMASSET) {
+        return await sendGitfAsPlatformAsset({
+          reciver: pubkey,
+          creatorId: creatorId,
+          amount: amount,
+          assetCode: assetCode,
+          assetIssuer: assetIssuer,
+          signWith: input.signWith,
+        })
+      }
+      else if (input.assetType === assetType.SHOPASSET) {
         return await sendGift({
           customerPubkey: pubkey,
-          creatorPageAsset: { code, issuer },
+          creatorPageAsset: { code: assetCode, issuer: assetIssuer },
           creatorStorageSec: storageSecret,
           creatorPub: creatorId,
           price: input.amount,
+          signWith: input.signWith,
         });
-      } else throw new Error("creator has no page asset");
+      }
+
+
+
     }),
 
   getRequiredPlatformAsset: publicProcedure
