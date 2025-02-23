@@ -127,3 +127,11 @@ export const sendAssetXDRForNative = async ({ creatorId, priceInXLMWithCost, cod
     const singedXdr = WithSing({ xdr, signWith });
     return singedXdr;
 }
+
+export const getCreatorShopAssetBalance = async ({ creatorStoragePub }: { creatorStoragePub: string }) => {
+    const server = new Horizon.Server(STELLAR_URL);
+    const account = await server.loadAccount(creatorStoragePub);
+    const balaces = account.balances;
+    return balaces;
+
+}
