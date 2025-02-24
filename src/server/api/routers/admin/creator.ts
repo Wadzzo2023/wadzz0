@@ -1,5 +1,3 @@
-import { Account } from "@stellar/stellar-sdk";
-import { aC } from "vitest/dist/reporters-yx5ZTtEV";
 import { z } from "zod";
 import { MAX_ASSET_LIMIT } from "~/components/fan/creator/page_asset/new";
 import { creatorAprovalTrx } from "~/lib/stellar/fan/creator-aproval";
