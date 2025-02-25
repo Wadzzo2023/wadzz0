@@ -209,6 +209,16 @@ export const creatorRouter = createTRPCRouter({
         nextCursor,
       };
     }),
+  getCreators: protectedProcedure
+
+    .query(async ({ input, ctx }) => {
+
+      const items = await ctx.db.creator.findMany({
+
+        where: { approved: { equals: true } },
+      });
+      return items;
+    }),
 
   // getLatest: protectedProcedure.query(({ ctx }) => {
   //   return ctx.db.post.findFirst({

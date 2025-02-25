@@ -1,7 +1,10 @@
 import { ItemPrivacy } from "@prisma/client";
+import { Horizon } from "@stellar/stellar-sdk";
 import { z } from "zod";
 import { updateAssetFormShema } from "~/components/fan/shop/asset_view_modal";
 import { NftFormSchema } from "~/components/marketplace/nft_create";
+import { STELLAR_URL } from "~/lib/stellar/constant";
+import { StellarAccount } from "~/lib/stellar/marketplace/test/Account";
 
 import {
   createTRPCRouter,
@@ -254,7 +257,60 @@ export const shopRouter = createTRPCRouter({
     return { shopAsset, pageAsset: pageAsset ?? customPageAsset };
 
   }),
+  getCreatorPageAsset: creatorProcedure.input(z.object({
+    creatorId: z.string(),
 
+  })).query(async ({ ctx, input }) => {
+    const { creatorId } = input;
+    const creator = await ctx.db.creator.findUnique({
+      where: { id: creatorId },
+      select: { customPageAssetCodeIssuer: true },
+    });
+    if (!creator) {
+      return null;
+    }
+    const shopAsset = await ctx.db.asset.findMany({
+      where: { creatorId: creatorId },
+      select: { code: true, issuer: true, thumbnail: true, id: true },
+    });
+
+    const pageAsset = await ctx.db.creatorPageAsset.findUnique({
+      where: { creatorId: creatorId },
+      select: { code: true, issuer: true, creatorId: true, thumbnail: true },
+    });
+
+    let customPageAsset = {
+      code: "",
+      issuer: "",
+      creatorId: creatorId,
+      thumbnail: "",
+    };
+
+
+    if (!pageAsset) {
+      const customPageAssetCodeIssuer = await ctx.db.creator.findUnique({
+        where: { id: creatorId },
+        select: { customPageAssetCodeIssuer: true },
+      });
+      if (customPageAssetCodeIssuer) {
+        if (customPageAssetCodeIssuer.customPageAssetCodeIssuer) {
+          const [code, issuer] = customPageAssetCodeIssuer.customPageAssetCodeIssuer.split("-");
+          if (code && issuer) {
+            customPageAsset = {
+              code,
+              issuer,
+              creatorId: creatorId,
+              thumbnail: "",
+            };
+          }
+        }
+      }
+
+    }
+
+    return { shopAsset, pageAsset: pageAsset ?? customPageAsset };
+
+  }),
   getCreatorAsset: protectedProcedure
     .input(z.object({ creatorId: z.string() }))
     .query(async ({ input, ctx }) => {
@@ -263,5 +319,36 @@ export const shopRouter = createTRPCRouter({
         where: { creatorId: creatorId },
         select: { code: true, issuer: true },
       });
+    }),
+
+  getAssetBalance: protectedProcedure
+    .input(z.object({
+      code: z.string(), issuer: z.string(),
+      creatorId: z.string()
+    }))
+    .mutation(async ({ input, ctx }) => {
+      const { code, issuer } = input;
+      const creator = await ctx.db.creator.findUnique({
+        where: { id: input.creatorId },
+        select: { storagePub: true },
+      });
+
+      if (!creator) {
+        return 0;
+      }
+
+      console.log("creator", creator);
+      const server = new Horizon.Server(STELLAR_URL);
+      const account = await server.loadAccount(creator.storagePub);
+      console.log("Code, issuer", code, issuer);
+      const tokens = (await StellarAccount.create(creator.storagePub)).getTokenBalance(code, issuer);
+      console.log("Balances.............:", tokens);
+
+      if (tokens) {
+        return tokens;
+      }
+      return 0;
+
+
     }),
 });

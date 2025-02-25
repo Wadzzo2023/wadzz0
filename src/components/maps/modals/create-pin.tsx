@@ -592,7 +592,10 @@ export default function CreatePinModal() {
                   <button
                     type="submit"
                     className="btn btn-primary"
-                    disabled={addPinM.isLoading}
+                    disabled={addPinM.isLoading
+
+                      || remainingBalance < 0
+                    }
                   >
                     {addPinM.isLoading && <Loader className="animate-spin" />}
                     Submit
