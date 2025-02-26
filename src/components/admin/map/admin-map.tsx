@@ -1,4 +1,4 @@
-import { Location, LocationGroup } from "@prisma/client";
+import { Creator, Location, LocationGroup } from "@prisma/client";
 import {
     APIProvider,
     AdvancedMarker,
@@ -63,7 +63,12 @@ const useNearbyPinsStore = create<NearbyPinsState>((set, get) => ({
     },
 }));
 
-
+type AssetType = {
+    id: number
+    code: string
+    issuer: string
+    thumbnail: string
+}
 type UserLocationType = {
     lat: number;
     lng: number;
@@ -75,6 +80,7 @@ function AdminMap() {
         setIsOpen,
         setPrevData,
     } = useAdminMapModalStore();
+    const creator = api.fan.creator.getCreators.useQuery()
 
     const { setBalance } = useCreatorStorageAcc();
     const [mapZoom, setMapZoom] = useState<number>(3);
@@ -82,6 +88,11 @@ function AdminMap() {
         lat: 22.54992,
         lng: 0,
     });
+    const [selectedToken, setSelectedToken] = useState<AssetType & { bal: number }>()
+    const [isPageAsset, setIsPageAsset] = useState<boolean>()
+    const [selectedCreator, setSelectedCreator] = useState<Creator | undefined>(undefined)
+    const [storageBalance, setStorageBalance] = useState<number>(0)
+    const [remainingBalance, setRemainingBalance] = useState<number>(0)
     const [centerChanged, setCenterChanged] =
         useState<google.maps.LatLngBoundsLiteral | null>(null);
     const [loading, setLoading] = useState<boolean>(false);
@@ -200,108 +211,136 @@ function AdminMap() {
     }, []);
 
     return (
-        <APIProvider apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAP_API_KEY!}>
-            <CustomMapControl
-                controlPosition={2}
-                onPlaceSelect={setSelectedPlace}
-                onCenterChange={setMapCenter}
-                setIsCordsSearch={setIsCordsSearch}
-                setSearchCoordinates={setSearchCoordinates}
-                setCordSearchLocation={setCordSearchLocation}
-                setZoom={setMapZoom}
-            />
-            <Map
-                zoomControl={true}
-                zoomControlOptions={{
-                    position: ControlPosition.RIGHT_TOP,
-                }}
-                onCenterChanged={(center) => {
-                    setMapCenter(center.detail.center);
-                    setCenterChanged(center.detail.bounds);
-                }}
-                onZoomChanged={(zoom) => {
-                    setMapZoom(zoom.detail.zoom);
-                }}
-                onClick={handleMapClick}
-                mapId={"bf51eea910020fa25a"}
-                className="h-screen w-full"
-                defaultCenter={{ lat: 22.54992, lng: 0 }}
-                defaultZoom={3}
-                minZoom={3}
-                zoom={mapZoom}
-                center={mapCenter}
-                gestureHandling={"greedy"}
-                disableDefaultUI={true}
-                onDragend={() => handleDragEnd()}
-            >
-                {
-                    !selectedPlace && (
+        <div className="relative h-screen w-full">
+            <APIProvider apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAP_API_KEY!}>
+                <CustomMapControl
+                    controlPosition={2}
+                    onPlaceSelect={setSelectedPlace}
+                    onCenterChange={setMapCenter}
+                    setIsCordsSearch={setIsCordsSearch}
+                    setSearchCoordinates={setSearchCoordinates}
+                    setCordSearchLocation={setCordSearchLocation}
+                    setZoom={setMapZoom}
+                />
+                <Map
+                    zoomControl={true}
+                    zoomControlOptions={{
+                        position: ControlPosition.RIGHT_TOP,
+                    }}
+                    onCenterChanged={(center) => {
+                        setMapCenter(center.detail.center);
+                        setCenterChanged(center.detail.bounds);
+                    }}
+                    onZoomChanged={(zoom) => {
+                        setMapZoom(zoom.detail.zoom);
+                    }}
+                    onClick={handleMapClick}
+                    mapId={"bf51eea910020fa25a"}
+                    className="h-screen w-full"
+                    defaultCenter={{ lat: 22.54992, lng: 0 }}
+                    defaultZoom={3}
+                    minZoom={3}
+                    zoom={mapZoom}
+                    center={mapCenter}
+                    gestureHandling={"greedy"}
+                    disableDefaultUI={true}
+                    onDragend={() => handleDragEnd()}
+                >
+                    {
+                        !selectedPlace && (
+                            <AdvancedMarker
+                                position={{
+                                    lat: userLocation.lat,
+                                    lng: userLocation.lng,
+                                }}
+                            >
+                                <MapPin size={20} className="text-red-500" />
+                            </AdvancedMarker>
+                        )
+                    }
+                    {centerChanged && searchCoordinates && (
                         <AdvancedMarker
+                            style={{
+                                color: "red",
+                            }}
                             position={{
-                                lat: userLocation.lat,
-                                lng: userLocation.lng,
+                                lat: searchCoordinates.lat,
+                                lng: searchCoordinates.lng,
                             }}
                         >
-                            <MapPin size={20} className="text-red-500" />
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                viewBox="0 0 16 16"
+                                fill="currentColor"
+                                className="size-8"
+                            >
+                                <path
+                                    fillRule="evenodd"
+                                    d="m7.539 14.841.003.003.002.002a.755.755 0 0 0 .912 0l.002-.002.003-.003.012-.009a5.57 5.57 0 0 0 .19-.153 15.588 15.588 0 0 0 2.046-2.082c1.101-1.362 2.291-3.342 2.291-5.597A5 5 0 0 0 3 7c0 2.255 1.19 4.235 2.292 5.597a15.591 15.591 0 0 0 2.046 2.082 8.916 8.916 0 0 0 .189.153l.012.01ZM8 8.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z"
+                                    clipRule="evenodd"
+                                />
+                            </svg>
                         </AdvancedMarker>
+                    )}
+
+                    {isCordsSearch && cordSearchCords && (
+                        <AdvancedMarker
+                            style={{
+                                color: "red",
+                            }}
+                            position={{
+                                lat: cordSearchCords.lat,
+                                lng: cordSearchCords.lng,
+                            }}
+                        >
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                viewBox="0 0 16 16"
+                                fill="currentColor"
+                                className="size-8"
+                            >
+                                <path
+                                    fillRule="evenodd"
+                                    d="m7.539 14.841.003.003.002.002a.755.755 0 0 0 .912 0l.002-.002.003-.003.012-.009a5.57 5.57 0 0 0 .19-.153 15.588 15.588 0 0 0 2.046-2.082c1.101-1.362 2.291-3.342 2.291-5.597A5 5 0 0 0 3 7c0 2.255 1.19 4.235 2.292 5.597a15.591 15.591 0 0 0 2.046 2.082 8.916 8.916 0 0 0 .189.153l.012.01ZM8 8.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z"
+                                    clipRule="evenodd"
+                                />
+                            </svg>
+                        </AdvancedMarker>
+                    )}
+                    <MyPins onOpen={onOpen} setIsAutoCollect={setIsAutoCollect} />
+                </Map>
+
+                <ManualPinButton handleClick={handleManualPinClick} />
+                {creator.data && (
+                    <div className="absolute top-2 left-2">
+                        <label className="form-control w-full ">
+
+                            <select
+                                className="select select-bordered"
+                                onChange={(e) => {
+                                    if (e.target.value === "") {
+                                        setSelectedCreator(undefined)
+                                        return
+                                    }
+                                    const selectedCreator = creator.data.find((c) => c.id === e.target.value)
+                                    setSelectedCreator(selectedCreator)
+                                }}
+                            >
+                                <option disabled={selectedCreator?.id ? true : false} value="">Select a Creator</option>
+                                {creator.data.map((model) => (
+                                    <option key={model.id} value={model.id}>{`${model.name}`}</option>
+                                ))}
+                            </select>
+                        </label>
+                    </div>
+                )}
+                {
+                    selectedCreator && (
+                        <CreateAdminPinModal selectedCreator={selectedCreator} />
                     )
                 }
-                {centerChanged && searchCoordinates && (
-                    <AdvancedMarker
-                        style={{
-                            color: "red",
-                        }}
-                        position={{
-                            lat: searchCoordinates.lat,
-                            lng: searchCoordinates.lng,
-                        }}
-                    >
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            viewBox="0 0 16 16"
-                            fill="currentColor"
-                            className="size-8"
-                        >
-                            <path
-                                fillRule="evenodd"
-                                d="m7.539 14.841.003.003.002.002a.755.755 0 0 0 .912 0l.002-.002.003-.003.012-.009a5.57 5.57 0 0 0 .19-.153 15.588 15.588 0 0 0 2.046-2.082c1.101-1.362 2.291-3.342 2.291-5.597A5 5 0 0 0 3 7c0 2.255 1.19 4.235 2.292 5.597a15.591 15.591 0 0 0 2.046 2.082 8.916 8.916 0 0 0 .189.153l.012.01ZM8 8.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z"
-                                clipRule="evenodd"
-                            />
-                        </svg>
-                    </AdvancedMarker>
-                )}
-
-                {isCordsSearch && cordSearchCords && (
-                    <AdvancedMarker
-                        style={{
-                            color: "red",
-                        }}
-                        position={{
-                            lat: cordSearchCords.lat,
-                            lng: cordSearchCords.lng,
-                        }}
-                    >
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            viewBox="0 0 16 16"
-                            fill="currentColor"
-                            className="size-8"
-                        >
-                            <path
-                                fillRule="evenodd"
-                                d="m7.539 14.841.003.003.002.002a.755.755 0 0 0 .912 0l.002-.002.003-.003.012-.009a5.57 5.57 0 0 0 .19-.153 15.588 15.588 0 0 0 2.046-2.082c1.101-1.362 2.291-3.342 2.291-5.597A5 5 0 0 0 3 7c0 2.255 1.19 4.235 2.292 5.597a15.591 15.591 0 0 0 2.046 2.082 8.916 8.916 0 0 0 .189.153l.012.01ZM8 8.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z"
-                                clipRule="evenodd"
-                            />
-                        </svg>
-                    </AdvancedMarker>
-                )}
-                <MyPins onOpen={onOpen} setIsAutoCollect={setIsAutoCollect} />
-            </Map>
-
-            <ManualPinButton handleClick={handleManualPinClick} />
-
-            <CreateAdminPinModal />
-        </APIProvider>
+            </APIProvider>
+        </div>
     );
 }
 
@@ -309,7 +348,7 @@ function AdminMap() {
 
 function ManualPinButton({ handleClick }: { handleClick: () => void }) {
     return (
-        <div className="absolute bottom-2 right-2">
+        <div className="absolute bottom-24 right-2">
             <div className="btn" onClick={handleClick}>
                 <MapPin /> Drop Pins
             </div>

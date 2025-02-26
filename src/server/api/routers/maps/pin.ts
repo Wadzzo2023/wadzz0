@@ -92,10 +92,11 @@ export const pinRouter = createTRPCRouter({
     .input(createAdminPinFormSchema)
     .mutation(async ({ ctx, input }) => {
       const { pinNumber, pinCollectionLimit, token, tier, multiPin, creatorId } = input;
-
+      console.log(creatorId)
       const creator = await ctx.db.creator.findUnique({
         where: { id: creatorId },
       });
+      console.log(creator)
       if (!creator || !creatorId) throw new Error("Creator not found");
 
       let tierId: number | undefined;
