@@ -1,7 +1,7 @@
 "use client"
 
 import { zodResolver } from "@hookform/resolvers/zod"
-import { Loader } from "lucide-react"
+import { Loader, X } from "lucide-react"
 import Image from "next/image"
 import { type ChangeEvent, useEffect, useRef, useState } from "react"
 import { Controller, type SubmitHandler, useForm } from "react-hook-form"
@@ -66,16 +66,19 @@ export const createAdminPinFormSchema = z.object({
   pinCollectionLimit: z.number().min(0),
   tier: z.string().optional(),
   multiPin: z.boolean().optional(),
-  creatorId: z.string().optional(),
+  creatorId: z.string(),
 })
 
-export default function CreateAdminPinModal() {
+interface modalInfoProps {
+  selectedCreator: Creator
+}
+
+export default function CreateAdminPinModal({ selectedCreator }: modalInfoProps) {
   const { manual, position, duplicate, isOpen, setIsOpen, prevData } = useAdminMapModalStore()
 
   const [coverUrl, setCover] = useState<string>()
   const [selectedToken, setSelectedToken] = useState<AssetType & { bal: number }>()
   const [isPageAsset, setIsPageAsset] = useState<boolean>()
-  const [selectedCreator, setSelectedCreator] = useState<Creator | undefined>(undefined)
   const [storageBalance, setStorageBalance] = useState<number>(0)
   const [remainingBalance, setRemainingBalance] = useState<number>(0)
   const scrollContainerRef = useRef<HTMLDivElement>(null)
@@ -97,6 +100,7 @@ export default function CreateAdminPinModal() {
       radius: 0,
       pinNumber: 1,
       description: prevData?.description,
+      creatorId: selectedCreator?.id,
       // startDate: new Date(),
       // endDate: new Date(),
     },
@@ -111,7 +115,6 @@ export default function CreateAdminPinModal() {
   const GetAssetBalance = api.fan.asset.getAssetBalance.useMutation()
 
   const tiers = api.fan.member.getAllMembership.useQuery()
-  const creator = api.fan.creator.getCreators.useQuery()
   console.log('selected token', selectedToken)
   const assetsDropdown = match(assets)
     .with(success, () => {
@@ -204,6 +207,7 @@ export default function CreateAdminPinModal() {
 
   const onSubmit: SubmitHandler<z.infer<typeof createAdminPinFormSchema>> = (data) => {
     setValue("token", selectedToken?.id)
+    setValue("creatorId", selectedCreator?.id)
 
     if (selectedToken) {
       if (data.pinCollectionLimit > selectedToken.bal) {
@@ -214,7 +218,6 @@ export default function CreateAdminPinModal() {
         return
       }
     }
-
     if (position) {
       setValue("lat", position.lat)
       setValue("lng", position.lng)
@@ -279,6 +282,14 @@ export default function CreateAdminPinModal() {
 
     }
   }
+  console.log("creatorId", selectedCreator?.id)
+
+  useEffect(() => {
+    setRemainingBalance(0)
+    setValue('creatorId', selectedCreator?.id)
+    setSelectedToken(undefined)
+    reset()
+  }, [selectedCreator?.id])
 
   useEffect(() => {
     if (isOpen && scrollContainerRef.current) {
@@ -343,7 +354,7 @@ export default function CreateAdminPinModal() {
 
   return (
     <>
-      <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <Dialog open={isOpen && !!selectedCreator} onOpenChange={setIsOpen}>
         {/* <DialogTrigger asChild>
           <Button onClick={openPopup}>Open Popup</Button>
         </DialogTrigger> */}
@@ -358,35 +369,7 @@ export default function CreateAdminPinModal() {
                 <h2 className="mb-2 text-center text-lg font-bold"></h2>
                 <div className="flex flex-col space-y-4">
                   <ManualLatLanInputField />
-                  {creator.data && (
-                    <div>
-                      <label className="form-control w-full max-w-xs">
-                        <div className="label">
-                          <span className="label-text">Choose Creator</span>
-                        </div>
-                        <select
-                          className="select select-bordered"
-                          onChange={(e) => {
-                            if (e.target.value === "") {
-                              setSelectedCreator(undefined)
-                              setValue("creatorId", undefined)
-                              return
-                            }
-                            const selectedCreator = creator.data.find((c) => c.id === e.target.value)
-                            setSelectedCreator(selectedCreator)
-                            setSelectedToken(undefined)
-                            setRemainingBalance(0)
-                            setValue("creatorId", selectedCreator?.id)
-                          }}
-                        >
-                          <option value="">Select a Creator</option>
-                          {creator.data.map((model) => (
-                            <option key={model.id} value={model.id}>{`${model.name}`}</option>
-                          ))}
-                        </select>
-                      </label>
-                    </div>
-                  )}
+
                   {selectedCreator && (
                     <>
                       <div className="flex flex-col space-y-2">
