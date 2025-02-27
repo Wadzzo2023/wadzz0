@@ -13,7 +13,7 @@ import { Input } from "~/components/shadcn/ui/input";
 import { Label } from "~/components/shadcn/ui/label";
 import { Textarea } from "~/components/shadcn/ui/textarea";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { z } from "zod";
 import { UploadS3Button } from "~/pages/test";
@@ -24,6 +24,7 @@ import { Loader2 } from "lucide-react";
 import { Creator } from "@prisma/client";
 import { CreateBrand } from "./create-button";
 import { set } from "date-fns";
+import { env } from "~/env";
 
 export const brandCreateRequestSchema = z.object({
   displayName: z.string().min(1, "Display name is required"),
@@ -34,9 +35,10 @@ export const brandCreateRequestSchema = z.object({
     .max(12, "Page asset name must be 12 characters or less")
     .regex(/^[^\s]+$/, "Page asset name cannot contain spaces"),
   vanityUrl: z
-    .string()
+    .string().min(2, "Vanity URL must be 2 characters or more")
+    .max(30, "Vanity URL must be 30 characters or less")
     .regex(/^[^\s]+$/, "Vanity URL cannot contain spaces")
-    .optional(),
+  ,
   profileUrl: z.string().url().optional(),
   coverUrl: z.string().url().optional(),
   assetThumbnail: z.string().url().optional(),
@@ -68,9 +70,12 @@ export default function BrandCreationForm({
     creator?.profileUrl ?? undefined,
   );
   const [coverUrl, setCoverUrl] = useState(creator?.coverUrl ?? undefined);
+  const [isAvailable, setIsAvailable] = useState<boolean | null>(null);
+
   const {
     control,
     handleSubmit,
+    watch,
     formState: { errors },
     setValue,
     getValues,
@@ -128,6 +133,28 @@ export default function BrandCreationForm({
       alert("Trouble uploading file");
     }
   };
+  const checkAvailability = api.fan.creator.checkVanityURLAvailability.useQuery(
+    { vanityURL: watch('vanityUrl') },
+    {
+      onSuccess: (data) => {
+        console.log("data", data)
+        setIsAvailable(data.isAvailable);
+      },
+      onError: (error) => {
+        console.error("error", error);
+        setIsAvailable(false);
+      }
+    },
+
+  );
+  useEffect(() => {
+    const subscription = watch((value, { name }) => {
+      if (name === 'vanityUrl' && value.vanityUrl) {
+        checkAvailability.refetch();
+      }
+    });
+    return () => subscription.unsubscribe();
+  }, [watch, checkAvailability]);
 
   const handleChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -314,29 +341,49 @@ export default function BrandCreationForm({
               )}
             </label>
           </div>
-          <div>
-            <Label htmlFor="vanityUrl">
-              Vanity URL
-              <span
-                className="ml-1 cursor-help text-gray-500"
-                title="This is an optional field. You can set a custom URL for your brand page."
-              >
-                (?)
-              </span>
-            </Label>
-            <Controller
-              name="vanityUrl"
-              control={control}
-              render={({ field }) => (
-                <Input {...field} id="vanityUrl" placeholder="your-brand" />
-              )}
-            />
-            {errors.vanityUrl && (
-              <p className="mt-1 text-sm text-red-500">
-                {errors.vanityUrl.message}
-              </p>
-            )}
-          </div>
+          {
+            !edit && (
+              <div>
+                <Label htmlFor="vanityUrl">
+                  Vanity URL
+                  <span
+                    className="ml-1 cursor-help text-gray-500"
+                    title="
+                  We are providing one month free trial for custom URL. After that, you will be charged 10 BAND per month.
+                "
+                  >
+                    (*)
+                  </span>
+                </Label>
+                <Controller
+                  name="vanityUrl"
+                  control={control}
+                  render={({ field }) => (
+                    <div className="flex items-center space-x-2">
+                      <span className="text-base-content/70">{env.NEXT_PUBLIC_ASSET_CODE.toLocaleLowerCase() === 'wadzzo' ? 'https://app.wadzzo.com' : 'https://bandcoin.io'}/</span>
+                      <Input
+                        {...field}
+                        id="vanityUrl"
+                        onInput={(e) => (e.currentTarget.value = e.currentTarget.value.toLowerCase())}
+                        placeholder="Your custom URL"
+                      />
+                    </div>
+                  )}
+                />
+                {errors.vanityUrl && (
+                  <p className="mt-1 text-sm text-red-500">
+                    {errors.vanityUrl.message}
+                  </p>
+                )}
+                {isAvailable !== null && (
+                  <span className={` ${isAvailable ? 'text-success' : 'text-error'
+                    }`}>
+                    {isAvailable ? 'Available' : 'Not Available'}
+                  </span>
+                )}
+              </div>
+            )
+          }
           <Button type="submit" className="w-full">
             {req.isLoading && <Loader2 className="animate mr-2 animate-spin" />}
             {edit ? "Update" : "Create"} Brand

@@ -22,12 +22,76 @@ import {
 } from "~/server/api/trpc";
 import { getAccSecretFromRubyApi } from "package/connect_wallet/src/lib/stellar/get-acc-secret";
 import { Input } from "~/components/shadcn/ui/input";
+import { Horizon } from "@stellar/stellar-sdk";
+import { ServerApi } from "@stellar/stellar-sdk/lib/horizon";
+import { PLATFORM_ASSET, STELLAR_URL } from "~/lib/stellar/constant";
 
 export const WBalanceRouter = createTRPCRouter({
   getWalletsBalance: protectedProcedure.query(async ({ ctx, input }) => {
     const userId = ctx.session.user.id;
     return await BalanceWithHomeDomain({ userPub: userId });
   }),
+  getGiftWithHomeBalance: protectedProcedure.input(z.object({
+
+    limit: z.number().min(1).max(100).nullish().default(10),
+    cursor: z.string().nullish(),
+  })).query(async ({ input, ctx }) => {
+    const { limit, cursor } = input
+    const server = new Horizon.Server(STELLAR_URL);
+    const homeDomain = (PLATFORM_ASSET.code.toLowerCase() === "wadzzo"
+      ? "app.wadzzo.com"
+      : "bandcoin.io")
+    try {
+      const claimableBalancesCall = server.claimableBalances()
+
+      if (limit) {
+        claimableBalancesCall.limit(limit)
+      }
+      if (cursor) {
+        claimableBalancesCall.cursor(cursor)
+      }
+      console.log(ctx.session.user.id)
+      const claimableBalances = await claimableBalancesCall
+        .claimant(ctx.session.user.id)
+        .call()
+      const filteredBalances = await Promise.all(
+        claimableBalances.records.map(async (balance) => {
+          const asset = balance.asset;
+          if (!asset) return false;
+
+          try {
+            if (asset.includes(":")) {
+              const [code, issuer] = asset.split(":");
+              if (!issuer) throw new Error("Issuer is undefined");
+
+              const account = await server.loadAccount(issuer);
+              console.log("account.home_domain", account.home_domain);
+
+              return account.home_domain === homeDomain;
+            }
+            return false;
+          } catch (error) {
+            console.error("Error checking home_domain:", error);
+            return false;
+          }
+        })
+      );
+      const validBalances = claimableBalances.records.filter((_, i) => filteredBalances[i]);
+
+      return {
+        balances: validBalances,
+        nextCursor:
+          claimableBalances.records.length > 0
+            ? claimableBalances.records[claimableBalances.records.length - 1]?.paging_token
+            : undefined,
+      }
+    } catch (error) {
+      console.error("Error fetching claimable balances:", error)
+      throw new Error("Failed to fetch claimable balances")
+    }
+  }
+  ),
+
   getNativeBalance: protectedProcedure.query(async ({ ctx, input }) => {
     const userId = ctx.session.user.id;
     return await NativeBalance({ userPub: userId });
@@ -138,15 +202,12 @@ export const WBalanceRouter = createTRPCRouter({
     )
     .mutation(async ({ input, ctx }) => {
       const userPubKey = ctx.session.user.id;
-      let secretKey;
-      if (ctx.session.user.email && ctx.session.user.email.length > 0) {
-        secretKey = await getAccSecretFromRubyApi(ctx.session.user.email);
-      }
+
       return await AcceptClaimableBalance({
         userPubKey: userPubKey,
         balanceId: input.balanceId,
         signWith: input.signWith,
-        secretKey: secretKey,
+
       });
     }),
 
@@ -189,3 +250,6 @@ export const WBalanceRouter = createTRPCRouter({
 
 
 });
+
+
+

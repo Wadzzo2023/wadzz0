@@ -82,7 +82,8 @@ export default function CreatePinModal() {
   >();
   const [isPageAsset, setIsPageAsset] = useState<boolean>();
   const { getAssetBalance } = useCreatorStorageAcc();
-
+  const [storageBalance, setStorageBalance] = useState<number>(0);
+  const [remainingBalance, setRemainingBalance] = useState<number>(0);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const {
     register,
@@ -107,6 +108,7 @@ export default function CreatePinModal() {
     },
     // mode: "onTouched",
   });
+  const tokenAmount = watch("pinCollectionLimit");
 
   // query
   const assets = api.fan.asset.myAssets.useQuery(undefined, {});
@@ -192,6 +194,7 @@ export default function CreatePinModal() {
   function resetState() {
     setCover(undefined);
     setSelectedToken(undefined);
+    setRemainingBalance(0);
     setIsPageAsset(undefined);
 
     reset();
@@ -247,6 +250,7 @@ export default function CreatePinModal() {
           id: PAGE_ASSET_NUM,
           thumbnail: pageAsset.thumbnail ?? "",
         });
+        setRemainingBalance(bal);
         setValue("token", PAGE_ASSET_NUM);
 
       } else {
@@ -263,6 +267,7 @@ export default function CreatePinModal() {
         issuer: selectedAsset.issuer,
       });
       setSelectedToken({ ...selectedAsset, bal: bal });
+      setRemainingBalance(bal);
       setValue("token", selectedAsset.id);
     }
   }
@@ -321,6 +326,14 @@ export default function CreatePinModal() {
       setValue("lng", position.lng);
     }
   }, [isOpen]);
+
+
+  useEffect(() => {
+    if (selectedToken && tokenAmount) {
+      setRemainingBalance(selectedToken.bal - tokenAmount);
+    }
+  }, [tokenAmount, selectedToken]);
+
   return (
     <>
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -389,7 +402,8 @@ export default function CreatePinModal() {
                   <div className="flex justify-between">{assetsDropdown}</div>
                   <div>
                     {selectedToken && (
-                      <TokenInStorage bal={selectedToken.bal} />
+                      <p className="text-sm text-red-400">Limit Remaining : {remainingBalance}</p>
+
                     )}
                   </div>
                   {/* <AvailableTokenField balance={selectedToken?.bal} /> */}
@@ -443,7 +457,13 @@ export default function CreatePinModal() {
                       className="input input-bordered"
                       max={2147483647}
                     />
-
+                    {
+                      remainingBalance < 0 && (
+                        <span className="label-text-alt text-red-500">
+                          {"Insufficient token balance"}
+                        </span>
+                      )
+                    }
                     {errors.pinCollectionLimit && (
                       <div className="label">
                         <span className="label-text-alt text-red-500">
@@ -572,7 +592,10 @@ export default function CreatePinModal() {
                   <button
                     type="submit"
                     className="btn btn-primary"
-                    disabled={addPinM.isLoading}
+                    disabled={addPinM.isLoading
+
+                      || remainingBalance < 0
+                    }
                   >
                     {addPinM.isLoading && <Loader className="animate-spin" />}
                     Submit
@@ -659,6 +682,7 @@ export default function CreatePinModal() {
                 id: 0,
                 thumbnail: pageAsset.thumbnail ?? "",
               });
+              setRemainingBalance(bal);
               // setValue("token", pageAsset);
             } else {
               toast.error("No page asset found");
@@ -741,6 +765,3 @@ export default function CreatePinModal() {
   }
 }
 
-function TokenInStorage({ bal }: { bal: number }) {
-  return <p className="text-sm text-red-400">Limit Remaining : {bal}</p>;
-}

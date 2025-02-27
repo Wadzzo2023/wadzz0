@@ -10,6 +10,7 @@ type CustomAutocompleteControlProps = {
   setIsCordsSearch: (isCordsSearch: boolean) => void;
   setCordSearchLocation: (location: google.maps.LatLngLiteral) => void;
   setSearchCoordinates: (searchCoordinates: google.maps.LatLngLiteral) => void;
+  setZoom: (zoom: number) => void;
 };
 
 export const CustomMapControl = ({
@@ -18,7 +19,8 @@ export const CustomMapControl = ({
   onCenterChange,
   setIsCordsSearch,
   setCordSearchLocation,
-  setSearchCoordinates
+  setSearchCoordinates,
+  setZoom
 }: CustomAutocompleteControlProps) => {
   return (
     <MapControl position={controlPosition}>
@@ -29,6 +31,7 @@ export const CustomMapControl = ({
           setIsCordsSearch={setIsCordsSearch}
           setCordSearchLocation={setCordSearchLocation}
           setSearchCoordinates={setSearchCoordinates}
+          setZoom={setZoom}
         />
       </div>
     </MapControl>

@@ -424,15 +424,17 @@ export async function PendingAssetList({
     .claimant(userPubKey)
     .limit(20)
     .order("desc")
-    .call();
+    .call()
 
   const parsedItems = pendingItems.records.map((record) => {
+
     return {
       id: record.id,
       asset: record.asset,
       amount: record.amount,
       sponsor: record.sponsor ?? "",
       claimants: record.claimants,
+
     };
   });
 
@@ -443,39 +445,63 @@ export async function AcceptClaimableBalance({
   userPubKey,
   balanceId,
   signWith,
-  secretKey,
+
 }: {
   userPubKey: string;
   balanceId: string;
   signWith: SignUserType;
-  secretKey?: string | undefined;
+
 }) {
   const server = new Horizon.Server(STELLAR_URL);
   const account = await server.loadAccount(userPubKey);
+  // finding balance using balance id 
+  console.log("balanceId", balanceId)
+  const balance = await server.claimableBalances().claimant(userPubKey).claimableBalance(balanceId).call();
+  if (!balance) {
+    throw new Error("Balance not found");
+  }
+  const assetCode = balance.asset.split(":")[0];
+  const assetIssuer = balance.asset.split(":")[1];
+  if (!assetCode || !assetIssuer) {
+    throw new Error("Asset code or issuer not found")
+  }
+  //checking if  trustline exists
+  const hasTrust = account.balances.some((balance) => {
+    return (
+      (balance.asset_type === "credit_alphanum4" || balance.asset_type === "credit_alphanum12") &&
+      balance.asset_code === assetCode &&
+      balance.asset_issuer === assetIssuer
+    );
+  });
+
+
   try {
-    const transaction = new TransactionBuilder(account, {
+    const Tx1 = new TransactionBuilder(account, {
       fee: TrxBaseFee,
       networkPassphrase,
     })
-      .addOperation(
-        Operation.claimClaimableBalance({
-          balanceId: balanceId,
-        }),
+    console.log(hasTrust)
+    if (!hasTrust) {
+      Tx1.addOperation(
+        Operation.changeTrust({
+          asset: new Asset(assetCode, assetIssuer),
+        })
       )
-      .setTimeout(0);
-    const buildTrx = transaction.build();
-
-    if (signWith && "email" in signWith && secretKey) {
-      // console.log("Calling...");
-      const xdr = buildTrx.toXDR();
-      const signedXDr = await WithSing({
-        xdr: xdr,
-        signWith: signWith,
-      });
-      return { xdr: signedXDr, pubKey: userPubKey };
     }
 
-    return { xdr: buildTrx.toXDR(), pubKey: userPubKey };
+    Tx1.addOperation(
+      Operation.claimClaimableBalance({
+        balanceId: balanceId,
+      }),
+    )
+      .setTimeout(0);
+    const buildTrx = Tx1.build();
+    buildTrx.sign()
+    const xdr = buildTrx.toXDR();
+    const singedXdr = WithSing({ xdr, signWith });
+    console.log(singedXdr);
+    return singedXdr;
+
   } catch (error) {
     throw new Error("Error in accepting claimable balance");
   }

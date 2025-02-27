@@ -55,14 +55,17 @@ export async function createOrRenewVanitySubscription(
         creatorId: string;
         isChanging: boolean;
         amount: number;
-        vanityURL?: string | null;
+        vanityURL: string
     }
 
 ) {
+    console.log("Vanity URL", vanityURL)
     const creator = await db.creator.findUnique({
         where: { id: creatorId },
         include: { vanitySubscription: true },
     })
+    const now = new Date()
+    const endDate = addMonths(now, 1)
 
     if (!creator) {
         throw new Error('Creator not found')
@@ -81,11 +84,9 @@ export async function createOrRenewVanitySubscription(
                     },
                 },
             },
-        })  
+        })
     }
 
-    const now = new Date()
-    const endDate = addMonths(now, 1)
 
     if (creator.vanitySubscription) {
         // Renew existing subscription
@@ -98,7 +99,8 @@ export async function createOrRenewVanitySubscription(
 
             },
         })
-    } else {
+    }
+    else {
         return db.creator.update({
             where: { id: creatorId },
             data: {
@@ -112,8 +114,6 @@ export async function createOrRenewVanitySubscription(
                 },
             },
         })
-
-
     }
 }
 

@@ -161,6 +161,7 @@ body {
   animation-timing-function: linear;
   animation-iteration-count: infinite;
 }
+
 @keyframes pan {
   0% {
     background-position: 0% 0%;

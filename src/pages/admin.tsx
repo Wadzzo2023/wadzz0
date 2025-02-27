@@ -13,6 +13,7 @@ import { AdminNavigation, useAdminMenu } from "~/lib/state/admin-tab-menu";
 import { PLATFORM_ASSET } from "~/lib/stellar/constant";
 import { api } from "~/utils/api";
 import AdminPinConsumptionReport from "./maps/pins/admin";
+import AdminMap from "~/components/admin/map/admin-map";
 
 export default function AdminPage() {
   return <IsAdmin />;
@@ -20,7 +21,7 @@ export default function AdminPage() {
 
 function AdminPageTemplate() {
   return (
-    <div className=" flex justify-center">
+    <div className=" flex justify-center w-full">
       <RenderTabs />
     </div>
   );
@@ -71,6 +72,8 @@ function RenderTabs() {
       return <UserList />;
     case AdminNavigation.COLLECTION_REPORTS:
       return <AdminPinConsumptionReport />;
+    case AdminNavigation.MAP:
+      return <AdminMap />;
 
     case AdminNavigation.BOUNTY:
       return <Bounty />;

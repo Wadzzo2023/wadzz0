@@ -8,6 +8,7 @@ interface Props {
   setIsCordsSearch: (isCordsSearch: boolean) => void;
   setCordSearchLocation: (location: google.maps.LatLngLiteral) => void;
   setSearchCoordinates: (searchCoordinates: google.maps.LatLngLiteral) => void;
+  setZoom: (zoom: number) => void;
 }
 
 // This is an example of the classic "Place Autocomplete" widget.
@@ -18,6 +19,7 @@ export const PlaceAutocompleteClassic = ({
   setIsCordsSearch,
   setCordSearchLocation,
   setSearchCoordinates,
+  setZoom
 }: Props) => {
   const { setSelectedPlace } = useSelectedAutoSuggestion();
 
@@ -51,6 +53,7 @@ export const PlaceAutocompleteClassic = ({
         setSelectedPlace(latLng);
         setSearchCoordinates(latLng);
         onCenterChange(latLng); // Center map on selected place
+        setZoom(16);
       }
     });
   }, [onPlaceSelect, placeAutocomplete, setSelectedPlace, onCenterChange]);
@@ -68,6 +71,7 @@ export const PlaceAutocompleteClassic = ({
         setSelectedPlace(latLng);
         setIsCordsSearch(true);
         setCordSearchLocation(latLng);
+        setZoom(16);
       } else {
         console.error(
           "Invalid coordinates. Please enter valid latitude and longitude.",

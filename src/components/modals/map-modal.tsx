@@ -36,6 +36,7 @@ import { Label } from "~/components/shadcn/ui/label";
 import { useCreatorStorageAcc } from "~/lib/state/wallete/stellar-balances";
 import { BADWORDS } from "~/utils/banned-word";
 import { UploadS3Button } from "~/pages/test";
+import { useAdminMapModalStore } from "../hooks/use-AdminModal-store";
 
 const MapModalComponent = () => {
   const {
@@ -55,7 +56,7 @@ const MapModalComponent = () => {
   const [pinData, setPinData] = React.useState<IPin>();
 
   const { setManual, setDuplicate, setPosition, setIsOpen, setPrevData } =
-    useMapModalStore();
+    useAdminMapModalStore();
   const isModalOpen = isOpen && type === "map";
   const handleClose = () => {
     onClose();

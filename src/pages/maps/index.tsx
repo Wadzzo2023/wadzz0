@@ -31,10 +31,10 @@ import Link from "next/link";
 
 type Pin = {
   locationGroup:
-    | (LocationGroup & {
-        creator: { profileUrl: string | null };
-      })
-    | null;
+  | (LocationGroup & {
+    creator: { profileUrl: string | null };
+  })
+  | null;
   _count: {
     consumers: number;
   };
@@ -108,6 +108,10 @@ export const useMapModalStore = create<IMapPinModal>((set) => ({
   setPosition: (pos) => set({ position: pos }),
 }));
 
+type UserLocationType = {
+  lat: number;
+  lng: number;
+};
 function App() {
   const modal = React.useRef<HTMLDialogElement>(null);
   const {
@@ -133,7 +137,12 @@ function App() {
   const [isCordsSearch, setIsCordsSearch] = useState<boolean>(false);
   const [searchCoordinates, setSearchCoordinates] =
     useState<google.maps.LatLngLiteral>();
-
+  const [userLocation, setUserLocation] = useState<UserLocationType>(
+    {
+      lat: 44.500000,
+      lng: -89.500000,
+    }
+  );
   const {
     selectedPlace: alreadySelectedPlace,
     setSelectedPlace: setAlreadySelectedPlace,
@@ -205,6 +214,39 @@ function App() {
       filterNearbyPins(centerChanged);
     }
   };
+  useEffect(() => {
+    // Check if geolocation is supported
+    if (!navigator.geolocation) {
+      alert("Geolocation is not supported by your browser");
+      return;
+    }
+
+    // Request location permission and get location
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setUserLocation({
+          lat: position.coords.latitude,
+          lng: position.coords.longitude,
+        });
+        setMapCenter({
+          lat: position.coords.latitude,
+          lng: position.coords.longitude,
+        });
+
+        setLoading(false);
+      },
+      (error) => {
+        alert("Permission to access location was denied");
+        console.error(error);
+        setLoading(false);
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 0,
+      },
+    );
+  }, []);
 
   return (
     <APIProvider apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAP_API_KEY!}>
@@ -215,6 +257,7 @@ function App() {
         setIsCordsSearch={setIsCordsSearch}
         setSearchCoordinates={setSearchCoordinates}
         setCordSearchLocation={setCordSearchLocation}
+        setZoom={setMapZoom}
       />
       <Map
         zoomControl={true}
@@ -223,7 +266,7 @@ function App() {
         }}
         onCenterChanged={(center) => {
           setMapCenter(center.detail.center);
-          setCenterChanged(center.detail.bounds); // Update the centerChanged state with new bounds
+          setCenterChanged(center.detail.bounds);
         }}
         onZoomChanged={(zoom) => {
           setMapZoom(zoom.detail.zoom);
@@ -233,13 +276,14 @@ function App() {
         className="h-screen w-full"
         defaultCenter={{ lat: 22.54992, lng: 0 }}
         defaultZoom={3}
-        minZoom={2}
+        minZoom={3}
         zoom={mapZoom}
         center={mapCenter}
         gestureHandling={"greedy"}
         disableDefaultUI={true}
         onDragend={() => handleDragEnd()}
       >
+
         {centerChanged && searchCoordinates && (
           <AdvancedMarker
             style={{
@@ -441,9 +485,8 @@ function MyPins({
               width={30}
               height={30}
               alt="Creator"
-              className={`h-10 w-10 bg-white ${
-                !pin.autoCollect ? "rounded-full " : ""
-              } ${pin._count.consumers <= 0 ? "opacity-100" : "opacity-50 "}`}
+              className={`h-10 w-10 bg-white ${!pin.autoCollect ? "rounded-full " : ""
+                } ${pin._count.consumers <= 0 ? "opacity-100" : "opacity-50 "}`}
             />
           </AdvancedMarker>
         ))}

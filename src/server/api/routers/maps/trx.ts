@@ -45,19 +45,15 @@ export const trxRouter = createTRPCRouter({
       const storageSecret = location.locationGroup.creator.storageSecret;
 
       if (code && issuer) {
-        try {
-          const xdr: string = await ClaimXDR({
-            amount: "1",
-            asset: { code, issuer },
-            receiver: userId,
-            signWith: input.signWith,
-            storageSecret: storageSecret,
-          });
-
-          return xdr;
-        } catch (error) {
-          console.error(error);
-        }
+        const xdr = await ClaimXDR({
+          amount: "1",
+          asset: { code, issuer },
+          receiver: userId,
+          signWith: input.signWith,
+          storageSecret: storageSecret,
+        });
+        console.log("xdr", xdr);
+        return xdr;
       } else throw new Error("Code and Issue not found");
     }),
 });

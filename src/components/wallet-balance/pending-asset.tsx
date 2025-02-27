@@ -53,27 +53,27 @@ const PendingAssetList = ({
   const AcceptClaimMutation =
     api.walletBalance.wallBalance.claimBalance.useMutation({
       onSuccess(data) {
-        clientsign({
-          walletType: user?.walletType,
-          presignedxdr: data.xdr,
-          pubkey: data.pubKey,
-          test: clientSelect(),
-        })
-          .then((result) => {
+        // clientsign({
+        //   walletType: user?.walletType,
+        //   presignedxdr: data.xdr,
+        //   pubkey: data.pubKey,
+        //   test: clientSelect(),
+        // })
+        //   .then((result) => {
 
-            if (result) {
-              toast.success("Claim Balance successful");
-            } else {
-              toast.error("Claim Balance failed");
-            }
-          })
-          .catch((e) => {
-            console.log("error", e);
-            toast.error("Adding Claim Balance Operation failed");
-          })
-          .finally(() => {
-            setLoading(false);
-          });
+        //     if (result) {
+        //       toast.success("Claim Balance successful");
+        //     } else {
+        //       toast.error("Claim Balance failed");
+        //     }
+        //   })
+        //   .catch((e) => {
+        //     console.log("error", e);
+        //     toast.error("Adding Claim Balance Operation failed");
+        //   })
+        //   .finally(() => {
+        //     setLoading(false);
+        //   });
       },
 
       onError(error) {
