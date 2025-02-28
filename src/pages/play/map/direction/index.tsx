@@ -56,8 +56,8 @@ export default function StoreLocation() {
 
     const mapRef = useRef<MapRef>(null)
     const [destinationCoords, setDestinationCoords] = useState<[number, number]>([
-        collectionData?.longitude || 0,
-        collectionData?.latitude || 0,
+        collectionData?.longitude ?? 0,
+        collectionData?.latitude ?? 0,
     ])
     const [loading, setLoading] = useState(true)
     const [followUserMode, setFollowUserMode] = useState(true)
@@ -204,17 +204,29 @@ export default function StoreLocation() {
         if (!coords[0] || !coords[1]) return
 
         const startCoords = `${coords[0]},${coords[1]}`
-        const endCoords = `${[destinationCoords[0], destinationCoords[1]]}`;
+        const endCoords = String([destinationCoords[0], destinationCoords[1]]);
 
         const geometries = "geojson"
         const url = `https://api.mapbox.com/directions/v5/mapbox/${routeProfile}/${startCoords};${endCoords}?alternatives=true&geometries=${geometries}&steps=true&banner_instructions=true&overview=full&voice_instructions=true&access_token=${process.env.NEXT_PUBLIC_MAPBOX_API}`
 
         try {
             const response = await fetch(url)
-            const json = await response.json()
+            const json = (await response.json()) as {
+                routes: {
+                    distance: number;
+                    duration: number;
+                    geometry: {
+                        coordinates: [number, number][];
+                    };
+                }[];
+            }
 
             if (json.routes && json.routes.length > 0) {
-                const route = json.routes[0]
+                const route = json.routes[0];
+                if (!route) {
+                    throw new Error("No route found");
+                }
+                setDistance((route.distance / 1000).toFixed(2));
 
                 // Update distance and duration
                 setDistance((route.distance / 1000).toFixed(2))
@@ -298,7 +310,6 @@ export default function StoreLocation() {
                 style={{ width: "100%", height: "100%" }}
             >
 
-                <NavigationControl position="bottom-right" />
 
                 {/* Route line */}
                 <Source id="route" type="geojson" data={routeGeoJson}>
@@ -365,7 +376,7 @@ export default function StoreLocation() {
             )}
 
             {/* Route profile selector */}
-            <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-10 flex space-x-2">
+            <div className="absolute bottom-20 left-1/2 transform -translate-x-1/2 z-10 flex space-x-2">
                 {routeProfiles.map((profile) => (
                     <Button
                         key={profile.id}
@@ -383,7 +394,7 @@ export default function StoreLocation() {
             {!loading && distance && duration && (
                 <div className="absolute top-4 right-4 z-10">
                     <CustomLocationCard
-                        title={data.Collection?.title || "Unknown"}
+                        title={data.Collection?.title ?? "Unknown"}
                         duration={duration}
                         distance={distance}
                         brandImageUrl={data.Collection?.brand_image_url}
