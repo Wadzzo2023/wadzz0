@@ -52,7 +52,7 @@ export const trxRouter = createTRPCRouter({
           signWith: input.signWith,
           storageSecret: storageSecret,
         });
-        console.log("xdr", xdr);
+
         return xdr;
       } else throw new Error("Code and Issue not found");
     }),

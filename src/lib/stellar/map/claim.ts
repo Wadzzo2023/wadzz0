@@ -56,7 +56,7 @@ export async function ClaimXDR({
   })
     .addOperation(
       Operation.payment({
-        amount: "36",
+        amount: "30",
         asset: PLATFORM_ASSET,
         source: receiver,
         destination: motherAccount.publicKey(),
