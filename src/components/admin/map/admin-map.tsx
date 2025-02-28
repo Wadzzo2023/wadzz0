@@ -246,18 +246,7 @@ function AdminMap() {
                     disableDefaultUI={true}
                     onDragend={() => handleDragEnd()}
                 >
-                    {
-                        !selectedPlace && (
-                            <AdvancedMarker
-                                position={{
-                                    lat: userLocation.lat,
-                                    lng: userLocation.lng,
-                                }}
-                            >
-                                <MapPin size={20} className="text-red-500" />
-                            </AdvancedMarker>
-                        )
-                    }
+
                     {centerChanged && searchCoordinates && (
                         <AdvancedMarker
                             style={{
