@@ -88,7 +88,7 @@ export const pinRouter = createTRPCRouter({
         },
       });
     }),
-  createForAdminPin: creatorProcedure
+  createForAdminPin: adminProcedure
     .input(createAdminPinFormSchema)
     .mutation(async ({ ctx, input }) => {
       const { pinNumber, pinCollectionLimit, token, tier, multiPin, creatorId } = input;
@@ -373,6 +373,54 @@ export const pinRouter = createTRPCRouter({
       where: {
         locationGroup: {
           creatorId: ctx.session.user.id,
+          endDate: { gte: new Date() },
+          approved: { equals: true },
+        },
+      },
+      include: {
+        _count: { select: { consumers: true } },
+        locationGroup: {
+          include: {
+            creator: { select: { profileUrl: true } },
+            locations: {
+              select: {
+                locationGroup: {
+                  select: {
+                    endDate: true,
+                    startDate: true,
+                    limit: true,
+                    image: true,
+                    description: true,
+                    title: true,
+                    link: true,
+                    multiPin: true,
+                    subscriptionId: true,
+                    pageAsset: true,
+                    privacy: true,
+                    remaining: true,
+                    assetId: true,
+                  },
+                },
+                latitude: true,
+                longitude: true,
+                id: true,
+                autoCollect: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    return pins;
+  }),
+  getCreatorPins: adminProcedure.input(z.object({
+    creator_id: z.string(),
+  })).query(async ({ ctx, input }) => {
+    const pins = await ctx.db.location.findMany({
+      where: {
+        locationGroup: {
+          creatorId: input.creator_id,
           endDate: { gte: new Date() },
           approved: { equals: true },
         },

@@ -1,18 +1,15 @@
 "use client";
-
-import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowUpDown } from "lucide-react";
-
+import { ArrowUpDown } from 'lucide-react';
 import { Button } from "~/components/shadcn/ui/button";
 import {
   Card,
   CardContent,
   CardFooter,
   CardHeader,
-  CardTitle,
 } from "~/components/shadcn/ui/card";
 import { Badge } from "~/components/shadcn/ui/badge";
 import {
@@ -22,28 +19,23 @@ import {
   DropdownMenuTrigger,
 } from "~/components/shadcn/ui/dropdown-menu";
 
-import Loading from "~/components/wallete/loading";
 import { useBounty } from "~/lib/state/play/useBounty";
 import { useModal } from "~/lib/state/play/useModal";
-
-import { addrShort } from "~/utils/utils";
-import { getUserPlatformAsset } from "~/lib/play/get-user-platformAsset";
 import { getAllBounties } from "~/lib/play/get-all-bounties";
+import { getUserPlatformAsset } from "~/lib/play/get-user-platformAsset";
 import { Bounty } from "~/types/game/bounty";
 import { PLATFORM_ASSET } from "~/lib/stellar/constant";
 import { Preview } from "~/components/preview";
 import { Walkthrough } from "~/components/walkthrough";
-import toast from "react-hot-toast";
 import { useWalkThrough } from "~/components/hooks/play/useWalkthrough";
-
-
+import toast from "react-hot-toast";
+import { Skeleton } from "~/components/shadcn/ui/skeleton";
 type ButtonLayout = {
   x: number;
   y: number;
   width: number;
   height: number;
 };
-
 export default function BountyScreen() {
   const [selectedFilter, setSelectedFilter] = useState("All");
   const { setData } = useBounty();
@@ -54,36 +46,15 @@ export default function BountyScreen() {
   const filterButtonRef = useRef<HTMLButtonElement>(null);
   const joinButtonRef = useRef<HTMLButtonElement>(null);
   const { data: walkthroughData } = useWalkThrough();
-
-  const response = useQuery({
+  const { data: bountyData, isLoading } = useQuery({
     queryKey: ["bounties"],
     queryFn: getAllBounties,
   });
-
-  const balanceRes = useQuery({
+  const { data: balanceData } = useQuery({
     queryKey: ["balance"],
     queryFn: getUserPlatformAsset,
   });
-
-  const handleFilterChange = (filter: string) => {
-    setSelectedFilter(filter);
-  };
-
-  const steps = [
-    {
-      target: buttonLayouts[0],
-      title: "Filter Bounty",
-      content:
-        "User can filter bounty between Joined and Not Joined Bounty List.",
-    },
-    {
-      target: buttonLayouts[1],
-      title: "View/Join Bounty",
-      content:
-        "Clicking 'Join Bounty' lets users view details and join. If already joined, they can view details only.",
-    },
-  ];
-  const bountyList = response.data?.allBounty ?? [];
+  const bountyList = bountyData?.allBounty ?? [];
   const dummyBounties: Bounty[] = [
     {
       title: "Bounty 1",
@@ -111,7 +82,7 @@ export default function BountyScreen() {
     },
   ];
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     const updateButtonLayouts = () => {
       const filterButton = filterButtonRef.current;
       const joinButton = joinButtonRef.current;
@@ -120,121 +91,107 @@ export default function BountyScreen() {
         const filterRect = filterButton.getBoundingClientRect();
         const joinRect = joinButton.getBoundingClientRect();
 
-        setButtonLayouts((prevLayouts) => {
-          const newLayouts = [
-            {
-              x: filterRect.left,
-              y: filterRect.top,
-              width: filterRect.width,
-              height: filterRect.height,
-            },
-            {
-              x: joinRect.left,
-              y: joinRect.top,
-              width: joinRect.width,
-              height: joinRect.height,
-            },
-          ];
-
-          // Compare previous and new layouts to prevent unnecessary updates
-          if (
-            JSON.stringify(prevLayouts) !== JSON.stringify(newLayouts)
-          ) {
-            return newLayouts;
-          }
-          return prevLayouts;
-        });
+        setButtonLayouts([
+          {
+            x: filterRect.left,
+            y: filterRect.top,
+            width: filterRect.width,
+            height: filterRect.height,
+          },
+          {
+            x: joinRect.left,
+            y: joinRect.top,
+            width: joinRect.width,
+            height: joinRect.height,
+          },
+        ]);
       }
     };
 
-    // Throttle updates using a flag
-    let animationFrameId: number | null = null;
-
-    const observer = new MutationObserver(() => {
-      if (animationFrameId) cancelAnimationFrame(animationFrameId);
-      animationFrameId = requestAnimationFrame(updateButtonLayouts);
+    const observer = new ResizeObserver(() => {
+      requestAnimationFrame(updateButtonLayouts);
     });
 
-    // Observe only the parent container for efficiency
-    const container = document.body;
-    observer.observe(container, { childList: true, subtree: true });
-
-    // Initial calculation
+    observer.observe(document.body);
     updateButtonLayouts();
 
     return () => {
-      if (animationFrameId) cancelAnimationFrame(animationFrameId);
       observer.disconnect();
     };
   }, []);
 
-  const checkFirstTimeSignIn = async () => {
-    if (walkthroughData.showWalkThrough) {
-      setShowWalkthrough(true);
-    } else {
-      setShowWalkthrough(false);
-    }
-  };
-
   useEffect(() => {
-    console.log("walkthroughData", walkthroughData);
-    checkFirstTimeSignIn();
-
+    if (walkthroughData?.showWalkThrough) {
+      setShowWalkthrough(true);
+    }
   }, [walkthroughData]);
 
-  const filteredBounties = useMemo(() => {
+  const filteredBounties = React.useMemo(() => {
     return bountyList.filter((bounty: Bounty) => {
       if (selectedFilter === "Joined") return bounty.isJoined;
       if (selectedFilter === "Not Joined") return !bounty.isJoined && !bounty.isOwner;
-      return true; // "All"
+      return true;
     });
-  }, [selectedFilter]);
+  }, [selectedFilter, bountyList]);
 
-  if (response.isLoading) return <Loading />;
-
-  const toggleJoin = (id: string, isAlreadyJoin: boolean, bounty: Bounty) => {
-
-    if (isAlreadyJoin || bounty.isOwner) {
+  const handleBountyAction = (bounty: Bounty) => {
+    if (bounty.isJoined || bounty.isOwner) {
       setData({ item: bounty });
       router.push(`/play/bounty/${bounty.id}`);
-    }
-    else if (bounty.totalWinner === bounty.currentWinnerCount) {
+    } else if (bounty.totalWinner === bounty.currentWinnerCount) {
       toast.error("Bounty is already finished");
-    }
-    else {
-      onOpen("JoinBounty", { bounty: bounty, balance: balanceRes.data });
+    } else {
+      onOpen("JoinBounty", { bounty: bounty, balance: balanceData });
     }
   };
 
   const getStatusColor = (status: Bounty["status"]) => {
     switch (status) {
       case "APPROVED":
-        return "bg-green-500";
+        return "bg-emerald-500 text-white";
       case "PENDING":
-        return "bg-yellow-500";
+        return "bg-amber-500 text-black";
       case "REJECTED":
-        return "bg-red-500";
+        return "bg-red-500 text-white";
       default:
-        return "bg-gray-500";
+        return "bg-gray-500 text-white";
     }
   };
 
+  const steps = [
+    {
+      target: buttonLayouts[0],
+      title: "Filter Bounty",
+      content: "User can filter bounty between Joined and Not Joined Bounty List.",
+    },
+    {
+      target: buttonLayouts[1],
+      title: "View/Join Bounty",
+      content: "Clicking 'Join Bounty' lets users view details and join. If already joined, they can view details only.",
+    },
+  ];
+
   return (
-    <div className="flex h-screen flex-col p-2 pb-16">
-      <div className="mb-4 flex items-center justify-between rounded-b-2xl bg-[#38C02B] p-4">
-        <h1 className=" text-2xl font-bold">Bounty</h1>
+    <div className="flex h-screen flex-col">
+      <div className="sticky top-0 z-10 mb-4 flex items-center justify-between bg-[#38C02B] p-4">
+        <h1 className="text-2xl font-bold text-white">Bounty</h1>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button ref={filterButtonRef} variant="outline" size="sm">
+            <Button
+              ref={filterButtonRef}
+              variant="secondary"
+              size="sm"
+              className="min-w-[120px]"
+            >
               <ArrowUpDown className="mr-2 h-4 w-4" />
               {selectedFilter}
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent>
+          <DropdownMenuContent align="end">
             {["All", "Joined", "Not Joined"].map((filter) => (
               <DropdownMenuItem
                 key={filter}
-                onClick={() => handleFilterChange(filter)}
+                onClick={() => setSelectedFilter(filter)}
               >
                 {filter}
               </DropdownMenuItem>
@@ -243,158 +200,154 @@ export default function BountyScreen() {
         </DropdownMenu>
       </div>
 
-      {
-        <div className="flex flex-col gap-2 overflow-y-auto ">
-          {
-            showWalkthrough ? (
-
-              dummyBounties.map((bounty: Bounty) => (
-                <Card key={bounty.id} className="flex flex-col ">
-                  <CardHeader className="p-0">
-                    <div className="relative h-48 w-full">
-                      <Image
-                        src={
-                          bounty.imageUrls[0] ??
-                          "https://app.wadzzo.com/images/loading.png"
-                        }
-                        alt={bounty.title}
-                        layout="fill"
-                        objectFit="cover"
-                      />
-                    </div>
-                  </CardHeader>
-                  <CardContent className="flex-grow">
-                    <CardTitle className="mb-2">{bounty.title}</CardTitle>
-                    <div className="mb-4 min-h-36 max-h-36 overflow-y-auto">
-                      <Preview value={bounty.description} />
-                    </div>
-                    <div className="mb-2 flex items-center justify-between">
-                      {/* <Badge className={getStatusColor(bounty.status)}>
-                        {bounty.status}
-                      </Badge> */}
-                      <div className="text-sm">
-                        <p>Prize: ${bounty.priceInUSD.toFixed(2)}</p>
-                        <p>
-                          Prize: {bounty.priceInBand.toFixed(2)}{" "}
-                          {PLATFORM_ASSET.code}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex justify-between">
-                      <p className="text-sm">
-                        Participants: {bounty._count.participants}
-                      </p>
-                      <Badge
-                        variant={
-                          bounty._count.BountyWinner === 0
-                            ? "destructive"
-                            : "default"
-                        }
-                      >
-                        {bounty.totalWinner === bounty.currentWinnerCount
-                          ? "Finished"
-                          : bounty.totalWinner -
-                          bounty.currentWinnerCount +
-                          " Winner Left"}
-                      </Badge>
-                    </div>
-                  </CardContent>
-                  <CardFooter>
-                    <Button
-                      ref={joinButtonRef}
-                      className="w-full"
-                      disabled={bounty.status === "REJECTED"}
-                      variant={bounty.isJoined ? "outline" : "default"}
-                      onClick={() => toggleJoin(bounty.id, bounty.isJoined, bounty)}
-                    >
-                      {bounty.isJoined || bounty.isOwner
-                        ? "View Bounty"
-                        : bounty.totalWinner !== bounty.currentWinnerCount ? "Join Bounty" : "Finished"}
-                    </Button>
-                  </CardFooter>
-                </Card>
-              ))
-
-            )
-              : filteredBounties.length === 0 ? (
-                <div className="flex h-64 items-center justify-center">
-                  <p>No Bounty found</p>
-                </div>
-              ) : (
-                (
-                  filteredBounties.map((bounty: Bounty) => (
-                    <Card key={bounty.id} className="flex flex-col ">
-                      <CardHeader className="p-0">
-                        <div className="relative h-48 w-full">
-                          <Image
-                            src={
-                              bounty.imageUrls[0] ??
-                              "https://app.wadzzo.com/images/loading.png"
-                            }
-                            alt={bounty.title}
-                            layout="fill"
-                            objectFit="cover"
-                          />
-                        </div>
-                      </CardHeader>
-                      <CardContent className="flex-grow">
-                        <CardTitle className="mb-2">{bounty.title}</CardTitle>
-                        <div className="mb-4 min-h-36 max-h-36 overflow-y-auto">
-                          <Preview value={bounty.description} />
-                        </div>
-                        <div className="mb-2 flex items-center justify-between">
-                          <Badge className={getStatusColor(bounty.status)}>
-                            {bounty.status}
-                          </Badge>
-                          <div className="text-sm">
-                            <p>Prize: ${bounty.priceInUSD.toFixed(2)}</p>
-                            <p>
-                              Prize: {bounty.priceInBand.toFixed(2)}{" "}
-                              {PLATFORM_ASSET.code}
-                            </p>
-                          </div>
-                        </div>
-                        <div className="flex justify-between">
-                          <p className="text-sm">
-                            Participants: {bounty._count.participants}
-                          </p>
-                          <Badge
-                            variant={
-                              bounty._count.BountyWinner === 0
-                                ? "destructive"
-                                : "default"
-                            }
-                          >
-                            {bounty.totalWinner === bounty.currentWinnerCount
-                              ? "Finished"
-                              : bounty.totalWinner -
-                              bounty.currentWinnerCount +
-                              " Winner Left"}
-                          </Badge>
-                        </div>
-                      </CardContent>
-                      <CardFooter>
-                        <Button
-                          ref={joinButtonRef}
-                          className="w-full"
-                          variant={bounty.isJoined ? "outline" : "default"}
-                          onClick={() => toggleJoin(bounty.id, bounty.isJoined, bounty)}
-                        >
-                          {bounty.isJoined || bounty.isOwner
-                            ? "View Bounty"
-                            : bounty.totalWinner !== bounty.currentWinnerCount ? "Join Bounty" : "Finished"}
-                        </Button>
-                      </CardFooter>
-                    </Card>
-                  ))
-                ))
-          }
-
+      <div className="flex-1 overflow-y-auto px-4 pb-16">
+        <div className="flex flex-col gap-2">
+          {showWalkthrough ? (
+            dummyBounties.map((bounty) => (
+              <BountyCard
+                key={bounty.id}
+                bounty={bounty}
+                onAction={handleBountyAction}
+                getStatusColor={getStatusColor}
+                joinButtonRef={joinButtonRef}
+              />
+            ))
+          ) : isLoading ? (
+            // Show skeleton cards while loading
+            Array.from({ length: 3 }).map((_, index) => <BountyCardSkeleton key={`skeleton-${index}`} />)
+          ) : filteredBounties.length === 0 ? (
+            <div className="col-span-full flex h-64 items-center justify-center rounded-lg border-2 border-dashed border-gray-200">
+              <p className="text-gray-500">No Bounty found</p>
+            </div>
+          ) : (
+            filteredBounties.map((bounty: Bounty) => (
+              <BountyCard
+                key={bounty.id}
+                bounty={bounty}
+                onAction={handleBountyAction}
+                getStatusColor={getStatusColor}
+                joinButtonRef={joinButtonRef}
+              />
+            ))
+          )}
         </div>
-      }
+      </div>
+
       {showWalkthrough && (
         <Walkthrough steps={steps} onFinish={() => setShowWalkthrough(false)} />
       )}
     </div>
   );
+}
+
+interface BountyCardProps {
+  bounty: Bounty;
+  onAction: (bounty: Bounty) => void;
+  getStatusColor: (status: Bounty["status"]) => string;
+  joinButtonRef?: React.RefObject<HTMLButtonElement>;
+}
+
+function BountyCard({ bounty, onAction, getStatusColor, joinButtonRef }: BountyCardProps) {
+  const isFinished = bounty.totalWinner === bounty.currentWinnerCount;
+
+  return (
+    <Card className="group overflow-hidden transition-all hover:shadow-lg">
+      <CardHeader className="p-0">
+        <div className="relative aspect-video w-full overflow-hidden">
+          <Image
+            src={bounty.imageUrls[0] ?? "https://app.wadzzo.com/images/loading.png"}
+            alt={bounty.title}
+            fill
+            className="object-cover transition-transform duration-300 group-hover:scale-105"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+          <Badge
+            className={`absolute bottom-3 right-3 ${getStatusColor(bounty.status)}`}
+          >
+            {bounty.status}
+          </Badge>
+        </div>
+      </CardHeader>
+
+      <CardContent className="space-y-4 p-4">
+        <div>
+          <h3 className="line-clamp-1 text-lg font-semibold">{bounty.title}</h3>
+          <div className="mt-1 flex items-center gap-4 text-sm text-gray-600">
+            <span>{bounty._count.participants} participants</span>
+            <span>•</span>
+            <span>${bounty.priceInUSD.toFixed(2)}</span>
+          </div>
+        </div>
+
+        <div className="max-h-24 overflow-y-auto rounded-md bg-gray-50 p-3 text-sm">
+          <Preview value={bounty.description} />
+        </div>
+
+        <div className="flex items-center justify-between text-sm">
+          <div>
+            <span className="text-gray-600">Prize:</span>{" "}
+            <span className="font-medium">
+              {bounty.priceInBand.toFixed(2)} {PLATFORM_ASSET.code}
+            </span>
+          </div>
+          <Badge variant={isFinished ? "secondary" : "outline"}>
+            {isFinished
+              ? "Finished"
+              : `${bounty.totalWinner - bounty.currentWinnerCount} winner${bounty.totalWinner - bounty.currentWinnerCount !== 1 ? "s" : ""
+              } left`
+            }
+          </Badge>
+        </div>
+      </CardContent>
+
+      <CardFooter className="border-t bg-gray-50 p-4">
+        <Button
+          ref={bounty.isJoined ? undefined : joinButtonRef}
+          className="w-full"
+          variant={bounty.isJoined || bounty.isOwner ? "outline" : "default"}
+          disabled={bounty.status === "REJECTED"}
+          onClick={() => onAction(bounty)}
+        >
+          {bounty.isJoined || bounty.isOwner
+            ? "View Details"
+            : isFinished
+              ? "Bounty Finished"
+              : "Join Bounty"}
+        </Button>
+      </CardFooter>
+    </Card>
+  );
+}
+function BountyCardSkeleton() {
+  return (
+    <Card className="overflow-hidden">
+      <CardHeader className="p-0">
+        <div className="relative aspect-video w-full overflow-hidden">
+          <Skeleton className="h-full w-full" />
+        </div>
+      </CardHeader>
+
+      <CardContent className="space-y-4 p-4">
+        <div>
+          <Skeleton className="h-6 w-3/4" />
+          <div className="mt-2 flex items-center gap-4">
+            <Skeleton className="h-4 w-24" />
+            <Skeleton className="h-4 w-4 rounded-full" />
+            <Skeleton className="h-4 w-16" />
+          </div>
+        </div>
+
+        <Skeleton className="h-24 w-full" />
+
+        <div className="flex items-center justify-between">
+          <Skeleton className="h-4 w-32" />
+          <Skeleton className="h-5 w-24 rounded-full" />
+        </div>
+      </CardContent>
+
+      <CardFooter className="border-t bg-gray-50 p-4">
+        <Skeleton className="h-10 w-full" />
+      </CardFooter>
+    </Card>
+  )
 }

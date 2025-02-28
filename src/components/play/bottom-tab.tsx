@@ -27,10 +27,10 @@ export const BottomTab = () => {
   return (
     <header className=" absolute bottom-0 z-50  w-full  pt-6">
       <div className="">
-        <div className="flex  items-center justify-between rounded-t-xl bg-[#38C02B] p-2  md:border ">
+        <div className="flex  items-center justify-between rounded-t-xl bg-[#38C02B]  p-2  md:border ">
           <div className="w-full">
             <nav
-              className="flex justify-center gap-8 rounded-t-xl bg-[#38C02B] p-2 text-sm md:rounded-none md:p-0 "
+              className="flex justify-center gap-8 rounded-t-xl bg-[#38C02B]  text-sm md:rounded-none md:p-0 "
               ref={dockRef}
             >
               {iconsOne.map(({ Icon, href, label, id }) => (
@@ -47,14 +47,14 @@ export const BottomTab = () => {
                   <Link
                     href={href}
                     aria-label={label}
-                    className="block rounded-full bg-[#38C02B] p-2  transition-colors"
+                    className="block p-2  transition-colors"
                   >
                     <Icon className="h-6 w-6" />
                   </Link>
 
                   {path === href && (
                     <motion.div
-                      className="absolute -bottom-2 left-1/2 h-1 w-1 rounded-full bg-white"
+                      className="absolute bottom-1 left-1/2 h-1 w-1 rounded-full bg-white"
                       initial={{ opacity: 0, scale: 0 }}
                       animate={{ opacity: 1, scale: 1 }}
                       exit={{ opacity: 0, scale: 0 }}
@@ -69,7 +69,7 @@ export const BottomTab = () => {
                 onMouseEnter={() => setHoveredIndex(3)}
                 onMouseLeave={() => setHoveredIndex(null)}
                 animate={{
-                  scale: hoveredIndex === 3 ? 2 : 1,
+                  scale: hoveredIndex === 3 ? 1.5 : 1,
                 }}
                 transition={{ type: "spring", stiffness: 300, damping: 20 }}
               >
@@ -88,7 +88,7 @@ export const BottomTab = () => {
 
                 {path === "/(tabs)/creator" && (
                   <motion.div
-                    className="absolute -bottom-2 left-1/2 h-1 w-1 rounded-full bg-white"
+                    className="absolute bottom-1 left-1/2 h-1 w-1 rounded-full bg-white"
                     initial={{ opacity: 0, scale: 0 }}
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0 }}
@@ -111,14 +111,14 @@ export const BottomTab = () => {
                   <Link
                     href={href}
                     aria-label={label}
-                    className="block rounded-full bg-[#38C02B] p-2  transition-colors"
+                    className="block  p-2  transition-colors"
                   >
                     <Icon className="h-6 w-6" />
                   </Link>
 
                   {path === href && (
                     <motion.div
-                      className="absolute -bottom-2 left-1/2 h-1 w-1 rounded-full bg-white"
+                      className="absolute bottom-1 left-1/2 h-1 w-1 rounded-full bg-white"
                       initial={{ opacity: 0, scale: 0 }}
                       animate={{ opacity: 1, scale: 1 }}
                       exit={{ opacity: 0, scale: 0 }}
