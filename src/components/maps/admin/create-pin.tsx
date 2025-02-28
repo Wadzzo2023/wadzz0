@@ -16,8 +16,8 @@ import { error, loading, success } from "~/utils/trcp/patterns"
 
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "~/components/shadcn/ui/dialog"
 import { UploadS3Button } from "~/pages/test"
-import type { Creator } from "@prisma/client"
 import { useAdminMapModalStore } from "~/components/hooks/use-AdminModal-store"
+import { useSelectCreatorStore } from "~/components/hooks/use-select-creator-store"
 
 type AssetType = {
   id: number
@@ -69,12 +69,11 @@ export const createAdminPinFormSchema = z.object({
   creatorId: z.string(),
 })
 
-interface modalInfoProps {
-  selectedCreator: Creator
-}
 
-export default function CreateAdminPinModal({ selectedCreator }: modalInfoProps) {
+
+export default function CreateAdminPinModal() {
   const { manual, position, duplicate, isOpen, setIsOpen, prevData } = useAdminMapModalStore()
+  const { setData: setSelectedCreator, data: selectedCreator } = useSelectCreatorStore()
 
   const [coverUrl, setCover] = useState<string>()
   const [selectedToken, setSelectedToken] = useState<AssetType & { bal: number }>()
@@ -115,7 +114,7 @@ export default function CreateAdminPinModal({ selectedCreator }: modalInfoProps)
   const GetAssetBalance = api.fan.asset.getAssetBalance.useMutation()
 
   const tiers = api.fan.member.getAllMembership.useQuery()
-  console.log('selected token', selectedToken)
+
   const assetsDropdown = match(assets)
     .with(success, () => {
       const pageAsset = assets.data?.pageAsset
@@ -154,7 +153,7 @@ export default function CreateAdminPinModal({ selectedCreator }: modalInfoProps)
     .otherwise(() => <p>Failed to fetch assets</p>)
 
   function TiersOptions() {
-    // console.log("tiers", tiers);
+
     if (tiers.isLoading) return <div className="skeleton h-10 w-20"></div>
     if (tiers.data) {
       return (
@@ -179,7 +178,6 @@ export default function CreateAdminPinModal({ selectedCreator }: modalInfoProps)
     }
   }
 
-  const openPopup = () => setIsOpen(true)
   const closePopup = () => {
     setIsOpen(false)
     resetState()
@@ -203,11 +201,10 @@ export default function CreateAdminPinModal({ selectedCreator }: modalInfoProps)
     reset()
   }
 
-  // console.log("e", errors);
 
   const onSubmit: SubmitHandler<z.infer<typeof createAdminPinFormSchema>> = (data) => {
     setValue("token", selectedToken?.id)
-    setValue("creatorId", selectedCreator?.id)
+
 
     if (selectedToken) {
       if (data.pinCollectionLimit > selectedToken.bal) {
@@ -219,10 +216,14 @@ export default function CreateAdminPinModal({ selectedCreator }: modalInfoProps)
       }
     }
     if (position) {
+      console.log("data...", data)
+
       setValue("lat", position.lat)
       setValue("lng", position.lng)
       addPinM.mutate({ ...data, lat: position.lat, lng: position.lng })
     } else {
+      console.log("data...", data)
+
       addPinM.mutate({ ...data })
     }
   }
@@ -282,13 +283,13 @@ export default function CreateAdminPinModal({ selectedCreator }: modalInfoProps)
 
     }
   }
-  console.log("creatorId", selectedCreator?.id)
 
   useEffect(() => {
     setRemainingBalance(0)
-    setValue('creatorId', selectedCreator?.id)
     setSelectedToken(undefined)
-    reset()
+    if (selectedCreator) {
+      setValue("creatorId", selectedCreator?.id)
+    }
   }, [selectedCreator?.id])
 
   useEffect(() => {

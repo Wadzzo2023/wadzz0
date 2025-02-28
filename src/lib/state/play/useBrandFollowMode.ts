@@ -8,6 +8,6 @@ interface BrandFollowModeStore {
 }
 
 export const useBrandFollowMode = create<BrandFollowModeStore>((set) => ({
-    data: true,
+    data: false,
     setData: (data: boolean) => set({ data }),
 }));

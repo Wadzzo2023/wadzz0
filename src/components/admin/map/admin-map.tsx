@@ -25,6 +25,7 @@ import { api } from "~/utils/api";
 import { create } from "zustand";
 import { useAdminMapModalStore } from "~/components/hooks/use-AdminModal-store";
 import CreateAdminPinModal from "~/components/maps/admin/create-pin";
+import { useSelectCreatorStore } from "~/components/hooks/use-select-creator-store";
 
 type Pin = {
     locationGroup:
@@ -81,6 +82,7 @@ function AdminMap() {
         setPrevData,
     } = useAdminMapModalStore();
     const creator = api.fan.creator.getCreators.useQuery()
+    const { setData: setSelectedCreator, data: selectedCreator } = useSelectCreatorStore()
 
     const { setBalance } = useCreatorStorageAcc();
     const [mapZoom, setMapZoom] = useState<number>(3);
@@ -88,11 +90,7 @@ function AdminMap() {
         lat: 22.54992,
         lng: 0,
     });
-    const [selectedToken, setSelectedToken] = useState<AssetType & { bal: number }>()
-    const [isPageAsset, setIsPageAsset] = useState<boolean>()
-    const [selectedCreator, setSelectedCreator] = useState<Creator | undefined>(undefined)
-    const [storageBalance, setStorageBalance] = useState<number>(0)
-    const [remainingBalance, setRemainingBalance] = useState<number>(0)
+
     const [centerChanged, setCenterChanged] =
         useState<google.maps.LatLngBoundsLiteral | null>(null);
     const [loading, setLoading] = useState<boolean>(false);
@@ -210,6 +208,11 @@ function AdminMap() {
         );
     }, []);
 
+    useEffect(() => {
+        console.log(selectedCreator)
+    }
+        , [selectedCreator])
+
     return (
         <div className="relative h-screen w-full">
             <APIProvider apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAP_API_KEY!}>
@@ -296,7 +299,15 @@ function AdminMap() {
                             </svg>
                         </AdvancedMarker>
                     )}
-                    <MyPins onOpen={onOpen} setIsAutoCollect={setIsAutoCollect} />
+                    {
+                        selectedCreator && (
+                            <MyPins onOpen={onOpen} setIsAutoCollect={setIsAutoCollect}
+                                creatorId={
+                                    selectedCreator?.id
+                                }
+                            />
+                        )
+                    }
                 </Map>
 
                 <ManualPinButton handleClick={handleManualPinClick} />
@@ -307,12 +318,12 @@ function AdminMap() {
                             <select
                                 className="select select-bordered"
                                 onChange={(e) => {
-                                    if (e.target.value === "") {
-                                        setSelectedCreator(undefined)
-                                        return
-                                    }
+
                                     const selectedCreator = creator.data.find((c) => c.id === e.target.value)
-                                    setSelectedCreator(selectedCreator)
+                                    if (selectedCreator) {
+                                        setSelectedCreator(selectedCreator);
+
+                                    }
                                 }}
                             >
                                 <option disabled={selectedCreator?.id ? true : false} value="">Select a Creator</option>
@@ -325,7 +336,7 @@ function AdminMap() {
                 )}
                 {
                     selectedCreator && (
-                        <CreateAdminPinModal selectedCreator={selectedCreator} />
+                        <CreateAdminPinModal />
                     )
                 }
             </APIProvider>
@@ -349,12 +360,16 @@ function ManualPinButton({ handleClick }: { handleClick: () => void }) {
 function MyPins({
     onOpen,
     setIsAutoCollect,
+    creatorId
 }: {
     onOpen: (type: ModalType, data?: ModalData) => void;
     setIsAutoCollect: (value: boolean) => void;
+    creatorId: string
 }) {
     const { setAllPins } = useNearbyPinsStore();
-    const pins = api.maps.pin.getMyPins.useQuery();
+    const pins = api.maps.pin.getCreatorPins.useQuery({
+        creator_id: creatorId
+    });
 
     useEffect(() => {
         if (pins.data) {
