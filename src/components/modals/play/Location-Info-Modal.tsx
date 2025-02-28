@@ -28,6 +28,8 @@ import {
 import { InfoIcon, MapPin, Gift } from "lucide-react";
 import { useModal } from "~/lib/state/play/useModal";
 import Image from "next/image";
+import { useDestinationStore } from "~/components/hooks/use-destination-store";
+import { useRouter } from "next/navigation";
 
 interface LocationData {
   id: string;
@@ -44,7 +46,8 @@ interface LocationData {
 export default function LocationInformationModal() {
   const { isOpen, onClose, type, data } = useModal();
   const isModalOpen = isOpen && type === "LocationInformation";
-
+  const { setData } = useDestinationStore()
+  const router = useRouter();
   const handleClose = () => {
     onClose();
   };
@@ -115,8 +118,18 @@ export default function LocationInformationModal() {
               </div>
             </ScrollArea>
           </CardContent>
-          <CardFooter className="flex justify-end">
-            <Button variant="outline" onClick={handleClose}>
+          <CardFooter className="flex w-full justify-between  gap-2">
+            <Button variant="default" className="w-full" onClick={() => {
+              setData({
+                latitude: locationData.lat,
+                longitude: locationData.lng
+              })
+              router.push("/play/map/direction")
+              handleClose()
+            }}>
+              Get Direction
+            </Button>
+            <Button variant="destructive" className="w-full" onClick={handleClose}>
               Close
             </Button>
           </CardFooter>

@@ -5,9 +5,9 @@ export type Bounty = {
     priceInUSD: number;
     priceInBand: number;
     requiredBalance: number;
-    currentWinnerCount: number;
     imageUrls: string[];
     totalWinner: number;
+    currentWinnerCount: number;
     status: "PENDING" | "APPROVED" | "REJECTED";
     creatorId: string;
     _count: {

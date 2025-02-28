@@ -41,8 +41,11 @@ const Step: React.FC<StepProps> = ({
     onSkip,
     onFinish,
 }) => {
-    const [position, setPosition] = useState<{ top: number; left: number }>()
+    const [position, setPosition] = useState<{
+        top: number; left: number,
 
+    }>()
+    console.log("position", position)
     useEffect(() => {
         if (target && isVisible) {
             const { x, y, width, height } = target
@@ -54,11 +57,9 @@ const Step: React.FC<StepProps> = ({
 
             let top = centerY > window.innerHeight / 2 ? y - cardHeight - 20 : y + height + 20
             let left = centerX - cardWidth / 2
-
             // Ensure the card stays within the viewport
             top = Math.max(10, Math.min(top, window.innerHeight - cardHeight - 10))
             left = Math.max(10, Math.min(left, window.innerWidth - cardWidth - 10))
-
             setPosition({ top, left })
         }
     }, [target, isVisible])
@@ -79,8 +80,12 @@ const Step: React.FC<StepProps> = ({
                 />
             )}
             <Card
-                className="absolute w-[400px]"
-                style={{ top: position.top, left: position.left }}
+                className="absolute w-full  md:w-1/3  md:left-1/3 "
+                style={{
+                    top: position.top
+
+
+                }}
             >
                 <Button
                     variant="destructive"
@@ -109,7 +114,7 @@ const Step: React.FC<StepProps> = ({
                 </CardFooter>
             </Card>
 
-        </div>
+        </div >
     )
 }
 

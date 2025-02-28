@@ -227,7 +227,7 @@ export default function HomeScreen() {
   });
 
   const locations = response.data?.locations ?? [];
-
+  console.log("locations", locations);
   useLayoutEffect(() => {
     const updateButtonLayouts = () => {
       const welcome = welcomeRef.current;
@@ -314,8 +314,10 @@ export default function HomeScreen() {
     }
 
     // Request location permission and get location
-    navigator.geolocation.getCurrentPosition(
+    navigator.geolocation.watchPosition(
       (position) => {
+        console.log("Latitude is :", position.coords.latitude);
+        console.log("Longitude is :", position.coords.longitude);
         setLocationPermission(true);
         setUserLocation({
           lat: position.coords.latitude,
@@ -373,7 +375,6 @@ export default function HomeScreen() {
   useEffect(() => {
     autoCollectModeRef.current = data.mode;
   }, [data.mode]);
-
   if (response.isLoading) {
     return <Loading />;
   }
@@ -390,7 +391,7 @@ export default function HomeScreen() {
               initialViewState={{
                 latitude: userLocation.lat,
                 longitude: userLocation.lng,
-                zoom: 12,
+                zoom: 14,
               }}
               latitude={center?.lat}
               longitude={center?.lng}
@@ -400,16 +401,20 @@ export default function HomeScreen() {
                   lng: e.viewState.longitude ?? 0,
                 });
               }}
+
               style={{ width: "100%", height: "100%" }}
               mapStyle="mapbox://styles/mapbox/streets-v9"
             >
-              <Marker
-                latitude={userLocation.lat}
-                longitude={userLocation.lng}
-                anchor="center"
-              >
-                <MapPin size={40} className="text-red-500" />
-              </Marker>
+              {userLocation && (
+                <Marker longitude={userLocation.lng} latitude={userLocation.lat} anchor="center">
+                  <div className="relative">
+                    <div className="w-4 h-4 bg-blue-500 rounded-full border-2 border-white flex items-center justify-center">
+                      <div className="w-2 h-2 bg-white rounded-full"></div>
+                    </div>
+                    <div className="absolute -inset-1 bg-blue-500/30 rounded-full animate-pulse"></div>
+                  </div>
+                </Marker>
+              )}
               <MyPins locations={locations} />
               {
                 showWalkthrough && (

@@ -102,6 +102,7 @@ export default function CreatorPage() {
   const follow = api.fan.member.followCreator.useMutation({
     onSuccess: () => toast.success("Followed"),
   });
+
   const followXDR = api.fan.trx.followCreatorTRX.useMutation({
     onSuccess: async (xdr, variables) => {
       if (xdr) {
@@ -268,6 +269,8 @@ export default function CreatorPage() {
     return matchesSearch;
   });
 
+  console.log("filteredBrands", filteredBrands);
+
   if (isLoading) return <Loading />;
   if (error)
     return <div className="text-center text-red-500">Error loading brands</div>;
@@ -360,43 +363,7 @@ export default function CreatorPage() {
               </CardContent>
             </Card>
           ))}
-          {filteredBrands.map((brand: Brand) => (
-            <Card key={brand.id}>
-              <CardContent className="flex items-center justify-between p-4">
-                <div className="flex items-center space-x-4">
-                  <Image
-                    height={400}
-                    width={400}
-                    src={brand.logo}
-                    alt={brand.first_name}
-                    className="h-10 w-10 rounded-full"
-                  />
-                  <span className="font-semibold">{brand.first_name}</span>
-                </div>
-                <Button
-                  variant={
-                    brand.followed_by_current_user ? "outline" : "default"
-                  }
-                  onClick={() =>
-                    toggleFollow(brand.id, brand.followed_by_current_user)
-                  }
-                  disabled={
-                    followLoadingId === brand.id ||
-                    unfollowLoadingId === brand.id
-                  }
-                >
-                  {followLoadingId === brand.id ||
-                    unfollowLoadingId === brand.id ? (
-                    <Loader2 className="animate-spin" />
-                  ) : brand.followed_by_current_user ? (
-                    "Unfollow"
-                  ) : (
-                    "Follow"
-                  )}
-                </Button>
-              </CardContent>
-            </Card>
-          ))}
+
         </div>
       ) : (
         <p className="text-center text-gray-500">No brands found</p>
