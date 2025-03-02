@@ -29,6 +29,9 @@ const pinFormSchema = z.object({
   description: z.string().optional(),
   pinNumber: z.number().min(1).max(20),
   asset: z.enum(["image", "video", "audio"]),
+  assetImage: z
+    .string({ description: "Upload an image to AWS storage (JPG or PNG)" })
+    .url(),
 });
 
 export async function POST(req: Request) {

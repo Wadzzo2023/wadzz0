@@ -12,6 +12,11 @@ export type FormField = {
   enum?: string[];
 };
 
+const ami = z.object({
+  image: z.string({ description: "A AWS Image upload field" }).url(),
+  assetImage: z.string({ description: "A PINATA Image upload field" }).url(),
+});
+
 export type FormState = {
   schema: z.ZodObject<any>;
   fields: FormField[];
@@ -35,10 +40,32 @@ export function extractFieldsFromSchema(schema: z.ZodObject<any>): FormField[] {
     let enumValues: string[] = [];
     const validations: string[] = [];
 
+    let isUpload = false;
+    let uploadType = "";
+
     // Handle optional fields
     if (field instanceof z.ZodOptional) {
       required = false;
       field = field._def.innerType;
+    }
+
+    // Get description if available
+    if (field instanceof z.ZodString) {
+      const fieldDes = field._def.description;
+
+      // Check if this is an upload field based on description
+      if (fieldDes)
+        if (fieldDes.toLowerCase().includes("upload")) {
+          isUpload = true;
+          if (fieldDes.toLowerCase().includes("aws")) {
+            uploadType = "aws";
+          } else if (fieldDes.toLowerCase().includes("pinata")) {
+            uploadType = "pinata";
+          } else {
+            uploadType = "generic";
+          }
+          type = `upload:${uploadType}`;
+        }
     }
 
     // Extract field type
@@ -159,13 +186,19 @@ ${JSON.stringify(state.errors, null, 2)}
 
 User's latest input: "${userInput}"
 
+IMPORTANT FORMATTING INSTRUCTIONS:
+1. For any upload fields, use this exact format in your response: "Please upload a file for [fieldName]. UPLOAD_FIELD:[fieldName]"
+2. After acknowledging any provided values, use the format "FIELD_UPDATED:[fieldName]:[value]" for each field you've recognized.
+
+
 Your task:
 1. Acknowledge any fields the user has just provided.
 2. If there are validation errors, explain them clearly.
 3. Ask for ALL remaining fields at once (not just one), describing each field's requirements.
-4. If all required fields are collected and valid, confirm completion.
+4. For upload fields, explicitly mention they need to upload a file and use the UPLOAD_FIELD marker.
+5. If all required fields are collected and valid, confirm completion.
 
-Respond in a conversational, helpful tone. Be efficient but thorough.
+Respond in a conversational, helpful tone while including these special markers for the UI to parse.
   `;
 
   const response = streamText({

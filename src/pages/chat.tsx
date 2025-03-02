@@ -18,6 +18,9 @@ import {
   AvatarImage,
 } from "~/components/shadcn/ui/avatar";
 import { ScrollArea } from "~/components/shadcn/ui/scroll-area";
+import { MemoizedMarkdown } from "~/components/memoized-markdown";
+import { UploadS3Button } from "./test";
+import toast from "react-hot-toast";
 
 export default function FormFillingAgent() {
   const { messages, input, handleInputChange, handleSubmit, isLoading } =
@@ -35,6 +38,14 @@ export default function FormFillingAgent() {
       messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
   }, [messagesEndRef]); // Updated dependency
+
+  const handleFileUpload = (value: string) => {
+    // here pass the vlaues to the handleInputChange
+    handleInputChange({
+      target: { value },
+    } as React.ChangeEvent<HTMLInputElement>);
+    handleSubmit();
+  };
 
   // Handle hydration issues
   useEffect(() => {
@@ -58,46 +69,11 @@ export default function FormFillingAgent() {
               </div>
             ) : (
               messages.map((message) => (
-                <div
+                <Message
                   key={message.id}
-                  className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}
-                >
-                  <div className="flex max-w-[80%] items-start gap-3">
-                    {message.role !== "user" && (
-                      <Avatar className="mt-1 h-8 w-8">
-                        <AvatarImage
-                          src="/placeholder.svg?height=32&width=32"
-                          alt="AI"
-                        />
-                        <AvatarFallback className="bg-primary text-primary-foreground">
-                          AI
-                        </AvatarFallback>
-                      </Avatar>
-                    )}
-
-                    <div
-                      className={`whitespace-pre-wrap rounded-lg px-4 py-2 ${
-                        message.role === "user"
-                          ? "bg-primary text-primary-foreground"
-                          : "bg-muted"
-                      }`}
-                    >
-                      {message.content}
-                    </div>
-
-                    {message.role === "user" && (
-                      <Avatar className="mt-1 h-8 w-8">
-                        <AvatarImage
-                          src="/placeholder.svg?height=32&width=32"
-                          alt="User"
-                        />
-                        <AvatarFallback className="bg-zinc-500 text-zinc-50">
-                          U
-                        </AvatarFallback>
-                      </Avatar>
-                    )}
-                  </div>
-                </div>
+                  message={message}
+                  handleUpload={handleFileUpload}
+                />
               ))
             )}
             <div ref={messagesEndRef} />
@@ -125,4 +101,70 @@ export default function FormFillingAgent() {
       </Card>
     </div>
   );
+}
+
+function Message({
+  message,
+  handleUpload,
+}: {
+  message: { id: string; role: string; content: string };
+  handleUpload: (value: string) => void;
+}) {
+  const upload = extractUploadField(message.content);
+  return (
+    <div
+      className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}
+    >
+      <div className="flex max-w-[80%] items-start gap-3">
+        {message.role !== "user" && (
+          <Avatar className="mt-1 h-8 w-8">
+            <AvatarImage src="/placeholder.svg?height=32&width=32" alt="AI" />
+            <AvatarFallback className="bg-primary text-primary-foreground">
+              AI
+            </AvatarFallback>
+          </Avatar>
+        )}
+
+        <div
+          className={` rounded-lg px-4 py-2 ${message.role === "user" ? "bg-slate-400" : "bg-muted"}`}
+        >
+          <div className="prose space-y-2">
+            <MemoizedMarkdown id={message.id} content={message.content} />
+            {upload && (
+              <UploadS3Button
+                endpoint="imageUploader"
+                onClientUploadComplete={(res) => {
+                  const data = res;
+
+                  if (data?.url) {
+                    // setThumbnail(data.url);
+                    // setValue("thumbnail", data.url);
+                    handleUpload(data.url);
+                  }
+                }}
+                onUploadError={(error: Error) => {
+                  // Do something with the error.
+                  toast.error(`ERROR! ${error.message}`);
+                }}
+              />
+            )}
+          </div>
+        </div>
+
+        {message.role === "user" && (
+          <Avatar className="mt-1 h-8 w-8">
+            <AvatarImage src="/placeholder.svg?height=32&width=32" alt="User" />
+            <AvatarFallback className="bg-zinc-500 text-zinc-50">
+              U
+            </AvatarFallback>
+          </Avatar>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function extractUploadField(text: string) {
+  const match = text.match(/UPLOAD_FIELD:([^\s]+)/);
+  return match ? match[1] : null;
 }
