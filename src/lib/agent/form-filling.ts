@@ -189,14 +189,14 @@ User's latest input: "${userInput}"
 IMPORTANT FORMATTING INSTRUCTIONS:
 1. For any upload fields, use this exact format in your response: "Please upload a file for [fieldName]. UPLOAD_FIELD:[fieldName]"
 2. After acknowledging any provided values, use the format "FIELD_UPDATED:[fieldName]:[value]" for each field you've recognized.
-
+3. If all required fields are collected and valid, use the format "PLEASE_CONFIRM" to ask for confirmation.
 
 Your task:
 1. Acknowledge any fields the user has just provided.
 2. If there are validation errors, explain them clearly.
 3. Ask for ALL remaining fields at once (not just one), describing each field's requirements.
 4. For upload fields, explicitly mention they need to upload a file and use the UPLOAD_FIELD marker.
-5. If all required fields are collected and valid, confirm completion.
+5. If all required fields are collected and valid, confirm completion by asking for confirmation using the PLEASE_CONFIRM marker.
 
 Respond in a conversational, helpful tone while including these special markers for the UI to parse.
   `;

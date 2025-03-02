@@ -32,6 +32,8 @@ export default function FormFillingAgent() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [mounted, setMounted] = useState(false);
 
+  const [url, setUrl] = useState("");
+
   // Scroll to bottom when new messages arrive
   useEffect(() => {
     if (messagesEndRef.current) {
@@ -40,11 +42,15 @@ export default function FormFillingAgent() {
   }, [messagesEndRef]); // Updated dependency
 
   const handleFileUpload = (value: string) => {
+    setUrl(value);
     // here pass the vlaues to the handleInputChange
     handleInputChange({
-      target: { value },
+      target: { value: `${input} \n assetImage: ${value}` },
     } as React.ChangeEvent<HTMLInputElement>);
-    handleSubmit();
+
+    // setTimeout(() => {
+    //   handleSubmit(new Event("submit", { bubbles: true, cancelable: true }));
+    // }, 100);
   };
 
   // Handle hydration issues
@@ -52,11 +58,17 @@ export default function FormFillingAgent() {
     setMounted(true);
   }, []);
 
+  useEffect(() => {
+    if (url) {
+      handleSubmit(new Event("submit", { bubbles: true, cancelable: true }));
+    }
+  }, [url]);
+
   if (!mounted) return null;
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-50 p-4 dark:bg-gray-900">
-      <Card className="w-full max-w-2xl shadow-lg">
+      <Card className="w-full max-w-4xl shadow-lg">
         <CardHeader className="border-b">
           <CardTitle className="text-xl font-bold">FormFilling Agent</CardTitle>
         </CardHeader>
@@ -111,6 +123,7 @@ function Message({
   handleUpload: (value: string) => void;
 }) {
   const upload = extractUploadField(message.content);
+  const confirmation = confirmationMatch(message.content);
   return (
     <div
       className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}
@@ -148,6 +161,7 @@ function Message({
                 }}
               />
             )}
+            {confirmation && <Button>Confirm</Button>}
           </div>
         </div>
 
@@ -167,4 +181,9 @@ function Message({
 function extractUploadField(text: string) {
   const match = text.match(/UPLOAD_FIELD:([^\s]+)/);
   return match ? match[1] : null;
+}
+
+function confirmationMatch(text: string): boolean {
+  return text.includes("PLEASE_CONFIRM");
+  // return /ASK_CONFIRMATION:([^\s]+)/.test(text);
 }
