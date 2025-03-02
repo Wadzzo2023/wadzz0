@@ -28,13 +28,14 @@ import { api } from "~/utils/api";
 import { create } from "zustand";
 import toast from "react-hot-toast";
 import Link from "next/link";
+import { AIPinCreation } from "./ai-chat";
 
 type Pin = {
   locationGroup:
-  | (LocationGroup & {
-    creator: { profileUrl: string | null };
-  })
-  | null;
+    | (LocationGroup & {
+        creator: { profileUrl: string | null };
+      })
+    | null;
   _count: {
     consumers: number;
   };
@@ -137,12 +138,10 @@ function App() {
   const [isCordsSearch, setIsCordsSearch] = useState<boolean>(false);
   const [searchCoordinates, setSearchCoordinates] =
     useState<google.maps.LatLngLiteral>();
-  const [userLocation, setUserLocation] = useState<UserLocationType>(
-    {
-      lat: 44.500000,
-      lng: -89.500000,
-    }
-  );
+  const [userLocation, setUserLocation] = useState<UserLocationType>({
+    lat: 44.5,
+    lng: -89.5,
+  });
   const {
     selectedPlace: alreadySelectedPlace,
     setSelectedPlace: setAlreadySelectedPlace,
@@ -283,7 +282,6 @@ function App() {
         disableDefaultUI={true}
         onDragend={() => handleDragEnd()}
       >
-
         {centerChanged && searchCoordinates && (
           <AdvancedMarker
             style={{
@@ -339,6 +337,7 @@ function App() {
         <SideMapItem setAlreadySelectedPlace={setAlreadySelectedPlace} />
       </div>
       <ManualPinButton handleClick={handleManualPinClick} />
+      <AIPinCreation />
       <ReportCollection />
       <CreatePinModal />
     </APIProvider>
@@ -485,8 +484,9 @@ function MyPins({
               width={30}
               height={30}
               alt="Creator"
-              className={`h-10 w-10 bg-white ${!pin.autoCollect ? "rounded-full " : ""
-                } ${pin._count.consumers <= 0 ? "opacity-100" : "opacity-50 "}`}
+              className={`h-10 w-10 bg-white ${
+                !pin.autoCollect ? "rounded-full " : ""
+              } ${pin._count.consumers <= 0 ? "opacity-100" : "opacity-50 "}`}
             />
           </AdvancedMarker>
         ))}
