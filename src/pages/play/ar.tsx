@@ -88,7 +88,7 @@ const ARPage = () => {
       camera.updateProjectionMatrix();
     });
 
-    let coins = [];
+    let coins: THREE.Mesh[] = [];
     let firstLocation = true;
 
     // @ts-ignore
@@ -116,45 +116,39 @@ const ARPage = () => {
           segments,
         );
         coinGeometry.rotateX(Math.PI / 2);
+        // coinGeometry.rotateY(Math.PI / 4);
 
-        const color = 0xff0000;
-        const icon = "./assets/images/icon.png";
+        // Replace the entire coin creation section with this:
+        const textureLoader = new THREE.TextureLoader();
 
         for (const coin of coinsPositions) {
-          // const material = new THREE.MeshBasicMaterial({ color });
-          // const mesh = new THREE.Mesh(geometry, material);
-          // mesh.userData = { lat, lon, name, color };
-          // locar.add(mesh, lon, lat);
-          // coins.push(mesh);
-
-          // ---------
-
-          // Create textures for both sides
-          const textureLoader = new THREE.TextureLoader();
-          const headTexture = textureLoader.load(icon);
-          const tailTexture = textureLoader.load(
-            coin.brand_image_url ?? "https://picsum.photos/300/300",
+          // Pre-load textures with proper error handling
+          const brandImage =
+            coin.brand_image_url ?? "https://picsum.photos/300/300";
+          const headTexture = textureLoader.load(
+            brandImage,
+            undefined,
+            undefined,
+            (err) => console.error("Error loading head texture:", err),
           );
 
-          // Create materials for the coin
-          const headMaterial = new THREE.MeshStandardMaterial({
-            map: headTexture,
-            roughness: 0.3,
-          });
-          const tailMaterial = new THREE.MeshStandardMaterial({
-            map: tailTexture,
-            roughness: 0.3,
-          });
-          const edgeMaterial = new THREE.MeshStandardMaterial({
-            color: 0xd4af37, // Gold color
-            roughness: 0.3,
-          });
+          headTexture.rotation = Math.PI / 2;
+          headTexture.center = new THREE.Vector2(0.5, 0.5);
 
-          // Create coin materials array
+          const tailTexture = textureLoader.load(
+            brandImage,
+            undefined,
+            undefined,
+            (err) => console.error("Error loading tail texture:", err),
+          );
+          tailTexture.rotation = Math.PI / 2;
+          tailTexture.center = new THREE.Vector2(0.5, 0.5);
+
+          // Create materials after textures are loaded
           const materials = [
-            edgeMaterial, // Edge
-            headMaterial, // Top
-            tailMaterial, // Bottom
+            new THREE.MeshStandardMaterial({ color: 0xd4af37, roughness: 0.3 }), // Edge
+            new THREE.MeshBasicMaterial({ map: headTexture }), // Top - Using MeshBasicMaterial
+            new THREE.MeshBasicMaterial({ map: tailTexture }), // Bottom - Using MeshBasicMaterial
           ];
 
           const coinObject = new THREE.Mesh(coinGeometry, materials);
@@ -216,6 +210,24 @@ const ARPage = () => {
         // Set pin to object's name
         setPin(objectData);
       }
+
+      // animate coins
+      // const time = Date.now() * 0.001;
+      // coins.forEach((coin) => {
+      //   coin.rotation.y = Math.sin(time) * Math.PI * 0.5; // Flipping animation
+      // });
+      const time = Date.now() * 0.001;
+      coins.forEach((coin) => {
+        // Check if this coin is the focused one (previousIntersectedObject)
+        if (coin === previousIntersectedObject.current) {
+          // Fast flipping for focused coin
+          // coin.rotation.y = Math.sin(time * 3) * Math.PI * 0.7;
+          coin.rotation.y = Math.PI / 2;
+        } else {
+          // Normal gentle flipping for other coins
+          coin.rotation.y = Math.sin(time) * Math.PI * 0.3;
+        }
+      });
     });
 
     return () => {
@@ -414,9 +426,7 @@ export function ProgressButton({
 
 // Example usage
 export function Example() {
-  const handleComplete = () => {
-
-  };
+  const handleComplete = () => {};
 
   return (
     <div className="flex h-screen items-center justify-center bg-gray-100">

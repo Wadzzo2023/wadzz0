@@ -20,6 +20,7 @@ import { getUserPlatformAsset } from "~/lib/play/get-user-platformAsset";
 import { useWalkThrough } from "~/components/hooks/play/useWalkthrough";
 import { Walkthrough } from "~/components/walkthrough";
 import { useBrandFollowMode } from "~/lib/state/play/useBrandFollowMode";
+import toast from "react-hot-toast";
 
 type UserLocationType = {
   lat: number;
@@ -49,7 +50,7 @@ export default function HomeScreen() {
   const [buttonLayouts, setButtonLayouts] = useState<ButtonLayout[]>([]);
   const [showWalkthrough, setShowWalkthrough] = useState(false);
   const { data: walkthroughData } = useWalkThrough();
-  const { data: brandFollowMode } = useBrandFollowMode()
+  const { data: brandFollowMode } = useBrandFollowMode();
   const welcomeRef = useRef<HTMLDivElement>(null);
   const balanceRef = useRef<HTMLDivElement>(null);
   const refreshButtonRef = useRef<HTMLButtonElement>(null);
@@ -100,7 +101,11 @@ export default function HomeScreen() {
     radius: number,
   ) => {
     return locations.filter((location) => {
-      if (location.auto_collect || location.collection_limit_remaining <= 0 || location.collected)
+      if (
+        location.auto_collect ||
+        location.collection_limit_remaining <= 0 ||
+        location.collected
+      )
         return false;
       const distance = getDistanceFromLatLonInMeters(
         userLocation.lat,
@@ -108,6 +113,7 @@ export default function HomeScreen() {
         location.lat,
         location.lng,
       );
+
       return distance <= radius;
     });
   };
@@ -127,16 +133,25 @@ export default function HomeScreen() {
       (Math.cos((lat1 * Math.PI) / 180) *
         Math.cos((lat2 * Math.PI) / 180) *
         (1 - Math.cos(dLon))) /
-      2;
+        2;
     return R * 2 * Math.asin(Math.sqrt(a));
   };
-
 
   const handleARPress = (
     userLocation: UserLocationType,
     locations: ConsumedLocation[],
   ) => {
-    const nearbyPins = getNearbyPins(userLocation, locations, 50);
+    toast("Please wait while we load the AR view");
+
+    // const nearbyPins = getNearbyPins(userLocation, locations, 1000);
+    const nearbyPins = locations.slice(0, 10);
+    alert(
+      JSON.stringify(userLocation) +
+        JSON.stringify(
+          locations.slice(0, 3).map((l) => ({ lat: l.lat, lng: l.lng })),
+        ) +
+        JSON.stringify({ nearbyPins: nearbyPins }),
+    );
     if (nearbyPins.length > 0) {
       setData({
         nearbyPins: nearbyPins,
@@ -164,7 +179,8 @@ export default function HomeScreen() {
   ) => {
     if (!userLocation) return []; // Exit early if userLocation is null
     return locations.filter((location) => {
-      if (location.collection_limit_remaining <= 0 || location.collected) return false;
+      if (location.collection_limit_remaining <= 0 || location.collected)
+        return false;
       if (location.auto_collect) {
         const distance = getDistanceFromLatLonInMeters(
           userLocation.lat,
@@ -274,7 +290,6 @@ export default function HomeScreen() {
             width: arRect.width,
             height: arRect.height,
           },
-
         ]);
       }
     };
@@ -303,8 +318,6 @@ export default function HomeScreen() {
       setShowWalkthrough(false);
     }
   };
-
-
 
   useEffect(() => {
     // Check if geolocation is supported
@@ -351,7 +364,6 @@ export default function HomeScreen() {
   useEffect(() => {
     console.log("walkthroughData", walkthroughData);
     checkFirstTimeSignIn();
-
   }, [walkthroughData]);
 
   useEffect(() => {
@@ -401,40 +413,38 @@ export default function HomeScreen() {
                   lng: e.viewState.longitude ?? 0,
                 });
               }}
-
               style={{ width: "100%", height: "100%" }}
               mapStyle="mapbox://styles/mapbox/streets-v9"
             >
               {userLocation && (
-                <Marker longitude={userLocation.lng} latitude={userLocation.lat} anchor="center">
+                <Marker
+                  longitude={userLocation.lng}
+                  latitude={userLocation.lat}
+                  anchor="center"
+                >
                   <div className="relative">
-                    <div className="w-4 h-4 bg-blue-500 rounded-full border-2 border-white flex items-center justify-center">
-                      <div className="w-2 h-2 bg-white rounded-full"></div>
+                    <div className="flex h-4 w-4 items-center justify-center rounded-full border-2 border-white bg-blue-500">
+                      <div className="h-2 w-2 rounded-full bg-white"></div>
                     </div>
-                    <div className="absolute -inset-1 bg-blue-500/30 rounded-full animate-pulse"></div>
+                    <div className="absolute -inset-1 animate-pulse rounded-full bg-blue-500/30"></div>
                   </div>
                 </Marker>
               )}
               <MyPins locations={locations} />
-              {
-                showWalkthrough && (
-                  <div ref={welcomeRef}>
-
-                  </div>
-                )
-              }
+              {showWalkthrough && <div ref={welcomeRef}></div>}
             </Map>
 
             <div
               ref={balanceRef}
-              className="absolute top-2 right-2 z-10 bg-[#38C02B] flex p-2 rounded-lg
-            ">
+              className="absolute right-2 top-2 z-10 flex rounded-lg bg-[#38C02B] p-2
+            "
+            >
               <Image
                 height={40}
                 width={40}
                 alt="Wadzzo"
                 src="/images/wadzzo.png"
-                className="object-contain  h-6 w-6"
+                className="h-6  w-6 object-contain"
               />
               <div className="ml-2 text-white">
                 {Number(balanceRes.data).toFixed(2) ?? 0}
@@ -468,10 +478,7 @@ export default function HomeScreen() {
               <RefreshCcw className="h-4 w-4" />
             </Button>
             {pinCollected && (
-              <Card
-
-
-                className="absolute bottom-[300px] left-1/2 -ml-[50px] flex h-[150px] w-[150px] animate-pulse items-center justify-center rounded-full bg-primary">
+              <Card className="absolute bottom-[300px] left-1/2 -ml-[50px] flex h-[150px] w-[150px] animate-pulse items-center justify-center rounded-full bg-primary">
                 <Image
                   height={80}
                   width={80}
@@ -513,7 +520,7 @@ function MyPins({ locations }: { locations: ConsumedLocation[] }) {
             width={40}
             alt="Wadzzo"
             src={location.brand_image_url}
-            className="rounded-full h-12 w-12"
+            className="h-12 w-12 rounded-full"
           />
         </Marker>
       ))}
