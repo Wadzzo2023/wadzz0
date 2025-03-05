@@ -141,17 +141,15 @@ export default function HomeScreen() {
     userLocation: UserLocationType,
     locations: ConsumedLocation[],
   ) => {
-    toast("Please wait while we load the AR view");
-
-    // const nearbyPins = getNearbyPins(userLocation, locations, 1000);
-    const nearbyPins = locations.slice(0, 10);
-    alert(
-      JSON.stringify(userLocation) +
-        JSON.stringify(
-          locations.slice(0, 3).map((l) => ({ lat: l.lat, lng: l.lng })),
-        ) +
-        JSON.stringify({ nearbyPins: nearbyPins }),
-    );
+    const nearbyPins = getNearbyPins(userLocation, locations, 100);
+    // const nearbyPins = locations.slice(0, 10);
+    // alert(
+    //   JSON.stringify(userLocation) +
+    //     JSON.stringify(
+    //       locations.slice(0, 3).map((l) => ({ lat: l.lat, lng: l.lng })),
+    //     ) +
+    //     JSON.stringify({ nearbyPins: nearbyPins }),
+    // );
     if (nearbyPins.length > 0) {
       setData({
         nearbyPins: nearbyPins,
@@ -159,6 +157,9 @@ export default function HomeScreen() {
       });
       router.push("/play/ar");
     } else {
+      alert(
+        "There are no pin 200 meters around you, Please get closer to the pin location",
+      );
       onOpen("NearbyPin");
     }
   };

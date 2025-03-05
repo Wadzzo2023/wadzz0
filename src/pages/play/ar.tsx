@@ -25,7 +25,6 @@ const ARPage = () => {
 
   const [infoBoxVisible, setInfoBoxVisible] = useState(false);
   const [infoBoxPosition, setInfoBoxPosition] = useState({ left: 0, top: 0 });
-  const [infoText, setInfoText] = useState<ConsumedLocation>();
   const rendererRef = useRef();
   const previousIntersectedObject = useRef();
 
@@ -49,12 +48,26 @@ const ARPage = () => {
       );
 
       if (!response.ok) {
+        const code = response.status;
+        if (code === 422) {
+          const data = (await response.json()) as {
+            success: boolean;
+            data: string;
+          };
+          throw new Error(data.data);
+        }
         throw new Error("Failed to consume location");
       }
       setShowSuccess(true);
     } catch (error) {
       console.error("Error consuming location", error);
-      alert("Error consuming location");
+      // if err type of Error
+      if (error instanceof Error) {
+        console.error("Error consuming location", error.message);
+        alert(error.message);
+      } else {
+        alert("Failed to consume location");
+      }
     } finally {
       setShowLoading(false);
     }
@@ -187,7 +200,6 @@ const ARPage = () => {
         const objectData = intersect.object.userData as ConsumedLocation;
 
         // Set the info box content and position
-        setInfoText(objectData);
         setInfoBoxVisible(true);
 
         // Calculate screen position of the intersected object
@@ -222,6 +234,7 @@ const ARPage = () => {
         if (coin === previousIntersectedObject.current) {
           // Fast flipping for focused coin
           // coin.rotation.y = Math.sin(time * 3) * Math.PI * 0.7;
+          // @ts-ignore
           coin.rotation.y = Math.PI / 2;
         } else {
           // Normal gentle flipping for other coins
@@ -240,10 +253,9 @@ const ARPage = () => {
   // return <ArLoading pin={pin} />;
   return (
     <>
-      {infoBoxVisible && (
+      {infoBoxVisible && selectedPin && (
         <ArCard
-          brandName={infoText?.brand_name}
-          description={infoText?.description}
+          pin={selectedPin}
           position={{
             left: winDim.width / 2 - 208 / 2,
             top: infoBoxPosition.top,
@@ -257,7 +269,7 @@ const ARPage = () => {
             className="absolute bottom-0 left-0 right-0 flex items-stretch bg-gray-800 shadow-lg"
             style={{ width: winDim.width }}
           >
-            <div className="flex flex-1 items-center space-x-4 p-4">
+            <div className="flex flex-1 items-center space-x-1 px-1 py-4">
               <div className="relative">
                 <ShoppingBasket className="h-12 w-12 text-yellow-500" />
                 <div className="absolute bottom-1 right-1 rounded-full bg-yellow-400 p-1">
@@ -277,10 +289,21 @@ const ARPage = () => {
               aria-hidden="true"
             ></div>
 
-            <div className="flex flex-1 items-center p-4">
-              <p className="line-clamp-2 overflow-hidden text-sm leading-snug text-white">
+            <div className="flex flex-1 flex-col items-center  justify-center px-2">
+              <p className="line-clamp-2 overflow-hidden  text-sm leading-snug text-white">
                 {selectedPin.description}
               </p>
+              <p className="text-sm text-gray-400">
+                Collection Limit: {selectedPin.collection_limit_remaining}
+              </p>
+              <a
+                href={selectedPin.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sm text-blue-400 underline"
+              >
+                More Info
+              </a>
             </div>
 
             <div
@@ -289,14 +312,22 @@ const ARPage = () => {
             ></div>
 
             {!data.singleAR && (
-              <div className="flex items-center p-4">
-                <button
-                  onClick={simulateApiCall}
-                  className="rounded-lg bg-blue-500 px-6 py-2 font-semibold text-white transition-colors duration-200 hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-50"
-                >
-                  Capture
-                </button>
-              </div>
+              <>
+                {selectedPin.collected ? (
+                  <div className="flex items-center p-4">
+                    <span className="text-sm text-gray-400">Collected</span>
+                  </div>
+                ) : (
+                  <div className="flex items-center p-4">
+                    <button
+                      onClick={simulateApiCall}
+                      className="rounded-lg bg-blue-500 px-6 py-2 font-semibold text-white transition-colors duration-200 hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-50"
+                    >
+                      Capture
+                    </button>
+                  </div>
+                )}
+              </>
             )}
           </div>
         </div>

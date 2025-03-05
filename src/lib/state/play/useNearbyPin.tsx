@@ -83,7 +83,7 @@ const pins: ConsumedLocation[] = generateMultipleRandomBoxPositions(
 
 export const useNearByPin = create<PinStore>((set) => ({
   data: {
-    nearbyPins: pins,
+    nearbyPins: [],
     singleAR: false,
   },
   setData: (data: PinData) => set({ data }),
