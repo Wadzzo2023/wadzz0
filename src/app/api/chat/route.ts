@@ -30,6 +30,8 @@ export async function POST(req: Request) {
   const lastMessage = messages.pop();
   const userMessage = lastMessage?.content;
 
+  console.log("userMessage", userMessage);
+
   if (!userMessage) {
     return new Response(JSON.stringify({ error: "No user message provided" }), {
       status: 400,
@@ -41,48 +43,6 @@ export async function POST(req: Request) {
   let currentFormState = clientFormState as SerializedFormState;
 
   console.log("currentFormState", currentFormState);
-
-  // Process user input if we have remaining fields
-  if (
-    currentFormState &&
-    !currentFormState.isComplete &&
-    currentFormState.remainingFields.length > 0
-  ) {
-    const fieldsToExtract = currentFormState.fields.filter((field) =>
-      currentFormState.remainingFields.includes(field.name),
-    );
-
-    const fieldAlreadyFilled = currentFormState.fields
-      .filter((field) => currentFormState.currentData.includes(field.name))
-      .map((f) => ({ ...f, value: currentFormState.currentData[f.name] }));
-
-    const extractedValues = await extractMultipleValues(
-      userMessage,
-      fieldsToExtract,
-      fieldAlreadyFilled,
-      messages.filter((m) => m.role == "user").map((m) => m.content),
-    );
-
-    // Just update the data without validation
-    if (Object.keys(extractedValues.extractedValues).length > 0) {
-      // Update data and remaining fields but skip validation
-      currentFormState.currentData = {
-        ...currentFormState.currentData,
-        ...extractedValues,
-      };
-
-      // Remove fields from remaining fields
-      const updatedFields = Object.keys(extractedValues);
-      currentFormState.remainingFields =
-        currentFormState.remainingFields.filter(
-          (field) => !updatedFields.includes(field),
-        );
-
-      // Mark complete if no remaining fields
-      currentFormState.isComplete =
-        currentFormState.remainingFields.length === 0;
-    }
-  }
 
   // Stream response back to client with updated form state
   return createDataStreamResponse({

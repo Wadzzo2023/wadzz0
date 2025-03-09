@@ -1,8 +1,8 @@
 "use client";
 
 import { useChat } from "@ai-sdk/react";
-import { useState, useRef, useEffect } from "react";
-import { Send } from "lucide-react";
+import { useState, useRef, useEffect, FormEvent } from "react";
+import { Loader2, Send } from "lucide-react";
 import { Button } from "~/components/shadcn/ui/button";
 import { Input } from "~/components/shadcn/ui/input";
 import {
@@ -30,6 +30,8 @@ import { z } from "zod";
 import { stat } from "fs";
 
 import {} from "zod-to-json-schema";
+import { api } from "~/utils/api";
+import { set } from "date-fns";
 
 const pinFormSchema = z.object({
   title: z
@@ -88,6 +90,21 @@ export default function FormFillingAgent() {
       },
     });
 
+  const getState = api.chat.getAgentStateState.useMutation({
+    onSuccess: (data) => {
+      if (data && formState) {
+        const udpatedState = updateFormState(
+          formState,
+          data.newFieldValues,
+          data.updatedFieldValues,
+        );
+
+        setFormState(udpatedState);
+      }
+      handleSubmit(new Event("submit") as any);
+    },
+  });
+
   // Initialize form state on first load
   useEffect(() => {
     if (!formState && mounted) {
@@ -137,6 +154,17 @@ export default function FormFillingAgent() {
 
   if (!mounted) return null;
 
+  function submitFormHandle(event: FormEvent<HTMLFormElement>): void {
+    event.preventDefault();
+
+    console.log("submitting form", input);
+    getState.mutate({
+      messages: messages,
+      userMessage: input,
+      formState: formState,
+    });
+  }
+
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-50 p-4 dark:bg-gray-900">
       <Card className="w-full max-w-4xl shadow-lg">
@@ -164,7 +192,7 @@ export default function FormFillingAgent() {
         </ScrollArea>
 
         <CardFooter className="border-t p-4">
-          <form onSubmit={handleSubmit} className="flex w-full gap-2">
+          <form onSubmit={submitFormHandle} className="flex w-full gap-2">
             <Input
               value={input}
               onChange={handleInputChange}
@@ -175,9 +203,13 @@ export default function FormFillingAgent() {
             <Button
               type="submit"
               size="icon"
-              disabled={isLoading || !input.trim()}
+              disabled={getState.isLoading || isLoading || !input.trim()}
             >
-              <Send className="h-4 w-4" />
+              {getState.isLoading ? (
+                <Loader2 className="animate h-4 w-4 animate-spin" />
+              ) : (
+                <Send className="h-4 w-4" />
+              )}
             </Button>
           </form>
         </CardFooter>

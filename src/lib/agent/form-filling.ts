@@ -117,22 +117,70 @@ export function initializeFormState(schema: z.ZodObject<any>): FormState {
 export function updateFormState(
   state: FormState,
   updates: Record<string, any>,
+  updatedFields?: Record<string, any>,
 ): FormState {
   const newState = { ...state };
 
-  // Update the current data with all provided values
+  // Update the current data with all new field values
   newState.currentData = {
     ...newState.currentData,
     ...updates,
   };
 
-  // Remove fields from remaining fields
-  const updatedFields = Object.keys(updates);
+  // Process updated fields if provided
+  if (updatedFields && Object.keys(updatedFields).length > 0) {
+    // Store original values before attempting updates
+    const originalValues = { ...newState.currentData };
+
+    // Try applying updates
+    const tempData = {
+      ...newState.currentData,
+      ...updatedFields,
+    };
+
+    // Validate updates if schema is available
+    if (newState.schema && typeof newState.schema.parse === "function") {
+      try {
+        // Validate just the updated fields
+        const partialSchema = z.object(
+          Object.fromEntries(
+            Object.keys(updatedFields).map((key) => {
+              const fieldDef = newState.schema._def.shape()[key];
+              return [key, fieldDef || z.any()];
+            }),
+          ),
+        );
+
+        partialSchema.parse(updatedFields);
+
+        // If validation passes, apply updates
+        newState.currentData = tempData;
+      } catch (error) {
+        // If validation fails, keep original values and record errors
+        if (error instanceof z.ZodError) {
+          error.errors.forEach((err) => {
+            const field = err.path[0] as string;
+            newState.errors[field] = `Update failed: ${err.message}`;
+            // Keep the original value for this field
+            if (field in originalValues) {
+              newState.currentData[field] = originalValues[field];
+            }
+          });
+        }
+      }
+    } else {
+      // No schema for validation, just apply updates
+      newState.currentData = tempData;
+    }
+  }
+
+  // Remove fields from remaining fields (only for new fields, not updates)
+  const newFieldKeys = Object.keys(updates);
   newState.remainingFields = newState.remainingFields.filter(
-    (field) => !updatedFields.includes(field),
+    (field) => !newFieldKeys.includes(field),
   );
 
-  // Skip validation if schema is not available (server-side)
+  // Skip full validation if schema is not available (server-side)
   if (!newState.schema || typeof newState.schema.parse !== "function") {
     newState.isComplete = newState.remainingFields.length === 0;
     return newState;
@@ -141,16 +189,32 @@ export function updateFormState(
   // Validate the entire form (client-side only)
   try {
     newState.schema.parse(newState.currentData);
-    newState.errors = {};
+    // Clear errors that might have been resolved
+    const existingErrorFields = Object.keys(newState.errors);
+    existingErrorFields.forEach((field) => {
+      // If the field was updated and now validates, clear its error
+      if (
+        (updates[field] !== undefined ||
+          updatedFields?.[field] !== undefined) &&
+        !newState.errors[field]?.startsWith("Update failed:")
+      ) {
+        delete newState.errors[field];
+      }
+    });
+
     newState.isComplete = newState.remainingFields.length === 0;
   } catch (error) {
     console.log("validation error", error);
     if (error instanceof z.ZodError) {
-      newState.errors = {};
+      // Keep existing "Update failed" errors and add new validation errors
+      const updatedErrors = { ...newState.errors };
       error.errors.forEach((err) => {
         const field = err.path[0] as string;
-        newState.errors[field] = err.message;
+        if (!updatedErrors[field]?.startsWith("Update failed:")) {
+          updatedErrors[field] = err.message;
+        }
       });
+      newState.errors = updatedErrors;
     }
   }
 
@@ -282,8 +346,8 @@ Return a valid JSON object with extractedFields array and reasoning.
   ).object;
 
   // Filter out low-confidence extractions and format results
-  const extractedValues: Record<string, any> = {};
-  const updatedValues: Record<string, any> = {};
+  const newFieldValues: Record<string, any> = {};
+  const updatedFieldValues: Record<string, any> = {};
 
   result.extractedFields.newFields
     .filter((field) => field.confidence > 0.7)
@@ -296,9 +360,9 @@ Return a valid JSON object with extractedFields array and reasoning.
           fieldDef.type === "number" &&
           typeof field.extractedValue === "string"
         ) {
-          extractedValues[field.fieldName] = Number(field.extractedValue);
+          newFieldValues[field.fieldName] = Number(field.extractedValue);
         } else {
-          extractedValues[field.fieldName] = field.extractedValue;
+          newFieldValues[field.fieldName] = field.extractedValue;
         }
       }
     });
@@ -316,12 +380,12 @@ Return a valid JSON object with extractedFields array and reasoning.
           fieldDef.type === "number" &&
           typeof field.extractedValue === "string"
         ) {
-          updatedValues[field.fieldName] = Number(field.extractedValue);
+          updatedFieldValues[field.fieldName] = Number(field.extractedValue);
         } else {
-          updatedValues[field.fieldName] = field.extractedValue;
+          updatedFieldValues[field.fieldName] = field.extractedValue;
         }
       }
     });
 
-  return { extractedValues, updatedValues };
+  return { newFieldValues, updatedFieldValues };
 }
