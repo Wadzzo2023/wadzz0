@@ -21,37 +21,108 @@ import { ScrollArea } from "~/components/shadcn/ui/scroll-area";
 import { MemoizedMarkdown } from "~/components/memoized-markdown";
 import { UploadS3Button } from "./test";
 import toast from "react-hot-toast";
+import {
+  initializeFormState,
+  FormState,
+  updateFormState,
+} from "~/lib/agent/form-filling";
+import { z } from "zod";
+import { stat } from "fs";
+
+import {} from "zod-to-json-schema";
+
+const pinFormSchema = z.object({
+  title: z
+    .string()
+    .max(20, { message: "Title must be less than 20 characters" }),
+  description: z.string().optional(),
+  pinNumber: z.number().min(1).max(20),
+  asset: z.enum(["image", "video", "audio"]),
+  assetImage: z
+    .string({ description: "Upload an image to AWS storage (JPG or PNG)" })
+    .url(),
+});
 
 export default function FormFillingAgent() {
+  // Initialize form state
+  const [formState, setFormState] = useState<FormState | null>(null);
+  const [mounted, setMounted] = useState(false);
+  const [url, setUrl] = useState("");
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Initialize chat
   const { messages, input, handleInputChange, handleSubmit, isLoading } =
     useChat({
       body: {
         sessionId: "vongCongForm",
+        // Only send the data without the schema
+        formState: formState
+          ? {
+              fields: formState.fields,
+              currentData: formState.currentData,
+              remainingFields: formState.remainingFields,
+              errors: formState.errors,
+              isComplete: formState.isComplete,
+            }
+          : null,
+      },
+      onFinish(message, options) {
+        console.log("onFinish", message.annotations);
+        // Update form state from annotations if available
+        // @ts-expect-error formState is passed as annotations
+        const serverFormState = message?.annotations[0]?.formState as FormState;
+        if (serverFormState) {
+          // Merge server state with client schema
+          if (formState?.schema) {
+            const updatedState = {
+              ...serverFormState,
+              schema: formState.schema, // Keep the client-side schema
+            };
+
+            const newState = updateFormState(updatedState, {});
+            console.log("new", newState);
+            // Validate on the client after receiving server updates
+            setFormState(newState);
+          }
+        }
       },
     });
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-  const [mounted, setMounted] = useState(false);
 
-  const [url, setUrl] = useState("");
+  // Initialize form state on first load
+  useEffect(() => {
+    if (!formState && mounted) {
+      const state = initializeFormState(pinFormSchema);
+      setFormState(state);
+    }
+  }, [formState, mounted]);
+
+  // Handle file upload and submit additional values manually
+  const handleFileUpload = (value: string) => {
+    if (formState) {
+      // Update form state directly with new upload URL
+      const updatedState = updateFormState(formState, {
+        assetImage: value,
+      });
+      setFormState(updatedState);
+
+      // Submit the message with the URL
+      handleInputChange({
+        target: { value: `I've uploaded an image: ${value}` },
+      } as React.ChangeEvent<HTMLInputElement>);
+
+      // Submit after state update
+      setTimeout(() => {
+        handleSubmit(new Event("submit") as any);
+      }, 0);
+    }
+  };
 
   // Scroll to bottom when new messages arrive
   useEffect(() => {
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
-  }, [messagesEndRef]); // Updated dependency
-
-  const handleFileUpload = (value: string) => {
-    setUrl(value);
-    // here pass the vlaues to the handleInputChange
-    handleInputChange({
-      target: { value: `${input} \n assetImage: ${value}` },
-    } as React.ChangeEvent<HTMLInputElement>);
-
-    // setTimeout(() => {
-    //   handleSubmit(new Event("submit", { bubbles: true, cancelable: true }));
-    // }, 100);
-  };
+  }, [messages]);
 
   // Handle hydration issues
   useEffect(() => {

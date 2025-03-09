@@ -1,6 +1,6 @@
 // src/lib/form-agent.ts
 import { openai } from "@ai-sdk/openai";
-import { generateText, generateObject, streamText } from "ai";
+import { generateObject, streamText } from "ai";
 import { z } from "zod";
 
 export type FormField = {
@@ -12,19 +12,17 @@ export type FormField = {
   enum?: string[];
 };
 
-const ami = z.object({
-  image: z.string({ description: "A AWS Image upload field" }).url(),
-  assetImage: z.string({ description: "A PINATA Image upload field" }).url(),
-});
-
 export type FormState = {
-  schema: z.ZodObject<any>;
+  schema: z.ZodObject<any>; // Used only on client-side
   fields: FormField[];
   currentData: Record<string, any>;
   remainingFields: string[];
   errors: Record<string, string>;
   isComplete: boolean;
 };
+
+// Type for serializing form state when sending to server
+export type SerializedFormState = Omit<FormState, "schema">;
 
 /**
  * Extracts field information from a Zod schema
@@ -134,12 +132,19 @@ export function updateFormState(
     (field) => !updatedFields.includes(field),
   );
 
-  // Validate the entire form
+  // Skip validation if schema is not available (server-side)
+  if (!newState.schema || typeof newState.schema.parse !== "function") {
+    newState.isComplete = newState.remainingFields.length === 0;
+    return newState;
+  }
+
+  // Validate the entire form (client-side only)
   try {
     newState.schema.parse(newState.currentData);
     newState.errors = {};
     newState.isComplete = newState.remainingFields.length === 0;
   } catch (error) {
+    console.log("validation error", error);
     if (error instanceof z.ZodError) {
       newState.errors = {};
       error.errors.forEach((err) => {
@@ -156,7 +161,7 @@ export function updateFormState(
  * Generates the next conversation message based on form state
  */
 export async function streamNextPrompt(
-  state: FormState,
+  state: FormState | SerializedFormState,
   userInput: string,
   callback?: (output: string) => void,
 ) {
@@ -217,27 +222,42 @@ Respond in a conversational, helpful tone while including these special markers 
 /**
  * Extracts multiple field values from user input using AI
  */
+type FormFieldWithValue = FormField & { value: any };
+
 export async function extractMultipleValues(
   userInput: string,
-  fields: FormField[],
+  remainingField: FormField[],
+  fieldAlreadyFilled: FormFieldWithValue[],
   currentConversation: string[],
-): Promise<Record<string, any>> {
+) {
   const schema = z.object({
-    extractedFields: z.array(
-      z.object({
-        fieldName: z.string(),
-        extractedValue: z.any(),
-        confidence: z.number().min(0).max(1),
-      }),
-    ),
+    extractedFields: z.object({
+      newFields: z.array(
+        z.object({
+          fieldName: z.string(),
+          extractedValue: z.any(),
+          confidence: z.number().min(0).max(1),
+        }),
+      ),
+      updatedFields: z.array(
+        z.object({
+          fieldName: z.string(),
+          extractedValue: z.any(),
+          confidence: z.number().min(0).max(1),
+        }),
+      ),
+    }),
     reasoning: z.string(),
   });
 
   const prompt = `
 You are helping to extract multiple form field values from user inputs.
 
+Already filled fields:
+${fieldAlreadyFilled.map((field) => field.name).join(", ")}
+
 Available fields:
-${JSON.stringify(fields, null, 2)}
+${JSON.stringify(remainingField, null, 2)}
 
 Recent conversation:
 ${currentConversation.join("\n")}
@@ -255,7 +275,7 @@ Return a valid JSON object with extractedFields array and reasoning.
 
   const result = (
     await generateObject({
-      model: openai("gpt-4o"),
+      model: openai("gpt-4o-mini"),
       prompt,
       schema,
     })
@@ -263,11 +283,12 @@ Return a valid JSON object with extractedFields array and reasoning.
 
   // Filter out low-confidence extractions and format results
   const extractedValues: Record<string, any> = {};
+  const updatedValues: Record<string, any> = {};
 
-  result.extractedFields
+  result.extractedFields.newFields
     .filter((field) => field.confidence > 0.7)
     .forEach((field) => {
-      const fieldDef = fields.find((f) => f.name === field.fieldName);
+      const fieldDef = remainingField.find((f) => f.name === field.fieldName);
 
       if (fieldDef) {
         // Type conversion if needed
@@ -282,5 +303,25 @@ Return a valid JSON object with extractedFields array and reasoning.
       }
     });
 
-  return extractedValues;
+  result.extractedFields.updatedFields
+    .filter((field) => field.confidence > 0.7)
+    .forEach((field) => {
+      const fieldDef = fieldAlreadyFilled.find(
+        (f) => f.name === field.fieldName,
+      );
+
+      if (fieldDef) {
+        // Type conversion if needed
+        if (
+          fieldDef.type === "number" &&
+          typeof field.extractedValue === "string"
+        ) {
+          updatedValues[field.fieldName] = Number(field.extractedValue);
+        } else {
+          updatedValues[field.fieldName] = field.extractedValue;
+        }
+      }
+    });
+
+  return { extractedValues, updatedValues };
 }
