@@ -374,7 +374,10 @@ export const pinRouter = createTRPCRouter({
         locationGroup: {
           creatorId: ctx.session.user.id,
           endDate: { gte: new Date() },
-
+          OR: [
+            { approved: true },
+            { approved: null },
+          ],
         },
       },
       include: {
@@ -414,6 +417,7 @@ export const pinRouter = createTRPCRouter({
 
     return pins;
   }),
+
   getCreatorPins: adminProcedure.input(z.object({
     creator_id: z.string(),
   })).query(async ({ ctx, input }) => {
