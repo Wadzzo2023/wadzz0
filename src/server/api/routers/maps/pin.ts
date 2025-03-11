@@ -374,7 +374,7 @@ export const pinRouter = createTRPCRouter({
         locationGroup: {
           creatorId: ctx.session.user.id,
           endDate: { gte: new Date() },
-          approved: { equals: true },
+
         },
       },
       include: {
