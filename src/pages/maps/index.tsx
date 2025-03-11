@@ -6,9 +6,10 @@ import {
   Map,
   MapMouseEvent,
 } from "@vis.gl/react-google-maps";
+import { motion, AnimatePresence } from "framer-motion";
 
 import { format, set } from "date-fns";
-import { ClipboardList, MapPin } from "lucide-react";
+import { ClipboardList, MapPin, Minus, Plus } from "lucide-react";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
 import { Loading } from "react-daisyui";
@@ -28,6 +29,7 @@ import { api } from "~/utils/api";
 import { create } from "zustand";
 import toast from "react-hot-toast";
 import Link from "next/link";
+import { Button } from "~/components/shadcn/ui/button";
 
 type Pin = {
   locationGroup:
@@ -172,7 +174,13 @@ function App() {
     },
     refetchOnWindowFocus: false,
   });
+  const handleZoomIn = () => {
+    setMapZoom((prev) => Math.min(prev + 1, 20));
+  };
 
+  const handleZoomOut = () => {
+    setMapZoom((prev) => Math.max(prev - 1, 3));
+  };
   function handleMapClick(event: MapMouseEvent): void {
     setManual(false);
     const position = event.detail.latLng;
@@ -260,10 +268,7 @@ function App() {
         setZoom={setMapZoom}
       />
       <Map
-        zoomControl={true}
-        zoomControlOptions={{
-          position: ControlPosition.RIGHT_TOP,
-        }}
+
         onCenterChanged={(center) => {
           setMapCenter(center.detail.center);
           setCenterChanged(center.detail.bounds);
@@ -308,7 +313,7 @@ function App() {
             </svg>
           </AdvancedMarker>
         )}
-
+        <ZoomControls onZoomIn={handleZoomIn} onZoomOut={handleZoomOut} />
         {isCordsSearch && cordSearchCords && (
           <AdvancedMarker
             style={{
@@ -338,8 +343,10 @@ function App() {
       <div className="hidden md:block">
         <SideMapItem setAlreadySelectedPlace={setAlreadySelectedPlace} />
       </div>
-      <ManualPinButton handleClick={handleManualPinClick} />
-      <ReportCollection />
+      <div className="flex flex-col md:flex-row absolute bottom-5 right-2 gap-4 items-center">
+        <ManualPinButton handleClick={handleManualPinClick} />
+        <ReportCollection />
+      </div>
       <CreatePinModal />
     </APIProvider>
   );
@@ -353,7 +360,7 @@ function SideMapItem({
   const { nearbyPins } = useNearbyPinsStore();
 
   return (
-    <div className="absolute bottom-4 right-4 top-96 flex max-h-[400px] min-h-[400px] w-80  items-center justify-center">
+    <div className="absolute bottom-4 right-4 top-60 flex max-h-[400px] min-h-[400px] w-80  items-center justify-center">
       <div className="max-h-[400px] min-h-[400px] w-80 overflow-y-auto rounded-lg bg-white p-4  scrollbar-hide ">
         <h2 className="mb-4 text-lg font-semibold">Nearby Locations</h2>
         <div className="space-y-4">
@@ -407,12 +414,73 @@ function SideMapItem({
     </div>
   );
 }
+function ZoomControls({
+  onZoomIn,
+  onZoomOut,
+}: {
+  onZoomIn: () => void;
+  onZoomOut: () => void;
+}) {
+  return (
+    <>
+      <style jsx global>{`
+        .touch-manipulation {
+          touch-action: manipulation;
+          -webkit-touch-callout: none;
+          -webkit-tap-highlight-color: transparent;
+        }
+      `}</style>
+      <motion.div
+        className="absolute top-36 right-2 z-10 flex
+                 items-center gap-2 md:bottom-auto md:left-auto md:right-2 md:top-24"
+        initial={{ opacity: 0, scale: 0.8 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.5 }}
+      >
+        <motion.div
+          whileHover={{
+            scale: 1.1,
+            transition: { duration: 0.2 },
+          }}
+          whileTap={{ scale: 0.9 }}
+        >
+          <Button
+            variant="default"
+            size="icon"
+            className="h-10 w-10 touch-manipulation select-none rounded-full shadow-sm shadow-foreground"
+            onClick={onZoomOut}
+            aria-label="Zoom out"
+          >
+            <Minus className="h-4 w-4" />
+          </Button>
+        </motion.div>
+        <motion.div
+          whileHover={{
+            scale: 1.1,
+            transition: { duration: 0.2 },
+          }}
+          whileTap={{ scale: 0.9 }}
+        >
+          <Button
+            variant="default"
+            size="icon"
+            className="h-10 w-10 touch-manipulation  select-none rounded-full shadow-sm shadow-foreground"
+            onClick={onZoomIn}
+            aria-label="Zoom in"
+          >
+            <Plus className="h-4 w-4" />
+          </Button>
+        </motion.div>
+      </motion.div>
+    </>
+  );
+}
 
 function ManualPinButton({ handleClick }: { handleClick: () => void }) {
   return (
-    <div className="absolute bottom-2 right-2">
+    <div className="">
       <div className="btn" onClick={handleClick}>
-        <MapPin /> Drop Pins
+        <MapPin />
       </div>
     </div>
   );
@@ -420,9 +488,9 @@ function ManualPinButton({ handleClick }: { handleClick: () => void }) {
 
 function ReportCollection() {
   return (
-    <Link href="/maps/report" className="absolute bottom-16 right-2">
+    <Link href="/maps/report" className="">
       <div className="btn">
-        <ClipboardList /> Collection Report
+        <ClipboardList />
       </div>
     </Link>
   );
