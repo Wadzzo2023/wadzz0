@@ -441,8 +441,7 @@ function PinInfoUpdate({
   });
 
   const onSubmit = (formData: FormData) => {
-    formData.image = coverUrl ?? image;
-
+    console.log(formData);
     update.mutate(formData);
   };
 

@@ -485,8 +485,8 @@ function MyPins({
               width={30}
               height={30}
               alt="Creator"
-              className={`h-10 w-10 bg-white ${!pin.autoCollect ? "rounded-full " : ""
-                } ${pin._count.consumers <= 0 ? "opacity-100" : "opacity-50 "} ${pin.locationGroup?.approved === null ? "bg-slate-500 opacity-70" : ""}  `}
+              className={`h-10 w-10  ${!pin.autoCollect ? "rounded-full " : ""
+                } ${pin._count.consumers <= 0 ? "opacity-50" : "opacity-100"} ${pin.locationGroup?.approved === null ? "bg-slate-500 opacity-70" : "bg-white"}  `}
             />
           </AdvancedMarker>
         ))}

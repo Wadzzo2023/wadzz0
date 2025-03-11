@@ -297,7 +297,7 @@ export const pinRouter = createTRPCRouter({
         pinRemainingLimit,
         autoCollect,
       } = input;
-
+      console.log("Input,", input);
       try {
         // Step 1: Find the Location object by pinId (which is the location ID)
         const findLocation = await ctx.db.location.findFirst({
