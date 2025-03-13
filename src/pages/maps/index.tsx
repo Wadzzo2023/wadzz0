@@ -33,10 +33,10 @@ import { Button } from "~/components/shadcn/ui/button";
 
 type Pin = {
   locationGroup:
-  | (LocationGroup & {
-    creator: { profileUrl: string | null };
-  })
-  | null;
+    | (LocationGroup & {
+        creator: { profileUrl: string | null };
+      })
+    | null;
   _count: {
     consumers: number;
   };
@@ -139,12 +139,10 @@ function App() {
   const [isCordsSearch, setIsCordsSearch] = useState<boolean>(false);
   const [searchCoordinates, setSearchCoordinates] =
     useState<google.maps.LatLngLiteral>();
-  const [userLocation, setUserLocation] = useState<UserLocationType>(
-    {
-      lat: 44.500000,
-      lng: -89.500000,
-    }
-  );
+  const [userLocation, setUserLocation] = useState<UserLocationType>({
+    lat: 44.5,
+    lng: -89.5,
+  });
   const {
     selectedPlace: alreadySelectedPlace,
     setSelectedPlace: setAlreadySelectedPlace,
@@ -268,7 +266,6 @@ function App() {
         setZoom={setMapZoom}
       />
       <Map
-
         onCenterChanged={(center) => {
           setMapCenter(center.detail.center);
           setCenterChanged(center.detail.bounds);
@@ -288,7 +285,6 @@ function App() {
         disableDefaultUI={true}
         onDragend={() => handleDragEnd()}
       >
-
         {centerChanged && searchCoordinates && (
           <AdvancedMarker
             style={{
@@ -343,7 +339,7 @@ function App() {
       <div className="hidden md:block">
         <SideMapItem setAlreadySelectedPlace={setAlreadySelectedPlace} />
       </div>
-      <div className="flex flex-col md:flex-row absolute bottom-5 right-2 gap-4 items-center">
+      <div className="absolute bottom-5 right-2 flex flex-col items-center gap-4 md:flex-row">
         <ManualPinButton handleClick={handleManualPinClick} />
         <ReportCollection />
       </div>
@@ -431,7 +427,7 @@ function ZoomControls({
         }
       `}</style>
       <motion.div
-        className="absolute top-36 right-2 z-10 flex
+        className="absolute right-2 top-36 z-10 flex
                  items-center gap-2 md:bottom-auto md:left-auto md:right-2 md:top-24"
         initial={{ opacity: 0, scale: 0.8 }}
         animate={{ opacity: 1, scale: 1 }}
@@ -517,6 +513,9 @@ function MyPins({
   if (pins.data) {
     // const data = pins.data;
     // setAllPins(pins.data);
+    // console.log(
+    //   pins.data.filter((pin) => pin.locationGroup?.title === "10 pins"),
+    // );
 
     return (
       <>
@@ -553,8 +552,9 @@ function MyPins({
               width={30}
               height={30}
               alt="Creator"
-              className={`h-10 w-10  ${!pin.autoCollect ? "rounded-full " : ""
-                } ${pin._count.consumers <= 0 ? "opacity-50" : "opacity-100"} ${pin.locationGroup?.approved === null ? "bg-slate-500 opacity-70" : "bg-white"}  `}
+              className={`h-10 w-10  ${
+                !pin.autoCollect ? "rounded-full " : ""
+              } ${pin.locationGroup?.remaining && pin.locationGroup.remaining <= 0 ? "opacity-50" : "opacity-100"} ${pin.locationGroup?.approved === null ? "bg-slate-500 opacity-70" : "bg-white"}  `}
             />
           </AdvancedMarker>
         ))}

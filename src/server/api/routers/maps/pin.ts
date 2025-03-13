@@ -91,12 +91,17 @@ export const pinRouter = createTRPCRouter({
   createForAdminPin: adminProcedure
     .input(createAdminPinFormSchema)
     .mutation(async ({ ctx, input }) => {
-      const { pinNumber, pinCollectionLimit, token, tier, multiPin, creatorId } = input;
-      console.log(creatorId)
+      const {
+        pinNumber,
+        pinCollectionLimit,
+        token,
+        tier,
+        multiPin,
+        creatorId,
+      } = input;
       const creator = await ctx.db.creator.findUnique({
         where: { id: creatorId },
       });
-      console.log(creator)
       if (!creator || !creatorId) throw new Error("Creator not found");
 
       let tierId: number | undefined;
@@ -374,10 +379,7 @@ export const pinRouter = createTRPCRouter({
         locationGroup: {
           creatorId: ctx.session.user.id,
           endDate: { gte: new Date() },
-          OR: [
-            { approved: true },
-            { approved: null },
-          ],
+          OR: [{ approved: true }, { approved: null }],
         },
       },
       include: {
@@ -418,54 +420,58 @@ export const pinRouter = createTRPCRouter({
     return pins;
   }),
 
-  getCreatorPins: adminProcedure.input(z.object({
-    creator_id: z.string(),
-  })).query(async ({ ctx, input }) => {
-    const pins = await ctx.db.location.findMany({
-      where: {
-        locationGroup: {
-          creatorId: input.creator_id,
-          endDate: { gte: new Date() },
-          approved: { equals: true },
+  getCreatorPins: adminProcedure
+    .input(
+      z.object({
+        creator_id: z.string(),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      const pins = await ctx.db.location.findMany({
+        where: {
+          locationGroup: {
+            creatorId: input.creator_id,
+            endDate: { gte: new Date() },
+            approved: { equals: true },
+          },
         },
-      },
-      include: {
-        _count: { select: { consumers: true } },
-        locationGroup: {
-          include: {
-            creator: { select: { profileUrl: true } },
-            locations: {
-              select: {
-                locationGroup: {
-                  select: {
-                    endDate: true,
-                    startDate: true,
-                    limit: true,
-                    image: true,
-                    description: true,
-                    title: true,
-                    link: true,
-                    multiPin: true,
-                    subscriptionId: true,
-                    pageAsset: true,
-                    privacy: true,
-                    remaining: true,
-                    assetId: true,
+        include: {
+          _count: { select: { consumers: true } },
+          locationGroup: {
+            include: {
+              creator: { select: { profileUrl: true } },
+              locations: {
+                select: {
+                  locationGroup: {
+                    select: {
+                      endDate: true,
+                      startDate: true,
+                      limit: true,
+                      image: true,
+                      description: true,
+                      title: true,
+                      link: true,
+                      multiPin: true,
+                      subscriptionId: true,
+                      pageAsset: true,
+                      privacy: true,
+                      remaining: true,
+                      assetId: true,
+                    },
                   },
+                  latitude: true,
+                  longitude: true,
+                  id: true,
+                  autoCollect: true,
                 },
-                latitude: true,
-                longitude: true,
-                id: true,
-                autoCollect: true,
               },
             },
           },
         },
-      },
-    });
+      });
 
-    return pins;
-  }),
+      return pins;
+    }),
   getRangePins: creatorProcedure
     .input(
       z.object({
@@ -512,7 +518,10 @@ export const pinRouter = createTRPCRouter({
   getLocationGroups: adminProcedure.query(async ({ ctx, input }) => {
     const locationGroups = await ctx.db.locationGroup.findMany({
       where: { approved: { equals: null }, endDate: { gte: new Date() } },
-      include: { creator: { select: { name: true, id: true } }, locations: true },
+      include: {
+        creator: { select: { name: true, id: true } },
+        locations: true,
+      },
       orderBy: { createdAt: "desc" },
     });
 
@@ -633,10 +642,10 @@ export const pinRouter = createTRPCRouter({
         where: {
           createdAt: input
             ? {
-              gte: new Date(
-                new Date().getTime() - input.day * 24 * 60 * 60 * 1000,
-              ),
-            }
+                gte: new Date(
+                  new Date().getTime() - input.day * 24 * 60 * 60 * 1000,
+                ),
+              }
             : {},
           creatorId,
         },
@@ -714,10 +723,10 @@ export const pinRouter = createTRPCRouter({
         where: {
           createdAt: input
             ? {
-              gte: new Date(
-                new Date().getTime() - input.day * 24 * 60 * 60 * 1000,
-              ),
-            }
+                gte: new Date(
+                  new Date().getTime() - input.day * 24 * 60 * 60 * 1000,
+                ),
+              }
             : {},
         },
         include: {
@@ -773,10 +782,10 @@ export const pinRouter = createTRPCRouter({
         where: {
           createdAt: input
             ? {
-              gte: new Date(
-                new Date().getTime() - input.day * 24 * 60 * 60 * 1000,
-              ),
-            }
+                gte: new Date(
+                  new Date().getTime() - input.day * 24 * 60 * 60 * 1000,
+                ),
+              }
             : {},
         },
         include: {
@@ -830,10 +839,10 @@ export const pinRouter = createTRPCRouter({
         where: {
           createdAt: input
             ? {
-              gte: new Date(
-                new Date().getTime() - input.day * 24 * 60 * 60 * 1000,
-              ),
-            }
+                gte: new Date(
+                  new Date().getTime() - input.day * 24 * 60 * 60 * 1000,
+                ),
+              }
             : {},
         },
         include: {
@@ -963,10 +972,10 @@ export const pinRouter = createTRPCRouter({
         take: limit + 1,
         ...(cursor
           ? {
-            cursor: {
-              id: cursor,
-            },
-          }
+              cursor: {
+                id: cursor,
+              },
+            }
           : {}),
       });
 
