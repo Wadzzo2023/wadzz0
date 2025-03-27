@@ -33,10 +33,10 @@ import { Button } from "~/components/shadcn/ui/button";
 
 type Pin = {
   locationGroup:
-    | (LocationGroup & {
-        creator: { profileUrl: string | null };
-      })
-    | null;
+  | (LocationGroup & {
+    creator: { profileUrl: string | null };
+  })
+  | null;
   _count: {
     consumers: number;
   };
@@ -367,43 +367,55 @@ function SideMapItem({
               </h3>
             </div>
           ) : (
-            nearbyPins?.map((pin) => (
-              <div
-                onClick={() => {
-                  setAlreadySelectedPlace({
-                    lat: pin.latitude,
-                    lng: pin.longitude,
-                  });
-                }}
-                key={pin.id}
-                className="flex items-start gap-3 rounded-md bg-gray-50 p-3 shadow-lg transition-colors hover:bg-gray-100"
-              >
-                <MapPin className="h-5 w-5 flex-shrink-0 text-primary" />
-                <div className="flex-1">
-                  <h3 className="relative font-medium">
-                    {pin.locationGroup?.title}{" "}
-                    <span className=" absolute bottom-4 right-0 text-[.60rem]">
-                      End At:
-                      {pin.locationGroup &&
-                        new Date(pin.locationGroup.endDate).toLocaleString()}
-                    </span>
-                  </h3>
-                  <div className="mt-1 flex items-center gap-1">
-                    <Avatar className="h-6 w-6">
-                      <Image
-                        width={24}
-                        height={24}
-                        src={pin.locationGroup?.image ?? "/favicon.ico"}
-                        alt="Creator"
-                      />
-                    </Avatar>
-                    <Badge variant="secondary" className="text-xs">
-                      {pin._count.consumers} visitors
-                    </Badge>
+            nearbyPins?.map((pin) => {
+              console.log(pin);
+              return (
+                <div
+                  onClick={() => {
+                    setAlreadySelectedPlace({
+                      lat: pin.latitude,
+                      lng: pin.longitude,
+                    });
+                  }}
+                  key={pin.id}
+                  className="flex items-start gap-3 rounded-md bg-gray-50 p-3 shadow-lg transition-colors hover:bg-gray-100"
+                >
+                  <MapPin className="h-5 w-5 flex-shrink-0 text-primary" />
+                  <div className="flex-1">
+                    <h3 className="relative font-medium">
+                      {pin.locationGroup?.title}{" "}
+                      <span className=" absolute bottom-4 right-0 text-[.60rem]">
+                        End At:
+                        {pin.locationGroup &&
+                          new Date(pin.locationGroup.endDate).toLocaleString('en-US', {
+                            timeZone: 'America/Chicago', // CST timezone
+                            month: 'short',
+                            day: 'numeric',
+                            year: 'numeric',
+                            hour: 'numeric',
+                            minute: 'numeric',
+                            hour12: true
+                          })
+                        }
+                      </span>
+                    </h3>
+                    <div className="mt-1 flex items-center gap-1">
+                      <Avatar className="h-6 w-6">
+                        <Image
+                          width={24}
+                          height={24}
+                          src={pin.locationGroup?.image ?? "/favicon.ico"}
+                          alt="Creator"
+                        />
+                      </Avatar>
+                      <Badge variant="secondary" className="text-xs">
+                        {pin._count.consumers} visitors
+                      </Badge>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))
+              )
+            })
           )}
         </div>
       </div>
@@ -552,9 +564,8 @@ function MyPins({
               width={30}
               height={30}
               alt="Creator"
-              className={`h-10 w-10  ${
-                !pin.autoCollect ? "rounded-full " : ""
-              } ${pin.locationGroup?.remaining && pin.locationGroup.remaining <= 0 ? "opacity-50" : "opacity-100"} ${pin.locationGroup?.approved === null ? "bg-slate-500 opacity-70" : "bg-white"}  `}
+              className={`h-10 w-10  ${!pin.autoCollect ? "rounded-full " : ""
+                } ${pin.locationGroup?.remaining && pin.locationGroup.remaining <= 0 ? "opacity-50" : "opacity-100"} ${pin.locationGroup?.approved === null ? "bg-slate-500 opacity-70" : "bg-white"}  `}
             />
           </AdvancedMarker>
         ))}

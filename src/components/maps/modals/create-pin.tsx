@@ -59,7 +59,9 @@ export const createPinFormSchema = z.object({
     ),
   image: z.string().url().optional(),
   startDate: z.date(),
-  endDate: z.date().min(new Date(new Date().setHours(0, 0, 0, 0))),
+  endDate: z.date()
+    .min(new Date(new Date().setHours(0, 0, 0, 0))) // Prevent past dates
+    .transform((date) => new Date(date.setHours(23, 59, 59, 999))),
   url: z.string().url().optional(),
   autoCollect: z.boolean(),
   token: z.number().optional(),
