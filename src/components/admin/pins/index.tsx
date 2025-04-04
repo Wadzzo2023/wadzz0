@@ -3,7 +3,7 @@ import PinsList from "./list";
 
 export default function Pins() {
   return (
-    <div className="w-full md:w-1/2 ">
+    <div className="w-full flex items-center justify-center ">
       <PinsList />
     </div>
   );
