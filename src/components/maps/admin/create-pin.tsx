@@ -220,11 +220,11 @@ export default function CreateAdminPinModal() {
 
       setValue("lat", position.lat)
       setValue("lng", position.lng)
-      addPinM.mutate({ ...data, lat: position.lat, lng: position.lng })
+      // addPinM.mutate({ ...data, lat: position.lat, lng: position.lng })
     } else {
       console.log("data...", data)
 
-      addPinM.mutate({ ...data })
+      // addPinM.mutate({ ...data })
     }
   }
 
@@ -353,9 +353,15 @@ export default function CreateAdminPinModal() {
     }
   }, [tokenAmount, selectedToken, selectedCreator])
 
+
+  const handleClose = () => {
+    setIsOpen(false)
+    resetState()
+  }
+
   return (
     <>
-      <Dialog open={isOpen && !!selectedCreator} onOpenChange={setIsOpen}>
+      <Dialog open={isOpen && !!selectedCreator} onOpenChange={handleClose}>
         {/* <DialogTrigger asChild>
           <Button onClick={openPopup}>Open Popup</Button>
         </DialogTrigger> */}
