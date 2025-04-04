@@ -220,11 +220,11 @@ export default function CreateAdminPinModal() {
 
       setValue("lat", position.lat)
       setValue("lng", position.lng)
-      // addPinM.mutate({ ...data, lat: position.lat, lng: position.lng })
+      addPinM.mutate({ ...data, lat: position.lat, lng: position.lng })
     } else {
       console.log("data...", data)
 
-      // addPinM.mutate({ ...data })
+      addPinM.mutate({ ...data })
     }
   }
 
