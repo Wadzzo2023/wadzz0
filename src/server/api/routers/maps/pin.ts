@@ -6,6 +6,7 @@ import {
   PAGE_ASSET_NUM,
   createPinFormSchema,
 } from "~/components/maps/modals/create-pin";
+import { updateMapFormSchema } from "~/components/modals/map-modal";
 import { LocationWithConsumers } from "~/pages/maps/pins/creator";
 
 import {
@@ -250,44 +251,9 @@ export const pinRouter = createTRPCRouter({
       };
     }),
 
-  updatePin: creatorProcedure
+  updatePin: protectedProcedure
     .input(
-      z.object({
-        pinId: z.string(),
-        lat: z
-          .number({
-            message: "Latitude is required",
-          })
-          .min(-180)
-          .max(180),
-        lng: z
-          .number({
-            message: "Longitude is required",
-          })
-          .min(-180)
-          .max(180),
-        description: z.string(),
-        title: z
-          .string()
-          .min(3)
-          .refine(
-            (value) => {
-              return !BADWORDS.some((word) => value.includes(word));
-            },
-            {
-              message: "Input contains banned words.",
-            },
-          ),
-        image: z.string().url().optional(),
-        startDate: z.date().optional(),
-        endDate: z
-          .date()
-          .min(new Date(new Date().setHours(0, 0, 0, 0)))
-          .optional(),
-        url: z.string().url().optional(),
-        autoCollect: z.boolean(),
-        pinRemainingLimit: z.number().optional(),
-      }),
+      updateMapFormSchema
     )
     .mutation(async ({ ctx, input }) => {
       const {
@@ -320,14 +286,6 @@ export const pinRouter = createTRPCRouter({
           throw new Error("Location or associated LocationGroup not found");
         }
 
-        // Step 3: Check if the logged-in user is the creator of the LocationGroup
-        if (findLocation.locationGroup.creatorId !== ctx.session.user.id) {
-          throw new Error(
-            "Unauthorized: You are not the creator of this location group",
-          );
-        }
-
-        console.log("Location Group to update:", findLocation.locationGroup);
 
         const update = await ctx.db.location.update({
           where: {

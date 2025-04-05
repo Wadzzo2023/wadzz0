@@ -37,6 +37,7 @@ import { useCreatorStorageAcc } from "~/lib/state/wallete/stellar-balances";
 import { BADWORDS } from "~/utils/banned-word";
 import { UploadS3Button } from "~/pages/test";
 import { useAdminMapModalStore } from "../hooks/use-AdminModal-store";
+import { format } from "path";
 
 const MapModalComponent = () => {
   const {
@@ -315,7 +316,7 @@ type AssetType = {
   thumbnail: string;
 };
 
-const updateMapFormSchema = z.object({
+export const updateMapFormSchema = z.object({
   pinId: z.string(),
   lat: z
     .number({
@@ -343,9 +344,17 @@ const updateMapFormSchema = z.object({
     ),
   image: z.string().url().optional(),
   startDate: z.date().optional(),
-  endDate: z
-    .date()
-    .min(new Date(new Date().setHours(0, 0, 0, 0)))
+  endDate: z.date().refine(
+    (date) => {
+      // Set the time to the end of the day for comparison
+      const endOfDay = new Date(date)
+      endOfDay.setHours(23, 59, 59, 999)
+      return endOfDay >= new Date(new Date().setHours(0, 0, 0, 0))
+    },
+    {
+      message: "End date must be today or later",
+    },
+  )
     .optional(),
   url: z.string().url().optional(),
   autoCollect: z.boolean(),
@@ -427,7 +436,7 @@ function PinInfoUpdate({
   });
   const tiers = api.fan.member.getAllMembership.useQuery();
   const assets = api.fan.asset.myAssets.useQuery(undefined, {});
-
+  console.log("start date", startDate);
   const update = api.maps.pin.updatePin.useMutation({
     onSuccess: async (updatedData) => {
       await utils.maps.pin.getMyPins.refetch();
@@ -441,8 +450,21 @@ function PinInfoUpdate({
   });
 
   const onSubmit = (formData: FormData) => {
-    console.log(formData);
+    const startDate = new Date(formData.startDate ?? new Date())
+    startDate.setHours(0, 1, 0, 0)
+    formData.startDate = startDate
+
+    // Set end date to end of day (11:59 PM)
+    const endDate = new Date(formData.endDate ?? new Date())
+    endDate.setHours(23, 59, 59, 999)
+    formData.endDate = endDate
     update.mutate(formData);
+  };
+  const formatDateForInput = (date: Date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
   };
 
   useEffect(() => {
@@ -594,9 +616,7 @@ function PinInfoUpdate({
               <Input
                 type="date"
                 onChange={(e) => onChange(new Date(e.target.value))}
-                value={
-                  value instanceof Date ? value.toISOString().split("T")[0] : ""
-                }
+                value={formatDateForInput(value ?? new Date())}
               />
             )}
           />
@@ -614,9 +634,7 @@ function PinInfoUpdate({
               <Input
                 type="date"
                 onChange={(e) => onChange(new Date(e.target.value))}
-                value={
-                  value instanceof Date ? value.toISOString().split("T")[0] : ""
-                }
+                value={formatDateForInput(value ?? new Date())}
               />
             )}
           />
