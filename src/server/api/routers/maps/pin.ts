@@ -99,6 +99,7 @@ export const pinRouter = createTRPCRouter({
         multiPin,
         creatorId,
       } = input;
+
       const creator = await ctx.db.creator.findUnique({
         where: { id: creatorId },
       });

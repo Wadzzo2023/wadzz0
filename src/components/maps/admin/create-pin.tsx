@@ -1,15 +1,13 @@
 "use client"
 
 import { zodResolver } from "@hookform/resolvers/zod"
-import { Loader, X } from "lucide-react"
+import { Loader } from "lucide-react"
 import Image from "next/image"
 import { type ChangeEvent, useEffect, useRef, useState } from "react"
 import { Controller, type SubmitHandler, useForm } from "react-hook-form"
 import toast from "react-hot-toast"
 import { match } from "ts-pattern"
 import { z } from "zod"
-import { useCreatorStorageAcc } from "~/lib/state/wallete/stellar-balances"
-import { useMapModalStore } from "~/pages/maps"
 import { api } from "~/utils/api"
 import { BADWORDS } from "~/utils/banned-word"
 import { error, loading, success } from "~/utils/trcp/patterns"
@@ -55,8 +53,20 @@ export const createAdminPinFormSchema = z.object({
       },
     ),
   image: z.string().url().optional(),
-  startDate: z.date(),
-  endDate: z.date().min(new Date(new Date().setHours(0, 0, 0, 0))),
+  startDate: z.date().min(new Date(new Date().setHours(0, 0, 0, 0)), {
+    message: "Start date must be today or later",
+  }),
+  endDate: z.date().refine(
+    (date) => {
+      // Set the time to the end of the day for comparison
+      const endOfDay = new Date(date)
+      endOfDay.setHours(23, 59, 59, 999)
+      return endOfDay >= new Date(new Date().setHours(0, 0, 0, 0))
+    },
+    {
+      message: "End date must be today or later",
+    },
+  ),
   url: z.string().url().optional(),
   autoCollect: z.boolean(),
   token: z.number().optional(),
@@ -68,8 +78,6 @@ export const createAdminPinFormSchema = z.object({
   multiPin: z.boolean().optional(),
   creatorId: z.string(),
 })
-
-
 
 export default function CreateAdminPinModal() {
   const { manual, position, duplicate, isOpen, setIsOpen, prevData } = useAdminMapModalStore()
@@ -132,7 +140,9 @@ export default function CreateAdminPinModal() {
             <div className="flex items-center space-x-2">
               <select
                 disabled={selectedCreator === undefined || GetAssetBalance.isLoading}
-                className="select select-bordered" onChange={handleTokenOptionChange}>
+                className="select select-bordered"
+                onChange={handleTokenOptionChange}
+              >
                 <option value={NO_ASSET}>Pin (No asset)</option>
                 <option value={PAGE_ASSET_NUM}>{pageAsset?.code} - Page Asset</option>
                 {assets.data?.shopAsset.map((asset: AssetType) => (
@@ -141,9 +151,7 @@ export default function CreateAdminPinModal() {
                   </option>
                 ))}
               </select>
-              {
-                GetAssetBalance.isLoading && <Loader className="animate-spin" />
-              }
+              {GetAssetBalance.isLoading && <Loader className="animate-spin" />}
             </div>
           </label>
         )
@@ -153,7 +161,6 @@ export default function CreateAdminPinModal() {
     .otherwise(() => <p>Failed to fetch assets</p>)
 
   function TiersOptions() {
-
     if (tiers.isLoading) return <div className="skeleton h-10 w-20"></div>
     if (tiers.data) {
       return (
@@ -201,10 +208,8 @@ export default function CreateAdminPinModal() {
     reset()
   }
 
-
   const onSubmit: SubmitHandler<z.infer<typeof createAdminPinFormSchema>> = (data) => {
     setValue("token", selectedToken?.id)
-
 
     if (selectedToken) {
       if (data.pinCollectionLimit > selectedToken.bal) {
@@ -220,14 +225,34 @@ export default function CreateAdminPinModal() {
 
       setValue("lat", position.lat)
       setValue("lng", position.lng)
+
+      // Set start date to beginning of day
+      const startDate = new Date(data.startDate)
+      startDate.setHours(0, 0, 0, 0)
+      data.startDate = startDate
+
+      // Set end date to end of day
+      const endDate = new Date(data.endDate)
+      endDate.setHours(23, 59, 59, 999)
+      data.endDate = endDate
+
       addPinM.mutate({ ...data, lat: position.lat, lng: position.lng })
     } else {
       console.log("data...", data)
 
+      // Set start date to beginning of day
+      const startDate = new Date(data.startDate)
+      startDate.setHours(0, 0, 0, 0)
+      data.startDate = startDate
+
+      // Set end date to end of day
+      const endDate = new Date(data.endDate)
+      endDate.setHours(23, 59, 59, 999)
+      data.endDate = endDate
+
       addPinM.mutate({ ...data })
     }
   }
-
 
   function handleTokenOptionChange(event: ChangeEvent<HTMLSelectElement>): void {
     // toast(event.target.value);
@@ -240,11 +265,12 @@ export default function CreateAdminPinModal() {
       const pageAsset = assets.data?.pageAsset
 
       if (pageAsset) {
-        GetAssetBalance.mutate({
-          code: pageAsset.code,
-          issuer: pageAsset.issuer,
-          creatorId: selectedCreator?.id ?? "",
-        },
+        GetAssetBalance.mutate(
+          {
+            code: pageAsset.code,
+            issuer: pageAsset.issuer,
+            creatorId: selectedCreator?.id ?? "",
+          },
           {
             onSuccess: (data) => {
               setSelectedToken({
@@ -257,9 +283,8 @@ export default function CreateAdminPinModal() {
               setRemainingBalance(data)
               setValue("token", PAGE_ASSET_NUM)
             },
-          }
+          },
         )
-
       } else {
         toast.error("No page asset found")
       }
@@ -267,20 +292,21 @@ export default function CreateAdminPinModal() {
 
     const selectedAsset = assets.data?.shopAsset.find((asset) => asset.id === selectedAssetId)
     if (selectedAsset) {
-      GetAssetBalance.mutate({
-        code: selectedAsset.code,
-        issuer: selectedAsset.issuer,
-        creatorId: selectedCreator?.id ?? "",
-
-      }, {
-        onSuccess: (data) => {
-          const bal = data ?? 0
-          setSelectedToken({ ...selectedAsset, bal: bal })
-          setRemainingBalance(bal)
-          setValue("token", selectedAsset.id)
+      GetAssetBalance.mutate(
+        {
+          code: selectedAsset.code,
+          issuer: selectedAsset.issuer,
+          creatorId: selectedCreator?.id ?? "",
         },
-      })
-
+        {
+          onSuccess: (data) => {
+            const bal = data ?? 0
+            setSelectedToken({ ...selectedAsset, bal: bal })
+            setRemainingBalance(bal)
+            setValue("token", selectedAsset.id)
+          },
+        },
+      )
     }
   }
 
@@ -352,7 +378,6 @@ export default function CreateAdminPinModal() {
       setRemainingBalance(selectedToken.bal - tokenAmount)
     }
   }, [tokenAmount, selectedToken, selectedCreator])
-
 
   const handleClose = () => {
     setIsOpen(false)
@@ -553,10 +578,11 @@ export default function CreateAdminPinModal() {
                   <p className="text-red-500">{errors.limit.message}</p>
                 )}
               </div> */}
-                      <button type="submit" className="btn btn-primary" disabled={addPinM.isLoading
-                        || remainingBalance < 0
-
-                      }>
+                      <button
+                        type="submit"
+                        className="btn btn-primary"
+                        disabled={addPinM.isLoading || remainingBalance < 0}
+                      >
                         {addPinM.isLoading && <Loader className="animate-spin" />}
                         Submit
                       </button>
