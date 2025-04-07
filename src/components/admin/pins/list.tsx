@@ -182,7 +182,7 @@ function PinsList({
     },
   })
 
-  const deleteGroupM = api.maps.pin.deleteLocationGroup.useMutation({
+  const deleteGroupM = api.maps.pin.deleteLocationGroupForAdmin.useMutation({
     onSuccess: () => {
       toast.success("Pin group deleted successfully!")
       refetch()
@@ -192,7 +192,7 @@ function PinsList({
     },
   })
 
-  const deletePinM = api.maps.pin.deletePin.useMutation({
+  const deletePinM = api.maps.pin.deletePinForAdmin.useMutation({
     onSuccess: () => {
       toast.success("Pin deleted successfully!")
       refetch()
@@ -270,8 +270,8 @@ function PinsList({
                               )}
 
                               <div className="flex flex-col overflow-hidden">
-                                <span className="text-sm font-medium truncate">Title: {pins[0]?.title}</span>
-                                <span className="text-xs text-gray-600 truncate">
+                                <span className="text-sm font-medium ">Title: {pins[0]?.title}</span>
+                                <span className="text-xs text-gray-600 ">
                                   Description: {pins[0]?.description}
                                 </span>
                               </div>

@@ -141,8 +141,7 @@ const MapModalComponent = () => {
   const handleDelete = () => {
     if (data?.pinId) {
       DeletePin.mutate({ id: data?.pinId });
-      // console.log("handleDelete", data?.pinId);
-      toast.success("Pin deleted successfully");
+
       handleClose();
     } else {
       toast.error("Pin Id not found");

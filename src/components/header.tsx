@@ -24,7 +24,7 @@ function Header(_props: HeaderProps) {
     setIsMounted(true);
   }, []);
   return (
-    <header className="h-20 bg-base-100/20 px-2 py-4 md:px-6">
+    <header className="h-20 border-b px-2 py-4 md:px-6 sticky w-full top-0 z-50 h-22  bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="flex w-full items-center justify-between xl:hidden">
         <div className="flex items-center justify-around gap-2 w-full ">
           <Hamburger />

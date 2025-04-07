@@ -920,6 +920,33 @@ export const pinRouter = createTRPCRouter({
         item: items.id,
       };
     }),
+  deletePinForAdmin: protectedProcedure
+    .input(z.object({ id: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      const items = await ctx.db.location.delete({
+        where: {
+          id: input.id,
+
+        },
+      });
+      return {
+        item: items.id,
+      };
+    }),
+  deleteLocationGroupForAdmin: protectedProcedure
+    .input(z.object({ id: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      const items = await ctx.db.locationGroup.delete({
+        where: {
+          id: input.id,
+
+        },
+      });
+      return {
+        item: items.id,
+      };
+    }),
+
   deleteLocationGroup: protectedProcedure
     .input(z.object({ id: z.string() }))
     .mutation(async ({ ctx, input }) => {

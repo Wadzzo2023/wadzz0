@@ -37,18 +37,17 @@ export default function LeftBar({ className }: { className?: string }) {
   return (
     <div
       className={cn(
-        "flex h-full max-h-screen w-80 flex-col items-center justify-between gap-4 overflow-auto bg-base-100/80 px-4 pb-4 scrollbar-hide ",
+        " h-[calc(100vh-10.8vh)] sticky top-[5.8rem] p-1 overflow-hidden border-r  hidden transition-[width] duration-500 md:block w-[280px]",
         className,
       )}
     >
-      <div className="flex h-full w-full flex-1 flex-col items-center justify-between gap-2 overflow-auto overflow-x-hidden">
-        <div className="mt-2  w-full flex-1">
+      <div className="flex  h-full   w-full  flex-col items-center justify-between   py-2   no-scrollbar ">
+        <div className="flex  w-full overflow-x-hidden   flex-col">
           <NavigationButtons />
         </div>
-      </div>
-      <div className="flex w-full flex-col items-center ">
         <LeftBottom />
       </div>
+
     </div>
   );
 }
@@ -56,7 +55,7 @@ export default function LeftBar({ className }: { className?: string }) {
 function NavigationButtons() {
   const { setIsOpen } = useDrawerOpenStore();
   return (
-    <div className="flex h-full min-h-full flex-col justify-between gap-2">
+    <div className="flex  flex-col justify-between gap-2">
       <div className="flex  flex-col  gap-2">
         {Object.entries(LeftNavigation).map(
           ([key, { path, icon: Icon, text }]) => {
