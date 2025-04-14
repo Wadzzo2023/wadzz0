@@ -162,6 +162,7 @@ function DownloadPinLocationAsCSV(data: CreatorConsumedPin[]) {
             "creatorId", "pin_title", "pin_id", "start_date", "end_date",
             "location_id", "latitude", "longitude",
             "auto_collect", "consumer_name", "consumer_email",
+            "consumer_id",
             "claimed_at",
         ], // CSV headers
         ...data.flatMap((pin) =>
@@ -178,6 +179,7 @@ function DownloadPinLocationAsCSV(data: CreatorConsumedPin[]) {
                     location.autoCollect,
                     consumer.user.name ?? "N/A",
                     consumer.user.email ?? "",
+                    consumer.user.id,
                     consumer.claimed_at ? new Date(consumer.claimed_at).toISOString() : "",
                 ])
             )
