@@ -590,6 +590,7 @@ export const pinRouter = createTRPCRouter({
                     email: true,
                   },
                 },
+                claimedAt: true,
               },
             },
           },
@@ -598,10 +599,11 @@ export const pinRouter = createTRPCRouter({
         endDate: true,
         title: true,
         id: true,
+        creatorId: true,
       },
       orderBy: { createdAt: "desc" },
     });
-
+    console.log("Consumed locations", consumedLocations[50]);
     return consumedLocations;
   }),
 
@@ -637,10 +639,13 @@ export const pinRouter = createTRPCRouter({
                       email: true,
                     },
                   },
+                  claimedAt: true,
                 },
+
               },
             },
           },
+          creatorId: true,
           startDate: true,
           endDate: true,
           title: true,
@@ -648,7 +653,7 @@ export const pinRouter = createTRPCRouter({
         },
         orderBy: { createdAt: "desc" },
       });
-
+      console.log("Consumed locations", consumedLocations[0]);
       return consumedLocations;
     }),
 

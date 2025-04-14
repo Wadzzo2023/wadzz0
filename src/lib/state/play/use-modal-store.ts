@@ -52,6 +52,7 @@ export type CreatorConsumedPin = {
   startDate: Date;
   endDate: Date;
   title: string;
+  creatorId: string;
   locations: {
     id: string;
     latitude: number;
@@ -60,10 +61,11 @@ export type CreatorConsumedPin = {
     _count: { consumers: number };
     consumers: {
       user: {
-        name: string | null;
         id: string;
+        name: string | null;
         email: string | null;
       };
+      claimed_at: Date | null;
     }[];
   }[];
 };

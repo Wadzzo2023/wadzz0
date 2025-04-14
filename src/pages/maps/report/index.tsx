@@ -20,6 +20,7 @@ type ConsumerType = {
         id: string;
         email: string | null;
     };
+    claimed_at: Date | null;
 
 }
 
@@ -158,13 +159,15 @@ function ReportDownload({
 function DownloadPinLocationAsCSV(data: CreatorConsumedPin[]) {
     const csvContent = [
         [
-            "pin_title", "pin_id", "start_date", "end_date",
+            "creatorId", "pin_title", "pin_id", "start_date", "end_date",
             "location_id", "latitude", "longitude",
-            "auto_collect", "consumer_name", "consumer_email"
+            "auto_collect", "consumer_name", "consumer_email",
+            "claimed_at",
         ], // CSV headers
         ...data.flatMap((pin) =>
             pin.locations.flatMap((location) =>
                 (location.consumers ?? []).map((consumer: ConsumerType) => [
+                    pin.creatorId,
                     pin.title,
                     pin.id,
                     new Date(pin.startDate).toISOString(),
@@ -175,6 +178,7 @@ function DownloadPinLocationAsCSV(data: CreatorConsumedPin[]) {
                     location.autoCollect,
                     consumer.user.name ?? "N/A",
                     consumer.user.email ?? "",
+                    consumer.claimed_at ? new Date(consumer.claimed_at).toISOString() : "",
                 ])
             )
         ),

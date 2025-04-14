@@ -70,9 +70,9 @@ export default function CreatorsPinReports() {
           <h2 className="p-4 text-center text-lg font-bold">
             {CREATOR_TERM} Pins
           </h2>
-          <Link href="/maps/pins/creator/report">
+          {/* <Link href="/maps/pins/creator/report">
             <Button>Collection Reports</Button>
-          </Link>
+          </Link> */}
         </div>
         <div className="m-auto max-w-3xl">
           <DataTableDemo pins={pins.data} />
