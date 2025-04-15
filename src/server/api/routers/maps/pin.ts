@@ -567,46 +567,51 @@ export const pinRouter = createTRPCRouter({
     return consumedLocations;
   }),
 
-  getCreatorPinTConsumedByUser: creatorProcedure.query(async ({ ctx }) => {
-    const creatorId = ctx.session.user.id;
-    const consumedLocations = await ctx.db.locationGroup.findMany({
-      where: {
-        creatorId,
-      },
-      select: {
-        locations: {
-          select: {
-            id: true,
-            latitude: true,
-            longitude: true,
-            autoCollect: true,
-            _count: { select: { consumers: true } },
-            consumers: {
-              select: {
-                user: {
-                  select: {
-                    name: true,
-                    id: true,
-                    email: true,
+  getCreatorPinTConsumedByUser: creatorProcedure
+    .input(z.object({ day: z.number() }).optional())
+    .query(async ({ ctx, input }) => {
+      const creatorId = ctx.session.user.id
+      const consumedLocations = await ctx.db.locationGroup.findMany({
+        where: {
+          creatorId,
+          createdAt: input?.day
+            ? {
+              gte: new Date(new Date().getTime() - input.day * 24 * 60 * 60 * 1000),
+            }
+            : {},
+        },
+        select: {
+          locations: {
+            select: {
+              id: true,
+              latitude: true,
+              longitude: true,
+              autoCollect: true,
+              _count: { select: { consumers: true } },
+              consumers: {
+                select: {
+                  user: {
+                    select: {
+                      name: true,
+                      id: true,
+                      email: true,
+                    },
                   },
+                  claimedAt: true,
                 },
-                claimedAt: true,
               },
             },
           },
+          startDate: true,
+          endDate: true,
+          title: true,
+          id: true,
+          creatorId: true,
         },
-        startDate: true,
-        endDate: true,
-        title: true,
-        id: true,
-        creatorId: true,
-      },
-      orderBy: { createdAt: "desc" },
-    });
-    console.log("Consumed locations", consumedLocations[50]);
-    return consumedLocations;
-  }),
-
+        orderBy: { createdAt: "desc" },
+      })
+      return consumedLocations
+    }),
   downloadCreatorPinTConsumedByUser: creatorProcedure
     .input(z.object({ day: z.number() }).optional())
     .mutation(async ({ ctx, input }) => {

@@ -46,10 +46,9 @@ export function RightComponent() {
   const { selectedTag } = useTagStore();
   const { currentData } = useBountyRightStore();
 
-  const pop = usePopUpState();
   if (router.pathname.includes("/music") && router.pathname !== '/fans/creator/music' && router.pathname !== '/fans/creator/music/album/[id]') return <MusicRightSide />;
   else if (router.pathname.includes("/fans")) return <RightBar />;
-  else if (router.pathname.includes("/fans/creator")) return <RightBar />;
+  else if (router.pathname.includes("/marketplace")) return <RightBar />;
   else if (router.pathname.includes("/admin")) {
     return <AdminRightSide />;
   } else if (router.pathname.includes("/bounty") && currentData) {

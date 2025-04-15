@@ -13,6 +13,7 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import {
+  ArrowLeft,
   ArrowUpDown,
   ChevronDown,
   Loader2,
@@ -60,12 +61,21 @@ export type LocationWithConsumers = {
 };
 
 export default function CreatorsPinReports() {
+  const router = useRouter()
   const pins = api.maps.pin.getCreatorCreatedPin.useQuery();
   if (pins.isLoading) return <Loader2 className="animate-spin" />;
 
   if (pins.data)
     return (
       <div>
+
+        <Button
+          onClick={() => router.back()}
+          variant='link' className="p-4">
+          <ArrowLeft />
+          Back to Creator Dashboard
+        </Button>
+
         <div className="flex items-center justify-center ">
           <h2 className="p-4 text-center text-lg font-bold">
             {CREATOR_TERM} Pins
