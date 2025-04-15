@@ -1,6 +1,7 @@
 "use client"
 
 import type React from "react"
+
 import { useState, useMemo } from "react"
 import {
     BarChart3,
@@ -15,6 +16,7 @@ import {
     ArrowUpRight,
     ArrowDownRight,
     ArrowLeft,
+    Settings,
 } from "lucide-react"
 import Link from "next/link"
 
@@ -383,6 +385,24 @@ export function TableData({
     })
     const [showFilters, setShowFilters] = useState(false)
 
+    // Add column visibility state
+    const [showColumnSettings, setShowColumnSettings] = useState(false)
+    const [visibleColumns, setVisibleColumns] = useState({
+        creatorId: true,
+        pin_title: true,
+        pin_id: false,
+        start_date: true,
+        end_date: true,
+        location_id: false,
+        latitude: true,
+        longitude: true,
+        auto_collect: false,
+        consumer_name: false,
+        consumer_email: false,
+        consumer_id: true,
+        claimed_at: false,
+    })
+
     // Add this function to handle sorting
     const handleSort = (field: SortField) => {
         setSortConfig((prevConfig) => ({
@@ -408,14 +428,40 @@ export function TableData({
         setSearchTerm("")
     }
 
+    // Add this function to toggle column visibility
+    const toggleColumnVisibility = (column: keyof typeof visibleColumns) => {
+        setVisibleColumns((prev) => ({
+            ...prev,
+            [column]: !prev[column],
+        }))
+    }
+
+    // Add this function to reset column visibility
+    const resetColumnVisibility = () => {
+        setVisibleColumns({
+            creatorId: true,
+            pin_title: true,
+            pin_id: false,
+            start_date: true,
+            end_date: true,
+            location_id: false,
+            latitude: true,
+            longitude: true,
+            auto_collect: false,
+            consumer_name: false,
+            consumer_email: false,
+            consumer_id: true,
+            claimed_at: false,
+        })
+    }
+
     // Add this function to get the sorted and filtered data
     const getFilteredAndSortedPins = (pins: CreatorConsumedPin[]) => {
         // First apply filters
         const filteredData = pins.filter((pin) => {
             // Search term filter (existing)
             const matchesSearch =
-                searchTerm === ""
-                ||
+                searchTerm === "" ||
                 pin.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 pin.id.toLowerCase().includes(searchTerm.toLowerCase())
 
@@ -511,8 +557,9 @@ export function TableData({
                 </div>
 
                 <div className="flex items-center gap-2">
+                    <Label>Date Range</Label>
                     <div className="flex flex-col space-y-1">
-                        <Label>Date Range</Label>
+
                         <div className="flex items-center gap-2">
                             <Popover>
                                 <PopoverTrigger asChild>
@@ -571,14 +618,141 @@ export function TableData({
                             Clear Filters
                         </Button>
                     )}
+
+                    <Button variant="outline" size="sm" onClick={() => setShowColumnSettings(true)} className="ml-2">
+                        <Settings className="mr-2 h-4 w-4" />
+                        Columns
+                    </Button>
                 </div>
             </div>
 
+            {/* Column Settings Dialog */}
+            <Dialog open={showColumnSettings} onOpenChange={setShowColumnSettings}>
+                <DialogContent className="sm:max-w-md">
+                    <DialogHeader>
+                        <DialogTitle>Table Columns</DialogTitle>
+                        <DialogDescription>Select which columns you want to display in the table</DialogDescription>
+                    </DialogHeader>
+                    <ScrollArea className="h-[300px] pr-4 py-4">
+                        <div className="grid gap-4">
+                            <div className="flex items-center space-x-2">
+                                <Checkbox
+                                    id="column-creatorId"
+                                    checked={visibleColumns.creatorId}
+                                    onCheckedChange={() => toggleColumnVisibility("creatorId")}
+                                />
+                                <Label htmlFor="column-creatorId">Creator ID</Label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                                <Checkbox
+                                    id="column-pin_title"
+                                    checked={visibleColumns.pin_title}
+                                    onCheckedChange={() => toggleColumnVisibility("pin_title")}
+                                />
+                                <Label htmlFor="column-pin_title">Pin Title</Label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                                <Checkbox
+                                    id="column-pin_id"
+                                    checked={visibleColumns.pin_id}
+                                    onCheckedChange={() => toggleColumnVisibility("pin_id")}
+                                />
+                                <Label htmlFor="column-pin_id">Pin ID</Label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                                <Checkbox
+                                    id="column-start_date"
+                                    checked={visibleColumns.start_date}
+                                    onCheckedChange={() => toggleColumnVisibility("start_date")}
+                                />
+                                <Label htmlFor="column-start_date">Start Date</Label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                                <Checkbox
+                                    id="column-end_date"
+                                    checked={visibleColumns.end_date}
+                                    onCheckedChange={() => toggleColumnVisibility("end_date")}
+                                />
+                                <Label htmlFor="column-end_date">End Date</Label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                                <Checkbox
+                                    id="column-location_id"
+                                    checked={visibleColumns.location_id}
+                                    onCheckedChange={() => toggleColumnVisibility("location_id")}
+                                />
+                                <Label htmlFor="column-location_id">Location ID</Label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                                <Checkbox
+                                    id="column-latitude"
+                                    checked={visibleColumns.latitude}
+                                    onCheckedChange={() => toggleColumnVisibility("latitude")}
+                                />
+                                <Label htmlFor="column-latitude">Latitude</Label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                                <Checkbox
+                                    id="column-longitude"
+                                    checked={visibleColumns.longitude}
+                                    onCheckedChange={() => toggleColumnVisibility("longitude")}
+                                />
+                                <Label htmlFor="column-longitude">Longitude</Label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                                <Checkbox
+                                    id="column-auto_collect"
+                                    checked={visibleColumns.auto_collect}
+                                    onCheckedChange={() => toggleColumnVisibility("auto_collect")}
+                                />
+                                <Label htmlFor="column-auto_collect">Auto Collect</Label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                                <Checkbox
+                                    id="column-consumer_name"
+                                    checked={visibleColumns.consumer_name}
+                                    onCheckedChange={() => toggleColumnVisibility("consumer_name")}
+                                />
+                                <Label htmlFor="column-consumer_name">Consumer Name</Label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                                <Checkbox
+                                    id="column-consumer_email"
+                                    checked={visibleColumns.consumer_email}
+                                    onCheckedChange={() => toggleColumnVisibility("consumer_email")}
+                                />
+                                <Label htmlFor="column-consumer_email">Consumer Email</Label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                                <Checkbox
+                                    id="column-consumer_id"
+                                    checked={visibleColumns.consumer_id}
+                                    onCheckedChange={() => toggleColumnVisibility("consumer_id")}
+                                />
+                                <Label htmlFor="column-consumer_id">Consumer ID</Label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                                <Checkbox
+                                    id="column-claimed_at"
+                                    checked={visibleColumns.claimed_at}
+                                    onCheckedChange={() => toggleColumnVisibility("claimed_at")}
+                                />
+                                <Label htmlFor="column-claimed_at">Claimed At</Label>
+                            </div>
+                        </div>
+                    </ScrollArea>
+                    <DialogFooter>
+                        <Button variant="outline" onClick={resetColumnVisibility}>
+                            Reset
+                        </Button>
+                        <Button onClick={() => setShowColumnSettings(false)}>Apply</Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
 
             {hasActiveFilters && (
                 <div className="mt-2 rounded-md bg-muted p-2 text-xs">
                     <div className="font-semibold">Active Filters:</div>
-
                     <div>Start Date: {filters.startDate ? format(filters.startDate, "PPP") : "None"}</div>
                     <div>End Date: {filters.endDate ? format(filters.endDate, "PPP") : "None"}</div>
                     <div>Search Term: {searchTerm ?? "None"}</div>
@@ -595,38 +769,52 @@ export function TableData({
                 <Table>
                     <TableHeader>
                         <TableRow className="bg-muted/50">
-                            <TableHead className="w-[180px] cursor-pointer" onClick={() => handleSort("id")}>
-                                <div className="flex items-center">
-                                    Location Group ID
-                                    {sortConfig.field === "id" && (
-                                        <ChevronDown
-                                            className={`ml-1 h-4 w-4 transition-transform ${sortConfig.direction === "asc" ? "rotate-180" : ""}`}
-                                        />
-                                    )}
-                                </div>
-                            </TableHead>
-                            <TableHead className="cursor-pointer" onClick={() => handleSort("title")}>
-                                <div className="flex items-center">
-                                    Title
-                                    {sortConfig.field === "title" && (
-                                        <ChevronDown
-                                            className={`ml-1 h-4 w-4 transition-transform ${sortConfig.direction === "asc" ? "rotate-180" : ""}`}
-                                        />
-                                    )}
-                                </div>
-                            </TableHead>
-                            <TableHead className="w-[180px]">Location (Lat | Lng)</TableHead>
-                            <TableHead className="w-[140px] cursor-pointer" onClick={() => handleSort("consumers")}>
-                                <div className="flex items-center">
-                                    Consumer ID
-                                    {sortConfig.field === "consumers" && (
-                                        <ChevronDown
-                                            className={`ml-1 h-4 w-4 transition-transform ${sortConfig.direction === "asc" ? "rotate-180" : ""}`}
-                                        />
-                                    )}
-                                </div>
-                            </TableHead>
-                            <TableHead className="w-[180px]">Email</TableHead>
+                            {visibleColumns.creatorId && (
+                                <TableHead className="w-[180px] cursor-pointer" onClick={() => handleSort("id")}>
+                                    <div className="flex items-center">
+                                        Creator ID
+                                        {sortConfig.field === "id" && (
+                                            <ChevronDown
+                                                className={`ml-1 h-4 w-4 transition-transform ${sortConfig.direction === "asc" ? "rotate-180" : ""}`}
+                                            />
+                                        )}
+                                    </div>
+                                </TableHead>
+                            )}
+                            {visibleColumns.pin_title && (
+                                <TableHead className="cursor-pointer" onClick={() => handleSort("title")}>
+                                    <div className="flex items-center">
+                                        Pin Title
+                                        {sortConfig.field === "title" && (
+                                            <ChevronDown
+                                                className={`ml-1 h-4 w-4 transition-transform ${sortConfig.direction === "asc" ? "rotate-180" : ""}`}
+                                            />
+                                        )}
+                                    </div>
+                                </TableHead>
+                            )}
+                            {visibleColumns.pin_id && <TableHead className="w-[180px]">Pin ID</TableHead>}
+                            {visibleColumns.location_id && <TableHead className="w-[180px]">Location ID</TableHead>}
+                            {visibleColumns.latitude && <TableHead className="w-[120px]">Latitude</TableHead>}
+                            {visibleColumns.longitude && <TableHead className="w-[120px]">Longitude</TableHead>}
+                            {visibleColumns.auto_collect && <TableHead className="w-[120px]">Auto Collect</TableHead>}
+                            {visibleColumns.consumer_id && (
+                                <TableHead className="w-[140px] cursor-pointer" onClick={() => handleSort("consumers")}>
+                                    <div className="flex items-center">
+                                        Consumer ID
+                                        {sortConfig.field === "consumers" && (
+                                            <ChevronDown
+                                                className={`ml-1 h-4 w-4 transition-transform ${sortConfig.direction === "asc" ? "rotate-180" : ""}`}
+                                            />
+                                        )}
+                                    </div>
+                                </TableHead>
+                            )}
+                            {visibleColumns.consumer_name && <TableHead className="w-[180px]">Consumer Name</TableHead>}
+                            {visibleColumns.consumer_email && <TableHead className="w-[180px]">Consumer Email</TableHead>}
+                            {visibleColumns.start_date && <TableHead className="w-[120px]">Start Date</TableHead>}
+                            {visibleColumns.end_date && <TableHead className="w-[120px]">End Date</TableHead>}
+                            {visibleColumns.claimed_at && <TableHead className="w-[120px]">Claimed At</TableHead>}
                         </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -643,51 +831,137 @@ export function TableData({
                                         >
                                             {consumerIndex === 0 ? (
                                                 <>
-                                                    <TableCell className="font-medium" rowSpan={location._count.consumers}>
-                                                        <div className="flex items-center">
-                                                            <span className="font-mono text-xs text-muted-foreground">{pin.id}</span>
-                                                        </div>
-                                                    </TableCell>
-                                                    <TableCell rowSpan={location._count.consumers}>
-                                                        <div className="font-medium">{pin.title}</div>
-                                                        <div className="text-xs text-muted-foreground">
-                                                            Created: {new Date(pin.startDate).toLocaleDateString()}
-                                                        </div>
-                                                    </TableCell>
-                                                    <TableCell className="font-medium" rowSpan={location._count.consumers}>
-                                                        <div className="font-mono text-xs">
-                                                            {location.latitude.toFixed(6)} | {location.longitude.toFixed(6)}
-                                                        </div>
-                                                    </TableCell>
+                                                    {visibleColumns.creatorId && (
+                                                        <TableCell className="font-medium" rowSpan={location._count.consumers}>
+                                                            <div className="flex items-center">
+                                                                <span className="font-mono text-xs text-muted-foreground">{pin.creatorId}</span>
+                                                            </div>
+                                                        </TableCell>
+                                                    )}
+                                                    {visibleColumns.pin_title && (
+                                                        <TableCell rowSpan={location._count.consumers}>
+                                                            <div className="font-medium">{pin.title}</div>
+                                                        </TableCell>
+                                                    )}
+                                                    {visibleColumns.pin_id && (
+                                                        <TableCell className="font-medium" rowSpan={location._count.consumers}>
+                                                            <div className="font-mono text-xs text-muted-foreground">{pin.id}</div>
+                                                        </TableCell>
+                                                    )}
+                                                    {visibleColumns.location_id && (
+                                                        <TableCell className="font-medium" rowSpan={location._count.consumers}>
+                                                            <div className="font-mono text-xs text-muted-foreground">{location.id}</div>
+                                                        </TableCell>
+                                                    )}
+                                                    {visibleColumns.latitude && (
+                                                        <TableCell className="font-medium" rowSpan={location._count.consumers}>
+                                                            <div className="font-mono text-xs">{location.latitude.toFixed(6)}</div>
+                                                        </TableCell>
+                                                    )}
+                                                    {visibleColumns.longitude && (
+                                                        <TableCell className="font-medium" rowSpan={location._count.consumers}>
+                                                            <div className="font-mono text-xs">{location.longitude.toFixed(6)}</div>
+                                                        </TableCell>
+                                                    )}
+                                                    {visibleColumns.auto_collect && (
+                                                        <TableCell className="font-medium" rowSpan={location._count.consumers}>
+                                                            <div className="font-mono text-xs">{location.autoCollect ? "Yes" : "No"}</div>
+                                                        </TableCell>
+                                                    )}
                                                 </>
                                             ) : null}
-                                            <TableCell>
-                                                <div className="font-mono text-xs">{addrShort(consumer.user.id, 5)}</div>
-                                            </TableCell>
-                                            <TableCell>
-                                                <div className="max-w-[150px] truncate text-sm">
-                                                    {consumer.user.email ?? <span className="text-muted-foreground">Stellar Loggedin</span>}
-                                                </div>
-                                            </TableCell>
+                                            {visibleColumns.consumer_id && (
+                                                <TableCell>
+                                                    <div className="font-mono text-xs">{addrShort(consumer.user.id, 5)}</div>
+                                                </TableCell>
+                                            )}
+                                            {visibleColumns.consumer_name && (
+                                                <TableCell>
+                                                    <div className="max-w-[150px] truncate text-sm">
+                                                        {consumer.user.name ?? <span className="text-muted-foreground">N/A</span>}
+                                                    </div>
+                                                </TableCell>
+                                            )}
+                                            {visibleColumns.consumer_email && (
+                                                <TableCell>
+                                                    <div className="max-w-[150px] truncate text-sm">
+                                                        {consumer.user.email ?? <span className="text-muted-foreground">Stellar Loggedin</span>}
+                                                    </div>
+                                                </TableCell>
+                                            )}
+                                            {visibleColumns.start_date && (
+                                                <TableCell>
+                                                    <div className="text-xs">{new Date(pin.startDate).toLocaleDateString()}</div>
+                                                </TableCell>
+                                            )}
+                                            {visibleColumns.end_date && (
+                                                <TableCell>
+                                                    <div className="text-xs">{new Date(pin.endDate).toLocaleDateString()}</div>
+                                                </TableCell>
+                                            )}
+                                            {visibleColumns.claimed_at && (
+                                                <TableCell>
+                                                    <div className="text-xs">
+                                                        {consumer.claimed_at ? new Date(consumer.claimed_at).toLocaleDateString() : "N/A"}
+                                                    </div>
+                                                </TableCell>
+                                            )}
                                         </TableRow>
                                     ))
                                 ) : (
                                     <TableRow key={`${pin.id}-${location.id}-no-consumers`} className="hover:bg-muted/50">
-                                        <TableCell>
-                                            <div className="font-mono text-xs text-muted-foreground">{pin.id}</div>
-                                        </TableCell>
-                                        <TableCell>
-                                            <div className="font-medium">{pin.title}</div>
-                                            <div className="text-xs text-muted-foreground">
-                                                Created: {new Date(pin.startDate).toLocaleDateString()}
-                                            </div>
-                                        </TableCell>
-                                        <TableCell>
-                                            <div className="font-mono text-xs">
-                                                {location.latitude.toFixed(6)} | {location.longitude.toFixed(6)}
-                                            </div>
-                                        </TableCell>
-                                        <TableCell colSpan={2} className="text-center text-sm text-muted-foreground">
+                                        {visibleColumns.creatorId && (
+                                            <TableCell>
+                                                <div className="font-mono text-xs text-muted-foreground">{pin.creatorId}</div>
+                                            </TableCell>
+                                        )}
+                                        {visibleColumns.pin_title && (
+                                            <TableCell>
+                                                <div className="font-medium">{pin.title}</div>
+                                            </TableCell>
+                                        )}
+                                        {visibleColumns.pin_id && (
+                                            <TableCell>
+                                                <div className="font-mono text-xs text-muted-foreground">{pin.id}</div>
+                                            </TableCell>
+                                        )}
+                                        {visibleColumns.location_id && (
+                                            <TableCell>
+                                                <div className="font-mono text-xs text-muted-foreground">{location.id}</div>
+                                            </TableCell>
+                                        )}
+                                        {visibleColumns.latitude && (
+                                            <TableCell>
+                                                <div className="font-mono text-xs">{location.latitude.toFixed(6)}</div>
+                                            </TableCell>
+                                        )}
+                                        {visibleColumns.longitude && (
+                                            <TableCell>
+                                                <div className="font-mono text-xs">{location.longitude.toFixed(6)}</div>
+                                            </TableCell>
+                                        )}
+                                        {visibleColumns.auto_collect && (
+                                            <TableCell>
+                                                <div className="font-mono text-xs">{location.autoCollect ? "Yes" : "No"}</div>
+                                            </TableCell>
+                                        )}
+                                        <TableCell
+                                            colSpan={
+                                                Object.entries(visibleColumns).filter(
+                                                    ([key, value]) =>
+                                                        value &&
+                                                        [
+                                                            "consumer_id",
+                                                            "consumer_name",
+                                                            "consumer_email",
+                                                            "start_date",
+                                                            "end_date",
+                                                            "claimed_at",
+                                                        ].includes(key),
+                                                ).length
+                                            }
+                                            className="text-center text-sm text-muted-foreground"
+                                        >
                                             No consumers for this location
                                         </TableCell>
                                     </TableRow>
@@ -906,7 +1180,7 @@ function DownloadPinLocationAsCSV(data: CreatorConsumedPin[], selectedFields: st
         ...data.flatMap((pin) =>
             pin.locations.flatMap((location) =>
                 (location.consumers ?? []).map((consumer: ConsumerType) =>
-                    selectedFields.map((field) => fieldAccessors[field] ? fieldAccessors[field](pin, location, consumer) : ""),
+                    selectedFields.map((field) => (fieldAccessors[field] ? fieldAccessors[field](pin, location, consumer) : "")),
                 ),
             ),
         ),
