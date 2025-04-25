@@ -9,9 +9,9 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 
 import { format, set } from "date-fns";
-import { ClipboardList, MapPin, Minus, Plus } from "lucide-react";
+import { ClipboardList, Clock, MapPin, Minus, Plus } from "lucide-react";
 import Image from "next/image";
-import React, { useEffect, useState } from "react";
+import React, { memo, useEffect, useState } from "react";
 import { Loading } from "react-daisyui";
 import CreatePinModal from "~/components/maps/modals/create-pin";
 import { CustomMapControl } from "~/components/maps/search/map-control";
@@ -30,6 +30,8 @@ import { create } from "zustand";
 import toast from "react-hot-toast";
 import Link from "next/link";
 import { Button } from "~/components/shadcn/ui/button";
+import { Label } from "~/components/shadcn/ui/label";
+import { Switch } from "~/components/shadcn/ui/switch";
 
 type Pin = {
   locationGroup:
@@ -54,9 +56,16 @@ const useNearbyPinsStore = create<NearbyPinsState>((set, get) => ({
   nearbyPins: [],
   allPins: [], // Store all pins
   setNearbyPins: (pins: Pin[]) => set({ nearbyPins: pins }),
-  setAllPins: (pins: Pin[]) => set({ allPins: pins }),
+  setAllPins: (pins: Pin[]) => {
+    const currentPins = get().allPins;
+    if (pins.length !== currentPins.length
+      || pins.map(pin => pin.id).join(",") !== currentPins.map(pin => pin.id).join(",")
+    ) {
+      set({ allPins: pins });
+    }
+  },
   filterNearbyPins: (center: google.maps.LatLngBoundsLiteral) => {
-    const { allPins } = get();
+    const { allPins, nearbyPins } = get();
     const filtered = allPins.filter(
       (pin) =>
         pin.latitude >= center.south &&
@@ -64,7 +73,11 @@ const useNearbyPinsStore = create<NearbyPinsState>((set, get) => ({
         pin.longitude >= center.west &&
         pin.longitude <= center.east,
     );
-    set({ nearbyPins: filtered });
+
+    if (filtered.length !== nearbyPins.length ||
+      filtered.map(pin => pin.id).join(",") !== nearbyPins.map(pin => pin.id).join(",")) {
+      set({ nearbyPins: filtered });
+    }
   },
 }));
 
@@ -139,6 +152,8 @@ function App() {
   const [isCordsSearch, setIsCordsSearch] = useState<boolean>(false);
   const [searchCoordinates, setSearchCoordinates] =
     useState<google.maps.LatLngLiteral>();
+  const [showExpired, setShowExpired] = useState<boolean>(false)
+
   const [userLocation, setUserLocation] = useState<UserLocationType>({
     lat: 44.5,
     lng: -89.5,
@@ -192,6 +207,22 @@ function App() {
           long: position.lng,
           lat: position.lat,
           pinId: data.pinId,
+          mapTitle: data.mapTitle,
+          image: data.image,
+          mapDescription: data.mapDescription,
+          endDate: data.endDate,
+          startDate: data.startDate,
+          pinCollectionLimit: data.pinCollectionLimit,
+          pinRemainingLimit: data.pinRemainingLimit,
+          multiPin: data.multiPin,
+          subscriptionId: data.subscriptionId,
+          autoCollect: data.autoCollect,
+          pageAsset: data.pageAsset,
+          privacy: data.privacy,
+          pinNumber: data.pinNumber,
+          link: data.link,
+          assetId: data.assetId,
+
         });
       }
     }
@@ -310,6 +341,8 @@ function App() {
           </AdvancedMarker>
         )}
         <ZoomControls onZoomIn={handleZoomIn} onZoomOut={handleZoomOut} />
+        <PinToggle showExpired={showExpired} setShowExpired={setShowExpired} />
+
         {isCordsSearch && cordSearchCords && (
           <AdvancedMarker
             style={{
@@ -334,7 +367,10 @@ function App() {
             </svg>
           </AdvancedMarker>
         )}
-        <MyPins onOpen={onOpen} setIsAutoCollect={setIsAutoCollect} />
+        <MyPins onOpen={onOpen} setIsAutoCollect={setIsAutoCollect}
+
+          showExpired={showExpired} />
+
       </Map>
       <div className="hidden md:block">
         <SideMapItem setAlreadySelectedPlace={setAlreadySelectedPlace} />
@@ -348,12 +384,14 @@ function App() {
   );
 }
 
-function SideMapItem({
+const SideMapItem = memo(function SideMapItem({
   setAlreadySelectedPlace,
+
 }: {
-  setAlreadySelectedPlace: (coords: { lat: number; lng: number }) => void;
+  setAlreadySelectedPlace: (coords: { lat: number; lng: number }) => void
+
 }) {
-  const { nearbyPins } = useNearbyPinsStore();
+  const { nearbyPins } = useNearbyPinsStore()
 
   return (
     <div className="absolute bottom-4 right-4 top-60 flex max-h-[400px] min-h-[400px] w-80  items-center justify-center">
@@ -421,7 +459,8 @@ function SideMapItem({
       </div>
     </div>
   );
-}
+})
+
 function ZoomControls({
   onZoomIn,
   onZoomOut,
@@ -504,15 +543,17 @@ function ReportCollection() {
   );
 }
 
-function MyPins({
+const MyPins = memo(function MyPins({
   onOpen,
   setIsAutoCollect,
+  showExpired,
 }: {
-  onOpen: (type: ModalType, data?: ModalData) => void;
-  setIsAutoCollect: (value: boolean) => void;
+  onOpen: (type: ModalType, data?: ModalData) => void
+  setIsAutoCollect: (value: boolean) => void
+  showExpired: boolean
 }) {
   const { setAllPins } = useNearbyPinsStore();
-  const pins = api.maps.pin.getMyPins.useQuery();
+  const pins = api.maps.pin.getMyPins.useQuery({ showExpired });
 
   useEffect(() => {
     if (pins.data) {
@@ -572,6 +613,33 @@ function MyPins({
       </>
     );
   }
+})
+
+
+function PinToggle({
+  showExpired,
+  setShowExpired,
+}: {
+  showExpired: boolean
+  setShowExpired: (value: boolean) => void
+}) {
+  return (
+    <div className="absolute right-2 top-52 z-10 flex flex-col gap-2 rounded-lg bg-white p-3 shadow-lg md:right-4 md:top-40">
+      <div className="mb-1 flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2">
+          <Clock className="h-4 w-4 text-gray-500" />
+          <Label htmlFor="pin-toggle" className="text-sm font-medium">
+            Show Expired Pins
+          </Label>
+        </div>
+        <Switch id="pin-toggle" checked={showExpired} onCheckedChange={setShowExpired} />
+      </div>
+      <div className="text-xs text-gray-500">
+        {showExpired ? "Showing all pins including expired" : "Showing only active pins"}
+      </div>
+    </div>
+  )
 }
 
 export default App;
+

@@ -332,12 +332,22 @@ export const pinRouter = createTRPCRouter({
         throw new Error("Failed to update location group");
       }
     }),
-  getMyPins: creatorProcedure.query(async ({ ctx }) => {
+  getMyPins: creatorProcedure.input(z.object({ showExpired: z.boolean().optional() })).query(async ({ ctx, input }) => {
+    const { showExpired = false } = input;
+
+    const dateCondition = showExpired
+      ? {
+        endDate: {
+          lte: new Date(),
+        }
+      } // No date filter when showing all pins
+      : { endDate: { gte: new Date() } }; // Only active pins
+
     const pins = await ctx.db.location.findMany({
       where: {
         locationGroup: {
           creatorId: ctx.session.user.id,
-          endDate: { gte: new Date() },
+          ...dateCondition,
           OR: [{ approved: true }, { approved: null }],
         },
       },
