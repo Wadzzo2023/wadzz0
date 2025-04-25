@@ -393,14 +393,27 @@ export const pinRouter = createTRPCRouter({
     .input(
       z.object({
         creator_id: z.string(),
+        showExpired: z.boolean().optional()
       }),
     )
     .query(async ({ ctx, input }) => {
+
+      const { showExpired = false, creator_id } = input;
+
+      const dateCondition = showExpired
+        ? {
+          endDate: {
+            lte: new Date(),
+          }
+        } // No date filter when showing all pins
+        : { endDate: { gte: new Date() } }; // Only active pins
+
+
       const pins = await ctx.db.location.findMany({
         where: {
           locationGroup: {
-            creatorId: input.creator_id,
-            endDate: { gte: new Date() },
+            creatorId: creator_id,
+            ...dateCondition,
             approved: { equals: true },
           },
         },

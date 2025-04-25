@@ -7,9 +7,9 @@ import {
     MapMouseEvent,
 } from "@vis.gl/react-google-maps";
 
-import { ClipboardList, MapPin } from "lucide-react";
+import { ClipboardList, Clock, MapPin } from "lucide-react";
 import Image from "next/image";
-import React, { useEffect, useState } from "react";
+import React, { memo, useEffect, useState } from "react";
 import { Loading } from "react-daisyui";
 import { CustomMapControl } from "~/components/maps/search/map-control";
 
@@ -26,6 +26,8 @@ import { create } from "zustand";
 import { useAdminMapModalStore } from "~/components/hooks/use-AdminModal-store";
 import CreateAdminPinModal from "~/components/maps/admin/create-pin";
 import { useSelectCreatorStore } from "~/components/hooks/use-select-creator-store";
+import { Label } from "~/components/shadcn/ui/label";
+import { Switch } from "~/components/shadcn/ui/switch";
 
 type Pin = {
     locationGroup:
@@ -90,6 +92,7 @@ function AdminMap() {
         lat: 22.54992,
         lng: 0,
     });
+    const [showExpired, setShowExpired] = useState<boolean>(false)
 
     const [centerChanged, setCenterChanged] =
         useState<google.maps.LatLngBoundsLiteral | null>(null);
@@ -305,10 +308,12 @@ function AdminMap() {
                                 creatorId={
                                     selectedCreator?.id
                                 }
+                                showExpired={showExpired}  // Pass the showExpired state to MyPins component
                             />
                         )
                     }
                 </Map>
+                <PinToggle showExpired={showExpired} setShowExpired={setShowExpired} />
 
                 <ManualPinButton handleClick={handleManualPinClick} />
                 {creator.data && (
@@ -357,18 +362,21 @@ function ManualPinButton({ handleClick }: { handleClick: () => void }) {
 }
 
 
-function MyPins({
+const MyPins = memo(function MyPins({
     onOpen,
     setIsAutoCollect,
-    creatorId
+    creatorId,
+    showExpired,
 }: {
     onOpen: (type: ModalType, data?: ModalData) => void;
     setIsAutoCollect: (value: boolean) => void;
-    creatorId: string
+    creatorId: string;
+    showExpired?: boolean;
 }) {
     const { setAllPins } = useNearbyPinsStore();
     const pins = api.maps.pin.getCreatorPins.useQuery({
-        creator_id: creatorId
+        creator_id: creatorId,
+        showExpired
     });
 
     useEffect(() => {
@@ -427,5 +435,29 @@ function MyPins({
         );
     }
 }
-
+)
+function PinToggle({
+    showExpired,
+    setShowExpired,
+}: {
+    showExpired: boolean
+    setShowExpired: (value: boolean) => void
+}) {
+    return (
+        <div className="absolute right-2 top-52 z-10 flex flex-col gap-2 rounded-lg bg-white p-3 shadow-lg md:right-4 md:top-40">
+            <div className="mb-1 flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2">
+                    <Clock className="h-4 w-4 text-gray-500" />
+                    <Label htmlFor="pin-toggle" className="text-sm font-medium">
+                        Show Expired Pins
+                    </Label>
+                </div>
+                <Switch id="pin-toggle" checked={showExpired} onCheckedChange={setShowExpired} />
+            </div>
+            <div className="text-xs text-gray-500">
+                {showExpired ? "Showing all pins including expired" : "Showing only active pins"}
+            </div>
+        </div>
+    )
+}
 export default AdminMap;
