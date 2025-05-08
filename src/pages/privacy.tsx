@@ -6,9 +6,7 @@ export default function Privacy() {
     <div className="min-h-screen bg-gray-50">
       <main className="container mx-auto px-4 py-8 md:py-16">
         <div className="flex gap-2">
-          <div>
-            <Logo className="bg-yellow-500 px-2" />
-          </div>
+
           <h1 className="mb-8 items-center text-center text-4xl font-bold">
             Privacy Policy
           </h1>
