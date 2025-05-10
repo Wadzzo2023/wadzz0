@@ -8,7 +8,6 @@ import { db } from "~/server/db";
 import { Location } from "~/types/game/location";
 import { avaterIconUrl as abaterIconUrl } from "../brands";
 import { StellarAccount } from "~/lib/stellar/marketplace/test/Account";
-import { m } from "framer-motion";
 
 export default async function handler(
   req: NextApiRequest,
@@ -98,7 +97,9 @@ export default async function handler(
 
     if (creatorsId) {
       extraFilter.creatorId = { in: creatorsId };
-      extraFilter.privacy = { in: [ItemPrivacy.PRIVATE, ItemPrivacy.TIER, ItemPrivacy.PUBLIC] };
+      extraFilter.privacy = {
+        in: [ItemPrivacy.PRIVATE, ItemPrivacy.TIER, ItemPrivacy.PUBLIC],
+      };
     }
 
     const locationGroup = await db.locationGroup.findMany({

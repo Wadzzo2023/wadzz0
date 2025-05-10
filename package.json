@@ -95,7 +95,7 @@
     "lodash.isequal": "^4.5.0",
     "lottie-react": "^2.4.0",
     "lucide-react": "^0.471.0",
-    "mapbox-gl": "^3.8.0",
+    "mapbox-gl": "^3.9.4",
     "next": "^14.2.5",
     "next-auth": "^4.24.7",
     "next-nprogress-bar": "^2.3.13",

@@ -68,6 +68,8 @@ export const env = createEnv({
     NEXT_PUBLIC_SQUARE_APP_ID: z.string(),
     NEXT_PUBLIC_SQUARE_LOCATION: z.string(),
     NEXT_PUBLIC_HOME_DOMAIN: z.string(),
+
+    NEXT_PUBLIC_MAPBOX_API: z.string(),
   },
 
   /**
@@ -103,6 +105,9 @@ export const env = createEnv({
     AWS_BUCKET_REGION: process.env.NEXT_AWS_BUCKET_REGION,
     AWS_ACCESS_KEY: process.env.NEXT_AWS_ACCESS_KEY,
     AWS_SECRET_ACCESS_KEY: process.env.NEXT_AWS_SECRET_ACCESS_KEY,
+
+    // Mapbox
+    NEXT_PUBLIC_MAPBOX_API: process.env.NEXT_PUBLIC_MAPBOX_API,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially

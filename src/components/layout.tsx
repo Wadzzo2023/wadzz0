@@ -4,30 +4,27 @@ import { useSession } from "next-auth/react";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/router";
 import React from "react";
-import { ThemeProvider } from "./providers/theme-provider";
-import ModalProvider from "./providers/modal-provider";
-import { api } from "~/utils/api";
 import { Toaster } from "~/components/ui/toaster";
 import PlayLayout from "./play/layout";
+import ModalProvider from "./providers/modal-provider";
 import PlayModalProvider from "./providers/play/play-modal-provider";
+import { ThemeProvider } from "./providers/theme-provider";
 // import Header from "./header";
 // import RightDialog from "./right_dialog";
 import {
   Card,
   CardContent,
+  CardDescription,
   CardHeader,
   CardTitle,
-  CardDescription,
 } from "~/components/shadcn/ui/card";
-import { PlayerToggle } from "./playerToggle";
-import { PlayerProvider } from "./context/PlayerContext";
-import { Player } from "./Player";
-import SnowEffect from "./Snowflake";
-import FallingSnowflakes from "./FallingSnowflakes";
-import BackgroundMusic from "./BackgroundMusic";
 import { BackgroundMusicProvider } from "./context/BackgroundMusicContext";
+import { PlayerProvider } from "./context/PlayerContext";
 import { PostAudioProvider } from "./context/PostAudioContext";
 import { PostVideoProvider } from "./context/PostVideoContext";
+import FallingSnowflakes from "./FallingSnowflakes";
+import { Player } from "./Player";
+import { PlayerToggle } from "./playerToggle";
 
 const RightDialog = dynamic(async () => await import("./right_dialog"));
 const ConnectWalletButton = dynamic(
@@ -63,6 +60,13 @@ export default function Layout({
   //   );
   // }
 
+  if (router.pathname.includes("/embed")) {
+    return (
+      <div className="flex h-screen ">
+        <div className="flex-1">{children}</div>
+      </div>
+    );
+  }
 
   if (router.pathname.includes("/albedo")) {
     return <div>{children}</div>;
@@ -109,7 +113,9 @@ export default function Layout({
           <PostVideoProvider>
             <PlayerProvider>
               <BackgroundMusicProvider>
-                <div className={clsx(" flex h-screen w-full flex-col", className)}>
+                <div
+                  className={clsx(" flex h-screen w-full flex-col", className)}
+                >
                   <Header />
 
                   <div className="flex-1 overflow-auto bg-base-100/50">
@@ -118,19 +124,19 @@ export default function Layout({
                       <div
                         // id="ih"
                         className="flex-1 border-x-2"
-                      // style={
-                      //   router.pathname.includes("/fans/creator") && creator.data
-                      //     ? {
-                      //         background: `url("${creator.data.backgroundSVG}")`,
-                      //         backgroundSize: "10%",
-                      //         animation: "pan 135s linear infinite",
-                      //       }
-                      //     : {
-                      //         background: `url("images/guitar.svg")`,
-                      //         backgroundSize: "10%",
-                      //         animation: "pan 135s linear infinite",
-                      //       }
-                      // }
+                        // style={
+                        //   router.pathname.includes("/fans/creator") && creator.data
+                        //     ? {
+                        //         background: `url("${creator.data.backgroundSVG}")`,
+                        //         backgroundSize: "10%",
+                        //         animation: "pan 135s linear infinite",
+                        //       }
+                        //     : {
+                        //         background: `url("images/guitar.svg")`,
+                        //         backgroundSize: "10%",
+                        //         animation: "pan 135s linear infinite",
+                        //       }
+                        // }
                       >
                         <div className=" h-full overflow-y-auto bg-base-100/80 scrollbar-hide">
                           {session.status == "authenticated" ? (
@@ -149,7 +155,6 @@ export default function Layout({
                                     className,
                                   )}
                                 >
-                                  <Header />
                                   <div className="flex-1 overflow-auto bg-base-100/50">
                                     {children}
                                   </div>
@@ -186,7 +191,7 @@ export default function Layout({
             </PlayerProvider>
           </PostVideoProvider>
         </PostAudioProvider>
-      </ThemeProvider >
+      </ThemeProvider>
     </>
   );
 }
