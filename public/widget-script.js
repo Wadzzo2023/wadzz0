@@ -12,18 +12,32 @@
     scriptSrc.includes("?") ? scriptSrc.substring(scriptSrc.indexOf("?")) : "",
   );
 
-  // Build the iframe URL with creator parameters
+  // Build the iframe URL with parameters
   let iframeUrl = baseUrl + "/embed";
+  const urlParams = new URLSearchParams();
 
   // Get all creator IDs from the query parameters
   const creators = queryParams.getAll("creators[]");
   console.log("Creators:", creators);
 
   if (creators && creators.length > 0) {
-    // Add creators as query parameters to the iframe URL
-    iframeUrl +=
-      "?" +
-      creators.map((id) => `creators[]=${encodeURIComponent(id)}`).join("&");
+    creators.forEach((id) => {
+      urlParams.append("creators[]", id);
+    });
+  }
+
+  // Get location parameters
+  const lat = queryParams.get("lat");
+  const lng = queryParams.get("lng");
+  const zoom = queryParams.get("zoom");
+
+  if (lat) urlParams.append("lat", lat);
+  if (lng) urlParams.append("lng", lng);
+  if (zoom) urlParams.append("zoom", zoom);
+
+  // Add all parameters to the iframe URL
+  if (urlParams.toString()) {
+    iframeUrl += "?" + urlParams.toString();
   }
 
   // Create iframe with the correct domain

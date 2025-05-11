@@ -3,6 +3,7 @@ import mapboxgl from "mapbox-gl";
 import { api } from "~/utils/api";
 import { Location } from "~/types/game/location";
 import { useRouter } from "next/router";
+import ChatInterface from "~/components/ChatInterface";
 
 import "mapbox-gl/dist/mapbox-gl.css";
 import { env } from "~/env";
@@ -17,13 +18,24 @@ function App() {
     longitude: number;
   } | null>(null);
 
-  // Extract creator IDs from query parameters
+  // Extract query parameters
   const creatorIds = router.query["creators[]"];
   const normalizedCreatorIds = Array.isArray(creatorIds)
     ? creatorIds
     : creatorIds
       ? [creatorIds]
       : undefined;
+
+  // Extract initial map location from query params
+  const initialLat = router.query.lat
+    ? parseFloat(router.query.lat as string)
+    : 40.7128;
+  const initialLng = router.query.lng
+    ? parseFloat(router.query.lng as string)
+    : -74.006;
+  const initialZoom = router.query.zoom
+    ? parseFloat(router.query.zoom as string)
+    : 9;
 
   // Fetch public locations from our tRPC API with optional creator filter
   const { data, isLoading, error } = api.widget.getPublicLocations.useQuery(
@@ -59,9 +71,9 @@ function App() {
     if (mapContainerRef.current) {
       mapRef.current = new mapboxgl.Map({
         container: mapContainerRef.current,
-        style: "mapbox://styles/wadzzo/cm1xtphyn01ci01pi20jhfbto", // Add a default style
-        center: [-74.5, 40], // Add a default center (longitude, latitude)
-        zoom: 9, // Add a default zoom level
+        style: "mapbox://styles/wadzzo/cm1xtphyn01ci01pi20jhfbto", // Custom style
+        center: [initialLng, initialLat], // Use initial location from params
+        zoom: initialZoom, // Use initial zoom from params
       });
 
       // Add controls
@@ -127,37 +139,54 @@ function App() {
       el.style.border = "2px solid #FF006E";
       el.style.cursor = "pointer";
 
-      // Generate QR code URL that links to the location
-      const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(
-        `${window.location.origin}/location/${location.id}`,
+      // Generate QR code URLs for Android and iOS apps
+      const androidAppQrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(
+        `https://play.google.com/store/apps/details?id=com.wadzzo.app`,
       )}`;
 
-      // Create enhanced popup with QR code
+      const iosAppQrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(
+        `https://apps.apple.com/app/wadzzo/id1234567890`,
+      )}`;
+
+      // Create a truncated description with max 100 characters
+      const truncatedDescription =
+        location.description.length > 100
+          ? location.description.substring(0, 100) + "..."
+          : location.description;
+
+      // Create enhanced popup with dual QR codes
       const popup = new mapboxgl.Popup({
         offset: 25,
-        maxWidth: "400px",
+        maxWidth: "450px",
       }).setHTML(`
-        <div style="display: flex; padding: 10px; gap: 15px; max-width: 400px;">
-          <div style="flex: 2;">
-            <div style="display: flex; align-items: center; margin-bottom: 10px;">
-              <img src="${location.brand_image_url}" style="width: 30px; height: 30px; border-radius: 50%; margin-right: 10px;">
-              <h3 style="margin: 0; font-size: 18px; font-weight: 600;">${location.title}</h3>
-            </div>
-            <p style="margin: 0 0 10px 0; font-size: 14px; color: #444; line-height: 1.5;">${location.description}</p>
-            <div style="display: flex; align-items: center; margin-top: 8px;">
+        <div style="display: flex; flex-direction: column; padding: 15px; max-width: 450px;">
+          <div style="display: flex; align-items: center; margin-bottom: 10px;">
+            <img src="${location.brand_image_url}" style="width: 30px; height: 30px; border-radius: 50%; margin-right: 10px;">
+            <h3 style="margin: 0; font-size: 18px; font-weight: 600;">${location.title}</h3>
+          </div>
+          
+          <!-- Content section with truncated description -->
+          <div style="margin-bottom: 15px;">
+            <p style="margin: 0 0 10px 0; font-size: 14px; color: #444; line-height: 1.5;" title="${location.description}">${truncatedDescription}</p>
+            <div style="display: flex; align-items: center; margin-bottom: 8px;">
               <span style="font-size: 13px; color: #666; margin-right: 8px;">By:</span>
               <span style="font-size: 14px; font-weight: 500;">${location.brand_name}</span>
             </div>
-            <div style="margin-top: 12px; border-top: 1px solid #eee; padding-top: 10px;">
-              <div style="font-size: 13px; color: #666; margin-bottom: 5px;">Location:</div>
-              <div style="font-size: 14px; color: #444;">
-                ${location.lat.toFixed(5)}, ${location.lng.toFixed(5)}
-              </div>
+            <div style="font-size: 13px; color: #666; margin-top: 10px;">
+              Location: ${location.lat.toFixed(5)}, ${location.lng.toFixed(5)}
             </div>
           </div>
-          <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; border-left: 1px solid #eee; padding-left: 15px;">
-            <img src="${qrCodeUrl}" style="width: 100px; height: 100px; margin-bottom: 8px;">
-            <span style="font-size: 12px; color: #666; text-align: center;">Scan to view details</span>
+          
+          <!-- QR code section - only Android and iOS -->
+          <div style="display: flex; justify-content: space-around; border-top: 1px solid #eee; padding-top: 15px;">
+            <div style="display: flex; flex-direction: column; align-items: center; flex: 1;">
+              <img src="${androidAppQrCodeUrl}" style="width: 100px; height: 100px; margin-bottom: 5px;">
+              <span style="font-size: 12px; color: #666; text-align: center;">Android App</span>
+            </div>
+            <div style="display: flex; flex-direction: column; align-items: center; flex: 1;">
+              <img src="${iosAppQrCodeUrl}" style="width: 100px; height: 100px; margin-bottom: 5px;">
+              <span style="font-size: 12px; color: #666; text-align: center;">iOS App</span>
+            </div>
           </div>
         </div>
       `);
@@ -179,9 +208,10 @@ function App() {
     style.textContent = `
       .mapboxgl-popup-content {
         padding: 0;
-        border-radius: 8px;
+        border-radius: 12px;
         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
         overflow: hidden;
+        max-width: 450px !important;
       }
       
       .mapboxgl-popup-close-button {
@@ -198,6 +228,7 @@ function App() {
         align-items: center;
         justify-content: center;
         box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        z-index: 10;
       }
       
       .mapboxgl-popup-close-button:hover {
@@ -205,6 +236,10 @@ function App() {
       }
       
       @media (max-width: 480px) {
+        .mapboxgl-popup-content {
+          max-width: 300px !important;
+        }
+        
         .location-popup {
           flex-direction: column;
         }
@@ -245,6 +280,12 @@ function App() {
         id="map-container"
         ref={mapContainerRef}
         style={{ width: "100%", height: "100vh" }}
+      />
+
+      {/* Include the ChatInterface component */}
+      <ChatInterface
+        userLocation={userLocation}
+        creatorIds={normalizedCreatorIds}
       />
     </div>
   );

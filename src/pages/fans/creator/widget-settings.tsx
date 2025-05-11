@@ -5,7 +5,9 @@ import { Checkbox } from "~/components/shadcn/ui/checkbox";
 import { toast } from "~/hooks/use-toast";
 import { Input } from "~/components/shadcn/ui/input";
 import { Button } from "~/components/shadcn/ui/button";
-import { Loader } from "lucide-react";
+import { Loader, Map } from "lucide-react";
+import { Slider } from "~/components/shadcn/ui/slider";
+import { Label } from "~/components/shadcn/ui/label";
 
 export default function Embed() {
   const [selectedCreators, setSelectedCreators] = useState<string[]>([]);
@@ -13,6 +15,11 @@ export default function Embed() {
   const [showCode, setShowCode] = useState(false);
   const [searchResults, setSearchResults] = useState<Creator[]>([]);
   const [loading, setLoading] = useState(false);
+  const [initialLocation, setInitialLocation] = useState({
+    lat: 40.7128, // Default latitude (New York City)
+    lng: -74.006, // Default longitude (New York City)
+    zoom: 9, // Default zoom level
+  });
 
   // Get all creators using the API
   const { data: creators, isLoading } = api.fan.creator.getCreators.useQuery();
@@ -69,14 +76,30 @@ export default function Embed() {
   };
 
   const generateEmbedScript = () => {
-    if (selectedCreators.length === 0) {
+    if (
+      selectedCreators.length === 0 &&
+      initialLocation.lat === 40.7128 &&
+      initialLocation.lng === -74.006 &&
+      initialLocation.zoom === 9
+    ) {
       return `<script src="https://dev.wadzzo.com/widget-script.js"></script>`;
     }
 
-    const creatorParams = selectedCreators
-      .map((id) => `creators[]=${encodeURIComponent(id)}`)
-      .join("&");
-    return `<script src="https://dev.wadzzo.com/widget-script.js?${creatorParams}"></script>`;
+    let params = [];
+
+    // Add creator parameters if selected
+    if (selectedCreators.length > 0) {
+      selectedCreators.forEach((id) => {
+        params.push(`creators[]=${encodeURIComponent(id)}`);
+      });
+    }
+
+    // Add initial location parameters
+    params.push(`lat=${initialLocation.lat}`);
+    params.push(`lng=${initialLocation.lng}`);
+    params.push(`zoom=${initialLocation.zoom}`);
+
+    return `<script src="https://dev.wadzzo.com/widget-script.js?${params.join("&")}"></script>`;
   };
 
   return (
@@ -191,6 +214,104 @@ export default function Embed() {
               ? "No creators selected. All public pins will be shown."
               : `${selectedCreators.length} creator${selectedCreators.length > 1 ? "s" : ""} selected. Only their pins will be displayed.`}
           </p>
+        </div>
+
+        <div className="mb-6 rounded-md bg-white p-4">
+          <div className="mb-4 flex items-center">
+            <Map className="mr-2 h-5 w-5 text-primary" />
+            <h3 className="text-lg font-medium">Initial Map Location</h3>
+          </div>
+
+          <div className="mb-4 grid grid-cols-1 gap-4 md:grid-cols-2">
+            <div>
+              <Label
+                htmlFor="latitude"
+                className="mb-1 block text-sm font-medium"
+              >
+                Latitude
+              </Label>
+              <Input
+                id="latitude"
+                type="number"
+                step="0.0001"
+                value={initialLocation.lat}
+                onChange={(e) =>
+                  setInitialLocation((prev) => ({
+                    ...prev,
+                    lat: parseFloat(e.target.value) || 0,
+                  }))
+                }
+                className="w-full"
+              />
+            </div>
+            <div>
+              <Label
+                htmlFor="longitude"
+                className="mb-1 block text-sm font-medium"
+              >
+                Longitude
+              </Label>
+              <Input
+                id="longitude"
+                type="number"
+                step="0.0001"
+                value={initialLocation.lng}
+                onChange={(e) =>
+                  setInitialLocation((prev) => ({
+                    ...prev,
+                    lng: parseFloat(e.target.value) || 0,
+                  }))
+                }
+                className="w-full"
+              />
+            </div>
+          </div>
+
+          <div className="mb-2">
+            <Label
+              htmlFor="zoom-level"
+              className="mb-1 block text-sm font-medium"
+            >
+              Zoom Level: {initialLocation.zoom}
+            </Label>
+            <Slider
+              id="zoom-level"
+              min={1}
+              max={20}
+              step={1}
+              value={[initialLocation.zoom]}
+              onValueChange={(values) =>
+                setInitialLocation((prev) => ({
+                  ...prev,
+                  zoom: values[0] ?? prev.zoom,
+                }))
+              }
+              className="py-4"
+            />
+            <div className="mt-1 flex justify-between text-xs text-gray-500">
+              <span>World View</span>
+              <span>Street Level</span>
+            </div>
+          </div>
+
+          <div className="mt-2 text-xs text-gray-600">
+            <p>
+              Set the initial map position and zoom level. Default is New York
+              City.
+            </p>
+            <p>
+              Tip: You can find coordinates for any location using{" "}
+              <a
+                href="https://www.google.com/maps"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary underline"
+              >
+                Google Maps
+              </a>{" "}
+              - right-click on a location and select "What's here?"
+            </p>
+          </div>
         </div>
 
         <Button
