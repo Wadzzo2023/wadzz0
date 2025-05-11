@@ -86,7 +86,7 @@ export const PlaceAutocompleteClassic = ({
         ref={inputRef}
         placeholder="Enter a location or coordinates"
         type="text"
-        className="h-12 w-80 rounded-lg border-2 border-gray-300 p-2"
+        className="h-12 w-96 rounded-lg border-2 border-gray-300 p-2"
         onKeyDown={() => handleCoordinatesInput()}
       />
     </div>

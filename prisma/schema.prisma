@@ -174,8 +174,6 @@ model CreatorPageAsset {
     creator Creator @relation(fields: [creatorId], references: [id], onDelete: Cascade)
 }
 
-
-
 model Creator {
     id         String   @id
     joinedAt   DateTime @default(now())
@@ -191,8 +189,8 @@ model Creator {
     storagePub    String
     storageSecret String
 
-    aprovalSend Boolean 
-    approved Boolean? // if undefined than it is sended for aproval, false means banned, true means aproved
+    aprovalSend Boolean
+    approved    Boolean? // if undefined than it is sended for aproval, false means banned, true means aproved
 
     // pageAsset
     pageAssetId Int?
@@ -277,7 +275,7 @@ model Session {
 
 model User {
     id            String    @id @default(cuid())
-    name          String?
+    name          String?   @unique
     email         String?   @unique
     bio           String?
     image         String?

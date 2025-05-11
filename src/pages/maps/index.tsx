@@ -6,11 +6,12 @@ import {
   Map,
   MapMouseEvent,
 } from "@vis.gl/react-google-maps";
+import { motion, AnimatePresence } from "framer-motion";
 
 import { format, set } from "date-fns";
-import { ClipboardList, MapPin } from "lucide-react";
+import { ClipboardList, Clock, MapPin, Minus, Plus } from "lucide-react";
 import Image from "next/image";
-import React, { useEffect, useState } from "react";
+import React, { memo, useEffect, useState } from "react";
 import { Loading } from "react-daisyui";
 import CreatePinModal from "~/components/maps/modals/create-pin";
 import { CustomMapControl } from "~/components/maps/search/map-control";
@@ -28,6 +29,9 @@ import { api } from "~/utils/api";
 import { create } from "zustand";
 import toast from "react-hot-toast";
 import Link from "next/link";
+import { Button } from "~/components/shadcn/ui/button";
+import { Label } from "~/components/shadcn/ui/label";
+import { Switch } from "~/components/shadcn/ui/switch";
 
 type Pin = {
   locationGroup:
@@ -52,9 +56,16 @@ const useNearbyPinsStore = create<NearbyPinsState>((set, get) => ({
   nearbyPins: [],
   allPins: [], // Store all pins
   setNearbyPins: (pins: Pin[]) => set({ nearbyPins: pins }),
-  setAllPins: (pins: Pin[]) => set({ allPins: pins }),
+  setAllPins: (pins: Pin[]) => {
+    const currentPins = get().allPins;
+    if (pins.length !== currentPins.length
+      || pins.map(pin => pin.id).join(",") !== currentPins.map(pin => pin.id).join(",")
+    ) {
+      set({ allPins: pins });
+    }
+  },
   filterNearbyPins: (center: google.maps.LatLngBoundsLiteral) => {
-    const { allPins } = get();
+    const { allPins, nearbyPins } = get();
     const filtered = allPins.filter(
       (pin) =>
         pin.latitude >= center.south &&
@@ -62,7 +73,11 @@ const useNearbyPinsStore = create<NearbyPinsState>((set, get) => ({
         pin.longitude >= center.west &&
         pin.longitude <= center.east,
     );
-    set({ nearbyPins: filtered });
+
+    if (filtered.length !== nearbyPins.length ||
+      filtered.map(pin => pin.id).join(",") !== nearbyPins.map(pin => pin.id).join(",")) {
+      set({ nearbyPins: filtered });
+    }
   },
 }));
 
@@ -137,12 +152,12 @@ function App() {
   const [isCordsSearch, setIsCordsSearch] = useState<boolean>(false);
   const [searchCoordinates, setSearchCoordinates] =
     useState<google.maps.LatLngLiteral>();
-  const [userLocation, setUserLocation] = useState<UserLocationType>(
-    {
-      lat: 44.500000,
-      lng: -89.500000,
-    }
-  );
+  const [showExpired, setShowExpired] = useState<boolean>(false)
+
+  const [userLocation, setUserLocation] = useState<UserLocationType>({
+    lat: 44.5,
+    lng: -89.5,
+  });
   const {
     selectedPlace: alreadySelectedPlace,
     setSelectedPlace: setAlreadySelectedPlace,
@@ -172,7 +187,13 @@ function App() {
     },
     refetchOnWindowFocus: false,
   });
+  const handleZoomIn = () => {
+    setMapZoom((prev) => Math.min(prev + 1, 20));
+  };
 
+  const handleZoomOut = () => {
+    setMapZoom((prev) => Math.max(prev - 1, 3));
+  };
   function handleMapClick(event: MapMouseEvent): void {
     setManual(false);
     const position = event.detail.latLng;
@@ -186,6 +207,22 @@ function App() {
           long: position.lng,
           lat: position.lat,
           pinId: data.pinId,
+          mapTitle: data.mapTitle,
+          image: data.image,
+          mapDescription: data.mapDescription,
+          endDate: data.endDate,
+          startDate: data.startDate,
+          pinCollectionLimit: data.pinCollectionLimit,
+          pinRemainingLimit: data.pinRemainingLimit,
+          multiPin: data.multiPin,
+          subscriptionId: data.subscriptionId,
+          autoCollect: data.autoCollect,
+          pageAsset: data.pageAsset,
+          privacy: data.privacy,
+          pinNumber: data.pinNumber,
+          link: data.link,
+          assetId: data.assetId,
+
         });
       }
     }
@@ -260,10 +297,6 @@ function App() {
         setZoom={setMapZoom}
       />
       <Map
-        zoomControl={true}
-        zoomControlOptions={{
-          position: ControlPosition.RIGHT_TOP,
-        }}
         onCenterChanged={(center) => {
           setMapCenter(center.detail.center);
           setCenterChanged(center.detail.bounds);
@@ -283,7 +316,6 @@ function App() {
         disableDefaultUI={true}
         onDragend={() => handleDragEnd()}
       >
-
         {centerChanged && searchCoordinates && (
           <AdvancedMarker
             style={{
@@ -308,6 +340,8 @@ function App() {
             </svg>
           </AdvancedMarker>
         )}
+        <ZoomControls onZoomIn={handleZoomIn} onZoomOut={handleZoomOut} />
+        <PinToggle showExpired={showExpired} setShowExpired={setShowExpired} />
 
         {isCordsSearch && cordSearchCords && (
           <AdvancedMarker
@@ -333,27 +367,34 @@ function App() {
             </svg>
           </AdvancedMarker>
         )}
-        <MyPins onOpen={onOpen} setIsAutoCollect={setIsAutoCollect} />
+        <MyPins onOpen={onOpen} setIsAutoCollect={setIsAutoCollect}
+
+          showExpired={showExpired} />
+
       </Map>
       <div className="hidden md:block">
         <SideMapItem setAlreadySelectedPlace={setAlreadySelectedPlace} />
       </div>
-      <ManualPinButton handleClick={handleManualPinClick} />
-      <ReportCollection />
+      <div className="absolute bottom-5 right-2 flex flex-col items-center gap-4 md:flex-row">
+        <ManualPinButton handleClick={handleManualPinClick} />
+        <ReportCollection />
+      </div>
       <CreatePinModal />
     </APIProvider>
   );
 }
 
-function SideMapItem({
+const SideMapItem = memo(function SideMapItem({
   setAlreadySelectedPlace,
+
 }: {
-  setAlreadySelectedPlace: (coords: { lat: number; lng: number }) => void;
+  setAlreadySelectedPlace: (coords: { lat: number; lng: number }) => void
+
 }) {
-  const { nearbyPins } = useNearbyPinsStore();
+  const { nearbyPins } = useNearbyPinsStore()
 
   return (
-    <div className="absolute bottom-4 right-4 top-96 flex max-h-[400px] min-h-[400px] w-80  items-center justify-center">
+    <div className="absolute bottom-4 right-4 top-60 flex max-h-[400px] min-h-[400px] w-80  items-center justify-center">
       <div className="max-h-[400px] min-h-[400px] w-80 overflow-y-auto rounded-lg bg-white p-4  scrollbar-hide ">
         <h2 className="mb-4 text-lg font-semibold">Nearby Locations</h2>
         <div className="space-y-4">
@@ -364,55 +405,129 @@ function SideMapItem({
               </h3>
             </div>
           ) : (
-            nearbyPins?.map((pin) => (
-              <div
-                onClick={() => {
-                  setAlreadySelectedPlace({
-                    lat: pin.latitude,
-                    lng: pin.longitude,
-                  });
-                }}
-                key={pin.id}
-                className="flex items-start gap-3 rounded-md bg-gray-50 p-3 shadow-lg transition-colors hover:bg-gray-100"
-              >
-                <MapPin className="h-5 w-5 flex-shrink-0 text-primary" />
-                <div className="flex-1">
-                  <h3 className="relative font-medium">
-                    {pin.locationGroup?.title}{" "}
-                    <span className=" absolute bottom-4 right-0 text-[.60rem]">
-                      End At:
-                      {pin.locationGroup &&
-                        new Date(pin.locationGroup.endDate).toLocaleString()}
-                    </span>
-                  </h3>
-                  <div className="mt-1 flex items-center gap-1">
-                    <Avatar className="h-6 w-6">
-                      <Image
-                        width={24}
-                        height={24}
-                        src={pin.locationGroup?.image ?? "/favicon.ico"}
-                        alt="Creator"
-                      />
-                    </Avatar>
-                    <Badge variant="secondary" className="text-xs">
-                      {pin._count.consumers} visitors
-                    </Badge>
+            nearbyPins?.map((pin) => {
+              console.log(pin);
+              return (
+                <div
+                  onClick={() => {
+                    setAlreadySelectedPlace({
+                      lat: pin.latitude,
+                      lng: pin.longitude,
+                    });
+                  }}
+                  key={pin.id}
+                  className="flex items-start gap-3 rounded-md bg-gray-50 p-3 shadow-lg transition-colors hover:bg-gray-100"
+                >
+                  <MapPin className="h-5 w-5 flex-shrink-0 text-primary" />
+                  <div className="flex-1">
+                    <h3 className="relative font-medium">
+                      {pin.locationGroup?.title}{" "}
+                      <span className=" absolute bottom-4 right-0 text-[.60rem]">
+                        End At:
+                        {pin.locationGroup &&
+                          new Date(pin.locationGroup.endDate).toLocaleString('en-US', {
+                            timeZone: 'America/Chicago', // CST timezone
+                            month: 'short',
+                            day: 'numeric',
+                            year: 'numeric',
+                            hour: 'numeric',
+                            minute: 'numeric',
+                            hour12: true
+                          })
+                        }
+                      </span>
+                    </h3>
+                    <div className="mt-1 flex items-center gap-1">
+                      <Avatar className="h-6 w-6">
+                        <Image
+                          width={24}
+                          height={24}
+                          src={pin.locationGroup?.image ?? "/favicon.ico"}
+                          alt="Creator"
+                        />
+                      </Avatar>
+                      <Badge variant="secondary" className="text-xs">
+                        {pin._count.consumers} visitors
+                      </Badge>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))
+              )
+            })
           )}
         </div>
       </div>
     </div>
   );
+})
+
+function ZoomControls({
+  onZoomIn,
+  onZoomOut,
+}: {
+  onZoomIn: () => void;
+  onZoomOut: () => void;
+}) {
+  return (
+    <>
+      <style jsx global>{`
+        .touch-manipulation {
+          touch-action: manipulation;
+          -webkit-touch-callout: none;
+          -webkit-tap-highlight-color: transparent;
+        }
+      `}</style>
+      <motion.div
+        className="absolute right-2 top-36 z-10 flex
+                 items-center gap-2 md:bottom-auto md:left-auto md:right-2 md:top-24"
+        initial={{ opacity: 0, scale: 0.8 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.5 }}
+      >
+        <motion.div
+          whileHover={{
+            scale: 1.1,
+            transition: { duration: 0.2 },
+          }}
+          whileTap={{ scale: 0.9 }}
+        >
+          <Button
+            variant="default"
+            size="icon"
+            className="h-10 w-10 touch-manipulation select-none rounded-full shadow-sm shadow-foreground"
+            onClick={onZoomOut}
+            aria-label="Zoom out"
+          >
+            <Minus className="h-4 w-4" />
+          </Button>
+        </motion.div>
+        <motion.div
+          whileHover={{
+            scale: 1.1,
+            transition: { duration: 0.2 },
+          }}
+          whileTap={{ scale: 0.9 }}
+        >
+          <Button
+            variant="default"
+            size="icon"
+            className="h-10 w-10 touch-manipulation  select-none rounded-full shadow-sm shadow-foreground"
+            onClick={onZoomIn}
+            aria-label="Zoom in"
+          >
+            <Plus className="h-4 w-4" />
+          </Button>
+        </motion.div>
+      </motion.div>
+    </>
+  );
 }
 
 function ManualPinButton({ handleClick }: { handleClick: () => void }) {
   return (
-    <div className="absolute bottom-2 right-2">
+    <div className="">
       <div className="btn" onClick={handleClick}>
-        <MapPin /> Drop Pins
+        <MapPin />
       </div>
     </div>
   );
@@ -420,23 +535,25 @@ function ManualPinButton({ handleClick }: { handleClick: () => void }) {
 
 function ReportCollection() {
   return (
-    <Link href="/maps/report" className="absolute bottom-16 right-2">
+    <Link href="/maps/report" className="">
       <div className="btn">
-        <ClipboardList /> Collection Report
+        <ClipboardList />
       </div>
     </Link>
   );
 }
 
-function MyPins({
+const MyPins = memo(function MyPins({
   onOpen,
   setIsAutoCollect,
+  showExpired,
 }: {
-  onOpen: (type: ModalType, data?: ModalData) => void;
-  setIsAutoCollect: (value: boolean) => void;
+  onOpen: (type: ModalType, data?: ModalData) => void
+  setIsAutoCollect: (value: boolean) => void
+  showExpired: boolean
 }) {
   const { setAllPins } = useNearbyPinsStore();
-  const pins = api.maps.pin.getMyPins.useQuery();
+  const pins = api.maps.pin.getMyPins.useQuery({ showExpired });
 
   useEffect(() => {
     if (pins.data) {
@@ -449,6 +566,9 @@ function MyPins({
   if (pins.data) {
     // const data = pins.data;
     // setAllPins(pins.data);
+    // console.log(
+    //   pins.data.filter((pin) => pin.locationGroup?.title === "10 pins"),
+    // );
 
     return (
       <>
@@ -485,14 +605,41 @@ function MyPins({
               width={30}
               height={30}
               alt="Creator"
-              className={`h-10 w-10 bg-white ${!pin.autoCollect ? "rounded-full " : ""
-                } ${pin._count.consumers <= 0 ? "opacity-100" : "opacity-50 "}`}
+              className={`h-10 w-10  ${!pin.autoCollect ? "rounded-full " : ""
+                } ${pin.locationGroup?.remaining && pin.locationGroup.remaining <= 0 ? "opacity-50" : "opacity-100"} ${pin.locationGroup?.approved === null ? "bg-slate-500 opacity-70" : "bg-white"}  `}
             />
           </AdvancedMarker>
         ))}
       </>
     );
   }
+})
+
+
+function PinToggle({
+  showExpired,
+  setShowExpired,
+}: {
+  showExpired: boolean
+  setShowExpired: (value: boolean) => void
+}) {
+  return (
+    <div className="absolute right-2 top-52 z-10 flex flex-col gap-2 rounded-lg bg-white p-3 shadow-lg md:right-4 md:top-40">
+      <div className="mb-1 flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2">
+          <Clock className="h-4 w-4 text-gray-500" />
+          <Label htmlFor="pin-toggle" className="text-sm font-medium">
+            Show Expired Pins
+          </Label>
+        </div>
+        <Switch id="pin-toggle" checked={showExpired} onCheckedChange={setShowExpired} />
+      </div>
+      <div className="text-xs text-gray-500">
+        {showExpired ? "Showing all pins including expired" : "Showing only active pins"}
+      </div>
+    </div>
+  )
 }
 
 export default App;
+

@@ -65,7 +65,10 @@ export default async function handler(
       // also check limit of the group
 
       await db.locationConsumer.create({
-        data: { locationId: location.id, userId: pubkey },
+        data: {
+          locationId: location.id, userId: pubkey,
+          claimedAt: new Date()
+        },
       });
       await db.locationGroup.update({
         where: { id: location.locationGroup.id },
@@ -97,12 +100,19 @@ export default async function handler(
 
     if (!hasConsumer) {
       await db.locationConsumer.create({
-        data: { locationId: location.id, userId: pubkey },
+        data: {
+          locationId: location.id, userId: pubkey,
+          claimedAt: new Date()
+        },
+
       });
 
       await db.locationGroup.update({
         where: { id: location.locationGroup.id },
-        data: { remaining: { decrement: 1 } },
+        data: {
+          remaining: { decrement: 1 },
+
+        },
       });
 
       return res.status(200).json({ success: true, data: "Location consumed" });

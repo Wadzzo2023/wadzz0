@@ -3,7 +3,6 @@ import AddAdmin from "~/components/admin/add_admin";
 import AdminsList from "~/components/admin/admins";
 import Bounty from "~/components/admin/bounty/Bounty";
 import CreatorPage from "~/components/admin/creator/page";
-import Pins from "~/components/admin/pins";
 import UserList from "~/components/admin/users";
 import NftCreate from "~/components/marketplace/nft_create";
 import AlbumCreate from "~/components/music/modal/album_create";
@@ -14,6 +13,7 @@ import { PLATFORM_ASSET } from "~/lib/stellar/constant";
 import { api } from "~/utils/api";
 import AdminPinConsumptionReport from "./maps/pins/admin";
 import AdminMap from "~/components/admin/map/admin-map";
+import Pins from "~/components/admin/pins/list";
 
 export default function AdminPage() {
   return <IsAdmin />;
