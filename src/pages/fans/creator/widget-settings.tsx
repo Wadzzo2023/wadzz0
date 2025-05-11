@@ -85,7 +85,7 @@ export default function Embed() {
       return `<script src="https://dev.wadzzo.com/widget-script.js"></script>`;
     }
 
-    let params = [];
+    const params = [];
 
     // Add creator parameters if selected
     if (selectedCreators.length > 0) {
@@ -309,7 +309,8 @@ export default function Embed() {
               >
                 Google Maps
               </a>{" "}
-              - right-click on a location and select "What's here?"
+              - right-click on a location and select &quot;What&apos;s
+              here?&quot;
             </p>
           </div>
         </div>

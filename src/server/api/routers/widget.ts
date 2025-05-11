@@ -1,10 +1,11 @@
-import { z } from "zod";
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { ItemPrivacy } from "@prisma/client";
+import OpenAI from "openai";
+import { z } from "zod";
+import { env } from "~/env";
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
 import { Location } from "~/types/game/location";
-import OpenAI from "openai";
-import { env } from "~/env";
-import { calculateDistance, findNearestLocation } from "~/utils/geo";
+import { findNearestLocation } from "~/utils/geo";
 
 const openai = new OpenAI({
   apiKey: env.OPENAI_API_KEY,
@@ -240,7 +241,7 @@ Keep your answers helpful, friendly, and concise.
 
         return {
           answer:
-            response.choices[0]?.message?.content ||
+            response.choices[0]?.message?.content ??
             "Sorry, I couldn't generate a response.",
         };
       } catch (error) {
