@@ -5,8 +5,7 @@ export const env = createEnv({
   /**
    * Specify your server-side environment variables schema here. This way you can ensure the app
    * isn't built with invalid env vars.
-   */
-  server: {
+   */  server: {
     DATABASE_URL: z
       .string()
       .url()
@@ -28,6 +27,7 @@ export const env = createEnv({
       // VERCEL_URL doesn't include `https` so it cant be validated as a URL
       process.env.VERCEL ? z.string() : z.string().url(),
     ),
+    OPENAI_API_KEY: z.string(),
     STORAGE_SECRET: z.string(),
     MOTHER_SECRET: z.string(),
     PINATA_JWT: z.string(),
@@ -68,13 +68,14 @@ export const env = createEnv({
     NEXT_PUBLIC_SQUARE_APP_ID: z.string(),
     NEXT_PUBLIC_SQUARE_LOCATION: z.string(),
     NEXT_PUBLIC_HOME_DOMAIN: z.string(),
+
+    NEXT_PUBLIC_MAPBOX_API: z.string(),
   },
 
   /**
    * You can't destruct `process.env` as a regular object in the Next.js edge runtimes (e.g.
    * middlewares) or client-side so we need to destruct manually.
-   */
-  runtimeEnv: {
+   */  runtimeEnv: {
     NEXT_PUBLIC_SITE: process.env.NEXT_PUBLIC_SITE,
     NEXT_PUBLIC_PLATFORM_CREATOR_TERM:
       process.env.NEXT_PUBLIC_PLATFORM_CREATOR_TERM,
@@ -83,6 +84,7 @@ export const env = createEnv({
     NODE_ENV: process.env.NODE_ENV,
     NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET,
     NEXTAUTH_URL: process.env.NEXTAUTH_URL,
+    OPENAI_API_KEY: process.env.OPENAI_API_KEY,
     NEXT_PUBLIC_STELLAR_PUBNET: process.env.NEXT_PUBLIC_STELLAR_PUBNET,
     NEXT_PUBLIC_STAGE: process.env.NEXT_PUBLIC_STAGE,
     NEXT_PUBLIC_ASSET_CODE: process.env.NEXT_PUBLIC_ASSET_CODE,
@@ -103,6 +105,9 @@ export const env = createEnv({
     AWS_BUCKET_REGION: process.env.NEXT_AWS_BUCKET_REGION,
     AWS_ACCESS_KEY: process.env.NEXT_AWS_ACCESS_KEY,
     AWS_SECRET_ACCESS_KEY: process.env.NEXT_AWS_SECRET_ACCESS_KEY,
+
+    // Mapbox
+    NEXT_PUBLIC_MAPBOX_API: process.env.NEXT_PUBLIC_MAPBOX_API,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially

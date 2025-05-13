@@ -13,6 +13,7 @@ export interface Location {
   auto_collect: boolean;
   brand_image_url: string;
   brand_id: string;
+  aiUrlDescriptions?: string[];
 }
 
 export interface ConsumedLocation extends Location {

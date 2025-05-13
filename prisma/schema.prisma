@@ -516,7 +516,8 @@ model LocationGroup {
 
     image String?
 
-    link String?
+    link              String?
+    aiUrlDescriptions String[] @default([])
 
     multiPin Boolean @default(false)
 
