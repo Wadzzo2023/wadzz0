@@ -1,9 +1,13 @@
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable  */
 import { ItemPrivacy } from "@prisma/client";
 import OpenAI from "openai";
 import { z } from "zod";
 import { env } from "~/env";
-import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
+import {
+  createTRPCRouter,
+  publicProcedure,
+  protectedProcedure,
+} from "~/server/api/trpc";
 import { Location } from "~/types/game/location";
 import { findNearestLocation } from "~/utils/geo";
 
@@ -12,6 +16,113 @@ const openai = new OpenAI({
 });
 
 export const widgetRouter = createTRPCRouter({
+  generateDescriptions: protectedProcedure
+    .input(
+      z.object({
+        pinId: z.string(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      // First, find the location to get its coordinates
+      const location = await ctx.db.location.findUnique({
+        where: {
+          id: input.pinId,
+        },
+      });
+
+      if (!location) {
+        throw new Error("Location not found");
+      }
+
+      // Check if user is authorized to generate descriptions for this pin
+      const locationGroup = await ctx.db.locationGroup.findFirst({
+        where: {
+          locations: {
+            some: {
+              id: input.pinId,
+            },
+          },
+          creatorId: ctx.session.user.id,
+        },
+      });
+
+      if (!locationGroup) {
+        throw new Error(
+          "You are not authorized to generate descriptions for this location",
+        );
+      }
+
+      // Get the URL from the location group or create a Google Maps URL if not available
+      const locationUrl = locationGroup.link;
+
+      if (!locationUrl) {
+        throw new Error("Location URL not found");
+      }
+
+      try {
+        // Use OpenAI to generate descriptions
+        const response = await openai.chat.completions.create({
+          model: "gpt-4o-mini",
+          messages: [
+            {
+              role: "system",
+              content: `You are a creative assistant specializing in location-based marketing. 
+                        Your task is to:
+                        1. Crawl and analyze the content from this URL: ${locationUrl}
+                        2. Create a comprehensive 2-3 line summary of what you find at this location (business, attraction, etc.)
+                        3. Based on this summary, generate 5 engaging and varied descriptions (under 100 characters each)
+                        
+                        Each description should highlight different aspects such as:
+                        - The atmosphere and vibe of the place
+                        - Notable landmarks or surroundings
+                        - Unique selling points or features
+                        - Customer experience or benefits
+                        - Special offerings or promotions
+                        
+                        Format your response as a JSON object with:
+                        - A "summary" field containing your 2-3 line detailed summary
+                        - A "descriptions" array with your 5 short marketing-friendly descriptions
+                        
+                        Example: { 
+                          "summary": "A detailed 2-3 line summary about the location based on the URL content...",
+                          "descriptions": ["Description 1", "Description 2", "Description 3", "Description 4", "Description 5"] 
+                        }`,
+            },
+          ],
+          temperature: 0.8,
+          response_format: { type: "json_object" },
+        });
+
+        const content = response.choices[0]?.message?.content;
+        const parsedContent = content
+          ? JSON.parse(content)
+          : { summary: "", descriptions: [] };
+
+        // Store the AI-generated descriptions and summary in the database
+        if (
+          parsedContent.descriptions &&
+          parsedContent.descriptions.length > 0
+        ) {
+          await ctx.db.locationGroup.update({
+            where: { id: locationGroup.id },
+            data: {
+              aiUrlDescriptions: parsedContent.descriptions,
+              description: parsedContent.summary || locationGroup.description, // Update description with summary if available
+            },
+          });
+        }
+
+        return {
+          success: true,
+          descriptions: parsedContent.descriptions || [],
+          summary: parsedContent.summary || "",
+        };
+      } catch (error) {
+        console.error("Error generating descriptions:", error);
+        throw new Error("Failed to generate descriptions");
+      }
+    }),
+
   getPublicLocations: publicProcedure
     .input(
       z
@@ -99,6 +210,7 @@ export const widgetRouter = createTRPCRouter({
           brand_image_url: location.creator.profileUrl ?? WadzzoIconURL,
           brand_id: location.creatorId,
           public: true,
+          aiUrlDescriptions: location.aiUrlDescriptions,
         };
       });
 

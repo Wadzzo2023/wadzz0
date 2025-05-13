@@ -90,7 +90,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
           </div>
           <div
             className="mr-1 rounded-full bg-primary p-2 text-white"
-            style={{ backgroundColor: "#FF006E" }}
+            style={{ backgroundColor: "#39BD2B" }}
           >
             <MessageSquare className="h-5 w-5" />
           </div>
@@ -144,7 +144,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
                     : "bg-gray-100 text-gray-800"
                 } inline-block max-w-[80%] rounded-lg p-3`}
                 style={
-                  message.type === "user" ? { backgroundColor: "#FF006E" } : {}
+                  message.type === "user" ? { backgroundColor: "#39BD2B" } : {}
                 }
               >
                 <p className="text-sm">{message.text}</p>
@@ -186,7 +186,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
             <button
               onClick={handleSendMessage}
               className="rounded-r-md bg-primary p-2 text-white hover:bg-primary/90 disabled:opacity-50"
-              style={{ backgroundColor: "#FF006E" }}
+              style={{ backgroundColor: "#39BD2B" }}
               disabled={isLoading || !messageInput.trim()}
             >
               {isLoading ? (

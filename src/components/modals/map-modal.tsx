@@ -29,15 +29,16 @@ import { useRouter } from "next/router";
 import { Controller, useForm } from "react-hook-form";
 import * as z from "zod";
 import { Input } from "~/components/shadcn/ui/input";
-import { IPin, useMapModalStore } from "~/pages/maps";
+import { IPin } from "~/pages/maps";
 
 import { ItemPrivacy } from "@prisma/client";
 import { Label } from "~/components/shadcn/ui/label";
 import { useCreatorStorageAcc } from "~/lib/state/wallete/stellar-balances";
-import { BADWORDS } from "~/utils/banned-word";
 import { UploadS3Button } from "~/pages/test";
+import { BADWORDS } from "~/utils/banned-word";
 import { useAdminMapModalStore } from "../hooks/use-AdminModal-store";
-import { format } from "path";
+
+import GenerateDescriptionButton from "../GenerateDescriptionButton";
 
 const MapModalComponent = () => {
   const {
@@ -265,7 +266,20 @@ const MapModalComponent = () => {
                   >
                     <ShieldBan size={15} className="mr-1" /> Enable Auto Collect
                   </Button>
-                )}
+                )}{" "}
+                <GenerateDescriptionButton
+                  pinId={data.pinId ?? ""}
+                  onDescriptionsGenerated={(descriptions, summary) => {
+                    // You can handle the generated descriptions and summary here
+                    console.log("Generated descriptions:", descriptions);
+                    if (summary) {
+                      console.log("Generated summary:", summary);
+                      // Optionally update the UI with the new summary
+                      // For example, if you have a state variable for the description:
+                      // setDescription(summary);
+                    }
+                  }}
+                />
               </div>
             )}
             <DialogFooter className=" px-6 py-4"></DialogFooter>
@@ -343,17 +357,19 @@ export const updateMapFormSchema = z.object({
     ),
   image: z.string().url().optional(),
   startDate: z.date().optional(),
-  endDate: z.date().refine(
-    (date) => {
-      // Set the time to the end of the day for comparison
-      const endOfDay = new Date(date)
-      endOfDay.setHours(23, 59, 59, 999)
-      return endOfDay >= new Date(new Date().setHours(0, 0, 0, 0))
-    },
-    {
-      message: "End date must be today or later",
-    },
-  )
+  endDate: z
+    .date()
+    .refine(
+      (date) => {
+        // Set the time to the end of the day for comparison
+        const endOfDay = new Date(date);
+        endOfDay.setHours(23, 59, 59, 999);
+        return endOfDay >= new Date(new Date().setHours(0, 0, 0, 0));
+      },
+      {
+        message: "End date must be today or later",
+      },
+    )
     .optional(),
   url: z.string().url().optional(),
   autoCollect: z.boolean(),
@@ -449,20 +465,20 @@ function PinInfoUpdate({
   });
 
   const onSubmit = (formData: FormData) => {
-    const startDate = new Date(formData.startDate ?? new Date())
-    startDate.setHours(0, 1, 0, 0)
-    formData.startDate = startDate
+    const startDate = new Date(formData.startDate ?? new Date());
+    startDate.setHours(0, 1, 0, 0);
+    formData.startDate = startDate;
 
     // Set end date to end of day (11:59 PM)
-    const endDate = new Date(formData.endDate ?? new Date())
-    endDate.setHours(23, 59, 59, 999)
-    formData.endDate = endDate
+    const endDate = new Date(formData.endDate ?? new Date());
+    endDate.setHours(23, 59, 59, 999);
+    formData.endDate = endDate;
     update.mutate(formData);
   };
   const formatDateForInput = (date: Date) => {
     const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
     return `${year}-${month}-${day}`;
   };
 
