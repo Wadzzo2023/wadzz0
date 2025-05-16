@@ -27,57 +27,55 @@ type AssetType = {
 export const PAGE_ASSET_NUM = -10
 export const NO_ASSET = -99
 
-export const createAdminPinFormSchema = z
-  .object({
-    lat: z
-      .number({
-        message: "Latitude is required",
-      })
-      .min(-180)
-      .max(180),
-    lng: z
-      .number({
-        message: "Longitude is required",
-      })
-      .min(-180)
-      .max(180),
-    description: z.string(),
-    title: z
-      .string()
-      .min(3)
-      .refine(
-        (value) => {
-          return !BADWORDS.some((word) => value.includes(word))
-        },
-        {
-          message: "Input contains banned words.",
-        },
-      ),
-    image: z.string().url().optional(),
-    startDate: z.date(),
-    endDate: z.date().refine(
-      (date) => {
-        // Set the time to the end of the day for comparison
-        const endOfDay = new Date(date)
-        endOfDay.setHours(23, 59, 59, 999)
-        return endOfDay >= new Date(new Date().setHours(0, 0, 0, 0))
+export const createAdminPinFormSchema = z.object({
+  lat: z
+    .number({
+      message: "Latitude is required",
+    })
+    .min(-180)
+    .max(180),
+  lng: z
+    .number({
+      message: "Longitude is required",
+    })
+    .min(-180)
+    .max(180),
+  description: z.string(),
+  title: z
+    .string()
+    .min(3)
+    .refine(
+      (value) => {
+        return !BADWORDS.some((word) => value.includes(word))
       },
       {
-        message: "End date must be today or later",
+        message: "Input contains banned words.",
       },
     ),
-    url: z.string().url().optional(),
-    autoCollect: z.boolean(),
-    token: z.number().optional(),
-    tokenAmount: z.number().nonnegative().optional(), // if it optional then no token selected
-    pinNumber: z.number().nonnegative().min(1),
-    radius: z.number().nonnegative(),
-    pinCollectionLimit: z.number().min(0),
-    tier: z.string().optional(),
-    multiPin: z.boolean().optional(),
-    creatorId: z.string(),
-  })
-
+  image: z.string().url().optional(),
+  startDate: z.date(),
+  endDate: z.date().refine(
+    (date) => {
+      // Set the time to the end of the day for comparison
+      const endOfDay = new Date(date)
+      endOfDay.setHours(23, 59, 59, 999)
+      return endOfDay >= new Date(new Date().setHours(0, 0, 0, 0))
+    },
+    {
+      message: "End date must be today or later",
+    },
+  ),
+  url: z.string().url().optional(),
+  autoCollect: z.boolean(),
+  token: z.number().optional(),
+  tokenAmount: z.number().nonnegative().optional(), // if it optional then no token selected
+  pinNumber: z.number().nonnegative().min(1),
+  radius: z.number().nonnegative(),
+  pinCollectionLimit: z.number().min(0),
+  tier: z.string().optional(),
+  multiPin: z.boolean().optional(),
+  creatorId: z.string(),
+})
 
 export default function CreateAdminPinModal() {
   const { manual, position, duplicate, isOpen, setIsOpen, prevData } = useAdminMapModalStore()
@@ -209,6 +207,15 @@ export default function CreateAdminPinModal() {
   }
 
   const onSubmit: SubmitHandler<z.infer<typeof createAdminPinFormSchema>> = (data) => {
+    // Ensure creatorId is set to the currently selected creator
+    if (selectedCreator) {
+      data.creatorId = selectedCreator.id
+    }
+    else {
+      toast.error("Please select a creator")
+      return
+    }
+
     setValue("token", selectedToken?.id)
     const startDate = new Date(data.startDate)
     startDate.setHours(0, 1, 0, 0)
@@ -302,8 +309,10 @@ export default function CreateAdminPinModal() {
     setSelectedToken(undefined)
     if (selectedCreator) {
       setValue("creatorId", selectedCreator?.id)
+      // Make sure creatorId is always updated when selectedCreator changes
+      console.log("Setting creator ID to:", selectedCreator?.id)
     }
-  }, [selectedCreator?.id])
+  }, [selectedCreator?.id, setValue])
 
   useEffect(() => {
     if (isOpen && scrollContainerRef.current) {
@@ -642,4 +651,3 @@ export default function CreateAdminPinModal() {
       )
   }
 }
-
