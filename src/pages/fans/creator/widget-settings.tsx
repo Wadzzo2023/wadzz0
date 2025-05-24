@@ -8,6 +8,7 @@ import { Button } from "~/components/shadcn/ui/button";
 import { Loader, Map } from "lucide-react";
 import { Slider } from "~/components/shadcn/ui/slider";
 import { Label } from "~/components/shadcn/ui/label";
+import { BASE_URL } from "~/lib/common";
 
 export default function Embed() {
   const [selectedCreators, setSelectedCreators] = useState<string[]>([]);
@@ -82,7 +83,7 @@ export default function Embed() {
       initialLocation.lng === -74.006 &&
       initialLocation.zoom === 9
     ) {
-      return `<script src="https://dev.wadzzo.com/widget-script.js"></script>`;
+      return `<script src="${BASE_URL}/widget-script.js"></script>`;
     }
 
     const params = [];
@@ -99,7 +100,7 @@ export default function Embed() {
     params.push(`lng=${initialLocation.lng}`);
     params.push(`zoom=${initialLocation.zoom}`);
 
-    return `<script src="https://dev.wadzzo.com/widget-script.js?${params.join("&")}"></script>`;
+    return `<script src="${BASE_URL}/widget-script.js?${params.join("&")}"></script>`;
   };
 
   return (
