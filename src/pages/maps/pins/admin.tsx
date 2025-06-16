@@ -11,6 +11,7 @@ import {
 } from "~/components/shadcn/ui/table";
 import { PinLocation } from "~/types/pin";
 import { api } from "~/utils/api";
+import CreatorCollectionReport from "../report";
 
 export default function AdminPinConsumptionReport() {
   const pins = api.maps.pin.getAllConsumedLocation.useQuery();
@@ -19,13 +20,14 @@ export default function AdminPinConsumptionReport() {
   if (pins.data) {
     // console.log(pins.data);
     return (
-      <div>
+      <div className="w-full">
         <h2 className="p-4 text-center text-2xl font-bold">
           All Collection Reports
         </h2>
-        <div className="m-auto max-w-4xl">
+        <CreatorCollectionReport isAdmin />
+        {/* <div className="m-auto max-w-4xl">
           <TableDemo pins={pins.data} />
-        </div>
+        </div> */}
       </div>
     );
   }

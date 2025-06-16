@@ -209,16 +209,12 @@ export const creatorRouter = createTRPCRouter({
         nextCursor,
       };
     }),
-  getCreators: protectedProcedure
-
-    .query(async ({ input, ctx }) => {
-
-      const items = await ctx.db.creator.findMany({
-
-        where: { approved: { equals: true } },
-      });
-      return items;
-    }),
+  getCreators: protectedProcedure.query(async ({ input, ctx }) => {
+    const items = await ctx.db.creator.findMany({
+      where: { approved: { equals: true } },
+    });
+    return items;
+  }),
 
   // getLatest: protectedProcedure.query(({ ctx }) => {
   //   return ctx.db.post.findFirst({
@@ -328,13 +324,15 @@ export const creatorRouter = createTRPCRouter({
         );
         if (bal) {
           return {
-            balance: bal, assetCode: creatorPageAsset.code,
-            assetIssuer: creatorPageAsset.issuer
+            balance: bal,
+            assetCode: creatorPageAsset.code,
+            assetIssuer: creatorPageAsset.issuer,
           };
         } else {
           return {
-            balance: 0, assetCode: creatorPageAsset.code,
-            assetIssuer: creatorPageAsset.issuer
+            balance: 0,
+            assetCode: creatorPageAsset.code,
+            assetIssuer: creatorPageAsset.issuer,
           };
         }
       } else {
@@ -351,7 +349,11 @@ export const creatorRouter = createTRPCRouter({
           const bal = storageAcc.getTokenBalance(assetCode, assetIssuer.data);
 
           if (bal >= 0) {
-            return { balance: bal, assetCode: assetCode, assetIssuer: assetIssuer.data };
+            return {
+              balance: bal,
+              assetCode: assetCode,
+              assetIssuer: assetIssuer.data,
+            };
           } else {
             throw new Error("Invalid asset code or issuer");
           }
@@ -359,25 +361,21 @@ export const creatorRouter = createTRPCRouter({
       }
     },
   ),
-  getCreatorShopAssetBalance: creatorProcedure.query(
-    async ({ ctx }) => {
-      const creator = await ctx.db.creator.findUnique({
-        where: { id: ctx.session.user.id },
+  getCreatorShopAssetBalance: creatorProcedure.query(async ({ ctx }) => {
+    const creator = await ctx.db.creator.findUnique({
+      where: { id: ctx.session.user.id },
+    });
 
-      });
+    if (!creator) {
+      throw new Error("Creator not found");
+    }
 
-      if (!creator) {
-        throw new Error("Creator not found");
-      }
+    const creatorStoragePub = creator.storagePub;
 
-      const creatorStoragePub = creator.storagePub;
-
-      return await getCreatorShopAssetBalance({
-        creatorStoragePub,
-      });
-
-    },
-  ),
+    return await getCreatorShopAssetBalance({
+      creatorStoragePub,
+    });
+  }),
   getFansList: protectedProcedure.query(async ({ ctx }) => {
     const creatorId = ctx.session.user.id;
     return ctx.db.follow.findMany({
@@ -590,7 +588,8 @@ export const creatorRouter = createTRPCRouter({
         where: { vanityURL: input.vanityURL },
       });
 
-      const exixt = BADWORDS.includes(input.vanityURL) || existingCreator;
+      const vanity = input.vanityURL;
+      const exixt = BADWORDS.includes(vanity) || existingCreator;
 
       return { isAvailable: !exixt };
     }),

@@ -1,8 +1,11 @@
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+
 "use client";
 
 import type React from "react";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, use } from "react";
 import {
   BarChart3,
   CalendarDays,
@@ -88,15 +91,38 @@ type ConsumerType = {
   claimed_at: Date | null;
 };
 
-const CreatorCollectionReport = () => {
+import type { InferGetServerSidePropsType, GetServerSideProps } from "next";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "~/server/auth";
+
+// @ts-expect-error i don't know the type
+export const getServerSideProps = async (context) => {
+  const user = await getServerSession(context.req, context.res, authOptions);
+  // const user = await getServerSession();
+
+  return { props: { userId: user?.user.id } };
+};
+
+const CreatorCollectionReport = ({
+  isAdmin,
+  userId,
+}: {
+  isAdmin?: boolean;
+  userId?: string;
+}) => {
   const [selectedDays, setSelectedDays] = useState<number | undefined>(
     undefined,
   );
   const [searchTerm, setSearchTerm] = useState("");
   const [activeTab, setActiveTab] = useState("overview");
+  const [creatorId, setCreatorId] = useState<string | undefined>(userId);
 
   const pins = api.maps.pin.getCreatorPinTConsumedByUser.useQuery(
-    selectedDays ? { day: selectedDays } : undefined,
+    {
+      day: selectedDays,
+      creatorId: creatorId,
+      isAdmin: isAdmin,
+    },
     {
       enabled: true,
     },
@@ -150,19 +176,26 @@ const CreatorCollectionReport = () => {
   }
 
   if (!pins.data) {
-    return <EmptyState message="No data available" />;
+    return (
+      <div>
+        <CreatorDropDown creatorId={creatorId} setCreatorId={setCreatorId} />
+        <EmptyState message="No data available" />
+      </div>
+    );
   }
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="mb-6">
-        <Button variant="ghost" size="sm" asChild className="mb-4">
-          <Link href="/fan/creator" className="flex items-center">
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Creator Dashboard
-          </Link>
-        </Button>
-      </div>
+      {!isAdmin && (
+        <div className="mb-6">
+          <Button variant="ghost" size="sm" asChild className="mb-4">
+            <Link href="/fan/creator" className="flex items-center">
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Back to Creator Dashboard
+            </Link>
+          </Button>
+        </div>
+      )}
 
       <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
@@ -175,6 +208,12 @@ const CreatorCollectionReport = () => {
         </div>
 
         <div className="flex items-center gap-2">
+          {isAdmin && (
+            <CreatorDropDown
+              creatorId={creatorId}
+              setCreatorId={setCreatorId}
+            />
+          )}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" size="sm" className="h-9">
@@ -211,16 +250,16 @@ const CreatorCollectionReport = () => {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-48">
-              <ReportDownloadItem day={7}>
+              <ReportDownloadItem day={7} creatorId={creatorId}>
                 Last 7 days (Weekly)
               </ReportDownloadItem>
-              <ReportDownloadItem day={30}>
+              <ReportDownloadItem day={30} creatorId={creatorId}>
                 Last 30 days (Monthly)
               </ReportDownloadItem>
-              <ReportDownloadItem day={90}>
+              <ReportDownloadItem day={90} creatorId={creatorId}>
                 Last 90 days (Quarterly)
               </ReportDownloadItem>
-              <ReportDownloadItem day={365}>
+              <ReportDownloadItem day={365} creatorId={creatorId}>
                 Last 365 days (Yearly)
               </ReportDownloadItem>
             </DropdownMenuContent>
@@ -1260,9 +1299,11 @@ export function TableData({
 function ReportDownloadItem({
   day,
   children,
+  creatorId,
 }: {
   day: number;
   children?: React.ReactNode;
+  creatorId?: string;
 }) {
   const [showFieldSelector, setShowFieldSelector] = useState(false);
   const download = api.maps.pin.downloadCreatorPinTConsumedByUser.useMutation({
@@ -1393,7 +1434,12 @@ function ReportDownloadItem({
                   alert("Please select at least one field to export");
                   return;
                 }
-                download.mutate({ day: day });
+                console.log(
+                  "Exporting with fields:",
+                  creatorId,
+                  selectedFields,
+                );
+                download.mutate({ day: day, creatorId: creatorId });
                 setShowFieldSelector(false);
               }}
               disabled={download.isLoading ?? selectedFields.length === 0}
@@ -1556,5 +1602,45 @@ function EmptyState({ message }: { message: string }) {
         There is no data available for the selected period.
       </p>
     </div>
+  );
+}
+
+function CreatorDropDown({
+  creatorId,
+  setCreatorId,
+}: {
+  creatorId: string | undefined;
+  setCreatorId: (id: string | undefined) => void;
+}) {
+  const creators = api.fan.creator.getCreators.useQuery();
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="outline" size="sm" className="h-9">
+          {creatorId
+            ? creators.data?.find((c) => c.id === creatorId)?.name
+              ? `${creators.data?.find((c) => c.id === creatorId)?.name} (${creatorId.slice(0, 6)}...)`
+              : creatorId
+            : "Select Creator"}
+          <ChevronDown className="ml-2 h-4 w-4" />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="w-56">
+        {creators.data?.map((creator) => (
+          <DropdownMenuItem
+            key={creator.id}
+            onClick={() => setCreatorId(creator.id)}
+          >
+            <div className="flex flex-col">
+              <span className="font-medium">{creator.name ?? "Unnamed"}</span>
+              <span className="text-xs text-muted-foreground">
+                {creator.id.slice(0, 6)}...{creator.id.slice(-4)}
+              </span>
+            </div>
+          </DropdownMenuItem>
+        ))}
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }

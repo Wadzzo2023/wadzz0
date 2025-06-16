@@ -30,7 +30,11 @@ import Loading from "~/components/wallete/loading";
 import { fetchPubkeyfromEmail } from "~/utils/get-pubkey";
 import { addrShort } from "~/utils/utils";
 import { useUserStellarAcc } from "~/lib/state/wallete/stellar-balances";
-import { PLATFORM_ASSET, TrxBaseFee, TrxBaseFeeInPlatformAsset } from "~/lib/stellar/constant";
+import {
+  PLATFORM_ASSET,
+  TrxBaseFee,
+  TrxBaseFeeInPlatformAsset,
+} from "~/lib/stellar/constant";
 import useNeedSign from "~/lib/hook";
 import { useSession } from "next-auth/react";
 import { clientSelect } from "~/lib/stellar/fan/utils";
@@ -38,33 +42,36 @@ import { clientSelect } from "~/lib/stellar/fan/utils";
 enum assetType {
   PAGEASSET = "PAGEASSET",
   PLATFORMASSET = "PLATFORMASSET",
-  SHOPASSET = "SHOPASSET"
+  SHOPASSET = "SHOPASSET",
 }
-
 
 export const FanGitFormSchema = z.object({
   pubkey: z.string().length(56),
-  amount: z.number({
-    required_error: "Amount is required",
-    invalid_type_error: "Amount must be a number",
-    message: "Amount must be a number",
-  }).int().positive(),
+  amount: z
+    .number({
+      required_error: "Amount is required",
+      invalid_type_error: "Amount must be a number",
+      message: "Amount must be a number",
+    })
+    .int()
+    .positive(),
 });
-
 
 type selectedAssetType = {
   assetCode: string;
   assetIssuer: string;
   balance: number;
   assetType: assetType;
-}
+};
 
 export default function GiftPage() {
-  const session = useSession()
+  const session = useSession();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [selectedAsset, setSelectedAsset] = useState<selectedAssetType | null>(null);
+  const [selectedAsset, setSelectedAsset] = useState<selectedAssetType | null>(
+    null,
+  );
   const [remainingToken, setRemainingToken] = useState<number>(0);
-  const [tokenBalance, setTokenBalance] = useState<number>(0);
+  // const [tokenBalance, setTokenBalance] = useState<number>(0);
   const { needSign } = useNeedSign();
   const {
     register,
@@ -78,24 +85,22 @@ export default function GiftPage() {
   } = useForm<z.infer<typeof FanGitFormSchema>>({
     resolver: zodResolver(FanGitFormSchema),
     defaultValues: {
-      amount: 1
-    }
+      amount: 1,
+    },
   });
 
   const pageAssetbal = api.fan.creator.getCreatorPageAssetBalance.useQuery();
   const shopAssetbal = api.fan.creator.getCreatorShopAssetBalance.useQuery();
-  const { data: extraCost } = api.bounty.Bounty.getplatformAssetNumberForXLM.useQuery(
-    {
-      xlm: 1
-    }
-  )
+  const { data: extraCost } =
+    api.bounty.Bounty.getplatformAssetNumberForXLM.useQuery({
+      xlm: 1,
+    });
   let cost = 0;
 
   const { platformAssetBalance } = useUserStellarAcc();
   const xdr = api.fan.trx.giftFollowerXDR.useMutation({
     onSuccess: async (xdr) => {
       if (xdr) {
-
         try {
           const clientResponse = await clientsign({
             presignedxdr: xdr,
@@ -106,7 +111,6 @@ export default function GiftPage() {
 
           if (clientResponse) {
             toast.success("Transaction successful");
-
           } else {
             toast.error("Transaction failed");
             setIsDialogOpen(false);
@@ -119,13 +123,12 @@ export default function GiftPage() {
           }
         } finally {
           setIsDialogOpen(false);
-
         }
       }
     },
     onError: (e) => {
       setIsDialogOpen(false);
-      toast.error(e.message)
+      toast.error(e.message);
     },
   });
 
@@ -141,7 +144,6 @@ export default function GiftPage() {
       assetType: selectedAsset.assetType,
       pubkey: data.pubkey,
       signWith: needSign(),
-
     });
   };
   if (extraCost) {
@@ -176,7 +178,7 @@ export default function GiftPage() {
   if (pageAssetbal.isLoading) return <Loading />;
   if (pageAssetbal.data) {
     return (
-      <div className=" flex h-full flex-col items-center mt-8 ">
+      <div className=" mt-8 flex h-full flex-col items-center ">
         <div className="card w-full  max-w-xl bg-base-200 p-4">
           {/* <h2>Fan email / pubkey</h2> */}
           <h2 className="mb-4 text-2xl font-bold">Gift your fans</h2>
@@ -214,7 +216,7 @@ export default function GiftPage() {
                   const parts = value.split(" ");
                   if (parts.length === 4) {
                     setSelectedAsset({
-                      assetCode: parts[0] ?? "",  // Ensure it's always a string
+                      assetCode: parts[0] ?? "", // Ensure it's always a string
                       assetIssuer: parts[1] ?? "",
                       balance: parseFloat(parts[2] ?? "0"), // Ensure balance is a number
                       assetType: (parts[3] as assetType) ?? "defaultAssetType", // Handle undefined case
@@ -229,97 +231,130 @@ export default function GiftPage() {
                 </SelectTrigger>
                 <SelectContent className="w-full">
                   <SelectGroup>
-                    <SelectLabel className="text-center">PAGE ASSET</SelectLabel>
+                    <SelectLabel className="text-center">
+                      PAGE ASSET
+                    </SelectLabel>
                     <SelectItem
                       value={
-                        pageAssetbal.data.assetCode + " " + pageAssetbal.data.assetCode + " " + pageAssetbal.data.balance + " " + "PAGEASSET"
+                        pageAssetbal.data.assetCode +
+                        " " +
+                        pageAssetbal.data.assetCode +
+                        " " +
+                        pageAssetbal.data.balance +
+                        " " +
+                        "PAGEASSET"
                       }
-                      onClick={() => setSelectedAsset({
-                        assetCode: pageAssetbal.data.assetCode,
-                        assetIssuer: pageAssetbal.data.assetIssuer,
-                        balance: pageAssetbal.data.balance,
-                        assetType: "PAGEASSET" as assetType
-
-                      })}
+                      onClick={() =>
+                        setSelectedAsset({
+                          assetCode: pageAssetbal.data.assetCode,
+                          assetIssuer: pageAssetbal.data.assetIssuer,
+                          balance: pageAssetbal.data.balance,
+                          assetType: "PAGEASSET" as assetType,
+                        })
+                      }
                     >
-                      <div className="flex items-center justify-between w-full">
-                        <span>{pageAssetbal.data.assetCode}  </span>
+                      <div className="flex w-full items-center justify-between">
+                        <span>{pageAssetbal.data.assetCode} </span>
                         <span> ({pageAssetbal.data.balance})</span>
                       </div>
                     </SelectItem>
-                    <SelectLabel className="text-center">PLATFORM ASSET</SelectLabel>
+                    <SelectLabel className="text-center">
+                      PLATFORM ASSET
+                    </SelectLabel>
                     <SelectItem
                       value={
-                        PLATFORM_ASSET.code + " " + PLATFORM_ASSET.issuer + " " + platformAssetBalance + " " + "PLATFORMASSET"
+                        PLATFORM_ASSET.code +
+                        " " +
+                        PLATFORM_ASSET.issuer +
+                        " " +
+                        platformAssetBalance +
+                        " " +
+                        "PLATFORMASSET"
                       }
-                      onClick={() => setSelectedAsset({
-                        assetCode: PLATFORM_ASSET.code,
-                        assetIssuer: PLATFORM_ASSET.issuer,
-                        balance: platformAssetBalance,
-                        assetType: "PLATFORMASSET" as assetType
-                      })}
+                      onClick={() =>
+                        setSelectedAsset({
+                          assetCode: PLATFORM_ASSET.code,
+                          assetIssuer: PLATFORM_ASSET.issuer,
+                          balance: platformAssetBalance,
+                          assetType: "PLATFORMASSET" as assetType,
+                        })
+                      }
                     >
-                      <div className="flex items-center justify-between w-full">
-                        <span>{PLATFORM_ASSET.code}  </span>
+                      <div className="flex w-full items-center justify-between">
+                        <span>{PLATFORM_ASSET.code} </span>
                         <span> ({platformAssetBalance})</span>
                       </div>
                     </SelectItem>
-                    <SelectLabel className="text-center">SHOP ASSET</SelectLabel>
-                    {
-                      !shopAssetbal.data || shopAssetbal.data.length < 2 ? <div
-                        className="flex items-center justify-between w-full"
-                      >
+                    <SelectLabel className="text-center">
+                      SHOP ASSET
+                    </SelectLabel>
+                    {!shopAssetbal.data || shopAssetbal.data.length < 2 ? (
+                      <div className="flex w-full items-center justify-between">
                         <span>No Shop Asset Availabe!</span>
-                      </div> :
-                        shopAssetbal.data.map((asset) => (
-                          asset.asset_type === "credit_alphanum4" || asset.asset_type === "credit_alphanum12"
-                            && (asset.asset_code !== pageAssetbal.data.assetCode && asset.asset_issuer !== pageAssetbal.data.assetIssuer)
-                            ? (
-                              <SelectItem
-                                key={asset.asset_code}
-                                value={asset.asset_code + " " + asset.asset_issuer + " " + asset.balance + " " + "SHOPASSET"}
-                                onClick={() => setSelectedAsset({
-                                  assetCode: asset.asset_code,
-                                  assetIssuer: asset.asset_issuer,
-                                  balance: Number(asset.balance),
-                                  assetType: "SHOPASSET" as assetType
-                                })}
-                              >
-                                <div className="flex items-center justify-between w-full">
-                                  <span>{asset.asset_code}  </span>
-                                  <span> ({asset.balance})</span>
-                                </div>
-                              </SelectItem>
-                            ) : <></>
-                        ))
-                    }
-
+                      </div>
+                    ) : (
+                      shopAssetbal.data.map((asset) =>
+                        asset.asset_type === "credit_alphanum4" ||
+                        (asset.asset_type === "credit_alphanum12" &&
+                          asset.asset_code !== pageAssetbal.data.assetCode &&
+                          asset.asset_issuer !==
+                            pageAssetbal.data.assetIssuer) ? (
+                          <SelectItem
+                            key={asset.asset_code}
+                            value={
+                              asset.asset_code +
+                              " " +
+                              asset.asset_issuer +
+                              " " +
+                              asset.balance +
+                              " " +
+                              "SHOPASSET"
+                            }
+                            onClick={() =>
+                              setSelectedAsset({
+                                assetCode: asset.asset_code,
+                                assetIssuer: asset.asset_issuer,
+                                balance: Number(asset.balance),
+                                assetType: "SHOPASSET" as assetType,
+                              })
+                            }
+                          >
+                            <div className="flex w-full items-center justify-between">
+                              <span>{asset.asset_code} </span>
+                              <span> ({asset.balance})</span>
+                            </div>
+                          </SelectItem>
+                        ) : (
+                          <></>
+                        ),
+                      )
+                    )}
                   </SelectGroup>
                 </SelectContent>
               </Select>
             </div>
-            {
-              selectedAsset ? (
-                <>
-                  <div className="label">
-                    <span className="label-text">
-                      Amount of {selectedAsset.assetCode} to gift
-                    </span>
-                  </div>
-                  <label className="input input-bordered flex  items-center gap-2">
-                    <input
-                      type="number"
-                      placeholder={`Price in ${selectedAsset.assetCode}`}
-                      {...register("amount", {
-                        valueAsNumber: true,
-                        min: 1
-                      })}
-                      className="grow"
-                    />
-                  </label>
-                </>
-              ) : <></>
-            }
+            {selectedAsset ? (
+              <>
+                <div className="label">
+                  <span className="label-text">
+                    Amount of {selectedAsset.assetCode} to gift
+                  </span>
+                </div>
+                <label className="input input-bordered flex  items-center gap-2">
+                  <input
+                    type="number"
+                    placeholder={`Price in ${selectedAsset.assetCode}`}
+                    {...register("amount", {
+                      valueAsNumber: true,
+                      min: 1,
+                    })}
+                    className="grow"
+                  />
+                </label>
+              </>
+            ) : (
+              <></>
+            )}
             <div className="flex flex-col gap-2">
               <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                 <DialogTrigger asChild>
@@ -343,7 +378,8 @@ export default function GiftPage() {
                           : ""}
                       </p>
                       <p className="font-semibold">
-                        Amount : {getValues("amount")} {selectedAsset?.assetCode}
+                        Amount : {getValues("amount")}{" "}
+                        {selectedAsset?.assetCode}
                       </p>
                       {/* // showing cost  */}
                       <p className="font-semibold">
@@ -379,13 +415,14 @@ export default function GiftPage() {
             </div>
 
             <div className="mt-2">
-              {
-                selectedAsset ? (
-                  <p className="text-sm"> Remaining Balance: {remainingToken > 0 ? remainingToken : 0}</p>
-                ) : (
-                  <p className="text-sm">Please select asset to gift</p>
-                )
-              }
+              {selectedAsset ? (
+                <p className="text-sm">
+                  {" "}
+                  Remaining Balance: {remainingToken > 0 ? remainingToken : 0}
+                </p>
+              ) : (
+                <p className="text-sm">Please select asset to gift</p>
+              )}
             </div>
           </form>
         </div>
@@ -396,15 +433,15 @@ export default function GiftPage() {
       </div>
     );
   } else if (pageAssetbal.data === undefined) {
-    return <div className="h-full flex items-center justify-center">
-      <div className="h-full flex items-center justify-center">
-        You don&apos;t have page asset to gift.
+    return (
+      <div className="flex h-full items-center justify-center">
+        <div className="flex h-full items-center justify-center">
+          You don&apos;t have page asset to gift.
+        </div>
       </div>
-    </div>;
+    );
   }
 }
-
-
 
 function FansList({
   handleFanAvatarClick,

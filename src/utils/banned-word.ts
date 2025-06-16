@@ -384,5 +384,5 @@ export const BADWORDS = [
   // "yellow showers",
   // "yiffy",
   // "zoophilia",
-  // "🖕",
+  "🖕",
 ];
