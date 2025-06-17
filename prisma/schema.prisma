@@ -281,6 +281,8 @@ model User {
     image         String?
     emailVerified DateTime?
 
+    firstSignUpMethod String? // e.g. email, google, github, etc.
+
     joinedAt         DateTime?          @default(now())
     fromAppSignup    Boolean?           @default(false)
     accounts         Account[]
