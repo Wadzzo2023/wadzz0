@@ -996,7 +996,7 @@ export const pinRouter = createTRPCRouter({
       });
     }),
 
-  paste: publicProcedure
+  paste: protectedProcedure
     .input(
       z.object({
         id: z.string(),
@@ -1013,8 +1013,16 @@ export const pinRouter = createTRPCRouter({
       if (!location) throw new Error("Location not found");
 
       const { lat, long } = input;
-      if (ctx.session?.user.id != location.locationGroup?.creatorId)
-        throw new Error("You are not the creator of this pin");
+      if (ctx.session.user.id != location.locationGroup?.creatorId) {
+        // now decide this user is admin
+        const admin = await ctx.db.admin.findUnique({
+          where: { id: ctx.session.user.id },
+        });
+
+        if (!admin) {
+          throw new Error("You are not authorized to paste this pin");
+        }
+      }
 
       if (input.isCut) {
         await ctx.db.location.update({
