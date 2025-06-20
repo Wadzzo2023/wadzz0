@@ -111,7 +111,8 @@ export default function CreatePinModal() {
     // mode: "onTouched",
   });
   const tokenAmount = watch("pinCollectionLimit");
-
+  const autoCollect = watch("autoCollect");
+  const multiPin = watch("multiPin");
   // query
   const assets = api.fan.asset.myAssets.useQuery(undefined, {});
   const tiers = api.fan.member.getAllMembership.useQuery();
@@ -560,6 +561,7 @@ export default function CreatePinModal() {
                       id="autoCollect"
                       {...register("autoCollect")}
                       className="checkbox"
+                      disabled={multiPin} // Disable if multiPin is selected
                     />
                     <label htmlFor="autoCollect" className="text-sm">
                       Auto Collect
@@ -572,8 +574,9 @@ export default function CreatePinModal() {
                       id="multiPin"
                       {...register("multiPin")}
                       className="checkbox"
+                      disabled={autoCollect} // Disable if autoCollect is selected
                     />
-                    <label htmlFor="autoCollect" className="text-sm">
+                    <label htmlFor="multiPin" className="text-sm">
                       Multi Pin
                     </label>
                   </div>
