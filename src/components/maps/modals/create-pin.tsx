@@ -63,7 +63,7 @@ export const createPinFormSchema = z.object({
     .min(new Date(new Date().setHours(0, 0, 0, 0))) // Prevent past dates
     .transform((date) => new Date(date.setHours(23, 59, 59, 999))),
   url: z.string().url().optional(),
-  autoCollect: z.boolean(),
+  autoCollect: z.boolean().default(true),
   token: z.number().optional(),
   tokenAmount: z.number().nonnegative().optional(), // if it optional then no token selected
   pinNumber: z.number().nonnegative().min(1),
@@ -105,6 +105,7 @@ export default function CreatePinModal() {
       radius: 0,
       pinNumber: 1,
       description: prevData?.description,
+      autoCollect: true,
       // startDate: new Date(),
       // endDate: new Date(),
     },
@@ -555,7 +556,7 @@ export default function CreatePinModal() {
                       <p className="text-red-500">{errors.endDate.message}</p>
                     )}
                   </div>
-                  <div className="flex items-center space-x-2">
+                  {/* <div className="flex items-center space-x-2">
                     <input
                       type="checkbox"
                       id="autoCollect"
@@ -579,7 +580,7 @@ export default function CreatePinModal() {
                     <label htmlFor="multiPin" className="text-sm">
                       Multi Pin
                     </label>
-                  </div>
+                  </div> */}
                   {/* <div className="flex flex-col space-y-2">
                 <label htmlFor="limit" className="text-sm font-medium">
                   Limit

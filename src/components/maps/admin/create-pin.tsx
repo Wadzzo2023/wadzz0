@@ -66,7 +66,7 @@ export const createAdminPinFormSchema = z.object({
     },
   ),
   url: z.string().url().optional(),
-  autoCollect: z.boolean(),
+  autoCollect: z.boolean().default(true),
   token: z.number().optional(),
   tokenAmount: z.number().nonnegative().optional(), // if it optional then no token selected
   pinNumber: z.number().nonnegative().min(1),
@@ -106,6 +106,7 @@ export default function CreateAdminPinModal() {
       pinNumber: 1,
       description: prevData?.description,
       creatorId: selectedCreator?.id,
+      autoCollect: true,
       // startDate: new Date(),
       // endDate: new Date(),
     },
@@ -567,7 +568,7 @@ export default function CreateAdminPinModal() {
                         />
                         {errors.endDate && <p className="text-red-500">{errors.endDate.message}</p>}
                       </div>
-                      <div className="flex items-center space-x-2">
+                      {/* <div className="flex items-center space-x-2">
                         <input
                           type="checkbox"
                           id="autoCollect"
@@ -591,7 +592,7 @@ export default function CreateAdminPinModal() {
                         <label htmlFor="multiPin" className="text-sm">
                           Multi Pin
                         </label>
-                      </div>
+                      </div> */}
                       {/* <div className="flex flex-col space-y-2">
                 <label htmlFor="limit" className="text-sm font-medium">
                   Limit
