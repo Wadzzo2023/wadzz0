@@ -106,7 +106,7 @@ export default function CreateAdminPinModal() {
       pinNumber: 1,
       description: prevData?.description,
       creatorId: selectedCreator?.id,
-      autoCollect: true,
+      autoCollect: false,
       // startDate: new Date(),
       // endDate: new Date(),
     },

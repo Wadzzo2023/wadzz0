@@ -105,7 +105,7 @@ export default function CreatePinModal() {
       radius: 0,
       pinNumber: 1,
       description: prevData?.description,
-      autoCollect: true,
+      autoCollect: false,
       // startDate: new Date(),
       // endDate: new Date(),
     },
