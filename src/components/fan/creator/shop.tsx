@@ -1,65 +1,89 @@
-import { Creator, CreatorPageAsset } from "@prisma/client";
-import AssetView from "~/components/marketplace/asset/asset_view";
-import NftCreate from "~/components/marketplace/nft_create";
-import { MoreAssetsSkeleton } from "~/components/marketplace/platforms_nfts";
-import { useModal } from "~/lib/state/play/use-modal-store";
-import { api } from "~/utils/api";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "~/components/shadcn/ui/dialog"
-import { z } from "zod";
-import { SubmitHandler, useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Label } from "~/components/shadcn/ui/label";
-import { PLATFORM_ASSET } from "~/lib/stellar/constant";
-import { Input } from "~/components/shadcn/ui/input";
-import { Button } from "~/components/shadcn/ui/button";
-import { Loader2 } from "lucide-react";
-import { useEffect, useState } from "react";
-import toast from "react-hot-toast";
+"use client"
+
+import type { Creator } from "@prisma/client"
+import AssetView from "~/components/marketplace/asset/asset_view"
+import NftCreate from "~/components/marketplace/nft_create"
+import { MoreAssetsSkeleton } from "~/components/marketplace/platforms_nfts"
+import { useModal } from "~/lib/state/play/use-modal-store"
+import { api } from "~/utils/api"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "~/components/shadcn/ui/dialog"
+import { z } from "zod"
+import { type SubmitHandler, useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { Label } from "~/components/shadcn/ui/label"
+import { PLATFORM_ASSET } from "~/lib/stellar/constant"
+import { Input } from "~/components/shadcn/ui/input"
+import { Button } from "~/components/shadcn/ui/button"
+import { Loader2, Package, Store } from "lucide-react"
+import { useState } from "react"
+import toast from "react-hot-toast"
+import SellPageAssetList from "~/components/sell-page-asset-list"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/shadcn/ui/tabs"
 
 export const updateAssetFormShema = z.object({
   price: z.number().nonnegative(),
   priceUSD: z.number().nonnegative(),
-});
+})
 
-type pageAsset = {
-  price: number;
-  priceUSD: number;
-  code: string;
-  creatorId: string;
-  issuer: string;
-  thumbnail: string | null;
-} | {
-  code: string | undefined;
-  issuer: string | undefined;
-  creatorId: string;
-  price: number;
-  priceUSD: number;
-  thumbnail: string;
-} | null | undefined
+type pageAsset =
+  | {
+    price: number
+    priceUSD: number
+    code: string
+    creatorId: string
+    issuer: string
+    thumbnail: string | null
+  }
+  | {
+    code: string | undefined
+    issuer: string | undefined
+    creatorId: string
+    price: number
+    priceUSD: number
+    thumbnail: string
+  }
+  | null
+  | undefined
 
 export default function Shop({ creator }: { creator?: Creator }) {
-  const pageAsset = api.fan.creator.getCreatorPageAsset.useQuery();
-  console.log(pageAsset.data);
+  const pageAsset = api.fan.creator.getCreatorPageAsset.useQuery()
+  console.log(pageAsset.data)
+
   return (
     <div className="my-7">
       <div className="fixed bottom-10 right-0 p-4 lg:bottom-0 lg:right-80">
         <NftCreate />
       </div>
-      {/* <div className="fixed bottom-24 right-0 p-4 lg:bottom-0 lg:right-[26rem]">
-        <RedeeemPage />
-      </div> */}
-      <AllShopItems pageAsset={pageAsset.data} />
-    </div>
-  );
-}
 
+      <Tabs defaultValue="marketplace" className="w-full">
+        <TabsList className="grid w-full grid-cols-2 mb-6">
+          <TabsTrigger value="marketplace" className="flex items-center gap-2">
+            <Store className="h-4 w-4" />
+            All Shop Items
+          </TabsTrigger>
+          <TabsTrigger value="sell-assets" className="flex items-center gap-2">
+            <Package className="h-4 w-4" />
+            Sell Page Assets
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="marketplace" className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-2xl font-bold">Marketplace Items</h2>
+          </div>
+          <AllShopItems pageAsset={pageAsset.data} />
+        </TabsContent>
+
+        <TabsContent value="sell-assets" className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-2xl font-bold">My Sell Page Assets</h2>
+          </div>
+          <SellPageAssetList />
+        </TabsContent>
+      </Tabs>
+    </div>
+  )
+}
 
 function AllShopItems({ pageAsset }: { pageAsset: pageAsset }) {
   const { onOpen } = useModal();

@@ -209,6 +209,7 @@ model Creator {
     vanitySubscription VanitySubscription?
     Album              Album[]
     Song               Song[]
+    SellPageAsset      SellPageAsset[]
 
     @@index([bio, name])
 }
@@ -433,6 +434,24 @@ model MarketAsset {
     placer   Creator? @relation(fields: [placerId], references: [id], onDelete: Cascade)
 
     @@unique([assetId, placerId])
+}
+
+model SellPageAsset {
+    id           Int      @id @default(autoincrement())
+    title        String
+    description  String?
+    amountToSell Int
+    price        Float
+    priceUSD     Float    @default(1)
+    priceXLM     Float    @default(0)
+    isSold       Boolean  @default(false)
+    placedAt     DateTime @default(now())
+
+    placerId String? // admin placing this assets
+    placer   Creator?  @relation(fields: [placerId], references: [id], onDelete: Cascade)
+    soldAt   DateTime? @default(now())
+
+    @@unique([id, placerId])
 }
 
 // ------------------------Wallete SCHEMA-------------------------

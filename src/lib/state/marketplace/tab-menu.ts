@@ -6,7 +6,7 @@ export const MarketMenu = {
   Wallet: `${env.NEXT_PUBLIC_ASSET_CODE} Curated`,
   Music: "Music",
   FanAsset: `${CREATOR_TERM} Tokens`,
-  Trade: "Trade",
+  PageAsset: "Page Assets",
 } as const;
 
 type MarketMenuKeys = keyof typeof MarketMenu;

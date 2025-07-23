@@ -4,7 +4,7 @@ import FanAssetNfts from "~/components/marketplace/fans_assets";
 import MusicAssetNfts from "~/components/marketplace/music_assets";
 import { useMarketRightStore } from "~/lib/state/marketplace/right";
 import { MarketMenu, useMarketMenu } from "~/lib/state/marketplace/tab-menu";
-import TradeMarket from "~/components/marketplace/trade";
+import MarketPageAsset from "~/components/marketplace/trade";
 
 export default function MarketplacePage() {
   return (
@@ -26,8 +26,8 @@ function RenderTabs() {
 
     case "FanAsset":
       return <FanAssetNfts />;
-    case "Trade":
-      return <TradeMarket />;
+    case "PageAsset":
+      return <MarketPageAsset />;
   }
 }
 

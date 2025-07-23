@@ -16,7 +16,35 @@ export async function accountBalances({ userPub }: { userPub: string }) {
 
   return balances;
 }
+export async function getCreatorPageAssetBalance({
+  pubkey,
+  code,
+  issuer,
+}: {
+  pubkey: string;
+  code: string;
+  issuer: string;
+}) {
+  const server = new Horizon.Server(STELLAR_URL);
+  console.log("Fetching asset balance for:", pubkey, code, issuer);
+  const transactionInializer = await server.loadAccount(pubkey);
 
+  const balances = transactionInializer.balances;
+  const asset = balances.find((balance) => {
+    if (
+      balance.asset_type === "credit_alphanum12" ||
+      balance.asset_type === "credit_alphanum4"
+    ) {
+      if (balance.asset_code === code && balance.asset_issuer === issuer)
+        return balance.balance;
+    }
+  });
+  console.log("Asset Balance:", asset);
+  return {
+    balance: asset ? asset.balance : "0",
+    code: code,
+  };
+};
 export async function getAssetBalance({
   pubkey,
   code,
