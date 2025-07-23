@@ -45,16 +45,16 @@ export default function MarketPageAsset() {
   const session = useSession()
 
   const { data: assets, isLoading, refetch } = api.fan.asset.getAllAvailable.useQuery()
-
+  console.log("session.data?.user?.walletType", session.data?.user?.walletType)
   const GetXDR = api.fan.asset.getXDR.useMutation({
     onSuccess: async (data, variables) => {
       if (data) {
-        const { xdr, needSign } = data
+        const { xdr } = data
         try {
           setBuyLoading(variables.paymentOption)
           const clientResponse = await clientsign({
             presignedxdr: xdr,
-            walletType: needSign ? session.data?.user?.walletType : WalletType.isAdmin,
+            walletType: session.data?.user?.walletType,
             pubkey: session.data?.user?.id,
             test: clientSelect(),
 

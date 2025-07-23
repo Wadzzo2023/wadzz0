@@ -42,11 +42,17 @@ async function buildAssetBuyTransaction({
         const storageKeypair = Keypair.fromSecret(storageSecret);
         const storageAccount = await StellarAccount.create(storageKeypair.publicKey());
         const userAccount = await StellarAccount.create(userId);
-
+        console.log("Storage account:", storageAccount);
         // Validate trustline
         const hasTrust = userAccount.hasTrustline(assetToBuy.code, assetToBuy.issuer);
         // Validate balances
-        const storageBalance = storageAccount.getTokenBalance(assetToBuy.code, assetToBuy.issuer);
+        let storageBalance;
+        if (assetToBuy.isNative()) {
+            storageBalance = Number(storageAccount.getNativeBalance());
+        } else {
+            storageBalance = storageAccount.getTokenBalance(assetToBuy.code, assetToBuy.issuer);
+        }
+        console.log("Storage balance:", storageBalance, storageSecret, assetToBuy.code, assetToBuy.issuer);
         if (storageBalance < amountToSell) {
             throw new Error("Insufficient asset balance in storage account.");
         }
@@ -85,24 +91,19 @@ async function buildAssetBuyTransaction({
                 source: storageKeypair.publicKey(),
                 amount: amountToSell.toFixed(7),
             })
-        );
-
-        // User pays with given asset (XLM or platform asset)
-        txBuilder.addOperation(
+        ).addOperation(
             Operation.payment({
                 destination: storageKeypair.publicKey(),
                 asset: paymentAsset,
                 source: userId,
                 amount: price.toFixed(7),
             })
-        );
-
-        const tx = txBuilder.setTimeout(0).build();
-        tx.sign(motherKeypair, storageKeypair);
+        ).setTimeout(0);
+        const buildTrx = txBuilder.build();
+        buildTrx.sign(motherKeypair, storageKeypair);
 
         return {
-            xdr: tx.toXDR(),
-            needSign: !hasTrust,
+            xdr: buildTrx.toXDR()
         };
     }
     catch (error) {
