@@ -63,7 +63,7 @@ export default function Shop({ creator }: { creator?: Creator }) {
           </TabsTrigger>
           <TabsTrigger value="sell-assets" className="flex items-center gap-2">
             <Package className="h-4 w-4" />
-            Sell Page Assets
+            Page asset
           </TabsTrigger>
         </TabsList>
 
@@ -76,7 +76,7 @@ export default function Shop({ creator }: { creator?: Creator }) {
 
         <TabsContent value="sell-assets" className="space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-bold">My Sell Page Assets</h2>
+            <h2 className="text-2xl font-bold">Sell Orders</h2>
           </div>
           <SellPageAssetList />
         </TabsContent>

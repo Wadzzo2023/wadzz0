@@ -20,6 +20,7 @@ import {
     AlertDialogTitle,
     AlertDialogTrigger,
 } from "~/components/shadcn/ui/alert-dialog"
+import { PLATFORM_ASSET } from "~/lib/stellar/constant"
 
 interface SellPageAsset {
     id: number
@@ -169,7 +170,7 @@ export default function SellPageAssetList() {
                                     <p className="font-medium">{asset.amountToSell} units</p>
                                 </div>
                                 <div>
-                                    <p className="text-muted-foreground">Platform Price</p>
+                                    <h3 className="font-medium text-sm text-muted-foreground"> Price in {PLATFORM_ASSET.code}</h3>
                                     <p className="font-medium">{asset.price}</p>
                                 </div>
                                 <div>
@@ -226,7 +227,7 @@ export default function SellPageAssetList() {
                                     </div>
                                     <div className="grid grid-cols-2 gap-4">
                                         <div>
-                                            <h3 className="font-medium text-sm text-muted-foreground">Platform Price</h3>
+                                            <h3 className="font-medium text-sm text-muted-foreground"> Price in {PLATFORM_ASSET.code}</h3>
                                             <p className="font-medium">{selectedAsset.price}</p>
                                         </div>
                                         <div>

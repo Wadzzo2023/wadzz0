@@ -800,7 +800,6 @@ interface SellPageAssetCreateProps {
 export const SellPageAssetSchema = z.object({
   title: z
     .string()
-    .min(1, { message: "Title is required" })
     .refine(
       (value) => {
         return !BADWORDS.some((word) => value.toLowerCase().includes(word.toLowerCase()))
@@ -808,7 +807,7 @@ export const SellPageAssetSchema = z.object({
       {
         message: "Title contains banned words.",
       },
-    ),
+    ).optional(),
   description: z.string().optional(),
   amountToSell: z
     .number({
@@ -867,6 +866,7 @@ export function SellPageAssetCreate({ isAdmin, onClose }: SellPageAssetCreatePro
     resolver: zodResolver(SellPageAssetSchema),
     mode: "onChange",
     defaultValues: {
+      title: "",
       priceUSD: 1,
       priceXLM: 0,
     },
@@ -921,9 +921,16 @@ export function SellPageAssetCreate({ isAdmin, onClose }: SellPageAssetCreatePro
 
     setSubmitLoading(true)
 
-    createSellPageAsset.mutate({
+    // Use the pageAssetBalance code as title if it exists
+    const assetCode = `${data.amountToSell} ${pageAssetBalance.data?.code}` || "Unknown Asset";
+
+    // Create a modified data object with the title set to the asset code
+    const modifiedData = {
       ...data,
-    })
+      title: assetCode
+    };
+
+    createSellPageAsset.mutate(modifiedData);
   }
 
   const handlePriceChange = (value: number) => {
@@ -957,7 +964,7 @@ export function SellPageAssetCreate({ isAdmin, onClose }: SellPageAssetCreatePro
         <div className="rounded-lg bg-base-200 p-4 space-y-4">
           <Label className="text-base font-bold">Sell Information</Label>
 
-          <div className="space-y-2">
+          {/* <div className="space-y-2">
             <Label htmlFor="title">
               Title <span className="text-red-600">*</span>
             </Label>
@@ -968,10 +975,10 @@ export function SellPageAssetCreate({ isAdmin, onClose }: SellPageAssetCreatePro
               className={errors.title ? "border-red-500" : ""}
             />
             {errors.title && <p className="text-red-500 text-sm">{errors.title.message}</p>}
-          </div>
+          </div> */}
 
           <div className="space-y-2">
-            <Label htmlFor="description">Description</Label>
+            <Label htmlFor="description">Description </Label>
             <Textarea
               id="description"
               {...register("description")}

@@ -220,11 +220,11 @@ export default function MarketPageAsset() {
                 <h3 className="font-semibold text-sm line-clamp-2 group-hover:text-blue-600 transition-colors">
                   {asset.title}
                 </h3>
-                {asset.description && <p className="text-xs text-muted-foreground line-clamp-2">{asset.description}</p>}
+                {asset.description && <p className="text-xs text-muted-foreground line-clamp-1">{asset.description}</p>}
 
                 <div className="flex items-center justify-between">
                   <div className="space-y-1">
-                    <p className="text-sm font-bold text-green-600">${asset.priceUSD}</p>
+                    <p className="text-sm font-bold text-green-600">{asset.priceXLM} XLM</p>
                     <p className="text-xs text-muted-foreground">{asset.price} WADZZO</p>
                   </div>
                   <div className="text-right">
