@@ -14,11 +14,18 @@ import { Label } from "~/components/shadcn/ui/label"
 import { PLATFORM_ASSET } from "~/lib/stellar/constant"
 import { Input } from "~/components/shadcn/ui/input"
 import { Button } from "~/components/shadcn/ui/button"
-import { Loader2, Package, Store } from "lucide-react"
+import { Box, Calendar, ExternalLink, Loader2, Package, Plus, QrCode, Store, Trash2 } from "lucide-react"
 import { useState } from "react"
 import toast from "react-hot-toast"
 import SellPageAssetList from "~/components/sell-page-asset-list"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/shadcn/ui/tabs"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "~/components/shadcn/ui/card"
+import { Skeleton } from "~/components/shadcn/ui/skeleton"
+import { useSession } from "next-auth/react"
+import { Badge } from "~/components/shadcn/ui/badge"
+import { format } from "date-fns"
+import { QRItem } from "~/types/qr"
+import QRCodeModal from "~/components/modals/qr-code-modal"
 
 export const updateAssetFormShema = z.object({
   price: z.number().nonnegative(),
@@ -51,12 +58,12 @@ export default function Shop({ creator }: { creator?: Creator }) {
 
   return (
     <div className="my-7">
-      <div className="fixed bottom-10 right-0 p-4 lg:bottom-0 lg:right-80">
+      <div className="fixed z-10 bottom-10 right-0 p-4 lg:bottom-0 lg:right-80">
         <NftCreate />
       </div>
 
       <Tabs defaultValue="marketplace" className="w-full">
-        <TabsList className="grid w-full grid-cols-2 mb-6">
+        <TabsList className="grid w-full grid-cols-3 mb-6">
           <TabsTrigger value="marketplace" className="flex items-center gap-2">
             <Store className="h-4 w-4" />
             All Shop Items
@@ -64,6 +71,10 @@ export default function Shop({ creator }: { creator?: Creator }) {
           <TabsTrigger value="sell-assets" className="flex items-center gap-2">
             <Package className="h-4 w-4" />
             Page asset
+          </TabsTrigger>
+          <TabsTrigger value="qr-assets" className="flex items-center gap-2">
+            <QrCode className="h-4 w-4" />
+            QR Items
           </TabsTrigger>
         </TabsList>
 
@@ -80,8 +91,173 @@ export default function Shop({ creator }: { creator?: Creator }) {
           </div>
           <SellPageAssetList />
         </TabsContent>
+        <TabsContent value="qr-assets" className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-2xl font-bold">QR Items</h2>
+          </div>
+          <QRAssetList />
+        </TabsContent>
       </Tabs>
     </div>
+  )
+}
+function QRAssetList() {
+  const { data: session } = useSession()
+  const [selectedQRItem, setSelectedQRItem] = useState<QRItem | null>(null)
+  const [isQRModalOpen, setIsQRModalOpen] = useState(false)
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
+
+  const qrItems = api.qr.getQRItems.useQuery(undefined, {
+    enabled: !!session?.user?.id,
+  })
+  const deleteQRItem = api.qr.deleteQRItem.useMutation({
+    onSuccess: () => {
+      toast.success("QR item deleted successfully!")
+      qrItems.refetch()
+    },
+    onError: (error) => {
+      toast.error(error.message)
+    },
+  })
+  const isItemActive = (item: QRItem) => {
+    const now = new Date()
+    return now >= new Date(item.startDate) && now <= new Date(item.endDate)
+  }
+  const handleViewQR = (item: QRItem) => {
+    setSelectedQRItem(item)
+    setIsQRModalOpen(true)
+  }
+  return (
+    <>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {qrItems.isLoading && (
+          <>
+            {[1, 2, 3, 4, 5, 6].map((i) => (
+              <Card key={i}>
+                <CardHeader>
+                  <Skeleton className="h-6 w-3/4" />
+                  <Skeleton className="h-4 w-1/2" />
+                </CardHeader>
+                <CardContent>
+                  <Skeleton className="h-4 w-full mb-2" />
+                  <Skeleton className="h-4 w-2/3 mb-4" />
+                  <div className="flex gap-2">
+                    <Skeleton className="h-8 w-20" />
+                    <Skeleton className="h-8 w-20" />
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </>
+        )}
+
+        {qrItems.data?.map((item) => (
+          <Card key={item.id} className="relative">
+            <CardHeader>
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <CardTitle className="text-lg">{item.title}</CardTitle>
+                  <CardDescription className="mt-1">
+                    {/* Updated to work with descriptions array */}
+                    {item.descriptions && item.descriptions.length > 0 ? (
+                      <div className="space-y-1">
+                        <div className="font-medium text-sm">
+                          {item.descriptions.sort((a, b) => a.order - b.order)[0]?.title}
+                        </div>
+                        <div>
+                          {item.descriptions[0]?.content && item.descriptions[0].content.length > 100
+                            ? `${item.descriptions[0].content.slice(0, 100)}...`
+                            : item.descriptions[0]?.content}
+                        </div>
+                        {item.descriptions.length > 1 && (
+                          <div className="text-xs text-muted-foreground">
+                            +{item.descriptions.length - 1} more description
+                            {item.descriptions.length > 2 ? "s" : ""}
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      "No descriptions available"
+                    )}
+                  </CardDescription>
+                </div>
+                <Badge variant={isItemActive(item) ? "default" : "secondary"}>
+                  {isItemActive(item) ? "Active" : "Inactive"}
+                </Badge>
+              </div>
+            </CardHeader>
+
+            <CardContent className="space-y-4">
+              {/* Item Details */}
+              <div className="space-y-2 text-sm">
+                {item.modelUrl && (
+                  <div className="flex items-center gap-2 text-muted-foreground">
+                    <Box className="h-4 w-4" />
+                    <span>3D Model included</span>
+                  </div>
+                )}
+                {item.externalLink && (
+                  <div className="flex items-center gap-2 text-muted-foreground">
+                    <ExternalLink className="h-4 w-4" />
+                    <span>External link included</span>
+                  </div>
+                )}
+                <div className="flex items-center gap-2 text-muted-foreground">
+                  <Calendar className="h-4 w-4" />
+                  <span>
+                    {format(new Date(item.startDate), "MMM dd")} -{" "}
+                    {format(new Date(item.endDate), "MMM dd, yyyy")}
+                  </span>
+                </div>
+              </div>
+
+              {/* Actions */}
+              <div className="flex gap-2 pt-2">
+                <Button size="sm" variant="outline" onClick={() => handleViewQR(item)} className="gap-1 flex-1">
+                  <QrCode className="h-4 w-4" />
+                  View QR
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => {
+                    if (confirm("Are you sure you want to delete this QR item?")) {
+                      deleteQRItem.mutate({ id: item.id })
+                    }
+                  }}
+                  disabled={deleteQRItem.isLoading}
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+        {qrItems.data?.length === 0 && !qrItems.isLoading && (
+          <div className="col-span-full">
+            <Card className="p-12 text-center">
+              <QrCode className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+              <h3 className="text-lg font-medium mb-2">No QR Items Yet</h3>
+              <p className="text-muted-foreground mb-4">Create your first QR item to get started</p>
+
+            </Card>
+          </div>
+        )}
+      </div>
+
+      {/* QR Code Modal */}
+      {selectedQRItem && (
+        <QRCodeModal
+          isOpen={isQRModalOpen}
+          onClose={() => {
+            setIsQRModalOpen(false)
+            setSelectedQRItem(null)
+          }}
+          qrItem={selectedQRItem}
+        />
+      )}
+    </>
+
   )
 }
 

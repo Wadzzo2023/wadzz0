@@ -134,6 +134,7 @@
     "tailwind-scrollbar-hide": "^1.1.7",
     "tailwindcss-animate": "^1.0.7",
     "three": "^0.169.0",
+    "three-stdlib": "^2.36.0",
     "tinymce": "^7",
     "ts-pattern": "^5.2.0",
     "use-places-autocomplete": "^4.0.1",
