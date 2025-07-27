@@ -308,6 +308,8 @@ model User {
     BountyWinner BountyWinner[]
 
     RedeemConsumer RedeemConsumer[]
+
+    QRItem QRItem[]
 }
 
 model VerificationToken {
@@ -726,4 +728,38 @@ model RedeemConsumer {
     code       String
     redeemCode Redeem   @relation(fields: [code], references: [code], onDelete: Cascade)
     redeemedAt DateTime @default(now())
+}
+
+model QRItem {
+    id           String   @id @default(cuid())
+    title        String
+    modelUrl     String
+    externalLink String?
+    startDate    DateTime
+    endDate      DateTime
+    qrCode       String   @db.Text
+    isActive     Boolean  @default(true)
+    creatorId    String
+    createdAt    DateTime @default(now())
+    updatedAt    DateTime @updatedAt
+
+    // Relations
+    creator      User            @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+    descriptions QRDescription[]
+
+    @@unique([id, creatorId])
+}
+
+model QRDescription {
+    id       String @id @default(cuid())
+    title    String @db.VarChar(50)
+    content  String @db.Text
+    order    Int
+    qrItemId String
+
+    // Relations
+    qrItem QRItem @relation(fields: [qrItemId], references: [id], onDelete: Cascade)
+
+    @@unique([qrItemId, order]) // Ensure unique order per QR item
+    @@index([qrItemId, order])
 }

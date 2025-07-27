@@ -19,6 +19,7 @@ const Model = ({ url, setLoadingProgress }: { url: string; setLoadingProgress: (
                 const box = new THREE.Box3().setFromObject(object);
                 const center = box.getCenter(new THREE.Vector3());
                 object.position.sub(center);
+                object.position.sub(center);
                 object.scale.set(2, 2, 2);
                 object.position.set(0, 0, 0);
                 setModel(object);

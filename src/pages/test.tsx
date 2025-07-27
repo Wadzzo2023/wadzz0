@@ -41,6 +41,9 @@ export function UploadS3Button({
   onUploadError,
   disabled,
   type,
+  id,
+  variant = "button",
+
 }: {
   endpoint: EndPointType;
   onUploadProgress?: (p: number) => void;
@@ -49,6 +52,9 @@ export function UploadS3Button({
   onUploadError?: (error: Error) => void;
   disabled?: boolean;
   type?: "profile" | "cover";
+  id?: string;
+  variant?: "button" | "input" | 'hidden'
+
 }) {
   const [progress, setProgress] = useState(0);
   const [file, setFile] = useState<File>();
@@ -103,7 +109,8 @@ export function UploadS3Button({
     const file = event.target.files?.[0];
 
     if (file) {
-      const isOBJFile = file.name.endsWith(".obj") && file.type === "";
+      console.log("Selected file:", file);
+      const isOBJFile = file.name.endsWith(".obj") && file.type === "model/obj";
       const fileType = isOBJFile ? ".obj" : file.type;
 
       let targetFile = file;
@@ -134,7 +141,7 @@ export function UploadS3Button({
       <Button
         variant="default"
         type="button"
-        className="w-full bg-blue-600 hover:bg-blue-700"
+        className={`w-full bg-blue-600 hover:bg-blue-700 ${variant === 'hidden' ? 'hidden' : ''}`}
         disabled={disabled ?? loading}
         onClick={() => document.getElementById(`file-upload-${type}`)?.click()}
       >
@@ -146,20 +153,22 @@ export function UploadS3Button({
         {loading ? 'Uploading...' : 'Add Media'}
       </Button>
       <input
-        id={`file-upload-${type}`}
+        id={id ? id : `file-upload-${type}`}
         type="file"
         accept={getAcceptString(endpoint)}
         disabled={disabled ?? loading}
         className="hidden"
         onChange={handleFileChange}
       />
-      {loading && (
-        <Progress
-          value={progress}
-          className="h-1 w-full"
-        />
-      )}
-    </div>
+      {
+        loading && (
+          <Progress
+            value={progress}
+            className="h-1 w-full"
+          />
+        )
+      }
+    </div >
   );
 
 
