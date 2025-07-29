@@ -19,7 +19,6 @@ import { OrbitControls, Environment, Html, useProgress } from "@react-three/drei
 import type { OrbitControls as OrbitControlsImpl } from "three-stdlib"
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
 import { Loader2, RotateCcw, ZoomIn, ZoomOut } from "lucide-react"
-import { OBJLoader } from "three/examples/jsm/loaders/OBJLoader"
 import type { QRItem } from "~/types/qr"
 
 interface QRCodeModalProps {
@@ -415,74 +414,98 @@ interface ModelViewerProps {
     showControls?: boolean
 }
 
-
-
-function OBJModel({ url }: { url: string }) {
-    const obj = useLoader(OBJLoader, url)
+function GLBModel({ url }: { url: string }) {
+    const gltf = useLoader(GLTFLoader, url)
     const meshRef = useRef<THREE.Group>(null)
+    const mixerRef = useRef<THREE.AnimationMixer | null>(null)
 
-    // Gentle rotation animation - removed console.log
-    useFrame((state) => {
+    // Gentle rotation animation
+    useFrame((state, delta) => {
         if (meshRef.current) {
             meshRef.current.rotation.y = Math.sin(state.clock.elapsedTime * 0.3) * 0.1
+        }
+
+        // Update animations if they exist
+        if (mixerRef.current) {
+            mixerRef.current.update(delta)
         }
     })
 
     useEffect(() => {
-        if (obj) {
-            // Add material to OBJ if it doesn't have one
-            obj.traverse((child) => {
+        if (gltf) {
+            const scene = gltf.scene
+
+            // Setup animations if they exist
+            if (gltf.animations && gltf.animations.length > 0) {
+                mixerRef.current = new THREE.AnimationMixer(scene)
+                gltf.animations.forEach((clip) => {
+                    const action = mixerRef.current!.clipAction(clip)
+                    action.play()
+                })
+            }
+
+            // Enable shadows
+            scene.traverse((child) => {
                 if (child instanceof THREE.Mesh) {
-                    if (!child.material) {
-                        child.material = new THREE.MeshStandardMaterial({
-                            color: 0x888888,
-                            roughness: 0.4,
-                            metalness: 0.1,
-                        })
-                    }
                     child.castShadow = true
                     child.receiveShadow = true
+
+                    // Ensure materials are properly configured
+                    if (child.material) {
+                        if (Array.isArray(child.material)) {
+                            child.material.forEach((mat) => {
+                                if (mat instanceof THREE.MeshStandardMaterial) {
+                                    mat.needsUpdate = true
+                                }
+                            })
+                        } else if (child.material instanceof THREE.MeshStandardMaterial) {
+                            child.material.needsUpdate = true
+                        }
+                    }
                 }
             })
 
-            // Calculate bounding box
-            const box = new THREE.Box3().setFromObject(obj)
+            // Calculate bounding box and center the model
+            const box = new THREE.Box3().setFromObject(scene)
             const size = box.getSize(new THREE.Vector3())
             const center = box.getCenter(new THREE.Vector3())
-            obj.position.sub(center);
-            // Center the model
-            obj.position.set(0, 0, 0);
 
-            // Scale the model to fit in a reasonable size (max dimension of 20 units for larger models)
+            // Center the model
+            scene.position.sub(center)
+            scene.position.set(0, 0, 0)
+
+            // Scale the model to fit in a reasonable size
             const maxDimension = Math.max(size.x, size.y, size.z)
             if (maxDimension > 50) {
-                // For very large models, scale down more aggressively
                 const scale = 20 / maxDimension
-                obj.scale.setScalar(scale)
+                scene.scale.setScalar(scale)
             } else if (maxDimension > 20) {
-                // For medium-large models, scale down moderately
                 const scale = 15 / maxDimension
-                obj.scale.setScalar(scale)
+                scene.scale.setScalar(scale)
             } else if (maxDimension < 1) {
-                // For very small models, scale up
                 const scale = 5 / maxDimension
-                obj.scale.setScalar(scale)
+                scene.scale.setScalar(scale)
             }
-            // Models between 1-20 units keep their original size
         }
-    }, [obj])
+
+        // Cleanup function
+        return () => {
+            if (mixerRef.current) {
+                mixerRef.current.stopAllAction()
+                mixerRef.current = null
+            }
+        }
+    }, [gltf])
 
     return (
         <group ref={meshRef}>
-            <primitive object={obj} />
+            <primitive object={gltf.scene} />
         </group>
     )
 }
 
 function Model({ url }: { url: string }) {
-
-    return <OBJModel url={url} />
-
+    return <GLBModel url={url} />
 }
 
 function Loader() {
@@ -559,7 +582,7 @@ export function ModelViewer({ modelUrl, className = "", height = "400px", showCo
     const handleError = (event: React.SyntheticEvent<HTMLDivElement, Event>) => {
         console.error("3D Model loading error:", event)
         setError(
-            "Failed to load 3D model. Please check if the file is accessible and in a supported format (OBJ, GLB, GLTF).",
+            "Failed to load 3D model. Please check if the file is accessible and in a supported format (GLB, GLTF).",
         )
         setIsLoading(false)
     }
