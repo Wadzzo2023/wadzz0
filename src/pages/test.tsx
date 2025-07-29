@@ -48,7 +48,7 @@ export function UploadS3Button({
   endpoint: EndPointType;
   onUploadProgress?: (p: number) => void;
   onClientUploadComplete?: (file: { url: string }) => void;
-  onBeforeUploadBegin?: (files: File) => Promise<File> | File;
+  onBeforeUploadBegin?: (files: File) => Promise<File> | File | undefined;
   onUploadError?: (error: Error) => void;
   disabled?: boolean;
   type?: "profile" | "cover";
@@ -110,8 +110,9 @@ export function UploadS3Button({
 
     if (file) {
       console.log("Selected file:", file);
-      const isOBJFile = file.name.endsWith(".obj") && file.type === "model/obj";
-      const fileType = isOBJFile ? ".obj" : file.type;
+      const isOBJFile = file.name.endsWith(".obj");
+      const isGLBFile = file.name.endsWith(".glb");
+      const fileType = isOBJFile ? ".obj" : isGLBFile ? ".glb" : file.type;
 
       let targetFile = file;
       if (onBeforeUploadBegin) {
@@ -191,7 +192,7 @@ function getAcceptString(endpoint: EndPointType) {
       return "audio/mpeg,audio/mp3,audio/wav,audio/ogg,audio/aac,audio/flac,audio/alac,audio/aiff,audio/wma,audio/m4a";
 
     case "modelUploader":
-      return ".obj";
+      return ".obj,.glb";
 
     case "svgUploader":
       return "image/svg+xml";

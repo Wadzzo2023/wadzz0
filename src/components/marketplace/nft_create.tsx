@@ -1616,7 +1616,7 @@ const QrCodeCreate = ({
 
       {/* 3D Model Upload */}
       <div className="space-y-2">
-        <Label>3D Model *</Label>
+        <Label>3D Model * (GLB)</Label>
         <div className="flex items-center gap-4">
           <Button
             type="button"
@@ -1639,6 +1639,13 @@ const QrCodeCreate = ({
           id="qr-model-upload"
           variant="hidden"
           endpoint="modelUploader"
+          onBeforeUploadBegin={(file) => {
+            if (!file.name.endsWith(".glb")) {
+              toast.error("Invalid file type. Please upload a .glb file.")
+              return undefined
+            }
+            return file
+          }}
           onClientUploadComplete={(file) => {
             if (!file) {
               toast.error("No file uploaded")
