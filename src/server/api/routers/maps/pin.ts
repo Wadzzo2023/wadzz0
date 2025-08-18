@@ -339,7 +339,7 @@ export const pinRouter = createTRPCRouter({
       ? {
         endDate: {
           lte: new Date(),
-        }
+        },
       } // No date filter when showing all pins
       : { endDate: { gte: new Date() } }; // Only active pins
 
@@ -349,6 +349,7 @@ export const pinRouter = createTRPCRouter({
           creatorId: ctx.session.user.id,
           ...dateCondition,
           OR: [{ approved: true }, { approved: null }],
+          hidden: false,
         },
       },
       include: {
@@ -404,7 +405,7 @@ export const pinRouter = createTRPCRouter({
         ? {
           endDate: {
             lte: new Date(),
-          }
+          },
         } // No date filter when showing all pins
         : { endDate: { gte: new Date() } }; // Only active pins
 
@@ -499,7 +500,7 @@ export const pinRouter = createTRPCRouter({
 
   getLocationGroups: adminProcedure.query(async ({ ctx, input }) => {
     const locationGroups = await ctx.db.locationGroup.findMany({
-      where: { approved: { equals: null }, endDate: { gte: new Date() } },
+      where: { approved: { equals: null }, endDate: { gte: new Date() }, hidden: false },
       include: {
         creator: { select: { name: true, id: true } },
         locations: true,
@@ -511,7 +512,7 @@ export const pinRouter = createTRPCRouter({
   }),
   getApprovedLocationGroups: adminProcedure.query(async ({ ctx, input }) => {
     const locationGroups = await ctx.db.locationGroup.findMany({
-      where: { approved: { equals: true }, endDate: { gte: new Date() } },
+      where: { approved: { equals: true }, endDate: { gte: new Date() }, hidden: false },
       include: {
         creator: { select: { name: true, id: true } },
         locations: true,
@@ -599,7 +600,9 @@ export const pinRouter = createTRPCRouter({
           creatorId,
           createdAt: input?.day
             ? {
-              gte: new Date(new Date().getTime() - input.day * 24 * 60 * 60 * 1000),
+              gte: new Date(
+                new Date().getTime() - input.day * 24 * 60 * 60 * 1000,
+              ),
             }
             : {},
         },
@@ -690,6 +693,7 @@ export const pinRouter = createTRPCRouter({
     const locatoinGroups = await ctx.db.locationGroup.findMany({
       where: {
         creatorId,
+        hidden: false,
       },
       include: {
         locations: {
@@ -943,11 +947,12 @@ export const pinRouter = createTRPCRouter({
   deletePin: protectedProcedure
     .input(z.object({ id: z.string() }))
     .mutation(async ({ ctx, input }) => {
-      const items = await ctx.db.location.delete({
+      const items = await ctx.db.location.update({
         where: {
           id: input.id,
           locationGroup: { creatorId: ctx.session.user.id },
         },
+        data: { hidden: true },
       });
       return {
         item: items.id,
@@ -956,11 +961,12 @@ export const pinRouter = createTRPCRouter({
   deletePinForAdmin: protectedProcedure
     .input(z.object({ id: z.string() }))
     .mutation(async ({ ctx, input }) => {
-      const items = await ctx.db.location.delete({
+      const items = await ctx.db.location.update({
         where: {
           id: input.id,
 
         },
+        data: { hidden: true },
       });
       return {
         item: items.id,
@@ -969,11 +975,12 @@ export const pinRouter = createTRPCRouter({
   deleteLocationGroupForAdmin: protectedProcedure
     .input(z.object({ id: z.string() }))
     .mutation(async ({ ctx, input }) => {
-      const items = await ctx.db.locationGroup.delete({
+      const items = await ctx.db.locationGroup.update({
         where: {
           id: input.id,
 
         },
+        data: { hidden: true },
       });
       return {
         item: items.id,
@@ -983,11 +990,12 @@ export const pinRouter = createTRPCRouter({
   deleteLocationGroup: protectedProcedure
     .input(z.object({ id: z.string() }))
     .mutation(async ({ ctx, input }) => {
-      const items = await ctx.db.locationGroup.delete({
+      const items = await ctx.db.locationGroup.update({
         where: {
           id: input.id,
           creatorId: ctx.session.user.id,
         },
+        data: { hidden: true },
       });
       return {
         item: items.id,
