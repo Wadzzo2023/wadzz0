@@ -14,6 +14,7 @@ import { api } from "~/utils/api";
 import AdminPinConsumptionReport from "./maps/pins/admin";
 import AdminMap from "~/components/admin/map/admin-map";
 import Pins from "~/components/admin/pins/list";
+import MarketAssetAdmin from "~/components/admin-market-asset";
 
 export default function AdminPage() {
   return <IsAdmin />;
@@ -77,6 +78,9 @@ function RenderTabs() {
 
     case AdminNavigation.BOUNTY:
       return <Bounty />;
+
+    case AdminNavigation.MARKET_ASSET:
+      return <MarketAssetAdmin />;
   }
 }
 

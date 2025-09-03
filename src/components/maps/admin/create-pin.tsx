@@ -106,15 +106,13 @@ export default function CreateAdminPinModal() {
       pinNumber: 1,
       description: prevData?.description,
       creatorId: selectedCreator?.id,
-      autoCollect: false,
       // startDate: new Date(),
       // endDate: new Date(),
     },
     // mode: "onTouched",
   })
   const tokenAmount = watch("pinCollectionLimit")
-  const autoCollect = watch("autoCollect");
-  const multiPin = watch("multiPin");
+
   // query
   const assets = api.fan.asset.getCreatorPageAsset.useQuery({
     creatorId: selectedCreator?.id ?? "",
@@ -569,27 +567,15 @@ export default function CreateAdminPinModal() {
                         {errors.endDate && <p className="text-red-500">{errors.endDate.message}</p>}
                       </div>
                       <div className="flex items-center space-x-2">
-                        <input
-                          type="checkbox"
-                          id="autoCollect"
-                          {...register("autoCollect")}
-                          className="checkbox"
-                          disabled={multiPin} // Disable if multiPin is selected
-                        />
+                        <input type="checkbox" id="autoCollect" {...register("autoCollect")} className="checkbox" />
                         <label htmlFor="autoCollect" className="text-sm">
                           Auto Collect
                         </label>
                       </div>
 
                       <div className="flex items-center space-x-2">
-                        <input
-                          type="checkbox"
-                          id="multiPin"
-                          {...register("multiPin")}
-                          className="checkbox"
-                          disabled={autoCollect} // Disable if autoCollect is selected
-                        />
-                        <label htmlFor="multiPin" className="text-sm">
+                        <input type="checkbox" id="multiPin" {...register("multiPin")} className="checkbox" />
+                        <label htmlFor="autoCollect" className="text-sm">
                           Multi Pin
                         </label>
                       </div>
@@ -665,3 +651,4 @@ export default function CreateAdminPinModal() {
       )
   }
 }
+

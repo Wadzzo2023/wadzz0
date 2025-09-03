@@ -817,4 +817,59 @@ export const marketRouter = createTRPCRouter({
         }
       }
     }),
+  getAllAssets: protectedProcedure.input(z.object({
+    limit: z.number().min(1).default(100),
+    search: z.string(),
+    sortBy: z.enum(["newest", "oldest", "name"]).default("newest"),
+    cursor: z.string().nullish(),
+  }))
+    .query(async ({ ctx, input }) => {
+      const { limit, search, sortBy, cursor } = input;
+
+      const allAssets = await ctx.db.marketAsset.findMany({
+        take: limit,
+        where: {
+          asset: {
+            name: {
+              contains: search,
+              mode: "insensitive",
+            },
+          },
+
+        },
+        include: {
+          asset: {
+            select: {
+              ...AssetSelectAllProperty
+            }
+          }
+        },
+        orderBy: {
+          createdAt: sortBy === "newest" ? "desc" : "asc",
+        },
+      });
+      let nextCursor: typeof cursor | undefined = undefined
+      if (allAssets.length > limit) {
+        const nextItem = allAssets.pop(); // return the last item from the array
+        nextCursor = nextItem?.id.toString();
+      }
+      return {
+        assets: allAssets,
+        nextCursor,
+      };
+    }),
+  deleteMarketAssetById: protectedProcedure
+    .input(z.object({
+      marketId: z.number()
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const { marketId } = input;
+
+
+      await ctx.db.marketAsset.deleteMany({
+        where: {
+          id: marketId
+        }
+      });
+    }),
 });

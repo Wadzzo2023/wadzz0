@@ -201,9 +201,7 @@ export default function AssetInfoModal() {
                       </Button>
                     )
                   )}
-                  <DeleteAssetByAdmin assetId={data.MyAsset.id}
-                    handleClose={handleClose}
-                  />
+
                 </CardFooter>
               </Card>
 

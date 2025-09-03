@@ -30,6 +30,13 @@ enum MediaType {
 }
 
 // ------------------------NOTIFICATION SCHEMA-------------------------
+enum PinType {
+    EVENT
+    BOUNTY
+    EXPERIENCE
+    LAUNCH
+    OTHER
+}
 
 enum NotificationType {
     LIKE
@@ -210,6 +217,7 @@ model Creator {
     Album              Album[]
     Song               Song[]
     SellPageAsset      SellPageAsset[]
+    createdAt          DateTime            @default(now())
 
     @@index([bio, name])
 }
@@ -432,8 +440,9 @@ model MarketAsset {
 
     placedAt DateTime @default(now())
 
-    placerId String? // admin placing this assets
-    placer   Creator? @relation(fields: [placerId], references: [id], onDelete: Cascade)
+    placerId  String? // admin placing this assets
+    placer    Creator? @relation(fields: [placerId], references: [id], onDelete: Cascade)
+    createdAt DateTime @default(now())
 
     @@unique([assetId, placerId])
 }
@@ -522,9 +531,9 @@ model LocationGroup {
 
     creatorId String
     creator   Creator @relation(fields: [creatorId], references: [id], onDelete: Cascade)
-
-    limit     Int @default(0)
-    remaining Int @default(0)
+    hidden    Boolean @default(false)
+    limit     Int     @default(0)
+    remaining Int     @default(0)
 
     title       String
     description String?
@@ -543,6 +552,7 @@ model LocationGroup {
     aiUrlDescriptions String[] @default([])
 
     multiPin Boolean @default(false)
+    type     PinType @default(OTHER) // Added new type field
 
     locations Location[]
 }
@@ -550,9 +560,9 @@ model LocationGroup {
 model Location {
     id String @id @default(cuid())
 
-    latitude  Float
-    longitude Float
-
+    latitude    Float
+    longitude   Float
+    hidden      Boolean @default(false)
     autoCollect Boolean
 
     locationGroupId String?
