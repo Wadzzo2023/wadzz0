@@ -72,8 +72,7 @@ export const EXAMPLE_QUERIES_AND_RESPONSES = {
         },
         {
           title: "New York Philharmonic in the Park",
-          description:
-            "Annual free concert by the NY Philharmonic on the Great Lawn. A beloved NYC summer tradition!",
+          description: "Annual free concert by the NY Philharmonic on the Great Lawn. A beloved NYC summer tradition!",
           latitude: 40.7829,
           longitude: -73.9654,
           startDate: "2025-08-10T20:00:00Z",
@@ -108,8 +107,7 @@ export const EXAMPLE_QUERIES_AND_RESPONSES = {
         },
         {
           title: "Brooklyn Night Bazaar",
-          description:
-            "Food, shopping, and live music all in one place. Featuring local food vendors and artisans.",
+          description: "Food, shopping, and live music all in one place. Featuring local food vendors and artisans.",
           latitude: 40.7128,
           longitude: -73.9494,
           startDate: "2025-10-18T18:00:00Z",
@@ -134,7 +132,7 @@ export const EXAMPLE_QUERIES_AND_RESPONSES = {
       ],
     },
   },
-};
+}
 
 /**
  * Template for AI to follow when generating events
@@ -165,4 +163,4 @@ Rules:
 - Dates must be in future (after October 13, 2025)
 - All fields are required except url and image (optional)
 - Keep descriptions concise but informative
-`;
+`

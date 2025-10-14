@@ -9,7 +9,7 @@ import { motion } from "framer-motion";
 
 import { ClipboardList, Clock, MapPin, Minus, Plus } from "lucide-react";
 import Image from "next/image";
-import React, { memo, useEffect, useState } from "react";
+import React, { memo, use, useEffect, useState } from "react";
 import { Loading } from "react-daisyui";
 import CreatePinModal from "~/components/maps/modals/create-pin";
 import { CustomMapControl } from "~/components/maps/search/map-control";
@@ -33,10 +33,10 @@ import { Switch } from "~/components/shadcn/ui/switch";
 
 type Pin = {
   locationGroup:
-    | (LocationGroup & {
-        creator: { profileUrl: string | null };
-      })
-    | null;
+  | (LocationGroup & {
+    creator: { profileUrl: string | null };
+  })
+  | null;
   _count: {
     consumers: number;
   };
@@ -59,7 +59,7 @@ const useNearbyPinsStore = create<NearbyPinsState>((set, get) => ({
     if (
       pins.length !== currentPins.length ||
       pins.map((pin) => pin.id).join(",") !==
-        currentPins.map((pin) => pin.id).join(",")
+      currentPins.map((pin) => pin.id).join(",")
     ) {
       set({ allPins: pins });
     }
@@ -77,7 +77,7 @@ const useNearbyPinsStore = create<NearbyPinsState>((set, get) => ({
     if (
       filtered.length !== nearbyPins.length ||
       filtered.map((pin) => pin.id).join(",") !==
-        nearbyPins.map((pin) => pin.id).join(",")
+      nearbyPins.map((pin) => pin.id).join(",")
     ) {
       set({ nearbyPins: filtered });
     }
@@ -98,6 +98,7 @@ export type IPin = {
   url?: string;
   image?: string;
   token?: number;
+  radius?: number;
 };
 
 interface IMapPinModal {
@@ -253,6 +254,15 @@ function App() {
       filterNearbyPins(centerChanged);
     }
   };
+
+  // position has value
+  useEffect(() => {
+    if (position) {
+      setMapCenter(position);
+      setMapZoom(14);
+    }
+  }, [position]);
+
   useEffect(() => {
     // Check if geolocation is supported
     if (!navigator.geolocation) {
@@ -609,9 +619,8 @@ const MyPins = memo(function MyPins({
               width={30}
               height={30}
               alt="Creator"
-              className={`h-10 w-10  ${
-                !pin.autoCollect ? "rounded-full " : ""
-              } ${pin.locationGroup?.remaining && pin.locationGroup.remaining <= 0 ? "opacity-50" : "opacity-100"} ${pin.locationGroup?.approved === null ? "bg-slate-500 opacity-70" : "bg-white"}  `}
+              className={`h-10 w-10  ${!pin.autoCollect ? "rounded-full " : ""
+                } ${pin.locationGroup?.remaining && pin.locationGroup.remaining <= 0 ? "opacity-50" : "opacity-100"} ${pin.locationGroup?.approved === null ? "bg-slate-500 opacity-70" : "bg-white"}  `}
             />
           </AdvancedMarker>
         ))}

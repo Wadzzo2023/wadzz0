@@ -1,12 +1,8 @@
 /* eslint-disable  */
-import { z } from "zod";
-import { env } from "~/env";
-import {
-  createTRPCRouter,
-  publicProcedure,
-  protectedProcedure,
-} from "~/server/api/trpc";
-import { handleAgentChat } from "~/lib/agent";
+import { z } from "zod"
+import { env } from "~/env"
+import { createTRPCRouter, publicProcedure, protectedProcedure } from "~/server/api/trpc"
+import { handleAgentChat } from "~/lib/agent"
 
 export const agentRouter = createTRPCRouter({
   chat: publicProcedure
@@ -26,26 +22,21 @@ export const agentRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       try {
         // Use the agent handler from lib/agent
-        const result = await handleAgentChat(
-          env.OPENAI_API_KEY,
-          input.message,
-          input.conversationHistory ?? [],
-        );
+        const result = await handleAgentChat(env.OPENAI_API_KEY, input.message, input.conversationHistory ?? [])
 
         return {
           message: result.message,
           events: result.events,
           type: result.type,
           success: true,
-        };
+        }
       } catch (error) {
-        console.error("OpenAI API error:", error);
+        console.error("OpenAI API error:", error)
         return {
-          message:
-            "Sorry, I'm having trouble connecting right now. Please try again later.",
+          message: "Sorry, I'm having trouble connecting right now. Please try again later.",
           success: false,
           type: "text" as const,
-        };
+        }
       }
     }),
 
@@ -67,11 +58,7 @@ export const agentRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       try {
         // Use the agent handler from lib/agent
-        const result = await handleAgentChat(
-          env.OPENAI_API_KEY,
-          input.message,
-          input.conversationHistory ?? [],
-        );
+        const result = await handleAgentChat(env.OPENAI_API_KEY, input.message, input.conversationHistory ?? [])
 
         return {
           message: result.message,
@@ -79,15 +66,14 @@ export const agentRouter = createTRPCRouter({
           type: result.type,
           success: true,
           userName: ctx.session.user.name,
-        };
+        }
       } catch (error) {
-        console.error("OpenAI API error:", error);
+        console.error("OpenAI API error:", error)
         return {
-          message:
-            "Sorry, I'm having trouble connecting right now. Please try again later.",
+          message: "Sorry, I'm having trouble connecting right now. Please try again later.",
           success: false,
           type: "text" as const,
-        };
+        }
       }
     }),
-});
+})

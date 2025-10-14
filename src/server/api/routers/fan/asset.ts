@@ -362,7 +362,7 @@ export const shopRouter = createTRPCRouter({
 
       return await ctx.db.sellPageAsset.create({
         data: {
-          title,
+          title: title ?? "",
           description,
           amountToSell,
           price,

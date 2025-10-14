@@ -78,6 +78,7 @@ export default function CreatePinModal() {
 
   const { manual, position, duplicate, isOpen, setIsOpen, prevData } =
     useMapModalStore();
+  console.log("prevData", prevData);
   const [coverUrl, setCover] = useState<string>();
   const [selectedToken, setSelectedToken] = useState<
     AssetType & { bal: number }
@@ -106,8 +107,9 @@ export default function CreatePinModal() {
       pinNumber: 1,
       description: prevData?.description,
       autoCollect: false,
-      // startDate: new Date(),
-      // endDate: new Date(),
+      title: prevData?.title,
+      startDate: new Date(),
+      endDate: new Date(new Date().setDate(new Date().getDate() + 7)),
     },
     // mode: "onTouched",
   });
@@ -324,6 +326,51 @@ export default function CreatePinModal() {
         }
       }
     }
+    else if (prevData) {
+      if (prevData.title) {
+        setValue("title", prevData.title);
+      }
+      if (prevData.radius) {
+        setValue("radius", prevData.radius);
+      }
+      if (prevData.description) {
+        setValue("description", prevData.description);
+      }
+      if (prevData.image) {
+        setCover(prevData.image);
+      }
+      if (prevData.startDate) {
+        setValue("startDate", prevData.startDate);
+      }
+      if (prevData.endDate) {
+        setValue("endDate", prevData.endDate);
+      }
+      if (prevData.url) {
+        setValue("url", prevData.url);
+      }
+      if (prevData.autoCollect) {
+        setValue("autoCollect", prevData.autoCollect);
+      }
+      if (prevData.pinCollectionLimit) {
+        setValue("pinCollectionLimit", prevData.pinCollectionLimit);
+      }
+      if (prevData.token) {
+        handleTokenOptionChange({
+          target: { value: prevData.token.toString() },
+        } as ChangeEvent<HTMLSelectElement>);
+      }
+
+      if (prevData.tier) {
+        setValue("tier", prevData.tier);
+      }
+      if (prevData.image) {
+        setCover(prevData.image);
+      }
+
+      if (prevData.pinNumber) {
+        setValue("pinNumber", prevData.pinNumber);
+      }
+    }
 
     if (position) {
       setValue("lat", position.lat);
@@ -500,7 +547,7 @@ export default function CreatePinModal() {
                     {/* {uploading && <progress className="progress w-56"></progress>} */}
                     {coverUrl && (
                       <>
-                        <Image
+                        <img
                           className="p-2"
                           width={120}
                           height={120}
@@ -532,29 +579,45 @@ export default function CreatePinModal() {
                     <label htmlFor="startDate" className="text-sm font-medium">
                       Start Date
                     </label>
-                    <input
-                      type="date"
-                      id="startDate"
-                      {...register("startDate", { valueAsDate: true })}
-                      className="input input-bordered"
+                    <Controller
+                      name="startDate"
+                      control={control}
+                      render={({ field }) => (
+                        <input
+                          type="date"
+                          id="startDate"
+                          className="input input-bordered"
+                          value={field.value instanceof Date ? field.value.toISOString().split("T")[0] : ""}
+                          onChange={(e) => {
+                            const date = e.target.value ? new Date(e.target.value) : new Date()
+                            field.onChange(date)
+                          }}
+                        />
+                      )}
                     />
-                    {errors.startDate && (
-                      <p className="text-red-500">{errors.startDate.message}</p>
-                    )}
+                    {errors.startDate && <p className="text-red-500">{errors.startDate.message}</p>}
                   </div>
                   <div className="flex flex-col space-y-2">
                     <label htmlFor="endDate" className="text-sm font-medium">
                       End Date
                     </label>
-                    <input
-                      type="date"
-                      id="endDate"
-                      {...register("endDate", { valueAsDate: true })}
-                      className="input input-bordered"
+                    <Controller
+                      name="endDate"
+                      control={control}
+                      render={({ field }) => (
+                        <input
+                          type="date"
+                          id="endDate"
+                          className="input input-bordered"
+                          value={field.value instanceof Date ? field.value.toISOString().split("T")[0] : ""}
+                          onChange={(e) => {
+                            const date = e.target.value ? new Date(e.target.value) : new Date()
+                            field.onChange(date)
+                          }}
+                        />
+                      )}
                     />
-                    {errors.endDate && (
-                      <p className="text-red-500">{errors.endDate.message}</p>
-                    )}
+                    {errors.endDate && <p className="text-red-500">{errors.endDate.message}</p>}
                   </div>
                   <div className="flex items-center space-x-2">
                     <input
