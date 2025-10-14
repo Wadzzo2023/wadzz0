@@ -2,13 +2,11 @@ import { Location, LocationGroup } from "@prisma/client";
 import {
   APIProvider,
   AdvancedMarker,
-  ControlPosition,
   Map,
   MapMouseEvent,
 } from "@vis.gl/react-google-maps";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 
-import { format, set } from "date-fns";
 import { ClipboardList, Clock, MapPin, Minus, Plus } from "lucide-react";
 import Image from "next/image";
 import React, { memo, useEffect, useState } from "react";
@@ -26,19 +24,19 @@ import { useSelectedAutoSuggestion } from "~/lib/state/play/use-selectedAutoSugg
 import { useCreatorStorageAcc } from "~/lib/state/wallete/stellar-balances";
 import { api } from "~/utils/api";
 
-import { create } from "zustand";
-import toast from "react-hot-toast";
 import Link from "next/link";
+import { create } from "zustand";
+import AgentChat from "~/components/AgentChat";
 import { Button } from "~/components/shadcn/ui/button";
 import { Label } from "~/components/shadcn/ui/label";
 import { Switch } from "~/components/shadcn/ui/switch";
 
 type Pin = {
   locationGroup:
-  | (LocationGroup & {
-    creator: { profileUrl: string | null };
-  })
-  | null;
+    | (LocationGroup & {
+        creator: { profileUrl: string | null };
+      })
+    | null;
   _count: {
     consumers: number;
   };
@@ -58,8 +56,10 @@ const useNearbyPinsStore = create<NearbyPinsState>((set, get) => ({
   setNearbyPins: (pins: Pin[]) => set({ nearbyPins: pins }),
   setAllPins: (pins: Pin[]) => {
     const currentPins = get().allPins;
-    if (pins.length !== currentPins.length
-      || pins.map(pin => pin.id).join(",") !== currentPins.map(pin => pin.id).join(",")
+    if (
+      pins.length !== currentPins.length ||
+      pins.map((pin) => pin.id).join(",") !==
+        currentPins.map((pin) => pin.id).join(",")
     ) {
       set({ allPins: pins });
     }
@@ -74,8 +74,11 @@ const useNearbyPinsStore = create<NearbyPinsState>((set, get) => ({
         pin.longitude <= center.east,
     );
 
-    if (filtered.length !== nearbyPins.length ||
-      filtered.map(pin => pin.id).join(",") !== nearbyPins.map(pin => pin.id).join(",")) {
+    if (
+      filtered.length !== nearbyPins.length ||
+      filtered.map((pin) => pin.id).join(",") !==
+        nearbyPins.map((pin) => pin.id).join(",")
+    ) {
       set({ nearbyPins: filtered });
     }
   },
@@ -152,7 +155,7 @@ function App() {
   const [isCordsSearch, setIsCordsSearch] = useState<boolean>(false);
   const [searchCoordinates, setSearchCoordinates] =
     useState<google.maps.LatLngLiteral>();
-  const [showExpired, setShowExpired] = useState<boolean>(false)
+  const [showExpired, setShowExpired] = useState<boolean>(false);
 
   const [userLocation, setUserLocation] = useState<UserLocationType>({
     lat: 44.5,
@@ -222,7 +225,6 @@ function App() {
           pinNumber: data.pinNumber,
           link: data.link,
           assetId: data.assetId,
-
         });
       }
     }
@@ -367,10 +369,11 @@ function App() {
             </svg>
           </AdvancedMarker>
         )}
-        <MyPins onOpen={onOpen} setIsAutoCollect={setIsAutoCollect}
-
-          showExpired={showExpired} />
-
+        <MyPins
+          onOpen={onOpen}
+          setIsAutoCollect={setIsAutoCollect}
+          showExpired={showExpired}
+        />
       </Map>
       <div className="hidden md:block">
         <SideMapItem setAlreadySelectedPlace={setAlreadySelectedPlace} />
@@ -380,18 +383,17 @@ function App() {
         <ReportCollection />
       </div>
       <CreatePinModal />
+      <AgentChat />
     </APIProvider>
   );
 }
 
 const SideMapItem = memo(function SideMapItem({
   setAlreadySelectedPlace,
-
 }: {
-  setAlreadySelectedPlace: (coords: { lat: number; lng: number }) => void
-
+  setAlreadySelectedPlace: (coords: { lat: number; lng: number }) => void;
 }) {
-  const { nearbyPins } = useNearbyPinsStore()
+  const { nearbyPins } = useNearbyPinsStore();
 
   return (
     <div className="absolute bottom-4 right-4 top-60 flex max-h-[400px] min-h-[400px] w-80  items-center justify-center">
@@ -425,16 +427,18 @@ const SideMapItem = memo(function SideMapItem({
                       <span className=" absolute bottom-4 right-0 text-[.60rem]">
                         End At:
                         {pin.locationGroup &&
-                          new Date(pin.locationGroup.endDate).toLocaleString('en-US', {
-                            timeZone: 'America/Chicago', // CST timezone
-                            month: 'short',
-                            day: 'numeric',
-                            year: 'numeric',
-                            hour: 'numeric',
-                            minute: 'numeric',
-                            hour12: true
-                          })
-                        }
+                          new Date(pin.locationGroup.endDate).toLocaleString(
+                            "en-US",
+                            {
+                              timeZone: "America/Chicago", // CST timezone
+                              month: "short",
+                              day: "numeric",
+                              year: "numeric",
+                              hour: "numeric",
+                              minute: "numeric",
+                              hour12: true,
+                            },
+                          )}
                       </span>
                     </h3>
                     <div className="mt-1 flex items-center gap-1">
@@ -452,14 +456,14 @@ const SideMapItem = memo(function SideMapItem({
                     </div>
                   </div>
                 </div>
-              )
+              );
             })
           )}
         </div>
       </div>
     </div>
   );
-})
+});
 
 function ZoomControls({
   onZoomIn,
@@ -548,9 +552,9 @@ const MyPins = memo(function MyPins({
   setIsAutoCollect,
   showExpired,
 }: {
-  onOpen: (type: ModalType, data?: ModalData) => void
-  setIsAutoCollect: (value: boolean) => void
-  showExpired: boolean
+  onOpen: (type: ModalType, data?: ModalData) => void;
+  setIsAutoCollect: (value: boolean) => void;
+  showExpired: boolean;
 }) {
   const { setAllPins } = useNearbyPinsStore();
   const pins = api.maps.pin.getMyPins.useQuery({ showExpired });
@@ -605,23 +609,23 @@ const MyPins = memo(function MyPins({
               width={30}
               height={30}
               alt="Creator"
-              className={`h-10 w-10  ${!pin.autoCollect ? "rounded-full " : ""
-                } ${pin.locationGroup?.remaining && pin.locationGroup.remaining <= 0 ? "opacity-50" : "opacity-100"} ${pin.locationGroup?.approved === null ? "bg-slate-500 opacity-70" : "bg-white"}  `}
+              className={`h-10 w-10  ${
+                !pin.autoCollect ? "rounded-full " : ""
+              } ${pin.locationGroup?.remaining && pin.locationGroup.remaining <= 0 ? "opacity-50" : "opacity-100"} ${pin.locationGroup?.approved === null ? "bg-slate-500 opacity-70" : "bg-white"}  `}
             />
           </AdvancedMarker>
         ))}
       </>
     );
   }
-})
-
+});
 
 function PinToggle({
   showExpired,
   setShowExpired,
 }: {
-  showExpired: boolean
-  setShowExpired: (value: boolean) => void
+  showExpired: boolean;
+  setShowExpired: (value: boolean) => void;
 }) {
   return (
     <div className="absolute right-2 top-52 z-10 flex flex-col gap-2 rounded-lg bg-white p-3 shadow-lg md:right-4 md:top-40">
@@ -632,14 +636,19 @@ function PinToggle({
             Show Expired Pins
           </Label>
         </div>
-        <Switch id="pin-toggle" checked={showExpired} onCheckedChange={setShowExpired} />
+        <Switch
+          id="pin-toggle"
+          checked={showExpired}
+          onCheckedChange={setShowExpired}
+        />
       </div>
       <div className="text-xs text-gray-500">
-        {showExpired ? "Showing all pins including expired" : "Showing only active pins"}
+        {showExpired
+          ? "Showing all pins including expired"
+          : "Showing only active pins"}
       </div>
     </div>
-  )
+  );
 }
 
 export default App;
-

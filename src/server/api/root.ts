@@ -12,6 +12,7 @@ import { BountyRouters } from "./routers/bounty/root";
 import { s3Router } from "./routers/s3";
 import { widgetRouter } from "./routers/widget";
 import { qrRouter } from "./routers/qr";
+import { agentRouter } from "./routers/agent";
 
 /**
  * This is the primary router for your server.
@@ -31,7 +32,8 @@ export const appRouter = createTRPCRouter({
   bounty: BountyRouters,
   s3: s3Router,
   widget: widgetRouter,
-  qr: qrRouter
+  qr: qrRouter,
+  agent: agentRouter,
 });
 
 // export type definition of API
