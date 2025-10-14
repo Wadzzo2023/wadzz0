@@ -41,14 +41,20 @@ export function UploadS3Button({
   onUploadError,
   disabled,
   type,
+  id,
+  variant = "button",
+
 }: {
   endpoint: EndPointType;
   onUploadProgress?: (p: number) => void;
   onClientUploadComplete?: (file: { url: string }) => void;
-  onBeforeUploadBegin?: (files: File) => Promise<File> | File;
+  onBeforeUploadBegin?: (files: File) => Promise<File> | File | undefined;
   onUploadError?: (error: Error) => void;
   disabled?: boolean;
   type?: "profile" | "cover";
+  id?: string;
+  variant?: "button" | "input" | 'hidden'
+
 }) {
   const [progress, setProgress] = useState(0);
   const [file, setFile] = useState<File>();
@@ -103,8 +109,10 @@ export function UploadS3Button({
     const file = event.target.files?.[0];
 
     if (file) {
-      const isOBJFile = file.name.endsWith(".obj") && file.type === "";
-      const fileType = isOBJFile ? ".obj" : file.type;
+      console.log("Selected file:", file);
+      const isOBJFile = file.name.endsWith(".obj");
+      const isGLBFile = file.name.endsWith(".glb");
+      const fileType = isOBJFile ? ".obj" : isGLBFile ? ".glb" : file.type;
 
       let targetFile = file;
       if (onBeforeUploadBegin) {
@@ -134,7 +142,7 @@ export function UploadS3Button({
       <Button
         variant="default"
         type="button"
-        className="w-full bg-blue-600 hover:bg-blue-700"
+        className={`w-full bg-blue-600 hover:bg-blue-700 ${variant === 'hidden' ? 'hidden' : ''}`}
         disabled={disabled ?? loading}
         onClick={() => document.getElementById(`file-upload-${type}`)?.click()}
       >
@@ -146,20 +154,22 @@ export function UploadS3Button({
         {loading ? 'Uploading...' : 'Add Media'}
       </Button>
       <input
-        id={`file-upload-${type}`}
+        id={id ? id : `file-upload-${type}`}
         type="file"
         accept={getAcceptString(endpoint)}
         disabled={disabled ?? loading}
         className="hidden"
         onChange={handleFileChange}
       />
-      {loading && (
-        <Progress
-          value={progress}
-          className="h-1 w-full"
-        />
-      )}
-    </div>
+      {
+        loading && (
+          <Progress
+            value={progress}
+            className="h-1 w-full"
+          />
+        )
+      }
+    </div >
   );
 
 
@@ -182,7 +192,7 @@ function getAcceptString(endpoint: EndPointType) {
       return "audio/mpeg,audio/mp3,audio/wav,audio/ogg,audio/aac,audio/flac,audio/alac,audio/aiff,audio/wma,audio/m4a";
 
     case "modelUploader":
-      return ".obj";
+      return ".obj,.glb";
 
     case "svgUploader":
       return "image/svg+xml";

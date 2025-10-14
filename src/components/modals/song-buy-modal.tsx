@@ -196,8 +196,6 @@ export default function SongBuyModal() {
                     )
                   )}
 
-                  <DeleteAssetByAdmin assetId={data.Song.assetId}
-                    handleClose={handleClose} />
 
                   <p className="text-xs text-gray-400">
                     Once purchased, this item will be placed on collection.

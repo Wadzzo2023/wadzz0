@@ -11,6 +11,7 @@ export enum AdminNavigation {
   USERS = "users",
   BOUNTY = "bounty",
   MAP = 'map',
+  MARKET_ASSET = 'market-asset'
 }
 
 interface MarketMenurState {

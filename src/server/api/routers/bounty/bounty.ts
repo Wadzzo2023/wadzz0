@@ -652,8 +652,13 @@ export const BountyRoute = createTRPCRouter({
       if (!bounty) {
         throw new Error("Bounty not found");
       }
-      if (bounty.creatorId !== ctx.session.user.id) {
-        throw new Error("You are not the owner of this bounty");
+      const admin = await ctx.db.admin.findUnique({
+        where: {
+          id: ctx.session.user.id,
+        },
+      });
+      if (bounty.creatorId !== ctx.session.user.id && admin?.id !== ctx.session.user.id) {
+        throw new Error("You are not the owner of this bounty or admin");
       }
       await ctx.db.bounty.delete({
         where: {

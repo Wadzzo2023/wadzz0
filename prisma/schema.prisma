@@ -30,6 +30,13 @@ enum MediaType {
 }
 
 // ------------------------NOTIFICATION SCHEMA-------------------------
+enum PinType {
+    EVENT
+    BOUNTY
+    EXPERIENCE
+    LAUNCH
+    OTHER
+}
 
 enum NotificationType {
     LIKE
@@ -209,6 +216,8 @@ model Creator {
     vanitySubscription VanitySubscription?
     Album              Album[]
     Song               Song[]
+    SellPageAsset      SellPageAsset[]
+    createdAt          DateTime            @default(now())
 
     @@index([bio, name])
 }
@@ -281,6 +290,8 @@ model User {
     image         String?
     emailVerified DateTime?
 
+    firstSignUpMethod String? // e.g. email, google, github, etc.
+
     joinedAt         DateTime?          @default(now())
     fromAppSignup    Boolean?           @default(false)
     accounts         Account[]
@@ -305,6 +316,8 @@ model User {
     BountyWinner BountyWinner[]
 
     RedeemConsumer RedeemConsumer[]
+
+    QRItem QRItem[]
 }
 
 model VerificationToken {
@@ -427,10 +440,29 @@ model MarketAsset {
 
     placedAt DateTime @default(now())
 
-    placerId String? // admin placing this assets
-    placer   Creator? @relation(fields: [placerId], references: [id], onDelete: Cascade)
+    placerId  String? // admin placing this assets
+    placer    Creator? @relation(fields: [placerId], references: [id], onDelete: Cascade)
+    createdAt DateTime @default(now())
 
     @@unique([assetId, placerId])
+}
+
+model SellPageAsset {
+    id           Int      @id @default(autoincrement())
+    title        String
+    description  String?
+    amountToSell Int
+    price        Float
+    priceUSD     Float    @default(1)
+    priceXLM     Float    @default(0)
+    isSold       Boolean  @default(false)
+    placedAt     DateTime @default(now())
+
+    placerId String? // admin placing this assets
+    placer   Creator?  @relation(fields: [placerId], references: [id], onDelete: Cascade)
+    soldAt   DateTime? @default(now())
+
+    @@unique([id, placerId])
 }
 
 // ------------------------Wallete SCHEMA-------------------------
@@ -499,9 +531,9 @@ model LocationGroup {
 
     creatorId String
     creator   Creator @relation(fields: [creatorId], references: [id], onDelete: Cascade)
-
-    limit     Int @default(0)
-    remaining Int @default(0)
+    hidden    Boolean @default(false)
+    limit     Int     @default(0)
+    remaining Int     @default(0)
 
     title       String
     description String?
@@ -521,6 +553,7 @@ model LocationGroup {
     aiUrlDescriptions String[] @default([])
 
     multiPin Boolean @default(false)
+    type     PinType @default(OTHER) // Added new type field
 
     locations Location[]
 }
@@ -528,9 +561,9 @@ model LocationGroup {
 model Location {
     id String @id @default(cuid())
 
-    latitude  Float
-    longitude Float
-
+    latitude    Float
+    longitude   Float
+    hidden      Boolean @default(false)
     autoCollect Boolean
     hidden      Boolean @default(false)
 
@@ -707,4 +740,38 @@ model RedeemConsumer {
     code       String
     redeemCode Redeem   @relation(fields: [code], references: [code], onDelete: Cascade)
     redeemedAt DateTime @default(now())
+}
+
+model QRItem {
+    id           String   @id @default(cuid())
+    title        String
+    modelUrl     String
+    externalLink String?
+    startDate    DateTime
+    endDate      DateTime
+    qrCode       String   @db.Text
+    isActive     Boolean  @default(true)
+    creatorId    String
+    createdAt    DateTime @default(now())
+    updatedAt    DateTime @updatedAt
+
+    // Relations
+    creator      User            @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+    descriptions QRDescription[]
+
+    @@unique([id, creatorId])
+}
+
+model QRDescription {
+    id       String @id @default(cuid())
+    title    String @db.VarChar(50)
+    content  String @db.Text
+    order    Int
+    qrItemId String
+
+    // Relations
+    qrItem QRItem @relation(fields: [qrItemId], references: [id], onDelete: Cascade)
+
+    @@unique([qrItemId, order]) // Ensure unique order per QR item
+    @@index([qrItemId, order])
 }

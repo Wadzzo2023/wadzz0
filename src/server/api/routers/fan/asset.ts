@@ -1,15 +1,19 @@
 import { ItemPrivacy } from "@prisma/client";
 import { Horizon } from "@stellar/stellar-sdk";
+import { TRPCError } from "@trpc/server";
+import { storage } from "firebase-admin";
 import { z } from "zod";
 import { updateAssetFormShema } from "~/components/fan/shop/asset_view_modal";
-import { NftFormSchema } from "~/components/marketplace/nft_create";
+import { NftFormSchema, SellPageAssetSchema } from "~/components/marketplace/nft_create";
 import { STELLAR_URL } from "~/lib/stellar/constant";
 import { StellarAccount } from "~/lib/stellar/marketplace/test/Account";
+import { GetPageAssetBuyXDRInPlatform, GetPageAssetBuyXDRInXLM } from "~/lib/stellar/marketplace/trx/page-asset-sell";
 
 import {
   createTRPCRouter,
   creatorProcedure,
   protectedProcedure,
+  publicProcedure,
 } from "~/server/api/trpc";
 
 export const shopRouter = createTRPCRouter({
@@ -351,4 +355,270 @@ export const shopRouter = createTRPCRouter({
 
 
     }),
-});
+  sellPageAsset: creatorProcedure
+    .input(SellPageAssetSchema).mutation(async ({ ctx, input }) => {
+      const { title, description, amountToSell, price, priceUSD, priceXLM } = input;
+      const creatorId = ctx.session.user.id;
+
+      return await ctx.db.sellPageAsset.create({
+        data: {
+          title: title ?? "",
+          description,
+          amountToSell,
+          price,
+          priceUSD,
+          priceXLM,
+          placerId: creatorId,
+        },
+      });
+    }
+    ),
+  getMyAssets: creatorProcedure.query(async ({ ctx }) => {
+    const creatorId = ctx.session.user.id;
+    return await ctx.db.sellPageAsset.findMany({
+      where: { placerId: creatorId },
+    });
+  }),
+  deleteSoldPageAsset: creatorProcedure.input(z.object({
+    id: z.number({
+      required_error: "Sell Pageasset id must be needed"
+    })
+  })).mutation(async ({ ctx, input }) => {
+    const findSoldPageAsset = await ctx.db.sellPageAsset.findFirst({
+      where: {
+        id: input.id
+      }
+    })
+    if (!findSoldPageAsset) {
+      throw new Error("Sell Pageasset not found");
+    }
+    return await ctx.db.sellPageAsset.delete({
+      where: {
+        id: input.id
+      }
+    })
+  }),
+  updateSellPageAsset: creatorProcedure
+    .input(z.object({
+      id: z.number(),
+      title: z.string().optional(),
+      description: z.string().optional(),
+      amountToSell: z.number().optional(),
+      price: z.number().optional(),
+      priceUSD: z.number().optional(),
+      priceXLM: z.number().optional(),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const { title, description, amountToSell, price, priceUSD, priceXLM } = input;
+      const creatorId = ctx.session.user.id;
+
+      return await ctx.db.sellPageAsset.update({
+        where: { id: input.id },
+        data: {
+          title,
+          description,
+          amountToSell,
+          price,
+          priceUSD,
+          priceXLM,
+          placerId: creatorId,
+        },
+      });
+    }),
+  getAllAvailable: protectedProcedure
+    .query(async ({ ctx }) => {
+      return ctx.db.sellPageAsset.findMany({
+        where: {
+          isSold: false,
+        },
+        include: {
+          placer: {
+            select: {
+              id: true,
+              name: true,
+              profileUrl: true,
+              customPageAssetCodeIssuer: true,
+              pageAsset: {
+                select: {
+                  code: true,
+                  issuer: true,
+                  thumbnail: true,
+                },
+              }
+            },
+          },
+        },
+        orderBy: {
+          placedAt: 'desc',
+        },
+      });
+    }),
+
+  buyWithWadzzo: protectedProcedure
+    .input(z.object({
+      assetId: z.number(),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const asset = await ctx.db.sellPageAsset.findUnique({
+        where: { id: input.assetId },
+        include: { placer: true },
+      });
+
+      if (!asset || asset.isSold) {
+        throw new TRPCError({
+          code: 'NOT_FOUND',
+          message: 'Asset not found or already sold',
+        });
+      }
+
+      if (asset.placerId === ctx.session.user.id) {
+        throw new TRPCError({
+          code: 'BAD_REQUEST',
+          message: 'Cannot buy your own asset',
+        });
+      }
+
+      // Add your payment logic here
+      // Check user balance, process payment, transfer asset, etc.
+
+      // Update asset as sold
+      await ctx.db.sellPageAsset.update({
+        where: { id: input.assetId },
+        data: {
+          isSold: true,
+          soldAt: new Date(),
+        },
+      });
+
+      return { success: true };
+    }),
+
+  buyWithXLM: protectedProcedure
+    .input(z.object({
+      assetId: z.number(),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const asset = await ctx.db.sellPageAsset.findUnique({
+        where: { id: input.assetId },
+        include: { placer: true },
+      });
+
+      if (!asset || asset.isSold) {
+        throw new TRPCError({
+          code: 'NOT_FOUND',
+          message: 'Asset not found or already sold',
+        });
+      }
+
+      if (asset.priceXLM <= 0) {
+        throw new TRPCError({
+          code: 'BAD_REQUEST',
+          message: 'XLM payment not available for this asset',
+        });
+      }
+
+      if (asset.placerId === ctx.session.user.id) {
+        throw new TRPCError({
+          code: 'BAD_REQUEST',
+          message: 'Cannot buy your own asset',
+        });
+      }
+
+      // Add your XLM payment logic here
+      // Process Stellar transaction, verify payment, transfer asset, etc.
+
+      // Update asset as sold
+      await ctx.db.sellPageAsset.update({
+        where: { id: input.assetId },
+        data: {
+          isSold: true,
+          soldAt: new Date(),
+        },
+      });
+
+      return { success: true };
+    }),
+  getXDR: protectedProcedure.input(z.object({
+    assetId: z.number(),
+    paymentOption: z.enum(['wadzzo', 'xlm']),
+  })).mutation(async ({ ctx, input }) => {
+    const asset = await ctx.db.sellPageAsset.findUnique({
+      where: { id: input.assetId },
+      include: {
+        placer: {
+          select: {
+            customPageAssetCodeIssuer: true,
+            pageAsset: true,
+            storageSecret: true,
+          }
+        }
+      },
+    });
+
+    if (!asset || asset.isSold) {
+      throw new TRPCError({
+        code: 'NOT_FOUND',
+        message: 'Asset not found or already sold',
+      });
+    }
+
+    if (!asset.placer) {
+      throw new TRPCError({
+        code: 'BAD_REQUEST',
+        message: 'Placer does not have a  page asset code issuer',
+      });
+    }
+    let code = "";
+    let issuer = "";
+    if (asset.placer.customPageAssetCodeIssuer) {
+      const [assetCode, assetIssuer] = asset.placer.customPageAssetCodeIssuer.split("-");
+      if (assetCode && assetIssuer) {
+        code = assetCode;
+        issuer = assetIssuer;
+      }
+    }
+    if (asset.placer.pageAsset) {
+      if (asset.placer.pageAsset.code && asset.placer.pageAsset.issuer) {
+        code = asset.placer.pageAsset.code;
+        issuer = asset.placer.pageAsset.issuer;
+      }
+    }
+
+    if (!code || !issuer) {
+      throw new TRPCError({
+        code: 'BAD_REQUEST',
+        message: 'Invalid custom page asset code issuer format',
+      });
+    }
+
+    // Generate XDR for the asset transfer
+    if (input.paymentOption === 'wadzzo') {
+
+      return await GetPageAssetBuyXDRInPlatform({
+        code,
+        issuer,
+        amountToSell: asset.amountToSell,
+        price: asset.price,
+        storageSecret: asset.placer.storageSecret,
+        userId: ctx.session.user.id,
+      });
+    }
+    else if (input.paymentOption === 'xlm') {
+
+      return await GetPageAssetBuyXDRInXLM({
+        code,
+        issuer,
+        amountToSell: asset.amountToSell,
+        priceXLM: asset.priceXLM,
+        storageSecret: asset.placer.storageSecret,
+        userId: ctx.session.user.id,
+      });
+    } else {
+      throw new TRPCError({
+        code: 'BAD_REQUEST',
+        message: 'Invalid payment option',
+      });
+    }
+  }),
+
+}); 
