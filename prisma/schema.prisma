@@ -542,7 +542,6 @@ model LocationGroup {
     endDate   DateTime
 
     approved Boolean?
-    hidden   Boolean  @default(false)
 
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
@@ -565,7 +564,6 @@ model Location {
     longitude   Float
     hidden      Boolean @default(false)
     autoCollect Boolean
-    hidden      Boolean @default(false)
 
     locationGroupId String?
     locationGroup   LocationGroup? @relation(fields: [locationGroupId], references: [id], onDelete: Cascade)
