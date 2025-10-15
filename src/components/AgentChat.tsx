@@ -94,7 +94,7 @@ export default function AgentChat() {
       {!isOpen && (
         <button
           onClick={() => setIsOpen(true)}
-          className="fixed bottom-6 right-6 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg transition-all hover:scale-110 hover:opacity-90"
+          className="fixed bottom-36 right-2 md:bottom-24 md:right-2 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg transition-all hover:scale-110 hover:opacity-90"
           aria-label="Open chat"
         >
           <MessageCircle className="h-6 w-6" />
