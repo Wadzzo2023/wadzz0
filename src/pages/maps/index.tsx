@@ -4,6 +4,7 @@ import {
   AdvancedMarker,
   Map,
   MapMouseEvent,
+  Marker,
 } from "@vis.gl/react-google-maps";
 import { motion } from "framer-motion";
 
@@ -328,6 +329,12 @@ function App() {
         disableDefaultUI={true}
         onDragend={() => handleDragEnd()}
       >
+        {position && (
+          <Marker
+            position={{ lat: position.lat, lng: position.lng }}
+
+          />
+        )}
         {centerChanged && searchCoordinates && (
           <AdvancedMarker
             style={{

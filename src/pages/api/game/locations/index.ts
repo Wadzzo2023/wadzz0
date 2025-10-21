@@ -106,7 +106,10 @@ export default async function handler(
       where: {
         ...extraFilter,
         approved: { equals: true },
+        // hide groups that end in the past
         endDate: { gte: new Date() },
+        // hide groups that start in the future (only show groups whose startDate is <= now)
+        startDate: { lte: new Date() },
         subscriptionId: { equals: null },
         remaining: { gt: 0 },
         hidden: false,
