@@ -1,12 +1,11 @@
 "use client"
 
 import type React from "react"
-
 import { useState, useRef, useEffect } from "react"
 import { api } from "~/utils/api"
-import { MessageCircle, X, Send, Loader2, MapPin, Calendar, ExternalLink, Eye } from "lucide-react"
-import { useMapModalStore } from "~/pages/maps"
+import { MessageCircle, X, Send, Loader2, MapPin, Calendar, ExternalLink, Eye, ChevronDown, Minimize2, Trash2, Minus } from "lucide-react"
 import type { EventData } from "~/lib/agent/types"
+import { useMapModalStore } from "~/pages/maps"
 
 interface Message {
   role: "user" | "assistant" | "system"
@@ -14,9 +13,9 @@ interface Message {
   events?: EventData[]
   type?: "text" | "events" | "update"
 }
-
 export default function AgentChat() {
   const [isOpen, setIsOpen] = useState(false)
+  const [isMinimized, setIsMinimized] = useState(false)
   const [messages, setMessages] = useState<Message[]>([
     {
       role: "assistant",
@@ -46,6 +45,7 @@ export default function AgentChat() {
 
     setMessages((prev) => [...prev, userMessage])
     setInputMessage("")
+    setIsOpen(true)
 
     try {
       const historyWithEvents = messages.map((msg) => ({
@@ -88,100 +88,288 @@ export default function AgentChat() {
     }
   }
 
+  const handleClearMessages = () => {
+    setMessages([
+      {
+        role: "assistant",
+        content: "Hi! I'm your Wadzzo assistant. How can I help you today?",
+      },
+    ])
+  }
+
   return (
     <>
-      {/* Chat Bubble Button */}
-      {!isOpen && (
+      {/* Minimized Button - Shows when drawer is minimized */}
+      {isMinimized && (
         <button
-          onClick={() => setIsOpen(true)}
-          className="fixed bottom-36 right-2 md:bottom-24 md:right-2 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg transition-all hover:scale-110 hover:opacity-90"
-          aria-label="Open chat"
+          onClick={() => {
+            setIsMinimized(false)
+            setIsOpen(true)
+          }}
+          className="fixed bottom-12 left-1/2 -translate-x-1/2 translate-y-1/2 z-40 px-6 py-3 rounded-full bg-primary text-primary-foreground font-semibold shadow-lg transition-all duration-200 hover:shadow-xl hover:scale-105 active:scale-95"
         >
-          <MessageCircle className="h-6 w-6" />
+          Wadzzo Assistant
         </button>
       )}
 
-      {/* Chat Sidebar */}
-      {isOpen && (
-        <div className="fixed bottom-0 right-0 z-50 flex h-[600px] w-full flex-col bg-background shadow-2xl sm:bottom-6 sm:right-6 sm:h-[600px] sm:w-[400px] sm:rounded-lg border border-border">
-          {/* Header */}
-          <div className="flex items-center justify-between border-b border-border bg-primary p-4 text-primary-foreground sm:rounded-t-lg">
-            <div className="flex items-center gap-2">
-              <MessageCircle className="h-5 w-5" />
-              <h3 className="font-semibold">Wadzzo Assistant</h3>
-            </div>
+      {/* Neon Glowing Input Box - Hidden when minimized */}
+      {!isMinimized && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 w-full max-w-2xl px-4">
+          <style>{`
+                        @keyframes neon-glow {
+                            0%, 100% {
+                                box-shadow: 0 0 5px rgba(34, 197, 94, 0.3), 0 0 10px rgba(34, 197, 94, 0.2), inset 0 0 5px rgba(34, 197, 94, 0.1);
+                            }
+                            50% {
+                                box-shadow: 0 0 15px rgba(34, 197, 94, 0.6), 0 0 25px rgba(34, 197, 94, 0.4), inset 0 0 10px rgba(34, 197, 94, 0.2);
+                            }
+                        }
+                        
+                        @keyframes border-run {
+                            0% {
+                                background-position: 0% 50%;
+                            }
+                            50% {
+                                background-position: 100% 50%;
+                            }
+                            100% {
+                                background-position: 0% 50%;
+                            }
+                        }
+
+                        /* Added four gradient lines that move around the edges */
+                        @keyframes gradient-line-top {
+                            0% {
+                                left: -100%;
+                            }
+                            100% {
+                                left: 100%;
+                            }
+                        }
+
+                        @keyframes gradient-line-right {
+                            0% {
+                                top: -100%;
+                            }
+                            100% {
+                                top: 100%;
+                            }
+                        }
+
+                        @keyframes gradient-line-bottom {
+                            0% {
+                                right: -100%;
+                            }
+                            100% {
+                                right: 100%;
+                            }
+                        }
+
+                        @keyframes gradient-line-left {
+                            0% {
+                                bottom: -100%;
+                            }
+                            100% {
+                                bottom: 100%;
+                            }
+                        }
+
+                        .neon-input-wrapper {
+                            animation: neon-glow 3s ease-in-out infinite, border-run 4s ease-in-out infinite;
+                            border: 2px solid rgba(34, 197, 94, 0.5);
+                            border-radius: 9999px;
+                            background: linear-gradient(90deg, rgba(34, 197, 94, 0.05), rgba(34, 197, 94, 0.1), rgba(34, 197, 94, 0.05));
+                            background-size: 200% 100%;
+                            position: relative;
+                            overflow: hidden;
+                        }
+
+                        .neon-input-wrapper::before,
+                        .neon-input-wrapper::after {
+                            content: '';
+                            position: absolute;
+                            pointer-events: none;
+                        }
+
+                        /* Top gradient line */
+                        .neon-input-wrapper::before {
+                            top: 0;
+                            left: 0;
+                            width: 100%;
+                            height: 2px;
+                            background: linear-gradient(90deg, transparent, rgba(34, 197, 94, 0.8), transparent);
+                            animation: gradient-line-top 3s ease-in-out infinite;
+                        }
+
+                        /* Right gradient line */
+                        .gradient-line-right {
+                            position: absolute;
+                            right: 0;
+                            top: 0;
+                            width: 2px;
+                            height: 100%;
+                            background: linear-gradient(180deg, transparent, rgba(34, 197, 94, 0.8), transparent);
+                            animation: gradient-line-right 3s ease-in-out infinite;
+                            pointer-events: none;
+                        }
+
+                        /* Bottom gradient line */
+                        .gradient-line-bottom {
+                            position: absolute;
+                            bottom: 0;
+                            left: 0;
+                            width: 100%;
+                            height: 2px;
+                            background: linear-gradient(270deg, transparent, rgba(34, 197, 94, 0.8), transparent);
+                            animation: gradient-line-bottom 3s ease-in-out infinite;
+                            pointer-events: none;
+                        }
+
+                        /* Left gradient line */
+                        .gradient-line-left {
+                            position: absolute;
+                            left: 0;
+                            top: 0;
+                            width: 2px;
+                            height: 100%;
+                            background: linear-gradient(360deg, transparent, rgba(34, 197, 94, 0.8), transparent);
+                            animation: gradient-line-left 3s ease-in-out infinite;
+                            pointer-events: none;
+                        }
+                    `}</style>
+
+          <div className="neon-input-wrapper flex items-center gap-2 p-1 backdrop-blur-sm bg-white rounded-full shadow-lg">
+            <div className="gradient-line-bottom" />
+
+            <input
+              type="text"
+              value={inputMessage}
+              onChange={(e) => setInputMessage(e.target.value)}
+              onKeyPress={handleKeyPress}
+              placeholder="Ask me anything..."
+              disabled={chatMutation.isLoading}
+              className="flex-1 bg-white rounded-full px-5 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none disabled:opacity-50 transition-all duration-200"
+            />
+
+            {/* Send Button */}
             <button
-              onClick={() => setIsOpen(false)}
-              className="rounded-full p-1 transition-colors hover:bg-primary/80"
-              aria-label="Close chat"
+              onClick={handleSendMessage}
+              disabled={!inputMessage.trim() || chatMutation.isLoading}
+              className="flex items-center justify-center rounded-full bg-primary px-4 py-3 text-primary-foreground transition-all duration-200 hover:shadow-lg hover:scale-105 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100 flex-shrink-0"
+              aria-label="Send message"
             >
-              <X className="h-5 w-5" />
+              {chatMutation.isLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : <Send className="h-5 w-5" />}
+            </button>
+
+            {/* Chevron Down Button */}
+            <button
+              onClick={() => setIsOpen(!isOpen)}
+              className="flex items-center justify-center rounded-full bg-primary/80 px-4 py-3 text-primary-foreground transition-all duration-200 hover:shadow-lg hover:scale-105 active:scale-95 flex-shrink-0"
+              aria-label="Toggle chat history"
+            >
+              <ChevronDown className={`h-5 w-5 transition-transform duration-300 ${isOpen ? "rotate-180" : ""}`} />
             </button>
           </div>
+        </div>
+      )}
 
-          {/* Messages Container */}
-          <div className="flex-1 space-y-4 overflow-y-auto p-4">
-            {messages.map((message, index) => (
-              <div key={index}>
-                {message.role === "user" ? (
-                  <div className="flex justify-end">
-                    <div className="max-w-[80%] rounded-lg bg-primary p-3 text-primary-foreground">
-                      <p className="whitespace-pre-wrap break-words text-sm">{message.content}</p>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="flex flex-col gap-2">
-                    {message.content && (
-                      <div className="flex justify-start">
-                        <div className="max-w-[80%] rounded-lg bg-muted p-3 text-muted-foreground">
-                          <p className="whitespace-pre-wrap break-words text-sm">{message.content}</p>
-                        </div>
-                      </div>
-                    )}
-                    {message.events && message.events.length > 0 && (
-                      <div className="space-y-2">
-                        {message.events.map((event, eventIndex) => (
-                          <EventCard key={eventIndex} event={event} />
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
-            ))}
-            {chatMutation.isLoading && (
-              <div className="flex justify-start">
-                <div className="max-w-[80%] rounded-lg bg-muted p-3">
-                  <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+      {/* Chat History Drawer */}
+      {isOpen && !isMinimized && (
+        <>
+          {/* Backdrop */}
+          {/* <div
+                        className="fixed inset-0 z-30 bg-black/40 backdrop-blur-md transition-opacity duration-300 animate-in fade-in"
+                        onClick={() => setIsOpen(false)}
+                    /> */}
+
+          {/* Chat Drawer - Adjusted bottom position to prevent overlap with input box */}
+          <div className="fixed inset-x-0 bottom-24 z-40 mx-auto flex max-w-2xl flex-col bg-background rounded-2xl border border-border overflow-hidden animate-in slide-in-from-bottom-5 duration-300 shadow-2xl h-[80vh] md:h-[70vh] sm:bottom-24">
+            {/* Header */}
+            <div className="flex items-center justify-between bg-primary px-6 py-3 text-primary-foreground sm:rounded-t-2xl">
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary-foreground/20 backdrop-blur-sm">
+                  <MessageCircle className="h-5 w-5" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-base">Wadzzo Assistant</h3>
+                  <p className="text-xs text-white/80">Powered by AI</p>
                 </div>
               </div>
-            )}
-            <div ref={messagesEndRef} />
-          </div>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={handleClearMessages}
+                  className="rounded-full p-2 transition-colors hover:bg-white/20 active:bg-white/30"
+                  aria-label="Clear chat"
+                  title="Clear"
+                >
+                  <Trash2 className="h-5 w-5" />
+                </button>
+                <button
+                  onClick={() => {
+                    setIsMinimized(true)
+                    setIsOpen(false)
+                  }}
+                  className="rounded-full p-2 transition-colors hover:bg-white/20 active:bg-white/30"
+                  aria-label="Minimize chat"
+                  title="Minimize"
+                >
+                  <Minus className="h-5 w-5" />
+                </button>
 
-          {/* Input Area */}
-          <div className="border-t border-border p-4 bg-background">
-            <div className="flex gap-2">
-              <input
-                type="text"
-                value={inputMessage}
-                onChange={(e) => setInputMessage(e.target.value)}
-                onKeyPress={handleKeyPress}
-                placeholder="Type your message..."
-                disabled={chatMutation.isLoading}
-                className="flex-1 rounded-lg border border-input bg-background px-4 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-50"
-              />
-              <button
-                onClick={handleSendMessage}
-                disabled={!inputMessage.trim() || chatMutation.isLoading}
-                className="flex items-center justify-center rounded-lg bg-primary px-4 py-2 text-primary-foreground transition-colors hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
-                aria-label="Send message"
-              >
-                <Send className="h-5 w-5" />
-              </button>
+                <button
+                  onClick={() => setIsOpen(false)}
+                  className="rounded-full p-2 transition-colors hover:bg-white/20 active:bg-white/30"
+                  aria-label="Close chat"
+                  title="Close"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+            </div>
+
+            {/* Messages Container */}
+            <div className="flex-1 space-y-4 overflow-y-auto p-6 bg-gradient-to-b from-background via-background to-background/80">
+              {messages.map((message, index) => (
+                <div key={index} className="animate-in fade-in slide-in-from-bottom-2 duration-300">
+                  {message.role === "user" ? (
+                    <div className="flex justify-end">
+                      <div className="max-w-[75%] rounded-3xl rounded-tr-lg bg-primary px-5 py-3 text-primary-foreground shadow-lg">
+                        <p className="whitespace-pre-wrap break-words text-sm leading-relaxed font-medium">
+                          {message.content}
+                        </p>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col gap-3">
+                      {message.content && (
+                        <div className="flex justify-start">
+                          <div className="max-w-[75%] rounded-3xl rounded-tl-lg bg-muted px-5 py-3 text-muted-foreground shadow-md">
+                            <p className="whitespace-pre-wrap break-words text-sm leading-relaxed">{message.content}</p>
+                          </div>
+                        </div>
+                      )}
+                      {message.events && message.events.length > 0 && (
+                        <div className="space-y-2 grid grid-cols-1 md:grid-cols-2 gap-3">
+                          {message.events.map((event, eventIndex) => (
+                            <EventCard key={eventIndex} event={event} />
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              ))}
+              {chatMutation.isLoading && (
+                <div className="flex justify-start animate-in fade-in">
+                  <div className="rounded-3xl rounded-tl-lg bg-muted px-5 py-3 shadow-md">
+                    <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+                  </div>
+                </div>
+              )}
+              <div ref={messagesEndRef} />
             </div>
           </div>
-        </div>
+        </>
       )}
     </>
   )
@@ -191,13 +379,11 @@ function EventCard({ event }: { event: EventData }) {
   const { setIsOpen, setPosition, setPrevData } = useMapModalStore()
 
   const handleCreatePin = () => {
-    // Set the position for the pin
     setPosition({
       lat: event.latitude,
       lng: event.longitude,
     })
 
-    // Set the previous data to pre-fill the form with pin configuration
     setPrevData({
       title: event.title,
       description: event.description,
@@ -212,53 +398,45 @@ function EventCard({ event }: { event: EventData }) {
       radius: event.radius ?? 50,
     })
 
-    // Open the create pin modal
     setIsOpen(true)
   }
+
   const handleViewOnMap = () => {
-    // Center the map on this event location
     setPosition({
       lat: event.latitude,
       lng: event.longitude,
     })
-
   }
 
   return (
-    <div className="overflow-hidden rounded-lg border border-border bg-card shadow-sm transition-shadow hover:shadow-md">
-      {/* {event.image && (
-        <div className="h-32 w-full overflow-hidden">
-          <img src={"https://placehold.co/600x400"} alt={event.title} className="h-full w-full object-cover" />
-        </div>
-      )} */}
-      <div className="p-3">
-        <h4 className="mb-1 font-semibold text-card-foreground">{event.title}</h4>
-        {event.venue && <p className="mb-1 text-xs text-muted-foreground">{event.venue}</p>}
-        <p className="mb-2 line-clamp-2 text-xs text-card-foreground">{event.description}</p>
+    <div className="overflow-hidden rounded-xl border border-border bg-card shadow-md transition-all duration-200 hover:shadow-lg hover:border-blue-500/50">
+      <div className="p-4 flex flex-col justify-between">
+        <h4 className="mb-2 font-bold text-card-foreground text-sm">{event.title}</h4>
+        {event.venue && <p className="mb-2 text-xs text-muted-foreground font-medium">{event.venue}</p>}
+        <p className="mb-3 line-clamp-2 text-xs text-card-foreground">{event.description}</p>
 
-        <div className="mb-2 flex items-start gap-1 text-xs text-muted-foreground">
+        <div className="mb-2 flex items-start gap-2 text-xs text-muted-foreground">
           <MapPin className="mt-0.5 h-3 w-3 flex-shrink-0" />
           <span className="line-clamp-1">
             {event.address ?? `${event.latitude.toFixed(4)}, ${event.longitude.toFixed(4)}`}
           </span>
         </div>
 
-        <div className="mb-2 flex items-center gap-1 text-xs text-muted-foreground">
+        <div className="mb-3 flex items-center gap-2 text-xs text-muted-foreground">
           <Calendar className="h-3 w-3 flex-shrink-0" />
           <span>
             {new Date(event.startDate).toLocaleDateString()} - {new Date(event.endDate).toLocaleDateString()}
           </span>
         </div>
 
-        {/* Pin Configuration Display */}
         {(event.pinCollectionLimit !== 1 ||
           event.pinNumber !== 1 ||
           (event.autoCollect ?? false) ||
           (event.multiPin ?? false) ||
           (event.radius && event.radius !== 50)) && (
-            <div className="mb-3 rounded bg-accent p-2 text-xs">
-              <p className="font-semibold text-accent-foreground mb-1">Pin Configuration:</p>
-              <div className="space-y-0.5 text-accent-foreground/80">
+            <div className="mb-3 rounded-lg bg-accent p-3 text-xs border border-border">
+              <p className="font-semibold text-accent-foreground mb-2">Pin Configuration:</p>
+              <div className="space-y-1 text-accent-foreground/80">
                 {event.pinNumber && event.pinNumber !== 1 && <p>• Pins: {event.pinNumber}</p>}
                 {event.pinCollectionLimit && event.pinCollectionLimit !== 1 && (
                   <p>• Collection Limit: {event.pinCollectionLimit}</p>
@@ -270,16 +448,16 @@ function EventCard({ event }: { event: EventData }) {
             </div>
           )}
 
-        <div className="flex gap-2">
+        <div className="flex gap-2 ">
           <button
             onClick={handleCreatePin}
-            className="flex-1 rounded bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground transition-colors hover:opacity-90"
+            className="flex-1 rounded-lg bg-primary px-3 py-2 text-xs font-semibold text-primary-foreground transition-all duration-200 hover:shadow-md active:scale-95"
           >
             Create
           </button>
           <button
             onClick={handleViewOnMap}
-            className="flex items-center justify-center gap-1 rounded border border-primary px-3 py-1.5 text-xs font-medium text-primary transition-colors hover:bg-accent"
+            className="flex items-center justify-center gap-1 rounded-lg border border-primary px-3 py-2 text-xs font-semibold text-primary transition-all duration-200 hover:bg-accent active:scale-95"
           >
             <Eye className="h-3 w-3" />
             View
@@ -289,7 +467,7 @@ function EventCard({ event }: { event: EventData }) {
               href={event.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center justify-center rounded border border-border px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-accent"
+              className="flex items-center justify-center rounded-lg border border-border px-3 py-2 text-xs font-semibold text-muted-foreground transition-all duration-200 hover:bg-muted active:scale-95"
             >
               <ExternalLink className="h-3 w-3" />
             </a>

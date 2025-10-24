@@ -395,7 +395,7 @@ function App() {
       <div className="hidden md:block">
         <SideMapItem setAlreadySelectedPlace={setAlreadySelectedPlace} />
       </div>
-      <div className="absolute bottom-5 right-2 flex flex-col items-center gap-4 md:flex-row">
+      <div className="absolute  bottom-24 md:bottom-5  right-2 flex flex-col items-center gap-4 md:flex-row">
         <ManualPinButton handleClick={handleManualPinClick} />
         <ReportCollection />
       </div>
