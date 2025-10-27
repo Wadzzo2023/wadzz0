@@ -1,31 +1,37 @@
-"use client"
+"use client";
 
-import { zodResolver } from "@hookform/resolvers/zod"
-import { Loader } from "lucide-react"
-import Image from "next/image"
-import { type ChangeEvent, useEffect, useRef, useState } from "react"
-import { Controller, type SubmitHandler, useForm } from "react-hook-form"
-import toast from "react-hot-toast"
-import { match } from "ts-pattern"
-import { z } from "zod"
-import { api } from "~/utils/api"
-import { BADWORDS } from "~/utils/banned-word"
-import { error, loading, success } from "~/utils/trcp/patterns"
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Loader } from "lucide-react";
+import Image from "next/image";
+import { type ChangeEvent, useEffect, useRef, useState } from "react";
+import { Controller, type SubmitHandler, useForm } from "react-hook-form";
+import toast from "react-hot-toast";
+import { match } from "ts-pattern";
+import { z } from "zod";
+import { api } from "~/utils/api";
+import { BADWORDS } from "~/utils/banned-word";
+import { error, loading, success } from "~/utils/trcp/patterns";
 
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "~/components/shadcn/ui/dialog"
-import { UploadS3Button } from "~/pages/test"
-import { useAdminMapModalStore } from "~/components/hooks/use-AdminModal-store"
-import { useSelectCreatorStore } from "~/components/hooks/use-select-creator-store"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "~/components/shadcn/ui/dialog";
+import { UploadS3Button } from "~/pages/test";
+import { useAdminMapModalStore } from "~/components/hooks/use-AdminModal-store";
+import { useSelectCreatorStore } from "~/components/hooks/use-select-creator-store";
 
 type AssetType = {
-  id: number
-  code: string
-  issuer: string
-  thumbnail: string
-}
+  id: number;
+  code: string;
+  issuer: string;
+  thumbnail: string;
+};
 
-export const PAGE_ASSET_NUM = -10
-export const NO_ASSET = -99
+export const PAGE_ASSET_NUM = -10;
+export const NO_ASSET = -99;
 
 export const createAdminPinFormSchema = z.object({
   lat: z
@@ -46,7 +52,7 @@ export const createAdminPinFormSchema = z.object({
     .min(3)
     .refine(
       (value) => {
-        return !BADWORDS.some((word) => value.includes(word))
+        return !BADWORDS.some((word) => value.includes(word));
       },
       {
         message: "Input contains banned words.",
@@ -57,9 +63,9 @@ export const createAdminPinFormSchema = z.object({
   endDate: z.date().refine(
     (date) => {
       // Set the time to the end of the day for comparison
-      const endOfDay = new Date(date)
-      endOfDay.setHours(23, 59, 59, 999)
-      return endOfDay >= new Date(new Date().setHours(0, 0, 0, 0))
+      const endOfDay = new Date(date);
+      endOfDay.setHours(23, 59, 59, 999);
+      return endOfDay >= new Date(new Date().setHours(0, 0, 0, 0));
     },
     {
       message: "End date must be today or later",
@@ -75,18 +81,22 @@ export const createAdminPinFormSchema = z.object({
   tier: z.string().optional(),
   multiPin: z.boolean().optional(),
   creatorId: z.string(),
-})
+});
 
 export default function CreateAdminPinModal() {
-  const { manual, position, duplicate, isOpen, setIsOpen, prevData } = useAdminMapModalStore()
-  const { setData: setSelectedCreator, data: selectedCreator } = useSelectCreatorStore()
+  const { manual, position, duplicate, isOpen, setIsOpen, prevData } =
+    useAdminMapModalStore();
+  const { setData: setSelectedCreator, data: selectedCreator } =
+    useSelectCreatorStore();
 
-  const [coverUrl, setCover] = useState<string>()
-  const [selectedToken, setSelectedToken] = useState<AssetType & { bal: number }>()
-  const [isPageAsset, setIsPageAsset] = useState<boolean>()
-  const [storageBalance, setStorageBalance] = useState<number>(0)
-  const [remainingBalance, setRemainingBalance] = useState<number>(0)
-  const scrollContainerRef = useRef<HTMLDivElement>(null)
+  const [coverUrl, setCover] = useState<string>();
+  const [selectedToken, setSelectedToken] = useState<
+    AssetType & { bal: number }
+  >();
+  const [isPageAsset, setIsPageAsset] = useState<boolean>();
+  const [storageBalance, setStorageBalance] = useState<number>(0);
+  const [remainingBalance, setRemainingBalance] = useState<number>(0);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
   const {
     register,
     handleSubmit,
@@ -110,23 +120,23 @@ export default function CreateAdminPinModal() {
       // endDate: new Date(),
     },
     // mode: "onTouched",
-  })
-  const tokenAmount = watch("pinCollectionLimit")
+  });
+  const tokenAmount = watch("pinCollectionLimit");
 
   // query
   const assets = api.fan.asset.getCreatorPageAsset.useQuery({
     creatorId: selectedCreator?.id ?? "",
-  })
-  const GetAssetBalance = api.fan.asset.getAssetBalance.useMutation()
+  });
+  const GetAssetBalance = api.fan.asset.getAssetBalance.useMutation();
 
-  const tiers = api.fan.member.getAllMembership.useQuery()
+  const tiers = api.fan.member.getAllMembership.useQuery();
 
   const assetsDropdown = match(assets)
     .with(success, () => {
-      const pageAsset = assets.data?.pageAsset
+      const pageAsset = assets.data?.pageAsset;
 
       if (isPageAsset && pageAsset) {
-        return <p>{pageAsset.code}</p>
+        return <p>{pageAsset.code}</p>;
       }
       // if (isPageAsset === false && shopAsset)
       if (true)
@@ -137,12 +147,16 @@ export default function CreateAdminPinModal() {
             </div>
             <div className="flex items-center space-x-2">
               <select
-                disabled={selectedCreator === undefined || GetAssetBalance.isLoading}
+                disabled={
+                  selectedCreator === undefined || GetAssetBalance.isLoading
+                }
                 className="select select-bordered"
                 onChange={handleTokenOptionChange}
               >
                 <option value={NO_ASSET}>Pin (No asset)</option>
-                <option value={PAGE_ASSET_NUM}>{pageAsset?.code} - Page Asset</option>
+                <option value={PAGE_ASSET_NUM}>
+                  {pageAsset?.code} - Page Asset
+                </option>
                 {assets.data?.shopAsset.map((asset: AssetType) => (
                   <option key={asset.id} value={asset.id}>
                     {asset.code} - Shop Asset
@@ -152,14 +166,14 @@ export default function CreateAdminPinModal() {
               {GetAssetBalance.isLoading && <Loader className="animate-spin" />}
             </div>
           </label>
-        )
+        );
     })
     .with(loading, (data) => <p>Loading...</p>)
     .with(error, (data) => <p>{data.failureReason?.message}</p>)
-    .otherwise(() => <p>Failed to fetch assets</p>)
+    .otherwise(() => <p>Failed to fetch assets</p>);
 
   function TiersOptions() {
-    if (tiers.isLoading) return <div className="skeleton h-10 w-20"></div>
+    if (tiers.isLoading) return <div className="skeleton h-10 w-20"></div>;
     if (tiers.data) {
       return (
         <Controller
@@ -179,84 +193,87 @@ export default function CreateAdminPinModal() {
             </select>
           )}
         />
-      )
+      );
     }
   }
 
   const closePopup = () => {
-    setIsOpen(false)
-    resetState()
-  }
+    setIsOpen(false);
+    resetState();
+  };
 
   // mutations
   const addPinM = api.maps.pin.createForAdminPin.useMutation({
     onSuccess: () => {
-      toast.success("Pin sent for approval")
-      closePopup()
+      toast.success("Pin sent for approval");
+      closePopup();
     },
-  })
+  });
 
   // functions
   function resetState() {
-    setCover(undefined)
-    setSelectedToken(undefined)
-    setRemainingBalance(0)
-    setIsPageAsset(undefined)
+    setCover(undefined);
+    setSelectedToken(undefined);
+    setRemainingBalance(0);
+    setIsPageAsset(undefined);
 
-    reset()
+    reset();
   }
 
-  const onSubmit: SubmitHandler<z.infer<typeof createAdminPinFormSchema>> = (data) => {
+  const onSubmit: SubmitHandler<z.infer<typeof createAdminPinFormSchema>> = (
+    data,
+  ) => {
     // Ensure creatorId is set to the currently selected creator
     if (selectedCreator) {
-      data.creatorId = selectedCreator.id
-    }
-    else {
-      toast.error("Please select a creator")
-      return
+      data.creatorId = selectedCreator.id;
+    } else {
+      toast.error("Please select a creator");
+      return;
     }
 
-    setValue("token", selectedToken?.id)
-    const startDate = new Date(data.startDate)
-    startDate.setHours(0, 1, 0, 0)
-    data.startDate = startDate
+    setValue("token", selectedToken?.id);
+    const startDate = new Date(data.startDate);
+    startDate.setHours(0, 1, 0, 0);
+    data.startDate = startDate;
 
     // Set end date to end of day (11:59 PM)
-    const endDate = new Date(data.endDate)
-    endDate.setHours(23, 59, 59, 999)
-    data.endDate = endDate
+    const endDate = new Date(data.endDate);
+    endDate.setHours(23, 59, 59, 999);
+    data.endDate = endDate;
     if (selectedToken) {
       if (data.pinCollectionLimit > selectedToken.bal) {
         setError("pinCollectionLimit", {
           type: "manual",
           message: "Collection limit can't be more than token balance",
-        })
-        return
+        });
+        return;
       }
     }
     if (position) {
-      console.log("data...", data)
+      console.log("data...", data);
 
-      setValue("lat", position.lat)
-      setValue("lng", position.lng)
+      setValue("lat", position.lat);
+      setValue("lng", position.lng);
 
-      addPinM.mutate({ ...data, lat: position.lat, lng: position.lng })
+      addPinM.mutate({ ...data, lat: position.lat, lng: position.lng });
     } else {
-      console.log("data...", data)
+      console.log("data...", data);
 
-      addPinM.mutate({ ...data })
+      addPinM.mutate({ ...data });
     }
-  }
+  };
 
-  function handleTokenOptionChange(event: ChangeEvent<HTMLSelectElement>): void {
+  function handleTokenOptionChange(
+    event: ChangeEvent<HTMLSelectElement>,
+  ): void {
     // toast(event.target.value);
-    const selectedAssetId = Number(event.target.value)
+    const selectedAssetId = Number(event.target.value);
     if (selectedAssetId === NO_ASSET) {
-      setSelectedToken(undefined)
-      return
+      setSelectedToken(undefined);
+      return;
     }
     if (selectedAssetId === PAGE_ASSET_NUM) {
-      const pageAsset = assets.data?.pageAsset
+      const pageAsset = assets.data?.pageAsset;
 
       if (pageAsset) {
         GetAssetBalance.mutate(
@@ -273,18 +290,20 @@ export default function CreateAdminPinModal() {
                 issuer: pageAsset.issuer,
                 id: PAGE_ASSET_NUM,
                 thumbnail: pageAsset.thumbnail ?? "",
-              })
-              setRemainingBalance(data)
-              setValue("token", PAGE_ASSET_NUM)
+              });
+              setRemainingBalance(data);
+              setValue("token", PAGE_ASSET_NUM);
             },
           },
-        )
+        );
       } else {
-        toast.error("No page asset found")
+        toast.error("No page asset found");
       }
     }
 
-    const selectedAsset = assets.data?.shopAsset.find((asset) => asset.id === selectedAssetId)
+    const selectedAsset = assets.data?.shopAsset.find(
+      (asset) => asset.id === selectedAssetId,
+    );
     if (selectedAsset) {
       GetAssetBalance.mutate(
         {
@@ -294,110 +313,147 @@ export default function CreateAdminPinModal() {
         },
         {
           onSuccess: (data) => {
-            const bal = data ?? 0
-            setSelectedToken({ ...selectedAsset, bal: bal })
-            setRemainingBalance(bal)
-            setValue("token", selectedAsset.id)
+            const bal = data ?? 0;
+            setSelectedToken({ ...selectedAsset, bal: bal });
+            setRemainingBalance(bal);
+            setValue("token", selectedAsset.id);
           },
         },
-      )
+      );
     }
   }
 
   useEffect(() => {
-    setRemainingBalance(0)
-    setSelectedToken(undefined)
+    setRemainingBalance(0);
+    setSelectedToken(undefined);
     if (selectedCreator) {
-      setValue("creatorId", selectedCreator?.id)
+      setValue("creatorId", selectedCreator?.id);
       // Make sure creatorId is always updated when selectedCreator changes
-      console.log("Setting creator ID to:", selectedCreator?.id)
+      console.log("Setting creator ID to:", selectedCreator?.id);
     }
-  }, [selectedCreator?.id, setValue])
+  }, [selectedCreator?.id, setValue]);
 
   useEffect(() => {
     if (isOpen && scrollContainerRef.current) {
-      scrollContainerRef.current.scrollTop = 0
+      scrollContainerRef.current.scrollTop = 0;
     }
     if (duplicate) {
       if (prevData) {
         if (prevData.title) {
-          setValue("title", prevData.title)
+          setValue("title", prevData.title);
         }
         if (prevData.description) {
-          setValue("description", prevData.description)
+          setValue("description", prevData.description);
         }
         if (prevData.image) {
-          setCover(prevData.image)
+          setCover(prevData.image);
         }
         if (prevData.startDate) {
-          setValue("startDate", prevData.startDate)
+          setValue("startDate", prevData.startDate);
         }
         if (prevData.endDate) {
-          setValue("endDate", prevData.endDate)
+          setValue("endDate", prevData.endDate);
         }
         if (prevData.url) {
-          setValue("url", prevData.url)
+          setValue("url", prevData.url);
         }
         if (prevData.autoCollect) {
-          setValue("autoCollect", prevData.autoCollect)
+          setValue("autoCollect", prevData.autoCollect);
         }
         if (prevData.pinCollectionLimit) {
-          setValue("pinCollectionLimit", prevData.pinCollectionLimit)
+          setValue("pinCollectionLimit", prevData.pinCollectionLimit);
         }
         if (prevData.token) {
           handleTokenOptionChange({
             target: { value: prevData.token.toString() },
-          } as ChangeEvent<HTMLSelectElement>)
+          } as ChangeEvent<HTMLSelectElement>);
         }
 
         if (prevData.tier) {
-          setValue("tier", prevData.tier)
+          setValue("tier", prevData.tier);
         }
         if (prevData.image) {
-          setCover(prevData.image)
+          setCover(prevData.image);
         }
 
         if (prevData.pinNumber) {
-          setValue("pinNumber", prevData.pinNumber)
+          setValue("pinNumber", prevData.pinNumber);
         }
+      }
+    } else if (prevData) {
+      // Auto-fill form when prevData exists but not duplicating
+      if (prevData.title) {
+        setValue("title", prevData.title);
+      }
+      if (prevData.description) {
+        setValue("description", prevData.description);
+      }
+      if (prevData.image) {
+        setCover(prevData.image);
+      }
+      if (prevData.startDate) {
+        setValue("startDate", prevData.startDate);
+      }
+      if (prevData.endDate) {
+        setValue("endDate", prevData.endDate);
+      }
+      if (prevData.url) {
+        setValue("url", prevData.url);
+      }
+      if (prevData.autoCollect) {
+        setValue("autoCollect", prevData.autoCollect);
+      }
+      if (prevData.pinCollectionLimit) {
+        setValue("pinCollectionLimit", prevData.pinCollectionLimit);
+      }
+      if (prevData.token) {
+        handleTokenOptionChange({
+          target: { value: prevData.token.toString() },
+        } as ChangeEvent<HTMLSelectElement>);
+      }
+      if (prevData.tier) {
+        setValue("tier", prevData.tier);
+      }
+      if (prevData.pinNumber) {
+        setValue("pinNumber", prevData.pinNumber);
       }
     }
 
     if (position) {
-      setValue("lat", position.lat)
-      setValue("lng", position.lng)
+      setValue("lat", position.lat);
+      setValue("lng", position.lng);
     }
-  }, [isOpen])
+  }, [isOpen]);
 
   useEffect(() => {
     if (selectedToken && tokenAmount) {
-      setRemainingBalance(selectedToken.bal - tokenAmount)
+      setRemainingBalance(selectedToken.bal - tokenAmount);
     }
-  }, [tokenAmount, selectedToken, selectedCreator])
+  }, [tokenAmount, selectedToken, selectedCreator]);
 
   const handleClose = () => {
-    setIsOpen(false)
-    resetState()
-  }
+    setIsOpen(false);
+    resetState();
+  };
 
   useEffect(() => {
-    const startDate = watch("startDate")
-    const endDate = watch("endDate")
+    const startDate = watch("startDate");
+    const endDate = watch("endDate");
 
     if (startDate && endDate) {
       // Convert both to date objects without time for comparison
-      const startDay = new Date(startDate)
-      startDay.setHours(0, 0, 0, 0)
+      const startDay = new Date(startDate);
+      startDay.setHours(0, 0, 0, 0);
 
-      const endDay = new Date(endDate)
-      endDay.setHours(0, 0, 0, 0)
+      const endDay = new Date(endDate);
+      endDay.setHours(0, 0, 0, 0);
 
       // If end date is before start date, update end date to match start date
       if (endDay < startDay) {
-        setValue("endDate", startDate)
+        setValue("endDate", startDate);
       }
     }
-  }, [watch("startDate")])
+  }, [watch("startDate")]);
 
   return (
     <>
@@ -408,9 +464,14 @@ export default function CreateAdminPinModal() {
         <DialogContent className=" m-auto flex max-h-[90vh] min-h-[90vh] w-full max-w-2xl flex-col">
           <DialogHeader>
             <DialogTitle>Create Pin</DialogTitle>
-            <DialogDescription>Create manual and specific pin hot spot</DialogDescription>
+            <DialogDescription>
+              Create manual and specific pin hot spot
+            </DialogDescription>
           </DialogHeader>
-          <div ref={scrollContainerRef} className="flex-grow overflow-y-auto px-6">
+          <div
+            ref={scrollContainerRef}
+            className="flex-grow overflow-y-auto px-6"
+          >
             <div className="pr-4">
               <form className="mt-5" onSubmit={handleSubmit(onSubmit)}>
                 <h2 className="mb-2 text-center text-lg font-bold"></h2>
@@ -423,27 +484,54 @@ export default function CreateAdminPinModal() {
                         <label htmlFor="title" className="text-sm font-medium">
                           Title
                         </label>
-                        <input type="text" id="title" {...register("title")} className="input input-bordered" />
-                        {errors.title && <p className="text-red-500">{errors.title.message}</p>}
+                        <input
+                          type="text"
+                          id="title"
+                          {...register("title")}
+                          className="input input-bordered"
+                        />
+                        {errors.title && (
+                          <p className="text-red-500">{errors.title.message}</p>
+                        )}
                       </div>
 
                       <div className="flex flex-col space-y-2">
-                        <label htmlFor="description" className="text-sm font-medium">
+                        <label
+                          htmlFor="description"
+                          className="text-sm font-medium"
+                        >
                           Description
                         </label>
-                        <textarea id="description" {...register("description")} className="input input-bordered" />
-                        {errors.description && <p className="text-red-500">{errors.description.message}</p>}
+                        <textarea
+                          id="description"
+                          {...register("description")}
+                          className="input input-bordered"
+                        />
+                        {errors.description && (
+                          <p className="text-red-500">
+                            {errors.description.message}
+                          </p>
+                        )}
                       </div>
                       {/* <AssetTypeTab /> */}
                       <div>
-                        <label htmlFor="description" className="mr-2 text-sm font-medium">
+                        <label
+                          htmlFor="description"
+                          className="mr-2 text-sm font-medium"
+                        >
                           Choose tier
                         </label>
                         <TiersOptions />
                       </div>
-                      <div className="flex justify-between">{assetsDropdown}</div>
+                      <div className="flex justify-between">
+                        {assetsDropdown}
+                      </div>
                       <div>
-                        {selectedToken && <p className="text-sm text-red-400">Limit Remaining : {remainingBalance}</p>}
+                        {selectedToken && (
+                          <p className="text-sm text-red-400">
+                            Limit Remaining : {remainingBalance}
+                          </p>
+                        )}
                       </div>
                       {/* <AvailableTokenField balance={selectedToken?.bal} /> */}
 
@@ -458,11 +546,18 @@ export default function CreateAdminPinModal() {
                           {...register("radius", { valueAsNumber: true })}
                           className="input input-bordered"
                         />
-                        {errors.radius && <p className="text-red-500">{errors.radius.message}</p>}
+                        {errors.radius && (
+                          <p className="text-red-500">
+                            {errors.radius.message}
+                          </p>
+                        )}
                       </div>
 
                       <div className="flex flex-col space-y-2">
-                        <label htmlFor="pinNumber" className="text-sm font-medium">
+                        <label
+                          htmlFor="pinNumber"
+                          className="text-sm font-medium"
+                        >
                           Number of pins
                         </label>
                         <input
@@ -472,7 +567,11 @@ export default function CreateAdminPinModal() {
                           {...register("pinNumber", { valueAsNumber: true })}
                           className="input input-bordered"
                         />
-                        {errors.pinNumber && <p className="text-red-500">{errors.pinNumber.message}</p>}
+                        {errors.pinNumber && (
+                          <p className="text-red-500">
+                            {errors.pinNumber.message}
+                          </p>
+                        )}
                       </div>
 
                       <label className="form-control w-full">
@@ -493,30 +592,36 @@ export default function CreateAdminPinModal() {
                           max={2147483647}
                         />
                         {remainingBalance < 0 && (
-                          <span className="label-text-alt text-red-500">{"Insufficient token balance"}</span>
+                          <span className="label-text-alt text-red-500">
+                            {"Insufficient token balance"}
+                          </span>
                         )}
                         {errors.pinCollectionLimit && (
                           <div className="label">
-                            <span className="label-text-alt text-red-500">{errors.pinCollectionLimit.message}</span>
+                            <span className="label-text-alt text-red-500">
+                              {errors.pinCollectionLimit.message}
+                            </span>
                           </div>
                         )}
                       </label>
 
                       <div className="mt ">
-                        <label className="text-sm font-medium">Pin Cover Image</label>
+                        <label className="text-sm font-medium">
+                          Pin Cover Image
+                        </label>
                         <UploadS3Button
                           endpoint="imageUploader"
                           onClientUploadComplete={(res) => {
-                            const data = res
+                            const data = res;
 
                             if (data?.url) {
-                              setCover(data.url)
-                              setValue("image", data.url)
+                              setCover(data.url);
+                              setValue("image", data.url);
                             }
                           }}
                           onUploadError={(error: Error) => {
                             // Do something with the error.
-                            toast.error(`ERROR! ${error.message}`)
+                            toast.error(`ERROR! ${error.message}`);
                           }}
                         />
 
@@ -535,15 +640,27 @@ export default function CreateAdminPinModal() {
                       </div>
 
                       <div className="flex flex-col space-y-2">
-                        <label htmlFor="description" className="text-sm font-medium">
+                        <label
+                          htmlFor="description"
+                          className="text-sm font-medium"
+                        >
                           URL / LINK
                         </label>
-                        <input id="url" {...register("url")} className="input input-bordered" />
-                        {errors.url && <p className="text-red-500">{errors.url.message}</p>}
+                        <input
+                          id="url"
+                          {...register("url")}
+                          className="input input-bordered"
+                        />
+                        {errors.url && (
+                          <p className="text-red-500">{errors.url.message}</p>
+                        )}
                       </div>
 
                       <div className="flex flex-col space-y-2">
-                        <label htmlFor="startDate" className="text-sm font-medium">
+                        <label
+                          htmlFor="startDate"
+                          className="text-sm font-medium"
+                        >
                           Start Date
                         </label>
                         <input
@@ -552,10 +669,17 @@ export default function CreateAdminPinModal() {
                           {...register("startDate", { valueAsDate: true })}
                           className="input input-bordered"
                         />
-                        {errors.startDate && <p className="text-red-500">{errors.startDate.message}</p>}
+                        {errors.startDate && (
+                          <p className="text-red-500">
+                            {errors.startDate.message}
+                          </p>
+                        )}
                       </div>
                       <div className="flex flex-col space-y-2">
-                        <label htmlFor="endDate" className="text-sm font-medium">
+                        <label
+                          htmlFor="endDate"
+                          className="text-sm font-medium"
+                        >
                           End Date
                         </label>
                         <input
@@ -564,17 +688,31 @@ export default function CreateAdminPinModal() {
                           {...register("endDate", { valueAsDate: true })}
                           className="input input-bordered"
                         />
-                        {errors.endDate && <p className="text-red-500">{errors.endDate.message}</p>}
+                        {errors.endDate && (
+                          <p className="text-red-500">
+                            {errors.endDate.message}
+                          </p>
+                        )}
                       </div>
                       <div className="flex items-center space-x-2">
-                        <input type="checkbox" id="autoCollect" {...register("autoCollect")} className="checkbox" />
+                        <input
+                          type="checkbox"
+                          id="autoCollect"
+                          {...register("autoCollect")}
+                          className="checkbox"
+                        />
                         <label htmlFor="autoCollect" className="text-sm">
                           Auto Collect
                         </label>
                       </div>
 
                       <div className="flex items-center space-x-2">
-                        <input type="checkbox" id="multiPin" {...register("multiPin")} className="checkbox" />
+                        <input
+                          type="checkbox"
+                          id="multiPin"
+                          {...register("multiPin")}
+                          className="checkbox"
+                        />
                         <label htmlFor="autoCollect" className="text-sm">
                           Multi Pin
                         </label>
@@ -598,10 +736,16 @@ export default function CreateAdminPinModal() {
                         className="btn btn-primary"
                         disabled={addPinM.isLoading || remainingBalance < 0}
                       >
-                        {addPinM.isLoading && <Loader className="animate-spin" />}
+                        {addPinM.isLoading && (
+                          <Loader className="animate-spin" />
+                        )}
                         Submit
                       </button>
-                      {addPinM.isError && <p className="text-red-500">{addPinM.failureReason?.message}</p>}
+                      {addPinM.isError && (
+                        <p className="text-red-500">
+                          {addPinM.failureReason?.message}
+                        </p>
+                      )}
                     </>
                   )}
                 </div>
@@ -613,7 +757,7 @@ export default function CreateAdminPinModal() {
         </DialogContent>
       </Dialog>
     </>
-  )
+  );
 
   function ManualLatLanInputField() {
     if (manual)
@@ -640,7 +784,7 @@ export default function CreateAdminPinModal() {
             {errors.lng && <p className="text-red-500">{errors.lng.message}</p>}
           </div>
         </div>
-      )
+      );
     else
       return (
         <p>
@@ -648,7 +792,6 @@ export default function CreateAdminPinModal() {
           <br></br>
           Longitude: <span className="text-blue-500">{position?.lng}</span>
         </p>
-      )
+      );
   }
 }
-
