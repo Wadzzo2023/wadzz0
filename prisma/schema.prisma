@@ -204,6 +204,8 @@ model Creator {
 
     customPageAssetCodeIssuer String? // CODE-ISSUER-ASSET-USD
 
+    extraFields Json? // {navPermission?: true}
+
     user               User                @relation(fields: [id], references: [id], onDelete: Cascade)
     posts              Post[]
     subscriptions      Subscription[]

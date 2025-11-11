@@ -4,6 +4,8 @@ import { Button } from "~/components/shadcn/ui/button";
 import { api } from "~/utils/api";
 import PostDeleteComponent from "../post";
 import { addrShort } from "~/utils/utils";
+import { Switch } from "~/components/shadcn/ui/switch";
+import { creatorExtraFiledsSchema } from "~/types/creator";
 
 import {
   Dialog,
@@ -43,6 +45,7 @@ function Creators() {
               <th>Name</th>
               <th>Pubkey</th>
               <th>Jointed At</th>
+              <th>Nav Permission</th>
               <th></th>
               <th>Action</th>
             </tr>
@@ -55,6 +58,12 @@ function Creators() {
                   <th>{creator.name}</th>
                   <td>{addrShort(creator.id, 10)}</td>
                   <td>{creator.joinedAt.toLocaleDateString()}</td>
+                  <td>
+                    <NavPermissionToggle
+                      creatorId={creator.id}
+                      extraFields={creator.extraFields}
+                    />
+                  </td>
                   <td>
                     <CreatorDialog creator={creator} />
                   </td>
@@ -242,5 +251,49 @@ function DeleteCreatorButton({ creatorId }: { creatorId: string }) {
         </DialogContent>
       </Dialog>
     </>
+  );
+}
+
+function NavPermissionToggle({
+  creatorId,
+  extraFields,
+}: {
+  creatorId: string;
+  extraFields: unknown;
+}) {
+  const utils = api.useUtils();
+  const parsedFields = creatorExtraFiledsSchema.parse(extraFields);
+  const navPermission = parsedFields?.navPermission ?? false;
+
+  const updateNavPermission = api.admin.creator.updateNavPermission.useMutation(
+    {
+      onSuccess: () => {
+        toast.success("Nav permission updated");
+        void utils.admin.creator.getCreators.invalidate();
+      },
+      onError: () => {
+        toast.error("Failed to update nav permission");
+      },
+    },
+  );
+
+  const handleToggle = (checked: boolean) => {
+    updateNavPermission.mutate({
+      creatorId,
+      navPermission: checked,
+    });
+  };
+
+  return (
+    <div className="flex items-center gap-2">
+      <Switch
+        checked={navPermission}
+        onCheckedChange={handleToggle}
+        disabled={updateNavPermission.isLoading}
+      />
+      {updateNavPermission.isLoading && (
+        <span className="loading loading-spinner h-4 w-4"></span>
+      )}
+    </div>
   );
 }
