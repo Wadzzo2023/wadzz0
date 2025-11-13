@@ -189,7 +189,7 @@ const CreatorCollectionReport = ({
       {!isAdmin && (
         <div className="mb-6">
           <Button variant="ghost" size="sm" asChild className="mb-4">
-            <Link href="/fan/creator" className="flex items-center">
+            <Link href="/fans/creator" className="flex items-center">
               <ArrowLeft className="mr-2 h-4 w-4" />
               Back to Creator Dashboard
             </Link>
