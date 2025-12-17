@@ -95,7 +95,7 @@
     "jwks-rsa": "^3.1.0",
     "lodash": "^4.17.21",
     "lodash.isequal": "^4.5.0",
-    "lottie-react": "^2.4.0",
+    "lottie-react": "^2.4.1",
     "lucide-react": "^0.471.0",
     "mapbox-gl": "^3.9.4",
     "next": "^14.2.5",
