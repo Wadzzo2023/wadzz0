@@ -14,8 +14,8 @@ interface SnowflakeProps {
 export default function Snowflake({
     size = 50,
     color = '#B8E3FF',
-    strokeColor = '#EDEECD',
-    strokeWidth = 12,
+    strokeColor = '#16A349',
+    strokeWidth = 1,
     className = '',
     style = {},
 }: SnowflakeProps) {
