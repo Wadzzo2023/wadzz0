@@ -74,8 +74,16 @@ async function handleToolCall(
       configInstruction = ` Include these pin parameters in each event: ${JSON.stringify(pinConfig)}`;
     }
 
-    // Build search query with dates if provided
-    let searchQuery = `Find real upcoming events in ${args.location}`;
+    // Get current date for the prompt
+    const currentDate = new Date();
+    const currentDateStr = currentDate.toISOString().split('T')[0]; // Format: YYYY-MM-DD
+
+    // Build search query with explicit date constraints
+    let searchQuery = `IMPORTANT: Today's date is ${currentDateStr}. Find ONLY upcoming events in ${args.location} where:
+- The end date is AFTER ${currentDateStr} (future events only)
+- The event duration is AT LEAST 2 days (start date and end date must have minimum 1 day gap)
+- DO NOT include any events that have already ended or are ending today`;
+
     if (args.query) {
       searchQuery += ` related to ${args.query}`;
     }
@@ -92,6 +100,12 @@ async function handleToolCall(
         model: "gpt-4o",
         tools: [{ type: "web_search_preview" }],
         input: `${searchQuery}
+
+CRITICAL VALIDATION RULES (You MUST follow these):
+1. Today is ${currentDateStr} - ONLY return events where endDate > ${currentDateStr}
+2. Each event MUST span at least 2 days (endDate must be at least 1 day after startDate)
+3. VERIFY dates before including any event - if endDate <= ${currentDateStr}, EXCLUDE it
+4. If an event is single-day or has already ended, DO NOT include it
 
 Return the results as a valid JSON array of events. Each event object must have:
 - title (string): Event name
