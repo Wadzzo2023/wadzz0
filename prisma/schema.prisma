@@ -206,7 +206,7 @@ model Creator {
 
     extraFields Json? // {navPermission?: true}
 
-    user               User                @relation(fields: [id], references: [id], onDelete: Cascade)
+    user               User                  @relation(fields: [id], references: [id], onDelete: Cascade)
     posts              Post[]
     subscriptions      Subscription[]
     assets             Asset[]
@@ -219,7 +219,9 @@ model Creator {
     Album              Album[]
     Song               Song[]
     SellPageAsset      SellPageAsset[]
-    createdAt          DateTime            @default(now())
+    pinAgentSessions   PinAgentChatSession[] @relation("pinAgentSessions")
+    pinAgentMessages   PinAgentChatHistory[] @relation("pinAgentMessages")
+    createdAt          DateTime              @default(now())
 
     @@index([bio, name])
 }
@@ -440,11 +442,11 @@ model MarketAsset {
     assetId Int
     asset   Asset @relation(fields: [assetId], references: [id], onDelete: Cascade)
 
-    placedAt DateTime @default(now())
-
-    placerId  String? // admin placing this assets
-    placer    Creator? @relation(fields: [placerId], references: [id], onDelete: Cascade)
+    placedAt  DateTime @default(now())
     createdAt DateTime @default(now())
+
+    placerId String? // admin placing this assets
+    placer   Creator? @relation(fields: [placerId], references: [id], onDelete: Cascade)
 
     @@unique([assetId, placerId])
 }
@@ -774,4 +776,37 @@ model QRDescription {
 
     @@unique([qrItemId, order]) // Ensure unique order per QR item
     @@index([qrItemId, order])
+}
+
+// Pin Agent Chat Session
+model PinAgentChatSession {
+    id        String  @id @default(cuid())
+    creatorId String
+    creator   Creator @relation("pinAgentSessions", fields: [creatorId], references: [id], onDelete: Cascade)
+
+    title    String
+    messages PinAgentChatHistory[]
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    @@index([creatorId, updatedAt])
+}
+
+// Pin Agent Chat History
+model PinAgentChatHistory {
+    id        String  @id @default(cuid())
+    creatorId String
+    creator   Creator @relation("pinAgentMessages", fields: [creatorId], references: [id], onDelete: Cascade)
+
+    sessionId String
+    session   PinAgentChatSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+    role    String // "user" or "assistant"
+    content String @db.Text
+
+    createdAt DateTime @default(now())
+
+    @@index([creatorId, createdAt])
+    @@index([sessionId, createdAt])
 }

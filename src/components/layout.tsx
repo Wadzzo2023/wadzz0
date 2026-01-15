@@ -186,7 +186,7 @@ export default function Layout({
                   <Toaster />
                 </div>
                 {isMusicRoute && <PlayerToggle />}
-                <FallingSnowflakes />
+                {/* <FallingSnowflakes /> */}
               </BackgroundMusicProvider>
             </PlayerProvider>
           </PostVideoProvider>

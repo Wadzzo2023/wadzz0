@@ -46,14 +46,14 @@ function Header(_props: HeaderProps) {
           src={"/images/waddzo.gif"}
           alt={process.env.NEXT_PUBLIC_ASSET_CODE?.toString() ?? ""}
         />
-        <ChristmasSleighAnimation />
+        {/* <ChristmasSleighAnimation /> */}
         <Logo />
         <SiteAssetBalance />
 
 
       </div>
 
-      <div className="absolute top-[3.5rem] left-0 right-0 w-full z-50 flex overflow-hidden  pointer-events-none">
+      {/* <div className="absolute top-[3.5rem] left-0 right-0 w-full z-50 flex overflow-hidden  pointer-events-none">
         <div className="flex  h-10 pointer-events-none">
           {Array.from({ length: 20 }, (_, index) => (
             <Image
@@ -69,7 +69,7 @@ function Header(_props: HeaderProps) {
         </div>
 
       </div>
-      <ChristmasWindChimeAnimation />
+      <ChristmasWindChimeAnimation /> */}
     </header>
   );
 }
