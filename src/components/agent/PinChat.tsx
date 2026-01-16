@@ -23,18 +23,18 @@ interface CreatorChatBoxProps {
 
 export function PinAgentChatBox({ creatorId, isOpen, closeChat }: CreatorChatBoxProps) {
     const [messages, setMessages] = useState<ChatMessage[]>([])
-    const [inputValue, setInputValue] = useState("")
-    const [isLoading, setIsLoading] = useState(false)
+    const [inputValue, setInputValue] = useState<string>("")
+    const [isLoading, setIsLoading] = useState<boolean>(false)
     const [selectedPins, setSelectedPins] = useState<string[]>([])
     const [showPinSelector, setShowPinSelector] = useState(false)
     const [currentSessionId, setCurrentSessionId] = useState<string | undefined>(undefined)
-    const [isCreatingSession, setIsCreatingSession] = useState(false)
-    const [newSessionTitle, setNewSessionTitle] = useState("")
-    const [showNewSessionInput, setShowNewSessionInput] = useState(false)
+    const [isCreatingSession, setIsCreatingSession] = useState<boolean>(false)
+    const [newSessionTitle, setNewSessionTitle] = useState<string>("")
+    const [showNewSessionInput, setShowNewSessionInput] = useState<boolean>(false)
     const [deletingSessionId, setDeletingSessionId] = useState<string | null>(null)
     const [loadingSessionId, setLoadingSessionId] = useState<string | null>(null)
-    const [isLoadingMessages, setIsLoadingMessages] = useState(false)
-    const [showSidebar, setShowSidebar] = useState(false)
+    const [isLoadingMessages, setIsLoadingMessages] = useState<boolean>(false)
+    const [showSidebar, setShowSidebar] = useState<boolean>(false)
     const scrollRef = useRef<HTMLDivElement>(null)
 
     // Fetch chat sessions
