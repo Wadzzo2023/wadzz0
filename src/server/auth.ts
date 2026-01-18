@@ -105,7 +105,7 @@ export const authOptions: NextAuthOptions = {
             const errorCode = "auth/unverified-email";
             throw new Error(`Firebase: Error (${errorCode}).`);
           }
-          const data = await getUserPublicKey({ email: email, uid: user.uid });
+          const data = await getUserPublicKey({ email: email, uid: user.uid, fromAppSign });
           const sessionUser = await dbUser(
             data.publicKey,
             fromAppSign,
@@ -175,7 +175,7 @@ export const authOptions: NextAuthOptions = {
           const { token, email, fromAppSign } = cred;
 
           const { uid } = await verifyIdToken(token);
-          const data = await getUserPublicKey({ uid, email });
+          const data = await getUserPublicKey({ uid, email, fromAppSign });
           const sessionUser = await dbUser(
             data.publicKey,
             fromAppSign,
@@ -195,7 +195,7 @@ export const authOptions: NextAuthOptions = {
 
           if (token) {
             const { uid } = await verifyIdToken(token);
-            const data = await getUserPublicKey({ uid, email });
+            const data = await getUserPublicKey({ uid, email, fromAppSign });
             const sessionUser = await dbUser(
               data.publicKey,
               fromAppSign,
@@ -212,7 +212,7 @@ export const authOptions: NextAuthOptions = {
             if (appleToken) {
               const { uid } = await appleTokenToUser(appleToken, email);
 
-              const data = await getUserPublicKey({ uid, email });
+              const data = await getUserPublicKey({ uid, email, fromAppSign });
               const sessionUser = await dbUser(
                 data.publicKey,
                 fromAppSign,
@@ -293,9 +293,11 @@ async function dbUser(
 async function getUserPublicKey({
   uid,
   email,
+  fromAppSign
 }: {
   uid: string;
   email: string;
+  fromAppSign: string | undefined;
 }) {
   const res = await axios.get<z.infer<typeof getPublicKeyAPISchema>>(
     USER_ACCOUNT_URL,
@@ -303,7 +305,8 @@ async function getUserPublicKey({
       params: {
         uid,
         email,
-        from: env.NEXT_PUBLIC_ASSET_CODE ?? "Wadzzo"
+        from: env.NEXT_PUBLIC_ASSET_CODE ?? "Wadzzo",
+        fromAppSign: fromAppSign ? "true" : "false",
       },
     },
   );
