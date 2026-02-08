@@ -292,6 +292,8 @@ model User {
     email         String?   @unique
     bio           String?
     image         String?
+    coverImage    String?
+    pronouns      String?
     emailVerified DateTime?
 
     firstSignUpMethod String? // e.g. email, google, github, etc.
