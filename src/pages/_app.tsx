@@ -32,9 +32,10 @@ const MyApp: AppType<{ session: Session | null }> = ({
     <SessionProvider session={session}>
       <QueryClientProvider client={queryClient}>
         <ProgressProvider>
-          <Layout className={inner.className}>
+          {/* DISABLING LAYOUT FOR THE NEW NAV TEST */}
+          {/* <Layout className={inner.className}> */}
             <Component {...pageProps} />
-          </Layout>
+          {/* </Layout> */}
           <PopupImports className={inner.className} />
         </ProgressProvider>
       </QueryClientProvider>

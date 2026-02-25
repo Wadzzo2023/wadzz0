@@ -1,0 +1,11 @@
+/* OVERRIDING DEFAULT CSS */
+
+body {
+  background: none !important;
+}
+
+html,
+body {
+  height: 100%;
+  overflow-x: hidden;
+}
