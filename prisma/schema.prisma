@@ -222,6 +222,7 @@ model Creator {
     pinAgentSessions   PinAgentChatSession[] @relation("pinAgentSessions")
     pinAgentMessages   PinAgentChatHistory[] @relation("pinAgentMessages")
     createdAt          DateTime              @default(now())
+    hotspots           Hotspot[]
 
     @@index([bio, name])
 }
@@ -291,9 +292,9 @@ model User {
     name          String?   @unique
     email         String?   @unique
     bio           String?
-    image         String?
     coverImage    String?
     pronouns      String?
+    image         String?
     emailVerified DateTime?
 
     firstSignUpMethod String? // e.g. email, google, github, etc.
@@ -521,6 +522,36 @@ model Admin {
 }
 
 // ------------------------Mapping SCHEMA-------------------------
+model Hotspot {
+    id        String  @id @default(cuid())
+    creatorId String
+    creator   Creator @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+
+    // Drop schedule
+    dropEveryDays    Int // interval in days between drops
+    pinDurationDays  Int // lifetime of each dropped LocationGroup (days)
+    hotspotStartDate DateTime // when the first drop fires
+    hotspotEndDate   DateTime // after this no new drops
+
+    // Colletion
+    autoCollect Boolean @default(false) // if true then it will automatically collect from users when they come in the geo fence, otherwise they need to manually click collect button
+    multiPin    Boolean @default(false) // if true then it will drop multiple pins in the geo fence, otherwise it will drop only one pin
+
+    // Geo
+    shape   String // "circle" | "square" | "polygon"
+    geoJson Json // GeoJSON Feature
+
+    // QStash
+    qstashScheduleId String?
+    isActive         Boolean @default(true)
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    // The first LocationGroup is the "template" (hotspotTemplate: true).
+    // Every subsequent drop clones it and sets hotspotTemplate: false.
+    locationGroups LocationGroup[]
+}
 
 model LocationGroup {
     id String @id @default(cuid())
@@ -561,6 +592,8 @@ model LocationGroup {
     type     PinType @default(OTHER) // Added new type field
 
     locations Location[]
+    hotspot   Hotspot?   @relation(fields: [hotspotId], references: [id])
+    hotspotId String?
 }
 
 model Location {
@@ -584,9 +617,11 @@ model LocationConsumer {
     user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
     locationId String
-    location   Location @relation(fields: [locationId], references: [id], onDelete: Cascade)
-
-    claimedAt DateTime?
+    location   Location  @relation(fields: [locationId], references: [id], onDelete: Cascade)
+    redeemCode String    @unique
+    isRedeemed Boolean   @default(false)
+    redeemedAt DateTime?
+    claimedAt  DateTime?
 
     viewedAt DateTime?
 

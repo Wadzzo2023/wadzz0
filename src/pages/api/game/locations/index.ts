@@ -106,13 +106,9 @@ export default async function handler(
       where: {
         ...extraFilter,
         approved: { equals: true },
-        // hide groups that end in the past
         endDate: { gte: new Date() },
-        // hide groups that start in the future (only show groups whose startDate is <= now)
-        startDate: { lte: new Date() },
         subscriptionId: { equals: null },
         remaining: { gt: 0 },
-        hidden: false,
       },
       include: {
         locations: {
@@ -120,6 +116,7 @@ export default async function handler(
             consumers: {
               select: {
                 userId: true,
+                redeemCode: true,
               },
             },
           },
@@ -210,6 +207,7 @@ export default async function handler(
         brand_image_url: location.creator.profileUrl ?? abaterIconUrl,
         brand_id: location.creatorId,
         public: true,
+        redeemCode: location.consumers.find((c) => c.userId === userId)?.redeemCode ?? null,
       };
     });
 
