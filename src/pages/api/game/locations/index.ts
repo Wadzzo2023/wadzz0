@@ -117,6 +117,7 @@ export default async function handler(
               select: {
                 userId: true,
                 redeemCode: true,
+                isRedeemed: true,
               },
             },
           },
@@ -208,6 +209,7 @@ export default async function handler(
         brand_id: location.creatorId,
         public: true,
         redeemCode: location.consumers.find((c) => c.userId === userId)?.redeemCode ?? null,
+        isRedeemed: location.consumers.find((c) => c.userId === userId)?.isRedeemed ?? null,
       };
     });
 
