@@ -223,6 +223,7 @@ model Creator {
     pinAgentMessages   PinAgentChatHistory[] @relation("pinAgentMessages")
     createdAt          DateTime              @default(now())
     hotspots           Hotspot[]
+    locationGroupJobs  LocationGroupJob[]
 
     @@index([bio, name])
 }
@@ -591,6 +592,8 @@ model LocationGroup {
     multiPin Boolean @default(false)
     type     PinType @default(OTHER) // Added new type field
 
+    isLandMark Boolean @default(false)
+
     locations Location[]
     hotspot   Hotspot?   @relation(fields: [hotspotId], references: [id])
     hotspotId String?
@@ -846,4 +849,26 @@ model PinAgentChatHistory {
 
     @@index([creatorId, createdAt])
     @@index([sessionId, createdAt])
+}
+
+model LocationGroupJob {
+    id        String @id @default(cuid())
+    creatorId String
+
+    status    String @default("pending")
+    total     Int    @default(0)
+    completed Int    @default(0)
+
+    payload    Json
+    redeemMode String @default("separate")
+
+    log   Json    @default("[]")
+    error String?
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    creator Creator @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+
+    @@index([creatorId, createdAt])
 }

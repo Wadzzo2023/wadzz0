@@ -68,6 +68,7 @@
     "@types/nodemailer": "^6.4.16",
     "@types/three": "^0.169.0",
     "@uiw/react-md-editor": "^4.0.4",
+    "@upstash/qstash": "^2.10.1",
     "@vis.gl/react-google-maps": "^1.1.0",
     "@walletconnect/modal": "2.6.2",
     "@walletconnect/sign-client": "2.11.2",
