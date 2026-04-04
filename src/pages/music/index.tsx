@@ -39,7 +39,7 @@ function ModernMusicView() {
   const creatorSongs = api.music.song.getCreatorPublicSong.useQuery();
 
   return (
-    <div className="mx-auto min-h-screen w-full text-black md:w-[85vw]">
+    <div className="mx-auto min-h-screen w-full pt-3 text-black md:w-[85vw] md:pt-4">
       <div className="space-y-10">
         <ModernSection title="Albums">
           {albums.isLoading ? (
@@ -148,7 +148,7 @@ function LegacyMusicView() {
 
   return (
     <div className="min-h-screen bg-gray-50 text-gray-900">
-      <div className="p-4">
+      <div className="p-4 pt-5">
         <div className="space-y-12">
           <AlbumsContainer />
           <AllSongs />

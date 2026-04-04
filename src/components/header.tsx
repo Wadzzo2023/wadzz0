@@ -8,7 +8,6 @@ import {
   ChevronDown,
   LogOut,
   Menu,
-  Settings,
   UserCircle2,
 } from "lucide-react";
 
@@ -222,13 +221,6 @@ function HeaderUserDropdown({
         <DropdownMenuItem className="cursor-pointer" onClick={onToggleLayoutMode}>
           <ArrowLeftRight className="mr-2 h-4 w-4" />
           {layoutMode === "modern" ? "Switch to Legacy" : "Switch to Modern"}
-        </DropdownMenuItem>
-
-        <DropdownMenuItem asChild>
-          <Link href="/settings" className="cursor-pointer">
-            <Settings className="mr-2 h-4 w-4" />
-            Settings
-          </Link>
         </DropdownMenuItem>
 
         <DropdownMenuSeparator />

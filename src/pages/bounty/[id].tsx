@@ -90,7 +90,11 @@ const SingleBountyPage = () => {
     BountyId: Number(id),
   });
 
-  return <>{Owner?.isOwner ? <AdminBountyPage /> : <UserBountyPage />}</>;
+  return (
+    <div className="relative flex h-[calc(100vh-10.8vh)] w-full flex-col gap-4 overflow-y-auto px-3 scrollbar-hide md:mx-auto md:w-[85vw] md:px-0">
+      {Owner?.isOwner ? <AdminBountyPage /> : <UserBountyPage />}
+    </div>
+  );
 };
 
 export default SingleBountyPage;
@@ -269,12 +273,12 @@ const UserBountyPage = () => {
 
   if (data && isAlreadyJoin.data) {
     return (
-      <div className="p-2">
+      <div>
         {isAlreadyJoin.isLoading ? (
           <div className="mb-2.5 h-10  bg-gray-200 "></div>
         ) : isAlreadyJoin.data.isJoined || Owner?.isOwner ? (
           <Card
-            className={clsx("mx-auto w-full max-w-4xl", {
+            className={clsx("mx-auto w-full overflow-hidden rounded-[0.95rem] border border-[#ddd9d0] bg-white shadow-[0_6px_18px_rgba(15,23,42,0.05)]", {
               "blur-sm": !isAlreadyJoin.data,
             })}
           >
@@ -285,8 +289,9 @@ const UserBountyPage = () => {
                   alt={data?.title}
                   width={600}
                   height={300}
-                  className="h-64 w-full rounded-t-lg object-cover"
+                  className="h-[320px] w-full rounded-t-[0.95rem] object-cover"
                 />
+                <div className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/55 to-transparent" />
 
                 {/* <Badge
                   variant={
@@ -313,9 +318,9 @@ const UserBountyPage = () => {
               <span>Deadline:</span>
             </div> */}
             </CardHeader>
-            <CardContent>
+            <CardContent className="px-5 pb-5 pt-3">
               <Tabs defaultValue="details">
-                <TabsList className="w-full md:grid md:grid-cols-4">
+                <TabsList className="grid h-auto w-full grid-cols-2 gap-2 rounded-xl bg-[#f3f1ee] p-1 md:grid-cols-4">
                   <TabsTrigger value="details">Details</TabsTrigger>
 
                   <TabsTrigger value="submissions" className="">
@@ -328,7 +333,9 @@ const UserBountyPage = () => {
                   <TabsTrigger value="comments">Comments</TabsTrigger>
                 </TabsList>
                 <TabsContent value="details" className="mt-4">
-                  <Preview value={data?.description} />
+                  <div className="rounded-xl border border-[#ebe7df] bg-white p-4">
+                    <Preview value={data?.description} />
+                  </div>
                 </TabsContent>
 
                 <TabsContent value="submissions" className="mt-4">
@@ -528,12 +535,12 @@ const UserBountyPage = () => {
                   </Card>
                 </TabsContent>
                 <TabsContent value="comments" className="mt-4">
-                  <div className="space-y-4">
+                  <div className="space-y-4 rounded-xl border border-[#ebe7df] bg-white p-4">
                     <AddBountyComment bountyId={Number(id)} />
                     <div className="max-h-[650px]">
                       {bountyComment.data && bountyComment.data.length > 0 && (
                         <div className="mb-10 px-4">
-                          <div className=" flex flex-col gap-4 rounded-lg border-2 border-base-200 ">
+                          <div className="flex flex-col gap-4 rounded-lg border border-[#ebe7df] bg-[#fcfbf9]">
                             <div className=" mt-1 flex flex-col gap-2  rounded-lg p-2">
                               {bountyComment.data?.map((comment) => (
                                 <>
@@ -557,19 +564,19 @@ const UserBountyPage = () => {
               </Tabs>
               <div className="mt-6 flex flex-col justify-between gap-2 md:flex-row md:items-center">
                 <div className="flex flex-col gap-4  md:flex-row md:items-center md:space-x-4">
-                  <Badge variant="secondary" className="flex items-center">
+                  <Badge variant="secondary" className="flex items-center border border-[#ebe7df] bg-[#f8f6f2] text-black/75">
                     <Trophy className="mr-1 h-4 w-4" />
                     {data?.priceInUSD} USD
                   </Badge>
-                  <Badge variant="destructive" className="flex items-center">
+                  <Badge variant="secondary" className="flex items-center border border-[#ebe7df] bg-[#f8f6f2] text-black/75">
                     <Trophy className="mr-1 h-4 w-4" />
                     {data?.priceInBand.toFixed(3)} {PLATFORM_ASSET.code}
                   </Badge>
-                  <Badge variant="secondary" className="flex items-center">
+                  <Badge variant="secondary" className="flex items-center border border-[#ebe7df] bg-[#f8f6f2] text-black/75">
                     <Users className="mr-1 h-4 w-4" />
                     {data?._count.participants} participants
                   </Badge>
-                  <Badge variant="secondary" className="flex items-center">
+                  <Badge variant="secondary" className="flex items-center border border-[#ebe7df] bg-[#f8f6f2] text-black/75">
                     <MessageSquare className="mr-1 h-4 w-4" />
                     {data?._count.comments} comments
                   </Badge>
@@ -594,7 +601,7 @@ const UserBountyPage = () => {
                 </div>
               </div>
             </CardContent>
-            <CardFooter className="flex items-center justify-between">
+            <CardFooter className="flex items-center justify-between border-t border-[#ebe7df] px-5 pb-5 pt-4">
               <div className="flex   space-x-4">
                 <Button
                   variant="destructive"
@@ -738,7 +745,7 @@ const UserBountyPage = () => {
                 ${data.requiredBalance} ${PLATFORM_ASSET.code} `}
           />
         ) : (
-          <div className="flex h-screen flex-col items-center justify-center gap-4">
+          <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4 rounded-xl border border-[#ebe7df] bg-white">
             <Alert
               className="flex  items-center justify-center"
               type="success"
@@ -884,8 +891,8 @@ const AdminBountyPage = () => {
 
   if (data)
     return (
-      <div className=" ">
-        <Card className="mx-auto w-full max-w-4xl">
+      <div>
+        <Card className="mx-auto w-full overflow-hidden rounded-[0.95rem] border border-[#ddd9d0] bg-white shadow-[0_6px_18px_rgba(15,23,42,0.05)]">
           <CardHeader>
             <div className="relative">
               <Image
@@ -893,8 +900,9 @@ const AdminBountyPage = () => {
                 alt={data?.title}
                 width={1000}
                 height={1000}
-                className="h-64 w-full rounded-t-lg object-cover"
+                className="h-[320px] w-full rounded-t-[0.95rem] object-cover"
               />
+              <div className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/55 to-transparent" />
 
               {/* <Badge
                 variant={
@@ -923,9 +931,9 @@ const AdminBountyPage = () => {
               <span>Deadline:</span>
             </div> */}
           </CardHeader>
-          <CardContent className="w-full">
+          <CardContent className="w-full px-5 pb-5 pt-3">
             <Tabs defaultValue="details">
-              <TabsList className="w-full md:grid md:grid-cols-4">
+              <TabsList className="grid h-auto w-full grid-cols-2 gap-2 rounded-xl bg-[#f3f1ee] p-1 md:grid-cols-4">
                 <TabsTrigger value="details">Details</TabsTrigger>
 
                 <TabsTrigger value="submissions">Submissions</TabsTrigger>
@@ -934,7 +942,9 @@ const AdminBountyPage = () => {
                 <TabsTrigger value="comments">Comments</TabsTrigger>
               </TabsList>
               <TabsContent value="details" className="mt-4">
-                <Preview value={data?.description} />
+                <div className="rounded-xl border border-[#ebe7df] bg-white p-4">
+                  <Preview value={data?.description} />
+                </div>
               </TabsContent>
               <TabsContent value="submissions" className="mt-4">
                 <p>Total submissions: {data?._count.submissions}</p>

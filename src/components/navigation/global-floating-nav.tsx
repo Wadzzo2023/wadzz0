@@ -31,6 +31,7 @@ type NavItem = {
 
 const sidebarIconMap = {
   dashboard: Home,
+  marketplace: Store,
   collection: Library,
   music: Music2,
   store: Store,
@@ -60,7 +61,7 @@ const navItems: NavItem[] = Object.entries(LeftNavigation).map(([key, item]) => 
     external: item.path.startsWith("http"),
     dashed: item.path.startsWith("http"),
   };
-});
+}).filter((item) => item.path !== "/settings");
 
 function FloatingNavItem({
   item,
