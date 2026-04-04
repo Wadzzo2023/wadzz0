@@ -102,83 +102,86 @@ function FeedContent() {
         </Tabs>
       </motion.div>
 
-      {posts.isLoading ? (
-        <Loading />
-      ) : (
-        <AnimatePresence initial={false} mode="sync">
-          <motion.div
-            key={activeTab}
-            initial={{ opacity: 0, x: 10 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -10 }}
-            transition={{ duration: 0.2, type: "spring", stiffness: 100, damping: 15 }}
-            className="mt-2 space-y-0"
-          >
-            {posts.data?.pages.map((page, pageIndex) => (
-              <div key={`page-${pageIndex}`}>
-                {page.posts
-                  .filter((post) => {
-                    if (activeTab === FeedTab.All) return true;
-                    if (activeTab === FeedTab.Public) return !post.subscription;
-                    if (activeTab === FeedTab.Locked) return !!post.subscription;
-                    if (activeTab === FeedTab.Followed) {
-                      const creatorWithFollowers = post.creator as { followers?: unknown };
-                      return Array.isArray(creatorWithFollowers.followers) && creatorWithFollowers.followers.length > 0;
-                    }
-                    return true;
-                  })
-                  .map((post) => {
-                    const locked = !!post.subscription;
-                    let hasAccess = !locked;
+      <div className="mx-auto w-full max-w-2xl overflow-hidden border-x border-zinc-200 bg-white">
+        {posts.isLoading ? (
+          <Loading />
+        ) : (
+          <AnimatePresence initial={false} mode="sync">
+            <motion.div
+              key={activeTab}
+              initial={{ opacity: 0, x: 10 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -10 }}
+              transition={{ duration: 0.2, type: "spring", stiffness: 100, damping: 15 }}
+              className="space-y-0"
+            >
+              {posts.data?.pages.map((page, pageIndex) => (
+                <div key={`page-${pageIndex}`}>
+                  {page.posts
+                    .filter((post) => {
+                      if (activeTab === FeedTab.All) return true;
+                      if (activeTab === FeedTab.Public) return !post.subscription;
+                      if (activeTab === FeedTab.Locked) return !!post.subscription;
+                      if (activeTab === FeedTab.Followed) {
+                        const creatorWithFollowers = post.creator as { followers?: unknown };
+                        return Array.isArray(creatorWithFollowers.followers) && creatorWithFollowers.followers.length > 0;
+                      }
+                      return true;
+                    })
+                    .map((post, index) => {
+                      const locked = !!post.subscription;
+                      let hasAccess = !locked;
 
-                    if (locked && post.subscription) {
-                      let pageAssetCode: string | undefined;
-                      let pageAssetIssuer: string | undefined;
+                      if (locked && post.subscription) {
+                        let pageAssetCode: string | undefined;
+                        let pageAssetIssuer: string | undefined;
 
-                      const customPageAsset = post.creator.customPageAssetCodeIssuer;
-                      const pageAsset = post.creator.pageAsset;
+                        const customPageAsset = post.creator.customPageAssetCodeIssuer;
+                        const pageAsset = post.creator.pageAsset;
 
-                      if (pageAsset) {
-                        pageAssetCode = pageAsset.code;
-                        pageAssetIssuer = pageAsset.issuer;
-                      } else if (customPageAsset) {
-                        const [code, issuer] = customPageAsset.split("-");
-                        pageAssetCode = code;
-                        pageAssetIssuer = issuer;
+                        if (pageAsset) {
+                          pageAssetCode = pageAsset.code;
+                          pageAssetIssuer = pageAsset.issuer;
+                        } else if (customPageAsset) {
+                          const [code, issuer] = customPageAsset.split("-");
+                          pageAssetCode = code;
+                          pageAssetIssuer = issuer;
+                        }
+
+                        const bal = getAssetBalanceFromBalance({
+                          balances: accBalances.data,
+                          code: pageAssetCode,
+                          issuer: pageAssetIssuer,
+                        });
+
+                        hasAccess = post.subscription.price <= (bal || 0);
                       }
 
-                      const bal = getAssetBalanceFromBalance({
-                        balances: accBalances.data,
-                        code: pageAssetCode,
-                        issuer: pageAssetIssuer,
-                      });
+                      return (
+                        <PostCard
+                          key={post.id}
+                          priority={1}
+                          commentCount={post._count.comments}
+                          creator={post.creator}
+                          post={post}
+                          likeCount={post._count.likes}
+                          locked={locked}
+                          show={hasAccess}
+                          media={post.medias ?? []}
+                          isFirst={pageIndex === 0 && index === 0}
+                        />
+                      );
+                    })}
+                </div>
+              ))}
 
-                      hasAccess = post.subscription.price <= (bal || 0);
-                    }
-
-                    return (
-                      <PostCard
-                        key={post.id}
-                        priority={1}
-                        commentCount={post._count.comments}
-                        creator={post.creator}
-                        post={post}
-                        likeCount={post._count.likes}
-                        locked={locked}
-                        show={hasAccess}
-                        media={post.medias ?? []}
-                      />
-                    );
-                  })}
-              </div>
-            ))}
-
-            {posts.data?.pages?.every((page) => page.posts.length === 0) ? (
-              <p className="py-10 text-center text-sm text-muted-foreground">There are no posts yet</p>
-            ) : null}
-          </motion.div>
-        </AnimatePresence>
-      )}
+              {posts.data?.pages?.every((page) => page.posts.length === 0) ? (
+                <p className="py-10 text-center text-sm text-muted-foreground">There are no posts yet</p>
+              ) : null}
+            </motion.div>
+          </AnimatePresence>
+        )}
+      </div>
 
       {posts.hasNextPage && (
         <div className="mt-8 flex justify-center">

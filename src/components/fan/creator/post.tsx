@@ -45,6 +45,7 @@ export function PostCard({
   creator,
   media,
   locked,
+  isFirst = false,
 }: {
   creator: { name: string; id: string; profileUrl: string | null };
   post: Post;
@@ -54,6 +55,7 @@ export function PostCard({
   priority?: number;
   media?: Media[];
   locked?: boolean;
+  isFirst?: boolean;
 }) {
   const likeMutation = api.fan.post.likeApost.useMutation();
   const deleteLike = api.fan.post.unLike.useMutation();
@@ -157,7 +159,12 @@ export function PostCard({
   };
 
   return (
-    <Card className="overflow-hidden rounded-none border-x-0 border-t-0 border-b border-zinc-200 bg-white shadow-none">
+    <Card
+      className={cn(
+        "overflow-hidden rounded-none border-x-0 border-b border-zinc-200 bg-white shadow-none transition-colors dark:border-zinc-800 dark:bg-zinc-950",
+        isFirst ? "border-t border-t-zinc-200 dark:border-t-zinc-800" : "border-t-0",
+      )}
+    >
       <CardHeader className="px-4 pb-2 pt-4">
         <div className="flex items-start justify-between gap-3">
           <div className="flex min-w-0 items-start gap-3">
