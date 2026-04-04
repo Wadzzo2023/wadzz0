@@ -3,14 +3,12 @@ import Image from "next/image";
 import Link from "next/link";
 import { getCookie } from "cookies-next";
 import { useEffect, useState } from "react";
-import type { Album, ItemPrivacy, MediaType } from "@prisma/client";
+import { Music2 } from "lucide-react";
 
 import { api } from "~/utils/api";
 import AlbumSection from "~/components/music/album/section";
 import CreatorTrack from "~/components/music/creator/track";
 import TrackSection, { TrackSectionSkeleton } from "~/components/music/track/section";
-import type { SongItemType } from "~/lib/state/play/use-modal-store";
-import { cn } from "~/utils/utils";
 
 export default function MusicPage() {
   const [layoutMode, setLayoutMode] = useState<"modern" | "legacy">("legacy");
@@ -34,6 +32,115 @@ export default function MusicPage() {
   );
 }
 
+function ModernMusicView() {
+  const albums = api.music.album.getAll.useQuery();
+  const allSongs = api.music.song.getAllSong.useQuery();
+  const mySongs = api.music.song.getUserBuyedSongs.useQuery();
+  const creatorSongs = api.music.song.getCreatorPublicSong.useQuery();
+
+  return (
+    <div className="mx-auto min-h-screen w-full text-black md:w-[85vw]">
+      <div className="space-y-10">
+        <ModernSection title="Albums">
+          {albums.isLoading ? (
+            <AlbumSkeleton />
+          ) : albums.data && albums.data.length > 0 ? (
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
+              {albums.data.map((album) => (
+                <Link key={album.id} href={`/music/album/${album.id}`}>
+                  <ModernMusicCard
+                    title={album.name}
+                    subtitle={album.creatorId ?? "Admin"}
+                    image={album.coverImgUrl}
+                    badge="ALBUM"
+                  />
+                </Link>
+              ))}
+            </div>
+          ) : (
+            <SectionEmptyState
+              title="No Albums Yet"
+              description="Albums will appear here once creators publish them."
+            />
+          )}
+        </ModernSection>
+
+        <ModernSection title="Recently Added Songs">
+          {allSongs.isLoading ? (
+            <TrackSectionSkeleton header="Recently Added Songs" />
+          ) : allSongs.data && allSongs.data.length > 0 ? (
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
+              {allSongs.data.map((song) => (
+                <ModernMusicCard
+                  key={song.id}
+                  title={song.asset.name}
+                  subtitle={song.artist}
+                  image={song.asset.thumbnail}
+                  badge="SONG"
+                  priceText={`$${song.priceUSD.toFixed(2)}`}
+                />
+              ))}
+            </div>
+          ) : (
+            <SectionEmptyState
+              title="No Songs Yet"
+              description="Recently added songs will show up here."
+            />
+          )}
+        </ModernSection>
+
+        <ModernSection title="Your Songs">
+          {mySongs.isLoading ? (
+            <TrackSectionSkeleton header="Your songs" />
+          ) : mySongs.data && mySongs.data.length > 0 ? (
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
+              {mySongs.data.map((song) => (
+                <ModernMusicCard
+                  key={`owned-${song.id}`}
+                  title={song.asset.name}
+                  subtitle="Owned by you"
+                  image={song.asset.thumbnail}
+                  badge="OWNED"
+                  priceText={`$${song.priceUSD.toFixed(2)}`}
+                />
+              ))}
+            </div>
+          ) : (
+            <SectionEmptyState
+              title="No Purchased Songs"
+              description="Songs you own will appear in this section."
+            />
+          )}
+        </ModernSection>
+
+        <ModernSection title="Public Songs">
+          {creatorSongs.isLoading ? (
+            <TrackSectionSkeleton header="Public Songs" />
+          ) : creatorSongs.data && creatorSongs.data.length > 0 ? (
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
+              {creatorSongs.data.map((song) => (
+                <ModernMusicCard
+                  key={`public-${song.id}`}
+                  title={song.asset.name}
+                  subtitle={song.artist}
+                  image={song.asset.thumbnail}
+                  badge="PUBLIC"
+                  priceText={`$${song.priceUSD.toFixed(2)}`}
+                />
+              ))}
+            </div>
+          ) : (
+            <SectionEmptyState
+              title="No Public Songs"
+              description="Creator public songs are not available right now."
+            />
+          )}
+        </ModernSection>
+      </div>
+    </div>
+  );
+}
+
 function LegacyMusicView() {
   const { data } = api.wallate.admin.checkAdmin.useQuery(undefined, {
     refetchOnWindowFocus: false,
@@ -53,194 +160,6 @@ function LegacyMusicView() {
   );
 }
 
-type MockAsset = {
-  id: number;
-  name: string;
-  description: string | null;
-  limit: number | null;
-  code: string;
-  issuer: string;
-  mediaType: MediaType;
-  mediaUrl: string;
-  thumbnail: string;
-  privacy: ItemPrivacy;
-  creatorId: string | null;
-  tierId: number | null;
-};
-
-const mockAlbums: Album[] = [
-  {
-    id: 9001,
-    name: "Neon Afterglow",
-    description: "Synth-pop and late-night live edits.",
-    coverImgUrl: "https://placehold.co/900x900/png?text=Neon+Afterglow",
-    creatorId: "creator_band_001",
-    createdAt: new Date("2026-01-15T10:00:00.000Z"),
-  },
-  {
-    id: 9002,
-    name: "City Pulse",
-    description: "High-energy crowd anthems.",
-    coverImgUrl: "https://placehold.co/900x900/png?text=City+Pulse",
-    creatorId: "creator_band_002",
-    createdAt: new Date("2026-02-04T10:00:00.000Z"),
-  },
-  {
-    id: 9003,
-    name: "Studio Sessions",
-    description: "Raw takes and acoustic sessions.",
-    coverImgUrl: "https://placehold.co/900x900/png?text=Studio+Sessions",
-    creatorId: "creator_band_003",
-    createdAt: new Date("2026-03-01T10:00:00.000Z"),
-  },
-];
-
-const mockAssets: MockAsset[] = [
-  {
-    id: 8001,
-    name: "Midnight Echoes",
-    description: "Lead single",
-    limit: 100,
-    code: "MIDNIGHT_ECHOES",
-    issuer: "MOCK_ISSUER_MUSIC",
-    mediaType: "MUSIC",
-    mediaUrl: "https://placehold.co/1200x1200/png?text=Midnight+Echoes+Audio",
-    thumbnail: "https://placehold.co/700x700/png?text=Midnight+Echoes",
-    privacy: "PUBLIC",
-    creatorId: "creator_band_001",
-    tierId: null,
-  },
-  {
-    id: 8002,
-    name: "Stage Lights Poster",
-    description: "Live version",
-    limit: 100,
-    code: "STAGE_LIGHTS_POSTER",
-    issuer: "MOCK_ISSUER_MUSIC",
-    mediaType: "MUSIC",
-    mediaUrl: "https://placehold.co/1200x1200/png?text=Stage+Lights+Audio",
-    thumbnail: "https://placehold.co/700x700/png?text=Stage+Lights",
-    privacy: "PUBLIC",
-    creatorId: "creator_band_002",
-    tierId: null,
-  },
-  {
-    id: 8003,
-    name: "Backstage Clip",
-    description: "Alt mix",
-    limit: 100,
-    code: "BACKSTAGE_CLIP",
-    issuer: "MOCK_ISSUER_MUSIC",
-    mediaType: "MUSIC",
-    mediaUrl: "https://placehold.co/1200x1200/png?text=Backstage+Clip+Audio",
-    thumbnail: "https://placehold.co/700x700/png?text=Backstage+Clip",
-    privacy: "PUBLIC",
-    creatorId: "creator_band_003",
-    tierId: null,
-  },
-];
-
-const mockSongItems: SongItemType[] = [
-  {
-    id: 7001,
-    artist: "Band A",
-    assetId: 8001,
-    creatorId: "creator_band_001",
-    price: 25,
-    priceUSD: 4.99,
-    albumId: 9001,
-    createdAt: new Date("2026-02-11T10:00:00.000Z"),
-    asset: mockAssets[0]!,
-  },
-  {
-    id: 7002,
-    artist: "Band B",
-    assetId: 8002,
-    creatorId: "creator_band_002",
-    price: 20,
-    priceUSD: 3.99,
-    albumId: 9002,
-    createdAt: new Date("2026-02-18T10:00:00.000Z"),
-    asset: mockAssets[1]!,
-  },
-  {
-    id: 7003,
-    artist: "Band C",
-    assetId: 8003,
-    creatorId: "creator_band_003",
-    price: 22,
-    priceUSD: 4.49,
-    albumId: 9003,
-    createdAt: new Date("2026-03-02T10:00:00.000Z"),
-    asset: mockAssets[2]!,
-  },
-];
-
-function ModernMusicView() {
-  return (
-    <div className="mx-auto min-h-screen w-full text-black md:w-[85vw]">
-      <div className="space-y-10">
-        <ModernSection title="Albums">
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
-            {mockAlbums.map((album) => (
-              <Link key={album.id} href={`/music/album/${album.id}`}>
-                <ModernMusicCard
-                  title={album.name}
-                  subtitle={album.creatorId ?? "Admin"}
-                  image={album.coverImgUrl}
-                  badge="ALBUM"
-                />
-              </Link>
-            ))}
-          </div>
-        </ModernSection>
-
-        <ModernSection title="Recently Added Songs">
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
-            {mockSongItems.map((song) => (
-              <ModernMusicCard
-                key={song.id}
-                title={song.asset.name}
-                subtitle={song.artist}
-                image={song.asset.thumbnail}
-                badge={`$${song.priceUSD.toFixed(2)}`}
-              />
-            ))}
-          </div>
-        </ModernSection>
-
-        <ModernSection title="Your Songs">
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
-            {mockSongItems.map((song) => (
-              <ModernMusicCard
-                key={`owned-${song.id}`}
-                title={song.asset.name}
-                subtitle={`Owned by you`}
-                image={song.asset.thumbnail}
-                badge="OWNED"
-              />
-            ))}
-          </div>
-        </ModernSection>
-
-        <ModernSection title="Public Songs">
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
-            {mockSongItems.map((song) => (
-              <ModernMusicCard
-                key={`public-${song.id}`}
-                title={song.asset.name}
-                subtitle={song.artist}
-                image={song.asset.thumbnail}
-                badge="PUBLIC"
-              />
-            ))}
-          </div>
-        </ModernSection>
-      </div>
-    </div>
-  );
-}
-
 function ModernSection({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <section>
@@ -250,16 +169,36 @@ function ModernSection({ title, children }: { title: string; children: React.Rea
   );
 }
 
+function SectionEmptyState({
+  title,
+  description,
+}: {
+  title: string;
+  description: string;
+}) {
+  return (
+    <div className="flex min-h-[160px] flex-col items-center justify-center rounded-xl border border-dashed border-black/20 bg-white/70 px-4 py-8 text-center">
+      <div className="mb-3 grid h-10 w-10 place-items-center rounded-full bg-muted">
+        <Music2 className="h-5 w-5 text-black/70" />
+      </div>
+      <p className="text-sm font-semibold text-black/80">{title}</p>
+      <p className="mt-1 text-xs text-black/60">{description}</p>
+    </div>
+  );
+}
+
 function ModernMusicCard({
   title,
   subtitle,
   image,
   badge,
+  priceText,
 }: {
   title: string;
   subtitle: string;
   image: string;
   badge: string;
+  priceText?: string;
 }) {
   return (
     <article className="group overflow-hidden rounded-[0.95rem] border border-[#ddd9d0] bg-white shadow-[0_6px_18px_rgba(15,23,42,0.05)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_10px_24px_rgba(15,23,42,0.08)]">
@@ -278,7 +217,8 @@ function ModernMusicCard({
           {badge}
         </span>
         <h3 className="line-clamp-1 text-[0.98rem] font-semibold leading-tight text-black/90">{title}</h3>
-        <p className={cn("line-clamp-1 text-sm text-black/60")}>{subtitle}</p>
+        <p className="line-clamp-1 text-sm text-black/60">{subtitle}</p>
+        {priceText ? <p className="text-sm font-medium text-black/75">{priceText}</p> : null}
       </div>
     </article>
   );
@@ -291,7 +231,14 @@ function AlbumsContainer() {
     return (
       <div>
         <h2 className="mb-4 text-2xl font-bold text-gray-800">Albums</h2>
-        <AlbumSection albums={albums.data} />
+        {albums.data.length > 0 ? (
+          <AlbumSection albums={albums.data} />
+        ) : (
+          <SectionEmptyState
+            title="No Albums Yet"
+            description="Albums will appear here once creators publish them."
+          />
+        )}
       </div>
     );
 
@@ -318,6 +265,16 @@ function MySongs() {
   if (mySongs.data && mySongs.data.length > 0) {
     return <TrackSection songs={mySongs.data} header={header} playable />;
   }
+
+  return (
+    <div className="w-full">
+      <h2 className="mb-4 text-2xl font-bold text-gray-800">{header}</h2>
+      <SectionEmptyState
+        title="No Purchased Songs"
+        description="Songs you own will appear in this section."
+      />
+    </div>
+  );
 }
 
 function CreatorPublicSongs({ adminId: _adminId }: { adminId?: string }) {
@@ -344,6 +301,16 @@ function CreatorPublicSongs({ adminId: _adminId }: { adminId?: string }) {
       </div>
     );
   }
+
+  return (
+    <div className="w-full">
+      <h2 className="mb-4 text-2xl font-bold text-gray-800">{header}</h2>
+      <SectionEmptyState
+        title="No Public Songs"
+        description="Creator public songs are not available right now."
+      />
+    </div>
+  );
 }
 
 function AllSongs() {
@@ -355,4 +322,14 @@ function AllSongs() {
   if (allSongs.data && allSongs.data.length > 0) {
     return <TrackSection songs={allSongs.data} header={header} />;
   }
+
+  return (
+    <div className="w-full">
+      <h2 className="mb-4 text-2xl font-bold text-gray-800">{header}</h2>
+      <SectionEmptyState
+        title="No Songs Yet"
+        description="Recently added songs will show up here."
+      />
+    </div>
+  );
 }
