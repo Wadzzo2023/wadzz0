@@ -53,7 +53,7 @@ function ModernHeader({ onToggleLayoutMode }: { onToggleLayoutMode: () => void }
   const drawer = useDrawerOpenStore();
 
   return (
-    <header className="sticky left-0 right-0 top-0 z-50 h-10 border-b border-border bg-white shadow-sm">
+    <header className="sticky left-0 right-0 top-0 z-50 h-10 border-b border-border bg-white">
       <div className="relative mx-auto h-full w-full overflow-hidden md:w-[85vw]">
         <div className="relative z-10 flex h-full items-center justify-between px-2">
           <div className="flex items-center gap-2 md:gap-3">
