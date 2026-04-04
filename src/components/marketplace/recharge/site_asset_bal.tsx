@@ -53,7 +53,7 @@ export function SiteAssetBalance() {
   return (
     <div className=" flex items-center justify-center gap-1 ">
       <Link href="/walletBalance" className="">
-        <Button className="">
+        <Button className="h-7 bg-muted px-2 text-foreground hover:bg-muted/90">
           {/* <div className="flex h-6 w-6 rounded-full  bg-white md:hidden">
             <Image
               alt="logo"
@@ -68,7 +68,7 @@ export function SiteAssetBalance() {
             {"  "}
           </span>
 
-          <span className="flex">
+          <span className="flex text-blue-600">
             <span className="hidden md:flex">{" : "}</span>
             {bal.data?.platformAssetBal.toFixed(0)}
           </span>
@@ -82,13 +82,13 @@ export function SiteAssetBalance() {
           href={"/recharge"}
           // href="/recharge"
         >
-          <Button className="">
+          <Button className="h-7 bg-muted px-2 text-foreground hover:bg-muted/90">
             <ShoppingCart />
           </Button>
         </Link>
       )}
       <Button
-        className=" relative "
+        className="relative h-7 bg-muted px-2 text-foreground hover:bg-muted/90"
         onClick={async () => {
           await router.push("/notification");
           updateNotification();
