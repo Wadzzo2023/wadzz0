@@ -6,6 +6,7 @@ import {
   DollarSign,
   Edit,
   File,
+  MessageCircle,
   MessageSquare,
   Paperclip,
   Send,
@@ -111,6 +112,7 @@ const UserBountyPage = () => {
   const router = useRouter();
   const { id } = router.query;
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isChatDialogOpen, setIsChatDialogOpen] = useState(false);
   const [loading, setLoading] = useState<boolean>(false);
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
@@ -278,59 +280,66 @@ const UserBountyPage = () => {
           <div className="mb-2.5 h-10  bg-gray-200 "></div>
         ) : isAlreadyJoin.data.isJoined || Owner?.isOwner ? (
           <Card
-            className={clsx("mx-auto w-full overflow-hidden rounded-[0.95rem] border border-[#ddd9d0] bg-white shadow-[0_6px_18px_rgba(15,23,42,0.05)]", {
+            className={clsx("mx-auto w-full overflow-hidden rounded-none border-0 bg-transparent shadow-none", {
               "blur-sm": !isAlreadyJoin.data,
             })}
           >
-            <CardHeader>
+            <CardHeader className="p-0">
               <div className="relative">
                 <Image
                   src={data?.imageUrls[0] ?? "/images/logo.png"}
                   alt={data?.title}
-                  width={600}
-                  height={300}
-                  className="h-[320px] w-full rounded-t-[0.95rem] object-cover"
+                  width={1200}
+                  height={600}
+                  className="h-[340px] w-full object-cover md:h-[460px]"
+                  priority
                 />
-                <div className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/55 to-transparent" />
-
-                {/* <Badge
-                  variant={
-                    data?.status === "APPROVED"
-                      ? "default"
-                      : data?.status === "PENDING"
-                        ? "secondary"
-                        : "destructive"
-                  }
-                  className="absolute right-4 top-4 px-3 py-1 text-lg"
-                >
-                  {data?.status === "APPROVED"
-                    ? "Approved"
-                    : data?.status === "PENDING"
-                      ? "Pending"
-                      : "Rejected"}
-                </Badge> */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
+                <div className="absolute inset-x-0 bottom-0 z-10 p-6">
+                  <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+                    <div>
+                      <h1 className="text-2xl font-semibold tracking-tight text-white md:text-4xl">
+                        {data?.title}
+                      </h1>
+                      <div className="mt-2 flex flex-wrap items-center gap-2 text-sm text-white/90">
+                        <span className="font-medium text-[#4ea0ff]">${data.priceInUSD.toFixed(2)}</span>
+                        <span>USDC</span>
+                        <span className="text-white/55">|</span>
+                        <span>{data?._count.participants} participants</span>
+                      </div>
+                    </div>
+                    <div className="hidden items-center gap-2 rounded-xl border border-white/25 bg-black/30 p-2.5 backdrop-blur-sm md:flex">
+                      <Avater className="h-9 w-9" url={data?.creator.profileUrl} />
+                      <div>
+                        <p className="text-xs text-white/70">Created by</p>
+                        <p className="text-sm font-medium text-white">{data?.creator.name}</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
-              <div className="mt-4 flex items-center justify-between">
-                <CardTitle className="text-3xl">{data?.title}</CardTitle>
-              </div>
-              {/* <div className="mt-2 flex items-center text-muted-foreground">
-              <Clock className="mr-1 h-4 w-4" />
-              <span>Deadline:</span>
-            </div> */}
             </CardHeader>
-            <CardContent className="px-5 pb-5 pt-3">
+            <CardContent className="mx-auto w-full px-4 pb-5 pt-4 md:w-[85vw] md:px-6 md:pt-6">
               <Tabs defaultValue="details">
-                <TabsList className="grid h-auto w-full grid-cols-2 gap-2 rounded-xl bg-[#f3f1ee] p-1 md:grid-cols-4">
-                  <TabsTrigger value="details">Details</TabsTrigger>
-
-                  <TabsTrigger value="submissions" className="">
-                    Submissions{" "}
+                <TabsList className="mb-6 h-auto w-full justify-start gap-7 overflow-x-auto rounded-none border-b border-[#e7e4dc] bg-transparent p-0 scrollbar-hide">
+                  <TabsTrigger
+                    value="details"
+                    className="rounded-none border-b-2 border-transparent bg-transparent px-0 py-3 text-[1.02rem] font-normal text-slate-500 data-[state=active]:border-black data-[state=active]:bg-transparent data-[state=active]:font-medium data-[state=active]:text-black data-[state=active]:shadow-none"
+                  >
+                    Details
                   </TabsTrigger>
-                  <TabsTrigger value="doubt" className="">
-                    Chat{" "}
+                  <TabsTrigger
+                    value="submissions"
+                    className="rounded-none border-b-2 border-transparent bg-transparent px-0 py-3 text-[1.02rem] font-normal text-slate-500 data-[state=active]:border-black data-[state=active]:bg-transparent data-[state=active]:font-medium data-[state=active]:text-black data-[state=active]:shadow-none"
+                  >
+                    Submissions
                   </TabsTrigger>
-
-                  <TabsTrigger value="comments">Comments</TabsTrigger>
+                  <TabsTrigger
+                    value="comments"
+                    className="rounded-none border-b-2 border-transparent bg-transparent px-0 py-3 text-[1.02rem] font-normal text-slate-500 data-[state=active]:border-black data-[state=active]:bg-transparent data-[state=active]:font-medium data-[state=active]:text-black data-[state=active]:shadow-none"
+                  >
+                    Comments
+                  </TabsTrigger>
                 </TabsList>
                 <TabsContent value="details" className="mt-4">
                   <div className="rounded-xl border border-[#ebe7df] bg-white p-4">
@@ -440,100 +449,6 @@ const UserBountyPage = () => {
                     ))}
                   </div>
                 </TabsContent>
-                <TabsContent value="doubt" className="">
-                  <Card>
-                    <CardHeader className="flex flex-row items-center border-b-2 p-4">
-                      <div className="flex items-center space-x-4 ">
-                        <Avatar>
-                          <AvatarImage
-                            src={data.creator.profileUrl ?? ""}
-                            alt="Image"
-                          />
-                          <AvatarFallback>
-                            {data.creator.name.slice(0, 2)}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div>
-                          <p className="text-sm font-medium leading-none">
-                            {addrShort(data.creator.id)}
-                          </p>
-                          <p className="text-sm text-muted-foreground">
-                            {data.creator.name}
-                          </p>
-                        </div>
-                      </div>
-                    </CardHeader>
-                    <CardContent className="py-2 ">
-                      <div className=" max-h-[300px] min-h-[300px] space-y-4 overflow-y-auto">
-                        {messages?.map((message, index) => (
-                          <div
-                            key={index}
-                            className={cn(
-                              "flex max-w-[75%] flex-col gap-2 rounded-lg px-3 py-2 text-sm",
-                              message.role === UserRole.USER
-                                ? "ml-auto bg-primary text-primary-foreground"
-                                : "bg-muted",
-                            )}
-                          >
-                            {sanitizeInput(message.message).sanitizedInput}
-                            {// Display all matched URLs as links
-                              sanitizeInput(message.message).urls?.map(
-                                (url, index) => (
-                                  <div
-                                    key={index}
-                                    className=" w-full rounded-md bg-[#F5F7FB] py-2  shadow-sm"
-                                  >
-                                    <Link
-                                      href={url}
-                                      className="flex items-center justify-start gap-2"
-                                    >
-                                      <File color="black" />{" "}
-                                      <span className="text-base font-medium text-[#07074D]">
-                                        {url}
-                                      </span>
-                                    </Link>
-                                  </div>
-                                ),
-                              )}
-                            <div ref={messagesEndRef} />
-                          </div>
-                        ))}
-                      </div>
-                    </CardContent>
-                    <CardFooter>
-                      <form
-                        onSubmit={handleSubmit}
-                        className="flex w-full items-center space-x-2"
-                      >
-                        <Input
-                          id="message"
-                          placeholder="Type your message..."
-                          className="flex-1"
-                          autoComplete="off"
-                          value={input}
-                          onChange={(event) => setInput(event.target.value)}
-                        />
-                        <Button
-                          type="submit"
-                          size="icon"
-                          disabled={
-                            inputLength === 0 || NewMessageMutation.isLoading
-                          }
-                        >
-                          <Send className="h-4 w-4" />
-                          <span className="sr-only">Send</span>
-                        </Button>
-                      </form>
-                      {NewMessageMutation.isError && (
-                        <Alert
-                          className="mt-2"
-                          type="error"
-                          content={NewMessageMutation.error.message}
-                        />
-                      )}
-                    </CardFooter>
-                  </Card>
-                </TabsContent>
                 <TabsContent value="comments" className="mt-4">
                   <div className="space-y-4 rounded-xl border border-[#ebe7df] bg-white p-4">
                     <AddBountyComment bountyId={Number(id)} />
@@ -562,6 +477,94 @@ const UserBountyPage = () => {
                   </div>
                 </TabsContent>
               </Tabs>
+              <div className="fixed bottom-28 right-5 z-50 md:bottom-8 md:right-8">
+                <Dialog open={isChatDialogOpen} onOpenChange={setIsChatDialogOpen}>
+                  <DialogTrigger asChild>
+                    <Button
+                      type="button"
+                      size="icon"
+                      className="h-12 w-12 rounded-full bg-[#1f86ee] text-white shadow-[0_10px_24px_rgba(31,134,238,0.35)] hover:bg-[#1877da]"
+                    >
+                      <MessageCircle className="h-5 w-5" />
+                      <span className="sr-only">Open chat</span>
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="w-[96vw] max-w-xl p-0">
+                    <div className="flex items-center justify-between border-b px-4 py-3">
+                      <div className="flex items-center gap-2">
+                        <Avatar className="h-8 w-8">
+                          <AvatarImage src={data.creator.profileUrl ?? ""} alt={data.creator.name} />
+                          <AvatarFallback>{data.creator.name.slice(0, 2)}</AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <p className="text-sm font-medium">{addrShort(data.creator.id)}</p>
+                          <p className="text-xs text-muted-foreground">{data.creator.name}</p>
+                        </div>
+                      </div>
+                      <DialogTitle className="sr-only">Bounty Chat</DialogTitle>
+                    </div>
+                    <div className="max-h-[380px] min-h-[320px] space-y-3 overflow-y-auto px-4 py-3">
+                      {messages?.map((message, index) => (
+                        <div
+                          key={index}
+                          className={cn(
+                            "flex max-w-[78%] flex-col gap-2 rounded-lg px-3 py-2 text-sm",
+                            message.role === UserRole.USER
+                              ? "ml-auto bg-primary text-primary-foreground"
+                              : "bg-muted",
+                          )}
+                        >
+                          {sanitizeInput(message.message).sanitizedInput}
+                          {sanitizeInput(message.message).urls?.map((url, linkIndex) => (
+                            <div
+                              key={linkIndex}
+                              className="w-full rounded-md bg-[#F5F7FB] py-2 shadow-sm"
+                            >
+                              <Link
+                                href={url}
+                                className="flex items-center justify-start gap-2"
+                              >
+                                <File color="black" />
+                                <span className="text-base font-medium text-[#07074D]">
+                                  {url}
+                                </span>
+                              </Link>
+                            </div>
+                          ))}
+                          <div ref={messagesEndRef} />
+                        </div>
+                      ))}
+                    </div>
+                    <div className="border-t px-4 py-3">
+                      <form onSubmit={handleSubmit} className="flex w-full items-center space-x-2">
+                        <Input
+                          id="message"
+                          placeholder="Type your message..."
+                          className="flex-1"
+                          autoComplete="off"
+                          value={input}
+                          onChange={(event) => setInput(event.target.value)}
+                        />
+                        <Button
+                          type="submit"
+                          size="icon"
+                          disabled={inputLength === 0 || NewMessageMutation.isLoading}
+                        >
+                          <Send className="h-4 w-4" />
+                          <span className="sr-only">Send</span>
+                        </Button>
+                      </form>
+                      {NewMessageMutation.isError && (
+                        <Alert
+                          className="mt-2"
+                          type="error"
+                          content={NewMessageMutation.error.message}
+                        />
+                      )}
+                    </div>
+                  </DialogContent>
+                </Dialog>
+              </div>
               <div className="mt-6 flex flex-col justify-between gap-2 md:flex-row md:items-center">
                 <div className="flex flex-col gap-4  md:flex-row md:items-center md:space-x-4">
                   <Badge variant="secondary" className="flex items-center border border-[#ebe7df] bg-[#f8f6f2] text-black/75">

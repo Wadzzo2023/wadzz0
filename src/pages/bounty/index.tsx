@@ -46,7 +46,7 @@ const Bounty: React.FC = () => {
   };
 
   return (
-    <div className="relative flex h-[calc(100vh-10.8vh)] w-full flex-col gap-4 overflow-y-auto px-3 scrollbar-hide md:mx-auto md:w-[85vw] md:px-0">
+    <div className="relative flex h-[calc(100vh-10.8vh)] w-full flex-col gap-4 overflow-y-auto px-3 pt-3 scrollbar-hide md:mx-auto md:w-[85vw] md:px-0 md:pt-4">
       <h1 className="text-3xl font-semibold tracking-tight text-black/90">Available Bounties</h1>
       <div className="flex flex-col items-center justify-between gap-4 md:flex-row">
         <div className="relative w-full md:w-1/2">
