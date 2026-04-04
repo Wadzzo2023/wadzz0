@@ -76,13 +76,15 @@ function ModernHeader({ onToggleLayoutMode }: { onToggleLayoutMode: () => void }
             </Sheet>
 
             <Link href="/" className="flex items-center gap-1">
-              <div className="relative ml-1 h-7 w-7 md:h-8 md:w-8">
-                <Image fill alt="logo" src="/images/logo.png" sizes="40px" />
-              </div>
-              <h1 className="relative hidden text-sm font-semibold capitalize text-black md:block md:text-lg">
-                {process.env.NEXT_PUBLIC_ASSET_CODE?.toUpperCase() ?? "WADZZO"}
-                <span className="absolute right-0 top-0 -mr-4 -mt-1 text-xs">TM</span>
-              </h1>
+              <Image
+                alt="Wadzzo"
+                src="/images/logo.png"
+                width={160}
+                height={40}
+                className="ml-1 h-7 w-auto object-contain md:h-8"
+                priority
+              />
+              <span className="sr-only">Wadzzo</span>
             </Link>
           </div>
 

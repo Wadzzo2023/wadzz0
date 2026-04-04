@@ -1,4 +1,5 @@
 import clsx from "clsx";
+import { getCookie } from "cookies-next";
 import AssetView from "~/components/marketplace/asset/asset_view";
 import { MoreAssetsSkeleton } from "~/components/marketplace/platforms_nfts";
 import {
@@ -6,15 +7,31 @@ import {
   useAssetMenu,
 } from "~/lib/state/marketplace/asset-tab-menu";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { usePlayer } from "~/components/context/PlayerContext";
 import { useModal } from "~/lib/state/play/use-modal-store";
 import { api } from "~/utils/api";
 import { ValidCreateCreator } from "../fans/creator";
 
 export default function MyAssetsPage() {
+  const [layoutMode, setLayoutMode] = useState<"modern" | "legacy">("legacy");
+
+  useEffect(() => {
+    const storedMode = getCookie("wadzzo-layout-mode");
+    if (storedMode === "modern" || storedMode === "legacy") {
+      setLayoutMode(storedMode);
+    }
+  }, []);
+
+  const isModernLayout = layoutMode === "modern";
+
   return (
-    <div className="p-2">
+    <div
+      className={clsx(
+        "p-2 md:mx-auto",
+        isModernLayout ? "md:w-[85vw]" : "w-full",
+      )}
+    >
       <div className="flex justify-center">
         <AssetTabs />
       </div>
@@ -24,7 +41,7 @@ export default function MyAssetsPage() {
 }
 
 function RenderTabs() {
-  const { selectedMenu, setSelectedMenu } = useAssetMenu();
+  const { selectedMenu } = useAssetMenu();
   switch (selectedMenu) {
     case AssetMenu.OWN:
       return <MyAssets />;
@@ -90,12 +107,11 @@ function MyAssets() {
   const acc = api.wallate.acc.getAccountInfo.useQuery();
 
   const { onOpen } = useModal();
-  const { setCurrentTrack, setCurrentAudioPlayingId } = usePlayer();
+  const { setCurrentTrack } = usePlayer();
   const {
     data,
     fetchNextPage,
     hasNextPage,
-    isFetching,
     isFetchingNextPage,
     status,
   } = api.maps.pin.getMyCollectedPins.useInfiniteQuery(
@@ -109,6 +125,7 @@ function MyAssets() {
 
   if (acc.isLoading || status === "loading")
     return <MoreAssetsSkeleton className="flex gap-2" />;
+
   if (acc.data ?? data) {
     return (
       <>
