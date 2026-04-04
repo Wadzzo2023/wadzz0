@@ -11,7 +11,7 @@ import {
   Library,
   Music,
   Music2,
-  Rss,
+  Newspaper,
   Sparkles,
   Store,
   UserRound,
@@ -37,9 +37,10 @@ const sidebarIconMap = {
   store: Store,
   bounty: Sparkles,
   creator: UserRound,
-  feed: Rss,
+  feed: Newspaper,
   spotify: Headphones,
   link: ExternalLink,
+  fan: Newspaper,
 } as const;
 
 const navItems: NavItem[] = Object.entries(LeftNavigation).map(([key, item]) => {
@@ -49,6 +50,8 @@ const navItems: NavItem[] = Object.entries(LeftNavigation).map(([key, item]) => 
   const isCollectionRoute = item.path === "/assets" || item.text.toLowerCase().includes("collection");
   const mappedIcon = item.path.includes("/music")
     ? Music
+    : item.path === "/feed"
+      ? Newspaper
     : isCollectionRoute
       ? Library
     : mappedFromKey ?? fallbackIcon;

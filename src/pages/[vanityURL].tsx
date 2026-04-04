@@ -96,7 +96,7 @@ const VanityCreator = () => {
           <p className="text-center text-gray-600">
             The creator you{"'"}re looking for has an expired subscription.
           </p>
-          <Link href="/fans/home" passHref>
+              <Link href="/feed" passHref>
             <Button variant="outline" className="mt-4">
               <ArrowLeft className="mr-2 h-4 w-4" /> Back to Artist
             </Button>

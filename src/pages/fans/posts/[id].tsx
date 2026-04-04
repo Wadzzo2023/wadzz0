@@ -64,7 +64,7 @@ function Page({ postId }: { postId: string }) {
               <div className="flex gap-4 justify-center">
                 <Button
                   variant="outline"
-                  onClick={() => router.push('/fans/home')}
+                      onClick={() => router.push('/feed')}
                 >
                   Go Feed
                 </Button>

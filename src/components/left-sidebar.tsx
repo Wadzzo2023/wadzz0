@@ -23,7 +23,7 @@ export const LeftNavigation = {
   Marketplace: { path: "/marketplace", icon: Bell, text: "MARKETPLACE" },
   Bounty: { path: "/bounty", icon: Bell, text: "BOUNTY" },
   Fan: {
-    path: "/fans/home",
+    path: "/feed",
     icon: Bell,
     text: CREATOR_PLURAL_TERM.toLocaleUpperCase(),
   },
