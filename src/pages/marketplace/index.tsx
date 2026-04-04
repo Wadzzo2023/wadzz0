@@ -9,7 +9,7 @@ import { MarketMenu, useMarketMenu } from "~/lib/state/marketplace/tab-menu";
 import MarketPageAsset from "~/components/marketplace/trade";
 
 export default function MarketplacePage() {
-  const [layoutMode, setLayoutMode] = useState<"modern" | "legacy">("legacy");
+  const [layoutMode, setLayoutMode] = useState<"modern" | "legacy">("modern");
 
   useEffect(() => {
     const storedMode = getCookie("wadzzo-layout-mode");

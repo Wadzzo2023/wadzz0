@@ -30,6 +30,7 @@ import {
 } from "~/components/shadcn/ui/sheet";
 import LeftBar from "./left-sidebar";
 import Logo from "./logo";
+import Hamburger from "./hamburger";
 import { useDrawerOpenStore } from "~/lib/state/fan/drawer_open";
 
 export type LayoutMode = "modern" | "legacy";
@@ -88,7 +89,7 @@ function ModernHeader({ onToggleLayoutMode }: { onToggleLayoutMode: () => void }
           </div>
 
           <div className="flex items-center gap-2">
-            <SiteAssetBalance />
+            <SiteAssetBalance layoutMode="modern" />
             {session.status === "authenticated" ? (
               <HeaderUserDropdown onToggleLayoutMode={onToggleLayoutMode} layoutMode="modern" />
             ) : null}
@@ -100,68 +101,32 @@ function ModernHeader({ onToggleLayoutMode }: { onToggleLayoutMode: () => void }
 }
 
 function LegacyHeader({ onToggleLayoutMode }: { onToggleLayoutMode: () => void }) {
-  const session = useSession();
-
   return (
-    <header className="sticky top-0 z-50 h-20 border-b border-border bg-white px-2 py-4 md:px-6">
-      <div className="flex h-full w-full items-center justify-between xl:hidden">
-        <div className="flex w-full items-center justify-around gap-2">
-          <MobileLegacyMenu />
-          <Logo />
-        </div>
-        <div className="flex items-center gap-2">
-          <SiteAssetBalance />
-          {session.status === "authenticated" ? (
-            <HeaderUserDropdown onToggleLayoutMode={onToggleLayoutMode} layoutMode="legacy" />
-          ) : null}
-        </div>
-      </div>
-
-      <div className="hidden h-full w-full items-center justify-between gap-4 xl:flex">
-        <div className="flex items-center gap-3">
-          <Image
-            className="rounded-box"
-            height={100}
-            width={100}
-            src="/images/waddzo.gif"
-            alt={process.env.NEXT_PUBLIC_ASSET_CODE?.toString() ?? ""}
+    <header className="sticky top-0 z-50 h-20 bg-base-100/20 px-2 py-4 md:px-6">
+      <div className="flex w-full items-center justify-between xl:hidden">
+        <div className="flex w-full items-center justify-around gap-2 ">
+          <Hamburger
+            layoutMode="legacy"
+            onToggleLayoutMode={onToggleLayoutMode}
           />
           <Logo />
         </div>
+        <SiteAssetBalance layoutMode="legacy" />
+      </div>
 
-        <div className="flex items-center gap-2">
-          <SiteAssetBalance />
-          {session.status === "authenticated" ? (
-            <HeaderUserDropdown onToggleLayoutMode={onToggleLayoutMode} layoutMode="legacy" />
-          ) : null}
-        </div>
+      <div className="hidden items-center gap-4 xl:flex">
+        <Image
+          className="rounded-box"
+          height={100}
+          width={100}
+          src={"/images/waddzo.gif"}
+          alt={process.env.NEXT_PUBLIC_ASSET_CODE?.toString() ?? ""}
+        />
+
+        <Logo />
+        <SiteAssetBalance layoutMode="legacy" />
       </div>
     </header>
-  );
-}
-
-function MobileLegacyMenu() {
-  const drawer = useDrawerOpenStore();
-
-  return (
-    <Sheet open={drawer.isOpen} onOpenChange={drawer.setIsOpen}>
-      <SheetTrigger asChild>
-        <Button
-          variant="outline"
-          size="icon"
-          className="h-6 w-6 rounded-lg border-border bg-muted"
-          aria-label="Open menu"
-        >
-          <Menu className="h-4 w-4" />
-        </Button>
-      </SheetTrigger>
-      <SheetContent side="left" className="w-80 !px-0 py-8">
-        <SheetHeader className="sr-only">
-          <SheetTitle>Navigation</SheetTitle>
-        </SheetHeader>
-        <LeftBar className="bg-base-100" />
-      </SheetContent>
-    </Sheet>
   );
 }
 

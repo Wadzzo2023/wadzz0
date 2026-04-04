@@ -55,7 +55,8 @@ export default function Layout({
   const publicRoutes = ["/about", "/privacy", "/support"];
   const isPublicRoute = publicRoutes.includes(router.pathname);
 
-  const [layoutMode, setLayoutMode] = useState<LayoutMode>("legacy");
+  const [layoutMode, setLayoutMode] = useState<LayoutMode>("modern");
+  const [hasOpenDialog, setHasOpenDialog] = useState(false);
   const isLegacyLayout = layoutMode === "legacy";
 
   useEffect(() => {
@@ -63,6 +64,27 @@ export default function Layout({
     if (storedMode === "legacy" || storedMode === "modern") {
       setLayoutMode(storedMode);
     }
+  }, []);
+
+  useEffect(() => {
+    const detectOpenDialog = () => {
+      if (typeof document === "undefined") return;
+      const openDialogs = document.querySelectorAll(
+        '[role="dialog"][data-state="open"], [role="alertdialog"][data-state="open"]',
+      );
+      setHasOpenDialog(openDialogs.length > 0);
+    };
+
+    detectOpenDialog();
+    const observer = new MutationObserver(detectOpenDialog);
+    observer.observe(document.body, {
+      subtree: true,
+      childList: true,
+      attributes: true,
+      attributeFilter: ["data-state", "role"],
+    });
+
+    return () => observer.disconnect();
   }, []);
 
   const onToggleLayoutMode = () => {
@@ -132,7 +154,11 @@ export default function Layout({
                   {isLegacyLayout ? (
                     <div className="flex-1 overflow-auto bg-base-100/50">
                       <div className="flex h-full border-t-2">
-                        <LeftBar className="hidden xl:flex" />
+                        <LeftBar
+                          className="hidden xl:flex"
+                          layoutMode="legacy"
+                          onToggleLayoutMode={onToggleLayoutMode}
+                        />
                         <div className="flex-1 border-x-2">
                           <div className="h-full overflow-y-auto bg-base-100/80 scrollbar-hide">
                             {session.status === "authenticated" ? (
@@ -200,7 +226,7 @@ export default function Layout({
                   <Toaster />
                 </div>
 
-                {!isLegacyLayout && session.status === "authenticated" ? (
+                {!isLegacyLayout && !hasOpenDialog && session.status === "authenticated" ? (
                   <GlobalFloatingNav />
                 ) : null}
 

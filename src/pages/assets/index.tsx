@@ -14,7 +14,7 @@ import { api } from "~/utils/api";
 import { ValidCreateCreator } from "../fans/creator";
 
 export default function MyAssetsPage() {
-  const [layoutMode, setLayoutMode] = useState<"modern" | "legacy">("legacy");
+  const [layoutMode, setLayoutMode] = useState<"modern" | "legacy">("modern");
 
   useEffect(() => {
     const storedMode = getCookie("wadzzo-layout-mode");

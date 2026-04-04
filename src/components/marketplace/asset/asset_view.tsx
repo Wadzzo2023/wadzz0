@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { getCookie } from "cookies-next";
 import { useEffect, useState } from "react";
 import { Badge } from "~/components/shadcn/ui/badge";
@@ -15,8 +14,27 @@ interface AssetViewProps {
   isPinned?: boolean;
 }
 
+const FALLBACK_THUMBNAIL = "/images/logo.png";
+
+function getSafeThumbnailSrc(thumbnail: string | null) {
+  if (!thumbnail) return FALLBACK_THUMBNAIL;
+  const lower = thumbnail.toLowerCase();
+  const isLikelyMediaFile =
+    lower.endsWith(".mp3") ||
+    lower.endsWith(".wav") ||
+    lower.endsWith(".m4a") ||
+    lower.endsWith(".aac") ||
+    lower.endsWith(".ogg") ||
+    lower.endsWith(".mp4") ||
+    lower.endsWith(".webm") ||
+    lower.endsWith(".mov");
+
+  return isLikelyMediaFile ? FALLBACK_THUMBNAIL : thumbnail;
+}
+
 function AssetView({ code, thumbnail, isNFT = true, isPinned = false }: AssetViewProps) {
-  const [layoutMode, setLayoutMode] = useState<"modern" | "legacy">("legacy");
+  const [layoutMode, setLayoutMode] = useState<"modern" | "legacy">("modern");
+  const safeThumbnail = getSafeThumbnailSrc(thumbnail);
 
   useEffect(() => {
     const storedMode = getCookie("wadzzo-layout-mode");
@@ -32,11 +50,13 @@ function AssetView({ code, thumbnail, isNFT = true, isPinned = false }: AssetVie
       <Card className="group h-full overflow-hidden rounded-[0.95rem] border border-[#ddd9d0] bg-white shadow-[0_6px_18px_rgba(15,23,42,0.05)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_10px_24px_rgba(15,23,42,0.08)]">
         <CardContent className="flex h-full flex-col p-0">
           <div className="relative aspect-[0.96] overflow-hidden rounded-t-[0.95rem] bg-[#d8c7bb]">
-            <Image
-              fill
+            <img
               alt={code ?? "asset"}
-              src={thumbnail ?? "https://app.wadzzo.com/images/loading.png"}
-              className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+              src={safeThumbnail}
+              className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+              onError={(e) => {
+                (e.currentTarget as HTMLImageElement).src = FALLBACK_THUMBNAIL;
+              }}
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/15 to-transparent" />
           </div>
@@ -69,11 +89,13 @@ function AssetView({ code, thumbnail, isNFT = true, isPinned = false }: AssetVie
     <Card className="group relative overflow-hidden rounded-lg transition-all hover:shadow-lg">
       <CardContent className="p-0">
         <div className="relative aspect-square overflow-hidden">
-          <Image
-            fill
+          <img
             alt={code ?? "asset"}
-            src={thumbnail ?? "https://app.wadzzo.com/images/loading.png"}
-            className="object-cover transition-transform duration-300 group-hover:scale-105"
+            src={safeThumbnail}
+            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+            onError={(e) => {
+              (e.currentTarget as HTMLImageElement).src = FALLBACK_THUMBNAIL;
+            }}
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-70 transition-opacity duration-300 group-hover:opacity-90" />
           <div className={cn("absolute bottom-0 left-0 right-0 p-4 text-white")}>

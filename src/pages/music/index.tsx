@@ -1,5 +1,4 @@
 import Head from "next/head";
-import Image from "next/image";
 import Link from "next/link";
 import { getCookie } from "cookies-next";
 import { useEffect, useState } from "react";
@@ -11,7 +10,7 @@ import CreatorTrack from "~/components/music/creator/track";
 import TrackSection, { TrackSectionSkeleton } from "~/components/music/track/section";
 
 export default function MusicPage() {
-  const [layoutMode, setLayoutMode] = useState<"modern" | "legacy">("legacy");
+  const [layoutMode, setLayoutMode] = useState<"modern" | "legacy">("modern");
 
   useEffect(() => {
     const storedMode = getCookie("wadzzo-layout-mode");
@@ -200,14 +199,29 @@ function ModernMusicCard({
   badge: string;
   priceText?: string;
 }) {
+  const fallbackImage = "/images/logo.png";
+  const cleanUrl = image?.split("?")[0]?.split("#")[0]?.toLowerCase() ?? "";
+  const safeImage =
+    cleanUrl.endsWith(".png") ||
+    cleanUrl.endsWith(".jpg") ||
+    cleanUrl.endsWith(".jpeg") ||
+    cleanUrl.endsWith(".webp") ||
+    cleanUrl.endsWith(".gif") ||
+    cleanUrl.endsWith(".svg") ||
+    cleanUrl.endsWith(".avif")
+      ? image
+      : fallbackImage;
+
   return (
     <article className="group overflow-hidden rounded-[0.95rem] border border-[#ddd9d0] bg-white shadow-[0_6px_18px_rgba(15,23,42,0.05)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_10px_24px_rgba(15,23,42,0.08)]">
       <div className="relative aspect-[0.96] overflow-hidden rounded-t-[0.95rem] bg-[#d8c7bb]">
-        <Image
-          src={image}
+        <img
+          src={safeImage}
           alt={title}
-          fill
-          className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+          onError={(e) => {
+            e.currentTarget.src = fallbackImage;
+          }}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/15 to-transparent" />
       </div>
