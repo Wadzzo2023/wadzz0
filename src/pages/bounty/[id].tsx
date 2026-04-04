@@ -476,94 +476,27 @@ const UserBountyPage = () => {
                   </div>
                 </TabsContent>
               </Tabs>
-              <div className="fixed bottom-28 right-5 z-50 md:bottom-8 md:right-8">
-                <Dialog open={isChatDialogOpen} onOpenChange={setIsChatDialogOpen}>
-                  <DialogTrigger asChild>
-                    <Button
-                      type="button"
-                      size="icon"
-                      className="h-12 w-12 rounded-full bg-[#1f86ee] text-white shadow-[0_10px_24px_rgba(31,134,238,0.35)] hover:bg-[#1877da]"
-                    >
-                      <MessageCircle className="h-5 w-5" />
-                      <span className="sr-only">Open chat</span>
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className="w-[96vw] max-w-xl p-0">
-                    <div className="flex items-center justify-between border-b px-4 py-3">
-                      <div className="flex items-center gap-2">
-                        <Avatar className="h-8 w-8">
-                          <AvatarImage src={data.creator.profileUrl ?? ""} alt={data.creator.name} />
-                          <AvatarFallback>{data.creator.name.slice(0, 2)}</AvatarFallback>
-                        </Avatar>
-                        <div>
-                          <p className="text-sm font-medium">{addrShort(data.creator.id)}</p>
-                          <p className="text-xs text-muted-foreground">{data.creator.name}</p>
-                        </div>
-                      </div>
-                      <DialogTitle className="sr-only">Bounty Chat</DialogTitle>
-                    </div>
-                    <div className="max-h-[380px] min-h-[320px] space-y-3 overflow-y-auto px-4 py-3">
-                      {messages?.map((message, index) => (
-                        <div
-                          key={index}
-                          className={cn(
-                            "flex max-w-[78%] flex-col gap-2 rounded-lg px-3 py-2 text-sm",
-                            message.role === UserRole.USER
-                              ? "ml-auto bg-primary text-primary-foreground"
-                              : "bg-muted",
-                          )}
-                        >
-                          {sanitizeInput(message.message).sanitizedInput}
-                          {sanitizeInput(message.message).urls?.map((url, linkIndex) => (
-                            <div
-                              key={linkIndex}
-                              className="w-full rounded-md bg-[#F5F7FB] py-2 shadow-sm"
-                            >
-                              <Link
-                                href={url}
-                                className="flex items-center justify-start gap-2"
-                              >
-                                <File color="black" />
-                                <span className="text-base font-medium text-[#07074D]">
-                                  {url}
-                                </span>
-                              </Link>
-                            </div>
-                          ))}
-                          <div ref={messagesEndRef} />
-                        </div>
-                      ))}
-                    </div>
-                    <div className="border-t px-4 py-3">
-                      <form onSubmit={handleSubmit} className="flex w-full items-center space-x-2">
-                        <Input
-                          id="message"
-                          placeholder="Type your message..."
-                          className="flex-1"
-                          autoComplete="off"
-                          value={input}
-                          onChange={(event) => setInput(event.target.value)}
-                        />
-                        <Button
-                          type="submit"
-                          size="icon"
-                          disabled={inputLength === 0 || NewMessageMutation.isLoading}
-                        >
-                          <Send className="h-4 w-4" />
-                          <span className="sr-only">Send</span>
-                        </Button>
-                      </form>
-                      {NewMessageMutation.isError && (
-                        <Alert
-                          className="mt-2"
-                          type="error"
-                          content={NewMessageMutation.error.message}
-                        />
-                      )}
-                    </div>
-                  </DialogContent>
-                </Dialog>
-              </div>
+              <Dialog
+                open={isChatDialogOpen}
+                onOpenChange={(open) => {
+                  setIsChatDialogOpen(open);
+                }}
+              >
+                <DialogTrigger asChild>
+                  <Button
+                    type="button"
+                    className="fixed bottom-24 right-4 z-40 rounded-full bg-[#1f86ee] px-5 text-white shadow-[0_10px_24px_rgba(31,134,238,0.35)] hover:bg-[#1877da] md:bottom-28 md:right-6"
+                  >
+                    <MessageCircle className="mr-2 h-4 w-4" />
+                    Chat
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="w-[calc(100vw-1rem)] max-w-[1040px] gap-0 border border-black/10 p-0 sm:w-full">
+                  <div className="h-[min(78vh,720px)] overflow-hidden">
+                    <Chat bountyId={data.id} />
+                  </div>
+                </DialogContent>
+              </Dialog>
               <div className="mt-6 flex flex-col justify-between gap-2 md:flex-row md:items-center">
                 <div className="flex flex-col gap-4  md:flex-row md:items-center md:space-x-4">
                   <Badge variant="secondary" className="flex items-center border border-[#ebe7df] bg-[#f8f6f2] text-black/75">
@@ -1168,38 +1101,27 @@ const AdminBountyPage = () => {
                 </div>
               </TabsContent>
             </Tabs>
-            <div className="fixed bottom-28 right-5 z-50 md:bottom-8 md:right-8">
-              <Dialog open={isChatDialogOpen} onOpenChange={setIsChatDialogOpen}>
-                <DialogTrigger asChild>
-                  <Button
-                    type="button"
-                    size="icon"
-                    className="h-12 w-12 rounded-full bg-[#1f86ee] text-white shadow-[0_10px_24px_rgba(31,134,238,0.35)] hover:bg-[#1877da]"
-                  >
-                    <MessageCircle className="h-5 w-5" />
-                    <span className="sr-only">Open chat</span>
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="w-[96vw] max-w-xl p-0">
-                  <div className="flex items-center justify-between border-b px-4 py-3">
-                    <div className="flex items-center gap-2">
-                      <Avatar className="h-8 w-8">
-                        <AvatarImage src={data.creator.profileUrl ?? ""} alt={data.creator.name} />
-                        <AvatarFallback>{data.creator.name.slice(0, 2)}</AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <p className="text-sm font-medium">{addrShort(data.creator.id)}</p>
-                        <p className="text-xs text-muted-foreground">{data.creator.name}</p>
-                      </div>
-                    </div>
-                    <DialogTitle className="sr-only">Bounty Chat</DialogTitle>
-                  </div>
-                  <div className="max-h-[68vh] min-h-[360px] overflow-y-auto p-4">
-                    <Chat bountyId={data.id} />
-                  </div>
-                </DialogContent>
-              </Dialog>
-            </div>
+            <Dialog
+              open={isChatDialogOpen}
+              onOpenChange={(open) => {
+                setIsChatDialogOpen(open);
+              }}
+            >
+              <DialogTrigger asChild>
+                <Button
+                  type="button"
+                  className="fixed bottom-24 right-4 z-40 rounded-full bg-[#1f86ee] px-5 text-white shadow-[0_10px_24px_rgba(31,134,238,0.35)] hover:bg-[#1877da] md:bottom-28 md:right-6"
+                >
+                  <MessageCircle className="mr-2 h-4 w-4" />
+                  Chat
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="w-[calc(100vw-1rem)] max-w-[1040px] gap-0 border border-black/10 p-0 sm:w-full">
+                <div className="h-[min(78vh,720px)] overflow-hidden">
+                  <Chat bountyId={data.id} />
+                </div>
+              </DialogContent>
+            </Dialog>
             <div className="mt-6 flex flex-col justify-between gap-2 md:flex-row md:items-center">
               <div className="flex flex-col gap-4  md:flex-row md:items-center md:space-x-4">
                 <Badge variant="secondary" className="flex items-center border border-[#ebe7df] bg-[#f8f6f2] text-black/75">
