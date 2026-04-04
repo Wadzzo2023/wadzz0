@@ -28,7 +28,7 @@ function Page({ postId }: { postId: string }) {
   if (isLoading) {
     return (
 
-      <Card className="w-full max-w-2xl mx-auto mt-8 h-full">
+      <Card className="mx-auto mt-6 h-full w-full max-w-6xl">
         <CardHeader>
           <Skeleton className="h-8 w-3/4" />
           <Skeleton className="h-4 w-1/2" />
@@ -44,7 +44,7 @@ function Page({ postId }: { postId: string }) {
 
   if (error ?? (!data)) {
     return (
-      <Card className="w-full max-w-2xl mx-auto mt-8 ">
+      <Card className="mx-auto mt-6 w-full max-w-6xl">
         <CardHeader>
 
         </CardHeader>

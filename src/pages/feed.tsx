@@ -1,160 +1,221 @@
 import Head from "next/head";
-import { PostCard } from "~/components/fan/creator/post";
-
+import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
+import { AnimatePresence, motion } from "framer-motion";
+import { ChevronDown, ChevronUp, Globe, Lock, User } from "lucide-react";
+
+import { Tabs, TabsList, TabsTrigger } from "~/components/shadcn/ui/tabs";
+import { Button } from "~/components/shadcn/ui/button";
+import { PostCard } from "~/components/fan/creator/post";
 import Loading from "~/components/wallete/loading";
 import { getAssetBalanceFromBalance } from "~/lib/stellar/marketplace/test/acc";
-import { api } from "~/utils/api";
+import { cn } from "~/lib/utils";
 import { env } from "~/env";
+import { api } from "~/utils/api";
 
-export default function Home() {
+enum FeedTab {
+  All = "all",
+  Public = "public",
+  Locked = "locked",
+  Followed = "followed",
+}
+
+export default function FeedPage() {
   return (
     <>
       <Head>
-        <title>Creators | {env.NEXT_PUBLIC_SITE}</title>
+        <title>News Feed | {env.NEXT_PUBLIC_SITE}</title>
         <meta
           name="description"
-          content="A subscription-based platform that connects creators with their fans on Stellar Blockchain."
+          content="Check out the latest stories and posts from creators."
         />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <main className="">
-        <AuthShowcase />
+      <main>
+        <FeedContent />
       </main>
     </>
   );
 }
 
-function AuthShowcase() {
-  const { data, status } = useSession();
-  // if (status == "authenticated") return <div>{data.user.id}</div>;
-  return (
-    <div className="w-full">
-      <h1 className="flex items-center justify-center rounded-md  bg-base-100 py-3 text-center text-2xl font-bold shadow-md">
-        News Feed
-      </h1>
-      {/* <div className="flex flex-col items-center">
-        <CreatorSecret />
-      </div> */}
-      <div className="mt-2 flex w-full flex-col items-center ">
-        <AllRecentPost />
-      </div>
-    </div>
-  );
-}
+function FeedContent() {
+  const session = useSession();
+  const [activeTab, setActiveTab] = useState<FeedTab>(FeedTab.All);
+  const [isScrolled, setIsScrolled] = useState(false);
 
-function AllRecentPost() {
   const posts = api.fan.post.getAllRecentPosts.useInfiniteQuery(
+    { limit: 5 },
     {
-      limit: 5,
-    },
-    {
-      getNextPageParam: (lastPage) => {
-        return lastPage.nextCursor;
-      },
-
+      getNextPageParam: (lastPage) => lastPage.nextCursor,
       refetchOnWindowFocus: false,
     },
   );
 
-  const handleFetchNextPage = () => {
-    void posts.fetchNextPage();
-  };
+  const accBalances = api.wallate.acc.getUserPubAssetBallances.useQuery(undefined, {
+    enabled: !!session.data?.user?.id,
+  });
 
-  const accBalances = api.wallate.acc.getUserPubAssetBallances.useQuery();
+  useEffect(() => {
+    const onScroll = () => setIsScrolled(window.scrollY > 140);
+    window.addEventListener("scroll", onScroll);
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
-  // if (isLoading2) return <div>Loading to fetch membership...</div>;
+  return (
+    <div className="mx-auto w-full max-w-7xl px-4 pb-24 pt-5 md:px-6">
+      <motion.div
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.25 }}
+        className="mb-4"
+      >
+        <h1 className="mb-1 text-3xl font-bold text-gray-900">News Feed</h1>
+        <p className="text-sm text-gray-500">Check out the latest stories and posts</p>
+      </motion.div>
 
-  if (posts.isLoading) return <Loading />;
-  // return (
-  //   <div className="flex flex-col gap-4">
-  //     <PostSkeleton />
-  //     <PostSkeleton />
-  //   </div>
-  // );
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.35, delay: 0.15 }}
+        className={cn(
+          "sticky top-0 z-20 -mx-4 mb-4 border-b border-zinc-200 bg-white/90 px-4 py-3 backdrop-blur-sm",
+          "md:-mx-6 md:px-6",
+        )}
+      >
+        <Tabs defaultValue={FeedTab.All} onValueChange={(value) => setActiveTab(value as FeedTab)}>
+          <div className="overflow-x-auto scrollbar-hide [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+            <TabsList className="inline-flex h-auto min-w-full justify-start gap-2 bg-transparent p-0">
+              <TabsTrigger value={FeedTab.All} className="shrink-0 rounded-full border border-zinc-300 bg-zinc-100 px-3 py-1.5 text-xs font-medium text-zinc-700 data-[state=active]:border-zinc-900 data-[state=active]:bg-zinc-900 data-[state=active]:text-white">
+                All Posts
+              </TabsTrigger>
+              <TabsTrigger value={FeedTab.Public} className="flex shrink-0 items-center gap-1 rounded-full border border-zinc-300 bg-zinc-100 px-3 py-1.5 text-xs font-medium text-zinc-700 data-[state=active]:border-zinc-900 data-[state=active]:bg-zinc-900 data-[state=active]:text-white">
+                <Globe className="h-3.5 w-3.5" /> Public
+              </TabsTrigger>
+              <TabsTrigger value={FeedTab.Locked} className="flex shrink-0 items-center gap-1 rounded-full border border-zinc-300 bg-zinc-100 px-3 py-1.5 text-xs font-medium text-zinc-700 data-[state=active]:border-zinc-900 data-[state=active]:bg-zinc-900 data-[state=active]:text-white">
+                <Lock className="h-3.5 w-3.5" /> Locked
+              </TabsTrigger>
+              <TabsTrigger value={FeedTab.Followed} className="flex shrink-0 items-center gap-1 rounded-full border border-zinc-300 bg-zinc-100 px-3 py-1.5 text-xs font-medium text-zinc-700 data-[state=active]:border-zinc-900 data-[state=active]:bg-zinc-900 data-[state=active]:text-white">
+                <User className="h-3.5 w-3.5" /> Followed
+              </TabsTrigger>
+            </TabsList>
+          </div>
+        </Tabs>
+      </motion.div>
 
-  if (posts.data) {
-    return (
-      <div className="flex w-full flex-col items-center gap-4 bg-base-100 p-2 md:container md:mx-auto">
-        {posts.data.pages.map((page) => (
-          <>
-            {page.posts.length === 0 && <p>There are no post yet</p>}
-            {page.posts.map((post) => (
-              <PostCard
-                priority={1}
-                commentCount={post._count.comments}
-                creator={post.creator}
-                key={post.id}
-                post={post}
-                likeCount={post._count.likes}
-                locked={post.subscription ? true : false}
-                show={(() => {
-                  if (post.subscription) {
-                    let pageAssetCode: string | undefined;
-                    let pageAssetIssuer: string | undefined;
+      {posts.isLoading ? (
+        <Loading />
+      ) : (
+        <AnimatePresence initial={false} mode="sync">
+          <motion.div
+            key={activeTab}
+            initial={{ opacity: 0, x: 10 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -10 }}
+            transition={{ duration: 0.2, type: "spring", stiffness: 100, damping: 15 }}
+            className="mt-2 space-y-0"
+          >
+            {posts.data?.pages.map((page, pageIndex) => (
+              <div key={`page-${pageIndex}`}>
+                {page.posts
+                  .filter((post) => {
+                    if (activeTab === FeedTab.All) return true;
+                    if (activeTab === FeedTab.Public) return !post.subscription;
+                    if (activeTab === FeedTab.Locked) return !!post.subscription;
+                    if (activeTab === FeedTab.Followed) {
+                      const creatorWithFollowers = post.creator as { followers?: unknown };
+                      return Array.isArray(creatorWithFollowers.followers) && creatorWithFollowers.followers.length > 0;
+                    }
+                    return true;
+                  })
+                  .map((post) => {
+                    const locked = !!post.subscription;
+                    let hasAccess = !locked;
 
-                    const customPageAsset =
-                      post.creator.customPageAssetCodeIssuer;
-                    const pageAsset = post.creator.pageAsset;
+                    if (locked && post.subscription) {
+                      let pageAssetCode: string | undefined;
+                      let pageAssetIssuer: string | undefined;
 
-                    if (pageAsset) {
-                      pageAssetCode = pageAsset.code;
-                      pageAssetIssuer = pageAsset.issuer;
-                    } else {
-                      if (customPageAsset) {
+                      const customPageAsset = post.creator.customPageAssetCodeIssuer;
+                      const pageAsset = post.creator.pageAsset;
+
+                      if (pageAsset) {
+                        pageAssetCode = pageAsset.code;
+                        pageAssetIssuer = pageAsset.issuer;
+                      } else if (customPageAsset) {
                         const [code, issuer] = customPageAsset.split("-");
                         pageAssetCode = code;
                         pageAssetIssuer = issuer;
                       }
-                    }
-                    const bal = getAssetBalanceFromBalance({
-                      balances: accBalances.data,
-                      code: pageAssetCode,
-                      issuer: pageAssetIssuer,
-                    });
-                    if (post.subscription.price <= bal) {
-                      return true;
+
+                      const bal = getAssetBalanceFromBalance({
+                        balances: accBalances.data,
+                        code: pageAssetCode,
+                        issuer: pageAssetIssuer,
+                      });
+
+                      hasAccess = post.subscription.price <= (bal || 0);
                     }
 
-                    return false;
-                  } else return true;
-                })()}
-                media={post.medias ? post.medias : []}
-              />
+                    return (
+                      <PostCard
+                        key={post.id}
+                        priority={1}
+                        commentCount={post._count.comments}
+                        creator={post.creator}
+                        post={post}
+                        likeCount={post._count.likes}
+                        locked={locked}
+                        show={hasAccess}
+                        media={post.medias ?? []}
+                      />
+                    );
+                  })}
+              </div>
             ))}
-          </>
-        ))}
 
-        {posts.hasNextPage && (
-          <button onClick={handleFetchNextPage} className="btn">
-            {posts.isFetching && (
-              <span className="loading loading-spinner"></span>
+            {posts.data?.pages?.every((page) => page.posts.length === 0) ? (
+              <p className="py-10 text-center text-sm text-muted-foreground">There are no posts yet</p>
+            ) : null}
+          </motion.div>
+        </AnimatePresence>
+      )}
+
+      {posts.hasNextPage && (
+        <div className="mt-8 flex justify-center">
+          <Button
+            onClick={() => void posts.fetchNextPage()}
+            variant="outline"
+            className="gap-2"
+            disabled={posts.isFetching}
+          >
+            {posts.isFetching ? (
+              <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+            ) : (
+              <ChevronDown className="h-4 w-4" />
             )}
-            See more
-          </button>
-        )}
-      </div>
-    );
-  }
-}
+            Load More
+          </Button>
+        </div>
+      )}
 
-export function PostSkeleton() {
-  return (
-    <div className="flex w-64 flex-col gap-4">
-      <div className="skeleton h-32 w-full"></div>
-      <div className="skeleton h-4 w-28"></div>
-      <div className="skeleton h-4 w-full"></div>
-      <div className="skeleton h-4 w-full"></div>
+      <AnimatePresence>
+        {isScrolled && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+            className="fixed bottom-24 right-4 md:bottom-28 md:right-6"
+          >
+            <Button
+              size="icon"
+              className="rounded-full shadow-lg"
+              onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+            >
+              <ChevronUp className="h-5 w-5" />
+            </Button>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
-
-// function CreatorSecret() {
-
-//   console.log(email, uid);
-
-//   const secret = api.fan.creator.getCreatorSecret.useQuery({ email, uid });
-//   if (secret.isLoading) return <div>Loading...</div>;
-//   if (secret.data) return <div>{secret.data}</div>;
-//   if (secret.error) return <div>{secret.error.message}</div>;
-// }
