@@ -12,6 +12,7 @@ import { usePlayer } from "~/components/context/PlayerContext";
 import { useModal } from "~/lib/state/play/use-modal-store";
 import { api } from "~/utils/api";
 import { ValidCreateCreator } from "../fans/creator";
+import { PLATFORM_ASSET } from "~/lib/stellar/constant";
 
 export default function MyAssetsPage() {
   const [layoutMode, setLayoutMode] = useState<"modern" | "legacy">("modern");
@@ -88,6 +89,23 @@ function MyStorageAsset() {
                 code={asset.name}
                 thumbnail={asset.thumbnail}
                 isNFT={true}
+                priceText={
+                  typeof asset.marketPrice === "number"
+                    ? `${asset.marketPrice.toFixed(2)} ${PLATFORM_ASSET.code.toUpperCase()}`
+                    : undefined
+                }
+                subPriceText={
+                  typeof asset.marketPriceUSD === "number"
+                    ? `~$${asset.marketPriceUSD.toFixed(2)}`
+                    : undefined
+                }
+                actionLabel="View Details"
+                onAction={() => {
+                  setCurrentTrack(null);
+                  onOpen("my asset info modal", {
+                    MyAsset: asset,
+                  });
+                }}
               />
             </div>
           );
@@ -146,6 +164,23 @@ function MyAssets() {
                   code={asset.name}
                   thumbnail={asset.thumbnail}
                   isNFT={true}
+                  priceText={
+                    typeof asset.marketPrice === "number"
+                      ? `${asset.marketPrice.toFixed(2)} ${PLATFORM_ASSET.code.toUpperCase()}`
+                      : undefined
+                  }
+                  subPriceText={
+                    typeof asset.marketPriceUSD === "number"
+                      ? `~$${asset.marketPriceUSD.toFixed(2)}`
+                      : undefined
+                  }
+                  actionLabel="View Details"
+                  onAction={() => {
+                    setCurrentTrack(null);
+                    onOpen("my asset info modal", {
+                      MyAsset: asset,
+                    });
+                  }}
                 />
               </div>
             ))}
@@ -195,13 +230,51 @@ function MyAssets() {
 
 function AssetTabs() {
   const { selectedMenu, setSelectedMenu } = useAssetMenu();
+  const [layoutMode, setLayoutMode] = useState<"modern" | "legacy">("modern");
 
   const creator = api.fan.creator.meCreator.useQuery();
+  useEffect(() => {
+    const storedMode = getCookie("wadzzo-layout-mode");
+    if (storedMode === "modern" || storedMode === "legacy") {
+      setLayoutMode(storedMode);
+    }
+  }, []);
+
+  const tabs = Object.values(AssetMenu).filter((key) => {
+    if (key == AssetMenu.STORAGE && creator.data == undefined) return false;
+    return true;
+  });
+
+  if (layoutMode === "modern") {
+    return (
+      <div className="my-5 flex w-full justify-center">
+        <div className="relative w-fit overflow-hidden rounded-[0.9rem] border border-black/15 bg-[#f3f1ea]/80 p-[0.3rem] shadow-[0_8px_24px_rgba(0,0,0,0.05)]">
+          <div className="inline-flex items-center gap-0.5">
+            {tabs.map((key) => (
+              <button
+                key={key}
+                type="button"
+                onClick={handleClick(key)}
+                className={clsx(
+                  "relative inline-flex items-center justify-center rounded-[0.7rem] border px-3 py-1.5 text-sm font-normal transition-all duration-200",
+                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60",
+                  selectedMenu === key
+                    ? "border-white/60 bg-white/55 text-black shadow-[inset_1px_1px_1px_0_rgba(255,255,255,0.92),_inset_-1px_-1px_1px_1px_rgba(255,255,255,0.72),_0_8px_20px_rgba(255,255,255,0.24)] backdrop-blur-[6px]"
+                    : "border-transparent bg-transparent text-black/65 hover:bg-white/35 hover:text-black",
+                )}
+              >
+                {key}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div role="tablist" className="tabs-boxed tabs my-5 w-full max-w-md">
-      {Object.values(AssetMenu).map((key) => {
-        if (key == AssetMenu.STORAGE && creator.data == undefined) return null;
+      {tabs.map((key) => {
         return (
           <a
             key={key}

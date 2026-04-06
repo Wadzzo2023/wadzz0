@@ -39,7 +39,45 @@ export const accRouter = createTRPCRouter({
       });
     });
 
-    return { dbAssets, accAssets, assets };
+    const marketItems = dbAssets.length
+      ? await ctx.db.marketAsset.findMany({
+          where: {
+            assetId: {
+              in: dbAssets.map((asset) => asset.id),
+            },
+          },
+          select: {
+            assetId: true,
+            price: true,
+            priceUSD: true,
+            placedAt: true,
+          },
+          orderBy: {
+            placedAt: "desc",
+          },
+        })
+      : [];
+
+    const latestPriceMap = new Map<number, { price: number; priceUSD: number }>();
+    for (const item of marketItems) {
+      if (!latestPriceMap.has(item.assetId)) {
+        latestPriceMap.set(item.assetId, {
+          price: item.price,
+          priceUSD: item.priceUSD,
+        });
+      }
+    }
+
+    const dbAssetsWithPrice = dbAssets.map((asset) => {
+      const marketPrice = latestPriceMap.get(asset.id);
+      return {
+        ...asset,
+        marketPrice: marketPrice?.price ?? null,
+        marketPriceUSD: marketPrice?.priceUSD ?? null,
+      };
+    });
+
+    return { dbAssets: dbAssetsWithPrice, accAssets, assets };
   }),
 
   getAccountBalance: protectedProcedure.query(async ({ ctx, input }) => {
@@ -134,7 +172,45 @@ export const accRouter = createTRPCRouter({
       });
     });
 
-    return { dbAssets, accAssets, assets };
+    const marketItems = dbAssets.length
+      ? await ctx.db.marketAsset.findMany({
+          where: {
+            assetId: {
+              in: dbAssets.map((asset) => asset.id),
+            },
+          },
+          select: {
+            assetId: true,
+            price: true,
+            priceUSD: true,
+            placedAt: true,
+          },
+          orderBy: {
+            placedAt: "desc",
+          },
+        })
+      : [];
+
+    const latestPriceMap = new Map<number, { price: number; priceUSD: number }>();
+    for (const item of marketItems) {
+      if (!latestPriceMap.has(item.assetId)) {
+        latestPriceMap.set(item.assetId, {
+          price: item.price,
+          priceUSD: item.priceUSD,
+        });
+      }
+    }
+
+    const dbAssetsWithPrice = dbAssets.map((asset) => {
+      const marketPrice = latestPriceMap.get(asset.id);
+      return {
+        ...asset,
+        marketPrice: marketPrice?.price ?? null,
+        marketPriceUSD: marketPrice?.priceUSD ?? null,
+      };
+    });
+
+    return { dbAssets: dbAssetsWithPrice, accAssets, assets };
   }),
 
   getAStorageAssetInMarket: protectedProcedure

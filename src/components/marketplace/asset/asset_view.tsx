@@ -12,6 +12,10 @@ interface AssetViewProps {
   thumbnail: string | null;
   isNFT?: boolean;
   isPinned?: boolean;
+  priceText?: string;
+  subPriceText?: string;
+  actionLabel?: string;
+  onAction?: () => void;
 }
 
 const FALLBACK_THUMBNAIL = "/images/logo.png";
@@ -32,7 +36,16 @@ function getSafeThumbnailSrc(thumbnail: string | null) {
   return isLikelyMediaFile ? FALLBACK_THUMBNAIL : thumbnail;
 }
 
-function AssetView({ code, thumbnail, isNFT = true, isPinned = false }: AssetViewProps) {
+function AssetView({
+  code,
+  thumbnail,
+  isNFT = true,
+  isPinned = false,
+  priceText,
+  subPriceText,
+  actionLabel,
+  onAction,
+}: AssetViewProps) {
   const [layoutMode, setLayoutMode] = useState<"modern" | "legacy">("modern");
   const safeThumbnail = getSafeThumbnailSrc(thumbnail);
 
@@ -79,7 +92,27 @@ function AssetView({ code, thumbnail, isNFT = true, isPinned = false }: AssetVie
             <h3 className="line-clamp-1 text-[0.98rem] font-semibold leading-tight text-black/90">
               {code}
             </h3>
+            {priceText ? (
+              <div className="flex items-center gap-1 text-sm font-medium text-black/88">
+                <span className="text-[#1f86ee]">{priceText}</span>
+                {subPriceText ? <span className="text-black/55">{subPriceText}</span> : null}
+              </div>
+            ) : null}
           </div>
+          {actionLabel ? (
+            <div className="relative z-20 mt-2 md:pointer-events-none md:absolute md:inset-x-0 md:bottom-0 md:mt-0 md:translate-y-full md:opacity-0 md:transition-all md:duration-300 md:group-hover:pointer-events-auto md:group-hover:translate-y-0 md:group-hover:opacity-100">
+              <button
+                type="button"
+                className="h-11 w-full rounded-none border-0 bg-[#1f86ee] px-4 text-sm font-semibold text-white shadow-none hover:bg-[#1877da]"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onAction?.();
+                }}
+              >
+                {actionLabel}
+              </button>
+            </div>
+          ) : null}
         </CardContent>
       </Card>
     );

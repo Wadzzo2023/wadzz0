@@ -6,8 +6,7 @@ import type { BountyProps } from "~/lib/state/bounty/use-bounty-store";
 import { PLATFORM_ASSET } from "~/lib/stellar/constant";
 import { api } from "~/utils/api";
 import { sortOptionEnum } from "~/components/fan/creator/bounty/BountyList";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "~/components/shadcn/ui/card";
-import { Badge } from "~/components/shadcn/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "~/components/shadcn/ui/card";
 import { Award, Search, ChevronDown } from 'lucide-react';
 import { Input } from "~/components/shadcn/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "~/components/shadcn/ui/select";
@@ -130,22 +129,18 @@ const Bounty: React.FC = () => {
                       </p>
                     </div>
                   </CardContent>
-                  <CardFooter className="border-t border-[#ebe7df] p-0">
-                    <div className="grid w-full grid-cols-2">
-                      <Badge
-                        variant="secondary"
-                        className="justify-center rounded-none border-0 bg-transparent py-3 text-xs font-medium text-black/70"
-                      >
-                        {bounty._count.participants} participants
-                      </Badge>
-                      <Badge
-                        variant="secondary"
-                        className="justify-center rounded-none border-l border-[#ebe7df] bg-transparent py-3 text-xs font-medium text-black/70"
-                      >
-                        {bounty.totalWinner - bounty.currentWinnerCount} winners left
-                      </Badge>
-                    </div>
-                  </CardFooter>
+                  <div className="relative z-20 mt-3 md:pointer-events-none md:absolute md:inset-x-0 md:bottom-0 md:mt-0 md:translate-y-full md:opacity-0 md:transition-all md:duration-300 md:group-hover:pointer-events-auto md:group-hover:translate-y-0 md:group-hover:opacity-100">
+                    <Button
+                      variant="default"
+                      className="h-12 w-full rounded-none border-0 bg-[#1f86ee] px-4 text-base font-semibold text-white shadow-none hover:bg-[#1877da]"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleBountyClick(bounty as BountyProps);
+                      }}
+                    >
+                      View Details
+                    </Button>
+                  </div>
                 </Card>
               ))}
             </React.Fragment>
