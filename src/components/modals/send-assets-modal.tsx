@@ -35,7 +35,7 @@ import {
 
 import { Button } from "~/components/shadcn/ui/button";
 import { api } from "~/utils/api";
-import { RotateCw } from "lucide-react";
+import { Lock, RotateCw } from "lucide-react";
 
 import { clientsign } from "package/connect_wallet";
 import { useSession } from "next-auth/react";
@@ -569,32 +569,38 @@ const SendAssets = () => {
                       Send Assets
                     </Button>
                   </DialogTrigger>
-                  <DialogContent className="sm:max-w-[425px]">
-                    <DialogHeader>
-                      <DialogTitle>Confirmation </DialogTitle>
-                    </DialogHeader>
-                    <div className="mt-6 w-full space-y-6 sm:mt-8 lg:mt-0 lg:max-w-xs xl:max-w-md">
-                      <div className="flex flex-col gap-2">
-                        <p className="font-semibold">
-                          Recipient Id:{" "}
-                          {addrShort(form.watch("recipientId"), 10)}
-                        </p>
-                        <p className="font-semibold">
-                          Amount: {form.watch("amount")}
-                        </p>
-                        <p className="font-semibold">
-                          Asset Code: {form.watch("selectItem").split("-")[0]}
-                        </p>
+                  <DialogContent className="max-w-[92vw] rounded-[2.5rem] border-0 bg-white p-7 shadow-[0_28px_80px_-36px_rgba(15,23,42,0.45)] sm:max-w-[480px] sm:rounded-[3rem] sm:p-8">
+                    <DialogHeader className="items-center space-y-4 text-center">
+                      <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[#eef0ff]">
+                        <Lock className="h-8 w-8 text-[#8b8af3]" />
                       </div>
+                      <DialogTitle className="text-2xl font-semibold tracking-tight text-black sm:text-[1.75rem]">
+                        Confirm
+                      </DialogTitle>
+                    </DialogHeader>
+                    <div className="space-y-2 pb-2 text-center">
+                      <p className="text-lg font-medium text-black/65">
+                        You are about to send{" "}
+                        <span className="font-semibold text-black">
+                          {form.watch("amount")}
+                        </span>{" "}
+                        <span className="font-semibold text-black">
+                          {form.watch("selectItem").split("-")[0] || "asset"}
+                        </span>
+                      </p>
+                      <p className="text-base text-black/50">
+                        to {addrShort(form.watch("recipientId"), 10)}.
+                      </p>
                     </div>
                     <DialogFooter className="w-full">
-                      <div className="flex w-full gap-4">
+                      <div className="grid w-full grid-cols-2 gap-4">
                         <DialogClose className="w-full">
                           <Button
                             disabled={loading}
-                            variant="outline"
+                            type="button"
+                            variant="ghost"
                             onClick={() => setIsDialogOpen(false)}
-                            className="w-full"
+                            className="h-11 w-full rounded-2xl border-0 bg-[#eceef2] text-base font-semibold text-black/70 hover:bg-[#e5e7eb]"
                           >
                             Cancel
                           </Button>
@@ -602,9 +608,8 @@ const SendAssets = () => {
                         <Button
                           disabled={loading}
                           onClick={form.handleSubmit(onSubmit)}
-                          variant="destructive"
                           type="submit"
-                          className="w-full"
+                          className="h-11 w-full rounded-2xl border-0 bg-primary text-base font-semibold text-primary-foreground hover:bg-primary/90"
                         >
                           Confirm
                         </Button>
