@@ -82,13 +82,28 @@ import Loading from "~/components/wallete/loading";
 import { clientSelect } from "~/lib/stellar/fan/utils";
 import { cn } from "~/lib/utils";
 import { addrShort } from "~/utils/utils";
+import { getCookie } from "cookies-next";
+import LegacyBountyDetailPage from "~/components/bounty/legacy-bounty-detail-page";
 
 const SingleBountyPage = () => {
+  const [layoutMode, setLayoutMode] = useState<"modern" | "legacy">("modern");
+
+  useEffect(() => {
+    const storedMode = getCookie("wadzzo-layout-mode");
+    if (storedMode === "legacy" || storedMode === "modern") {
+      setLayoutMode(storedMode);
+    }
+  }, []);
+
   const router = useRouter();
   const { id } = router.query;
   const { data: Owner } = api.bounty.Bounty.isOwnerOfBounty.useQuery({
     BountyId: Number(id),
   });
+
+  if (layoutMode === "legacy") {
+    return <LegacyBountyDetailPage />;
+  }
 
   return (
     <div className="relative flex h-[calc(100vh-10.8vh)] w-full flex-col gap-4 overflow-y-auto px-3 scrollbar-hide md:mx-auto md:w-[85vw] md:px-0">

@@ -12,12 +12,15 @@ import { Input } from "~/components/shadcn/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "~/components/shadcn/ui/select";
 import { Button } from "~/components/shadcn/ui/button";
 import { addrShort } from "~/utils/utils";
+import { getCookie } from "cookies-next";
+import LegacyBountyPage from "~/components/bounty/legacy-bounty-page";
 
 const Bounty: React.FC = () => {
   const router = useRouter();
   const [searchTerm, setSearchTerm] = useState("");
   const [sortOption, setSortOption] = useState<sortOptionEnum>(sortOptionEnum.DATE_DESC);
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
+  const [layoutMode, setLayoutMode] = useState<"modern" | "legacy">("modern");
 
   const getAllBounty = api.bounty.Bounty.getAllBounties.useInfiniteQuery(
     {
@@ -40,9 +43,20 @@ const Bounty: React.FC = () => {
     };
   }, [searchTerm]);
 
+  useEffect(() => {
+    const storedMode = getCookie("wadzzo-layout-mode");
+    if (storedMode === "legacy" || storedMode === "modern") {
+      setLayoutMode(storedMode);
+    }
+  }, []);
+
   const handleBountyClick = (bounty: BountyProps) => {
     void router.push(`/bounty/${bounty.id}`);
   };
+
+  if (layoutMode === "legacy") {
+    return <LegacyBountyPage />;
+  }
 
   return (
     <div className="relative flex h-[calc(100vh-10.8vh)] w-full flex-col gap-4 overflow-y-auto px-3 pt-3 scrollbar-hide md:mx-auto md:w-[85vw] md:px-0 md:pt-4">
