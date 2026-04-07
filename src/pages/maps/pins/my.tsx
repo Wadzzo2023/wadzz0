@@ -5,7 +5,7 @@ import { useModal } from "~/lib/state/play/use-modal-store";
 import { Button } from "~/components/shadcn/ui/button";
 import { api } from "~/utils/api";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/shadcn/ui/tabs"
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Check, Gift, Loader2, RefreshCw } from "lucide-react";
 import { motion } from "framer-motion"
 import {
@@ -23,25 +23,74 @@ import { addrShort } from "~/utils/utils";
 import useNeedSign from "~/lib/hook";
 import { clientsign } from "package/connect_wallet";
 import { clientSelect } from "~/lib/stellar/fan/utils";
+import { getCookie } from "cookies-next";
+import clsx from "clsx";
 interface GiftTabProps {
   customerPubkey: string
 }
 export default function Page() {
   const session = useSession()
+  const [layoutMode, setLayoutMode] = useState<"modern" | "legacy">("modern");
+
+  useEffect(() => {
+    const storedMode = getCookie("wadzzo-layout-mode");
+    if (storedMode === "legacy" || storedMode === "modern") {
+      setLayoutMode(storedMode);
+    }
+  }, []);
+
+  const isModernLayout = layoutMode === "modern";
+
   return (
-    <div className="container mx-auto py-6">
+    <div
+      className={
+        isModernLayout
+          ? "p-2 md:mx-auto md:w-[85vw]"
+          : "container mx-auto py-6"
+      }
+    >
+      {isModernLayout ? <h1 className="text-3xl font-semibold tracking-tight text-black/90">Claim</h1> : null}
       <Tabs defaultValue="consumed" className="w-full">
-        <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="consumed">Consumed Pins</TabsTrigger>
-          <TabsTrigger value="gifts">Gift Items</TabsTrigger>
-        </TabsList>
-        <TabsContent value="consumed">
-          <ConsumedPins />
+        {isModernLayout ? (
+          <div className="my-5 flex w-full justify-center">
+            <TabsList className="relative w-fit overflow-hidden rounded-[0.9rem] border border-black/15 bg-[#f3f1ea]/80 p-[0.3rem] shadow-[0_8px_24px_rgba(0,0,0,0.05)]">
+              <TabsTrigger
+                value="consumed"
+                className={clsx(
+                  "relative inline-flex items-center justify-center rounded-[0.7rem] border px-3 py-1.5 text-sm font-normal transition-all duration-200",
+                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60",
+                  "data-[state=active]:border-white/60 data-[state=active]:bg-white/55 data-[state=active]:text-black data-[state=active]:shadow-[inset_1px_1px_1px_0_rgba(255,255,255,0.92),_inset_-1px_-1px_1px_1px_rgba(255,255,255,0.72),_0_8px_20px_rgba(255,255,255,0.24)] data-[state=active]:backdrop-blur-[6px]",
+                  "border-transparent bg-transparent text-black/65 hover:bg-white/35 hover:text-black",
+                )}
+              >
+                Consumed Pins
+              </TabsTrigger>
+              <TabsTrigger
+                value="gifts"
+                className={clsx(
+                  "relative inline-flex items-center justify-center rounded-[0.7rem] border px-3 py-1.5 text-sm font-normal transition-all duration-200",
+                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60",
+                  "data-[state=active]:border-white/60 data-[state=active]:bg-white/55 data-[state=active]:text-black data-[state=active]:shadow-[inset_1px_1px_1px_0_rgba(255,255,255,0.92),_inset_-1px_-1px_1px_1px_rgba(255,255,255,0.72),_0_8px_20px_rgba(255,255,255,0.24)] data-[state=active]:backdrop-blur-[6px]",
+                  "border-transparent bg-transparent text-black/65 hover:bg-white/35 hover:text-black",
+                )}
+              >
+                Gift Items
+              </TabsTrigger>
+            </TabsList>
+          </div>
+        ) : (
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="consumed">Consumed Pins</TabsTrigger>
+            <TabsTrigger value="gifts">Gift Items</TabsTrigger>
+          </TabsList>
+        )}
+        <TabsContent value="consumed" className={isModernLayout ? "mt-4" : ""}>
+          <ConsumedPins modern={isModernLayout} />
         </TabsContent>
-        <TabsContent value="gifts">
+        <TabsContent value="gifts" className={isModernLayout ? "mt-4" : ""}>
           <GiftTab customerPubkey={
             session.data?.user?.id ?? ""
-          } />
+          } modern={isModernLayout} />
 
         </TabsContent>
       </Tabs>
@@ -49,15 +98,21 @@ export default function Page() {
   );
 }
 
-function ConsumedPins() {
+function ConsumedPins({ modern = false }: { modern?: boolean }) {
   const consumedPins = api.maps.pin.getAUserConsumedPin.useQuery();
 
   if (consumedPins.isLoading) return <p>Loading...</p>;
   if (consumedPins.isError) return <p>Error</p>;
 
   return (
-    <div className=" overflow-x-auto p-4">
-      <div className="inline-block min-w-full overflow-hidden rounded-lg shadow">
+    <div className={modern ? "overflow-x-auto" : "overflow-x-auto p-4"}>
+      <div
+        className={
+          modern
+            ? "inline-block min-w-full overflow-hidden rounded-[0.95rem] border border-[#ddd9d0] bg-white"
+            : "inline-block min-w-full overflow-hidden rounded-lg shadow"
+        }
+      >
         <table className="min-w-full leading-normal">
           <thead>
             <tr>
@@ -210,7 +265,7 @@ function formatTitle(title: string) {
 
 
 
-export function GiftTab({ customerPubkey }: GiftTabProps) {
+export function GiftTab({ customerPubkey, modern = false }: GiftTabProps & { modern?: boolean }) {
   const [activeTab, setActiveTab] = useState<"available" | "collected">("available")
   const [collectedGifts, setCollectedGifts] = useState<Set<string>>(new Set())
 
@@ -238,7 +293,7 @@ export function GiftTab({ customerPubkey }: GiftTabProps) {
 
 
   return (
-    <div className="space-y-6">
+    <div className={modern ? "space-y-6 rounded-[0.95rem] border border-[#ddd9d0] bg-white p-4" : "space-y-6"}>
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold flex items-center gap-2">
           <Gift className="h-6 w-6" />

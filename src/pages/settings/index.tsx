@@ -1,16 +1,33 @@
 import clsx from "clsx";
+import { getCookie } from "cookies-next";
+import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import About from "~/components/fan/me/user-profile";
+import ModernSettingsPage from "~/components/settings/modern-settings-page";
 import { Tabs, TabsList, TabsTrigger } from "~/components/shadcn/ui/tabs";
 import { SettingsMenu, useSettingsMenu } from "~/lib/state/fan/settings-menu";
 
 export default function Settings() {
   const { data } = useSession();
+  const [layoutMode, setLayoutMode] = useState<"modern" | "legacy">("modern");
+
+  useEffect(() => {
+    const storedMode = getCookie("wadzzo-layout-mode");
+    if (storedMode === "modern" || storedMode === "legacy") {
+      setLayoutMode(storedMode);
+    }
+  }, []);
+
+  if (data?.user)
+    if (layoutMode === "modern") {
+      return <ModernSettingsPage />;
+    }
+
   if (data?.user)
     return (
       <div className="py-4">
         <div className="flex flex-col items-center gap-4 pb-20">
-          <SettingsTabs />
+          <SettingsTabs modern={false} />
           <RenderTabs />
         </div>
       </div>
@@ -27,7 +44,7 @@ function RenderTabs() {
   }
 }
 
-function SettingsTabs() {
+function SettingsTabs({ modern: _modern }: { modern: boolean }) {
   const { selectedMenu, setSelectedMenu } = useSettingsMenu();
   const menuItems = Object.values(SettingsMenu);
   const gridColsClass = menuItems.length === 1 ? "grid-cols-1" : "grid-cols-2";

@@ -9,6 +9,7 @@ import {
   Headphones,
   Home,
   Library,
+  MapPinned,
   Music,
   Music2,
   Newspaper,
@@ -43,7 +44,7 @@ const sidebarIconMap = {
   fan: Newspaper,
 } as const;
 
-const navItems: NavItem[] = Object.entries(LeftNavigation).map(([key, item]) => {
+const baseItems: NavItem[] = Object.entries(LeftNavigation).map(([key, item]) => {
   const fallbackIcon = item.icon;
   const normalizedKey = key.toLowerCase();
   const mappedFromKey = sidebarIconMap[normalizedKey as keyof typeof sidebarIconMap];
@@ -65,6 +66,16 @@ const navItems: NavItem[] = Object.entries(LeftNavigation).map(([key, item]) => 
     dashed: item.path.startsWith("http"),
   };
 }).filter((item) => item.path !== "/settings");
+
+const navItems: NavItem[] = [
+  ...baseItems,
+  {
+    key: "Claim",
+    path: "/maps/pins/my",
+    text: "CLAIM",
+    icon: MapPinned,
+  },
+];
 
 function FloatingNavItem({
   item,
