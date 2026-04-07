@@ -35,17 +35,17 @@ import {
 
 import { Button } from "~/components/shadcn/ui/button";
 import { api } from "~/utils/api";
-import { Loader2, RefreshCcw, RotateCw, Send } from "lucide-react";
+import { RotateCw } from "lucide-react";
 
-import { WalletType, clientsign } from "package/connect_wallet";
+import { clientsign } from "package/connect_wallet";
 import { useSession } from "next-auth/react";
-import { Toaster } from "react-hot-toast";
 import { useModal } from "../../lib/state/play/use-modal-store";
 import useNeedSign from "~/lib/hook";
 import { clientSelect } from "~/lib/stellar/fan/utils";
 import { useRouter } from "next/router";
 import { fetchPubkeyfromEmail } from "~/utils/get-pubkey";
 import { addrShort } from "~/utils/utils";
+import { getCookie } from "cookies-next";
 
 const formSchema = z.object({
   recipientId: z.string().length(56, {
@@ -64,17 +64,11 @@ const formSchema = z.object({
   }),
 });
 
-interface BalanceType {
-  asset_code: string;
-  assetBalance: number;
-  asset_type: string;
-  asset_issuer: string;
-}
-
 const SendAssets = () => {
   const { isOpen, onClose, type } = useModal();
   const session = useSession();
   const [loading, setLoading] = useState(false);
+  const [layoutMode, setLayoutMode] = useState<"modern" | "legacy">("modern");
   const { data } = api.walletBalance.wallBalance.getWalletsBalance.useQuery(
     undefined,
     {
@@ -96,7 +90,7 @@ const SendAssets = () => {
   });
 
   const {
-    formState: { errors, isValid },
+    formState: { isValid },
   } = form;
 
   interface CreditBalanceType {
@@ -246,6 +240,13 @@ const SendAssets = () => {
     }
   }, [router.query.id, form]);
 
+  useEffect(() => {
+    const storedMode = getCookie("wadzzo-layout-mode");
+    if (storedMode === "legacy" || storedMode === "modern") {
+      setLayoutMode(storedMode);
+    }
+  }, []);
+
   async function fetchPubKey(): Promise<void> {
     try {
       const pub = await toast.promise(fetchPubkeyfromEmail(pubkey), {
@@ -263,7 +264,7 @@ const SendAssets = () => {
     form.reset();
 
     // Remove the id from the URL query parameters
-    const { id, ...rest } = router.query;
+    const { ...rest } = router.query;
 
     // Transform the remaining query parameters to a format accepted by URLSearchParams
     const newQueryString = new URLSearchParams(
@@ -286,29 +287,196 @@ const SendAssets = () => {
     onClose();
   };
 
+  const isLegacyLayout = layoutMode === "legacy";
+
+  if (isLegacyLayout) {
+    return (
+      <Dialog open={isModalOpen} onOpenChange={handleClose}>
+        <DialogContent className="overflow-hidden p-0">
+          <DialogHeader className="px-6 pt-8">
+            <DialogTitle className="text-center text-2xl font-bold">
+              SEND ASSETS
+            </DialogTitle>
+          </DialogHeader>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+              <div className="space-y-8 px-6">
+                <FormField
+                  control={form.control}
+                  name="recipientId"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-xs font-bold uppercase">
+                        Public Key or Email
+                      </FormLabel>
+                      <FormControl>
+                        <Input
+                          disabled={loading}
+                          className="focus-visible:ring-0 focus-visible:ring-offset-0"
+                          placeholder="e.g. GABCD...XDBK or wz@domain.com"
+                          {...field}
+                        />
+                      </FormControl>
+                      {z.string().email().safeParse(pubkey).success && (
+                        <div className="tooltip" data-tip="Fetch Pubkey">
+                          <Button
+                            type="button"
+                            variant="link"
+                            className="m-0  p-0 text-xs font-bold text-blue-500 underline"
+                            onClick={fetchPubKey}
+                            disabled={loading}
+                          >
+                            <RotateCw size={12} className="mr-1" /> GET PUBLIC KEY
+                          </Button>
+                        </div>
+                      )}
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="amount"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-xs font-bold uppercase">
+                        Amount
+                      </FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          disabled={loading}
+                          className="focus-visible:ring-0 focus-visible:ring-offset-0"
+                          placeholder="Enter Amount..."
+                          {...field}
+                          onChange={(e) =>
+                            field.onChange(parseFloat(e.target.value))
+                          }
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="selectItem"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-xs font-bold uppercase">
+                        Asset Code
+                      </FormLabel>
+                      <FormControl>
+                        <Select
+                          onValueChange={field.onChange}
+                          value={field.value}
+                        >
+                          <SelectTrigger className="focus-visible:ring-0 focus-visible:ring-offset-0">
+                            <SelectValue placeholder="Select Asset" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectGroup>
+                              <SelectLabel>Assets</SelectLabel>
+                              {assetWithBalance?.map((wallet, idx) => (
+                                <SelectItem
+                                  key={idx}
+                                  value={`${wallet?.asset_code}-${wallet?.asset_type}-${wallet?.asset_issuer}`}
+                                >
+                                  {wallet?.asset_code}
+                                </SelectItem>
+                              ))}
+                            </SelectGroup>
+                          </SelectContent>
+                        </Select>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+              <DialogFooter className="px-6 py-4">
+                <div className="flex flex-col gap-2">
+                  <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                    <DialogTrigger asChild>
+                      <Button className="w-full" disabled={loading || !isValid}>
+                        Send Assets
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="sm:max-w-[425px]">
+                      <DialogHeader>
+                        <DialogTitle>Confirmation </DialogTitle>
+                      </DialogHeader>
+                      <div className="mt-6 w-full space-y-6 sm:mt-8 lg:mt-0 lg:max-w-xs xl:max-w-md">
+                        <div className="flex flex-col gap-2">
+                          <p className="font-semibold">
+                            Recipient Id:{" "}
+                            {addrShort(form.watch("recipientId"), 10)}
+                          </p>
+                          <p className="font-semibold">
+                            Amount: {form.watch("amount")}
+                          </p>
+                          <p className="font-semibold">
+                            Asset Code: {form.watch("selectItem").split("-")[0]}
+                          </p>
+                        </div>
+                      </div>
+                      <DialogFooter className="w-full">
+                        <div className="flex w-full gap-4">
+                          <DialogClose className="w-full">
+                            <Button
+                              disabled={loading}
+                              variant="outline"
+                              onClick={() => setIsDialogOpen(false)}
+                              className="w-full"
+                            >
+                              Cancel
+                            </Button>
+                          </DialogClose>
+                          <Button
+                            disabled={loading}
+                            onClick={form.handleSubmit(onSubmit)}
+                            variant="destructive"
+                            type="submit"
+                            className="w-full"
+                          >
+                            Confirm
+                          </Button>
+                        </div>
+                      </DialogFooter>
+                    </DialogContent>
+                  </Dialog>
+                </div>
+              </DialogFooter>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
+    );
+  }
+
   return (
     <Dialog open={isModalOpen} onOpenChange={handleClose}>
-      <DialogContent className="overflow-hidden p-0">
-        <DialogHeader className="px-6 pt-8">
-          <DialogTitle className="text-center text-2xl font-bold">
-            SEND ASSETS
+      <DialogContent className="overflow-hidden rounded-[3rem] border border-black/10 bg-white p-0 text-black shadow-[0_24px_60px_-30px_rgba(15,23,42,0.45)] outline-none sm:rounded-[3rem]">
+        <DialogHeader className="px-6 pb-2 pt-8">
+          <DialogTitle className="text-center text-3xl font-semibold tracking-tight text-black">
+            Send Assets
           </DialogTitle>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-            <div className="space-y-8 px-6">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 px-6 pb-6">
+            <div className="space-y-5">
               <FormField
                 control={form.control}
                 name="recipientId"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-xs font-bold uppercase">
+                    <FormLabel className="text-xs font-medium uppercase tracking-wide text-black/55">
                       Public Key or Email
                     </FormLabel>
                     <FormControl>
                       <Input
                         disabled={loading}
-                        className="focus-visible:ring-0 focus-visible:ring-offset-0"
+                        className="h-12 rounded-2xl border-0 bg-[#f3f4f6] text-black/85 placeholder:text-black/35 focus-visible:ring-0 focus-visible:ring-offset-0"
                         placeholder="e.g. GABCD...XDBK or wz@domain.com"
                         {...field}
                       />
@@ -318,7 +486,7 @@ const SendAssets = () => {
                         <Button
                           type="button"
                           variant="link"
-                          className="m-0  p-0 text-xs font-bold text-blue-500 underline"
+                          className="m-0 p-0 text-xs font-semibold text-blue-600 underline underline-offset-4"
                           onClick={fetchPubKey}
                           disabled={loading}
                         >
@@ -335,14 +503,14 @@ const SendAssets = () => {
                 name="amount"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-xs font-bold uppercase">
+                    <FormLabel className="text-xs font-medium uppercase tracking-wide text-black/55">
                       Amount
                     </FormLabel>
                     <FormControl>
                       <Input
                         type="number"
                         disabled={loading}
-                        className="focus-visible:ring-0 focus-visible:ring-offset-0"
+                        className="h-12 rounded-2xl border-0 bg-[#f3f4f6] text-black/85 placeholder:text-black/35 focus-visible:ring-0 focus-visible:ring-offset-0"
                         placeholder="Enter Amount..."
                         {...field}
                         onChange={(e) =>
@@ -359,7 +527,7 @@ const SendAssets = () => {
                 name="selectItem"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-xs font-bold uppercase">
+                    <FormLabel className="text-xs font-medium uppercase tracking-wide text-black/55">
                       Asset Code
                     </FormLabel>
                     <FormControl>
@@ -367,7 +535,7 @@ const SendAssets = () => {
                         onValueChange={field.onChange}
                         value={field.value}
                       >
-                        <SelectTrigger className="focus-visible:ring-0 focus-visible:ring-offset-0">
+                        <SelectTrigger className="h-12 rounded-2xl border-0 bg-[#f3f4f6] text-black/85 focus-visible:ring-0 focus-visible:ring-offset-0">
                           <SelectValue placeholder="Select Asset" />
                         </SelectTrigger>
                         <SelectContent>
@@ -390,11 +558,14 @@ const SendAssets = () => {
                 )}
               />
             </div>
-            <DialogFooter className="px-6 py-4">
+            <DialogFooter>
               <div className="flex flex-col gap-2">
                 <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                   <DialogTrigger asChild>
-                    <Button className="w-full" disabled={loading || !isValid}>
+                    <Button
+                      className="h-11 w-full rounded-full bg-[#0f172a] text-sm font-semibold text-white hover:bg-[#111827]"
+                      disabled={loading || !isValid}
+                    >
                       Send Assets
                     </Button>
                   </DialogTrigger>
@@ -442,15 +613,6 @@ const SendAssets = () => {
                   </DialogContent>
                 </Dialog>
               </div>
-
-              {/* <Button size="lg" variant="default" disabled={loading}>
-                {loading ? (
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" size={20} />
-                ) : (
-                  <Send className="mr-2" size={15} />
-                )}
-                {loading ? "SENDING..." : "SEND"}
-              </Button> */}
             </DialogFooter>
           </form>
         </Form>

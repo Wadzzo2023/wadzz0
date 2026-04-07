@@ -1,7 +1,7 @@
 import { useSession } from "next-auth/react";
 import { api } from "~/utils/api";
 
-import { X } from 'lucide-react';
+import { X, MapPin, Crosshair, Layers3 } from 'lucide-react';
 import { Button } from "~/components/shadcn/ui/button";
 import {
   Dialog,
@@ -17,8 +17,10 @@ import {
 
 import { z } from "zod";
 import { addrShort } from "~/utils/utils";
+import { PLATFORM_ASSET } from "~/lib/stellar/constant";
 
 import clsx from "clsx";
+import Map, { Marker, NavigationControl } from "react-map-gl";
 import { useRouter } from "next/router";
 import { Card, CardContent, CardFooter } from "~/components/shadcn/ui/card";
 import {
@@ -38,6 +40,8 @@ import {
 export const PaymentMethodEnum = z.enum(["asset", "xlm", "card"]);
 export type PaymentMethod = z.infer<typeof PaymentMethodEnum>;
 const FALLBACK_PREVIEW_IMAGE = "/images/logo.png";
+const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_API ?? "";
+const DEFAULT_CENTER = { latitude: 23.8103, longitude: 90.4125 };
 
 const getSafeImageUrl = (url?: string | null) => {
   if (!url) return FALLBACK_PREVIEW_IMAGE;
@@ -96,11 +100,77 @@ export default function AssetInfoModal() {
     return (
       <>
         <Dialog open={isModalOpen} onOpenChange={handleClose}>
-          <DialogContent className="max-h-[90vh] max-w-6xl overflow-hidden border-0 bg-[#fbfaf6] p-0 shadow-[0_24px_80px_rgba(15,23,42,0.18)] [&>button]:hidden">
+          <DialogContent className="max-h-[90vh] max-w-6xl overflow-hidden border border-white/45 bg-[linear-gradient(140deg,rgba(255,255,255,0.72),rgba(255,255,255,0.45))] p-0 shadow-[0_24px_80px_rgba(15,23,42,0.24)] backdrop-blur-xl [&>button]:hidden">
             <div className="flex h-[90vh] max-h-[90vh] flex-col overflow-hidden md:flex-row">
               {/* Left Column - Product Image */}
-              <Card className="max-h-[90vh] overflow-y-auto border-0 bg-[#fbfaf6] shadow-none md:w-[58%]">
+              <Card className="max-h-[90vh] overflow-y-auto border-0 bg-transparent shadow-none md:w-[58%]">
                 <CardContent className="space-y-6 p-5 md:p-8">
+                  <div className="relative overflow-hidden rounded-2xl border border-white/65 bg-white/35 shadow-[0_18px_44px_-30px_rgba(15,23,42,0.45)] backdrop-blur-sm">
+                    <div className="relative h-56 w-full overflow-hidden md:h-64">
+                      {MAPBOX_TOKEN ? (
+                        <Map
+                          mapboxAccessToken={MAPBOX_TOKEN}
+                          initialViewState={{
+                            latitude: DEFAULT_CENTER.latitude,
+                            longitude: DEFAULT_CENTER.longitude,
+                            zoom: 11.6,
+                            pitch: 42,
+                            bearing: -18,
+                          }}
+                          mapStyle="mapbox://styles/mapbox/light-v11"
+                          reuseMaps
+                          style={{ width: "100%", height: "100%" }}
+                        >
+                          <NavigationControl position="top-right" />
+                          <Marker
+                            latitude={DEFAULT_CENTER.latitude}
+                            longitude={DEFAULT_CENTER.longitude}
+                            anchor="bottom"
+                          >
+                            <div className="grid h-8 w-8 place-items-center rounded-full border-2 border-white bg-[#1f86ee] text-white shadow-lg">
+                              <MapPin className="h-4 w-4" />
+                            </div>
+                          </Marker>
+                        </Map>
+                      ) : (
+                        <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[#dbe8ff] via-[#c9ddff] to-[#b7d0ff]">
+                          <p className="text-sm font-medium text-black/70">
+                            Map preview unavailable (missing Mapbox token)
+                          </p>
+                        </div>
+                      )}
+
+                      <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/30 via-black/5 to-transparent" />
+
+                      <div className="absolute left-3 top-3 flex items-center gap-2 rounded-xl border border-white/70 bg-white/70 px-3 py-1.5 text-xs font-medium text-black/80 backdrop-blur">
+                        <Crosshair className="h-3.5 w-3.5 text-[#1f86ee]" />
+                        Interactive Asset Map
+                      </div>
+
+                      <div className="absolute bottom-3 left-3 right-3 grid gap-2 sm:grid-cols-3">
+                        <div className="rounded-lg border border-white/65 bg-white/70 px-2.5 py-2 text-xs text-black/78 backdrop-blur">
+                          <div className="flex items-center gap-1 font-medium">
+                            <Layers3 className="h-3.5 w-3.5 text-[#1f86ee]" />
+                            Asset
+                          </div>
+                          <p className="line-clamp-1 text-[11px] text-black/62">{data.MyAsset.name}</p>
+                        </div>
+                        <div className="rounded-lg border border-white/65 bg-white/70 px-2.5 py-2 text-xs text-black/78 backdrop-blur">
+                          <p className="font-medium">Issuer</p>
+                          <p className="text-[11px] text-[#1677ff]">{addrShort(data.MyAsset.issuer, 5)}</p>
+                        </div>
+                        <div className="rounded-lg border border-white/65 bg-white/70 px-2.5 py-2 text-xs text-black/78 backdrop-blur">
+                          <p className="font-medium">Availability</p>
+                          <p className="text-[11px] text-black/62">
+                            {Number(copyCreatorAssetBalance) === 0
+                              ? "Sold out"
+                              : `${Number(copyCreatorAssetBalance)} copies`}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
                   <div className="flex items-start justify-between gap-4">
                     <div className="space-y-3">
                       <h2 className="text-[1.3rem] font-semibold tracking-tight text-black md:text-[1.55rem]">
@@ -149,6 +219,17 @@ export default function AssetInfoModal() {
                     <p className="min-h-[84px] text-sm leading-6 text-black/72">
                       {data.MyAsset.description ?? "No description provided for this asset."}
                     </p>
+
+                    <div className="space-y-1">
+                      <span className="text-[0.95rem] font-medium tracking-tight text-black md:text-[1.05rem]">
+                        {typeof data.MyAsset.marketPrice === "number"
+                          ? `${data.MyAsset.marketPrice.toFixed(2)} ${PLATFORM_ASSET.code.toUpperCase()}`
+                          : "Not listed"}
+                      </span>
+                      {typeof data.MyAsset.marketPriceUSD === "number" ? (
+                        <p className="text-sm text-black/62">~${data.MyAsset.marketPriceUSD.toFixed(2)}</p>
+                      ) : null}
+                    </div>
 
                     <div className="flex items-center gap-2 text-sm text-black/72">
                       <span className="h-auto p-0 text-xs text-[#1677ff]">
@@ -230,7 +311,7 @@ export default function AssetInfoModal() {
               </Card>
 
               {/* Right Column - Bundle Info */}
-              <div className="border-t border-black/8 bg-[#f1eee6] md:w-[42%] md:border-l md:border-t-0">
+              <div className="border-t border-white/50 bg-white/35 backdrop-blur-sm md:w-[42%] md:border-l md:border-t-0">
                 {data.MyAsset.mediaType === "IMAGE" ? (
                   <img
                     src={getSafeImageUrl(data.MyAsset.mediaUrl)}

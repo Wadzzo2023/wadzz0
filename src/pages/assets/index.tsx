@@ -57,6 +57,20 @@ function MyStorageAsset() {
   const acc = api.wallate.acc.getCreatorStorageInfo.useQuery();
   const { onOpen } = useModal();
 
+  const formatAssetPriceText = (asset: { marketPrice?: number | null; marketPriceUSD?: number | null }) => {
+    if (typeof asset.marketPrice === "number") {
+      return `${asset.marketPrice.toFixed(2)} ${PLATFORM_ASSET.code.toUpperCase()}`;
+    }
+    return "Not listed";
+  };
+
+  const formatAssetSubPriceText = (asset: { marketPriceUSD?: number | null }) => {
+    if (typeof asset.marketPriceUSD === "number") {
+      return `~$${asset.marketPriceUSD.toFixed(2)}`;
+    }
+    return undefined;
+  };
+
   if (acc.isLoading)
     return (
       <MoreAssetsSkeleton className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6" />
@@ -89,16 +103,8 @@ function MyStorageAsset() {
                 code={asset.name}
                 thumbnail={asset.thumbnail}
                 isNFT={true}
-                priceText={
-                  typeof asset.marketPrice === "number"
-                    ? `${asset.marketPrice.toFixed(2)} ${PLATFORM_ASSET.code.toUpperCase()}`
-                    : undefined
-                }
-                subPriceText={
-                  typeof asset.marketPriceUSD === "number"
-                    ? `~$${asset.marketPriceUSD.toFixed(2)}`
-                    : undefined
-                }
+                priceText={formatAssetPriceText(asset)}
+                subPriceText={formatAssetSubPriceText(asset)}
                 actionLabel="View Details"
                 onAction={() => {
                   setCurrentTrack(null);
@@ -141,6 +147,20 @@ function MyAssets() {
     },
   );
 
+  const formatAssetPriceText = (asset: { marketPrice?: number | null; marketPriceUSD?: number | null }) => {
+    if (typeof asset.marketPrice === "number") {
+      return `${asset.marketPrice.toFixed(2)} ${PLATFORM_ASSET.code.toUpperCase()}`;
+    }
+    return "Not listed";
+  };
+
+  const formatAssetSubPriceText = (asset: { marketPriceUSD?: number | null }) => {
+    if (typeof asset.marketPriceUSD === "number") {
+      return `~$${asset.marketPriceUSD.toFixed(2)}`;
+    }
+    return undefined;
+  };
+
   if (acc.isLoading || status === "loading")
     return <MoreAssetsSkeleton className="flex gap-2" />;
 
@@ -164,16 +184,8 @@ function MyAssets() {
                   code={asset.name}
                   thumbnail={asset.thumbnail}
                   isNFT={true}
-                  priceText={
-                    typeof asset.marketPrice === "number"
-                      ? `${asset.marketPrice.toFixed(2)} ${PLATFORM_ASSET.code.toUpperCase()}`
-                      : undefined
-                  }
-                  subPriceText={
-                    typeof asset.marketPriceUSD === "number"
-                      ? `~$${asset.marketPriceUSD.toFixed(2)}`
-                      : undefined
-                  }
+                  priceText={formatAssetPriceText(asset)}
+                  subPriceText={formatAssetSubPriceText(asset)}
                   actionLabel="View Details"
                   onAction={() => {
                     setCurrentTrack(null);
@@ -206,6 +218,13 @@ function MyAssets() {
                         "https://app.wadzzo.com/images/loading.png"
                       }
                       isPinned={true}
+                      actionLabel="View Details"
+                      onAction={() => {
+                        setCurrentTrack(null);
+                        onOpen("pin info modal", {
+                          collectedPinInfo: item,
+                        });
+                      }}
                     />
                   </div>
                 ))}
