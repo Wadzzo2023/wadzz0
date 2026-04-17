@@ -56,8 +56,7 @@ export function SiteAssetBalance({
     return <div className="skeleton h-10 w-48"></div>;
 
   const isLegacy = layoutMode === "legacy";
-  const legacyButtonClass =
-    "h-12 rounded-xl bg-[#0B1535] px-4 text-white hover:bg-[#0E1C47]";
+  const legacyButtonClass = "";
   const modernButtonClass =
     "h-7 bg-muted px-2 text-foreground hover:bg-muted/90";
   const sharedButtonClass = isLegacy ? legacyButtonClass : modernButtonClass;
@@ -80,7 +79,7 @@ export function SiteAssetBalance({
             {"  "}
           </span>
 
-          <span className={isLegacy ? "flex text-white" : "flex text-blue-600"}>
+          <span className="flex">
             <span className="hidden md:flex">{" : "}</span>
             {bal.data?.platformAssetBal.toFixed(0)}
           </span>
@@ -102,7 +101,7 @@ export function SiteAssetBalance({
       <Button
         className={
           isLegacy
-            ? "relative h-12 w-12 rounded-xl bg-[#0B1535] px-0 text-white hover:bg-[#0E1C47]"
+            ? "relative"
             : "relative h-7 bg-muted px-2 text-foreground hover:bg-muted/90"
         }
         onClick={async () => {

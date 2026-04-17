@@ -1,6 +1,9 @@
 import { useSession } from "next-auth/react";
 import { useState } from "react";
+import { getCookie } from "cookies-next";
 import { api } from "~/utils/api";
+
+const LAYOUT_MODE_COOKIE = "wadzzo-layout-mode";
 
 import { ArrowLeft, X } from "lucide-react";
 import { Button } from "~/components/shadcn/ui/button";
@@ -27,6 +30,7 @@ import ShowModel from "../ThreeDModel";
 import {
   DeleteAssetByAdmin,
   DisableFromMarketButton,
+  SparkleEffect,
 } from "./modal-action-button";
 import { useUserStellarAcc } from "~/lib/state/wallete/stellar-balances";
 import { usePlayer } from "../context/PlayerContext";
@@ -34,6 +38,7 @@ import { RightSidePlayer } from "../RightSidePlayer";
 
 export const PaymentMethodEnum = z.enum(["asset", "xlm", "card"]);
 export type PaymentMethod = z.infer<typeof PaymentMethodEnum>;
+
 const FALLBACK_PREVIEW_IMAGE = "/images/logo.png";
 
 const getSafeImageUrl = (url?: string | null) => {
@@ -55,7 +60,12 @@ export default function BuyModal() {
   const session = useSession();
   const router = useRouter();
   const [step, setStep] = useState(1);
-  const { setCurrentTrack, currentTrack, setIsPlaying, setCurrentAudioPlayingId } = usePlayer();
+  const {
+    setCurrentTrack,
+    currentTrack,
+    setIsPlaying,
+    setCurrentAudioPlayingId,
+  } = usePlayer();
   const isModalOpen = isOpen && type === "buy modal";
   const handleClose = () => {
     setCurrentTrack(null);
@@ -63,8 +73,22 @@ export default function BuyModal() {
     onClose();
   };
 
-  const { getAssetBalance, hasTrust, balances } = useUserStellarAcc()
+  const [layoutMode] = useState<"modern" | "legacy">(() => {
+    const cookieMode = getCookie(LAYOUT_MODE_COOKIE);
+    if (cookieMode === "legacy" || cookieMode === "modern") {
+      return cookieMode;
+    }
+    if (typeof window !== "undefined") {
+      const storedMode = localStorage.getItem("layoutMode");
+      if (storedMode === "legacy" || storedMode === "modern") {
+        return storedMode;
+      }
+    }
+    return "modern";
+  });
+  const isLegacy = layoutMode === "legacy";
 
+  const { getAssetBalance, hasTrust, balances } = useUserStellarAcc();
 
   const handleNext = () => {
     setStep((prev) => prev + 1);
@@ -74,41 +98,38 @@ export default function BuyModal() {
     setStep((prev) => prev - 1);
   };
 
-
-  const copy = api.marketplace.market.getMarketAssetAvailableCopy.useQuery({
-    id: data.Asset?.id,
-  },
+  const copy = api.marketplace.market.getMarketAssetAvailableCopy.useQuery(
     {
-      enabled: !!data.Asset
-    }
+      id: data.Asset?.id,
+    },
+    {
+      enabled: !!data.Asset,
+    },
   );
 
-
-  const hasTrustonAsset = hasTrust(data.Asset?.asset.code ?? "", data.Asset?.asset.issuer ?? "");
-
-
+  const hasTrustonAsset = hasTrust(
+    data.Asset?.asset.code ?? "",
+    data.Asset?.asset.issuer ?? "",
+  );
 
   const { data: canBuyUser } =
     api.marketplace.market.userCanBuyThisMarketAsset.useQuery(
       data.Asset?.id ?? 0,
       {
-        enabled: !!data.Asset
-      }
+        enabled: !!data.Asset,
+      },
     );
 
-
   if (!data.Asset || !data.Asset.asset)
-
-
     return (
       <Dialog open={isModalOpen} onOpenChange={handleClose}>
-        <DialogContent className="max-w-md border-0 bg-[#fbfaf6] p-6">
+        <DialogContent className="max-w-2xl overflow-hidden p-1   ">
           <DialogClose className="absolute right-3 top-3 ">
-            <X color="black" size={20} />
+            <X color="white" size={24} />
           </DialogClose>
           <div className="grid grid-cols-1">
             {/* Left Column - Product Image */}
-            <Card className="border-0 bg-transparent shadow-none">
+            <Card className="  bg-[#1e1f22] ">
               <CardContent className="flex max-h-[600px] min-h-[600px] items-center justify-center">
                 <div role="status">
                   <svg
@@ -139,33 +160,15 @@ export default function BuyModal() {
   return (
     <>
       <Dialog open={isModalOpen} onOpenChange={handleClose}>
-        <DialogContent className="max-h-[90vh] max-w-6xl overflow-hidden border-0 bg-[#fbfaf6] p-0 shadow-[0_24px_80px_rgba(15,23,42,0.18)] [&>button]:hidden">
+        <DialogContent className="max-w-3xl overflow-hidden p-0 [&>button]:rounded-full [&>button]:border [&>button]:border-black [&>button]:bg-white [&>button]:text-black">
           {step === 1 && (
-            <div className="flex h-[90vh] max-h-[90vh] flex-col overflow-hidden md:flex-row">
+            <div className="grid grid-cols-2 md:grid-cols-7">
               {/* Left Column - Product Image */}
-              <Card className="max-h-[90vh] overflow-y-auto border-0 bg-[#fbfaf6] shadow-none md:w-[58%]">
-                <CardContent className="space-y-6 p-5 md:p-8">
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="space-y-3">
-                      <h2 className="text-[1.1rem] font-semibold tracking-tight text-black md:text-[1.3rem]">
-                        {data.Asset.asset.name}
-                      </h2>
-                      <div className="flex flex-wrap items-center gap-3 text-sm text-black/70">
-                        <span className="font-semibold text-black">{data.Asset.asset.code}</span>
-                        <span className="hidden h-5 w-px bg-black/10 md:block" />
-                        {data.Asset.placerId ? (
-                          <span>
-                            Owner <span className="font-semibold text-black">{addrShort(data.Asset.placerId, 5)}</span>
-                          </span>
-                        ) : null}
-                      </div>
-                    </div>
-                    <DialogClose className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-black/12 bg-transparent text-black/55 transition hover:bg-black/5 hover:text-black">
-                      <X className="h-4 w-4" />
-                    </DialogClose>
-                  </div>
+              <Card className=" max-h-[800px]  overflow-y-auto  bg-[#1e1f22] md:col-span-3">
+                <CardContent className="p-0">
                   {/* Image Container */}
-                  <div className="relative aspect-[1.45] overflow-hidden rounded-[0.95rem] bg-[#d8c7bb]">
+                  <div className="relative aspect-square bg-[#1e1f22]">
+                    <SparkleEffect />
                     <img
                       src={getSafeImageUrl(data.Asset.asset.thumbnail)}
                       alt={data.Asset.asset.name}
@@ -177,41 +180,45 @@ export default function BuyModal() {
                   </div>
 
                   {/* Content */}
-                  <div className="space-y-3">
-                    <div className="flex flex-wrap items-center gap-2">
+                  <div className="space-y-3 p-4">
+                    <h2 className="text-xl font-bold text-white">
+                      NAME: {data.Asset.asset.name}
+                    </h2>
+
+                    <p className="max-h-[100px] min-h-[100px] overflow-y-auto text-sm text-gray-400">
+                      DESCRIPTION: {data.Asset.asset.description}
+                    </p>
+
+                    <div className="flex items-center gap-2">
+                      <span className="text-lg font-bold text-white">
+                        PRICE: {data.Asset.price} {PLATFORM_ASSET.code}
+                      </span>
                       <Badge
                         variant="outline"
-                        className="rounded-[2px] border-[#e5e7eb] bg-white px-1.5 py-0.5 font-mono text-xs font-medium tracking-[0.08em] text-black shadow-none hover:bg-white"
+                        className="border-none bg-white text-[#3ba55c]"
                       >
-                        {data.Asset.asset.mediaType === "THREE_D"
-                          ? "3D MODEL"
-                          : data.Asset.asset.mediaType}
+                        $ {data.Asset.priceUSD}
                       </Badge>
-                      <Badge
-                        variant="outline"
-                        className="rounded-[2px] border-[#e5e7eb] bg-white px-1.5 py-0.5 font-mono text-xs font-medium tracking-[0.08em] text-black shadow-none hover:bg-white"
-                      >
+                    </div>
+
+                    <div className="flex items-center gap-2 text-sm text-gray-400">
+                      <span className="h-auto p-0 text-xs text-[#00a8fc]">
+                        ISSUER ID: {addrShort(data.Asset.asset.issuer, 5)}
+                      </span>
+                      <Badge variant="destructive" className=" rounded-lg">
                         {data.Asset.asset.code}
                       </Badge>
                     </div>
-                    <p className="min-h-[84px] text-sm leading-6 text-black/72">
-                      {data.Asset.asset.description ?? "No description provided for this asset."}
-                    </p>
+                    {data.Asset.placerId && (
+                      <div className="flex items-center gap-2 text-sm text-gray-400">
+                        <span className="h-auto p-0 text-xs text-[#00a8fc]">
+                          PLACER ID: {addrShort(data.Asset.placerId, 5)}
+                        </span>
+                      </div>
+                    )}
 
-                    <div className="space-y-1">
-                      <span className="text-[0.95rem] font-medium tracking-tight text-black md:text-[1.05rem]">
-                        {data.Asset.price} {PLATFORM_ASSET.code.toUpperCase()}
-                      </span>
-                      <p className="text-sm text-black/62">$ {data.Asset.priceUSD}</p>
-                    </div>
-
-                    <div className="flex items-center gap-2 text-sm text-black/72">
-                      <span className="h-auto p-0 text-sm font-medium text-[#1677ff]">
-                        Issuer: {addrShort(data.Asset.asset.issuer, 5)}
-                      </span>
-                    </div>
-                    <p className="text-sm font-medium text-black/82">
-                      Available:{" "}
+                    <p className="font-semibold text-white">
+                      <span className="">Available:</span>{" "}
                       {copy.data === 0
                         ? "Sold out"
                         : copy.data === 1
@@ -220,9 +227,19 @@ export default function BuyModal() {
                             ? `${copy.data} copies`
                             : "..."}
                     </p>
+                    <div className="flex items-center gap-2 text-sm text-gray-400">
+                      <span className="h-auto p-0 text-xs text-[#00a8fc]">
+                        Media Type:
+                      </span>
+                      <Badge variant="destructive" className=" rounded-lg">
+                        {data.Asset.asset.mediaType === "THREE_D"
+                          ? "3D Model"
+                          : data.Asset.asset.mediaType}
+                      </Badge>
+                    </div>
                   </div>
                 </CardContent>
-                <CardFooter className="flex flex-col gap-2 border-t border-black/10 p-3">
+                <CardFooter className="flex flex-col gap-1 p-2">
                   {data.Asset.asset.mediaType === "MUSIC" && hasTrustonAsset ? (
                     <Button
                       onClick={() => {
@@ -237,17 +254,15 @@ export default function BuyModal() {
                           price: 15,
                           priceUSD: 50,
                           id: 1,
-
                         } as SongItemType);
                       }}
-
-                      className="h-12 w-full rounded-xl border-0 bg-[#1f86ee] text-base font-semibold text-white shadow-none hover:bg-[#1877da]"
-
+                      className="w-full bg-[#39BD2B] text-white hover:bg-sky-700 "
                     >
                       Play
                     </Button>
                   ) : (
-                    data.Asset.asset.mediaType === "VIDEO" && hasTrustonAsset && (
+                    data.Asset.asset.mediaType === "VIDEO" &&
+                    hasTrustonAsset && (
                       <Button
                         onClick={() => {
                           setCurrentTrack(null);
@@ -262,16 +277,14 @@ export default function BuyModal() {
                             id: 1,
                           } as SongItemType);
                         }}
-
-                        className="h-12 w-full rounded-xl border-0 bg-[#1f86ee] text-base font-semibold text-white shadow-none hover:bg-[#1877da]"
-
+                        className="w-full bg-[#39BD2B] text-white hover:bg-sky-700"
                       >
                         Play
                       </Button>
                     )
                   )}
                   {session.status === "authenticated" &&
-                    data.Asset.placerId === session.data.user.id ? (
+                  data.Asset.placerId === session.data.user.id ? (
                     <>
                       <DisableFromMarketButton
                         code={data.Asset.asset.code}
@@ -284,46 +297,47 @@ export default function BuyModal() {
                     copy.data > 0 && (
                       <Button
                         onClick={handleNext}
-                        className="h-12 w-full rounded-xl border-0 bg-[#1f86ee] text-base font-semibold text-white shadow-none hover:bg-[#1877da]"
+                        className="w-full"
+                        variant={"outline"}
                       >
                         Buy
                       </Button>
                     )
                   )}
 
-                  <p className="text-xs text-black/62">
+                  <p className="text-xs text-gray-400">
                     Once purchased, this item will be placed on collection.
                   </p>
                 </CardFooter>
               </Card>
 
               {/* Right Column - Bundle Info */}
-              <div className="border-t border-black/8 bg-[#f1eee6] md:w-[42%] md:border-l md:border-t-0">
+              <div className=" rounded-sm bg-gray-300 p-1   md:col-span-4 ">
                 {data.Asset.asset.mediaType === "IMAGE" ? (
                   hasTrustonAsset ? (
-                    <>
-                      <img
-                        src={getSafeImageUrl(data.Asset.asset.mediaUrl)}
-                        alt={data.Asset.asset.name}
-                        className="h-full w-full object-cover md:min-h-[720px]"
-                        onError={(e) => {
-                          e.currentTarget.src = FALLBACK_PREVIEW_IMAGE;
-                        }}
-                      />
-                    </>
-                  ) : (<img
-                    src={getSafeImageUrl(data.Asset.asset.mediaUrl)}
-                    alt={data.Asset.asset.name}
-                    className="h-full w-full object-cover blur-lg md:min-h-[720px]"
-                    onError={(e) => {
-                      e.currentTarget.src = FALLBACK_PREVIEW_IMAGE;
-                    }}
-                  />)
+                    <img
+                      src={getSafeImageUrl(data.Asset.asset.mediaUrl)}
+                      alt={data.Asset.asset.name}
+                      className="h-full max-h-[800px] w-full overflow-y-auto object-cover"
+                      onError={(e) => {
+                        e.currentTarget.src = FALLBACK_PREVIEW_IMAGE;
+                      }}
+                    />
+                  ) : (
+                    <img
+                      src={getSafeImageUrl(data.Asset.asset.mediaUrl)}
+                      alt={data.Asset.asset.name}
+                      className="h-full max-h-[800px] w-full overflow-y-auto object-cover blur-lg"
+                      onError={(e) => {
+                        e.currentTarget.src = FALLBACK_PREVIEW_IMAGE;
+                      }}
+                    />
+                  )
                 ) : data.Asset.asset.mediaType === "VIDEO" ? (
                   hasTrustonAsset ? (
                     <div
                       style={{
-                        backgroundImage: `url(${data.Asset.asset.thumbnail})`,
+                        backgroundImage: `url(${getSafeImageUrl(data.Asset.asset.thumbnail)})`,
                         backgroundSize: "cover",
                         backgroundPosition: "center",
                         backgroundRepeat: "no-repeat",
@@ -331,70 +345,70 @@ export default function BuyModal() {
                         width: "100%",
                       }}
                       className={clsx(
-                        "h-full w-full object-cover md:min-h-[720px]",
+                        "h-full max-h-[800px] w-full overflow-y-auto object-cover",
                       )}
                     >
                       <RightSidePlayer />
                     </div>
-                  ) : (<img
-                    src={getSafeImageUrl(data.Asset.asset.mediaUrl)}
-                    alt={data.Asset.asset.name}
-                    className="h-full w-full object-cover blur-lg md:min-h-[720px]"
-                    onError={(e) => {
-                      e.currentTarget.src = FALLBACK_PREVIEW_IMAGE;
-                    }}
-                  />)
+                  ) : (
+                    <img
+                      src={getSafeImageUrl(data.Asset.asset.mediaUrl)}
+                      alt={data.Asset.asset.name}
+                      className="h-full max-h-[800px] w-full overflow-y-auto object-cover blur-lg"
+                      onError={(e) => {
+                        e.currentTarget.src = FALLBACK_PREVIEW_IMAGE;
+                      }}
+                    />
+                  )
                 ) : data.Asset.asset.mediaType === "MUSIC" ? (
                   hasTrustonAsset ? (
-                    <>
-                      <div
-                        style={{
-                          backgroundImage: `url(${data.Asset.asset.thumbnail})`,
-                          backgroundSize: "cover",
-                          backgroundPosition: "center",
-                          backgroundRepeat: "no-repeat",
-                          height: "100%",
-                          width: "100%",
-                        }}
-                        className={clsx(
-                          "h-full w-full object-cover md:min-h-[720px]",
-                        )}
-                      >
-                        <RightSidePlayer />
-                      </div>
-                    </>
-                  ) : (<img
-                    src={getSafeImageUrl(data.Asset.asset.mediaUrl)}
-                    alt={data.Asset.asset.name}
-                    className="h-full w-full object-cover blur-lg md:min-h-[720px]"
-                    onError={(e) => {
-                      e.currentTarget.src = FALLBACK_PREVIEW_IMAGE;
-                    }}
-                  />)
-                ) : (
-                  <>
                     <div
                       style={{
-                        backgroundImage: `url(${data.Asset.asset.thumbnail})`,
+                        backgroundImage: `url(${getSafeImageUrl(data.Asset.asset.thumbnail)})`,
                         backgroundSize: "cover",
                         backgroundPosition: "center",
                         backgroundRepeat: "no-repeat",
                         height: "100%",
                         width: "100%",
                       }}
+                      className={clsx(
+                        "h-full max-h-[800px] w-full overflow-y-auto object-cover",
+                      )}
                     >
-                      <ShowModel
-                        url={data.Asset.asset.mediaUrl}
-                        blur={hasTrustonAsset ? false : true}
-                      />
+                      <RightSidePlayer />
                     </div>
-                  </>
+                  ) : (
+                    <img
+                      src={getSafeImageUrl(data.Asset.asset.mediaUrl)}
+                      alt={data.Asset.asset.name}
+                      className="h-full max-h-[800px] w-full overflow-y-auto object-cover blur-lg"
+                      onError={(e) => {
+                        e.currentTarget.src = FALLBACK_PREVIEW_IMAGE;
+                      }}
+                    />
+                  )
+                ) : (
+                  <div
+                    style={{
+                      backgroundImage: `url(${getSafeImageUrl(data.Asset.asset.thumbnail)})`,
+                      backgroundSize: "cover",
+                      backgroundPosition: "center",
+                      backgroundRepeat: "no-repeat",
+                      height: "100%",
+                      width: "100%",
+                    }}
+                  >
+                    <ShowModel
+                      url={data.Asset.asset.mediaUrl}
+                      blur={hasTrustonAsset ? false : true}
+                    />
+                  </div>
                 )}
               </div>
             </div>
           )}
           {step === 2 && (
-            <Card className="border-0 bg-[#fbfaf6]">
+            <Card>
               <CardContent className="p-0">
                 <BuyItem
                   marketItemId={data.Asset.id}
@@ -405,9 +419,9 @@ export default function BuyModal() {
                   setClose={handleClose}
                 />
               </CardContent>
-              <CardFooter className="p-4">
+              <CardFooter className="p-2">
                 {step === 2 && (
-                  <Button onClick={handleBack} variant="outline" className="h-11 rounded-xl border-black/10 bg-white hover:bg-[#f7f7f7]">
+                  <Button onClick={handleBack} variant="secondary" className="">
                     <ArrowLeft className="h-4 w-4" /> Back
                   </Button>
                 )}

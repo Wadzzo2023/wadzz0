@@ -23,7 +23,7 @@ export const LeftNavigation = {
   Marketplace: { path: "/marketplace", icon: Bell, text: "MARKETPLACE" },
   Bounty: { path: "/bounty", icon: Bell, text: "BOUNTY" },
   Fan: {
-    path: "/feed",
+    path: "/fans/home",
     icon: Bell,
     text: CREATOR_PLURAL_TERM.toLocaleUpperCase(),
   },
@@ -42,7 +42,13 @@ export default function LeftBar({
   layoutMode?: "modern" | "legacy";
   onToggleLayoutMode?: () => void;
 }) {
-  return <LeftBarContent className={className} layoutMode={layoutMode} onToggleLayoutMode={onToggleLayoutMode} />;
+  return (
+    <LeftBarContent
+      className={className}
+      layoutMode={layoutMode}
+      onToggleLayoutMode={onToggleLayoutMode}
+    />
+  );
 }
 
 function LeftBarContent({
@@ -67,7 +73,10 @@ function LeftBarContent({
         </div>
       </div>
       <div className="flex w-full flex-col items-center ">
-        <LeftBottom layoutMode={layoutMode} onToggleLayoutMode={onToggleLayoutMode} />
+        <LeftBottom
+          layoutMode={layoutMode}
+          onToggleLayoutMode={onToggleLayoutMode}
+        />
       </div>
     </div>
   );

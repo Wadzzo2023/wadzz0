@@ -37,15 +37,15 @@ const ReceiveAssetsModal = () => {
   const handleClose = () => {
     onClose();
   };
-  if (!session?.data?.user?.id) {
-    return <div>Public Key not found</div>;
-  }
-  const url = `https://app.wadzzo.com${router.pathname}?id=${session?.data?.user?.id}`;
-
   const shortAddress = useMemo(
     () => addrShort(session?.data?.user?.id, 10),
     [session?.data?.user?.id],
   );
+
+  if (!session?.data?.user?.id) {
+    return <div>Public Key not found</div>;
+  }
+  const url = `https://app.wadzzo.com${router.pathname}?id=${session?.data?.user?.id}`;
 
   const onQrMouseMove = (event: React.MouseEvent<HTMLDivElement>) => {
     if (isLegacyLayout || typeof window === "undefined") return;
@@ -116,7 +116,9 @@ const ReceiveAssetsModal = () => {
             <div className="text-center">
               <p className="text-sm text-white">{shortAddress}</p>
               <div className="mt-1 flex items-center justify-center gap-2 text-xs text-white">
-                <span className="max-w-[92%] truncate">{session?.data?.user?.id}</span>
+                <span className="max-w-[92%] truncate">
+                  {session?.data?.user?.id}
+                </span>
                 <button
                   onClick={onCopyAddress}
                   className="rounded-md p-1 text-white/60 transition hover:bg-white/10 hover:text-white"
@@ -127,7 +129,10 @@ const ReceiveAssetsModal = () => {
               </div>
             </div>
 
-            <div className="flex justify-center" style={{ perspective: "1200px" }}>
+            <div
+              className="flex justify-center"
+              style={{ perspective: "1200px" }}
+            >
               <div
                 onMouseMove={onQrMouseMove}
                 onMouseLeave={onQrMouseLeave}

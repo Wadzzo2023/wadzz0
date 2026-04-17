@@ -1,0 +1,1873 @@
+
+> wadzzo@0.1.0 build
+> next build
+
+  ▲ Next.js 14.2.23
+  - Environments: .env
+
+   Skipping validation of types
+   Linting ...
+
+./src/components/about/Dev_plate.tsx
+2:10  Warning: 'App' is defined but never used.  @typescript-eslint/no-unused-vars
+2:15  Warning: 'DevCompany' is defined but never used.  @typescript-eslint/no-unused-vars
+2:27  Warning: 'DevRole' is defined but never used.  @typescript-eslint/no-unused-vars
+2:36  Warning: 'PoweredBy' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/admin/add_admin.tsx
+3:1  Warning: Import "SubmitHandler" is only used as types.  @typescript-eslint/consistent-type-imports
+15:5  Warning: 'reset' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+16:5  Warning: 'control' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/admin/admin_right.tsx
+5:9  Warning: 'color' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/admin/bounty/Bounty.tsx
+11:10  Warning: 'addrShort' is defined but never used.  @typescript-eslint/no-unused-vars
+28:59  Warning: 'e' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+
+./src/components/admin/map/admin-map.tsx
+61:6  Warning: 'AssetType' is defined but never used.  @typescript-eslint/no-unused-vars
+85:12  Warning: 'loading' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+88:12  Warning: 'userLocation' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+92:68  Warning: 'setAlreadySelectedPlace' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+94:12  Warning: 'selectedPlace' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+95:40  Warning: 'isAutoCollect' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+99:11  Warning: 'acc' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+137:8  Warning: React Hook useEffect has a missing dependency: 'setPosition'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+342:8  Warning: React Hook useEffect has a missing dependency: 'setAllPins'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+
+./src/components/admin/pins/edit-pin.tsx
+17:10  Warning: 'useCreatorStorageAcc' is defined but never used.  @typescript-eslint/no-unused-vars
+19:10  Warning: 'ItemPrivacy' is defined but never used.  @typescript-eslint/no-unused-vars
+22:6  Warning: 'AssetType' is defined but never used.  @typescript-eslint/no-unused-vars
+118:9  Warning: 'setError' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+137:11  Warning: 'tiers' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+138:11  Warning: 'assets' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+141:27  Warning: 'updatedData' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+
+./src/components/admin/pins/list.tsx
+142:11  Warning: 'creatorName' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+172:19  Warning: 'setPinData' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/admin-market-asset.tsx
+20:75  Warning: 'MoreHorizontal' is defined but never used.  @typescript-eslint/no-unused-vars
+20:91  Warning: 'Eye' is defined but never used.  @typescript-eslint/no-unused-vars
+27:5  Warning: 'DropdownMenu' is defined but never used.  @typescript-eslint/no-unused-vars
+28:5  Warning: 'DropdownMenuContent' is defined but never used.  @typescript-eslint/no-unused-vars
+29:5  Warning: 'DropdownMenuItem' is defined but never used.  @typescript-eslint/no-unused-vars
+30:5  Warning: 'DropdownMenuTrigger' is defined but never used.  @typescript-eslint/no-unused-vars
+32:1  Warning: All imports in the declaration are only used as types. Use `import type`.  @typescript-eslint/consistent-type-imports
+70:7  Warning: 'pulseAnimation' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+86:12  Warning: 'hasMore' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+109:13  Warning: Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator.  @typescript-eslint/no-floating-promises
+128:13  Warning: Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator.  @typescript-eslint/no-floating-promises
+146:13  Warning: Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator.  @typescript-eslint/no-floating-promises
+159:9  Warning: Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator.  @typescript-eslint/no-floating-promises
+284:73  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./src/components/AgentChat.tsx
+3:1  Warning: Type import "React" is used by decorator metadata.  @typescript-eslint/consistent-type-imports
+87:7  Warning: Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator.  @typescript-eslint/no-floating-promises
+
+./src/components/BackgroundMusic.tsx
+3:10  Warning: 'Play' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/bottom_player.tsx
+2:10  Warning: 'PlayerSongCover' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/bounty/legacy-bounty-detail-page.tsx
+20:1  Warning: Import "MutableRefObject" is only used as types.  @typescript-eslint/consistent-type-imports
+69:3  Warning: 'PLATFORM_FEE' is defined but never used.  @typescript-eslint/no-unused-vars
+70:3  Warning: 'TrxBaseFeeInPlatformAsset' is defined but never used.  @typescript-eslint/no-unused-vars
+77:1  Warning: Imports "BountySubmission" and "SubmissionViewType" are only used as types.  @typescript-eslint/consistent-type-imports
+78:22  Warning: 'WalletType' is defined but never used.  @typescript-eslint/no-unused-vars
+151:23  Warning: 'data' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+163:23  Warning: 'data' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+766:11  Warning: 'needSign' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+767:17  Warning: 'setInput' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+768:9  Warning: 'inputLength' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+769:10  Warning: 'messages' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+769:20  Warning: 'setMessages' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+1328:7  Warning: 'shortFileName' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+1336:7  Warning: 'shortURL' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/bounty/legacy-bounty-page.tsx
+4:1  Warning: Import "BountyProps" is only used as types.  @typescript-eslint/consistent-type-imports
+
+./src/components/BuyItem.tsx
+1:10  Warning: 'useRef' is defined but never used.  @typescript-eslint/no-unused-vars
+10:3  Warning: 'Dialog' is defined but never used.  @typescript-eslint/no-unused-vars
+11:3  Warning: 'DialogClose' is defined but never used.  @typescript-eslint/no-unused-vars
+12:3  Warning: 'DialogContent' is defined but never used.  @typescript-eslint/no-unused-vars
+13:3  Warning: 'DialogFooter' is defined but never used.  @typescript-eslint/no-unused-vars
+21:3  Warning: 'PLATFORM_FEE' is defined but never used.  @typescript-eslint/no-unused-vars
+22:3  Warning: 'TrxBaseFeeInPlatformAsset' is defined but never used.  @typescript-eslint/no-unused-vars
+28:1  Warning: All imports in the declaration are only used as types. Use `import type`.  @typescript-eslint/consistent-type-imports
+53:56  Warning: 'balances' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+61:10  Warning: 'xdr' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+64:10  Warning: 'isBuyDialogOpen' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+286:3  Warning: 'priceUSD' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+
+./src/components/context/BackgroundMusicContext.tsx
+3:1  Warning: Import "ReactNode" is only used as types.  @typescript-eslint/consistent-type-imports
+8:3  Warning: 'useEffect' is defined but never used.  @typescript-eslint/no-unused-vars
+42:9  Warning: Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator.  @typescript-eslint/no-floating-promises
+
+./src/components/context/PlayerContext.tsx
+2:1  Warning: All imports in the declaration are only used as types. Use `import type`.  @typescript-eslint/consistent-type-imports
+86:8  Warning: React Hook useEffect has a missing dependency: 'playlist'. Either include it or remove the dependency array. You can also replace multiple useState variables with useReducer if 'setCurrentTrack' needs the current value of 'playlist'.  react-hooks/exhaustive-deps
+
+./src/components/context/PostAudioContext.tsx
+47:13  Warning: Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator.  @typescript-eslint/no-floating-promises
+
+./src/components/context/PostVideoContext.tsx
+48:11  Warning: 'containerRef' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+68:17  Warning: Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator.  @typescript-eslint/no-floating-promises
+77:13  Warning: Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator.  @typescript-eslint/no-floating-promises
+80:8  Warning: React Hook useCallback has an unnecessary dependency: 'currentVideo'. Either exclude it or remove the dependency array.  react-hooks/exhaustive-deps
+
+./src/components/DummyAudioPostPlayer.tsx
+3:10  Warning: 'useState' is defined but never used.  @typescript-eslint/no-unused-vars
+3:20  Warning: 'useRef' is defined but never used.  @typescript-eslint/no-unused-vars
+3:28  Warning: 'useEffect' is defined but never used.  @typescript-eslint/no-unused-vars
+4:26  Warning: 'Pause' is defined but never used.  @typescript-eslint/no-unused-vars
+9:10  Warning: 'useMedia' is defined but never used.  @typescript-eslint/no-unused-vars
+13:7  Warning: 'formatTime' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+21:9  Warning: 'isPlayerOpen' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+22:9  Warning: 'currentTrack' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+23:9  Warning: 'isPlaying' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+24:9  Warning: 'volume' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+25:9  Warning: 'isPIP' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+26:9  Warning: 'currentTime' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+27:9  Warning: 'duration' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+31:9  Warning: 'setVolume' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+32:9  Warning: 'setIsPIP' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+33:9  Warning: 'setCurrentTime' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+35:9  Warning: 'skipForward' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+36:9  Warning: 'skipBackward' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/DummyVideoPostPlayer.tsx
+1:25  Warning: 'useEffect' is defined but never used.  @typescript-eslint/no-unused-vars
+5:16  Warning: 'Pause' is defined but never used.  @typescript-eslint/no-unused-vars
+5:66  Warning: 'PictureInPicture' is defined but never used.  @typescript-eslint/no-unused-vars
+5:84  Warning: 'X' is defined but never used.  @typescript-eslint/no-unused-vars
+8:10  Warning: 'useIntersectionObserver' is defined but never used.  @typescript-eslint/no-unused-vars
+15:9  Warning: 'currentTime' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+16:9  Warning: 'duration' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+17:9  Warning: 'volume' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+19:9  Warning: 'currentVideo' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+20:9  Warning: 'play' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+21:9  Warning: 'pause' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+22:9  Warning: 'togglePlay' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+23:9  Warning: 'seek' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+24:9  Warning: 'skipForward' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+25:9  Warning: 'skipBackward' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+26:9  Warning: 'setVolume' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+28:9  Warning: 'isMinimized' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+29:9  Warning: 'setMediaRef' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+30:9  Warning: 'setIsMinimized' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+35:12  Warning: 'isVideoVisible' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+35:28  Warning: 'setIsVideoVisible' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+36:30  Warning: 'currentAudioPlayingId' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/emblaCarousel/EmblaCarousel.tsx
+6:1  Warning: All imports in the declaration are only used as types. Use `import type`.  @typescript-eslint/consistent-type-imports
+
+./src/components/emblaCarousel/EmblaCarouselDotButton.tsx
+1:1  Warning: Import "ComponentPropsWithRef" is only used as types.  @typescript-eslint/consistent-type-imports
+7:1  Warning: All imports in the declaration are only used as types. Use `import type`.  @typescript-eslint/consistent-type-imports
+
+./src/components/fan/creator/about.tsx
+2:1  Warning: All imports in the declaration are only used as types. Use `import type`.  @typescript-eslint/consistent-type-imports
+3:1  Warning: Import "SubmitHandler" is only used as types.  @typescript-eslint/consistent-type-imports
+7:10  Warning: 'CoverChange' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/fan/creator/add-createpage-asset.tsx
+1:1  Warning: All imports in the declaration are only used as types. Use `import type`.  @typescript-eslint/consistent-type-imports
+3:18  Warning: 'useState' is defined but never used.  @typescript-eslint/no-unused-vars
+76:9  Warning: 'modalRef' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/fan/creator/add-shop-item.tsx
+7:1  Warning: Import "SubmitHandler" is only used as types.  @typescript-eslint/consistent-type-imports
+39:10  Warning: 'medialUrl' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+39:21  Warning: 'setMediaUrl' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+41:10  Warning: 'step' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+41:16  Warning: 'setStep' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+54:21  Warning: 'variables' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+54:32  Warning: 'context' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+65:20  Warning: 'res' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+66:21  Warning: 'data' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+84:5  Warning: 'trigger' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+91:68  Warning: 'data' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+
+./src/components/fan/creator/add-tier-modal.tsx
+2:1  Warning: All imports in the declaration are only used as types. Use `import type`.  @typescript-eslint/consistent-type-imports
+3:10  Warning: 'Plus' is defined but never used.  @typescript-eslint/no-unused-vars
+5:1  Warning: Import "SubmitHandler" is only used as types.  @typescript-eslint/consistent-type-imports
+14:3  Warning: 'DialogDescription' is defined but never used.  @typescript-eslint/no-unused-vars
+16:3  Warning: 'DialogHeader' is defined but never used.  @typescript-eslint/no-unused-vars
+17:3  Warning: 'DialogTitle' is defined but never used.  @typescript-eslint/no-unused-vars
+22:10  Warning: 'PLATFORM_ASSET' is defined but never used.  @typescript-eslint/no-unused-vars
+59:40  Warning: 'creator' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+60:9  Warning: 'modalRef' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+61:23  Warning: 'setIsModalOpen' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+72:9  Warning: 'assetAmount' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/fan/creator/bounty/Add-Bounty-Comment.tsx
+4:1  Warning: Import "SubmitHandler" is only used as types.  @typescript-eslint/consistent-type-imports
+
+./src/components/fan/creator/bounty/Add-Reply-Bounty-Comment.tsx
+3:1  Warning: Import "SubmitHandler" is only used as types.  @typescript-eslint/consistent-type-imports
+4:1  Warning: All imports in the declaration are only used as types. Use `import type`.  @typescript-eslint/consistent-type-imports
+16:17  Warning: 'data' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+25:5  Warning: 'control' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/fan/creator/bounty/BountyRightSide.tsx
+22:23  Warning: 'data' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+
+./src/components/fan/creator/bounty/CreateBounty.tsx
+10:1  Warning: Import "SubmitHandler" is only used as types.  @typescript-eslint/consistent-type-imports
+28:3  Warning: 'Dialog' is defined but never used.  @typescript-eslint/no-unused-vars
+29:3  Warning: 'DialogClose' is defined but never used.  @typescript-eslint/no-unused-vars
+30:3  Warning: 'DialogContent' is defined but never used.  @typescript-eslint/no-unused-vars
+31:3  Warning: 'DialogFooter' is defined but never used.  @typescript-eslint/no-unused-vars
+32:3  Warning: 'DialogHeader' is defined but never used.  @typescript-eslint/no-unused-vars
+33:3  Warning: 'DialogTitle' is defined but never used.  @typescript-eslint/no-unused-vars
+34:3  Warning: 'DialogTrigger' is defined but never used.  @typescript-eslint/no-unused-vars
+95:10  Warning: 'isDialogOpen' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+97:11  Warning: 'isOpen' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+123:23  Warning: 'data' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+
+./src/components/fan/creator/bounty/View-Bounty-Comment.tsx
+8:1  Warning: All imports in the declaration are only used as types. Use `import type`.  @typescript-eslint/consistent-type-imports
+
+./src/components/fan/creator/bounty/View-Reply-Bounty-Comment.tsx
+6:1  Warning: All imports in the declaration are only used as types. Use `import type`.  @typescript-eslint/consistent-type-imports
+
+./src/components/fan/creator/card.tsx
+2:1  Warning: Import "Creator" is only used as types.  @typescript-eslint/consistent-type-imports
+2:19  Warning: 'Subscription' is defined but never used.  @typescript-eslint/no-unused-vars
+5:1  Warning: All imports in the declaration are only used as types. Use `import type`.  @typescript-eslint/consistent-type-imports
+10:3  Warning: 'creator' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+
+./src/components/fan/creator/CreatPost.tsx
+2:1  Warning: Import "SubmitHandler" is only used as types.  @typescript-eslint/consistent-type-imports
+31:10  Warning: 'router' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/fan/creator/edit-tier-modal.tsx
+2:10  Warning: 'Pencil' is defined but never used.  @typescript-eslint/no-unused-vars
+5:1  Warning: Import "SubmitHandler" is only used as types.  @typescript-eslint/consistent-type-imports
+9:1  Warning: All imports in the declaration are only used as types. Use `import type`.  @typescript-eslint/consistent-type-imports
+63:5  Warning: 'reset' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+80:9  Warning: 'handleModal' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/fan/creator/home.tsx
+1:1  Warning: All imports in the declaration are only used as types. Use `import type`.  @typescript-eslint/consistent-type-imports
+
+./src/components/fan/creator/membership.tsx
+1:1  Warning: All imports in the declaration are only used as types. Use `import type`.  @typescript-eslint/consistent-type-imports
+26:32  Warning: 'isLoading' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+113:19  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./src/components/fan/creator/music/album-list.tsx
+4:1  Warning: All imports in the declaration are only used as types. Use `import type`.  @typescript-eslint/consistent-type-imports
+39:13  Warning: Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator.  @typescript-eslint/no-floating-promises
+
+./src/components/fan/creator/music/create-album.tsx
+4:5  Warning: 'DialogClose' is defined but never used.  @typescript-eslint/no-unused-vars
+12:10  Warning: 'Input' is defined but never used.  @typescript-eslint/no-unused-vars
+13:10  Warning: 'Label' is defined but never used.  @typescript-eslint/no-unused-vars
+14:1  Warning: Import "SubmitHandler" is only used as types.  @typescript-eslint/consistent-type-imports
+
+./src/components/fan/creator/music/create-song.tsx
+1:10  Warning: 'SubmitHandler' is defined but never used.  @typescript-eslint/no-unused-vars
+3:10  Warning: 'PlusIcon' is defined but never used.  @typescript-eslint/no-unused-vars
+6:10  Warning: 'WalletType' is defined but never used.  @typescript-eslint/no-unused-vars
+25:5  Warning: 'SelectLabel' is defined but never used.  @typescript-eslint/no-unused-vars
+33:10  Warning: 'Alert' is defined but never used.  @typescript-eslint/no-unused-vars
+83:12  Warning: 'file' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+86:11  Warning: 'inputFile' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+90:12  Warning: 'submitLoading' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+131:25  Warning: 'variables' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+131:36  Warning: 'context' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+137:13  Warning: Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator.  @typescript-eslint/no-floating-promises
+
+./src/components/fan/creator/onboarding/create-button.tsx
+6:10  Warning: 'Creator' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/fan/creator/onboarding/create-form.tsx
+4:1  Warning: Import "SubmitHandler" is only used as types.  @typescript-eslint/consistent-type-imports
+24:10  Warning: 'Creator' is defined but never used.  @typescript-eslint/no-unused-vars
+25:1  Warning: All imports in the declaration are only used as types. Use `import type`.  @typescript-eslint/consistent-type-imports
+26:10  Warning: 'set' is defined but never used.  @typescript-eslint/no-unused-vars
+66:10  Warning: 'file' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+67:10  Warning: 'ipfs' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+81:5  Warning: 'getValues' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+153:9  Warning: Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator.  @typescript-eslint/no-floating-promises
+
+./src/components/fan/creator/page_asset/custom.tsx
+5:1  Warning: Import "SubmitHandler" is only used as types.  @typescript-eslint/consistent-type-imports
+49:32  Warning: 'requiredToken' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+50:23  Warning: 'setIsModalOpen' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+62:5  Warning: 'setValue' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/fan/creator/page_asset/custom_asset_recieve_modal.tsx
+24:10  Warning: 'isOpen' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+25:9  Warning: 'handleClose' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/fan/creator/page_asset/new.tsx
+74:11  Warning: 'isOpen' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+79:10  Warning: 'file' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+142:17  Warning: 'e' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+
+./src/components/fan/creator/page_asset/send-page-asset.tsx
+43:21  Warning: 'values' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+
+./src/components/fan/creator/post.tsx
+16:1  Warning: All imports in the declaration are only used as types. Use `import type`.  @typescript-eslint/consistent-type-imports
+
+./src/components/fan/creator/profile/convert-svg.tsx
+12:9  Warning: 'addExtraSpaceToSvg' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/fan/creator/shop.tsx
+9:33  Warning: 'DialogHeader' is defined but never used.  @typescript-eslint/no-unused-vars
+9:47  Warning: 'DialogTitle' is defined but never used.  @typescript-eslint/no-unused-vars
+17:57  Warning: 'Plus' is defined but never used.  @typescript-eslint/no-unused-vars
+27:1  Warning: All imports in the declaration are only used as types. Use `import type`.  @typescript-eslint/consistent-type-imports
+55:32  Warning: 'creator' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+108:10  Warning: 'isCreateDialogOpen' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+108:30  Warning: 'setIsCreateDialogOpen' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+116:7  Warning: Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator.  @typescript-eslint/no-floating-promises
+
+./src/components/fan/me/user-profile.tsx
+3:1  Warning: Import "SubmitHandler" is only used as types.  @typescript-eslint/consistent-type-imports
+5:8  Warning: 'Avater' is defined but never used.  @typescript-eslint/no-unused-vars
+6:15  Warning: 'Creator' is defined but never used.  @typescript-eslint/no-unused-vars
+12:3  Warning: 'AvatarFallback' is defined but never used.  @typescript-eslint/no-unused-vars
+21:3  Warning: 'DialogClose' is defined but never used.  @typescript-eslint/no-unused-vars
+29:24  Warning: 'PenTool' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/fan/mobile/bottom-nav.tsx
+1:10  Warning: 'Home' is defined but never used.  @typescript-eslint/no-unused-vars
+3:8  Warning: 'Link' is defined but never used.  @typescript-eslint/no-unused-vars
+4:10  Warning: 'Mode' is defined but never used.  @typescript-eslint/no-unused-vars
+5:8  Warning: 'clsx' is defined but never used.  @typescript-eslint/no-unused-vars
+9:11  Warning: 'selectedMenu' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+9:25  Warning: 'toggleSelectedMenu' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+10:9  Warning: 'router' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/fan/nav/user-mode.tsx
+59:10  Warning: 'BottonNav' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/fan/post/add-comment.tsx
+2:10  Warning: 'Comment' is defined but never used.  @typescript-eslint/no-unused-vars
+4:1  Warning: Import "SubmitHandler" is only used as types.  @typescript-eslint/consistent-type-imports
+7:8  Warning: 'CommentView' is defined but never used.  @typescript-eslint/no-unused-vars
+9:10  Warning: 'Textarea' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/fan/post/add-reply.tsx
+3:1  Warning: Import "SubmitHandler" is only used as types.  @typescript-eslint/consistent-type-imports
+4:1  Warning: All imports in the declaration are only used as types. Use `import type`.  @typescript-eslint/consistent-type-imports
+16:17  Warning: 'data' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+25:5  Warning: 'control' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/fan/post/comment.tsx
+5:1  Warning: All imports in the declaration are only used as types. Use `import type`.  @typescript-eslint/consistent-type-imports
+152:9  Warning: 'lines' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/fan/post/post-read-more.tsx
+1:1  Warning: All imports in the declaration are only used as types. Use `import type`.  @typescript-eslint/consistent-type-imports
+
+./src/components/fan/post/reply.tsx
+3:1  Warning: All imports in the declaration are only used as types. Use `import type`.  @typescript-eslint/consistent-type-imports
+8:8  Warning: 'Image' is defined but never used.  @typescript-eslint/no-unused-vars
+50:10  Warning: 'ShowMore' is defined but never used.  @typescript-eslint/no-unused-vars
+121:9  Warning: 'lines' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/fan/post/single-post.tsx
+12:8  Warning: 'Slider' is defined but never used.  @typescript-eslint/no-unused-vars
+13:8  Warning: 'Loading' is defined but never used.  @typescript-eslint/no-unused-vars
+19:8  Warning: 'ReplyCommentView' is defined but never used.  @typescript-eslint/no-unused-vars
+21:1  Warning: Imports "Media" and "Post" are only used as types.  @typescript-eslint/consistent-type-imports
+21:17  Warning: 'MediaType' is defined but never used.  @typescript-eslint/no-unused-vars
+27:10  Warning: 'addrShort' is defined but never used.  @typescript-eslint/no-unused-vars
+46:28  Warning: 'currentVideo' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+47:51  Warning: 'isPlaying' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+55:10  Warning: 'commentBox' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/fan/shop/asset_view_modal.tsx
+3:1  Warning: Import "ReactNode" is only used as types.  @typescript-eslint/consistent-type-imports
+4:1  Warning: Import "SubmitHandler" is only used as types.  @typescript-eslint/consistent-type-imports
+18:1  Warning: Import "MarketAssetType" is only used as types.  @typescript-eslint/consistent-type-imports
+28:10  Warning: 'editing' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+28:19  Warning: 'setEditing' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+73:10  Warning: 'EditItem' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/fan/shop/buy-item-modal.tsx
+1:1  Warning: All imports in the declaration are only used as types. Use `import type`.  @typescript-eslint/consistent-type-imports
+57:18  Warning: 'setTrxMsg' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/fan/shop/shop_asset.tsx
+1:10  Warning: 'getTailwindScreenSize' is defined but never used.  @typescript-eslint/no-unused-vars
+2:10  Warning: 'useMarketRightStore' is defined but never used.  @typescript-eslint/no-unused-vars
+3:10  Warning: 'usePopUpState' is defined but never used.  @typescript-eslint/no-unused-vars
+4:10  Warning: 'MarketType' is defined but never used.  @typescript-eslint/no-unused-vars
+6:1  Warning: Import "MarketAssetType" is only used as types.  @typescript-eslint/consistent-type-imports
+
+./src/components/hooks/use-destination-store.tsx
+1:10  Warning: 'Creator' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/hooks/use-select-creator-store.tsx
+1:1  Warning: All imports in the declaration are only used as types. Use `import type`.  @typescript-eslint/consistent-type-imports
+
+./src/components/hooks/useAudio.ts
+30:21  Warning: Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator.  @typescript-eslint/no-floating-promises
+61:8  Warning: React Hook useEffect has a missing dependency: 'isPlaying'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+67:17  Warning: Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator.  @typescript-eslint/no-floating-promises
+87:8  Warning: React Hook useEffect has missing dependencies: 'duration' and 'setIsPlaying'. Either include them or remove the dependency array.  react-hooks/exhaustive-deps
+
+./src/components/hooks/useIntersectionObserver.ts
+21:46  Warning: The ref value 'targetRef.current' will likely have changed by the time this effect cleanup function runs. If this ref points to a node rendered by React, copy 'targetRef.current' to a variable inside the effect, and use that variable in the cleanup function.  react-hooks/exhaustive-deps
+
+./src/components/hooks/useMedia.ts
+63:17  Warning: Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator.  @typescript-eslint/no-floating-promises
+87:17  Warning: Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator.  @typescript-eslint/no-floating-promises
+
+./src/components/logo.tsx
+3:10  Warning: 'twMerge' is defined but never used.  @typescript-eslint/no-unused-vars
+4:10  Warning: 'PLATFORM_ASSET' is defined but never used.  @typescript-eslint/no-unused-vars
+5:32  Warning: 'className' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+
+./src/components/maps/admin/create-pin.tsx
+82:20  Warning: 'setSelectedCreator' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+87:10  Warning: 'storageBalance' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+87:26  Warning: 'setStorageBalance' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+95:5  Warning: 'getValues' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+157:21  Warning: 'data' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+315:6  Warning: React Hook useEffect has a missing dependency: 'selectedCreator'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+370:6  Warning: React Hook useEffect has missing dependencies: 'duplicate', 'handleTokenOptionChange', 'position', 'prevData', and 'setValue'. Either include them or remove the dependency array.  react-hooks/exhaustive-deps
+400:6  Warning: React Hook useEffect has missing dependencies: 'setValue' and 'watch'. Either include them or remove the dependency array.  react-hooks/exhaustive-deps
+400:7  Warning: React Hook useEffect has a complex expression in the dependency array. Extract it to a separate variable so it can be statically checked.  react-hooks/exhaustive-deps
+
+./src/components/maps/claim/modal.tsx
+9:1  Warning: All imports in the declaration are only used as types. Use `import type`.  @typescript-eslint/consistent-type-imports
+26:23  Warning: 'Variable' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+
+./src/components/maps/modals/create-pin.tsx
+4:8  Warning: 'Image' is defined but never used.  @typescript-eslint/no-unused-vars
+5:1  Warning: Import "ChangeEvent" is only used as types.  @typescript-eslint/consistent-type-imports
+6:1  Warning: Import "SubmitHandler" is only used as types.  @typescript-eslint/consistent-type-imports
+88:10  Warning: 'storageBalance' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+88:26  Warning: 'setStorageBalance' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+96:5  Warning: 'getValues' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+126:13  Warning: 'shopAsset' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+155:21  Warning: 'data' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+185:9  Warning: 'openPopup' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+379:6  Warning: React Hook useEffect has missing dependencies: 'duplicate', 'handleTokenOptionChange', 'position', 'prevData', and 'setValue'. Either include them or remove the dependency array.  react-hooks/exhaustive-deps
+550:25  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+690:12  Warning: 'AvailableTokenField' is defined but never used.  @typescript-eslint/no-unused-vars
+733:12  Warning: 'AssetTypeTab' is defined but never used.  @typescript-eslint/no-unused-vars
+734:11  Warning: 'pageAsset' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/maps/search/autocomplete-classic.tsx
+59:6  Warning: React Hook useEffect has missing dependencies: 'setSearchCoordinates' and 'setZoom'. Either include them or remove the dependency array. If 'setSearchCoordinates' changes too often, find the parent component that defines it and wrap that definition in useCallback.  react-hooks/exhaustive-deps
+
+./src/components/maps/search/map-control.tsx
+2:1  Warning: Import "ControlPosition" is only used as types.  @typescript-eslint/consistent-type-imports
+
+./src/components/marketplace/asset/asset_view.tsx
+66:13  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+125:11  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./src/components/marketplace/button/add_button.tsx
+1:1  Warning: All imports in the declaration are only used as types. Use `import type`.  @typescript-eslint/consistent-type-imports
+
+./src/components/marketplace/fans_assets.tsx
+5:1  Warning: All imports in the declaration are only used as types. Use `import type`.  @typescript-eslint/consistent-type-imports
+
+./src/components/marketplace/market_asset.tsx
+1:10  Warning: 'getTailwindScreenSize' is defined but never used.  @typescript-eslint/no-unused-vars
+5:10  Warning: 'MarketType' is defined but never used.  @typescript-eslint/no-unused-vars
+6:1  Warning: Import "MarketAssetType" is only used as types.  @typescript-eslint/consistent-type-imports
+12:9  Warning: 'urs' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+13:9  Warning: 'pop' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/marketplace/modal/place_2storage_modal.tsx
+18:1  Warning: Import "SubmitHandler" is only used as types.  @typescript-eslint/consistent-type-imports
+101:5  Warning: 'setValue' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+104:5  Warning: 'control' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+112:21  Warning: 'variables' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+112:32  Warning: 'context' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+124:17  Warning: 'data' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+127:17  Warning: 'e' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+144:5  Warning: 'data' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+
+./src/components/marketplace/modal/place_market_modal.tsx
+7:1  Warning: Import "SubmitHandler" is only used as types.  @typescript-eslint/consistent-type-imports
+36:3  Warning: 'copy' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+46:5  Warning: 'setValue' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+47:5  Warning: 'getValues' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+49:5  Warning: 'control' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/marketplace/modal/revert_place_market_modal.tsx
+9:1  Warning: Import "SubmitHandler" is only used as types.  @typescript-eslint/consistent-type-imports
+31:6  Warning: 'PlaceMarketFormType' is defined but never used.  @typescript-eslint/no-unused-vars
+48:5  Warning: 'setValue' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+50:18  Warning: 'errors' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+51:5  Warning: 'control' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+60:21  Warning: 'variables' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+60:32  Warning: 'context' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+92:5  Warning: 'data' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+
+./src/components/marketplace/nft_create.tsx
+9:1  Warning: Import "ChangeEvent" is only used as types.  @typescript-eslint/consistent-type-imports
+20:10  Warning: 'useCreatorStorageAcc' is defined but never used.  @typescript-eslint/no-unused-vars
+36:8  Warning: 'Loading' is defined but never used.  @typescript-eslint/no-unused-vars
+62:10  Warning: 'QRItem' is defined but never used.  @typescript-eslint/no-unused-vars
+215:3  Warning: 'onClose' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+225:10  Warning: 'isOpen' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+226:10  Warning: 'parentIsOpen' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+228:10  Warning: 'file' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+231:10  Warning: 'mediaUpload' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+232:9  Warning: 'inputFile' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+238:9  Warning: 'modalRef' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+240:10  Warning: 'mediaUploadSuccess' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+249:10  Warning: 'uploadProgress' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+249:26  Warning: 'setUploadProgress' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+262:5  Warning: 'control' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+297:21  Warning: 'variables' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+297:32  Warning: 'context' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+304:7  Warning: Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator.  @typescript-eslint/no-floating-promises
+412:12  Warning: 'onChangeHandler' is defined but never used.  @typescript-eslint/no-unused-vars
+858:39  Warning: 'isAdmin' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+904:9  Warning: 'watchedPriceUSD' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+1248:3  Warning: 'isAdmin' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+1254:17  Warning: 'session' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+1255:10  Warning: 'progress' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+1255:20  Warning: 'setProgress' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/marketplace/page_asset.tsx
+1:10  Warning: 'Creator' is defined but never used.  @typescript-eslint/no-unused-vars
+1:19  Warning: 'CreatorPageAsset' is defined but never used.  @typescript-eslint/no-unused-vars
+3:10  Warning: 'usePopUpState' is defined but never used.  @typescript-eslint/no-unused-vars
+4:10  Warning: 'usePageAssetRightStore' is defined but never used.  @typescript-eslint/no-unused-vars
+6:10  Warning: 'AssetVariant' is defined but never used.  @typescript-eslint/no-unused-vars
+24:11  Warning: 'selectedTag' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/marketplace/page_assets.tsx
+3:8  Warning: 'MarketAssetComponent' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/marketplace/pay/buy_with_squire.tsx
+20:29  Warning: 'variables' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+20:40  Warning: 'context' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+25:17  Warning: 'id' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+33:21  Warning: 'e' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+45:15  Warning: 'e' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+55:47  Warning: 'verifiedBuyer' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+
+./src/components/marketplace/platforms_nfts.tsx
+3:8  Warning: 'MarketAssetComponent' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/marketplace/recharge/convert_card.tsx
+3:1  Warning: All imports in the declaration are only used as types. Use `import type`.  @typescript-eslint/consistent-type-imports
+
+./src/components/marketplace/recharge/custom_card.tsx
+4:10  Warning: 'CustomOfferCard' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/marketplace/recharge/offer_card.tsx
+2:1  Warning: All imports in the declaration are only used as types. Use `import type`.  @typescript-eslint/consistent-type-imports
+4:1  Warning: All imports in the declaration are only used as types. Use `import type`.  @typescript-eslint/consistent-type-imports
+
+./src/components/marketplace/recharge/pay_card.tsx
+3:1  Warning: All imports in the declaration are only used as types. Use `import type`.  @typescript-eslint/consistent-type-imports
+9:10  Warning: 'rechargeTask' is defined but never used.  @typescript-eslint/no-unused-vars
+11:6  Warning: 'FIRST' is defined but never used.  @typescript-eslint/no-unused-vars
+18:39  Warning: 'pubkey' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+22:27  Warning: 'variables' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+22:38  Warning: 'context' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+50:47  Warning: 'verifiedBuyer' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+
+./src/components/marketplace/recharge/site_asset_bal.tsx
+3:8  Warning: 'Image' is defined but never used.  @typescript-eslint/no-unused-vars
+7:8  Warning: 'MusicControls' is defined but never used.  @typescript-eslint/no-unused-vars
+9:10  Warning: 'Mode' is defined but never used.  @typescript-eslint/no-unused-vars
+28:34  Warning: 'active' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+30:11  Warning: 'selectedMenu' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+34:25  Warning: 'platformAssetBal' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+34:43  Warning: 'xlm' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+38:15  Warning: 'error' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+
+./src/components/marketplace/trade/buy-offer-dialog.tsx
+5:10  Warning: 'SubmitHandler' is defined but never used.  @typescript-eslint/no-unused-vars
+8:10  Warning: 'z' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/marketplace/trade/create-trade.tsx
+72:19  Warning: 'data' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+
+./src/components/marketplace/trade/index.tsx
+15:10  Warning: 'get' is defined but never used.  @typescript-eslint/no-unused-vars
+16:22  Warning: 'WalletType' is defined but never used.  @typescript-eslint/no-unused-vars
+94:7  Warning: Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator.  @typescript-eslint/no-floating-promises
+108:7  Warning: Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator.  @typescript-eslint/no-floating-promises
+
+./src/components/modals/add-asset-modal.tsx
+2:10  Warning: 'useEffect' is defined but never used.  @typescript-eslint/no-unused-vars
+10:3  Warning: 'Select' is defined but never used.  @typescript-eslint/no-unused-vars
+11:3  Warning: 'SelectContent' is defined but never used.  @typescript-eslint/no-unused-vars
+12:3  Warning: 'SelectGroup' is defined but never used.  @typescript-eslint/no-unused-vars
+13:3  Warning: 'SelectItem' is defined but never used.  @typescript-eslint/no-unused-vars
+14:3  Warning: 'SelectLabel' is defined but never used.  @typescript-eslint/no-unused-vars
+15:3  Warning: 'SelectTrigger' is defined but never used.  @typescript-eslint/no-unused-vars
+16:3  Warning: 'SelectValue' is defined but never used.  @typescript-eslint/no-unused-vars
+38:10  Warning: 'Loader2' is defined but never used.  @typescript-eslint/no-unused-vars
+38:19  Warning: 'Plus' is defined but never used.  @typescript-eslint/no-unused-vars
+38:25  Warning: 'Send' is defined but never used.  @typescript-eslint/no-unused-vars
+40:10  Warning: 'WalletType' is defined but never used.  @typescript-eslint/no-unused-vars
+42:10  Warning: 'Toaster' is defined but never used.  @typescript-eslint/no-unused-vars
+46:10  Warning: 'useRouter' is defined but never used.  @typescript-eslint/no-unused-vars
+77:18  Warning: 'errors' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/modals/asset-info-modal.tsx
+30:1  Warning: Import "SongItemType" is only used as types.  @typescript-eslint/consistent-type-imports
+35:3  Warning: 'DeleteAssetByAdmin' is defined but never used.  @typescript-eslint/no-unused-vars
+63:9  Warning: 'router' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+64:25  Warning: 'setSelectedMenu' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+68:28  Warning: 'currentTrack' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+75:9  Warning: 'acc' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+193:21  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+316:19  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./src/components/modals/buy-modal.tsx
+22:1  Warning: Import "SongItemType" is only used as types.  @typescript-eslint/consistent-type-imports
+28:3  Warning: 'DeleteAssetByAdmin' is defined but never used.  @typescript-eslint/no-unused-vars
+56:9  Warning: 'router' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+58:28  Warning: 'currentTrack' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+66:11  Warning: 'getAssetBalance' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+66:38  Warning: 'balances' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+169:21  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+305:23  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+314:24  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+339:24  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+366:24  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./src/components/modals/claim-pin-modal.tsx
+37:23  Warning: 'Variable' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+
+./src/components/modals/copy-cut-pin-modal.tsx
+21:5  Warning: 'isPinCopied' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/modals/creator-store-asset-info.tsx
+1:10  Warning: 'motion' is defined but never used.  @typescript-eslint/no-unused-vars
+5:1  Warning: Import "SubmitHandler" is only used as types.  @typescript-eslint/consistent-type-imports
+28:1  Warning: Import "MarketAssetType" is only used as types.  @typescript-eslint/consistent-type-imports
+53:9  Warning: 'session' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+54:9  Warning: 'router' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+92:23  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+156:21  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+168:21  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+181:21  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./src/components/modals/edit-bounty-modal.tsx
+7:1  Warning: Import "SubmitHandler" is only used as types.  @typescript-eslint/consistent-type-imports
+63:5  Warning: 'reset' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/modals/file-upload-modal.tsx
+4:1  Warning: Import "SubmitHandler" is only used as types.  @typescript-eslint/consistent-type-imports
+57:10  Warning: 'loading' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+65:5  Warning: 'register' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+70:5  Warning: 'watch' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/modals/map-modal.tsx
+32:1  Warning: All imports in the declaration are only used as types. Use `import type`.  @typescript-eslint/consistent-type-imports
+34:1  Warning: All imports in the declaration are only used as types. Use `import type`.  @typescript-eslint/consistent-type-imports
+49:5  Warning: 'isPinCopied' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+58:10  Warning: 'pinData' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+60:36  Warning: 'setPosition' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+78:9  Warning: 'pinE' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+88:17  Warning: 'data' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+247:21  Warning: Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator.  @typescript-eslint/no-floating-promises
+390:3  Warning: 'multiPin' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+394:3  Warning: 'pageAsset' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+395:3  Warning: 'pinNumber' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+397:3  Warning: 'assetId' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+398:3  Warning: 'privacy' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+422:10  Warning: 'isPageAsset' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+422:23  Warning: 'setIsPageAsset' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+423:10  Warning: 'selectedToken' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+423:25  Warning: 'setSelectedToken' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+427:11  Warning: 'getAssetBalance' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+434:5  Warning: 'setError' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+452:9  Warning: 'tiers' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+453:9  Warning: 'assets' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+456:23  Warning: 'updatedData' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+
+./src/components/modals/modal-action-button.tsx
+16:10  Warning: 'useUserStellarAcc' is defined but never used.  @typescript-eslint/no-unused-vars
+23:1  Warning: All imports in the declaration are only used as types. Use `import type`.  @typescript-eslint/consistent-type-imports
+199:25  Warning: 'setSelectedMenu' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/modals/nft-create-modal.tsx
+9:1  Warning: Import "ChangeEvent" is only used as types.  @typescript-eslint/consistent-type-imports
+10:1  Warning: Import "SubmitHandler" is only used as types.  @typescript-eslint/consistent-type-imports
+96:10  Warning: 'file' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+152:21  Warning: 'variables' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+152:32  Warning: 'context' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+158:7  Warning: Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator.  @typescript-eslint/no-floating-promises
+
+./src/components/modals/pin-info-modal.tsx
+86:41  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./src/components/modals/play/Location-Info-Modal.tsx
+26:3  Warning: 'DialogTrigger' is defined but never used.  @typescript-eslint/no-unused-vars
+34:11  Warning: 'LocationData' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/modals/qr-code-modal.tsx
+3:1  Warning: Type import "React" is used by decorator metadata.  @typescript-eslint/consistent-type-imports
+31:12  Warning: 'showDetails' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+31:25  Warning: 'setShowDetails' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+66:9  Warning: Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator.  @typescript-eslint/no-floating-promises
+211:61  Warning: Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator.  @typescript-eslint/no-floating-promises
+244:61  Warning: Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator.  @typescript-eslint/no-floating-promises
+300:49  Warning: Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator.  @typescript-eslint/no-floating-promises
+
+./src/components/modals/song-buy-modal.tsx
+25:3  Warning: 'DeleteAssetByAdmin' is defined but never used.  @typescript-eslint/no-unused-vars
+27:3  Warning: 'OtherButtons' is defined but never used.  @typescript-eslint/no-unused-vars
+153:21  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+241:21  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+253:21  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+266:23  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./src/components/modals/transaction-history-modal.tsx
+4:16  Warning: 'ChevronDown' is defined but never used.  @typescript-eslint/no-unused-vars
+9:3  Warning: 'Collapsible' is defined but never used.  @typescript-eslint/no-unused-vars
+10:3  Warning: 'CollapsibleContent' is defined but never used.  @typescript-eslint/no-unused-vars
+11:3  Warning: 'CollapsibleTrigger' is defined but never used.  @typescript-eslint/no-unused-vars
+17:3  Warning: 'DialogDescription' is defined but never used.  @typescript-eslint/no-unused-vars
+18:3  Warning: 'DialogFooter' is defined but never used.  @typescript-eslint/no-unused-vars
+19:3  Warning: 'DialogHeader' is defined but never used.  @typescript-eslint/no-unused-vars
+44:10  Warning: 'isOperationsOpen' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+44:28  Warning: 'setIsOperationsOpen' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+55:5  Warning: Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator.  @typescript-eslint/no-floating-promises
+55:47  Warning: 'data' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+
+./src/components/modals/view-admin-asset.tsx
+2:8  Warning: 'Image' is defined but never used.  @typescript-eslint/no-unused-vars
+23:9  Warning: 'session' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+24:9  Warning: 'router' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+32:9  Warning: 'copy' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+52:21  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+104:17  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./src/components/modals/view-attachment-modal.tsx
+25:9  Warning: 'handleDownload' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/music/album/cover.tsx
+8:1  Warning: All imports in the declaration are only used as types. Use `import type`.  @typescript-eslint/consistent-type-imports
+
+./src/components/music/album/section.tsx
+2:1  Warning: All imports in the declaration are only used as types. Use `import type`.  @typescript-eslint/consistent-type-imports
+
+./src/components/music/bottom_player.tsx
+9:9  Warning: 'router' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+39:11  Warning: 'bottomVisiable' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+39:27  Warning: 'isPlaying' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/music/button/add_button.tsx
+1:1  Warning: All imports in the declaration are only used as types. Use `import type`.  @typescript-eslint/consistent-type-imports
+
+./src/components/music/creator/track.tsx
+2:10  Warning: 'EllipsisVerticalIcon' is defined but never used.  @typescript-eslint/no-unused-vars
+3:10  Warning: 'TrackItemType' is defined but never used.  @typescript-eslint/no-unused-vars
+4:1  Warning: All imports in the declaration are only used as types. Use `import type`.  @typescript-eslint/consistent-type-imports
+6:1  Warning: Imports "AssetType" and "SongItemType" are only used as types.  @typescript-eslint/consistent-type-imports
+9:24  Warning: 'ShoppingCartIcon' is defined but never used.  @typescript-eslint/no-unused-vars
+14:3  Warning: 'DropdownMenuSeparator' is defined but never used.  @typescript-eslint/no-unused-vars
+19:6  Warning: 'AssetWithArtist' is defined but never used.  @typescript-eslint/no-unused-vars
+26:3  Warning: 'playable' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+27:3  Warning: 'adminId' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+38:9  Warning: 'song' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+40:11  Warning: 'onOpen' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+41:9  Warning: 'trackUrlStore' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/music/home/card.tsx
+1:10  Warning: 'BlobOptions' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/music/modal/album_create.tsx
+7:8  Warning: '_isEqual' is defined but never used.  @typescript-eslint/no-unused-vars
+8:1  Warning: Import "SubmitHandler" is only used as types.  @typescript-eslint/consistent-type-imports
+12:1  Warning: All imports in the declaration are only used as types. Use `import type`.  @typescript-eslint/consistent-type-imports
+31:6  Warning: 'AlbumFormType' is defined but never used.  @typescript-eslint/no-unused-vars
+39:5  Warning: 'control' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/music/modal/confirmation.tsx
+1:1  Warning: Import "ReactNode" is only used as types.  @typescript-eslint/consistent-type-imports
+1:21  Warning: 'RefObject' is defined but never used.  @typescript-eslint/no-unused-vars
+1:40  Warning: 'MouseEvent' is defined but never used.  @typescript-eslint/no-unused-vars
+2:8  Warning: 'ModalButton' is defined but never used.  @typescript-eslint/no-unused-vars
+3:10  Warning: 'Edit2Icon' is defined but never used.  @typescript-eslint/no-unused-vars
+3:21  Warning: 'PlusIcon' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/music/modal/modal_template.tsx
+1:1  Warning: Import "ReactNode" is only used as types.  @typescript-eslint/consistent-type-imports
+1:21  Warning: 'RefObject' is defined but never used.  @typescript-eslint/no-unused-vars
+1:40  Warning: 'MouseEvent' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/music/modal/song_create.tsx
+1:1  Warning: Import "SubmitHandler" is only used as types.  @typescript-eslint/consistent-type-imports
+51:6  Warning: 'SongFormType' is defined but never used.  @typescript-eslint/no-unused-vars
+55:10  Warning: 'file' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+73:5  Warning: 'control' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+89:21  Warning: 'variables' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+89:32  Warning: 'context' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+120:13  Warning: 'err' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+120:18  Warning: 'variables' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+120:29  Warning: 'context' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+
+./src/components/music/music_right.tsx
+10:17  Warning: 'isPlaying' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+10:28  Warning: 'setisPlaying' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/music/player/track_cover.tsx
+1:10  Warning: 'Song' is defined but never used.  @typescript-eslint/no-unused-vars
+4:10  Warning: 'SongItemType' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/music/track/cover.tsx
+2:10  Warning: 'MouseEvent' is defined but never used.  @typescript-eslint/no-unused-vars
+3:8  Warning: 'AlbumCreate' is defined but never used.  @typescript-eslint/no-unused-vars
+4:10  Warning: 'ModalMode' is defined but never used.  @typescript-eslint/no-unused-vars
+5:10  Warning: 'api' is defined but never used.  @typescript-eslint/no-unused-vars
+6:8  Warning: 'router' is defined but never used.  @typescript-eslint/no-unused-vars
+6:18  Warning: 'useRouter' is defined but never used.  @typescript-eslint/no-unused-vars
+13:1  Warning: All imports in the declaration are only used as types. Use `import type`.  @typescript-eslint/consistent-type-imports
+
+./src/components/music/track/music_item.tsx
+1:10  Warning: 'Song' is defined but never used.  @typescript-eslint/no-unused-vars
+5:10  Warning: 'PlayOrBuy' is defined but never used.  @typescript-eslint/no-unused-vars
+6:10  Warning: 'AssetBadge' is defined but never used.  @typescript-eslint/no-unused-vars
+7:10  Warning: 'Pause' is defined but never used.  @typescript-eslint/no-unused-vars
+7:17  Warning: 'PlayIcon' is defined but never used.  @typescript-eslint/no-unused-vars
+9:1  Warning: All imports in the declaration are only used as types. Use `import type`.  @typescript-eslint/consistent-type-imports
+16:3  Warning: 'index' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+24:9  Warning: 'trackUrlStore' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+25:28  Warning: 'currentTrack' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+25:42  Warning: 'isPlaying' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/music/track/right_track.tsx
+1:10  Warning: 'api' is defined but never used.  @typescript-eslint/no-unused-vars
+4:10  Warning: 'usePlayer' is defined but never used.  @typescript-eslint/no-unused-vars
+5:1  Warning: All imports in the declaration are only used as types. Use `import type`.  @typescript-eslint/consistent-type-imports
+36:3  Warning: 'count' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/music/track/section.tsx
+2:1  Warning: All imports in the declaration are only used as types. Use `import type`.  @typescript-eslint/consistent-type-imports
+
+./src/components/my_asset/asset_right.tsx
+3:1  Warning: Import "Asset" is only used as types.  @typescript-eslint/consistent-type-imports
+81:25  Warning: 'setSelectedMenu' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+107:11  Warning: 'color' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+108:35  Warning: 'name' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+110:10  Warning: 'play' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+110:16  Warning: 'setPlay' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/notifications/Creator-notification.tsx
+4:17  Warning: 'useState' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/notifications/User-notification.tsx
+4:17  Warning: 'useState' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/payment/payment-options.tsx
+1:10  Warning: 'useState' is defined but never used.  @typescript-eslint/no-unused-vars
+14:10  Warning: 'CREATOR_TERM' is defined but never used.  @typescript-eslint/no-unused-vars
+18:10  Warning: 'env' is defined but never used.  @typescript-eslint/no-unused-vars
+19:1  Warning: Import "PaymentMethod" is only used as types.  @typescript-eslint/consistent-type-imports
+64:7  Warning: Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator.  @typescript-eslint/no-floating-promises
+
+./src/components/play/bottom-tab.tsx
+4:18  Warning: 'AnimatePresence' is defined but never used.  @typescript-eslint/no-unused-vars
+5:22  Warning: 'Pen' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/Player.tsx
+29:5  Warning: 'isPIP' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+32:5  Warning: 'setIsPlayerOpen' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+35:5  Warning: 'setIsPIP' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+39:5  Warning: 'nextTrack' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+40:5  Warning: 'previousTrack' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+45:9  Warning: 'audioRef' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+46:9  Warning: 'videoRef' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+67:11  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./src/components/PostAudioPlayer.tsx
+3:10  Warning: 'useState' is defined but never used.  @typescript-eslint/no-unused-vars
+3:20  Warning: 'useRef' is defined but never used.  @typescript-eslint/no-unused-vars
+3:28  Warning: 'useEffect' is defined but never used.  @typescript-eslint/no-unused-vars
+9:10  Warning: 'useMedia' is defined but never used.  @typescript-eslint/no-unused-vars
+14:43  Warning: 'audioId' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+14:52  Warning: 'name' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+14:58  Warning: 'artist' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+14:66  Warning: 'mediaUrl' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+20:9  Warning: 'isPIP' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+26:9  Warning: 'setIsPIP' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+28:9  Warning: 'currentAudioPlayingId' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/PostVideoPlayer.tsx
+1:46  Warning: 'useCallback' is defined but never used.  @typescript-eslint/no-unused-vars
+5:66  Warning: 'PictureInPicture' is defined but never used.  @typescript-eslint/no-unused-vars
+5:84  Warning: 'X' is defined but never used.  @typescript-eslint/no-unused-vars
+8:10  Warning: 'useIntersectionObserver' is defined but never used.  @typescript-eslint/no-unused-vars
+18:9  Warning: 'play' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+19:9  Warning: 'pause' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+26:9  Warning: 'setCurrentVideo' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+27:9  Warning: 'isMinimized' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+29:9  Warning: 'setIsMinimized' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+31:9  Warning: 'togglePictureInPicture' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+34:25  Warning: 'setIsPiPActive' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+35:12  Warning: 'isVideoVisible' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+35:28  Warning: 'setIsVideoVisible' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+61:17  Warning: Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator.  @typescript-eslint/no-floating-promises
+85:13  Warning: Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator.  @typescript-eslint/no-floating-promises
+88:13  Warning: Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator.  @typescript-eslint/no-floating-promises
+
+./src/components/redeem/creator-redeem.tsx
+8:10  Warning: 'Input' is defined but never used.  @typescript-eslint/no-unused-vars
+21:10  Warning: 'Loading' is defined but never used.  @typescript-eslint/no-unused-vars
+22:8  Warning: 'Alert' is defined but never used.  @typescript-eslint/no-unused-vars
+23:10  Warning: 'PLATFORM_ASSET' is defined but never used.  @typescript-eslint/no-unused-vars
+23:26  Warning: 'PLATFORM_FEE' is defined but never used.  @typescript-eslint/no-unused-vars
+23:52  Warning: 'TrxBaseFeeInPlatformAsset' is defined but never used.  @typescript-eslint/no-unused-vars
+24:1  Warning: Import "SubmitHandler" is only used as types.  @typescript-eslint/consistent-type-imports
+27:10  Warning: 'useCreatorStorageAcc' is defined but never used.  @typescript-eslint/no-unused-vars
+94:13  Warning: 'isOpen' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+95:12  Warning: 'prizeInAsset' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+95:26  Warning: 'setPrizeInAsset' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+119:21  Warning: 'data' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+
+./src/components/right-sidebar.tsx
+8:10  Warning: 'usePopUpState' is defined but never used.  @typescript-eslint/no-unused-vars
+46:11  Warning: 'selectedTag' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/RightSidePlayer.tsx
+2:10  Warning: 'PictureInPicture' is defined but never used.  @typescript-eslint/no-unused-vars
+22:9  Warning: 'isPIP' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+25:9  Warning: 'setIsPlayerOpen' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+26:9  Warning: 'setIsPlaying' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+28:9  Warning: 'setIsPIP' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/SampleDrawer.tsx
+16:7  Warning: 'data' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/sell-page-asset-list.tsx
+6:60  Warning: 'DialogTrigger' is defined but never used.  @typescript-eslint/no-unused-vars
+8:87  Warning: 'TrendingUp' is defined but never used.  @typescript-eslint/no-unused-vars
+51:13  Warning: Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator.  @typescript-eslint/no-floating-promises
+408:37  Warning: Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator.  @typescript-eslint/no-floating-promises
+
+./src/components/shadcn/ui/carousel.tsx
+5:10  Warning: 'ArrowLeft' is defined but never used.  @typescript-eslint/no-unused-vars
+5:21  Warning: 'ArrowRight' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/shadcn/ui/form.tsx
+2:1  Warning: All imports in the declaration are only used as types. Use `import type`.  @typescript-eslint/consistent-type-imports
+4:1  Warning: Imports "ControllerProps", "FieldPath" and "FieldValues" are only used as types.  @typescript-eslint/consistent-type-imports
+
+./src/components/shadcn/ui/pagination.tsx
+5:1  Warning: Import "ButtonProps" is only used as types.  @typescript-eslint/consistent-type-imports
+
+./src/components/ThreeDModel.tsx
+4:10  Warning: 'PresentationControls' is defined but never used.  @typescript-eslint/no-unused-vars
+5:1  Warning: All imports in the declaration are only used as types. Use `import type`.  @typescript-eslint/consistent-type-imports
+
+./src/components/ui/button.tsx
+2:10  Warning: 'HomeIcon' is defined but never used.  @typescript-eslint/no-unused-vars
+7:9  Warning: 'Icon' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+
+./src/components/VanityURLManager.tsx
+7:1  Warning: All imports in the declaration are only used as types. Use `import type`.  @typescript-eslint/consistent-type-imports
+90:44  Warning: 'refetchCreator' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+120:17  Warning: Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator.  @typescript-eslint/no-floating-promises
+133:8  Warning: React Hook useEffect has a missing dependency: 'creator.vanitySubscription'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+
+./src/components/walkthrough.tsx
+123:29  Warning: 'setShowWalkthrough' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+124:13  Warning: 'data' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/wallet-balance/add-trustline.tsx
+18:10  Warning: 'Label' is defined but never used.  @typescript-eslint/no-unused-vars
+19:25  Warning: 'ShieldPlus' is defined but never used.  @typescript-eslint/no-unused-vars
+42:9  Warning: 'router' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/wallet-balance/pending-asset.tsx
+13:10  Warning: 'cn' is defined but never used.  @typescript-eslint/no-unused-vars
+18:10  Warning: 'Loader2' is defined but never used.  @typescript-eslint/no-unused-vars
+55:17  Warning: 'data' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+120:15  Warning: 'error' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+126:9  Warning: 'handleDecline' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/wallet-balance/transactionHistory.tsx
+8:3  Warning: 'TableHead' is defined but never used.  @typescript-eslint/no-unused-vars
+9:3  Warning: 'TableHeader' is defined but never used.  @typescript-eslint/no-unused-vars
+13:3  Warning: 'Card' is defined but never used.  @typescript-eslint/no-unused-vars
+14:3  Warning: 'CardContent' is defined but never used.  @typescript-eslint/no-unused-vars
+15:3  Warning: 'CardHeader' is defined but never used.  @typescript-eslint/no-unused-vars
+16:3  Warning: 'CardTitle' is defined but never used.  @typescript-eslint/no-unused-vars
+22:10  Warning: 'useInfiniteQuery' is defined but never used.  @typescript-eslint/no-unused-vars
+23:10  Warning: 'RecentTransactionHistory' is defined but never used.  @typescript-eslint/no-unused-vars
+24:10  Warning: 'useSession' is defined but never used.  @typescript-eslint/no-unused-vars
+25:10  Warning: 'format' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/wallet-balance/wb-right-sidebar.tsx
+8:10  Warning: 'Button' is defined but never used.  @typescript-eslint/no-unused-vars
+12:3  Warning: 'CardHeader' is defined but never used.  @typescript-eslint/no-unused-vars
+13:3  Warning: 'CardTitle' is defined but never used.  @typescript-eslint/no-unused-vars
+24:8  Warning: 'AddTrustLine' is defined but never used.  @typescript-eslint/no-unused-vars
+25:15  Warning: 'WalletType' is defined but never used.  @typescript-eslint/no-unused-vars
+25:27  Warning: 'clientsign' is defined but never used.  @typescript-eslint/no-unused-vars
+28:8  Warning: 'toast' is defined but never used.  @typescript-eslint/no-unused-vars
+29:8  Warning: 'PendingAssetList' is defined but never used.  @typescript-eslint/no-unused-vars
+34:10  Warning: 'loading' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+34:19  Warning: 'setLoading' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/wallete/add_asset_form.tsx
+3:1  Warning: Import "SubmitHandler" is only used as types.  @typescript-eslint/consistent-type-imports
+25:10  Warning: 'type' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+25:16  Warning: 'setType' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+31:5  Warning: 'control' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+32:5  Warning: 'setValue' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/wallete/all_asset.tsx
+5:1  Warning: Import "CreatorPageAssetType" is only used as types.  @typescript-eslint/consistent-type-imports
+7:1  Warning: All imports in the declaration are only used as types. Use `import type`.  @typescript-eslint/consistent-type-imports
+52:9  Warning: 'isTrue' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/wallete/asset.tsx
+2:8  Warning: 'Image' is defined but never used.  @typescript-eslint/no-unused-vars
+6:1  Warning: All imports in the declaration are only used as types. Use `import type`.  @typescript-eslint/consistent-type-imports
+17:20  Warning: 'logoBlueData' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+17:34  Warning: 'color' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+30:13  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./src/components/wallete/Image_video_viewer.tsx
+19:3  Warning: 'blurData' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+20:3  Warning: 'sizes' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+126:3  Warning: 'url' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+132:10  Warning: 'loading' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+132:19  Warning: 'setLoading' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/wallete/main.tsx
+6:8  Warning: 'OtherAssets' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/wallete/other_assets.tsx
+1:8  Warning: 'Loading' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/wallete/page_asset_right.tsx
+1:8  Warning: 'Link' is defined but never used.  @typescript-eslint/no-unused-vars
+2:10  Warning: 'extractHostnameFromURL' is defined but never used.  @typescript-eslint/no-unused-vars
+3:10  Warning: 'useRightStore' is defined but never used.  @typescript-eslint/no-unused-vars
+18:11  Warning: 'issuer' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/wallete/right.tsx
+5:8  Warning: 'Loading' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/lib/agent/handler.ts
+17:10  Warning: 'generateEventsForLocation' is defined but never used.  @typescript-eslint/no-unused-vars
+18:3  Warning: 'location' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+19:3  Warning: 'query' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+20:3  Warning: 'startDate' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+21:3  Warning: 'endDate' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+
+./src/lib/hook.ts
+3:1  Warning: All imports in the declaration are only used as types. Use `import type`.  @typescript-eslint/consistent-type-imports
+
+./src/lib/play/get-all-bounties.ts
+3:1  Warning: All imports in the declaration are only used as types. Use `import type`.  @typescript-eslint/consistent-type-imports
+
+./src/lib/play/get-all-brands.ts
+2:1  Warning: All imports in the declaration are only used as types. Use `import type`.  @typescript-eslint/consistent-type-imports
+
+./src/lib/play/get-current-user.ts
+1:1  Warning: All imports in the declaration are only used as types. Use `import type`.  @typescript-eslint/consistent-type-imports
+
+./src/lib/play/get-Map-all-pins.ts
+2:1  Warning: All imports in the declaration are only used as types. Use `import type`.  @typescript-eslint/consistent-type-imports
+
+./src/lib/play/get-token-user.ts
+1:1  Warning: All imports in the declaration are only used as types. Use `import type`.  @typescript-eslint/consistent-type-imports
+
+./src/lib/play/get-user.ts
+1:1  Warning: All imports in the declaration are only used as types. Use `import type`.  @typescript-eslint/consistent-type-imports
+
+./src/lib/state/assets_right.ts
+2:1  Warning: All imports in the declaration are only used as types. Use `import type`.  @typescript-eslint/consistent-type-imports
+
+./src/lib/state/bounty/use-bounty-store.ts
+1:10  Warning: 'BountyStatus' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/lib/state/marketplace/right.ts
+2:1  Warning: All imports in the declaration are only used as types. Use `import type`.  @typescript-eslint/consistent-type-imports
+
+./src/lib/state/play/use-modal-store.ts
+2:1  Warning: All imports in the declaration are only used as types. Use `import type`.  @typescript-eslint/consistent-type-imports
+14:1  Warning: All imports in the declaration are only used as types. Use `import type`.  @typescript-eslint/consistent-type-imports
+
+./src/lib/state/play/useBounty.tsx
+2:1  Warning: All imports in the declaration are only used as types. Use `import type`.  @typescript-eslint/consistent-type-imports
+
+./src/lib/state/play/useCollection.tsx
+2:1  Warning: All imports in the declaration are only used as types. Use `import type`.  @typescript-eslint/consistent-type-imports
+
+./src/lib/state/play/useModal.tsx
+2:1  Warning: All imports in the declaration are only used as types. Use `import type`.  @typescript-eslint/consistent-type-imports
+3:1  Warning: All imports in the declaration are only used as types. Use `import type`.  @typescript-eslint/consistent-type-imports
+
+./src/lib/state/play/useNearbyPin.tsx
+2:1  Warning: All imports in the declaration are only used as types. Use `import type`.  @typescript-eslint/consistent-type-imports
+17:7  Warning: 'generateRandomBoxPositions' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/lib/state/wallete/page_asset_right.ts
+1:1  Warning: All imports in the declaration are only used as types. Use `import type`.  @typescript-eslint/consistent-type-imports
+
+./src/lib/state/wallete/right.ts
+2:1  Warning: All imports in the declaration are only used as types. Use `import type`.  @typescript-eslint/consistent-type-imports
+
+./src/lib/state/wallete/stellar-balances.ts
+1:1  Warning: All imports in the declaration are only used as types. Use `import type`.  @typescript-eslint/consistent-type-imports
+2:10  Warning: 'accountBalances' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/lib/state/wallete/tag.ts
+8:51  Warning: 'get' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+
+./src/lib/stellar/bounty/bounty.ts
+19:1  Warning: Import "SignUserType" is only used as types.  @typescript-eslint/consistent-type-imports
+493:13  Warning: 'transactionResult' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/lib/stellar/fan/buy_asset.ts
+15:1  Warning: All imports in the declaration are only used as types. Use `import type`.  @typescript-eslint/consistent-type-imports
+17:7  Warning: 'log' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/lib/stellar/fan/clawback.ts
+9:1  Warning: Import "SignUserType" is only used as types.  @typescript-eslint/consistent-type-imports
+19:1  Warning: All imports in the declaration are only used as types. Use `import type`.  @typescript-eslint/consistent-type-imports
+
+./src/lib/stellar/fan/create_asset.ts
+15:1  Warning: Import "AccountType" is only used as types.  @typescript-eslint/consistent-type-imports
+15:10  Warning: 'AccountSchema' is defined but never used.  @typescript-eslint/no-unused-vars
+16:1  Warning: Import "SignUserType" is only used as types.  @typescript-eslint/consistent-type-imports
+18:7  Warning: 'log' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/lib/stellar/fan/create_storage.ts
+18:1  Warning: Import "SignUserType" is only used as types.  @typescript-eslint/consistent-type-imports
+20:1  Warning: All imports in the declaration are only used as types. Use `import type`.  @typescript-eslint/consistent-type-imports
+22:7  Warning: 'log' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/lib/stellar/fan/creator-aproval.ts
+11:10  Warning: 'SignUserType' is defined but never used.  @typescript-eslint/no-unused-vars
+12:1  Warning: All imports in the declaration are only used as types. Use `import type`.  @typescript-eslint/consistent-type-imports
+13:10  Warning: 'Key' is defined but never used.  @typescript-eslint/no-unused-vars
+15:7  Warning: 'log' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/lib/stellar/fan/creator_pageasset_buy.ts
+3:1  Warning: Import "SignUserType" is only used as types.  @typescript-eslint/consistent-type-imports
+4:26  Warning: 'PLATFORM_FEE' is defined but never used.  @typescript-eslint/no-unused-vars
+4:65  Warning: 'TrxBaseFeeInPlatformAsset' is defined but never used.  @typescript-eslint/no-unused-vars
+7:46  Warning: 'creatorId' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+69:47  Warning: 'creatorId' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+
+./src/lib/stellar/fan/follow_creator.ts
+9:23  Warning: 'TrxBaseFee' is defined but never used.  @typescript-eslint/no-unused-vars
+10:1  Warning: Import "SignUserType" is only used as types.  @typescript-eslint/consistent-type-imports
+11:1  Warning: All imports in the declaration are only used as types. Use `import type`.  @typescript-eslint/consistent-type-imports
+
+./src/lib/stellar/fan/get_token_price.ts
+3:10  Warning: 'networkPassphrase' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/lib/stellar/fan/redeem.ts
+17:1  Warning: Import "SignUserType" is only used as types.  @typescript-eslint/consistent-type-imports
+18:10  Warning: 'P' is defined but never used.  @typescript-eslint/no-unused-vars
+113:3  Warning: 'creatorId' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+
+./src/lib/stellar/fan/send_gift.ts
+11:1  Warning: All imports in the declaration are only used as types. Use `import type`.  @typescript-eslint/consistent-type-imports
+12:1  Warning: Import "SignUserType" is only used as types.  @typescript-eslint/consistent-type-imports
+16:7  Warning: 'log' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/lib/stellar/fan/subscribe.ts
+17:1  Warning: Import "SignUserType" is only used as types.  @typescript-eslint/consistent-type-imports
+18:1  Warning: All imports in the declaration are only used as types. Use `import type`.  @typescript-eslint/consistent-type-imports
+20:7  Warning: 'log' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/lib/stellar/fan/trust_custom_page_asset.ts
+9:1  Warning: Import "SignUserType" is only used as types.  @typescript-eslint/consistent-type-imports
+10:39  Warning: 'TrxBaseFee' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/lib/stellar/fan/vanity-url.ts
+3:1  Warning: Import "SignUserType" is only used as types.  @typescript-eslint/consistent-type-imports
+
+./src/lib/stellar/game/follow.ts
+8:10  Warning: 'SignUserType' is defined but never used.  @typescript-eslint/no-unused-vars
+8:24  Warning: 'WithSing' is defined but never used.  @typescript-eslint/no-unused-vars
+10:1  Warning: All imports in the declaration are only used as types. Use `import type`.  @typescript-eslint/consistent-type-imports
+
+./src/lib/stellar/map/claim.ts
+8:1  Warning: All imports in the declaration are only used as types. Use `import type`.  @typescript-eslint/consistent-type-imports
+9:1  Warning: Import "SignUserType" is only used as types.  @typescript-eslint/consistent-type-imports
+
+./src/lib/stellar/marketplace/test/acc.ts
+186:10  Warning: 'copyToBalance' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/lib/stellar/marketplace/trx/convert_site_asset.ts
+3:3  Warning: 'BASE_FEE' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/lib/stellar/marketplace/trx/nft_2_storage.ts
+19:1  Warning: Import "SignUserType" is only used as types.  @typescript-eslint/consistent-type-imports
+
+./src/lib/stellar/marketplace/trx/page-asset-sell.ts
+7:5  Warning: 'Transaction' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/lib/stellar/marketplace/trx/site_asset_recharge.ts
+12:16  Warning: 'checkSiteAssetTrustLine' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/lib/stellar/marketplace/trx/trade.ts
+1:1  Warning: Import "Asset" is only used as types.  @typescript-eslint/consistent-type-imports
+10:1  Warning: Import "SignUserType" is only used as types.  @typescript-eslint/consistent-type-imports
+28:5  Warning: 'creatorStorageSecret' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+37:9  Warning: 'storageAcc' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+89:5  Warning: 'creatorStorageSecret' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+98:9  Warning: 'storageAcc' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/lib/stellar/marketplace/utils/asset.ts
+16:24  Warning: 'status' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+39:24  Warning: 'status' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/lib/stellar/marketplace/utils/checkAccountHaveTheAsset.ts
+3:1  Warning: All imports in the declaration are only used as types. Use `import type`.  @typescript-eslint/consistent-type-imports
+13:24  Warning: 'status' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/lib/stellar/music/trx/create_song_token.ts
+11:1  Warning: All imports in the declaration are only used as types. Use `import type`.  @typescript-eslint/consistent-type-imports
+13:7  Warning: 'log' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/lib/stellar/music/trx/payment_xdr.ts
+10:1  Warning: Import "SignUserType" is only used as types.  @typescript-eslint/consistent-type-imports
+20:10  Warning: 'b' is defined but never used.  @typescript-eslint/no-unused-vars
+23:7  Warning: 'log' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/lib/stellar/uni_create_asset.ts
+18:1  Warning: All imports in the declaration are only used as types. Use `import type`.  @typescript-eslint/consistent-type-imports
+19:1  Warning: Import "SignUserType" is only used as types.  @typescript-eslint/consistent-type-imports
+21:7  Warning: 'log' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/pages/about.tsx
+1:8  Warning: 'Image' is defined but never used.  @typescript-eslint/no-unused-vars
+3:8  Warning: 'Logo' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/pages/admin.tsx
+8:8  Warning: 'AlbumCreate' is defined but never used.  @typescript-eslint/no-unused-vars
+9:10  Warning: 'ModalMode' is defined but never used.  @typescript-eslint/no-unused-vars
+104:10  Warning: 'CreateAdmin' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/pages/api/game/bounty/submission/create-submission.ts
+4:10  Warning: 'getSession' is defined but never used.  @typescript-eslint/no-unused-vars
+5:8  Warning: 'NextCors' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/pages/api/game/brands.ts
+5:1  Warning: All imports in the declaration are only used as types. Use `import type`.  @typescript-eslint/consistent-type-imports
+
+./src/pages/api/game/follow.ts
+3:8  Warning: 'NextCors' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/pages/api/game/followed_brands.ts
+3:8  Warning: 'internal' is defined but never used.  @typescript-eslint/no-unused-vars
+5:1  Warning: All imports in the declaration are only used as types. Use `import type`.  @typescript-eslint/consistent-type-imports
+
+./src/pages/api/game/get-signed-url.ts
+3:10  Warning: 'env' is defined but never used.  @typescript-eslint/no-unused-vars
+6:10  Warning: 'db' is defined but never used.  @typescript-eslint/no-unused-vars
+8:28  Warning: 'S3Client' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/pages/api/game/locations/get_consumed_location.ts
+5:1  Warning: All imports in the declaration are only used as types. Use `import type`.  @typescript-eslint/consistent-type-imports
+27:9  Warning: 'userId' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/pages/api/game/locations/index.ts
+8:1  Warning: All imports in the declaration are only used as types. Use `import type`.  @typescript-eslint/consistent-type-imports
+
+./src/pages/api/game/locations/nearest_pin_distance.ts
+1:1  Warning: All imports in the declaration are only used as types. Use `import type`.  @typescript-eslint/consistent-type-imports
+
+./src/pages/api/game/locations/view_billboard.ts
+3:8  Warning: 'NextCors' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/pages/api/game/qr/get-qr-by-id.tsx
+4:10  Warning: 'EnableCors' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/pages/api/game/user/delete-user.ts
+5:10  Warning: 'createTransport' is defined but never used.  @typescript-eslint/no-unused-vars
+5:27  Warning: 'Transporter' is defined but never used.  @typescript-eslint/no-unused-vars
+51:15  Warning: 'deleteUser' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/pages/api/game/user/delete.ts
+17:13  Warning: 'response' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/pages/api/game/user/update-profile.ts
+37:15  Warning: 'user' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/pages/api/toml/index.ts
+3:10  Warning: 'Asset' is defined but never used.  @typescript-eslint/no-unused-vars
+49:11  Warning: 'ipfsHash' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/pages/bounty/[id].tsx
+8:3  Warning: 'File' is defined but never used.  @typescript-eslint/no-unused-vars
+12:3  Warning: 'Send' is defined but never used.  @typescript-eslint/no-unused-vars
+21:1  Warning: Import "MutableRefObject" is only used as types.  @typescript-eslint/consistent-type-imports
+28:3  Warning: 'Avatar' is defined but never used.  @typescript-eslint/no-unused-vars
+29:3  Warning: 'AvatarFallback' is defined but never used.  @typescript-eslint/no-unused-vars
+30:3  Warning: 'AvatarImage' is defined but never used.  @typescript-eslint/no-unused-vars
+69:3  Warning: 'PLATFORM_FEE' is defined but never used.  @typescript-eslint/no-unused-vars
+70:3  Warning: 'TrxBaseFeeInPlatformAsset' is defined but never used.  @typescript-eslint/no-unused-vars
+77:1  Warning: Imports "BountySubmission" and "SubmissionViewType" are only used as types.  @typescript-eslint/consistent-type-imports
+78:22  Warning: 'WalletType' is defined but never used.  @typescript-eslint/no-unused-vars
+80:10  Warning: 'Input' is defined but never used.  @typescript-eslint/no-unused-vars
+83:10  Warning: 'cn' is defined but never used.  @typescript-eslint/no-unused-vars
+136:9  Warning: 'inputLength' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+171:23  Warning: 'data' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+183:23  Warning: 'data' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+251:9  Warning: 'handleSubmit' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+724:11  Warning: 'needSign' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+725:17  Warning: 'setInput' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+726:9  Warning: 'inputLength' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+727:10  Warning: 'messages' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+727:20  Warning: 'setMessages' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+1303:10  Warning: 'sanitizeInput' is defined but never used.  @typescript-eslint/no-unused-vars
+1315:7  Warning: 'shortFileName' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+1323:7  Warning: 'shortURL' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/pages/embed.tsx
+4:1  Warning: All imports in the declaration are only used as types. Use `import type`.  @typescript-eslint/consistent-type-imports
+51:9  Warning: The 'locations' logical expression could make the dependencies of useEffect Hook (at line 292) change on every render. Move it inside the useEffect callback. Alternatively, wrap the initialization of 'locations' in its own useMemo() Hook.  react-hooks/exhaustive-deps
+108:6  Warning: React Hook useEffect has missing dependencies: 'initialLat', 'initialLng', and 'initialZoom'. Either include them or remove the dependency array.  react-hooks/exhaustive-deps
+
+./src/pages/fans/creator/bounty.tsx
+3:10  Warning: 'CreatPost' is defined but never used.  @typescript-eslint/no-unused-vars
+7:3  Warning: 'TabsContent' is defined but never used.  @typescript-eslint/no-unused-vars
+36:11  Warning: 'setSelectedMenu' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+49:10  Warning: 'Posts' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/pages/fans/creator/gift/index.tsx
+2:1  Warning: Import "SubmitHandler" is only used as types.  @typescript-eslint/consistent-type-imports
+15:22  Warning: 'submitSignedXDRToServer' is defined but never used.  @typescript-eslint/no-unused-vars
+79:5  Warning: 'reset' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+80:5  Warning: 'control' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+84:18  Warning: 'errors' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/pages/fans/creator/index.tsx
+1:1  Warning: All imports in the declaration are only used as types. Use `import type`.  @typescript-eslint/consistent-type-imports
+2:15  Warning: 'Session' is defined but never used.  @typescript-eslint/no-unused-vars
+21:37  Warning: 'User' is defined but never used.  @typescript-eslint/no-unused-vars
+35:1  Warning: Import "PaymentMethod" is only used as types.  @typescript-eslint/consistent-type-imports
+
+./src/pages/fans/creator/layout.tsx
+14:5  Warning: Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator.  @typescript-eslint/no-floating-promises
+
+./src/pages/fans/creator/music/album/[id].tsx
+6:29  Warning: 'CardHeader' is defined but never used.  @typescript-eslint/no-unused-vars
+25:28  Warning: 'PlayOrBuy' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/pages/fans/creator/music/index.tsx
+1:17  Warning: 'PlusCircle' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/pages/fans/creator/notification.tsx
+8:10  Warning: 'getNotificationMessage' is defined but never used.  @typescript-eslint/no-unused-vars
+51:11  Warning: 'NotificationObject' is defined but never used.  @typescript-eslint/no-unused-vars
+63:12  Warning: 'newNotificationCount' is defined but never used.  @typescript-eslint/no-unused-vars
+67:12  Warning: 'isNew' is defined but never used.  @typescript-eslint/no-unused-vars
+71:12  Warning: 'markAllAsRead' is defined but never used.  @typescript-eslint/no-unused-vars
+79:12  Warning: 'toggleNotification' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/pages/fans/creator/posts.tsx
+8:3  Warning: 'TabsContent' is defined but never used.  @typescript-eslint/no-unused-vars
+18:10  Warning: 'Loader2' is defined but never used.  @typescript-eslint/no-unused-vars
+22:9  Warning: 'creator' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+49:11  Warning: 'setSelectedMenu' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/pages/fans/creator/settings.tsx
+5:1  Warning: Import "CreatorWithSubscription" is only used as types.  @typescript-eslint/consistent-type-imports
+
+./src/pages/fans/creator/widget-settings.tsx
+3:1  Warning: All imports in the declaration are only used as types. Use `import type`.  @typescript-eslint/consistent-type-imports
+150:23  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+188:21  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./src/pages/fans/creator/[id].tsx
+1:1  Warning: All imports in the declaration are only used as types. Use `import type`.  @typescript-eslint/consistent-type-imports
+17:8  Warning: 'ViewMediaModal' is defined but never used.  @typescript-eslint/no-unused-vars
+30:3  Warning: 'DialogDescription' is defined but never used.  @typescript-eslint/no-unused-vars
+36:10  Warning: 'Input' is defined but never used.  @typescript-eslint/no-unused-vars
+37:10  Warning: 'SubmitHandler' is defined but never used.  @typescript-eslint/no-unused-vars
+38:10  Warning: 'getAssetPriceByCoddenIssuer' is defined but never used.  @typescript-eslint/no-unused-vars
+39:10  Warning: 'z' is defined but never used.  @typescript-eslint/no-unused-vars
+40:10  Warning: 'zodResolver' is defined but never used.  @typescript-eslint/no-unused-vars
+53:1  Warning: All imports in the declaration are only used as types. Use `import type`.  @typescript-eslint/consistent-type-imports
+71:9  Warning: 'acc' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+208:25  Warning: 'setSelectedMenu' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+337:11  Warning: 'isOpen' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+338:10  Warning: 'loading' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+342:5  Warning: 'register' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+344:5  Warning: 'setValue' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+345:5  Warning: 'getValues' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+346:18  Warning: 'errors' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+346:26  Warning: 'isValid' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+372:5  Warning: 'priceUSD' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/pages/fans/posts/[id].tsx
+4:29  Warning: 'CardDescription' is defined but never used.  @typescript-eslint/no-unused-vars
+4:58  Warning: 'CardTitle' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/pages/functiontest.tsx
+4:39  Warning: 'OrbitControls' is defined but never used.  @typescript-eslint/no-unused-vars
+6:1  Warning: All imports in the declaration are only used as types. Use `import type`.  @typescript-eslint/consistent-type-imports
+
+./src/pages/index.tsx
+11:9  Warning: 'acc' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/pages/maps/index.tsx
+1:1  Warning: All imports in the declaration are only used as types. Use `import type`.  @typescript-eslint/consistent-type-imports
+2:1  Warning: Import "MapMouseEvent" is only used as types.  @typescript-eslint/consistent-type-imports
+12:23  Warning: 'use' is defined but never used.  @typescript-eslint/no-unused-vars
+18:1  Warning: Imports "ModalData" and "ModalType" are only used as types.  @typescript-eslint/consistent-type-imports
+135:9  Warning: 'modal' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+137:5  Warning: 'manual' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+141:5  Warning: 'duplicate' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+153:10  Warning: 'lastUpdate' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+153:22  Warning: 'setLastUpdate' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+154:10  Warning: 'loading' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+155:10  Warning: 'RangedPins' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+155:22  Warning: 'setRangedPins' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+161:10  Warning: 'userLocation' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+171:10  Warning: 'selectedPlace' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+177:5  Warning: 'isAutoCollect' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+184:9  Warning: 'acc' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+243:6  Warning: React Hook useEffect has a missing dependency: 'setPosition'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+576:6  Warning: React Hook useEffect has a missing dependency: 'setAllPins'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+
+./src/pages/maps/pins/admin.tsx
+12:1  Warning: All imports in the declaration are only used as types. Use `import type`.  @typescript-eslint/consistent-type-imports
+
+./src/pages/maps/pins/creator/index.tsx
+3:1  Warning: Imports "ColumnDef", "ColumnFiltersState", "SortingState" and "VisibilityState" are only used as types.  @typescript-eslint/consistent-type-imports
+24:10  Warning: 'Checkbox' is defined but never used.  @typescript-eslint/no-unused-vars
+44:10  Warning: 'Location' is defined but never used.  @typescript-eslint/no-unused-vars
+44:20  Warning: 'LocationGroup' is defined but never used.  @typescript-eslint/no-unused-vars
+45:8  Warning: 'Link' is defined but never used.  @typescript-eslint/no-unused-vars
+193:13  Warning: 'id' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/pages/maps/pins/creator/report.tsx
+1:10  Warning: 'AlignLeft' is defined but never used.  @typescript-eslint/no-unused-vars
+13:1  Warning: All imports in the declaration are only used as types. Use `import type`.  @typescript-eslint/consistent-type-imports
+
+./src/pages/maps/pins/my.tsx
+1:1  Warning: All imports in the declaration are only used as types. Use `import type`.  @typescript-eslint/consistent-type-imports
+153:3  Warning: 'key' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+269:10  Warning: 'activeTab' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+269:21  Warning: 'setActiveTab' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+270:26  Warning: 'setCollectedGifts' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+278:5  Warning: 'status' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+319:34  Warning: 'index' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+376:3  Warning: 'customerPubkey' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+
+./src/pages/maps/pins/[id].tsx
+17:10  Warning: 'format' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/pages/maps/report/index.tsx
+6:1  Warning: Type import "React" is used by decorator metadata.  @typescript-eslint/consistent-type-imports
+8:29  Warning: 'use' is defined but never used.  @typescript-eslint/no-unused-vars
+94:15  Warning: 'InferGetServerSidePropsType' is defined but never used.  @typescript-eslint/no-unused-vars
+94:44  Warning: 'GetServerSideProps' is defined but never used.  @typescript-eslint/no-unused-vars
+507:3  Warning: 'setSelectedDays' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+521:11  Warning: 'onOpen' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+542:10  Warning: 'showFilters' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+542:23  Warning: 'setShowFilters' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/pages/music/index.tsx
+218:9  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./src/pages/play/bounty/index.tsx
+26:1  Warning: All imports in the declaration are only used as types. Use `import type`.  @typescript-eslint/consistent-type-imports
+57:9  Warning: The 'bountyList' logical expression could make the dependencies of useMemo Hook (at line 135) change on every render. Move it inside the useMemo callback. Alternatively, wrap the initialization of 'bountyList' in its own useMemo() Hook.  react-hooks/exhaustive-deps
+
+./src/pages/play/bounty/[id].tsx
+3:17  Warning: 'useEffect' is defined but never used.  @typescript-eslint/no-unused-vars
+31:1  Warning: All imports in the declaration are only used as types. Use `import type`.  @typescript-eslint/consistent-type-imports
+33:10  Warning: 'addrShort' is defined but never used.  @typescript-eslint/no-unused-vars
+37:10  Warning: 'FirebaseStorage' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/pages/play/collections/index.tsx
+31:1  Warning: All imports in the declaration are only used as types. Use `import type`.  @typescript-eslint/consistent-type-imports
+39:10  Warning: 'refreshing' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+39:22  Warning: 'setRefreshing' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+125:37  Warning: 'refetch' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+147:5  Warning: React Hook useMemo has a missing dependency: 'sortLocations'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+226:5  Warning: Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator.  @typescript-eslint/no-floating-promises
+228:6  Warning: React Hook useEffect has a missing dependency: 'checkFirstTimeSignIn'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+
+./src/pages/play/collections/[id].tsx
+3:17  Warning: 'useEffect' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/pages/play/creators/index.tsx
+5:10  Warning: 'useRouter' is defined but never used.  @typescript-eslint/no-unused-vars
+12:22  Warning: 'WalletType' is defined but never used.  @typescript-eslint/no-unused-vars
+23:1  Warning: All imports in the declaration are only used as types. Use `import type`.  @typescript-eslint/consistent-type-imports
+49:10  Warning: 'signLoading' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+89:45  Warning: 'setAccountActionData' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+97:35  Warning: 'refetch' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+243:5  Warning: Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator.  @typescript-eslint/no-floating-promises
+245:6  Warning: React Hook useEffect has a missing dependency: 'checkFirstTimeSignIn'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+259:6  Warning: React Hook useEffect has a missing dependency: 'queryClient'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+
+./src/pages/play/map/direction/index.tsx
+7:5  Warning: 'NavigationControl' is defined but never used.  @typescript-eslint/no-unused-vars
+12:10  Warning: 'MapLayerMouseEvent' is defined but never used.  @typescript-eslint/no-unused-vars
+13:5  Warning: 'MapMouseEvent' is defined but never used.  @typescript-eslint/no-unused-vars
+20:22  Warning: 'Crosshairs' is defined but never used.  @typescript-eslint/no-unused-vars
+51:11  Warning: 'searchParams' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+58:31  Warning: 'setDestinationCoords' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+64:12  Warning: 'touchOnMap' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+65:12  Warning: 'handleRecenterPress' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+71:12  Warning: 'isOffRoute' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+139:25  Warning: Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator.  @typescript-eslint/no-floating-promises
+158:8  Warning: React Hook useEffect has missing dependencies: 'checkRouteDeviation', 'createRouterLine', 'followUserMode', 'lastRecalculationTime', 'routeCoordinates', and 'selectedRouteProfile'. Either include them or remove the dependency array.  react-hooks/exhaustive-deps
+163:13  Warning: Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator.  @typescript-eslint/no-floating-promises
+165:8  Warning: React Hook useEffect has a missing dependency: 'createRouterLine'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+267:11  Warning: 'handleRecenter' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/pages/play/map/index.tsx
+8:10  Warning: 'MapPin' is defined but never used.  @typescript-eslint/no-unused-vars
+13:1  Warning: All imports in the declaration are only used as types. Use `import type`.  @typescript-eslint/consistent-type-imports
+349:6  Warning: React Hook useEffect has a missing dependency: 'setExtraInfo'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+353:5  Warning: Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator.  @typescript-eslint/no-floating-promises
+355:6  Warning: React Hook useEffect has a missing dependency: 'checkFirstTimeSignIn'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+366:9  Warning: Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator.  @typescript-eslint/no-floating-promises
+369:6  Warning: React Hook useEffect has missing dependencies: 'collectPinsSequentially', 'getAutoCollectPins', and 'userLocation'. Either include them or remove the dependency array.  react-hooks/exhaustive-deps
+373:6  Warning: React Hook useEffect has a missing dependency: 'data'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+
+./src/pages/play/profile/index.tsx
+42:9  Warning: 'router' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+210:5  Warning: Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator.  @typescript-eslint/no-floating-promises
+212:6  Warning: React Hook useEffect has a missing dependency: 'checkFirstTimeSignIn'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+
+./src/pages/privacy.tsx
+1:8  Warning: 'Link' is defined but never used.  @typescript-eslint/no-unused-vars
+2:8  Warning: 'Logo' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/pages/recharge.tsx
+8:1  Warning: All imports in the declaration are only used as types. Use `import type`.  @typescript-eslint/consistent-type-imports
+14:24  Warning: 'setOpen' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+29:27  Warning: 'variables' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+29:38  Warning: 'context' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+75:11  Warning: 'data' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/pages/search/index.tsx
+1:1  Warning: All imports in the declaration are only used as types. Use `import type`.  @typescript-eslint/consistent-type-imports
+8:10  Warning: 'truncateString' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/pages/support.tsx
+1:1  Warning: Import "SubmitHandler" is only used as types.  @typescript-eslint/consistent-type-imports
+18:5  Warning: 'getValues' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+20:5  Warning: 'setValue' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/pages/test.tsx
+3:10  Warning: 'Input' is defined but never used.  @typescript-eslint/no-unused-vars
+7:1  Warning: All imports in the declaration are only used as types. Use `import type`.  @typescript-eslint/consistent-type-imports
+9:10  Warning: 'allowedSubmissionTypes' is defined but never used.  @typescript-eslint/no-unused-vars
+238:29  Warning: 'variables' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+
+./src/pages/[vanityURL].tsx
+13:8  Warning: 'ViewMediaModal' is defined but never used.  @typescript-eslint/no-unused-vars
+27:1  Warning: All imports in the declaration are only used as types. Use `import type`.  @typescript-eslint/consistent-type-imports
+118:9  Warning: 'acc' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+157:25  Warning: 'setSelectedMenu' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/server/api/routers/admin/creator.ts
+4:1  Warning: Import "AccountType" is only used as types.  @typescript-eslint/consistent-type-imports
+
+./src/server/api/routers/admin/users.ts
+9:1  Warning: Import "Transporter" is only used as types.  @typescript-eslint/consistent-type-imports
+12:46  Warning: 'input' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+71:11  Warning: 'result' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/server/api/routers/bounty/bounty.ts
+1:10  Warning: 'useMutation' is defined but never used.  @typescript-eslint/no-unused-vars
+2:1  Warning: Import "Prisma" is only used as types.  @typescript-eslint/consistent-type-imports
+42:7  Warning: 'getAllBountyByUserIdInput' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+173:52  Warning: 'status' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+669:61  Warning: 'ctx' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+672:55  Warning: 'ctx' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+676:57  Warning: 'ctx' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+679:51  Warning: 'ctx' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+1237:13  Warning: 'bounty' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+1251:59  Warning: 'ctx' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+
+./src/server/api/routers/fan/asset.ts
+4:10  Warning: 'storage' is defined but never used.  @typescript-eslint/no-unused-vars
+16:3  Warning: 'publicProcedure' is defined but never used.  @typescript-eslint/no-unused-vars
+168:31  Warning: 'ctx' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+169:15  Warning: 'shopAssetId' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+346:13  Warning: 'account' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/server/api/routers/fan/creator.ts
+1:10  Warning: 'User' is defined but never used.  @typescript-eslint/no-unused-vars
+3:10  Warning: 'env' is defined but never used.  @typescript-eslint/no-unused-vars
+8:10  Warning: 'MAX_ASSET_LIMIT' is defined but never used.  @typescript-eslint/no-unused-vars
+18:3  Warning: 'getXlmUsdPrice' is defined but never used.  @typescript-eslint/no-unused-vars
+29:10  Warning: 'getAssetBalance' is defined but never used.  @typescript-eslint/no-unused-vars
+147:21  Warning: 'ctx' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+159:13  Warning: 'data' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+212:50  Warning: 'input' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+307:19  Warning: 'input' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+463:13  Warning: 'code' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+604:28  Warning: 'ctx' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+
+./src/server/api/routers/fan/notification.ts
+2:10  Warning: 'Input' is defined but never used.  @typescript-eslint/no-unused-vars
+7:3  Warning: 'publicProcedure' is defined but never used.  @typescript-eslint/no-unused-vars
+128:65  Warning: 'input' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+145:24  Warning: 'input' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+
+./src/server/api/routers/fan/post.ts
+248:55  Warning: 'ctx' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+
+./src/server/api/routers/fan/trx.ts
+20:3  Warning: 'PLATFORM_ASSET' is defined but never used.  @typescript-eslint/no-unused-vars
+36:10  Warning: 'FanGitFormSchema' is defined but never used.  @typescript-eslint/no-unused-vars
+44:10  Warning: 'useCreatorStorageAcc' is defined but never used.  @typescript-eslint/no-unused-vars
+411:21  Warning: 'ctx' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+
+./src/server/api/routers/fan/user.ts
+1:10  Warning: 'Horizon' is defined but never used.  @typescript-eslint/no-unused-vars
+2:10  Warning: 'getAccSecretFromRubyApi' is defined but never used.  @typescript-eslint/no-unused-vars
+5:10  Warning: 'STELLAR_URL' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/server/api/routers/maps/pin.ts
+10:1  Warning: All imports in the declaration are only used as types. Use `import type`.  @typescript-eslint/consistent-type-imports
+19:1  Warning: All imports in the declaration are only used as types. Use `import type`.  @typescript-eslint/consistent-type-imports
+20:10  Warning: 'BADWORDS' is defined but never used.  @typescript-eslint/no-unused-vars
+290:15  Warning: 'update' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+501:57  Warning: 'input' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+513:65  Warning: 'input' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+787:13  Warning: 'creatorId' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/server/api/routers/marketplace/marketplace.ts
+13:23  Warning: 'MarketAsset' is defined but never used.  @typescript-eslint/no-unused-vars
+19:1  Warning: All imports in the declaration are only used as types. Use `import type`.  @typescript-eslint/consistent-type-imports
+551:21  Warning: 'ctx' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+
+./src/server/api/routers/marketplace/pay.ts
+3:3  Warning: 'getPlatformAssetNumberForUSD' is defined but never used.  @typescript-eslint/no-unused-vars
+4:3  Warning: 'getPlatformTokenNumberForUSD' is defined but never used.  @typescript-eslint/no-unused-vars
+34:31  Warning: 'ctx' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+35:33  Warning: 'sourceId' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+72:13  Warning: 'user' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+123:48  Warning: 'ctx' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+
+./src/server/api/routers/marketplace/steller.ts
+2:10  Warning: 'AwardIcon' is defined but never used.  @typescript-eslint/no-unused-vars
+22:10  Warning: 'api' is defined but never used.  @typescript-eslint/no-unused-vars
+42:22  Warning: 'l' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/server/api/routers/marketplace/trade.ts
+14:3  Warning: 'publicProcedure' is defined but never used.  @typescript-eslint/no-unused-vars
+26:40  Warning: 'price' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+84:53  Warning: 'input' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+85:11  Warning: 'id' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+97:21  Warning: 'ctx' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+
+./src/server/api/routers/music/song.ts
+232:56  Warning: 'input' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+259:21  Warning: 'input' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+271:21  Warning: 'input' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+351:13  Warning: 'serialNumber' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+383:24  Warning: 'input' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+383:31  Warning: 'ctx' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+393:24  Warning: 'input' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+
+./src/server/api/routers/s3.ts
+20:18  Warning: 'ctx' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+31:24  Warning: 'ctx' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+
+./src/server/api/routers/template.ts
+1:10  Warning: 'z' is defined but never used.  @typescript-eslint/no-unused-vars
+6:3  Warning: 'publicProcedure' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/server/api/routers/wallate/acc.ts
+12:3  Warning: 'publicProcedure' is defined but never used.  @typescript-eslint/no-unused-vars
+13:3  Warning: 'adminProcedure' is defined but never used.  @typescript-eslint/no-unused-vars
+17:10  Warning: 'get' is defined but never used.  @typescript-eslint/no-unused-vars
+20:58  Warning: 'input' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+83:61  Warning: 'input' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+88:68  Warning: 'input' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+93:68  Warning: 'input' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+103:70  Warning: 'input' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+145:65  Warning: 'input' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+
+./src/server/api/routers/wallate/admin.ts
+7:3  Warning: 'publicProcedure' is defined but never used.  @typescript-eslint/no-unused-vars
+11:49  Warning: 'input' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+
+./src/server/api/routers/wallate/tag.ts
+1:10  Warning: 'z' is defined but never used.  @typescript-eslint/no-unused-vars
+5:3  Warning: 'protectedProcedure' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/server/api/routers/walletBalance/acc.ts
+1:10  Warning: 'sign' is defined but never used.  @typescript-eslint/no-unused-vars
+2:10  Warning: 'add' is defined but never used.  @typescript-eslint/no-unused-vars
+17:10  Warning: 'User' is defined but never used.  @typescript-eslint/no-unused-vars
+21:3  Warning: 'publicProcedure' is defined but never used.  @typescript-eslint/no-unused-vars
+24:10  Warning: 'Input' is defined but never used.  @typescript-eslint/no-unused-vars
+26:10  Warning: 'ServerApi' is defined but never used.  @typescript-eslint/no-unused-vars
+30:61  Warning: 'input' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+64:22  Warning: 'code' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+95:60  Warning: 'input' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+186:63  Warning: 'input' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+241:19  Warning: 'input' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+246:67  Warning: 'input' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+
+./src/server/api-cors.ts
+1:1  Warning: All imports in the declaration are only used as types. Use `import type`.  @typescript-eslint/consistent-type-imports
+
+./src/trigger/swap.ts
+22:21  Warning: 'payload' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+
+./src/utils/api.ts
+56:21  Warning: 'opts' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
+
+./src/utils/next-login.ts
+2:1  Warning: All imports in the declaration are only used as types. Use `import type`.  @typescript-eslint/consistent-type-imports
+3:1  Warning: All imports in the declaration are only used as types. Use `import type`.  @typescript-eslint/consistent-type-imports
+14:9  Warning: 'response' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/utils/notificationConfig.ts
+1:1  Warning: Import "NotificationObject" is only used as types.  @typescript-eslint/consistent-type-imports
+
+info  - Need to disable some ESLint rules? Learn more here: https://nextjs.org/docs/basic-features/eslint#disabling-rules
+   Creating an optimized production build ...
+ ✓ Compiled successfully
+   Collecting page data ...
+Error loading walkThrough data from AsyncStorage ReferenceError: localStorage is not defined
+    at Object.loadData (C:\Users\Shoaib Ahmed\Documents\New folder (3)\wadzz0\.next\server\pages\play\bounty.js:1:1586)
+    at C:\Users\Shoaib Ahmed\Documents\New folder (3)\wadzz0\.next\server\pages\play\bounty.js:1:1847
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+   Generating static pages (0/122) ...
+   Generating static pages (30/122) 
+Error loading walkThrough data from AsyncStorage ReferenceError: localStorage is not defined
+    at Object.loadData (C:\Users\Shoaib Ahmed\Documents\New folder (3)\wadzz0\.next\server\pages\play\bounty.js:1:1586)
+    at C:\Users\Shoaib Ahmed\Documents\New folder (3)\wadzz0\.next\server\pages\play\bounty.js:1:1847
+Error loading walkThrough data from AsyncStorage ReferenceError: localStorage is not defined
+    at Object.loadData (C:\Users\Shoaib Ahmed\Documents\New folder (3)\wadzz0\.next\server\chunks\8550.js:1:551)
+    at C:\Users\Shoaib Ahmed\Documents\New folder (3)\wadzz0\.next\server\chunks\8550.js:1:812
+   Generating static pages (60/122) 
+   Generating static pages (91/122) 
+ ✓ Generating static pages (122/122)
+   Finalizing page optimization ...
+   Collecting build traces ...
+
+Route (pages)                                      Size     First Load JS
+┌ ○ /                                              10.7 kB        1.08 MB
+├   /_app                                          0 B            1.05 MB
+├ ○ /[vanityURL]                                   2.54 kB        1.05 MB
+├ ○ /404                                           184 B          1.05 MB
+├ ○ /about                                         2.41 kB        1.05 MB
+├ ○ /admin                                         24.2 kB        1.15 MB
+├ ○ /agent                                         780 B          1.09 MB
+├ ○ /albedo                                        1.05 kB        1.05 MB
+├ ƒ /api/auth/[...nextauth]                        0 B            1.05 MB
+├ ƒ /api/file                                      0 B            1.05 MB
+├ ƒ /api/game/bounty                               0 B            1.05 MB
+├ ƒ /api/game/bounty/join_bounty                   0 B            1.05 MB
+├ ƒ /api/game/bounty/submission/create-submission  0 B            1.05 MB
+├ ƒ /api/game/brands                               0 B            1.05 MB
+├ ƒ /api/game/follow                               0 B            1.05 MB
+├ ƒ /api/game/followed_brands                      0 B            1.05 MB
+├ ƒ /api/game/get-signed-url                       0 B            1.05 MB
+├ ƒ /api/game/getFollowXDR                         0 B            1.05 MB
+├ ƒ /api/game/hasTrustOnBrand                      0 B            1.05 MB
+├ ƒ /api/game/locations                            0 B            1.05 MB
+├ ƒ /api/game/locations/consume                    0 B            1.05 MB
+├ ƒ /api/game/locations/get_consumed_location      0 B            1.05 MB
+├ ƒ /api/game/locations/hide_billboard             0 B            1.05 MB
+├ ƒ /api/game/locations/nearest_pin_distance       0 B            1.05 MB
+├ ƒ /api/game/locations/view_billboard             0 B            1.05 MB
+├ ƒ /api/game/qr/get-qr-by-id                      0 B            1.05 MB
+├ ƒ /api/game/unfollow                             0 B            1.05 MB
+├ ƒ /api/game/user                                 0 B            1.05 MB
+├ ƒ /api/game/user/delete                          0 B            1.05 MB
+├ ƒ /api/game/user/delete-user                     0 B            1.05 MB
+├ ƒ /api/game/user/token                           0 B            1.05 MB
+├ ƒ /api/game/user/update-profile                  0 B            1.05 MB
+├ ƒ /api/game/user/userBalance                     0 B            1.05 MB
+├ ƒ /api/toml                                      0 B            1.05 MB
+├ ƒ /api/trpc/[trpc]                               0 B            1.05 MB
+├ ƒ /api/xdr                                       0 B            1.05 MB
+├ ○ /assets                                        2.08 kB        1.05 MB
+├ ○ /bounty                                        3.79 kB        1.05 MB
+├ ○ /bounty/[id]                                   14.7 kB        1.08 MB
+├ ○ /chat                                          365 B          1.05 MB
+├ ○ /claim-redeem                                  2.58 kB        1.05 MB
+├ ○ /embed                                         402 kB         1.45 MB
+├ ○ /fans/creator                                  189 B          1.05 MB
+├ ○ /fans/creator/[id]                             193 B          1.05 MB
+├ ○ /fans/creator/bounty                           5.05 kB        1.06 MB
+├ ○ /fans/creator/gift                             3.03 kB        1.05 MB
+├ ○ /fans/creator/layout                           407 B          1.05 MB
+├ ○ /fans/creator/music                            2.76 kB        1.05 MB
+├ ○ /fans/creator/music/album/[id]                 6.23 kB        1.06 MB
+├ ○ /fans/creator/notification                     1.2 kB         1.05 MB
+├ ○ /fans/creator/posts                            1.13 kB        1.05 MB
+├ ○ /fans/creator/settings                         3.29 kB        1.06 MB
+├ ○ /fans/creator/store                            36.6 kB         1.1 MB
+├ ○ /fans/creator/widget-settings                  4.09 kB        1.05 MB
+├ ○ /fans/home                                     302 B          1.05 MB
+├ ○ /fans/posts/[id]                               2.75 kB        1.05 MB
+├ ○ /faq                                           1.89 kB        1.05 MB
+├ ○ /feed                                          3.64 kB        1.05 MB
+├ ○ /functiontest                                  1.14 kB        1.07 MB
+├ ○ /maps                                          193 B          1.09 MB
+├ ○ /maps/pins/[id]                                1.71 kB        1.05 MB
+├ ○ /maps/pins/admin                               1.07 kB        1.09 MB
+├ ○ /maps/pins/creator                             16.8 kB        1.07 MB
+├ ○ /maps/pins/creator/report                      1.59 kB        1.05 MB
+├ ○ /maps/pins/my                                  3.73 kB        1.06 MB
+├ ƒ /maps/report                                   205 B          1.09 MB
+├ ○ /marketplace                                   5.37 kB        1.06 MB
+├ ○ /me                                            275 B          1.05 MB
+├ ○ /music                                         189 B          1.06 MB
+├ ○ /music/album/[album]                           5.6 kB         1.07 MB
+├ ○ /music/track/[id]                              512 B          1.05 MB
+├ ○ /notification                                  1.47 kB        1.05 MB
+├ ○ /play                                          276 B          1.06 MB
+├ ○ /play/ar                                       5.49 kB        1.06 MB
+├ ○ /play/bounty                                   5.93 kB        1.06 MB
+├ ○ /play/bounty/[id]                              2.35 kB        1.05 MB
+├ ○ /play/collections                              3.47 kB        1.06 MB
+├ ○ /play/collections/[id]                         2.19 kB        1.05 MB
+├ ○ /play/creators                                 7.74 kB        1.06 MB
+├ ○ /play/map                                      194 B          1.06 MB
+├ ○ /play/map/direction                            3.75 kB        1.05 MB
+├ ○ /play/profile                                  5.78 kB        1.06 MB
+├ ○ /privacy                                       2.45 kB        1.05 MB
+├ ○ /recharge                                      1.87 kB        1.05 MB
+├ ○ /search                                        1.27 kB        1.05 MB
+├ ○ /settings                                      4.39 kB        1.05 MB
+├ ○ /signup                                        320 B          1.05 MB
+├ ○ /support                                       2.4 kB         1.05 MB
+├ ○ /test                                          183 B          1.05 MB
+└ ○ /walletBalance                                 5.74 kB        1.06 MB
++ First Load JS shared by all                      1.11 MB
+  ├ chunks/framework-c40ce48b8bb4f1fd.js           66.2 kB
+  ├ chunks/main-a5c068b6567d6168.js                37.6 kB
+  ├ chunks/pages/_app-ed70b25ed194658b.js          944 kB
+  ├ css/58894cb1c08cb5c9.css                       61.5 kB
+  └ other shared chunks (total)                    2.48 kB
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+

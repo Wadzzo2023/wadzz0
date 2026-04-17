@@ -153,8 +153,7 @@ const SendAssets = () => {
               await api
                 .useUtils()
                 .walletBalance.wallBalance.getWalletsBalance.refetch();
-            } catch (balanceError) {
-            }
+            } catch (balanceError) {}
 
             try {
               await api
@@ -326,7 +325,8 @@ const SendAssets = () => {
                             onClick={fetchPubKey}
                             disabled={loading}
                           >
-                            <RotateCw size={12} className="mr-1" /> GET PUBLIC KEY
+                            <RotateCw size={12} className="mr-1" /> GET PUBLIC
+                            KEY
                           </Button>
                         </div>
                       )}
@@ -463,7 +463,10 @@ const SendAssets = () => {
           </DialogTitle>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 px-6 pb-6">
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="space-y-6 px-6 pb-6"
+          >
             <div className="space-y-5">
               <FormField
                 control={form.control}
@@ -585,7 +588,7 @@ const SendAssets = () => {
                           {form.watch("amount")}
                         </span>{" "}
                         <span className="font-semibold text-black">
-                          {form.watch("selectItem").split("-")[0] || "asset"}
+                          {form.watch("selectItem").split("-")[0] ?? "asset"}
                         </span>
                       </p>
                       <p className="text-base text-black/50">

@@ -44,31 +44,41 @@ const sidebarIconMap = {
   fan: Newspaper,
 } as const;
 
-const baseItems: NavItem[] = Object.entries(LeftNavigation).map(([key, item]) => {
-  const fallbackIcon = item.icon;
-  const normalizedKey = key.toLowerCase();
-  const mappedFromKey = sidebarIconMap[normalizedKey as keyof typeof sidebarIconMap];
-  const isCollectionRoute = item.path === "/assets" || item.text.toLowerCase().includes("collection");
-  const mappedIcon = item.path.includes("/music")
-    ? Music
-    : item.path === "/feed"
-      ? Newspaper
-    : isCollectionRoute
-      ? Library
-    : mappedFromKey ?? fallbackIcon;
+const baseItems: NavItem[] = Object.entries(LeftNavigation)
+  .map(([key, item]) => {
+    const fallbackIcon = item.icon;
+    const normalizedKey = key.toLowerCase();
+    const mappedFromKey =
+      sidebarIconMap[normalizedKey as keyof typeof sidebarIconMap];
+    const isCollectionRoute =
+      item.path === "/assets" || item.text.toLowerCase().includes("collection");
+    const mappedIcon = item.path.includes("/music")
+      ? Music
+      : item.path === "/feed" || item.path === "/fans/home"
+        ? Newspaper
+        : isCollectionRoute
+          ? Library
+          : (mappedFromKey ?? fallbackIcon);
 
-  return {
-    key,
-    path: item.path,
-    text: item.text,
-    icon: mappedIcon,
-    external: item.path.startsWith("http"),
-    dashed: item.path.startsWith("http"),
-  };
-}).filter((item) => item.path !== "/settings");
+    return {
+      key,
+      path: item.path,
+      text: item.text,
+      icon: mappedIcon,
+      external: item.path.startsWith("http"),
+      dashed: item.path.startsWith("http"),
+    };
+  })
+  .filter((item) => item.path !== "/settings");
 
 const navItems: NavItem[] = [
   ...baseItems,
+  {
+    key: "Profile",
+    path: "/creator/profile",
+    text: "PROFILE",
+    icon: UserRound,
+  },
   {
     key: "Claim",
     path: "/maps/pins/my",
@@ -91,13 +101,14 @@ function FloatingNavItem({
 
   const itemBody = (
     <motion.div
-        className={cn(
-          "relative flex h-10 items-center overflow-hidden rounded-xl px-2.5 transition-colors md:h-12 md:px-3",
+      className={cn(
+        "relative flex h-10 items-center overflow-hidden rounded-xl px-2.5 transition-colors md:h-12 md:px-3",
         canExpand ? "gap-0 md:gap-2" : "gap-0",
         "border border-black/20 text-black/85",
         isActive && "text-black",
         item.dashed ? "border-dashed border-black/35" : "border-solid",
-        isActive && "shadow-[0_0_0_1px_rgba(22,163,74,0.5),0_0_18px_rgba(22,163,74,0.4)]",
+        isActive &&
+          "shadow-[0_0_0_1px_rgba(22,163,74,0.5),0_0_18px_rgba(22,163,74,0.4)]",
       )}
       transition={{ type: "spring", stiffness: 180, damping: 24, mass: 0.9 }}
     >
@@ -152,7 +163,11 @@ function FloatingNavItem({
   }
 
   return (
-    <Link href={item.path} aria-current={isActive ? "page" : undefined} className="block">
+    <Link
+      href={item.path}
+      aria-current={isActive ? "page" : undefined}
+      className="block"
+    >
       {itemBody}
     </Link>
   );
@@ -163,7 +178,9 @@ export default function GlobalFloatingNav() {
 
   const activeKey =
     navItems.find((item) =>
-      item.path === "/" ? router.pathname === "/" : router.pathname?.startsWith(item.path),
+      item.path === "/"
+        ? router.pathname === "/"
+        : router.pathname?.startsWith(item.path),
     )?.key ?? "";
 
   return (
@@ -179,7 +196,7 @@ export default function GlobalFloatingNav() {
         <div className="pointer-events-none absolute inset-0 z-0 rounded-2xl bg-[radial-gradient(circle_at_20%_20%,rgba(255,251,242,0.24),rgba(248,243,232,0.08)_55%,rgba(245,240,230,0.03)_100%)]" />
         <div className="pointer-events-none absolute inset-0 z-0 rounded-2xl shadow-[inset_1px_1px_1px_0_rgba(255,255,255,0.85),_inset_-1px_-1px_1px_1px_rgba(255,255,255,0.5)]" />
 
-        <motion.nav className="relative z-10 flex items-center gap-1.5 overflow-x-auto pb-0.5 scrollbar-hide [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden md:gap-2 md:overflow-x-hidden">
+        <motion.nav className="relative z-10 flex items-center gap-1.5 overflow-x-auto pb-0.5 scrollbar-hide [-ms-overflow-style:none] [scrollbar-width:none] md:gap-2 md:overflow-x-hidden [&::-webkit-scrollbar]:hidden">
           {navItems.map((item) => (
             <FloatingNavItem
               key={item.key}

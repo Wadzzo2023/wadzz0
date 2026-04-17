@@ -13,7 +13,11 @@ import {
 
 import { SiteAssetBalance } from "./marketplace/recharge/site_asset_bal";
 import { Button } from "~/components/shadcn/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "~/components/shadcn/ui/avatar";
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "~/components/shadcn/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -40,7 +44,10 @@ type HeaderProps = {
   onToggleLayoutMode: () => void;
 };
 
-export default function Header({ layoutMode, onToggleLayoutMode }: HeaderProps) {
+export default function Header({
+  layoutMode,
+  onToggleLayoutMode,
+}: HeaderProps) {
   if (layoutMode === "modern") {
     return <ModernHeader onToggleLayoutMode={onToggleLayoutMode} />;
   }
@@ -48,7 +55,11 @@ export default function Header({ layoutMode, onToggleLayoutMode }: HeaderProps) 
   return <LegacyHeader onToggleLayoutMode={onToggleLayoutMode} />;
 }
 
-function ModernHeader({ onToggleLayoutMode }: { onToggleLayoutMode: () => void }) {
+function ModernHeader({
+  onToggleLayoutMode,
+}: {
+  onToggleLayoutMode: () => void;
+}) {
   const session = useSession();
   const drawer = useDrawerOpenStore();
 
@@ -91,7 +102,10 @@ function ModernHeader({ onToggleLayoutMode }: { onToggleLayoutMode: () => void }
           <div className="flex items-center gap-2">
             <SiteAssetBalance layoutMode="modern" />
             {session.status === "authenticated" ? (
-              <HeaderUserDropdown onToggleLayoutMode={onToggleLayoutMode} layoutMode="modern" />
+              <HeaderUserDropdown
+                onToggleLayoutMode={onToggleLayoutMode}
+                layoutMode="modern"
+              />
             ) : null}
           </div>
         </div>
@@ -100,9 +114,13 @@ function ModernHeader({ onToggleLayoutMode }: { onToggleLayoutMode: () => void }
   );
 }
 
-function LegacyHeader({ onToggleLayoutMode }: { onToggleLayoutMode: () => void }) {
+function LegacyHeader({
+  onToggleLayoutMode,
+}: {
+  onToggleLayoutMode: () => void;
+}) {
   return (
-    <header className="sticky top-0 z-50 h-20 bg-base-100/20 px-2 py-4 md:px-6">
+    <header className="h-20 bg-base-100/20 px-2 py-4 md:px-6">
       <div className="flex w-full items-center justify-between xl:hidden">
         <div className="flex w-full items-center justify-around gap-2 ">
           <Hamburger
@@ -142,7 +160,8 @@ function HeaderUserDropdown({
 
   if (!user?.id) return null;
 
-  const displayName = user.name?.trim() ?? `${user.id.slice(0, 6)}...${user.id.slice(-4)}`;
+  const displayName =
+    user.name?.trim() ?? `${user.id.slice(0, 6)}...${user.id.slice(-4)}`;
   const initials =
     user.name
       ?.split(" ")
@@ -157,7 +176,9 @@ function HeaderUserDropdown({
         <Button className="h-7 gap-1.5 rounded-lg bg-muted px-2 text-xs font-medium text-foreground hover:bg-muted/90">
           <Avatar className="h-5 w-5 border border-black/10">
             <AvatarImage src={user.image ?? ""} alt={displayName} />
-            <AvatarFallback className="text-[10px] font-semibold">{initials}</AvatarFallback>
+            <AvatarFallback className="text-[10px] font-semibold">
+              {initials}
+            </AvatarFallback>
           </Avatar>
           <ChevronDown className="h-3.5 w-3.5" />
         </Button>
@@ -166,11 +187,15 @@ function HeaderUserDropdown({
         <div className="flex items-center gap-3 px-2 py-2">
           <Avatar className="h-9 w-9 border border-black/10">
             <AvatarImage src={user.image ?? ""} alt={displayName} />
-            <AvatarFallback className="text-xs font-semibold">{initials}</AvatarFallback>
+            <AvatarFallback className="text-xs font-semibold">
+              {initials}
+            </AvatarFallback>
           </Avatar>
           <div className="min-w-0">
             <p className="truncate text-sm font-medium">{displayName}</p>
-            <p className="truncate text-xs text-muted-foreground">{user.email ?? user.id}</p>
+            <p className="truncate text-xs text-muted-foreground">
+              {user.email ?? user.id}
+            </p>
           </div>
         </div>
 
@@ -183,7 +208,10 @@ function HeaderUserDropdown({
           </Link>
         </DropdownMenuItem>
 
-        <DropdownMenuItem className="cursor-pointer" onClick={onToggleLayoutMode}>
+        <DropdownMenuItem
+          className="cursor-pointer"
+          onClick={onToggleLayoutMode}
+        >
           <ArrowLeftRight className="mr-2 h-4 w-4" />
           {layoutMode === "modern" ? "Switch to Legacy" : "Switch to Modern"}
         </DropdownMenuItem>
