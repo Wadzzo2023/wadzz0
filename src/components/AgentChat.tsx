@@ -19,7 +19,7 @@ import {
   Minus,
 } from "lucide-react";
 import type { EventData } from "~/lib/agent/types";
-import { useMapModalStore } from "~/pages/maps";
+import { useMapModalStore } from "~/store/map-stores";
 
 interface Message {
   role: "user" | "assistant" | "system";
