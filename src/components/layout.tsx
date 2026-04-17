@@ -23,7 +23,7 @@ import { BackgroundMusicProvider } from "./context/BackgroundMusicContext";
 import { PlayerProvider } from "./context/PlayerContext";
 import { PostAudioProvider } from "./context/PostAudioContext";
 import { PostVideoProvider } from "./context/PostVideoContext";
-import FallingSnowflakes from "./FallingSnowflakes";
+import FallingSnowflakes from "./christmas/FallingSnowflakes";
 import { Player } from "./Player";
 import { PlayerToggle } from "./playerToggle";
 
