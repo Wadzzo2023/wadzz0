@@ -4,10 +4,12 @@ import { api } from "~/utils/api";
 import { Button } from "~/components/shadcn/ui/button";
 import Link from "next/link";
 import { CREATOR_PLURAL_TERM } from "~/utils/term";
+import { Profile } from "./profile-menu";
 
 export function UserMode() {
   return (
     <div className="flex h-full flex-1 flex-col gap-2 overflow-auto rounded-lg  bg-base-200/50 p-2">
+      <Profile />
       <AllCreators />
       {/* <BottonNav /> */}
     </div>
