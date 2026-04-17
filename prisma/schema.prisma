@@ -603,7 +603,6 @@ model Location {
 
     latitude    Float
     longitude   Float
-    hidden      Boolean @default(false)
     autoCollect Boolean
 
     locationGroupId String?

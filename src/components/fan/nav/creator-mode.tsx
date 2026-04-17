@@ -1,4 +1,4 @@
-import { Bell, PenSquare, Settings2, Store } from "lucide-react";
+import { Bell, PenSquare, Settings2, Store, BarChart3 } from "lucide-react";
 import Link from "next/link";
 import Button from "~/components/ui/button";
 import { creatorExtraFiledsSchema } from "~/types/creator";
@@ -41,6 +41,18 @@ export const CreatorNavigation = {
     path: "/maps/pins/creator/",
     icon: Bell,
     text: "PINS",
+    needAproval: true,
+  },
+  PinManage: {
+    path: "/pin-manage",
+    icon: Bell,
+    text: "PIN MANAGE",
+    needAproval: true,
+  },
+  Report: {
+    path: "/maps/report",
+    icon: BarChart3,
+    text: "REPORT",
     needAproval: true,
   },
   Bounty: {
