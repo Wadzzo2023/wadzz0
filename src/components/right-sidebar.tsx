@@ -55,6 +55,8 @@ export function RightComponent() {
   else if (router.pathname.includes("/fans")) return <RightBar />;
   else if (router.pathname.includes("/marketplace")) return <RightBar />;
   else if (router.pathname.includes("/report")) return <CreatorOnlyRightBar />;
+  else if (router.pathname.includes("/pin-manage"))
+    return <CreatorOnlyRightBar />;
   else if (router.pathname.includes("/admin")) {
     return <AdminRightSide />;
   } else if (router.pathname.includes("/bounty") && currentData) {
