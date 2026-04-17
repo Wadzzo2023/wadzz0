@@ -36,7 +36,7 @@ export default function Home() {
         <meta name="robots" content="index, follow" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <main className="p-4">
+      <main className="mx-auto w-full p-3 md:w-[85vw] md:p-4">
         <MainSection />
       </main>
     </>

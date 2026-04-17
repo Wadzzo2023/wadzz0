@@ -94,7 +94,7 @@ export default function AddTierModal({ creator }: { creator: Creator }) {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button variant="destructive">
+        <Button variant="destructive" data-add-tier-button>
           <PlusIcon size={16} />
           Add Tier
         </Button>
@@ -108,7 +108,7 @@ export default function AddTierModal({ creator }: { creator: Creator }) {
             onSubmit={handleSubmit(onSubmit)}
             className="flex flex-col   gap-2  "
           >
-            <div className="rounded-md bg-base-300 h-full">
+            <div className="h-full rounded-md bg-base-300">
               <label className="form-control w-full px-2">
                 <div className="label">
                   <span className="label-text">Tier Name</span>

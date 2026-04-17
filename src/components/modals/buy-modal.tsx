@@ -1,7 +1,9 @@
 import { useSession } from "next-auth/react";
-import Image from "next/image";
 import { useState } from "react";
+import { getCookie } from "cookies-next";
 import { api } from "~/utils/api";
+
+const LAYOUT_MODE_COOKIE = "wadzzo-layout-mode";
 
 import { ArrowLeft, X } from "lucide-react";
 import { Button } from "~/components/shadcn/ui/button";
@@ -37,12 +39,33 @@ import { RightSidePlayer } from "../RightSidePlayer";
 export const PaymentMethodEnum = z.enum(["asset", "xlm", "card"]);
 export type PaymentMethod = z.infer<typeof PaymentMethodEnum>;
 
+const FALLBACK_PREVIEW_IMAGE = "/images/logo.png";
+
+const getSafeImageUrl = (url?: string | null) => {
+  if (!url) return FALLBACK_PREVIEW_IMAGE;
+  const cleanUrl = url.split("?")[0]?.split("#")[0]?.toLowerCase() ?? "";
+  const isImage =
+    cleanUrl.endsWith(".png") ||
+    cleanUrl.endsWith(".jpg") ||
+    cleanUrl.endsWith(".jpeg") ||
+    cleanUrl.endsWith(".webp") ||
+    cleanUrl.endsWith(".gif") ||
+    cleanUrl.endsWith(".svg") ||
+    cleanUrl.endsWith(".avif");
+  return isImage ? url : FALLBACK_PREVIEW_IMAGE;
+};
+
 export default function BuyModal() {
   const { onClose, isOpen, type, data } = useModal();
   const session = useSession();
   const router = useRouter();
   const [step, setStep] = useState(1);
-  const { setCurrentTrack, currentTrack, setIsPlaying, setCurrentAudioPlayingId } = usePlayer();
+  const {
+    setCurrentTrack,
+    currentTrack,
+    setIsPlaying,
+    setCurrentAudioPlayingId,
+  } = usePlayer();
   const isModalOpen = isOpen && type === "buy modal";
   const handleClose = () => {
     setCurrentTrack(null);
@@ -50,8 +73,22 @@ export default function BuyModal() {
     onClose();
   };
 
-  const { getAssetBalance, hasTrust, balances } = useUserStellarAcc()
+  const [layoutMode] = useState<"modern" | "legacy">(() => {
+    const cookieMode = getCookie(LAYOUT_MODE_COOKIE);
+    if (cookieMode === "legacy" || cookieMode === "modern") {
+      return cookieMode;
+    }
+    if (typeof window !== "undefined") {
+      const storedMode = localStorage.getItem("layoutMode");
+      if (storedMode === "legacy" || storedMode === "modern") {
+        return storedMode;
+      }
+    }
+    return "modern";
+  });
+  const isLegacy = layoutMode === "legacy";
 
+  const { getAssetBalance, hasTrust, balances } = useUserStellarAcc();
 
   const handleNext = () => {
     setStep((prev) => prev + 1);
@@ -61,32 +98,29 @@ export default function BuyModal() {
     setStep((prev) => prev - 1);
   };
 
-
-  const copy = api.marketplace.market.getMarketAssetAvailableCopy.useQuery({
-    id: data.Asset?.id,
-  },
+  const copy = api.marketplace.market.getMarketAssetAvailableCopy.useQuery(
     {
-      enabled: !!data.Asset
-    }
+      id: data.Asset?.id,
+    },
+    {
+      enabled: !!data.Asset,
+    },
   );
 
-
-  const hasTrustonAsset = hasTrust(data.Asset?.asset.code ?? "", data.Asset?.asset.issuer ?? "");
-
-
+  const hasTrustonAsset = hasTrust(
+    data.Asset?.asset.code ?? "",
+    data.Asset?.asset.issuer ?? "",
+  );
 
   const { data: canBuyUser } =
     api.marketplace.market.userCanBuyThisMarketAsset.useQuery(
       data.Asset?.id ?? 0,
       {
-        enabled: !!data.Asset
-      }
+        enabled: !!data.Asset,
+      },
     );
 
-
   if (!data.Asset || !data.Asset.asset)
-
-
     return (
       <Dialog open={isModalOpen} onOpenChange={handleClose}>
         <DialogContent className="max-w-2xl overflow-hidden p-1   ">
@@ -135,12 +169,13 @@ export default function BuyModal() {
                   {/* Image Container */}
                   <div className="relative aspect-square bg-[#1e1f22]">
                     <SparkleEffect />
-                    <Image
-                      src={data.Asset.asset.thumbnail}
+                    <img
+                      src={getSafeImageUrl(data.Asset.asset.thumbnail)}
                       alt={data.Asset.asset.name}
-                      width={1000}
-                      height={1000}
                       className="h-full w-full object-cover"
+                      onError={(e) => {
+                        e.currentTarget.src = FALLBACK_PREVIEW_IMAGE;
+                      }}
                     />
                   </div>
 
@@ -168,7 +203,7 @@ export default function BuyModal() {
 
                     <div className="flex items-center gap-2 text-sm text-gray-400">
                       <span className="h-auto p-0 text-xs text-[#00a8fc]">
-                        ISSUER  ID: {addrShort(data.Asset.asset.issuer, 5)}
+                        ISSUER ID: {addrShort(data.Asset.asset.issuer, 5)}
                       </span>
                       <Badge variant="destructive" className=" rounded-lg">
                         {data.Asset.asset.code}
@@ -219,17 +254,15 @@ export default function BuyModal() {
                           price: 15,
                           priceUSD: 50,
                           id: 1,
-
                         } as SongItemType);
                       }}
-
                       className="w-full bg-[#39BD2B] text-white hover:bg-sky-700 "
-
                     >
                       Play
                     </Button>
                   ) : (
-                    data.Asset.asset.mediaType === "VIDEO" && hasTrustonAsset && (
+                    data.Asset.asset.mediaType === "VIDEO" &&
+                    hasTrustonAsset && (
                       <Button
                         onClick={() => {
                           setCurrentTrack(null);
@@ -244,16 +277,14 @@ export default function BuyModal() {
                             id: 1,
                           } as SongItemType);
                         }}
-
                         className="w-full bg-[#39BD2B] text-white hover:bg-sky-700"
-
                       >
                         Play
                       </Button>
                     )
                   )}
                   {session.status === "authenticated" &&
-                    data.Asset.placerId === session.data.user.id ? (
+                  data.Asset.placerId === session.data.user.id ? (
                     <>
                       <DisableFromMarketButton
                         code={data.Asset.asset.code}
@@ -284,29 +315,29 @@ export default function BuyModal() {
               <div className=" rounded-sm bg-gray-300 p-1   md:col-span-4 ">
                 {data.Asset.asset.mediaType === "IMAGE" ? (
                   hasTrustonAsset ? (
-                    <>
-                      <Image
-                        src={data.Asset.asset.mediaUrl}
-                        alt={data.Asset.asset.name}
-                        width={1000}
-                        height={1000}
-                        className=
-                        "h-full max-h-[800px] w-full overflow-y-auto object-cover"
-                      />
-                    </>
-                  ) : (<Image
-                    src={data.Asset.asset.mediaUrl}
-                    alt={data.Asset.asset.name}
-                    width={1000}
-                    height={1000}
-                    className=
-                    "h-full max-h-[800px] w-full overflow-y-auto object-cover blur-lg"
-                  />)
+                    <img
+                      src={getSafeImageUrl(data.Asset.asset.mediaUrl)}
+                      alt={data.Asset.asset.name}
+                      className="h-full max-h-[800px] w-full overflow-y-auto object-cover"
+                      onError={(e) => {
+                        e.currentTarget.src = FALLBACK_PREVIEW_IMAGE;
+                      }}
+                    />
+                  ) : (
+                    <img
+                      src={getSafeImageUrl(data.Asset.asset.mediaUrl)}
+                      alt={data.Asset.asset.name}
+                      className="h-full max-h-[800px] w-full overflow-y-auto object-cover blur-lg"
+                      onError={(e) => {
+                        e.currentTarget.src = FALLBACK_PREVIEW_IMAGE;
+                      }}
+                    />
+                  )
                 ) : data.Asset.asset.mediaType === "VIDEO" ? (
                   hasTrustonAsset ? (
                     <div
                       style={{
-                        backgroundImage: `url(${data.Asset.asset.thumbnail})`,
+                        backgroundImage: `url(${getSafeImageUrl(data.Asset.asset.thumbnail)})`,
                         backgroundSize: "cover",
                         backgroundPosition: "center",
                         backgroundRepeat: "no-repeat",
@@ -319,59 +350,59 @@ export default function BuyModal() {
                     >
                       <RightSidePlayer />
                     </div>
-                  ) : (<Image
-                    src={data.Asset.asset.mediaUrl}
-                    alt={data.Asset.asset.name}
-                    width={1000}
-                    height={1000}
-                    className=
-                    "h-full max-h-[800px] w-full overflow-y-auto object-cover blur-lg"
-                  />)
+                  ) : (
+                    <img
+                      src={getSafeImageUrl(data.Asset.asset.mediaUrl)}
+                      alt={data.Asset.asset.name}
+                      className="h-full max-h-[800px] w-full overflow-y-auto object-cover blur-lg"
+                      onError={(e) => {
+                        e.currentTarget.src = FALLBACK_PREVIEW_IMAGE;
+                      }}
+                    />
+                  )
                 ) : data.Asset.asset.mediaType === "MUSIC" ? (
                   hasTrustonAsset ? (
-                    <>
-                      <div
-                        style={{
-                          backgroundImage: `url(${data.Asset.asset.thumbnail})`,
-                          backgroundSize: "cover",
-                          backgroundPosition: "center",
-                          backgroundRepeat: "no-repeat",
-                          height: "100%",
-                          width: "100%",
-                        }}
-                        className={clsx(
-                          "h-full max-h-[800px] w-full overflow-y-auto object-cover",
-                        )}
-                      >
-                        <RightSidePlayer />
-                      </div>
-                    </>
-                  ) : (<Image
-                    src={data.Asset.asset.mediaUrl}
-                    alt={data.Asset.asset.name}
-                    width={1000}
-                    height={1000}
-                    className=
-                    "h-full max-h-[800px] w-full overflow-y-auto object-cover blur-lg"
-                  />)
-                ) : (
-                  <>
                     <div
                       style={{
-                        backgroundImage: `url(${data.Asset.asset.thumbnail})`,
+                        backgroundImage: `url(${getSafeImageUrl(data.Asset.asset.thumbnail)})`,
                         backgroundSize: "cover",
                         backgroundPosition: "center",
                         backgroundRepeat: "no-repeat",
                         height: "100%",
                         width: "100%",
                       }}
+                      className={clsx(
+                        "h-full max-h-[800px] w-full overflow-y-auto object-cover",
+                      )}
                     >
-                      <ShowModel
-                        url={data.Asset.asset.mediaUrl}
-                        blur={hasTrustonAsset ? false : true}
-                      />
+                      <RightSidePlayer />
                     </div>
-                  </>
+                  ) : (
+                    <img
+                      src={getSafeImageUrl(data.Asset.asset.mediaUrl)}
+                      alt={data.Asset.asset.name}
+                      className="h-full max-h-[800px] w-full overflow-y-auto object-cover blur-lg"
+                      onError={(e) => {
+                        e.currentTarget.src = FALLBACK_PREVIEW_IMAGE;
+                      }}
+                    />
+                  )
+                ) : (
+                  <div
+                    style={{
+                      backgroundImage: `url(${getSafeImageUrl(data.Asset.asset.thumbnail)})`,
+                      backgroundSize: "cover",
+                      backgroundPosition: "center",
+                      backgroundRepeat: "no-repeat",
+                      height: "100%",
+                      width: "100%",
+                    }}
+                  >
+                    <ShowModel
+                      url={data.Asset.asset.mediaUrl}
+                      blur={hasTrustonAsset ? false : true}
+                    />
+                  </div>
                 )}
               </div>
             </div>

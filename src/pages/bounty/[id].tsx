@@ -6,6 +6,7 @@ import {
   DollarSign,
   Edit,
   File,
+  MessageCircle,
   MessageSquare,
   Paperclip,
   Send,
@@ -35,7 +36,6 @@ import {
   CardContent,
   CardFooter,
   CardHeader,
-  CardTitle,
 } from "~/components/shadcn/ui/card";
 import {
   Dialog,
@@ -82,15 +82,34 @@ import Loading from "~/components/wallete/loading";
 import { clientSelect } from "~/lib/stellar/fan/utils";
 import { cn } from "~/lib/utils";
 import { addrShort } from "~/utils/utils";
+import { getCookie } from "cookies-next";
+import LegacyBountyDetailPage from "~/components/bounty/legacy-bounty-detail-page";
 
 const SingleBountyPage = () => {
+  const [layoutMode, setLayoutMode] = useState<"modern" | "legacy">("modern");
+
+  useEffect(() => {
+    const storedMode = getCookie("wadzzo-layout-mode");
+    if (storedMode === "legacy" || storedMode === "modern") {
+      setLayoutMode(storedMode);
+    }
+  }, []);
+
   const router = useRouter();
   const { id } = router.query;
   const { data: Owner } = api.bounty.Bounty.isOwnerOfBounty.useQuery({
     BountyId: Number(id),
   });
 
-  return <>{Owner?.isOwner ? <AdminBountyPage /> : <UserBountyPage />}</>;
+  if (layoutMode === "legacy") {
+    return <LegacyBountyDetailPage />;
+  }
+
+  return (
+    <div className="relative flex h-[calc(100vh-10.8vh)] w-full flex-col gap-4 overflow-y-auto px-3 scrollbar-hide md:mx-auto md:w-[85vw] md:px-0">
+      {Owner?.isOwner ? <AdminBountyPage /> : <UserBountyPage />}
+    </div>
+  );
 };
 
 export default SingleBountyPage;
@@ -107,6 +126,7 @@ const UserBountyPage = () => {
   const router = useRouter();
   const { id } = router.query;
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isChatDialogOpen, setIsChatDialogOpen] = useState(false);
   const [loading, setLoading] = useState<boolean>(false);
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
@@ -269,66 +289,76 @@ const UserBountyPage = () => {
 
   if (data && isAlreadyJoin.data) {
     return (
-      <div className="p-2">
+      <div>
         {isAlreadyJoin.isLoading ? (
           <div className="mb-2.5 h-10  bg-gray-200 "></div>
         ) : isAlreadyJoin.data.isJoined || Owner?.isOwner ? (
           <Card
-            className={clsx("mx-auto w-full max-w-4xl", {
+            className={clsx("mx-auto w-full overflow-hidden rounded-none border-0 bg-transparent shadow-none", {
               "blur-sm": !isAlreadyJoin.data,
             })}
           >
-            <CardHeader>
+            <CardHeader className="p-0">
               <div className="relative">
                 <Image
                   src={data?.imageUrls[0] ?? "/images/logo.png"}
                   alt={data?.title}
-                  width={600}
-                  height={300}
-                  className="h-64 w-full rounded-t-lg object-cover"
+                  width={1200}
+                  height={600}
+                  className="h-[340px] w-full object-cover md:h-[460px]"
+                  priority
                 />
-
-                {/* <Badge
-                  variant={
-                    data?.status === "APPROVED"
-                      ? "default"
-                      : data?.status === "PENDING"
-                        ? "secondary"
-                        : "destructive"
-                  }
-                  className="absolute right-4 top-4 px-3 py-1 text-lg"
-                >
-                  {data?.status === "APPROVED"
-                    ? "Approved"
-                    : data?.status === "PENDING"
-                      ? "Pending"
-                      : "Rejected"}
-                </Badge> */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
+                <div className="absolute inset-x-0 bottom-0 z-10 p-6">
+                  <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+                    <div>
+                      <h1 className="text-2xl font-semibold tracking-tight text-white md:text-4xl">
+                        {data?.title}
+                      </h1>
+                      <div className="mt-2 flex flex-wrap items-center gap-2 text-sm text-white/90">
+                        <span className="font-medium text-[#4ea0ff]">${data.priceInUSD.toFixed(2)}</span>
+                        <span>USDC</span>
+                        <span className="text-white/55">|</span>
+                        <span>{data?._count.participants} participants</span>
+                      </div>
+                    </div>
+                    <div className="hidden items-center gap-2 rounded-xl border border-white/25 bg-black/30 p-2.5 backdrop-blur-sm md:flex">
+                      <Avater className="h-9 w-9" url={data?.creator.profileUrl} />
+                      <div>
+                        <p className="text-xs text-white/70">Created by</p>
+                        <p className="text-sm font-medium text-white">{data?.creator.name}</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
-              <div className="mt-4 flex items-center justify-between">
-                <CardTitle className="text-3xl">{data?.title}</CardTitle>
-              </div>
-              {/* <div className="mt-2 flex items-center text-muted-foreground">
-              <Clock className="mr-1 h-4 w-4" />
-              <span>Deadline:</span>
-            </div> */}
             </CardHeader>
-            <CardContent>
+            <CardContent className="mx-auto w-full px-4 pb-5 pt-4 md:w-[85vw] md:px-6 md:pt-6">
               <Tabs defaultValue="details">
-                <TabsList className="w-full md:grid md:grid-cols-4">
-                  <TabsTrigger value="details">Details</TabsTrigger>
-
-                  <TabsTrigger value="submissions" className="">
-                    Submissions{" "}
+                <TabsList className="mb-6 h-auto w-full justify-start gap-7 overflow-x-auto rounded-none border-b border-[#e7e4dc] bg-transparent p-0 scrollbar-hide">
+                  <TabsTrigger
+                    value="details"
+                    className="rounded-none border-b-2 border-transparent bg-transparent px-0 py-3 text-[1.02rem] font-normal text-slate-500 data-[state=active]:border-black data-[state=active]:bg-transparent data-[state=active]:font-medium data-[state=active]:text-black data-[state=active]:shadow-none"
+                  >
+                    Details
                   </TabsTrigger>
-                  <TabsTrigger value="doubt" className="">
-                    Chat{" "}
+                  <TabsTrigger
+                    value="submissions"
+                    className="rounded-none border-b-2 border-transparent bg-transparent px-0 py-3 text-[1.02rem] font-normal text-slate-500 data-[state=active]:border-black data-[state=active]:bg-transparent data-[state=active]:font-medium data-[state=active]:text-black data-[state=active]:shadow-none"
+                  >
+                    Submissions
                   </TabsTrigger>
-
-                  <TabsTrigger value="comments">Comments</TabsTrigger>
+                  <TabsTrigger
+                    value="comments"
+                    className="rounded-none border-b-2 border-transparent bg-transparent px-0 py-3 text-[1.02rem] font-normal text-slate-500 data-[state=active]:border-black data-[state=active]:bg-transparent data-[state=active]:font-medium data-[state=active]:text-black data-[state=active]:shadow-none"
+                  >
+                    Comments
+                  </TabsTrigger>
                 </TabsList>
                 <TabsContent value="details" className="mt-4">
-                  <Preview value={data?.description} />
+                  <div className="rounded-xl border border-[#ebe7df] bg-white p-4">
+                    <Preview value={data?.description} />
+                  </div>
                 </TabsContent>
 
                 <TabsContent value="submissions" className="mt-4">
@@ -433,107 +463,13 @@ const UserBountyPage = () => {
                     ))}
                   </div>
                 </TabsContent>
-                <TabsContent value="doubt" className="">
-                  <Card>
-                    <CardHeader className="flex flex-row items-center border-b-2 p-4">
-                      <div className="flex items-center space-x-4 ">
-                        <Avatar>
-                          <AvatarImage
-                            src={data.creator.profileUrl ?? ""}
-                            alt="Image"
-                          />
-                          <AvatarFallback>
-                            {data.creator.name.slice(0, 2)}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div>
-                          <p className="text-sm font-medium leading-none">
-                            {addrShort(data.creator.id)}
-                          </p>
-                          <p className="text-sm text-muted-foreground">
-                            {data.creator.name}
-                          </p>
-                        </div>
-                      </div>
-                    </CardHeader>
-                    <CardContent className="py-2 ">
-                      <div className=" max-h-[300px] min-h-[300px] space-y-4 overflow-y-auto">
-                        {messages?.map((message, index) => (
-                          <div
-                            key={index}
-                            className={cn(
-                              "flex max-w-[75%] flex-col gap-2 rounded-lg px-3 py-2 text-sm",
-                              message.role === UserRole.USER
-                                ? "ml-auto bg-primary text-primary-foreground"
-                                : "bg-muted",
-                            )}
-                          >
-                            {sanitizeInput(message.message).sanitizedInput}
-                            {// Display all matched URLs as links
-                              sanitizeInput(message.message).urls?.map(
-                                (url, index) => (
-                                  <div
-                                    key={index}
-                                    className=" w-full rounded-md bg-[#F5F7FB] py-2  shadow-sm"
-                                  >
-                                    <Link
-                                      href={url}
-                                      className="flex items-center justify-start gap-2"
-                                    >
-                                      <File color="black" />{" "}
-                                      <span className="text-base font-medium text-[#07074D]">
-                                        {url}
-                                      </span>
-                                    </Link>
-                                  </div>
-                                ),
-                              )}
-                            <div ref={messagesEndRef} />
-                          </div>
-                        ))}
-                      </div>
-                    </CardContent>
-                    <CardFooter>
-                      <form
-                        onSubmit={handleSubmit}
-                        className="flex w-full items-center space-x-2"
-                      >
-                        <Input
-                          id="message"
-                          placeholder="Type your message..."
-                          className="flex-1"
-                          autoComplete="off"
-                          value={input}
-                          onChange={(event) => setInput(event.target.value)}
-                        />
-                        <Button
-                          type="submit"
-                          size="icon"
-                          disabled={
-                            inputLength === 0 || NewMessageMutation.isLoading
-                          }
-                        >
-                          <Send className="h-4 w-4" />
-                          <span className="sr-only">Send</span>
-                        </Button>
-                      </form>
-                      {NewMessageMutation.isError && (
-                        <Alert
-                          className="mt-2"
-                          type="error"
-                          content={NewMessageMutation.error.message}
-                        />
-                      )}
-                    </CardFooter>
-                  </Card>
-                </TabsContent>
                 <TabsContent value="comments" className="mt-4">
-                  <div className="space-y-4">
+                  <div className="space-y-4 rounded-xl border border-[#ebe7df] bg-white p-4">
                     <AddBountyComment bountyId={Number(id)} />
                     <div className="max-h-[650px]">
                       {bountyComment.data && bountyComment.data.length > 0 && (
                         <div className="mb-10 px-4">
-                          <div className=" flex flex-col gap-4 rounded-lg border-2 border-base-200 ">
+                          <div className="flex flex-col gap-4 rounded-lg border border-[#ebe7df] bg-[#fcfbf9]">
                             <div className=" mt-1 flex flex-col gap-2  rounded-lg p-2">
                               {bountyComment.data?.map((comment) => (
                                 <>
@@ -555,21 +491,42 @@ const UserBountyPage = () => {
                   </div>
                 </TabsContent>
               </Tabs>
+              <Dialog
+                open={isChatDialogOpen}
+                onOpenChange={(open) => {
+                  setIsChatDialogOpen(open);
+                }}
+              >
+                <DialogTrigger asChild>
+                  <Button
+                    type="button"
+                    className="fixed bottom-24 right-4 z-40 rounded-full bg-[#1f86ee] px-5 text-white shadow-[0_10px_24px_rgba(31,134,238,0.35)] hover:bg-[#1877da] md:bottom-28 md:right-6"
+                  >
+                    <MessageCircle className="mr-2 h-4 w-4" />
+                    Chat
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="w-[calc(100vw-1rem)] max-w-[1040px] gap-0 border border-black/10 p-0 sm:w-full">
+                  <div className="h-[min(78vh,720px)] overflow-hidden">
+                    <Chat bountyId={data.id} />
+                  </div>
+                </DialogContent>
+              </Dialog>
               <div className="mt-6 flex flex-col justify-between gap-2 md:flex-row md:items-center">
                 <div className="flex flex-col gap-4  md:flex-row md:items-center md:space-x-4">
-                  <Badge variant="secondary" className="flex items-center">
+                  <Badge variant="secondary" className="flex items-center border border-[#ebe7df] bg-[#f8f6f2] text-black/75">
                     <Trophy className="mr-1 h-4 w-4" />
                     {data?.priceInUSD} USD
                   </Badge>
-                  <Badge variant="destructive" className="flex items-center">
+                  <Badge variant="secondary" className="flex items-center border border-[#ebe7df] bg-[#f8f6f2] text-black/75">
                     <Trophy className="mr-1 h-4 w-4" />
                     {data?.priceInBand.toFixed(3)} {PLATFORM_ASSET.code}
                   </Badge>
-                  <Badge variant="secondary" className="flex items-center">
+                  <Badge variant="secondary" className="flex items-center border border-[#ebe7df] bg-[#f8f6f2] text-black/75">
                     <Users className="mr-1 h-4 w-4" />
                     {data?._count.participants} participants
                   </Badge>
-                  <Badge variant="secondary" className="flex items-center">
+                  <Badge variant="secondary" className="flex items-center border border-[#ebe7df] bg-[#f8f6f2] text-black/75">
                     <MessageSquare className="mr-1 h-4 w-4" />
                     {data?._count.comments} comments
                   </Badge>
@@ -594,7 +551,7 @@ const UserBountyPage = () => {
                 </div>
               </div>
             </CardContent>
-            <CardFooter className="flex items-center justify-between">
+            <CardFooter className="flex items-center justify-between border-t border-[#ebe7df] px-5 pb-5 pt-4">
               <div className="flex   space-x-4">
                 <Button
                   variant="destructive"
@@ -738,7 +695,7 @@ const UserBountyPage = () => {
                 ${data.requiredBalance} ${PLATFORM_ASSET.code} `}
           />
         ) : (
-          <div className="flex h-screen flex-col items-center justify-center gap-4">
+          <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4 rounded-xl border border-[#ebe7df] bg-white">
             <Alert
               className="flex  items-center justify-center"
               type="success"
@@ -761,6 +718,7 @@ const UserBountyPage = () => {
 const AdminBountyPage = () => {
   const { onOpen } = useModal();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isChatDialogOpen, setIsChatDialogOpen] = useState(false);
   const router = useRouter();
   const [loadingBountyId, setLoadingBountyId] = useState<number | null>(null);
   const { needSign } = useNeedSign();
@@ -884,57 +842,69 @@ const AdminBountyPage = () => {
 
   if (data)
     return (
-      <div className=" ">
-        <Card className="mx-auto w-full max-w-4xl">
-          <CardHeader>
+      <div>
+        <Card className="mx-auto w-full overflow-hidden rounded-none border-0 bg-transparent shadow-none">
+          <CardHeader className="p-0">
             <div className="relative">
               <Image
                 src={data?.imageUrls[0] ?? "/images/logo.png"}
                 alt={data?.title}
-                width={1000}
-                height={1000}
-                className="h-64 w-full rounded-t-lg object-cover"
+                width={1200}
+                height={600}
+                className="h-[340px] w-full object-cover md:h-[460px]"
+                priority
               />
-
-              {/* <Badge
-                variant={
-                  data?.status === "APPROVED"
-                    ? "default"
-                    : data?.status === "PENDING"
-                      ? "secondary"
-                      : "destructive"
-                }
-                className="absolute right-4 top-4 px-3 py-1 text-lg"
-              >
-                {data?.status === "APPROVED"
-                  ? "Approved"
-                  : data?.status === "PENDING"
-                    ? "Pending"
-                    : "Rejected"}
-              </Badge> */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
+              <div className="absolute inset-x-0 bottom-0 z-10 p-6">
+                <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+                  <div>
+                    <h1 className="text-2xl font-semibold tracking-tight text-white md:text-4xl">
+                      {data?.title}
+                    </h1>
+                    <div className="mt-2 flex flex-wrap items-center gap-2 text-sm text-white/90">
+                      <span className="font-medium text-[#4ea0ff]">${data.priceInUSD.toFixed(2)}</span>
+                      <span>USDC</span>
+                      <span className="text-white/55">|</span>
+                      <span>{data?._count.participants} participants</span>
+                    </div>
+                  </div>
+                  <div className="hidden items-center gap-2 rounded-xl border border-white/25 bg-black/30 p-2.5 backdrop-blur-sm md:flex">
+                    <Avater className="h-9 w-9" url={data?.creator.profileUrl} />
+                    <div>
+                      <p className="text-xs text-white/70">Created by</p>
+                      <p className="text-sm font-medium text-white">{data?.creator.name}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
-            <div className="mt-4 flex items-center justify-between">
-              <CardTitle className="flex w-full items-center justify-between text-3xl">
-                <div>{data?.title}</div>
-              </CardTitle>
-            </div>
-            {/* <div className="mt-2 flex items-center text-muted-foreground">
-              <Clock className="mr-1 h-4 w-4" />
-              <span>Deadline:</span>
-            </div> */}
           </CardHeader>
-          <CardContent className="w-full">
+          <CardContent className="mx-auto w-full px-4 pb-6 pt-4 md:w-[85vw] md:px-6 md:pt-6">
             <Tabs defaultValue="details">
-              <TabsList className="w-full md:grid md:grid-cols-4">
-                <TabsTrigger value="details">Details</TabsTrigger>
-
-                <TabsTrigger value="submissions">Submissions</TabsTrigger>
-                <TabsTrigger value="doubt">Chat</TabsTrigger>
-
-                <TabsTrigger value="comments">Comments</TabsTrigger>
+              <TabsList className="mb-6 h-auto w-full justify-start gap-7 overflow-x-auto rounded-none border-b border-[#e7e4dc] bg-transparent p-0 scrollbar-hide">
+                <TabsTrigger
+                  value="details"
+                  className="rounded-none border-b-2 border-transparent bg-transparent px-0 py-3 text-[1.02rem] font-normal text-slate-500 data-[state=active]:border-black data-[state=active]:bg-transparent data-[state=active]:font-medium data-[state=active]:text-black data-[state=active]:shadow-none"
+                >
+                  Details
+                </TabsTrigger>
+                <TabsTrigger
+                  value="submissions"
+                  className="rounded-none border-b-2 border-transparent bg-transparent px-0 py-3 text-[1.02rem] font-normal text-slate-500 data-[state=active]:border-black data-[state=active]:bg-transparent data-[state=active]:font-medium data-[state=active]:text-black data-[state=active]:shadow-none"
+                >
+                  Submissions
+                </TabsTrigger>
+                <TabsTrigger
+                  value="comments"
+                  className="rounded-none border-b-2 border-transparent bg-transparent px-0 py-3 text-[1.02rem] font-normal text-slate-500 data-[state=active]:border-black data-[state=active]:bg-transparent data-[state=active]:font-medium data-[state=active]:text-black data-[state=active]:shadow-none"
+                >
+                  Comments
+                </TabsTrigger>
               </TabsList>
               <TabsContent value="details" className="mt-4">
-                <Preview value={data?.description} />
+                <div className="rounded-xl border border-[#ebe7df] bg-white p-4">
+                  <Preview value={data?.description} />
+                </div>
               </TabsContent>
               <TabsContent value="submissions" className="mt-4">
                 <p>Total submissions: {data?._count.submissions}</p>
@@ -1118,10 +1088,6 @@ const AdminBountyPage = () => {
                   ))}
                 </div>
               </TabsContent>
-              <TabsContent value="doubt" className=" m-0 h-full  w-full p-0">
-
-                <Chat bountyId={data.id} />
-              </TabsContent>
               <TabsContent value="comments" className="mt-4">
                 <div className="space-y-4">
                   <AddBountyComment bountyId={Number(id)} />
@@ -1150,21 +1116,42 @@ const AdminBountyPage = () => {
                 </div>
               </TabsContent>
             </Tabs>
+            <Dialog
+              open={isChatDialogOpen}
+              onOpenChange={(open) => {
+                setIsChatDialogOpen(open);
+              }}
+            >
+              <DialogTrigger asChild>
+                <Button
+                  type="button"
+                  className="fixed bottom-24 right-4 z-40 rounded-full bg-[#1f86ee] px-5 text-white shadow-[0_10px_24px_rgba(31,134,238,0.35)] hover:bg-[#1877da] md:bottom-28 md:right-6"
+                >
+                  <MessageCircle className="mr-2 h-4 w-4" />
+                  Chat
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="w-[calc(100vw-1rem)] max-w-[1040px] gap-0 border border-black/10 p-0 sm:w-full">
+                <div className="h-[min(78vh,720px)] overflow-hidden">
+                  <Chat bountyId={data.id} />
+                </div>
+              </DialogContent>
+            </Dialog>
             <div className="mt-6 flex flex-col justify-between gap-2 md:flex-row md:items-center">
               <div className="flex flex-col gap-4  md:flex-row md:items-center md:space-x-4">
-                <Badge variant="secondary" className="flex items-center">
+                <Badge variant="secondary" className="flex items-center border border-[#ebe7df] bg-[#f8f6f2] text-black/75">
                   <DollarSign className="mr-1 h-4 w-4" />
                   {data?.priceInUSD} USD
                 </Badge>
-                <Badge variant="destructive" className="flex items-center">
+                <Badge variant="secondary" className="flex items-center border border-[#ebe7df] bg-[#f8f6f2] text-black/75">
                   <Trophy className="mr-1 h-4 w-4" />
                   {data?.priceInBand.toFixed(3)} {PLATFORM_ASSET.code}
                 </Badge>
-                <Badge variant="secondary" className="flex items-center">
+                <Badge variant="secondary" className="flex items-center border border-[#ebe7df] bg-[#f8f6f2] text-black/75">
                   <Users className="mr-1 h-4 w-4" />
                   {data?._count.participants} participants
                 </Badge>
-                <Badge variant="secondary" className="flex items-center">
+                <Badge variant="secondary" className="flex items-center border border-[#ebe7df] bg-[#f8f6f2] text-black/75">
                   <MessageSquare className="mr-1 h-4 w-4" />
                   {data?._count.comments} comments
                 </Badge>
@@ -1190,70 +1177,70 @@ const AdminBountyPage = () => {
                 </div>
               </div>
             </div>
-          </CardContent>
-          <CardFooter className="flex items-center justify-between">
-            <div className="flex space-x-4">
-              <Button
-                onClick={() => onOpen("edit bounty", { bountyId: data.id })}
-              >
-                Edit Bounty
-              </Button>
-              <div className="flex flex-col gap-2">
-                <div className="">
-                  <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                    <DialogTrigger asChild>
-                      <Button
-                        disabled={
-                          DeleteMutation.isLoading || loadingBountyId === data.id ||
-                            data.currentWinnerCount > 0
-                            ? true
-                            : false
-                        }
-                        variant="destructive"
-                      >
-                        Delete Bounty
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent className="sm:max-w-[425px]">
-                      <DialogHeader>
-                        <DialogTitle>Confirmation </DialogTitle>
-                      </DialogHeader>
+            <div className="mt-6 flex items-center justify-between">
+              <div className="flex space-x-4">
+                <Button
+                  onClick={() => onOpen("edit bounty", { bountyId: data.id })}
+                >
+                  Edit Bounty
+                </Button>
+                <div className="flex flex-col gap-2">
+                  <div className="">
+                    <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                      <DialogTrigger asChild>
+                        <Button
+                          disabled={
+                            DeleteMutation.isLoading || loadingBountyId === data.id ||
+                              data.currentWinnerCount > 0
+                              ? true
+                              : false
+                          }
+                          variant="destructive"
+                        >
+                          Delete Bounty
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="sm:max-w-[425px]">
+                        <DialogHeader>
+                          <DialogTitle>Confirmation </DialogTitle>
+                        </DialogHeader>
 
-                      <div className=" py-2">
-                        Do you want to delete this bounty?
-                      </div>
-
-                      <DialogFooter className=" w-full">
-                        <div className="flex w-full gap-4  ">
-                          <DialogClose className="w-full">
-                            <Button variant="outline" className="w-full">
-                              Cancel
-                            </Button>
-                          </DialogClose>
-                          <Button
-                            disabled={
-                              loadingBountyId === data.id ||
-                                data.currentWinnerCount > 0
-                                ? true
-                                : false
-                            }
-                            variant="destructive"
-                            type="submit"
-                            onClick={() =>
-                              handleDelete(data.id, data.priceInBand)
-                            }
-                            className="w-full"
-                          >
-                            Confirm
-                          </Button>
+                        <div className=" py-2">
+                          Do you want to delete this bounty?
                         </div>
-                      </DialogFooter>
-                    </DialogContent>
-                  </Dialog>
+
+                        <DialogFooter className=" w-full">
+                          <div className="flex w-full gap-4  ">
+                            <DialogClose className="w-full">
+                              <Button variant="outline" className="w-full">
+                                Cancel
+                              </Button>
+                            </DialogClose>
+                            <Button
+                              disabled={
+                                loadingBountyId === data.id ||
+                                  data.currentWinnerCount > 0
+                                  ? true
+                                  : false
+                              }
+                              variant="destructive"
+                              type="submit"
+                              onClick={() =>
+                                handleDelete(data.id, data.priceInBand)
+                              }
+                              className="w-full"
+                            >
+                              Confirm
+                            </Button>
+                          </div>
+                        </DialogFooter>
+                      </DialogContent>
+                    </Dialog>
+                  </div>
                 </div>
               </div>
             </div>
-          </CardFooter>
+          </CardContent>
         </Card>
       </div>
     );

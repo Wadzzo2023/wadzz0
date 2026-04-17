@@ -5,7 +5,7 @@ export const env = createEnv({
   /**
    * Specify your server-side environment variables schema here. This way you can ensure the app
    * isn't built with invalid env vars.
-   */  server: {
+   */ server: {
     DATABASE_URL: z
       .string()
       .url()
@@ -34,6 +34,8 @@ export const env = createEnv({
     // squire
     SQUARE_ACCESS_TOKEN: z.string(),
     SQUARE_ENVIRONMENT: z.string(),
+    // QStash
+    QSTASH_TOKEN: z.string(),
     // AWS
     AWS_BUCKET_NAME: z.string(),
     AWS_BUCKET_REGION: z.string(),
@@ -75,7 +77,7 @@ export const env = createEnv({
   /**
    * You can't destruct `process.env` as a regular object in the Next.js edge runtimes (e.g.
    * middlewares) or client-side so we need to destruct manually.
-   */  runtimeEnv: {
+   */ runtimeEnv: {
     NEXT_PUBLIC_SITE: process.env.NEXT_PUBLIC_SITE,
     NEXT_PUBLIC_PLATFORM_CREATOR_TERM:
       process.env.NEXT_PUBLIC_PLATFORM_CREATOR_TERM,
@@ -92,6 +94,7 @@ export const env = createEnv({
     NEXT_PUBLIC_LOG_ENABLE: process.env.NEXT_PUBLIC_LOG_ENABLE,
     NEXT_PUBLIC_HOME_DOMAIN: process.env.NEXT_PUBLIC_HOME_DOMAIN,
     NEXT_PUBLIC_URL: process.env.NEXT_PUBLIC_URL,
+    QSTASH_TOKEN: process.env.QSTASH_TOKEN,
     MOTHER_SECRET: process.env.MOTHER_SECRET,
     STORAGE_SECRET: process.env.STORAGE_SECRET,
     PINATA_JWT: process.env.PINATA_JWT,

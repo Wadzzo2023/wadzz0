@@ -1,44 +1,32 @@
 "use client";
 
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "~/components/shadcn/ui/tabs";
-
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from "~/components/shadcn/ui/avatar";
-import { api } from "~/utils/api";
-import { addrShort } from "~/utils/utils";
-import { MutableRefObject, useEffect, useRef, useState } from "react";
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-} from "~/components/shadcn/ui/card";
-import { Input } from "~/components/shadcn/ui/input";
-import { File, Paperclip, Plus, Send, Trash, Upload } from "lucide-react";
+import { type MutableRefObject, useEffect, useRef, useState } from "react";
+import { ArrowLeft, Loader2, Paperclip, Plus, Search, Send, Smile, Trash } from "lucide-react";
 import { UserRole } from "@prisma/client";
 import { cn } from "~/lib/utils";
-import { Button } from "~/components/shadcn/ui/button";
-import toast from "react-hot-toast";
 import { z } from "zod";
 import Link from "next/link";
+import { api } from "~/utils/api";
+import { addrShort } from "~/utils/utils";
+import { Avatar, AvatarFallback, AvatarImage } from "~/components/shadcn/ui/avatar";
+import { ScrollArea } from "~/components/shadcn/ui/scroll-area";
+import { Input } from "~/components/shadcn/ui/input";
+import { Button } from "~/components/shadcn/ui/button";
 import {
   Dialog,
-  DialogHeader,
-  DialogTrigger,
   DialogContent,
-  DialogDescription,
-  DialogFooter,
+  DialogHeader,
   DialogTitle,
+  DialogTrigger,
 } from "~/components/shadcn/ui/dialog";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "~/components/shadcn/ui/popover";
 import Avater from "~/components/ui/avater";
+import { toast } from "~/hooks/use-toast";
+import { AnimatePresence, motion } from "framer-motion";
 import { MultiUploadS3Button } from "~/pages/test";
 
 type BountyDoubtListItem = {
@@ -46,6 +34,7 @@ type BountyDoubtListItem = {
   bountyId: number;
   userId: string;
   createdAt: Date;
+  winnerCount?: number;
   user: {
     name: string | null;
     id: string;
@@ -53,133 +42,6 @@ type BountyDoubtListItem = {
     email: string | null;
   };
 };
-
-const Chat = ({ bountyId }: { bountyId: number }) => {
-  const { data: listBountyDoubt } = api.bounty.Bounty.listBountyDoubts.useQuery(
-    {
-      bountyId: Number(bountyId),
-    },
-  );
-  const [selectedDoubt, setSelectedDoubt] =
-    useState<BountyDoubtListItem | null>(null);
-
-
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-
-  const handleDialogSelect = (item: BountyDoubtListItem) => {
-    setSelectedDoubt(item); // Set the selected item
-    setIsDialogOpen(false); // Close the dialog
-  };
-  if (!listBountyDoubt) return null;
-  return (
-    <div className=" h-full w-full">
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogTrigger>
-          <Button
-            size="icon"
-            variant="outline"
-            className="ml-auto rounded-full md:hidden"
-            onClick={() => setIsDialogOpen(true)}
-          >
-            <Plus className="h-4 w-4" />
-            <span className="sr-only">New message</span>
-          </Button>
-        </DialogTrigger>
-        <DialogContent className="gap-0 p-0 outline-none">
-          <DialogHeader className="px-4 pb-4 pt-5">
-            <DialogTitle>New message</DialogTitle>
-            <DialogDescription>
-              Invite a user to this thread. This will create a new group
-              message.
-            </DialogDescription>
-          </DialogHeader>
-
-          <div className="overflow-hidden rounded-t-none border-t p-2 px-4">
-            {listBountyDoubt.map((item) => (
-              <div
-                onClick={() => handleDialogSelect(item)}
-                key={item.user.email}
-                className="flex items-center border-b-2 p-2 "
-              >
-                <Avater
-                  url={item.user.image}
-                  className="h-12 w-12"
-                  winnerCount={item.winnerCount}
-                />
-
-                <div className="ml-2">
-                  <p className="text-sm font-medium leading-none">
-                    {addrShort(item.user.id, 5)}
-                  </p>
-                  <p className="text-sm text-muted-foreground">
-                    {item.user.email ? item.user.email : "Default"}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      <Tabs className="flex w-full">
-        <TabsList className=" hidden max-h-[455px] min-h-[455px] w-60 flex-col  items-start     justify-start px-0    md:flex ">
-          {listBountyDoubt.length === 0 && (
-            <div className="flex h-full w-full items-center justify-center">
-              <p className="w-full text-center  text-lg font-bold">
-                No User Available
-              </p>
-            </div>
-          )}
-
-          {listBountyDoubt?.map((item) => {
-            return (
-              <TabsTrigger
-                key={item.id}
-                value={item.id.toString()}
-                onClick={() => setSelectedDoubt(item)} // Update selectedDoubt when tab is clicked
-                className="flex w-full flex-row items-center justify-start gap-4 border-2  p-4  text-[#575759] hover:bg-[#dcdc2c]"
-              >
-                <Avater
-                  url={item.user.image}
-                  className="   h-12  w-12"
-                  winnerCount={item.winnerCount}
-                />
-
-                <div className="flex flex-col items-start ">
-                  <p className="text-sm font-bold">
-                    {addrShort(item.user.id, 5)}
-                  </p>
-                  <p className="text-xs text-gray-500">
-                    {item.createdAt.toLocaleString()}
-                  </p>
-                </div>
-              </TabsTrigger>
-            );
-          })}
-        </TabsList>{" "}
-        <div className="w-full">
-          {!selectedDoubt && (
-            <div className="flex h-full w-full items-center justify-center">
-              <p className="w-full text-center  text-lg font-bold">
-                Select a user to start chat
-              </p>
-            </div>
-          )}
-          {listBountyDoubt?.map((item: BountyDoubtListItem) => (
-            <TabsContent
-              key={item.id}
-              value={item.id.toString()}
-              className="m-0 h-full p-0"
-            >
-              <ChatItem item={selectedDoubt ?? item} />
-            </TabsContent>
-          ))}
-        </div>
-      </Tabs>
-    </div>
-  );
-};
-export default Chat;
 
 type Message = {
   role: UserRole;
@@ -194,67 +56,219 @@ export const SubmissionMediaInfo = z.object({
 });
 type SubmissionMediaInfoType = z.TypeOf<typeof SubmissionMediaInfo>;
 
+const Chat = ({ bountyId }: { bountyId: number }) => {
+  const { data: listBountyDoubt } = api.bounty.Bounty.listBountyDoubts.useQuery({
+    bountyId: Number(bountyId),
+  });
+  const [selectedDoubt, setSelectedDoubt] = useState<BountyDoubtListItem | null>(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [mobileView, setMobileView] = useState<"list" | "chat">("list");
+
+  const filteredDoubts = (listBountyDoubt ?? []).filter((item) => {
+    const query = searchTerm.toLowerCase();
+    return (
+      item.user.id.toLowerCase().includes(query) ||
+      (item.user.email?.toLowerCase().includes(query) ?? false) ||
+      (item.user.name?.toLowerCase().includes(query) ?? false)
+    );
+  });
+
+  if (!listBountyDoubt) return null;
+
+  return (
+    <div className="flex h-full w-full flex-col bg-white text-slate-900">
+      <div className="flex items-center justify-between border-b border-slate-200 px-4 py-3">
+        <div className="flex items-center gap-2">
+          {mobileView === "chat" && selectedDoubt ? (
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 md:hidden"
+              onClick={() => setMobileView("list")}
+              aria-label="Back to users"
+            >
+              <ArrowLeft className="h-4 w-4" />
+            </Button>
+          ) : null}
+          <h2 className="text-base font-medium text-slate-900">
+            {mobileView === "chat" && selectedDoubt ? "Chat" : "Users"}
+          </h2>
+        </div>
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <DialogTrigger asChild>
+            <Button
+              size="icon"
+              variant="outline"
+              className="rounded-full border-slate-300 bg-white text-slate-700 hover:bg-slate-100"
+            >
+              <Plus className="h-4 w-4" />
+              <span className="sr-only">New chat</span>
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="border-slate-200 bg-white text-slate-900 sm:max-w-[425px]">
+            <DialogHeader>
+              <DialogTitle>New chat</DialogTitle>
+            </DialogHeader>
+            <div className="grid gap-4 py-4">
+              <Input
+                placeholder="Search users..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="mb-4"
+              />
+              <ScrollArea className="h-[300px]">
+                {filteredDoubts.map((item) => (
+                  <div
+                    key={item.id}
+                    onClick={() => {
+                      setIsDialogOpen(false);
+                      setSelectedDoubt(item);
+                      setMobileView("chat");
+                    }}
+                    className="flex cursor-pointer items-center gap-3 rounded-lg p-2 hover:bg-slate-100"
+                  >
+                    <Avater
+                      url={item.user.image}
+                      className="h-10 w-10"
+                      winnerCount={item.winnerCount}
+                    />
+                    <div>
+                      <p className="font-medium text-slate-900">{addrShort(item.user.id, 5)}</p>
+                      <p className="text-sm text-muted-foreground">{item.user.email ?? "No email"}</p>
+                    </div>
+                  </div>
+                ))}
+              </ScrollArea>
+            </div>
+          </DialogContent>
+        </Dialog>
+      </div>
+
+      <div className="flex min-h-0 flex-1 flex-col md:flex-row">
+        <aside
+          className={cn(
+            "min-h-0 border-r border-slate-200 bg-white md:w-80",
+            mobileView === "chat" ? "hidden md:flex md:flex-col" : "flex flex-col",
+          )}
+        >
+          <div className="border-b border-slate-200 px-4 py-3">
+            <div className="relative">
+              <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Search users"
+                className="pl-8"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
+          </div>
+          <ScrollArea className="h-[calc(min(78vh,720px)-122px)]">
+            <div className="space-y-2 p-2">
+              {filteredDoubts.length === 0 ? (
+                <div className="flex h-40 w-full items-center justify-center">
+                  <p className="text-center text-sm font-medium text-muted-foreground">No chats available</p>
+                </div>
+              ) : (
+                filteredDoubts.map((item) => (
+                  <button
+                    key={item.id}
+                    type="button"
+                    onClick={() => {
+                      setSelectedDoubt(item);
+                      setMobileView("chat");
+                    }}
+                    className={cn(
+                      "flex w-full items-center justify-start gap-3 rounded-md border p-2 text-left transition-colors",
+                      selectedDoubt?.id === item.id
+                        ? "border-blue-300 bg-blue-50"
+                        : "border-slate-200 bg-white hover:bg-slate-100",
+                    )}
+                  >
+                    <Avater
+                      url={item.user.image}
+                      className="h-10 w-10"
+                      winnerCount={item.winnerCount}
+                    />
+                    <div className="flex min-w-0 flex-col items-start overflow-hidden">
+                      <p className="font-medium text-slate-900">{addrShort(item.user.id, 5)}</p>
+                      <p className="w-full truncate text-sm text-muted-foreground">{item.user.email ?? "No email"}</p>
+                    </div>
+                  </button>
+                ))
+              )}
+            </div>
+          </ScrollArea>
+        </aside>
+
+        <div className={cn("min-h-0 flex-1", mobileView === "list" ? "hidden md:block" : "block")}>
+          {!selectedDoubt ? (
+            <div className="flex h-full items-center justify-center p-4">
+              <p className="text-center text-sm font-medium text-muted-foreground">
+                Select a chat or start a new conversation
+              </p>
+            </div>
+          ) : (
+            <ChatItem item={selectedDoubt} />
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const ChatItem = ({ item }: { item: BountyDoubtListItem }) => {
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
-  const [loading, setLoading] = useState<boolean>(false);
-  const messagesEndRef: MutableRefObject<HTMLDivElement | null> =
-    useRef<HTMLDivElement | null>(null);
+  const [loading, setLoading] = useState(false);
   const [media, setMedia] = useState<SubmissionMediaInfoType[]>([]);
-  const [progress, setProgress] = useState<number>(0);
+  const [progress, setProgress] = useState(0);
   const [uploadingFile, setUploadingFile] = useState<File | null>(null);
-  const inputLength = input.trim().length;
+  const messagesEndRef: MutableRefObject<HTMLDivElement | null> = useRef(null);
+
   const { data: oldMessage, isSuccess: oldMessageSucess } =
     api.bounty.Bounty.getBountyForUserCreator.useQuery({
       bountyId: Number(item.bountyId),
       userId: item.userId,
     });
-  const removeMediaItem = (index: number) => {
-    setMedia((prevMedia) => prevMedia.filter((_, i) => i !== index));
-  };
-  const addMediaItem = (
-    url: string,
-    name: string,
-    size: number,
-    type: string,
-  ) => {
-    setMedia((prevMedia) => [...prevMedia, { url, name, size, type }]);
-  };
-  const utils = api.useUtils();
+
   const NewMessageMutation =
     api.bounty.Bounty.createUpdateBountyDoubtForCreatorAndUser.useMutation();
 
+  const removeMediaItem = (index: number) => {
+    setMedia((prevMedia) => prevMedia.filter((_, i) => i !== index));
+  };
+
+  const addMediaItem = (url: string, name: string, size: number, type: string) => {
+    setMedia((prevMedia) => [...prevMedia, { url, name, size, type }]);
+  };
+
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-
-    // Ensure that there is either a message or media to send
     if (input.length === 0 && media.length === 0) return;
 
     try {
-      // Construct the message payload
-      const messagePayload = {
+      await NewMessageMutation.mutateAsync({
         chatUserId: item.userId,
         bountyId: Number(item.bountyId),
-        content: input, // Text message
+        content: input,
         role: UserRole.CREATOR,
         media: media.length > 0 ? media : undefined,
-      };
+      });
 
-      // Make the API call to submit the message along with media
-      const newMessage = await NewMessageMutation.mutateAsync(messagePayload);
-
-      // Update the local messages state to include the new message
       setMessages((prevMessages: Message[]) => [
         ...prevMessages,
         { role: UserRole.CREATOR, message: input },
       ]);
-
-      // Clear input and media after submission
       setInput("");
       setMedia([]);
     } catch (error) {
       console.error("Error sending message with media:", error);
-      toast.error("Failed to send message.");
+      toast({
+        title: "Error sending message",
+        description: "An error occurred while sending your message. Please try again.",
+      });
     }
   };
 
@@ -264,192 +278,213 @@ const ChatItem = ({ item }: { item: BountyDoubtListItem }) => {
     }
   }, [oldMessage, oldMessageSucess]);
 
-
-  const scrollToBottom = () => {
+  useEffect(() => {
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
-  };
-
-  // Call scrollToBottom on initial render and whenever new content is added
-  useEffect(() => {
-    scrollToBottom();
   }, [messages, uploadingFile, media]);
+
   return (
-    <Card>
-      <CardHeader className="flex h-full flex-row items-center border-b-2 p-4">
-        <div className="flex items-center space-x-4 ">
-          <Avatar>
-            <AvatarImage src={item.user.image ?? ""} alt="Image" />
-            <AvatarFallback className="bg-red-300">
-              {item.user.id.slice(0, 2)}
-            </AvatarFallback>
-          </Avatar>
-          <div>
-            <p className="text-sm font-medium leading-none">
-              {addrShort(item.user.id, 5)}
-            </p>
-            <p className="text-sm text-muted-foreground">
-              {item.user.email ? item.user.email : "Default"}
-            </p>
-          </div>
+    <div className="flex h-full min-h-0 flex-col">
+      <div className="flex items-center space-x-3 border-b border-slate-200 bg-white px-4 py-3">
+        <Avatar>
+          <AvatarImage src={item.user.image ?? ""} alt="User avatar" />
+          <AvatarFallback>{item.user.id.slice(0, 2)}</AvatarFallback>
+        </Avatar>
+        <div>
+          <p className="text-sm font-medium leading-none text-slate-900">{addrShort(item.user.id, 5)}</p>
+          <p className="text-sm text-muted-foreground">{item.user.email ?? "No email"}</p>
         </div>
-      </CardHeader>
-      <CardContent className="py-2">
-        <div className="max-h-[300px] min-h-[300px] space-y-4 overflow-y-auto">
-          {messages?.map((message, index) => (
-            <div
-              key={index}
-              className={cn(
-                "flex  max-w-[75%] flex-col gap-2 rounded-lg px-3 py-2 text-sm",
-                message.role === UserRole.CREATOR
-                  ? "ml-auto bg-primary text-primary-foreground"
-                  : "bg-muted",
-              )}
-            >
-              {sanitizeInput(message.message).sanitizedInput}
-              {// Display all matched URLs as links
-                sanitizeInput(message.message).urls?.map((url, index) => (
-                  <div
-                    key={index}
-                    className=" w-full rounded-md bg-[#F5F7FB] py-2  shadow-sm"
-                  >
+      </div>
+
+      <ScrollArea className="min-h-0 flex-1 bg-white">
+        <div className="scrollbar-thin scrollbar-thumb-slate-200 space-y-4 overflow-y-auto p-4 pr-2">
+          <AnimatePresence>
+            {messages?.map((message, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 20, scale: 0.95 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                transition={{ duration: 0.3, delay: index * 0.05 }}
+                className={cn("flex w-full", message.role === UserRole.CREATOR ? "justify-end" : "justify-start")}
+              >
+                <div
+                  className={cn(
+                    "max-w-[85%] rounded-xl px-3 py-2 text-sm md:max-w-[75%]",
+                    message.role === UserRole.CREATOR
+                      ? "rounded-br-sm bg-blue-500 text-white"
+                      : "rounded-bl-sm bg-slate-100 text-slate-800",
+                  )}
+                >
+                  <p className="whitespace-pre-line break-words">
+                    {sanitizeInput(message.message).sanitizedInput}
+                  </p>
+                  {sanitizeInput(message.message).urls?.map((url, urlIndex) => (
                     <Link
+                      key={urlIndex}
                       href={url}
-                      className="flex items-center justify-between gap-2"
+                      className="mt-2 flex items-center gap-2 rounded-md bg-white/60 p-2 text-xs text-blue-700 hover:underline"
                     >
-                      <File color="black" />{" "}
-                      <span className=" text-base font-medium text-[#07074D]">
-                        {url}
-                      </span>
+                      <Paperclip className="h-3.5 w-3.5" />
+                      <span className="truncate">{shortURL(url)}</span>
                     </Link>
-                  </div>
-                ))}
-              <div ref={messagesEndRef} />
+                  ))}
+                </div>
+              </motion.div>
+            ))}
+          </AnimatePresence>
+
+          {media.map((file, index) => (
+            <div key={index} className="ml-auto flex max-w-[75%] items-center justify-between gap-2 rounded-md bg-blue-500 p-2 text-white">
+              <Paperclip className="h-4 w-4" />
+              <span className="truncate text-xs">{shortFileName(file.name)}</span>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-6 w-6 rounded-full p-0"
+                onClick={() => removeMediaItem(index)}
+              >
+                <Trash className="h-4 w-4" />
+              </Button>
             </div>
           ))}
 
-          {media.length > 0 &&
-            media.map((item, index) => (
-              <div
-                key={index}
-                className=" mt-2 w-full rounded-md border-2  bg-[#F5F7FB] px-8 py-2 shadow-sm"
-              >
-                <div className="flex items-center justify-between">
-                  <span className="truncate text-base font-medium text-[#07074D]">
-                    {shortFileName(item.name)}
-                  </span>
-                  <button
-                    className="text-[#07074D]"
-                    onClick={() => removeMediaItem(index)}
-                  >
-                    <Trash size={15} />
-                  </button>
-                </div>
-              </div>
-            ))}
           {uploadingFile && (
-            <div className="w-full rounded-md bg-[#F5F7FB] px-8 py-4 shadow-sm">
+            <div className="ml-auto flex max-w-[75%] flex-col gap-2 rounded-md bg-blue-500 p-2 text-white">
               <div className="flex items-center justify-between">
-                <span className="truncate text-base font-medium text-[#07074D]">
-                  {shortFileName(uploadingFile.name)}
-                </span>{" "}
-                <button
-                  className="text-[#07074D]"
+                <Paperclip className="h-4 w-4" />
+                <span className="truncate text-xs">{shortFileName(uploadingFile.name)}</span>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-6 w-6 rounded-full p-0"
                   onClick={() => setUploadingFile(null)}
                 >
-                  <Trash size={15} />
-                </button>
+                  <Trash className="h-4 w-4" />
+                </Button>
               </div>
-              {/* Progress bar for the uploading file */}
-              <div className="relative mt-5 h-[6px] w-full rounded-lg bg-[#E2E5EF]">
+              <div className="h-1 w-full overflow-hidden rounded-full bg-primary-foreground/20">
                 <div
-                  className="absolute left-0 h-full rounded-lg bg-[#6A64F1]"
-                  style={{ width: `${progress}%` }} // Update progress bar
-                ></div>
+                  className="h-full bg-blue-500 transition-all duration-300 ease-in-out"
+                  style={{ width: `${progress}%` }}
+                />
               </div>
             </div>
           )}
+          <div ref={messagesEndRef} />
         </div>
-      </CardContent>
+      </ScrollArea>
 
-      <CardFooter className="">
-        <form
-          onSubmit={handleSubmit}
-          className="flex w-full items-center gap-1 space-x-2 "
-        >
-          <div className="flex w-full items-center gap-5">
-            <MultiUploadS3Button
-              endpoint="multiBlobUploader"
+      <div className="border-t border-slate-200 bg-slate-50 px-4 py-3">
+        <form onSubmit={handleSubmit} className="flex w-full items-center gap-2">
+          <MultiUploadS3Button
+            endpoint="multiBlobUploader"
+            onUploadProgress={(nextProgress) => setProgress(nextProgress)}
+            onClientUploadComplete={(res) => {
+              toast({
+                title: "Upload complete",
+                description: "File uploaded successfully",
+              });
+              setUploadingFile(null);
+              const data = res[0];
+              if (data?.url) {
+                addMediaItem(data.url, data.name, data.size, data.type);
+              }
+              setLoading(false);
+            }}
+            onUploadError={() => {
+              setLoading(false);
+              toast({
+                title: "Upload failed",
+                description: "An error occurred while uploading the file",
+              });
+            }}
+            onBeforeUploadBegin={(files) => {
+              setLoading(true);
+              setUploadingFile(files[0] ?? null);
+              return files;
+            }}
+          />
 
-              onUploadProgress={(progress) => {
-                setProgress(progress);
-              }}
-              onClientUploadComplete={(res) => {
-                toast.success("Media uploaded");
-
-                setUploadingFile(null); // Reset uploading file
-                const data = res[0];
-
-                if (data?.url) {
-                  addMediaItem(data.url, data.name, data.size, data.type);
-                }
-                setLoading(false);
-              }}
-
-              onUploadError={(error: Error) => {
-                setLoading(false);
-                toast.error(error.message);
-              }}
-            />
-
-
-            <Input
-              id="message"
-              placeholder="Type your message..."
-              className="flex-1"
-              autoComplete="off"
-              value={input}
-              onChange={(event) => setInput(event.target.value)}
-            />
+          <div className="flex w-full gap-2">
+            <div className="relative w-full">
+              <Input
+                id="message"
+                placeholder="Type your message..."
+                className="h-10 w-full rounded-xl border-slate-200 bg-white pr-10 text-slate-900 placeholder:text-slate-400"
+                autoComplete="off"
+                value={input}
+                onChange={(event) => setInput(event.target.value)}
+              />
+              <Popover>
+                <PopoverTrigger asChild>
+                  <button
+                    type="button"
+                    className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-1 text-slate-500 hover:bg-slate-100"
+                  >
+                    <Smile className="h-4 w-4" />
+                  </button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto border-slate-200 bg-white p-2">
+                  <div className="grid grid-cols-6 gap-1">
+                    {["??", "??", "??", "??", "??", "??", "??", "??", "??", "??", "??", "??"].map((emoji) => (
+                      <button
+                        key={emoji}
+                        type="button"
+                        className="rounded p-1 text-lg hover:bg-slate-100"
+                        onClick={() => setInput((prev) => `${prev}${emoji}`)}
+                      >
+                        {emoji}
+                      </button>
+                    ))}
+                  </div>
+                </PopoverContent>
+              </Popover>
+            </div>
+            <Button
+              type="submit"
+              size="icon"
+              className="h-10 w-10 rounded-xl bg-[#1f86ee] text-white hover:bg-[#1877da]"
+              disabled={loading || (input.trim().length === 0 && media.length === 0) || NewMessageMutation.isLoading}
+            >
+              {NewMessageMutation.isLoading ? (
+                <motion.div
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 1, repeat: Number.POSITIVE_INFINITY, ease: "linear" }}
+                >
+                  <Loader2 className="h-4 w-4" />
+                </motion.div>
+              ) : (
+                <Send className="h-4 w-4" />
+              )}
+              <span className="sr-only">Send</span>
+            </Button>
           </div>
-
-          <Button
-            type="submit"
-            size="icon"
-            disabled={
-              loading || inputLength === 0 || NewMessageMutation.isLoading
-            }
-          >
-            <Send className="h-4 w-4" />
-            <span className="sr-only">Send</span>
-          </Button>
         </form>
-      </CardFooter>
-    </Card>
+      </div>
+    </div>
   );
 };
+
 const shortFileName = (fileName: string) => {
-  const shortFileName = fileName.split(".")[0];
+  const shortName = fileName.split(".")[0];
   const extension = fileName.split(".")[1];
-  if (shortFileName && shortFileName.length > 20) {
-    return `${shortFileName?.slice(0, 20)}...${extension}`;
+  if (shortName && shortName.length > 20) {
+    return `${shortName.slice(0, 20)}...${extension}`;
   }
   return fileName;
 };
 
 const shortURL = (url: string) => {
   if (url.length > 30) {
-    return `${url.slice(0, 20)}...`;
+    return `${url.slice(0, 30)}...`;
   }
   return url;
 };
 
 function sanitizeInput(input: string) {
-  const regex = /https:\/\/utfs\.io\/f\/[\w-]+\.\w+/g;
-
+  const regex = /https:\/\/[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}(\/[^\s]*)?/g;
   const urlMatches = input.match(regex) ?? [];
-
   const sanitizedInput = input.replace(regex, "").trim();
 
   return {
@@ -457,3 +492,5 @@ function sanitizeInput(input: string) {
     urls: urlMatches.length ? urlMatches : null,
   };
 }
+
+export default Chat;

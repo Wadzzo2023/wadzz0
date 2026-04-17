@@ -1,16 +1,17 @@
 "use client";
+
 import clsx from "clsx";
+import { getCookie, setCookie } from "cookies-next";
 import { useSession } from "next-auth/react";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/router";
-import React from "react";
+import React, { useEffect, useState } from "react";
+
 import { Toaster } from "~/components/ui/toaster";
 import PlayLayout from "./play/layout";
 import ModalProvider from "./providers/modal-provider";
 import PlayModalProvider from "./providers/play/play-modal-provider";
 import { ThemeProvider } from "./providers/theme-provider";
-// import Header from "./header";
-// import RightDialog from "./right_dialog";
 import {
   Card,
   CardContent,
@@ -22,21 +23,24 @@ import { BackgroundMusicProvider } from "./context/BackgroundMusicContext";
 import { PlayerProvider } from "./context/PlayerContext";
 import { PostAudioProvider } from "./context/PostAudioContext";
 import { PostVideoProvider } from "./context/PostVideoContext";
+import FallingSnowflakes from "./FallingSnowflakes";
 import { Player } from "./Player";
 import { PlayerToggle } from "./playerToggle";
-import FallingSnowflakes from "./christmas/FallingSnowflakes";
 
 const RightDialog = dynamic(async () => await import("./right_dialog"));
 const ConnectWalletButton = dynamic(
   async () => await import("../components/ui/wallate_button"),
 );
-
 const Header = dynamic(async () => await import("./header"));
-
 const RightSideBar = dynamic(async () => await import("./right-sidebar"));
 const LeftBar = dynamic(async () => await import("./left-sidebar"));
+const GlobalFloatingNav = dynamic(
+  async () => await import("./navigation/global-floating-nav"),
+  { ssr: false },
+);
 
-const BottomPlayerContainer = dynamic(() => import("./music/bottom_player"));
+const LAYOUT_MODE_COOKIE = "wadzzo-layout-mode";
+type LayoutMode = "modern" | "legacy";
 
 export default function Layout({
   children,
@@ -50,15 +54,47 @@ export default function Layout({
   const isMusicRoute = router.pathname.startsWith("/music");
   const publicRoutes = ["/about", "/privacy", "/support"];
   const isPublicRoute = publicRoutes.includes(router.pathname);
-  // if (router.pathname.includes("/maps")) {
-  //   return (
-  //     <div className="flex">
-  //       <MapLeft className="hidden md:flex" />
-  //       {/* <LeftBar className="hidden md:flex" /> */}
-  //       {children}
-  //     </div>
-  //   );
-  // }
+
+  const [layoutMode, setLayoutMode] = useState<LayoutMode>("modern");
+  const [hasOpenDialog, setHasOpenDialog] = useState(false);
+  const isLegacyLayout = layoutMode === "legacy";
+
+  useEffect(() => {
+    const storedMode = getCookie(LAYOUT_MODE_COOKIE);
+    if (storedMode === "legacy" || storedMode === "modern") {
+      setLayoutMode(storedMode);
+    }
+  }, []);
+
+  useEffect(() => {
+    const detectOpenDialog = () => {
+      if (typeof document === "undefined") return;
+      const openDialogs = document.querySelectorAll(
+        '[role="dialog"][data-state="open"], [role="alertdialog"][data-state="open"]',
+      );
+      setHasOpenDialog(openDialogs.length > 0);
+    };
+
+    detectOpenDialog();
+    const observer = new MutationObserver(detectOpenDialog);
+    observer.observe(document.body, {
+      subtree: true,
+      childList: true,
+      attributes: true,
+      attributeFilter: ["data-state", "role"],
+    });
+
+    return () => observer.disconnect();
+  }, []);
+
+  const onToggleLayoutMode = () => {
+    const nextMode: LayoutMode = isLegacyLayout ? "modern" : "legacy";
+    setLayoutMode(nextMode);
+    setCookie(LAYOUT_MODE_COOKIE, nextMode, {
+      maxAge: 60 * 60 * 24 * 365,
+      sameSite: "lax",
+    });
+  };
 
   if (router.pathname.includes("/embed")) {
     return (
@@ -104,89 +140,98 @@ export default function Layout({
 
   return (
     <>
-      <ThemeProvider
-        defaultTheme="light"
-        enableSystem
-        disableTransitionOnChange
-      >
+      <ThemeProvider defaultTheme="light" enableSystem disableTransitionOnChange>
         <PostAudioProvider>
           <PostVideoProvider>
             <PlayerProvider>
               <BackgroundMusicProvider>
-                <div
-                  className={clsx(" flex h-screen w-full flex-col", className)}
-                >
-                  <Header />
+                <div className={clsx("flex h-screen w-full flex-col", className)}>
+                  <Header
+                    layoutMode={layoutMode}
+                    onToggleLayoutMode={onToggleLayoutMode}
+                  />
 
-                  <div className="flex-1 overflow-auto bg-base-100/50">
-                    <div className="flex h-full border-t-2">
-                      <LeftBar className="hidden xl:flex" />
-                      <div
-                        // id="ih"
-                        className="flex-1 border-x-2"
-                      // style={
-                      //   router.pathname.includes("/fans/creator") && creator.data
-                      //     ? {
-                      //         background: `url("${creator.data.backgroundSVG}")`,
-                      //         backgroundSize: "10%",
-                      //         animation: "pan 135s linear infinite",
-                      //       }
-                      //     : {
-                      //         background: `url("images/guitar.svg")`,
-                      //         backgroundSize: "10%",
-                      //         animation: "pan 135s linear infinite",
-                      //       }
-                      // }
-                      >
-                        <div className=" h-full overflow-y-auto bg-base-100/80 scrollbar-hide">
-                          {session.status == "authenticated" ? (
-                            <>
-                              <ModalProvider />
-                              <PlayModalProvider />
-
-                              {children}
-                            </>
-                          ) : (
-                            <div className="flex h-full items-center justify-center">
-                              {isPublicRoute ? (
-                                <div
-                                  className={clsx(
-                                    "flex h-screen w-full flex-col",
-                                    className,
-                                  )}
-                                >
-                                  <div className="flex-1 overflow-auto bg-base-100/50">
-                                    {children}
+                  {isLegacyLayout ? (
+                    <div className="flex-1 overflow-auto bg-base-100/50">
+                      <div className="flex h-full border-t-2">
+                        <LeftBar
+                          className="hidden xl:flex"
+                          layoutMode="legacy"
+                          onToggleLayoutMode={onToggleLayoutMode}
+                        />
+                        <div className="flex-1 border-x-2">
+                          <div className="h-full overflow-y-auto bg-base-100/80 scrollbar-hide">
+                            {session.status === "authenticated" ? (
+                              <>
+                                <ModalProvider />
+                                <PlayModalProvider />
+                                {children}
+                              </>
+                            ) : (
+                              <div className="flex h-full items-center justify-center">
+                                {isPublicRoute ? (
+                                  <div
+                                    className={clsx(
+                                      "flex h-screen w-full flex-col",
+                                      className,
+                                    )}
+                                  >
+                                    <div className="flex-1 overflow-auto bg-base-100/50">
+                                      {children}
+                                    </div>
                                   </div>
-                                </div>
-                              ) : (
-                                <ConnectWalletButton />
-                              )}
-                            </div>
-                          )}
+                                ) : (
+                                  <ConnectWalletButton />
+                                )}
+                              </div>
+                            )}
+                          </div>
                         </div>
-                      </div>
 
-                      {router.pathname !== "/walletBalance" &&
-                        router.pathname !== "/assets" &&
-                        router.pathname !== "/" &&
-                        router.pathname !== "/notification" &&
-                        router.pathname !== "/bounty/[id]" &&
-                        router.pathname !== "/settings" &&
-                        router.pathname !== "/marketplace" &&
-                        router.pathname !== "/about" &&
-                        router.pathname !== "/support" &&
-                        router.pathname !== "/privacy" &&
-                        session.status == "authenticated" && <RightSideBar />}
+                        {router.pathname !== "/walletBalance" &&
+                          router.pathname !== "/assets" &&
+                          router.pathname !== "/" &&
+                          router.pathname !== "/notification" &&
+                          router.pathname !== "/bounty/[id]" &&
+                          router.pathname !== "/settings" &&
+                          router.pathname !== "/marketplace" &&
+                          router.pathname !== "/about" &&
+                          router.pathname !== "/support" &&
+                          router.pathname !== "/privacy" &&
+                          session.status === "authenticated" && <RightSideBar />}
+                      </div>
                     </div>
-                  </div>
+                  ) : (
+                    <div className="flex-1 overflow-auto bg-base-100/50">
+                      <div className="h-full overflow-y-auto bg-base-100/80 pb-24 scrollbar-hide md:pb-28">
+                        {session.status === "authenticated" ? (
+                          <>
+                            <ModalProvider />
+                            <PlayModalProvider />
+                            {children}
+                          </>
+                        ) : isPublicRoute ? (
+                          <>{children}</>
+                        ) : (
+                          <div className="flex h-full min-h-[50vh] items-center justify-center">
+                            <ConnectWalletButton />
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
                   <RightDialog />
                   <Player />
-                  {/* <BottomPlayerContainer /> */}
                   <Toaster />
                 </div>
-                {isMusicRoute && <PlayerToggle />}
-                {/* <FallingSnowflakes /> */}
+
+                {!isLegacyLayout && !hasOpenDialog && session.status === "authenticated" ? (
+                  <GlobalFloatingNav />
+                ) : null}
+
+                {isMusicRoute ? <PlayerToggle /> : null}
+                <FallingSnowflakes />
               </BackgroundMusicProvider>
             </PlayerProvider>
           </PostVideoProvider>

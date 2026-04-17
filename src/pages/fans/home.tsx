@@ -77,7 +77,7 @@ function AllRecentPost() {
     return (
       <div className="flex w-full flex-col items-center gap-4 bg-base-100 p-2 md:container md:mx-auto">
         {posts.data.pages.map((page) => (
-          <>
+          <div key={page.posts[0]?.id}>
             {page.posts.length === 0 && <p>There are no post yet</p>}
             {page.posts.map((post) => (
               <PostCard
@@ -122,7 +122,7 @@ function AllRecentPost() {
                 media={post.medias ? post.medias : []}
               />
             ))}
-          </>
+          </div>
         ))}
 
         {posts.hasNextPage && (

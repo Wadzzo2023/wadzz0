@@ -12,9 +12,9 @@ import { AdminNavigation, useAdminMenu } from "~/lib/state/admin-tab-menu";
 import { PLATFORM_ASSET } from "~/lib/stellar/constant";
 import { api } from "~/utils/api";
 import AdminPinConsumptionReport from "./maps/pins/admin";
-import AdminMap from "~/components/admin/map/admin-map";
 import Pins from "~/components/admin/pins/list";
 import MarketAssetAdmin from "~/components/admin-market-asset";
+import { useRouter } from "next/navigation";
 
 export default function AdminPage() {
   return <IsAdmin />;
@@ -22,7 +22,7 @@ export default function AdminPage() {
 
 function AdminPageTemplate() {
   return (
-    <div className=" flex justify-center w-full">
+    <div className=" flex w-full justify-center">
       <RenderTabs />
     </div>
   );
@@ -30,6 +30,12 @@ function AdminPageTemplate() {
 
 function RenderTabs() {
   const { selectedMenu } = useAdminMenu();
+  const router = useRouter();
+
+  if (selectedMenu === AdminNavigation.MAP) {
+    router.push("/admin/maps");
+    return null;
+  }
 
   switch (selectedMenu) {
     case AdminNavigation.WALLET:
@@ -73,8 +79,6 @@ function RenderTabs() {
       return <UserList />;
     case AdminNavigation.COLLECTION_REPORTS:
       return <AdminPinConsumptionReport />;
-    case AdminNavigation.MAP:
-      return <AdminMap />;
 
     case AdminNavigation.BOUNTY:
       return <Bounty />;
