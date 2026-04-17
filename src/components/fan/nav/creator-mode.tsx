@@ -15,7 +15,7 @@ export const CreatorNavigation = {
   Gift: { path: "/fans/creator/gift", icon: Bell, text: "GIFT" },
   Map: { path: "/maps", icon: Bell, text: "MAP" },
   PinManage: { path: "/pin-manage", icon: Bell, text: "PIN MANAGE" },
-  Report: { path: "/report", icon: Bell, text: "REPORT" },
+  Report: { path: "/maps/report", icon: Bell, text: "REPORT" },
   Bounty: { path: "/fans/creator/bounty", icon: Bell, text: "BOUNTY" },
 } as const;
 
