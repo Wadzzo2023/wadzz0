@@ -55,7 +55,7 @@ export default function Layout({
   const publicRoutes = ["/about", "/privacy", "/support"];
   const isPublicRoute = publicRoutes.includes(router.pathname);
 
-  const [layoutMode, setLayoutMode] = useState<LayoutMode>("modern");
+  const [layoutMode, setLayoutMode] = useState<LayoutMode>("legacy");
   const [hasOpenDialog, setHasOpenDialog] = useState(false);
   const isLegacyLayout = layoutMode === "legacy";
 
