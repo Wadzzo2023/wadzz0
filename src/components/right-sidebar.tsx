@@ -1,7 +1,7 @@
 import { useRouter } from "next/router";
 
 import { MusicRightSide } from "./music/music_right";
-import RightBar from "./fan/fan-right";
+import RightBar, { CreatorOnlyRightBar } from "./fan/fan-right";
 import AdminRightSide from "./admin/admin_right";
 import { useTagStore } from "~/lib/state/wallete/tag";
 import { MarketType } from "@prisma/client";
@@ -46,9 +46,15 @@ export function RightComponent() {
   const { selectedTag } = useTagStore();
   const { currentData } = useBountyRightStore();
 
-  if (router.pathname.includes("/music") && router.pathname !== '/fans/creator/music' && router.pathname !== '/fans/creator/music/album/[id]') return <MusicRightSide />;
+  if (
+    router.pathname.includes("/music") &&
+    router.pathname !== "/fans/creator/music" &&
+    router.pathname !== "/fans/creator/music/album/[id]"
+  )
+    return <MusicRightSide />;
   else if (router.pathname.includes("/fans")) return <RightBar />;
   else if (router.pathname.includes("/marketplace")) return <RightBar />;
+  else if (router.pathname.includes("/report")) return <CreatorOnlyRightBar />;
   else if (router.pathname.includes("/admin")) {
     return <AdminRightSide />;
   } else if (router.pathname.includes("/bounty") && currentData) {
