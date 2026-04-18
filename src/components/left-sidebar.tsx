@@ -130,6 +130,15 @@ function LeftBottom({
 }) {
   return (
     <div className="flex w-full flex-col justify-center gap-1">
+      {layoutMode === "legacy" && onToggleLayoutMode ? (
+        <button
+          type="button"
+          onClick={onToggleLayoutMode}
+          className="btn mb-1 w-full rounded-lg bg-black text-sm font-medium text-white hover:bg-black/85"
+        >
+          Switch to Modern
+        </button>
+      ) : null}
       <ConnectWalletButton />
       <div className="flex justify-between space-x-2">
         <Link
