@@ -267,9 +267,9 @@ export default function CreatorProfile() {
       )}
 
       <div
-        className="relative w-full transition-all duration-500"
+        className="relative w-full"
         style={{
-          height: isScrolled ? "0px" : "200px",
+          height: "200px",
         }}
       >
         <div className="relative h-full w-full">
