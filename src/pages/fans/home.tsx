@@ -75,12 +75,13 @@ function AllRecentPost() {
 
   if (posts.data) {
     return (
-      <div className="flex w-full flex-col items-center gap-4 bg-base-100 p-2 md:container md:mx-auto">
+      <div className="flex w-full flex-col items-center gap-4 border-x bg-white p-2 md:container md:mx-auto">
         {posts.data.pages.map((page) => (
           <div key={page.posts[0]?.id}>
             {page.posts.length === 0 && <p>There are no post yet</p>}
-            {page.posts.map((post) => (
-              <PostCard
+            {page.posts.map((post, index) => (
+              <div key={post.id} className={index === 0 ? "w-full border-t" : "w-full"}>
+                <PostCard
                 priority={1}
                 commentCount={post._count.comments}
                 creator={post.creator}
@@ -119,8 +120,9 @@ function AllRecentPost() {
                     return false;
                   } else return true;
                 })()}
-                media={post.medias ? post.medias : []}
+media={post.medias ? post.medias : []}
               />
+              </div>
             ))}
           </div>
         ))}

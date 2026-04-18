@@ -161,7 +161,7 @@ export function PostCard({
   return (
     <Card
       className={cn(
-        "overflow-hidden rounded-none border-x-0 border-b border-zinc-200 bg-white shadow-none transition-colors dark:border-zinc-800 dark:bg-zinc-950",
+        "overflow-hidden rounded-none border-x border-b border-zinc-200 bg-white shadow-none transition-colors dark:border-zinc-800 dark:bg-zinc-950",
         isFirst ? "border-t border-t-zinc-200 dark:border-t-zinc-800" : "border-t-0",
       )}
     >
