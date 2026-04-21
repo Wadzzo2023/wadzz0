@@ -19,6 +19,12 @@ import {
 } from "lucide-react";
 
 import { LeftNavigation } from "~/components/left-sidebar";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "~/components/ui/tooltip";
 import { cn } from "~/utils/utils";
 
 type NavItem = {
@@ -148,28 +154,37 @@ function FloatingNavItem({
     </motion.div>
   );
 
-  if (item.external) {
-    return (
-      <a
-        href={item.path}
-        aria-current={isActive ? "page" : undefined}
-        className="block"
-        target="_blank"
-        rel="noreferrer"
-      >
-        {itemBody}
-      </a>
-    );
-  }
+  const linkContent = (
+    <motion.div>
+      {item.external ? (
+        <a
+          href={item.path}
+          aria-current={isActive ? "page" : undefined}
+          className="block"
+          target="_blank"
+          rel="noreferrer"
+        >
+          {itemBody}
+        </a>
+      ) : (
+        <Link
+          href={item.path}
+          aria-current={isActive ? "page" : undefined}
+          className="block"
+        >
+          {itemBody}
+        </Link>
+      )}
+    </motion.div>
+  );
 
   return (
-    <Link
-      href={item.path}
-      aria-current={isActive ? "page" : undefined}
-      className="block"
-    >
-      {itemBody}
-    </Link>
+    <Tooltip delayDuration={300}>
+      <TooltipTrigger asChild>{linkContent}</TooltipTrigger>
+      <TooltipContent side="top" className="capitalize">
+        {item.text}
+      </TooltipContent>
+    </Tooltip>
   );
 }
 
@@ -196,16 +211,18 @@ export default function GlobalFloatingNav() {
         <div className="pointer-events-none absolute inset-0 z-0 rounded-2xl bg-[radial-gradient(circle_at_20%_20%,rgba(255,251,242,0.24),rgba(248,243,232,0.08)_55%,rgba(245,240,230,0.03)_100%)]" />
         <div className="pointer-events-none absolute inset-0 z-0 rounded-2xl shadow-[inset_1px_1px_1px_0_rgba(255,255,255,0.85),_inset_-1px_-1px_1px_1px_rgba(255,255,255,0.5)]" />
 
-        <motion.nav className="relative z-10 flex items-center gap-1.5 overflow-x-auto pb-0.5 scrollbar-hide [-ms-overflow-style:none] [scrollbar-width:none] md:gap-2 md:overflow-x-hidden [&::-webkit-scrollbar]:hidden">
-          {navItems.map((item) => (
-            <FloatingNavItem
-              key={item.key}
-              item={item}
-              isActive={activeKey === item.key}
-              isExpanded={activeKey === item.key}
-            />
-          ))}
-        </motion.nav>
+        <TooltipProvider delayDuration={300}>
+          <motion.nav className="relative z-10 flex items-center gap-1.5 overflow-x-auto pb-0.5 scrollbar-hide [-ms-overflow-style:none] [scrollbar-width:none] md:gap-2 md:overflow-x-hidden [&::-webkit-scrollbar]:hidden">
+            {navItems.map((item) => (
+              <FloatingNavItem
+                key={item.key}
+                item={item}
+                isActive={activeKey === item.key}
+                isExpanded={activeKey === item.key}
+              />
+            ))}
+          </motion.nav>
+        </TooltipProvider>
       </motion.div>
     </div>
   );
