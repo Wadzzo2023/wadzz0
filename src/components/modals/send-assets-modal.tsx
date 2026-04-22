@@ -68,7 +68,19 @@ const SendAssets = () => {
   const { isOpen, onClose, type } = useModal();
   const session = useSession();
   const [loading, setLoading] = useState(false);
-  const [layoutMode, setLayoutMode] = useState<"modern" | "legacy">("modern");
+  const [layoutMode] = useState<"modern" | "legacy">(() => {
+    const cookieMode = getCookie("wadzzo-layout-mode");
+    if (cookieMode === "legacy" || cookieMode === "modern") {
+      return cookieMode;
+    }
+    if (typeof window !== "undefined") {
+      const storedMode = localStorage.getItem("layoutMode");
+      if (storedMode === "legacy" || storedMode === "modern") {
+        return storedMode;
+      }
+    }
+    return "modern";
+  });
   const { data } = api.walletBalance.wallBalance.getWalletsBalance.useQuery(
     undefined,
     {
@@ -238,13 +250,6 @@ const SendAssets = () => {
       form.setValue("recipientId", router.query.id as string);
     }
   }, [router.query.id, form]);
-
-  useEffect(() => {
-    const storedMode = getCookie("wadzzo-layout-mode");
-    if (storedMode === "legacy" || storedMode === "modern") {
-      setLayoutMode(storedMode);
-    }
-  }, []);
 
   async function fetchPubKey(): Promise<void> {
     try {

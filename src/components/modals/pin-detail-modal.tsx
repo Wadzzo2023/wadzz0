@@ -27,11 +27,11 @@ import { Button } from "~/components/shadcn/ui/button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "~/components/shadcn/ui/dialog"
 import { api } from "~/utils/api"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useRouter } from "next/navigation" // Changed from next/router to next/navigation
+import { useRouter } from "next/navigation"
 import { Controller, useForm } from "react-hook-form"
 import * as z from "zod"
 import { Input } from "~/components/shadcn/ui/input"
-import type { ItemPrivacy } from "@prisma/client" // Added PinType
+import type { ItemPrivacy } from "@prisma/client"
 import { Label } from "~/components/shadcn/ui/label"
 import { useCreatorStorageAcc } from "~/lib/state/wallete/stellar-balances"
 import { BADWORDS } from "~/utils/banned-word"
@@ -41,13 +41,13 @@ import { Textarea } from "~/components/shadcn/ui/textarea"
 import { Badge } from "~/components/shadcn/ui/badge"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "~/components/shadcn/ui/card"
 import { Separator } from "~/components/shadcn/ui/separator"
-import { useMapInteractionStore } from "~/store/map-stores" // Changed to useMapInteractionStore
-
-// Re-using the Pin type from map-stores.ts for consistency
+import { useMapInteractionStore } from "~/store/map-stores"
 import type { Location, LocationGroup } from "@prisma/client"
-import { PinType as PinTypeEnum } from "@prisma/client" // Declare PinType
+import { PinType as PinTypeEnum } from "@prisma/client"
 import { UploadS3Button } from "../common/upload-button"
 import { useCopyCutModalStore } from "~/store/copy-cut-modal-store"
+import { getCookie } from "cookies-next"
+import clsx from "clsx"
 
 type Pin = {
     locationGroup:
@@ -73,23 +73,39 @@ export const NO_ASSET = -99
 
 const MapOptionModal = () => {
     const {
-        selectedPinForDetail: data, // Use selectedPinForDetail from the store as 'data'
-        closePinDetailModal: handleClose, // Use closePinDetailModal from the store
+        selectedPinForDetail: data,
+        closePinDetailModal: handleClose,
         isPinCut,
         isPinCopied,
         setPinCopied,
         setPinCut,
-        setIsAutoCollect, // This is for the copiedPinData, not the current pin's autoCollect
+        setIsAutoCollect,
         setManual,
         setDuplicate,
         setPrevData,
     } = useMapInteractionStore()
 
-    const [isFormLocal, setIsFormLocal] = React.useState(false) // Local state for form view
+    const [isFormLocal, setIsFormLocal] = React.useState(false)
     const session = useSession()
     const router = useRouter()
     const [activeTab, setActiveTab] = useState<string>("details")
     const utils = api.useUtils()
+
+    const [layoutMode] = useState<"modern" | "legacy">(() => {
+        const cookieMode = getCookie("wadzzo-layout-mode");
+        if (cookieMode === "legacy" || cookieMode === "modern") {
+            return cookieMode;
+        }
+        if (typeof window !== "undefined") {
+            const storedMode = localStorage.getItem("layoutMode");
+            if (storedMode === "legacy" || storedMode === "modern") {
+                return storedMode;
+            }
+        }
+        return "modern";
+    });
+
+    const isModern = layoutMode === "modern";
     const pinM = api.maps.pin.getPinM.useMutation({
         onSuccess: (data) => {
             setPrevData(data)
