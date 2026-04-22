@@ -12,7 +12,7 @@ import {
 } from "~/lib/state/fan/creator-profile-menu";
 import { clientSelect } from "~/lib/stellar/fan/utils";
 import { api } from "~/utils/api";
-import { Loader2 } from "lucide-react";
+import { Loader2, Store } from "lucide-react";
 import { useSession } from "next-auth/react";
 import ViewMediaModal from "~/components/fan/shop/asset_view_modal";
 import ShopAssetComponent from "~/components/fan/shop/shop_asset";
@@ -666,7 +666,15 @@ function CreatorStoreItem({ creatorId }: { creatorId: string }) {
     );
 
   if (assets.data?.pages[0]?.nfts.length === 0) {
-    return <div>No assets</div>;
+    return (
+      <div className="flex flex-col items-center justify-center py-16 text-center">
+        <div className="rounded-full bg-zinc-100 p-4 mb-4">
+          <Store className="h-8 w-8 text-zinc-400" />
+        </div>
+        <p className="text-lg font-semibold text-zinc-900">No shop items yet</p>
+        <p className="text-sm text-zinc-500 mt-1">This creator hasn&apos;t added any items to their shop.</p>
+      </div>
+    );
   }
 
   if (assets.data) {
