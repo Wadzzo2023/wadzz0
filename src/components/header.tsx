@@ -6,9 +6,12 @@ import { signOut, useSession } from "next-auth/react";
 import {
   ArrowLeftRight,
   ChevronDown,
+  GlobeLock,
+  Info,
   LogOut,
   Menu,
   UserCircle2,
+  Headphones,
 } from "lucide-react";
 
 import { SiteAssetBalance } from "./marketplace/recharge/site_asset_bal";
@@ -25,17 +28,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "~/components/shadcn/ui/dropdown-menu";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "~/components/shadcn/ui/sheet";
-import LeftBar from "./left-sidebar";
 import Logo from "./logo";
 import Hamburger from "./hamburger";
-import { useDrawerOpenStore } from "~/lib/state/fan/drawer_open";
 
 export type LayoutMode = "modern" | "legacy";
 
@@ -61,31 +55,12 @@ function ModernHeader({
   onToggleLayoutMode: () => void;
 }) {
   const session = useSession();
-  const drawer = useDrawerOpenStore();
 
   return (
     <header className="sticky left-0 right-0 top-0 z-50 h-10 border-b border-border bg-white">
       <div className="relative mx-auto h-full w-full overflow-hidden md:w-[85vw]">
         <div className="relative z-10 flex h-full items-center justify-between px-2">
           <div className="flex items-center gap-2 md:gap-3">
-            <Sheet open={drawer.isOpen} onOpenChange={drawer.setIsOpen}>
-              <SheetTrigger asChild>
-                <Button
-                  variant="outline"
-                  size="icon"
-                  className="h-6 w-6 rounded-lg border-border bg-muted md:hidden"
-                >
-                  <Menu className="h-4 w-4" />
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="left" className="w-80 !px-0 py-8">
-                <SheetHeader className="sr-only">
-                  <SheetTitle>Navigation</SheetTitle>
-                </SheetHeader>
-                <LeftBar className="bg-base-100" />
-              </SheetContent>
-            </Sheet>
-
             <Link href="/" className="flex items-center gap-1">
               <Image
                 alt="Wadzzo"
@@ -215,6 +190,23 @@ function HeaderUserDropdown({
           <ArrowLeftRight className="mr-2 h-4 w-4" />
           {layoutMode === "modern" ? "Switch to Legacy" : "Switch to Modern"}
         </DropdownMenuItem>
+
+        <DropdownMenuSeparator />
+
+        <div className="flex items-center justify-around gap-1 px-2">
+          <Link href="/privacy" className="flex flex-col items-center gap-1 rounded-md p-1 text-xs transition-colors hover:bg-muted">
+            <GlobeLock className="h-4 w-4" />
+            <span className="text-[10px] font-medium">Privacy</span>
+          </Link>
+          <Link href="/support" className="flex flex-col items-center gap-1 rounded-md p-1 text-xs transition-colors hover:bg-muted">
+            <Headphones className="h-4 w-4" />
+            <span className="text-[10px] font-medium">Support</span>
+          </Link>
+          <Link href="/about" className="flex flex-col items-center gap-1 rounded-md p-1 text-xs transition-colors hover:bg-muted">
+            <Info className="h-4 w-4" />
+            <span className="text-[10px] font-medium">About</span>
+          </Link>
+        </div>
 
         <DropdownMenuSeparator />
 
