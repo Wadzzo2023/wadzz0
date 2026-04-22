@@ -85,6 +85,14 @@ const navItems: NavItem[] = [
     text: "CLAIM",
     icon: MapPinned,
   },
+  {
+    key: "brand",
+    path: "https://brand.wadzzo.com/",
+    text: "BRAND",
+    icon: ExternalLink,
+    external: true,
+    dashed: true,
+  },
 ];
 
 function FloatingNavItem({
