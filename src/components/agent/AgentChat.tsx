@@ -3,6 +3,7 @@
 
 import type React from "react"
 import { useState, useRef, useEffect, useCallback } from "react"
+import { getCookie } from "cookies-next"
 import { api } from "~/utils/api"
 import {
     Send,
@@ -879,6 +880,20 @@ export default function AgentChat({ creatorId }: AgentChatProps) {
     const [input, setInput] = useState("")
     const [agentState, setAgentState] = useState<AgentState>(INITIAL_STATE)
 
+    const [layoutMode] = useState<"modern" | "legacy">(() => {
+        const cookieMode = getCookie("wadzzo-layout-mode");
+        if (cookieMode === "legacy" || cookieMode === "modern") {
+            return cookieMode;
+        }
+        if (typeof window !== "undefined") {
+            const storedMode = localStorage.getItem("layoutMode");
+            if (storedMode === "legacy" || storedMode === "modern") {
+                return storedMode;
+            }
+        }
+        return "modern";
+    });
+
     const endRef = useRef<HTMLDivElement>(null)
     const chatMutation = api.agent.chat.useMutation()
 
@@ -1195,7 +1210,7 @@ export default function AgentChat({ creatorId }: AgentChatProps) {
                         setIsMinimized(false)
                         setIsOpen(true)
                     }}
-                    className="fixed bottom-12 left-1/2 z-40 -translate-x-1/2 translate-y-1/2 rounded-full bg-primary px-6 py-3 font-semibold text-primary-foreground shadow-lg transition-all hover:scale-105 hover:shadow-xl active:scale-95"
+                    className={`fixed left-1/2 z-40 -translate-x-1/2 translate-y-1/2 rounded-full bg-primary px-6 py-3 font-semibold text-primary-foreground shadow-lg transition-all hover:scale-105 hover:shadow-xl active:scale-95 ${layoutMode === "modern" ? "bottom-28" : "bottom-12"}`}
                 >
                     Wadzzo Assistant
                 </button>
@@ -1203,7 +1218,7 @@ export default function AgentChat({ creatorId }: AgentChatProps) {
 
             {/* Neon input bar */}
             {!isMinimized && (
-                <div className="fixed bottom-6 left-1/2 z-40 w-full max-w-2xl -translate-x-1/2 px-4">
+                <div className={`fixed left-1/2 z-40 w-full max-w-2xl -translate-x-1/2 px-4 ${layoutMode === "modern" ? "bottom-20" : "bottom-6"}`}>
                     <style>{`
             @keyframes neon-glow {
               0%, 100% { box-shadow: 0 0 5px rgba(34,197,94,.3), 0 0 10px rgba(34,197,94,.2); }
@@ -1250,7 +1265,7 @@ export default function AgentChat({ creatorId }: AgentChatProps) {
 
             {/* Chat drawer */}
             {isOpen && !isMinimized && (
-                <div className="fixed inset-x-0 bottom-24 z-40 mx-auto flex h-[70vh] max-w-2xl flex-col overflow-hidden rounded-2xl border border-border bg-background shadow-2xl animate-in slide-in-from-bottom-5 duration-300 ">
+                <div className={`fixed inset-x-0 z-40 mx-auto flex h-[70vh] max-w-2xl flex-col overflow-hidden rounded-2xl border border-border bg-background shadow-2xl animate-in slide-in-from-bottom-5 duration-300 ${layoutMode === "modern" ? "bottom-40" : "bottom-24"}`}>
                     {/* Header */}
                     <div className="flex flex-shrink-0 items-center justify-between bg-primary px-5 py-3 text-primary-foreground">
                         <div className="flex items-center gap-3">
