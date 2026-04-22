@@ -75,16 +75,10 @@ const baseItems: NavItem[] = Object.entries(LeftNavigation)
       dashed: item.path.startsWith("http"),
     };
   })
-  .filter((item) => item.path !== "/settings");
+  .filter((item) => item.path !== "/settings" && !item.path.startsWith("/music"));
 
 const navItems: NavItem[] = [
   ...baseItems,
-  {
-    key: "Profile",
-    path: "/creator/profile",
-    text: "PROFILE",
-    icon: UserRound,
-  },
   {
     key: "Claim",
     path: "/maps/pins/my",
