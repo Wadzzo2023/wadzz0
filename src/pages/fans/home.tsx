@@ -77,7 +77,7 @@ function AllRecentPost() {
     return (
       <div className="flex w-full flex-col items-center gap-4 bg-white p-2 md:container md:mx-auto">
         {posts.data.pages.map((page) => (
-          <div key={page.posts[0]?.id}>
+          <div key={page.posts[0]?.id} className="w-full">
             {page.posts.length === 0 && <p>There are no post yet</p>}
             {page.posts.map((post, index) => (
               <div key={post.id} className="w-full">
