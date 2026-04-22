@@ -2,7 +2,7 @@ import { Creator, Subscription } from "@prisma/client";
 import clsx from "clsx";
 import { useRouter } from "next/router";
 import { clientsign } from "package/connect_wallet";
-import React, { useState as useStateGlobal } from "react";
+import React, { useState, useState as useStateGlobal } from "react";
 import toast from "react-hot-toast";
 import MemberShipCard from "~/components/fan/creator/card";
 import { PostCard } from "~/components/fan/creator/post";
