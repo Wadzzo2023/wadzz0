@@ -1210,7 +1210,7 @@ export default function AgentChat({ creatorId }: AgentChatProps) {
                         setIsMinimized(false)
                         setIsOpen(true)
                     }}
-                    className={`fixed left-1/2 z-40 -translate-x-1/2 translate-y-1/2 rounded-full bg-primary px-6 py-3 font-semibold text-primary-foreground shadow-lg transition-all hover:scale-105 hover:shadow-xl active:scale-95 ${layoutMode === "modern" ? "bottom-28" : "bottom-12"}`}
+                    className={`fixed left-1/2 z-40 -translate-x-1/2 translate-y-1/2 rounded-full bg-primary px-6 py-3 font-semibold text-primary-foreground shadow-lg transition-all hover:scale-105 hover:shadow-xl active:scale-95 ${layoutMode === "modern" ? "bottom-32" : "bottom-12"}`}
                 >
                     Wadzzo Assistant
                 </button>
@@ -1218,7 +1218,7 @@ export default function AgentChat({ creatorId }: AgentChatProps) {
 
             {/* Neon input bar */}
             {!isMinimized && (
-                <div className={`fixed left-1/2 z-40 w-full max-w-2xl -translate-x-1/2 px-4 ${layoutMode === "modern" ? "bottom-20" : "bottom-6"}`}>
+                <div className={`fixed left-1/2 z-40 w-full max-w-2xl -translate-x-1/2 px-4 ${layoutMode === "modern" ? "bottom-24" : "bottom-6"}`}>
                     <style>{`
             @keyframes neon-glow {
               0%, 100% { box-shadow: 0 0 5px rgba(34,197,94,.3), 0 0 10px rgba(34,197,94,.2); }

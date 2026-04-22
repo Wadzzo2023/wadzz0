@@ -13,6 +13,8 @@ import { CustomMapControl } from "~/components/map/search/map-control";
 import { PinToggleSwitch } from "./pin-toggle-switch";
 import { api } from "~/utils/api";
 import { useSelectCreatorStore } from "~/components/store/creator-selection-store";
+import { getCookie } from "cookies-next";
+import { useState } from "react";
 
 interface MapHeaderProps {
   showExpired: boolean;
@@ -49,8 +51,22 @@ export function MapHeader({
   const { setData: setSelectedCreator, data: selectedCreator } =
     useSelectCreatorStore();
 
+  const [layoutMode] = useState<"modern" | "legacy">(() => {
+    const cookieMode = getCookie("wadzzo-layout-mode");
+    if (cookieMode === "legacy" || cookieMode === "modern") {
+      return cookieMode;
+    }
+    if (typeof window !== "undefined") {
+      const storedMode = localStorage.getItem("layoutMode");
+      if (storedMode === "legacy" || storedMode === "modern") {
+        return storedMode;
+      }
+    }
+    return "modern";
+  });
+
   return (
-    <div className="absolute left-0 right-0 top-24 z-30 p-4">
+    <div className={`absolute left-0 right-0 z-30 p-4 ${layoutMode === "modern" ? "top-14" : "top-24"}`}>
       <div className="mx-auto max-w-4xl">
         <div className="flex items-center justify-between gap-4">
           {showCreatorList && creator.data && (
