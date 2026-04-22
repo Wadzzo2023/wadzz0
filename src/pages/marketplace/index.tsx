@@ -37,7 +37,7 @@ function LegacyMarketplacePage() {
 
 function ModernMarketplacePage() {
   return (
-    <div className="md:mx-auto md:w-[85vw]">
+    <div className="px-4 md:px-0 md:mx-auto md:w-[85vw]">
       <MarketTabs layoutMode="modern" />
       <RenderTabs />
     </div>
