@@ -316,7 +316,7 @@ if (!assets || assets.length === 0) {
         {isModern ? (
           <DialogContent className="max-h-[90vh] max-w-6xl overflow-hidden border-0 bg-[#fbfaf6] p-0 shadow-[0_24px_80px_rgba(15,23,42,0.18)] [&>button]:hidden">
             <div className="flex h-[90vh] max-h-[90vh] flex-col overflow-hidden md:flex-row">
-              <div className="border-b border-black/8 bg-[#f1eee6] md:w-[42%] md:border-b-0 md:border-r">
+              <div className="flex-shrink-0 border-b border-black/8 bg-[#f1eee6] md:w-[42%] md:border-b-0 md:border-r">
                 <div className="relative h-[320px] overflow-hidden bg-[#d8c7bb] md:h-full md:min-h-[720px]">
                   {selectedAsset && (
                     <Image
@@ -329,9 +329,9 @@ if (!assets || assets.length === 0) {
                   )}
                 </div>
               </div>
-              <div className="flex w-full flex-col overflow-hidden bg-[#fbfaf6] md:w-[58%]">
-                <div className="flex flex-1 space-y-6 overflow-y-auto p-5 md:p-8">
-                  <div className="flex items-start justify-between gap-4">
+              <div className="flex flex-1 flex-col overflow-y-auto bg-[#fbfaf6] md:w-[58%]">
+                <div className="flex flex-1 flex-col space-y-6 overflow-y-auto p-5 md:p-8">
+                  <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
                     <div className="space-y-3">
                       <h2 className="text-[1.65rem] font-semibold tracking-tight text-black">
                         {selectedAsset?.title}
@@ -340,30 +340,30 @@ if (!assets || assets.length === 0) {
                         by {selectedAsset?.placer?.name ?? "Anonymous"}
                       </p>
                     </div>
-                    <DialogClose className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-black/12 bg-transparent text-black/55 transition hover:bg-black/5 hover:text-black">
+                    <DialogClose className="self-start md:inline-flex h-9 w-9 items-center justify-center rounded-full border border-black/12 bg-transparent text-black/55 transition hover:bg-black/5 hover:text-black">
                       <X className="h-4 w-4" />
                     </DialogClose>
                   </div>
                   {selectedAsset?.description && (
                     <p className="text-sm text-black/70">{selectedAsset.description}</p>
                   )}
-                  <div className="border-b border-black/10 pb-0">
+                  <div className="border-b border-black/10 pt-4">
                     <h3 className="inline-block border-b-2 border-black pb-3 text-sm font-medium tracking-tight text-black">
                       Purchase Details
                     </h3>
                   </div>
                   <div className="space-y-4">
-                    <div className="flex items-center justify-between gap-4">
+                    <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
                       <span className="text-sm text-black/55">Available</span>
                       <span className="text-sm font-medium text-black">
                         {selectedAsset?.amountToSell} {selectedAsset?.placer?.pageAsset?.code}
                       </span>
                     </div>
-                    <div className="flex items-center justify-between gap-4">
+                    <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
                       <span className="text-sm text-black/55">Price (WADZZO)</span>
                       <span className="text-sm font-medium text-[#1f86ee]">{selectedAsset?.price} WADZZO</span>
                     </div>
-                    <div className="flex items-center justify-between gap-4">
+                    <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
                       <span className="text-sm text-black/55">Price (XLM)</span>
                       <span className="text-sm font-medium text-black">{selectedAsset?.priceXLM} XLM</span>
                     </div>
