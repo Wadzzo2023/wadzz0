@@ -1,8 +1,9 @@
 import { Creator, Subscription } from "@prisma/client";
 import clsx from "clsx";
-import { useRouter } from "next/router";
 import { clientsign } from "package/connect_wallet";
 import React, { useState, useState as useStateGlobal } from "react";
+import { useRouter } from "next/router";
+import { getCookie } from "cookies-next";
 import toast from "react-hot-toast";
 import MemberShipCard from "~/components/fan/creator/card";
 import { PostCard } from "~/components/fan/creator/post";
@@ -66,7 +67,19 @@ export default function CreatorPage() {
 function CreatorPageView({ creatorId }: { creatorId: string }) {
   const { setBalance } =
     useCreatorStorageAcc();
-  const [layoutMode, setLayoutMode] = useStateGlobal<LayoutMode>("modern");
+  const [layoutMode] = useStateGlobal<LayoutMode>(() => {
+    const cookieMode = getCookie("wadzzo-layout-mode");
+    if (cookieMode === "legacy" || cookieMode === "modern") {
+      return cookieMode;
+    }
+    if (typeof window !== "undefined") {
+      const storedMode = localStorage.getItem("layoutMode");
+      if (storedMode === "legacy" || storedMode === "modern") {
+        return storedMode;
+      }
+    }
+    return "modern";
+  });
 
 
   const acc = api.wallate.acc.getCreatorStorageBallancesByID.useQuery({
@@ -120,7 +133,7 @@ function CreatorPageView({ creatorId }: { creatorId: string }) {
               )}
             </div>
 
-            <ChooseMemberShip creator={creator} />
+            <ChooseMemberShip creator={creator} layoutMode={layoutMode} />
 
             <Tabs layoutMode={layoutMode} />
             <RenderTabs creatorId={creatorId} />
@@ -547,7 +560,7 @@ export function UnFollowButton({ creator }: { creator: CreatorWithPageAsset }) {
 
 
 
-export function ChooseMemberShip({ creator }: { creator: Creator }) {
+export function ChooseMemberShip({ creator, layoutMode }: { creator: Creator; layoutMode?: "modern" | "legacy" }) {
   const { data: subscriptonModel, isLoading } =
     api.fan.member.getCreatorMembership.useQuery(creator.id);
 
@@ -567,6 +580,7 @@ export function ChooseMemberShip({ creator }: { creator: Creator }) {
                 creator={creator}
                 subscription={el}
                 pageAsset={el.creator.pageAsset?.code}
+                layoutMode={layoutMode}
               />
             ))}
         </SubscriptionGridWrapper>
@@ -612,11 +626,13 @@ function SubscriptionCard({
   creator,
   priority,
   pageAsset,
+  layoutMode,
 }: {
   subscription: SubscriptionType;
   creator: Creator;
   priority?: number;
   pageAsset?: string;
+  layoutMode?: "modern" | "legacy";
 }) {
   return (
     <MemberShipCard
@@ -625,6 +641,7 @@ function SubscriptionCard({
       priority={priority}
       subscription={subscription}
       pageAsset={pageAsset}
+      layoutMode={layoutMode}
     >
       <TierCompleted subscription={subscription} />
     </MemberShipCard>

@@ -4,6 +4,8 @@ import { SubscriptionType } from "~/pages/fans/creator/[id]";
 import { Preview } from "~/components/preview";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "~/components/shadcn/ui/card";
 
+type LayoutMode = "modern" | "legacy";
+
 export default function MemberShipCard({
   creator,
   subscription,
@@ -11,6 +13,7 @@ export default function MemberShipCard({
   children,
   priority,
   pageAsset,
+  layoutMode = "modern",
 }: {
   creator: Creator;
   subscription: SubscriptionType;
@@ -18,7 +21,55 @@ export default function MemberShipCard({
   children?: React.ReactNode;
   priority?: number;
   pageAsset?: string;
+  layoutMode?: LayoutMode;
 }) {
+  if (layoutMode === "legacy") {
+    return (
+      <Card className={`w-full rounded-md max-w-sm mt-4 ${className}`}>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="text-2xl font-bold">{subscription.name}</CardTitle>
+              <CardDescription className="text-sm font-medium">
+                Requirement: <span className="text-lg font-bold">{subscription.price} {pageAsset}</span>
+              </CardDescription>
+            </div>
+            <div className="bg-blue-gray-50 flex h-24 w-24 items-center justify-center rounded-full">
+              <div
+                className={clsx("badge  text-center", getBageStyle(priority))}
+              ></div>
+            </div>
+          </div>
+        </CardHeader>
+
+        <div className="">{children}</div>
+        <CardContent className="max-h-[300px] overflow-y-auto scrollbar-none">
+          <p className="mb-2 font-bold tracking-wide">Features</p>
+          <ul className="space-y-2">
+            <li className="flex items-center">
+              <div className="">
+                <svg
+                  className="h-4 w-4 text-purple-600"
+                  viewBox="0 0 24 24"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  fill="none"
+                  stroke="currentColor"
+                >
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+              </div>
+              <p className="font-medium text-gray-800">
+                <Preview value={subscription.features} />
+              </p>
+            </li>
+          </ul>
+        </CardContent>
+      </Card>
+    );
+  }
+
   const tierColors: Record<number, string> = {
     1: "bg-blue-500",
     2: "bg-green-500",
@@ -53,7 +104,7 @@ export default function MemberShipCard({
             </div>
           </div>
         </div>
-        <CardDescription className="mt-2">{subscription.description}</CardDescription>
+        <CardDescription className="mt-2">Tier Details</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4 pb-2">
         <p className="font-medium text-gray-800">
