@@ -6,6 +6,7 @@ import { signOut, useSession } from "next-auth/react";
 import {
   ArrowLeftRight,
   ChevronDown,
+  Copy,
   GlobeLock,
   Info,
   LogOut,
@@ -30,6 +31,8 @@ import {
 } from "~/components/shadcn/ui/dropdown-menu";
 import Logo from "./logo";
 import Hamburger from "./hamburger";
+import toast from "react-hot-toast";
+import { useState } from "react";
 
 export type LayoutMode = "modern" | "legacy";
 
@@ -130,6 +133,8 @@ function HeaderUserDropdown({
   onToggleLayoutMode: () => void;
   layoutMode: LayoutMode;
 }) {
+
+  const [isCopying, setIsCopying] = useState(false);
   const session = useSession();
   const user = session.data?.user;
 
@@ -158,60 +163,75 @@ function HeaderUserDropdown({
           <ChevronDown className="h-3.5 w-3.5" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-56">
-        <div className="flex items-center gap-3 px-2 py-2">
-          <Avatar className="h-9 w-9 border border-black/10">
+      <DropdownMenuContent align="end" className="w-64 border border-border bg-popover shadow-lg">
+        <div className="flex items-center gap-3 rounded-lg px-3 py-3 bg-secondary/30 mx-2 mt-2 border border-border">
+          <Avatar className="h-10 w-10 border-2 border-primary/50">
             <AvatarImage src={user.image ?? ""} alt={displayName} />
-            <AvatarFallback className="text-xs font-semibold">
+            <AvatarFallback className="text-xs font-semibold bg-gradient-to-br from-primary to-primary/70 text-primary-foreground">
               {initials}
             </AvatarFallback>
           </Avatar>
-          <div className="min-w-0">
-            <p className="truncate text-sm font-medium">{displayName}</p>
-            <p className="truncate text-xs text-muted-foreground">
-              {user.email ?? user.id}
-            </p>
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-sm font-semibold text-foreground">{displayName}</p>
+            <div className="flex items-center gap-1">
+              <p className="truncate text-xs text-muted-foreground font-mono">
+                {user.id.slice(0, 12)}...
+              </p>
+              <button
+                onClick={async () => {
+                  setIsCopying(true);
+                  await navigator.clipboard.writeText(user.id);
+                  toast.success("User ID copied to clipboard");
+                  setTimeout(() => setIsCopying(false), 2000);
+                }}
+                disabled={isCopying}
+                className="inline-flex items-center justify-center rounded p-1 hover:bg-muted transition-colors duration-150 disabled:opacity-50"
+                title="Copy user ID"
+              >
+                <Copy className="h-3.5 w-3.5 text-muted-foreground hover:text-foreground" />
+              </button>
+            </div>
           </div>
         </div>
 
-        <DropdownMenuSeparator />
+        <DropdownMenuSeparator className="my-2" />
 
         <DropdownMenuItem asChild>
-          <Link href="/settings" className="cursor-pointer">
-            <UserCircle2 className="mr-2 h-4 w-4" />
-            Profile
+          <Link href="/settings" className="cursor-pointer mx-2 px-3 py-2 rounded-lg hover:bg-muted text-foreground transition-colors duration-150">
+            <UserCircle2 className="mr-2 h-4 w-4 text-primary" />
+            <span>Profile</span>
           </Link>
         </DropdownMenuItem>
 
         <DropdownMenuItem
-          className="cursor-pointer"
+          className="cursor-pointer mx-2 px-3 py-2 rounded-lg hover:bg-muted text-foreground transition-colors duration-150"
           onClick={onToggleLayoutMode}
         >
-          <ArrowLeftRight className="mr-2 h-4 w-4" />
+          <ArrowLeftRight className="mr-2 h-4 w-4 text-primary" />
           {layoutMode === "modern" ? "Switch to Legacy" : "Switch to Modern"}
         </DropdownMenuItem>
 
-        <DropdownMenuSeparator />
+        <DropdownMenuSeparator className="my-2" />
 
-        <div className="flex items-center justify-around gap-1 px-2">
-          <Link href="/privacy" className="flex flex-col items-center gap-1 rounded-md p-1 text-xs transition-colors hover:bg-muted">
-            <GlobeLock className="h-4 w-4" />
-            <span className="text-[10px] font-medium">Privacy</span>
+        <div className="flex items-center justify-around gap-2 px-3 py-3">
+          <Link href="/privacy" className="flex flex-col items-center gap-1.5 rounded-lg p-2 text-xs transition-all duration-150 hover:bg-muted group flex-1">
+            <GlobeLock className="h-4 w-4 text-muted-foreground group-hover:text-primary" />
+            <span className="text-[10px] font-medium text-muted-foreground group-hover:text-foreground">Privacy</span>
           </Link>
-          <Link href="/support" className="flex flex-col items-center gap-1 rounded-md p-1 text-xs transition-colors hover:bg-muted">
-            <Headphones className="h-4 w-4" />
-            <span className="text-[10px] font-medium">Support</span>
+          <Link href="/support" className="flex flex-col items-center gap-1.5 rounded-lg p-2 text-xs transition-all duration-150 hover:bg-muted group flex-1">
+            <Headphones className="h-4 w-4 text-muted-foreground group-hover:text-primary" />
+            <span className="text-[10px] font-medium text-muted-foreground group-hover:text-foreground">Support</span>
           </Link>
-          <Link href="/about" className="flex flex-col items-center gap-1 rounded-md p-1 text-xs transition-colors hover:bg-muted">
-            <Info className="h-4 w-4" />
-            <span className="text-[10px] font-medium">About</span>
+          <Link href="/about" className="flex flex-col items-center gap-1.5 rounded-lg p-2 text-xs transition-all duration-150 hover:bg-muted group flex-1">
+            <Info className="h-4 w-4 text-muted-foreground group-hover:text-primary" />
+            <span className="text-[10px] font-medium text-muted-foreground group-hover:text-foreground">About</span>
           </Link>
         </div>
 
-        <DropdownMenuSeparator />
+        <DropdownMenuSeparator className="my-2" />
 
         <DropdownMenuItem
-          className="cursor-pointer text-red-600 focus:text-red-600"
+          className="cursor-pointer mx-2 px-3 py-2 rounded-lg hover:bg-destructive/20 text-destructive transition-colors duration-150 font-medium"
           onClick={() => void signOut({ callbackUrl: "/" })}
         >
           <LogOut className="mr-2 h-4 w-4" />

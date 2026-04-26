@@ -230,7 +230,7 @@ export default function Layout({
                   <GlobalFloatingNav />
                 ) : null}
 
-{isMusicRoute ? <PlayerToggle /> : null}
+                {isMusicRoute ? <PlayerToggle /> : null}
               </BackgroundMusicProvider>
             </PlayerProvider>
           </PostVideoProvider>

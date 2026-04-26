@@ -351,7 +351,7 @@ export default function BuyModal() {
                       )
                     )}
                     {session.status === "authenticated" &&
-                    data.Asset.placerId === session.data.user.id ? (
+                      data.Asset.placerId === session.data.user.id ? (
                       <>
                         <DisableFromMarketButton
                           code={data.Asset.asset.code}
@@ -504,169 +504,194 @@ export default function BuyModal() {
     <>
       <Dialog open={isModalOpen} onOpenChange={handleClose}>
         <DialogContent className="max-h-[90vh] max-w-6xl overflow-hidden border-0 bg-[#fbfaf6] p-0 shadow-[0_24px_80px_rgba(15,23,42,0.18)]">
-          <div className="flex h-[90vh] max-h-[90vh] flex-col overflow-hidden md:flex-row">
-            <div className="border-b border-black/8 bg-[#f1eee6] md:w-[42%] md:border-b-0 md:border-r">
-              <div className="relative h-[320px] overflow-hidden bg-[#d8c7bb] md:h-full md:min-h-[720px]">
-                <img
-                  src={getSafeImageUrl(data.Asset.asset.thumbnail)}
-                  alt={data.Asset.asset.name}
-                  className="h-full w-full object-cover"
-                  onError={(e) => {
-                    e.currentTarget.src = FALLBACK_PREVIEW_IMAGE;
-                  }}
-                />
-              </div>
-            </div>
+          {
+            step == 1 && (
+              <div className="flex h-[90vh] max-h-[90vh] flex-col overflow-hidden md:flex-row">
+                <div className="border-b border-black/8 bg-[#f1eee6] md:w-[42%] md:border-b-0 md:border-r">
+                  <div className="relative h-[320px] overflow-hidden bg-[#d8c7bb] md:h-full md:min-h-[720px]">
+                    <img
+                      src={getSafeImageUrl(data.Asset.asset.thumbnail)}
+                      alt={data.Asset.asset.name}
+                      className="h-full w-full object-cover"
+                      onError={(e) => {
+                        e.currentTarget.src = FALLBACK_PREVIEW_IMAGE;
+                      }}
+                    />
+                  </div>
+                </div>
 
-            <div className="flex w-full flex-col overflow-hidden bg-[#fbfaf6] md:w-[58%]">
-              <div className="flex-1 space-y-6 overflow-y-auto p-5 md:p-8">
-                <div className="flex items-start justify-between gap-4">
-                  <div className="space-y-3">
-                    <h1 className="text-[1.65rem] font-semibold tracking-tight text-black md:text-[2rem]">
-                      {data.Asset.asset.name}
-                    </h1>
-                    <div className="flex flex-wrap items-center gap-3 text-sm text-black/70">
-                      <span className="font-semibold text-black">{data.Asset.asset.code}</span>
+                <div className="flex w-full flex-col overflow-hidden bg-[#fbfaf6] md:w-[58%]">
+                  <div className="flex-1 space-y-6 overflow-y-auto p-5 md:p-8">
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="space-y-3">
+                        <h1 className="text-[1.65rem] font-semibold tracking-tight text-black md:text-[2rem]">
+                          {data.Asset.asset.name}
+                        </h1>
+                        <div className="flex flex-wrap items-center gap-3 text-sm text-black/70">
+                          <span className="font-semibold text-black">{data.Asset.asset.code}</span>
+                        </div>
+                      </div>
+                      <DialogClose className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-black/12 bg-transparent text-black/55 transition hover:bg-black/5 hover:text-black">
+                        <X className="h-4 w-4" />
+                      </DialogClose>
+                    </div>
+
+                    <div className="flex flex-wrap items-center gap-2">
+                      {data.Asset.asset.mediaType ? (
+                        <Badge
+                          variant="outline"
+                          className="rounded-[2px] border-[#e5e7eb] bg-white px-1.5 py-0.5 font-mono text-xs font-medium tracking-[0.08em] text-black shadow-none hover:bg-white"
+                        >
+                          {data.Asset.asset.mediaType}
+                        </Badge>
+                      ) : null}
+                    </div>
+
+                    <div className="border-b border-black/10 pb-0">
+                      <h3 className="inline-block border-b-2 border-black pb-3 text-sm font-medium tracking-tight text-black">
+                        Asset Details
+                      </h3>
+                    </div>
+
+                    <div className="space-y-4">
+                      <DetailRow
+                        label="Issuer ID"
+                        value={addrShort(data.Asset.asset.issuer, 5)}
+                        valueClassName="text-[#1677ff]"
+                        trailing={
+                          <button
+                            type="button"
+                            onClick={() => navigator.clipboard.writeText(data.Asset!.asset.issuer)}
+                            className="inline-flex items-center justify-center text-black/55 transition hover:text-black"
+                          >
+                            <Copy className="h-4 w-4" />
+                          </button>
+                        }
+                      />
+                      <DetailRow
+                        label="Price"
+                        value={`${data.Asset.price} ${PLATFORM_ASSET.code}`}
+                        valueClassName="text-black"
+                      />
+                      <DetailRow
+                        label="Price USD"
+                        value={`$${data.Asset.priceUSD}`}
+                        valueClassName="text-[#1677ff]"
+                      />
+                      <DetailRow
+                        label="Available"
+                        value={
+                          copy.data === 0
+                            ? "Sold out"
+                            : copy.data === 1
+                              ? "1 copy"
+                              : copy.data !== undefined
+                                ? `${copy.data} copies`
+                                : "..."
+                        }
+                      />
+                    </div>
+
+                    <div className="border-b border-black/10 pb-0">
+                      <h3 className="inline-block border-b-2 border-black pb-3 text-sm font-medium tracking-tight text-black">
+                        Description
+                      </h3>
+                    </div>
+
+                    <p className="text-sm text-black/70">{data.Asset.asset.description}</p>
+                  </div>
+
+                  <div className="border-t border-black/8 bg-white p-4 md:p-6">
+                    <div className="flex flex-col gap-3">
+                      {data.Asset.asset.mediaType === "MUSIC" && hasTrustonAsset ? (
+                        <Button
+                          onClick={() => {
+                            setCurrentAudioPlayingId(data.Asset?.id ?? 0);
+                            setIsPlaying(true);
+                            setCurrentTrack({
+                              asset: data.Asset?.asset,
+                              albumId: 2,
+                              artist: " ",
+                              assetId: 1,
+                              createdAt: new Date(),
+                              price: 15,
+                              priceUSD: 50,
+                              id: 1,
+                            } as SongItemType);
+                          }}
+                          className="w-full bg-[#39BD2B] text-white hover:bg-sky-700"
+                        >
+                          Play
+                        </Button>
+                      ) : data.Asset.asset.mediaType === "VIDEO" && hasTrustonAsset ? (
+                        <Button
+                          onClick={() => {
+                            setCurrentTrack(null);
+                            setCurrentTrack({
+                              asset: data.Asset?.asset,
+                              albumId: 2,
+                              artist: " ",
+                              assetId: 1,
+                              createdAt: new Date(),
+                              price: 15,
+                              priceUSD: 50,
+                              id: 1,
+                            } as SongItemType);
+                          }}
+                          className="w-full bg-[#39BD2B] text-white hover:bg-sky-700"
+                        >
+                          Play
+                        </Button>
+                      ) : null}
+                      {session.status === "authenticated" &&
+                        data.Asset.placerId === session.data.user.id ? (
+                        <DisableFromMarketButton
+                          code={data.Asset.asset.code}
+                          issuer={data.Asset.asset.issuer}
+                        />
+                      ) : (
+                        canBuyUser &&
+                        copy.data &&
+                        copy.data > 0 && (
+                          <Button
+                            onClick={handleNext}
+                            className="w-full"
+                            variant={"default"}
+                          >
+                            Buy Now
+                          </Button>
+                        )
+                      )}
+                      <p className="text-center text-xs text-black/55">
+                        Once purchased, this item will be placed in your collection.
+                      </p>
                     </div>
                   </div>
-                  <DialogClose className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-black/12 bg-transparent text-black/55 transition hover:bg-black/5 hover:text-black">
-                    <X className="h-4 w-4" />
-                  </DialogClose>
-                </div>
-
-                <div className="flex flex-wrap items-center gap-2">
-                  {data.Asset.asset.mediaType ? (
-                    <Badge
-                      variant="outline"
-                      className="rounded-[2px] border-[#e5e7eb] bg-white px-1.5 py-0.5 font-mono text-xs font-medium tracking-[0.08em] text-black shadow-none hover:bg-white"
-                    >
-                      {data.Asset.asset.mediaType}
-                    </Badge>
-                  ) : null}
-                </div>
-
-                <div className="border-b border-black/10 pb-0">
-                  <h3 className="inline-block border-b-2 border-black pb-3 text-sm font-medium tracking-tight text-black">
-                    Asset Details
-                  </h3>
-                </div>
-
-                <div className="space-y-4">
-                  <DetailRow
-                    label="Issuer ID"
-                    value={addrShort(data.Asset!.asset.issuer, 5)}
-                    valueClassName="text-[#1677ff]"
-                    trailing={
-                      <button
-                        type="button"
-                        onClick={() => navigator.clipboard.writeText(data.Asset!.asset.issuer)}
-                        className="inline-flex items-center justify-center text-black/55 transition hover:text-black"
-                      >
-                        <Copy className="h-4 w-4" />
-                      </button>
-                    }
-                  />
-                  <DetailRow
-                    label="Price"
-                    value={`${data.Asset.price} ${PLATFORM_ASSET.code}`}
-                    valueClassName="text-black"
-                  />
-                  <DetailRow
-                    label="Price USD"
-                    value={`$${data.Asset.priceUSD}`}
-                    valueClassName="text-[#1677ff]"
-                  />
-                  <DetailRow
-                    label="Available"
-                    value={
-                      copy.data === 0
-                        ? "Sold out"
-                        : copy.data === 1
-                          ? "1 copy"
-                          : copy.data !== undefined
-                            ? `${copy.data} copies`
-                            : "..."
-                    }
-                  />
-                </div>
-
-                <div className="border-b border-black/10 pb-0">
-                  <h3 className="inline-block border-b-2 border-black pb-3 text-sm font-medium tracking-tight text-black">
-                    Description
-                  </h3>
-                </div>
-
-                <p className="text-sm text-black/70">{data.Asset.asset.description}</p>
-              </div>
-
-              <div className="border-t border-black/8 bg-white p-4 md:p-6">
-                <div className="flex flex-col gap-3">
-                  {data.Asset.asset.mediaType === "MUSIC" && hasTrustonAsset ? (
-                    <Button
-                      onClick={() => {
-                        setCurrentAudioPlayingId(data.Asset?.id ?? 0);
-                        setIsPlaying(true);
-                        setCurrentTrack({
-                          asset: data.Asset?.asset,
-                          albumId: 2,
-                          artist: " ",
-                          assetId: 1,
-                          createdAt: new Date(),
-                          price: 15,
-                          priceUSD: 50,
-                          id: 1,
-                        } as SongItemType);
-                      }}
-                      className="w-full bg-[#39BD2B] text-white hover:bg-sky-700"
-                    >
-                      Play
-                    </Button>
-                  ) : data.Asset.asset.mediaType === "VIDEO" && hasTrustonAsset ? (
-                    <Button
-                      onClick={() => {
-                        setCurrentTrack(null);
-                        setCurrentTrack({
-                          asset: data.Asset?.asset,
-                          albumId: 2,
-                          artist: " ",
-                          assetId: 1,
-                          createdAt: new Date(),
-                          price: 15,
-                          priceUSD: 50,
-                          id: 1,
-                        } as SongItemType);
-                      }}
-                      className="w-full bg-[#39BD2B] text-white hover:bg-sky-700"
-                    >
-                      Play
-                    </Button>
-                  ) : null}
-                  {session.status === "authenticated" &&
-                  data.Asset.placerId === session.data.user.id ? (
-                    <DisableFromMarketButton
-                      code={data.Asset.asset.code}
-                      issuer={data.Asset.asset.issuer}
-                    />
-                  ) : (
-                    canBuyUser &&
-                    copy.data &&
-                    copy.data > 0 && (
-                      <Button
-                        onClick={handleNext}
-                        className="w-full"
-                        variant={"default"}
-                      >
-                        Buy Now
-                      </Button>
-                    )
-                  )}
-                  <p className="text-center text-xs text-black/55">
-                    Once purchased, this item will be placed in your collection.
-                  </p>
                 </div>
               </div>
-            </div>
-          </div>
+            )
+          }
+          {step === 2 && (
+            <Card>
+              <CardContent className="p-0">
+                <BuyItem
+                  marketItemId={data.Asset.id}
+                  priceUSD={data.Asset.priceUSD}
+                  item={data.Asset.asset}
+                  price={data.Asset.price}
+                  placerId={data.Asset.placerId}
+                  setClose={handleClose}
+                />
+              </CardContent>
+              <CardFooter className="p-2">
+                {step === 2 && (
+                  <Button onClick={handleBack} variant="secondary" className="">
+                    <ArrowLeft className="h-4 w-4" /> Back
+                  </Button>
+                )}
+              </CardFooter>
+            </Card>
+          )}
         </DialogContent>
       </Dialog>
     </>

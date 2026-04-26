@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { api } from "~/utils/api";
 import { useSession } from "next-auth/react";
 import { clientsign, WalletType } from "package/connect_wallet";
@@ -6,25 +6,14 @@ import toast from "react-hot-toast";
 import BuyWithSquire from "~/components/marketplace/pay/buy_with_squire";
 import RechargeLink from "~/components/marketplace/recharge/link";
 import { Button } from "~/components/shadcn/ui/button";
-import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogFooter,
-} from "~/components/shadcn/ui/dialog";
 import { Loader } from "lucide-react";
 import Alert from "~/components/ui/alert";
 import useNeedSign from "~/lib/hook";
 import { useUserStellarAcc } from "~/lib/state/wallete/stellar-balances";
-import {
-  PLATFORM_ASSET,
-  PLATFORM_FEE,
-  TrxBaseFeeInPlatformAsset,
-} from "~/lib/stellar/constant";
+import { PLATFORM_ASSET } from "~/lib/stellar/constant";
 import { clientSelect } from "~/lib/stellar/fan/utils";
 import { addrShort } from "~/utils/utils";
 import { z } from "zod";
-import clsx from "clsx";
 import { AssetType } from "~/lib/state/play/use-modal-store";
 import { Card, CardContent } from "~/components/shadcn/ui/card";
 
@@ -128,76 +117,78 @@ export default function BuyItem({
   if (!active) return null;
 
   return (
-    <>
-      <Card>
-        <CardContent className="">
-          <div className="grid gap-4">
-            <div className="space-y-2">
-              <h2 className="text-2xl font-bold">Checkout</h2>
-              <p className="text-sm text-gray-500">
-                Complete your purchase for {item.name}
-              </p>
-            </div>
-            <div className="grid gap-2  ">
-              <div className="flex justify-between ">
-                <span>Price:</span>
-                <span className="font-semibold">
-                  {price} {PLATFORM_ASSET.code}
-                </span>
-              </div>
-              {showUSDPrice && (
-                <div className="flex justify-between">
-                  <span>Price in USD:</span>
-                  <span className="font-semibold">${priceUSD}</span>
-                </div>
-              )}
-
-              <div className="flex justify-between">
-                <span>Copies available:</span>
-                <span>{copy.data ?? "loading..."}</span>
-              </div>
-              <div className="flex justify-between ">
-                <span>Issuer:</span>
-                <span>{addrShort(issuer, 7)}</span>
-              </div>
-            </div>
-            {copy.data && copy.data < 1 ? (
-              <Alert type="warning" content={"No copies available!"} />
-            ) : !copy.data ? (
-              <Alert type="error" content={"No copies available!"} />
-            ) : (
-              <></>
-            )}
-            {copy.data && copy.data > 0 ? (
-              <>
-                <PaymentOptions
-                  method={paymentMethod}
-                  setIsWallet={changePaymentMethod}
-                />
-                <MethodDetails
-                  paymentMethod={paymentMethod}
-                  xdrMutation={xdrMutation}
-                  requiredFee={requiredFee.data}
-                  price={price}
-                  priceUSD={priceUSD}
-                  platformAssetBalance={platformAssetBalance}
-                  getXLMBalance={getXLMBalance}
-                  hasTrust={hasTrust}
-                  code={code}
-                  issuer={issuer}
-                  item={item}
-                  onConfirmPayment={handlePaymentConfirmation}
-                  submitLoading={submitLoading}
-                  paymentSuccess={paymentSuccess}
-                />
-              </>
-            ) : (
-              <></>
-            )}
+    <Card className="border-border bg-card">
+      <CardContent className="p-6">
+        <div className="space-y-6">
+          {/* Header */}
+          <div className="space-y-2 border-b border-border pb-4">
+            <h2 className="text-2xl font-bold text-foreground">Checkout</h2>
+            <p className="text-sm text-muted-foreground">
+              Complete your purchase for <span className="font-semibold text-foreground">{item.name}</span>
+            </p>
           </div>
-        </CardContent>
-      </Card>
-    </>
+
+          {/* Item Details */}
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-muted-foreground">Price:</span>
+              <span className="font-semibold text-foreground">
+                {price} {PLATFORM_ASSET.code}
+              </span>
+            </div>
+            {showUSDPrice && (
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-muted-foreground">USD Price:</span>
+                <span className="font-semibold text-foreground">${priceUSD}</span>
+              </div>
+            )}
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-muted-foreground">Available Copies:</span>
+              <span className="font-semibold text-foreground">{copy.data ?? "loading..."}</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-muted-foreground">Issuer:</span>
+              <span className="font-mono text-sm text-foreground">{addrShort(issuer, 7)}</span>
+            </div>
+          </div>
+
+          {/* Availability Alert */}
+          {copy.data !== undefined && (
+            copy.data < 1 ? (
+              <Alert type="warning" content="No copies available!" />
+            ) : copy.data === 0 ? (
+              <Alert type="error" content="No copies available!" />
+            ) : null
+          )}
+
+          {/* Payment Section */}
+          {copy.data && copy.data > 0 && (
+            <div className="space-y-4">
+              <PaymentOptions
+                method={paymentMethod}
+                setIsWallet={changePaymentMethod}
+              />
+              <MethodDetails
+                paymentMethod={paymentMethod}
+                xdrMutation={xdrMutation}
+                requiredFee={requiredFee.data}
+                price={price}
+                priceUSD={priceUSD}
+                platformAssetBalance={platformAssetBalance}
+                getXLMBalance={getXLMBalance}
+                hasTrust={hasTrust}
+                code={code}
+                issuer={issuer}
+                item={item}
+                onConfirmPayment={handlePaymentConfirmation}
+                submitLoading={submitLoading}
+                paymentSuccess={paymentSuccess}
+              />
+            </div>
+          )}
+        </div>
+      </CardContent>
+    </Card>
   );
 }
 function PaymentOptions({
@@ -208,56 +199,59 @@ function PaymentOptions({
   setIsWallet: (method: PaymentMethod) => void;
 }) {
   const session = useSession();
-  if (session.status == "authenticated") {
-    const walletType = session.data.user.walletType;
-    const showCardOption =
-      walletType == WalletType.emailPass ||
-      walletType == WalletType.google ||
-      walletType == WalletType.facebook;
-    return (
-      <div>
-        <h2 className="text-center font-semibold">Choose payment option</h2>
-        <div className="my-2 flex gap-2">
-          <Option
-            text={PLATFORM_ASSET.code}
-            onClick={() => setIsWallet("asset")}
-            selected={method === "asset"}
+
+  if (session.status !== "authenticated") return null;
+
+  const walletType = session.data.user.walletType;
+  const showCardOption =
+    walletType === WalletType.emailPass ||
+    walletType === WalletType.google ||
+    walletType === WalletType.facebook;
+
+  return (
+    <div className="space-y-3">
+      <h3 className="text-sm font-semibold text-foreground">Payment Method</h3>
+      <div className="flex gap-2">
+        <PaymentOption
+          text={PLATFORM_ASSET.code}
+          onClick={() => setIsWallet("asset")}
+          selected={method === "asset"}
+        />
+        <PaymentOption
+          text="XLM"
+          onClick={() => setIsWallet("xlm")}
+          selected={method === "xlm"}
+        />
+        {showCardOption && (
+          <PaymentOption
+            text="Credit Card"
+            onClick={() => setIsWallet("card")}
+            selected={method === "card"}
           />
-          <Option
-            text="XLM"
-            onClick={() => setIsWallet("xlm")}
-            selected={method === "xlm"}
-          />
-          {showCardOption && (
-            <Option
-              text="Credit Card"
-              onClick={() => setIsWallet("card")}
-              selected={method === "card"}
-            />
-          )}
-        </div>
+        )}
       </div>
-    );
-  }
-  function Option({
-    text,
-    onClick,
-    selected,
-  }: {
-    text: string;
-    onClick: () => void;
-    selected?: boolean;
-  }) {
-    return (
-      <Button
-        onClick={() => onClick()}
-        variant={selected ? "destructive" : "default"}
-        className={clsx("flex w-full items-center justify-center ")}
-      >
-        {text}
-      </Button>
-    );
-  }
+    </div>
+  );
+}
+
+function PaymentOption({
+  text,
+  onClick,
+  selected,
+}: {
+  text: string;
+  onClick: () => void;
+  selected?: boolean;
+}) {
+  return (
+    <Button
+      onClick={onClick}
+      variant={selected ? "default" : "outline"}
+      className="flex-1"
+    >
+      {text}
+    </Button>
+  );
 }
 type MethodDetailsProps = {
   paymentMethod?: PaymentMethod;
@@ -323,34 +317,39 @@ export function MethodDetails({
 
       return (
         <div className="space-y-4">
-          <div className="rounded-lg bg-gray-100 p-4">
-            <h3 className="mb-2 font-semibold">Payment Summary</h3>
-            <div className="space-y-1">
-              <div className="flex justify-between">
-                <span>Item Price:</span>
-                <span>
+          {/* Payment Summary */}
+          <div className="rounded-lg border border-border bg-secondary/30 p-4">
+            <h3 className="mb-4 font-semibold text-foreground">Payment Summary</h3>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-muted-foreground">Item Price:</span>
+                <span className="font-medium text-foreground">
                   {price} {PLATFORM_ASSET.code}
                 </span>
               </div>
-              <div className="flex justify-between">
-                <span>Transaction Fee:</span>
-                <span>
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-muted-foreground">Transaction Fee:</span>
+                <span className="font-medium text-foreground">
                   {requiredFee} {PLATFORM_ASSET.code}
                 </span>
               </div>
-              <div className="flex justify-between font-semibold">
-                <span>Total:</span>
-                <span>
+              <div className="border-t border-border pt-2" />
+              <div className="flex items-center justify-between">
+                <span className="font-semibold text-foreground">Total:</span>
+                <span className="text-lg font-bold text-foreground">
                   {requiredAssetBalance} {PLATFORM_ASSET.code}
                 </span>
               </div>
             </div>
           </div>
+
+          {/* Payment Action */}
           {isSufficientAssetBalance ? (
             <Button
               disabled={paymentSuccess}
               className="w-full"
               onClick={onConfirmPayment}
+              size="lg"
             >
               {submitLoading && (
                 <Loader className="mr-2 h-4 w-4 animate-spin" />
@@ -358,11 +357,11 @@ export function MethodDetails({
               Confirm Payment
             </Button>
           ) : (
-            <div className="space-y-2">
-              <p>
-                Your balance: {platformAssetBalance} {PLATFORM_ASSET.code}
+            <div className="space-y-3 rounded-lg border border-destructive/30 bg-destructive/5 p-4">
+              <p className="text-sm text-foreground">
+                Your balance: <span className="font-semibold">{platformAssetBalance} {PLATFORM_ASSET.code}</span>
               </p>
-              <p className="text-sm text-red-500">Insufficient Balance</p>
+              <p className="text-sm font-semibold text-destructive">Insufficient Balance</p>
               <RechargeLink />
             </div>
           )}
@@ -378,20 +377,24 @@ export function MethodDetails({
 
       return (
         <div className="space-y-4">
-          <div className="rounded-lg bg-gray-100 p-4">
-            <h3 className="mb-2 font-semibold">Payment Summary</h3>
-            <div className="space-y-1">
-              <div className="flex justify-between">
-                <span>Total in XLM:</span>
-                <span>{requiredXlmBalance} XLM</span>
+          {/* Payment Summary */}
+          <div className="rounded-lg border border-border bg-secondary/30 p-4">
+            <h3 className="mb-4 font-semibold text-foreground">Payment Summary</h3>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-muted-foreground">Total in XLM:</span>
+                <span className="text-lg font-bold text-foreground">{requiredXlmBalance} XLM</span>
               </div>
             </div>
           </div>
+
+          {/* Payment Action */}
           {isSufficientAssetBalance ? (
             <Button
               disabled={paymentSuccess}
               className="w-full"
               onClick={onConfirmPayment}
+              size="lg"
             >
               {submitLoading && (
                 <Loader className="mr-2 h-4 w-4 animate-spin" />
@@ -399,9 +402,11 @@ export function MethodDetails({
               Confirm Payment
             </Button>
           ) : (
-            <div className="space-y-2">
-              <p>Your balance: {getXLMBalance()} XLM</p>
-              <p className="text-sm text-red-500">Insufficient Balance</p>
+            <div className="space-y-3 rounded-lg border border-destructive/30 bg-destructive/5 p-4">
+              <p className="text-sm text-foreground">
+                Your balance: <span className="font-semibold">{getXLMBalance()} XLM</span>
+              </p>
+              <p className="text-sm font-semibold text-destructive">Insufficient Balance</p>
               <RechargeLink />
             </div>
           )}
@@ -412,9 +417,9 @@ export function MethodDetails({
     if (paymentMethod === "card") {
       return (
         <div className="space-y-4">
-          <div className="rounded-lg bg-gray-100 p-4">
-            <h3 className="mb-2 font-semibold">Credit Card Payment</h3>
-            <p>Proceed to pay with your credit card.</p>
+          <div className="rounded-lg border border-border bg-secondary/30 p-4">
+            <h3 className="mb-2 font-semibold text-foreground">Credit Card Payment</h3>
+            <p className="text-sm text-muted-foreground">Proceed to pay with your credit card.</p>
           </div>
           <BuyWithSquire marketId={item.id} xdr={xdrMutation.data} />
         </div>
