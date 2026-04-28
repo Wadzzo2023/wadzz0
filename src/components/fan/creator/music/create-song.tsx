@@ -96,7 +96,7 @@ export default function SongCreate({ albumId, onSuccess }: { albumId: number; on
     const { platformAssetBalance } = useUserStellarAcc();
     const totalFeees = Number(TrxBaseFeeInPlatformAsset) + Number(PLATFORM_FEE);
 
-    const tiers = api.fan.member.getAllMembership.useQuery();
+    const tiers = api.fan.member.getAllMembership.useQuery({});
     const { data: requiredTokenAmount, isLoading: requiredTokenAmountLoading } = api.fan.trx.getRequiredPlatformAsset.useQuery({
         xlm: 2,
     }, {

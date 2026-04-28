@@ -118,7 +118,7 @@ export default function CreatePinModal() {
   const multiPin = watch("multiPin");
   // query
   const assets = api.fan.asset.myAssets.useQuery(undefined, {});
-  const tiers = api.fan.member.getAllMembership.useQuery();
+  const tiers = api.fan.member.getAllMembership.useQuery({});
 
   const assetsDropdown = match(assets)
     .with(success, () => {

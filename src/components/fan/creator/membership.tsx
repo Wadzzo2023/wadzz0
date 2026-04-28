@@ -24,7 +24,7 @@ import {
 
 export default function MemberShip({ creator }: { creator: Creator }) {
   const { data: subscriptions, isLoading } =
-    api.fan.member.getAllMembership.useQuery();
+    api.fan.member.getAllMembership.useQuery({});
 
   const pageAsset = api.fan.creator.getCreatorPageAsset.useQuery();
 

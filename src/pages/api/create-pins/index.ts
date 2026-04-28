@@ -6,25 +6,7 @@ import type { NextApiRequest, NextApiResponse } from "next"
 import { verifySignature, verifySignatureAppRouter } from "@upstash/qstash/nextjs"
 import { db } from "~/server/db"
 import { randomLocation as getLocationInLatLngRad } from "~/utils/map"
-
-export interface PinItem {
-    title: string;
-    description: string;
-    latitude: number;
-    longitude: number;
-    url?: string;
-    image?: string;
-    venue?: string;
-    address?: string;
-    startDate: string;
-    endDate: string;
-    pinCollectionLimit?: number;
-    pinNumber?: number;
-    autoCollect?: boolean;
-    multiPin?: boolean;
-    radius?: number;
-    type?: "EVENT" | "LANDMARK";
-}
+import type { PinItem } from "~/lib/agent/types"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 export const config = {

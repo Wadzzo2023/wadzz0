@@ -38,9 +38,9 @@ export const CreatorNavigation = {
   },
   Map: { path: "/maps", icon: Bell, text: "MAP", needAproval: false },
   Pins: {
-    path: "/maps/pins/creator/",
+    path: "/fans/creator/redeem",
     icon: Bell,
-    text: "PINS",
+    text: "REDEEM",
     needAproval: true,
   },
   Bounty: {

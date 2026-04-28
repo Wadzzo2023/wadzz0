@@ -355,9 +355,7 @@ function AdminMap() {
         {selectedCreator && <CreateAdminPinModal />}
         {selectedCreator && (
           <AgentChat
-            setIsOpen={setIsOpen}
-            setPosition={setPosition}
-            setPrevData={setPrevData}
+            creatorId={selectedCreator.id}
           />
         )}
       </APIProvider>
@@ -440,7 +438,7 @@ const MyPins = memo(function MyPins({
               setIsAutoCollect(pin.autoCollect); // Set isAutoCollect to true when a pin is clicked
             }}
           >
-            <Image
+            <img
               src={pin.locationGroup?.image ?? pin.locationGroup?.creator.profileUrl ?? "/favicon.ico"}
               width={30}
               height={30}

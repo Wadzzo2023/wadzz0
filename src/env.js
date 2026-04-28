@@ -5,7 +5,7 @@ export const env = createEnv({
   /**
    * Specify your server-side environment variables schema here. This way you can ensure the app
    * isn't built with invalid env vars.
-   */  server: {
+   */ server: {
     DATABASE_URL: z
       .string()
       .url()
@@ -39,6 +39,10 @@ export const env = createEnv({
     AWS_BUCKET_REGION: z.string(),
     AWS_ACCESS_KEY: z.string(),
     AWS_SECRET_ACCESS_KEY: z.string(),
+    //QStash
+    QSTASH_TOKEN: z.string(),
+    QSTASH_CURRENT_SIGNING_KEY: z.string(),
+    QSTASH_NEXT_SIGNING_KEY: z.string(),
   },
 
   /**
@@ -75,7 +79,7 @@ export const env = createEnv({
   /**
    * You can't destruct `process.env` as a regular object in the Next.js edge runtimes (e.g.
    * middlewares) or client-side so we need to destruct manually.
-   */  runtimeEnv: {
+   */ runtimeEnv: {
     NEXT_PUBLIC_SITE: process.env.NEXT_PUBLIC_SITE,
     NEXT_PUBLIC_PLATFORM_CREATOR_TERM:
       process.env.NEXT_PUBLIC_PLATFORM_CREATOR_TERM,
@@ -105,6 +109,10 @@ export const env = createEnv({
     AWS_BUCKET_REGION: process.env.NEXT_AWS_BUCKET_REGION,
     AWS_ACCESS_KEY: process.env.NEXT_AWS_ACCESS_KEY,
     AWS_SECRET_ACCESS_KEY: process.env.NEXT_AWS_SECRET_ACCESS_KEY,
+    //QStash
+    QSTASH_TOKEN: process.env.QSTASH_TOKEN,
+    QSTASH_CURRENT_SIGNING_KEY: process.env.QSTASH_CURRENT_SIGNING_KEY,
+    QSTASH_NEXT_SIGNING_KEY: process.env.QSTASH_NEXT_SIGNING_KEY,
 
     // Mapbox
     NEXT_PUBLIC_MAPBOX_API: process.env.NEXT_PUBLIC_MAPBOX_API,

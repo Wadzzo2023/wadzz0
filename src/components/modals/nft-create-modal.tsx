@@ -129,7 +129,7 @@ function NftCreateForm({
 
   // console.log("errors", errors);
 
-  const tiers = api.fan.member.getAllMembership.useQuery();
+  const tiers = api.fan.member.getAllMembership.useQuery({});
 
   const addAsset = api.fan.asset.createAsset.useMutation({
     onSuccess: () => {

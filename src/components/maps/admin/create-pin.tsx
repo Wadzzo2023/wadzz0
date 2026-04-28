@@ -129,7 +129,7 @@ export default function CreateAdminPinModal() {
   });
   const GetAssetBalance = api.fan.asset.getAssetBalance.useMutation();
 
-  const tiers = api.fan.member.getAllMembership.useQuery();
+  const tiers = api.fan.member.getAllMembership.useQuery({});
 
   const assetsDropdown = match(assets)
     .with(success, () => {

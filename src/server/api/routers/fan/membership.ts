@@ -149,9 +149,13 @@ export const membershipRouter = createTRPCRouter({
   //       include: { subscription: true },
   //     });
   //   }),
-  getAllMembership: protectedProcedure.query(async ({ ctx }) => {
+  getAllMembership: protectedProcedure.input(z.object(
+    {
+      creatorId: z.string().optional(),
+    }
+  )).query(async ({ ctx, input }) => {
     return await ctx.db.subscription.findMany({
-      where: { creatorId: ctx.session.user.id },
+      where: { creatorId: input.creatorId ?? ctx.session.user.id },
       select: selectedColumn,
     });
   }),

@@ -460,11 +460,12 @@ const SideMapItem = memo(function SideMapItem({
                     </h3>
                     <div className="mt-1 flex items-center gap-1">
                       <Avatar className="h-6 w-6">
-                        <Image
+                        <img
                           width={24}
                           height={24}
                           src={pin.locationGroup?.image ?? "/favicon.ico"}
                           alt="Creator"
+                          className="h-full w-full"
                         />
                       </Avatar>
                       <Badge variant="secondary" className="text-xs">
@@ -621,7 +622,7 @@ const MyPins = memo(function MyPins({
               setIsAutoCollect(pin.autoCollect); // Set isAutoCollect to true when a pin is clicked
             }}
           >
-            <Image
+            <img
               src={pin.locationGroup?.image ?? pin.locationGroup?.creator.profileUrl ?? "/favicon.ico"}
               width={30}
               height={30}
