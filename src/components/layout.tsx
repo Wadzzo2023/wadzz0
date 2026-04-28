@@ -87,6 +87,14 @@ export default function Layout({
     return () => observer.disconnect();
   }, []);
 
+  useEffect(() => {
+    if (typeof document === "undefined") return;
+    document.body.style.overflow = isLegacyLayout ? "" : "hidden";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isLegacyLayout]);
+
   const onToggleLayoutMode = () => {
     const nextMode: LayoutMode = isLegacyLayout ? "modern" : "legacy";
     setLayoutMode(nextMode);
@@ -203,7 +211,7 @@ export default function Layout({
                     </div>
                   ) : (
                     <div className="flex-1 overflow-auto bg-base-100/50">
-                      <div className="h-full overflow-y-auto bg-base-100/80 pb-24 scrollbar-hide md:pb-28">
+                      <div className="h-full overflow-y-auto bg-base-100/80 pb-24 md:pb-28 scrollbar-hide">
                         {session.status === "authenticated" ? (
                           <>
                             <ModalProvider />
