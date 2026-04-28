@@ -34,10 +34,10 @@ import HotspotDetailModal from "~/components/modals/hotspot-details-modal";
 
 type Pin = Location & {
   locationGroup:
-    | (LocationGroup & {
-        creator: { profileUrl: string | null };
-      })
-    | null;
+  | (LocationGroup & {
+    creator: { profileUrl: string | null };
+  })
+  | null;
   _count: {
     consumers: number;
   };
@@ -115,13 +115,13 @@ function CreatorMapDashboardContent() {
   const [isCreatingHotspot, setIsCreatingHotspot] = useState(false);
 
   const mapContainerRef = useRef<HTMLDivElement>(null);
-const [layoutMode] = useState<"modern" | "legacy">(() => {
-  const cookieMode = getCookie("wadzzo-layout-mode");
-  if (cookieMode === "legacy" || cookieMode === "modern") {
-    return cookieMode;
-  }
-  return "modern";
-});
+  const [layoutMode] = useState<"modern" | "legacy">(() => {
+    const cookieMode = getCookie("wadzzo-layout-mode");
+    if (cookieMode === "legacy" || cookieMode === "modern") {
+      return cookieMode;
+    }
+    return "modern";
+  });
   const { filterNearbyPins } = useNearbyPinsStore();
   const { selectedPlace: alreadySelectedPlace } = useSelectedAutoSuggestion();
 
@@ -190,116 +190,119 @@ const [layoutMode] = useState<"modern" | "legacy">(() => {
   };
 
   return (
-    <APIProvider apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAP_API_KEY!}>
-      <MapHeader
-        showCreatorList={false}
-        showExpired={showExpired}
-        setShowExpired={setShowExpired}
-        onManualPinClick={handleManualPinClick}
-        onPlaceSelect={(place) => {
-          setMapCenter({ lat: place.lat, lng: place.lng });
-          setMapZoom(13);
-          setPosition({ lat: place.lat, lng: place.lng });
-          setIsCordsSearch(false);
-        }}
-        onCenterChange={setMapCenter}
-        setIsCordsSearch={setIsCordsSearch}
-        setSearchCoordinates={setSearchCoordinates}
-        setCordSearchLocation={setCordSearchCords}
-        setZoom={setMapZoom}
-        onCreateHotspot={handleCreateHotspot}
-      />
+    <div className="relative size-full">
 
-      <div
-        className={`relative ${layoutMode === "modern" ? "h-screen" : "h-full"} w-full max-h-screen overflow-hidden`}
-        ref={mapContainerRef}
-      >
-        <div className="pointer-events-none absolute inset-0 z-10 bg-gradient-to-b from-slate-900/5 via-transparent to-transparent" />
-
-        <Map
-          onCenterChanged={(center) => {
-            setMapCenter(center.detail.center);
-            setCenterChanged(center.detail.bounds);
-          }}
-          onZoomChanged={(zoom) => setMapZoom(zoom.detail.zoom)}
-          onClick={handleMapClick}
-          mapId={"bf51eea910020fa25a"}
-          className="h-full w-full transition-all duration-500 ease-out"
-          defaultCenter={{ lat: 22.54992, lng: 0 }}
-          defaultZoom={3}
-          minZoom={3}
-          zoom={mapZoom}
-          center={mapCenter}
-          gestureHandling={"greedy"}
-          disableDefaultUI={true}
-          onDragend={handleDragEnd}
-        >
-          {position && !isCordsSearch && (
-            <Marker position={{ lat: position.lat, lng: position.lng }} />
-          )}
-
-          {isCordsSearch && searchCoordinates && (
-            <AdvancedMarker position={searchCoordinates}>
-              <div className="animate-bounce">
-                <MapPin className="size-8 text-red-500 drop-shadow-lg" />
-              </div>
-            </AdvancedMarker>
-          )}
-
-          {isCordsSearch && cordSearchCords && (
-            <AdvancedMarker position={cordSearchCords}>
-              <div className="animate-bounce">
-                <MapPin className="size-8 text-red-500 drop-shadow-lg" />
-              </div>
-            </AdvancedMarker>
-          )}
-
-          {!isCreatingHotspot && (
-            <MapControls onZoomIn={handleZoomIn} onZoomOut={handleZoomOut} />
-          )}
-
-          <MyPins
-            onPinClick={(pin) => {
-              openPinDetailModal(pin);
-              setIsAutoCollect(pin.autoCollect);
-            }}
-            showExpired={showExpired}
-          />
-          <MyHotspots />
-
-          {/* ✅ MapDrawingLayer is inside <Map>, so useMap() returns the instance */}
-          <MapDrawingLayer
-            isCreatingHotspot={isCreatingHotspot}
-            onSelectionChange={handleHotspotSelection}
-            onClose={() => setIsCreatingHotspot(false)}
-            mapContainerRef={mapContainerRef}
-          />
-        </Map>
-      </div>
-
-      {!isCreatingHotspot && (
-        <NearbyLocationsPanel
-          onSelectPlace={(coords) => {
-            setMapCenter(coords);
+      <APIProvider apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAP_API_KEY!}>
+        <MapHeader
+          showCreatorList={false}
+          showExpired={showExpired}
+          setShowExpired={setShowExpired}
+          onManualPinClick={handleManualPinClick}
+          onPlaceSelect={(place) => {
+            setMapCenter({ lat: place.lat, lng: place.lng });
             setMapZoom(13);
-            setPosition(coords);
+            setPosition({ lat: place.lat, lng: place.lng });
+            setIsCordsSearch(false);
           }}
+          onCenterChange={setMapCenter}
+          setIsCordsSearch={setIsCordsSearch}
+          setSearchCoordinates={setSearchCoordinates}
+          setCordSearchLocation={setCordSearchCords}
+          setZoom={setMapZoom}
+          onCreateHotspot={handleCreateHotspot}
         />
-      )}
 
-      <CreatePinModal />
-      <PinDetailAndActionsModal />
-      <AgentChat />
+        <div
+          className={`relative ${layoutMode === "modern" ? "h-screen" : "h-full"} w-full max-h-screen overflow-hidden`}
+          ref={mapContainerRef}
+        >
+          <div className="pointer-events-none absolute inset-0 z-10 bg-gradient-to-b from-slate-900/5 via-transparent to-transparent" />
 
-      {openHostpotModal && (
-        <CreateHotspotModal
-          isOpen={openHostpotModal}
-          setIsOpen={setOpenHotspotModal}
-          hotspotData={hotspotData}
-          shape={selectedShape}
-        />
-      )}
-    </APIProvider>
+          <Map
+            onCenterChanged={(center) => {
+              setMapCenter(center.detail.center);
+              setCenterChanged(center.detail.bounds);
+            }}
+            onZoomChanged={(zoom) => setMapZoom(zoom.detail.zoom)}
+            onClick={handleMapClick}
+            mapId={"bf51eea910020fa25a"}
+            className="h-full w-full transition-all duration-500 ease-out"
+            defaultCenter={{ lat: 22.54992, lng: 0 }}
+            defaultZoom={3}
+            minZoom={3}
+            zoom={mapZoom}
+            center={mapCenter}
+            gestureHandling={"greedy"}
+            disableDefaultUI={true}
+            onDragend={handleDragEnd}
+          >
+            {position && !isCordsSearch && (
+              <Marker position={{ lat: position.lat, lng: position.lng }} />
+            )}
+
+            {isCordsSearch && searchCoordinates && (
+              <AdvancedMarker position={searchCoordinates}>
+                <div className="animate-bounce">
+                  <MapPin className="size-8 text-red-500 drop-shadow-lg" />
+                </div>
+              </AdvancedMarker>
+            )}
+
+            {isCordsSearch && cordSearchCords && (
+              <AdvancedMarker position={cordSearchCords}>
+                <div className="animate-bounce">
+                  <MapPin className="size-8 text-red-500 drop-shadow-lg" />
+                </div>
+              </AdvancedMarker>
+            )}
+
+            {!isCreatingHotspot && (
+              <MapControls onZoomIn={handleZoomIn} onZoomOut={handleZoomOut} />
+            )}
+
+            <MyPins
+              onPinClick={(pin) => {
+                openPinDetailModal(pin);
+                setIsAutoCollect(pin.autoCollect);
+              }}
+              showExpired={showExpired}
+            />
+            <MyHotspots />
+
+            {/* ✅ MapDrawingLayer is inside <Map>, so useMap() returns the instance */}
+            <MapDrawingLayer
+              isCreatingHotspot={isCreatingHotspot}
+              onSelectionChange={handleHotspotSelection}
+              onClose={() => setIsCreatingHotspot(false)}
+              mapContainerRef={mapContainerRef}
+            />
+          </Map>
+        </div>
+
+        {!isCreatingHotspot && (
+          <NearbyLocationsPanel
+            onSelectPlace={(coords) => {
+              setMapCenter(coords);
+              setMapZoom(13);
+              setPosition(coords);
+            }}
+          />
+        )}
+
+        <CreatePinModal />
+        <PinDetailAndActionsModal />
+        <AgentChat />
+
+        {openHostpotModal && (
+          <CreateHotspotModal
+            isOpen={openHostpotModal}
+            setIsOpen={setOpenHotspotModal}
+            hotspotData={hotspotData}
+            shape={selectedShape}
+          />
+        )}
+      </APIProvider>
+    </div>
   );
 }
 

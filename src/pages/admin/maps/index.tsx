@@ -63,10 +63,10 @@ function MapDrawingLayer({
 // Define Pin type for clarity and consistency with Prisma schema
 type Pin = Location & {
   locationGroup:
-    | (LocationGroup & {
-        creator: { profileUrl: string | null };
-      })
-    | null;
+  | (LocationGroup & {
+    creator: { profileUrl: string | null };
+  })
+  | null;
   _count: {
     consumers: number;
   };
@@ -112,13 +112,13 @@ function AdminMapDashboardContent() {
     "circle" | "rectangle" | "polygon"
   >("polygon");
   const mapContainerRef = useRef<HTMLDivElement>(null);
-const [layoutMode] = useState<"modern" | "legacy">(() => {
-  const cookieMode = getCookie("wadzzo-layout-mode");
-  if (cookieMode === "legacy" || cookieMode === "modern") {
-    return cookieMode;
-  }
-  return "modern";
-});
+  const [layoutMode] = useState<"modern" | "legacy">(() => {
+    const cookieMode = getCookie("wadzzo-layout-mode");
+    if (cookieMode === "legacy" || cookieMode === "modern") {
+      return cookieMode;
+    }
+    return "modern";
+  });
 
   const { filterNearbyPins, clearAdminPins } = useNearbyPinsStore();
   const { selectedPlace: alreadySelectedPlace } = useSelectedAutoSuggestion();
@@ -193,121 +193,124 @@ const [layoutMode] = useState<"modern" | "legacy">(() => {
   };
 
   return (
-    <APIProvider apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAP_API_KEY!}>
-      <MapHeader
-        key="map-header"
-        showExpired={showExpired}
-        setShowExpired={setShowExpired}
-        onManualPinClick={handleManualPinClick}
-        onPlaceSelect={(place) => {
-          setMapCenter({ lat: place.lat, lng: place.lng });
-          setMapZoom(13);
-          setPosition({ lat: place.lat, lng: place.lng });
-          setIsCordsSearch(false);
-        }}
-        onCenterChange={setMapCenter}
-        setIsCordsSearch={setIsCordsSearch}
-        setSearchCoordinates={setSearchCoordinates}
-        setCordSearchLocation={setCordSearchCords}
-        setZoom={setMapZoom}
-        showCreatorList={true}
-        onCreateHotspot={handleCreateHotspot}
-      />
+    <div className="relative size-full">
 
-      {!isCreatingHotspot && (
-        <div className="pointer-events-none absolute inset-0 z-10 bg-gradient-to-b from-blue-50/5 via-transparent to-transparent" />
-      )}
-
-      <div
-        className={`relative ${layoutMode === "modern" ? "h-screen" : "h-full"} w-full max-h-screen overflow-hidden`}
-        ref={mapContainerRef}
-      >
-        <div className="pointer-events-none absolute inset-0 z-10 bg-gradient-to-b from-slate-900/5 via-transparent to-transparent" />
-        <Map
-          onCenterChanged={(center) => {
-            setMapCenter(center.detail.center);
-            setCenterChanged(center.detail.bounds);
-          }}
-          onZoomChanged={(zoom) => {
-            setMapZoom(zoom.detail.zoom);
-          }}
-          onClick={handleMapClick}
-          mapId={"bf51eea910020fa25a"}
-          className="h-full w-full transition-all duration-500 ease-out"
-          defaultCenter={{ lat: 22.54992, lng: 0 }}
-          defaultZoom={3}
-          minZoom={3}
-          zoom={mapZoom}
-          center={mapCenter}
-          gestureHandling={"greedy"}
-          disableDefaultUI={true}
-          onDragend={handleDragEnd}
-        >
-          {position && !isCordsSearch && (
-            <Marker position={{ lat: position.lat, lng: position.lng }} />
-          )}
-          {isCordsSearch && searchCoordinates && (
-            <AdvancedMarker position={searchCoordinates}>
-              <div className="animate-bounce">
-                <MapPin className="size-8 text-red-500 drop-shadow-lg" />
-              </div>
-            </AdvancedMarker>
-          )}
-
-          {isCordsSearch && cordSearchCords && (
-            <AdvancedMarker position={cordSearchCords}>
-              <div className="animate-bounce">
-                <MapPin className="size-8 text-red-500 drop-shadow-lg" />
-              </div>
-            </AdvancedMarker>
-          )}
-
-          {!isCreatingHotspot && (
-            <MapControls onZoomIn={handleZoomIn} onZoomOut={handleZoomOut} />
-          )}
-          {selectedCreator && (
-            <CreatorPins
-              onPinClick={(pin) => {
-                openPinDetailModal(pin);
-                setIsAutoCollect(pin.autoCollect);
-              }}
-              creatorId={selectedCreator.id}
-              showExpired={showExpired}
-            />
-          )}
-
-          <MapDrawingLayer
-            isCreatingHotspot={isCreatingHotspot}
-            onSelectionChange={handleHotspotSelection}
-            onClose={() => setIsCreatingHotspot(false)}
-            mapContainerRef={mapContainerRef}
-          />
-        </Map>
-      </div>
-
-      {!isCreatingHotspot && (
-        <NearbyLocationsPanel
-          onSelectPlace={(coords) => {
-            setMapCenter(coords);
+      <APIProvider apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAP_API_KEY!}>
+        <MapHeader
+          key="map-header"
+          showExpired={showExpired}
+          setShowExpired={setShowExpired}
+          onManualPinClick={handleManualPinClick}
+          onPlaceSelect={(place) => {
+            setMapCenter({ lat: place.lat, lng: place.lng });
             setMapZoom(13);
-            setPosition(coords);
+            setPosition({ lat: place.lat, lng: place.lng });
+            setIsCordsSearch(false);
           }}
+          onCenterChange={setMapCenter}
+          setIsCordsSearch={setIsCordsSearch}
+          setSearchCoordinates={setSearchCoordinates}
+          setCordSearchLocation={setCordSearchCords}
+          setZoom={setMapZoom}
+          showCreatorList={true}
+          onCreateHotspot={handleCreateHotspot}
         />
-      )}
 
-      {selectedCreator && <CreateAdminPinModal />}
-      <PinDetailAndActionsModal />
-      {selectedCreator && <AgentChat creatorId={selectedCreator.id} />}
+        {!isCreatingHotspot && (
+          <div className="pointer-events-none absolute inset-0 z-10 bg-gradient-to-b from-blue-50/5 via-transparent to-transparent" />
+        )}
 
-      {openHostpotModal && (
-        <CreateHotspotModal
-          isOpen={openHostpotModal}
-          setIsOpen={setOpenHotspotModal}
-          hotspotData={hotspotData}
-          shape={selectedShape}
-        />
-      )}
-    </APIProvider>
+        <div
+          className={`relative ${layoutMode === "modern" ? "h-screen" : "h-full"} w-full max-h-screen overflow-hidden`}
+          ref={mapContainerRef}
+        >
+          <div className="pointer-events-none absolute inset-0 z-10 bg-gradient-to-b from-slate-900/5 via-transparent to-transparent" />
+          <Map
+            onCenterChanged={(center) => {
+              setMapCenter(center.detail.center);
+              setCenterChanged(center.detail.bounds);
+            }}
+            onZoomChanged={(zoom) => {
+              setMapZoom(zoom.detail.zoom);
+            }}
+            onClick={handleMapClick}
+            mapId={"bf51eea910020fa25a"}
+            className="h-full w-full transition-all duration-500 ease-out"
+            defaultCenter={{ lat: 22.54992, lng: 0 }}
+            defaultZoom={3}
+            minZoom={3}
+            zoom={mapZoom}
+            center={mapCenter}
+            gestureHandling={"greedy"}
+            disableDefaultUI={true}
+            onDragend={handleDragEnd}
+          >
+            {position && !isCordsSearch && (
+              <Marker position={{ lat: position.lat, lng: position.lng }} />
+            )}
+            {isCordsSearch && searchCoordinates && (
+              <AdvancedMarker position={searchCoordinates}>
+                <div className="animate-bounce">
+                  <MapPin className="size-8 text-red-500 drop-shadow-lg" />
+                </div>
+              </AdvancedMarker>
+            )}
+
+            {isCordsSearch && cordSearchCords && (
+              <AdvancedMarker position={cordSearchCords}>
+                <div className="animate-bounce">
+                  <MapPin className="size-8 text-red-500 drop-shadow-lg" />
+                </div>
+              </AdvancedMarker>
+            )}
+
+            {!isCreatingHotspot && (
+              <MapControls onZoomIn={handleZoomIn} onZoomOut={handleZoomOut} />
+            )}
+            {selectedCreator && (
+              <CreatorPins
+                onPinClick={(pin) => {
+                  openPinDetailModal(pin);
+                  setIsAutoCollect(pin.autoCollect);
+                }}
+                creatorId={selectedCreator.id}
+                showExpired={showExpired}
+              />
+            )}
+
+            <MapDrawingLayer
+              isCreatingHotspot={isCreatingHotspot}
+              onSelectionChange={handleHotspotSelection}
+              onClose={() => setIsCreatingHotspot(false)}
+              mapContainerRef={mapContainerRef}
+            />
+          </Map>
+        </div>
+
+        {!isCreatingHotspot && (
+          <NearbyLocationsPanel
+            onSelectPlace={(coords) => {
+              setMapCenter(coords);
+              setMapZoom(13);
+              setPosition(coords);
+            }}
+          />
+        )}
+
+        {selectedCreator && <CreateAdminPinModal />}
+        <PinDetailAndActionsModal />
+        {selectedCreator && <AgentChat creatorId={selectedCreator.id} />}
+
+        {openHostpotModal && (
+          <CreateHotspotModal
+            isOpen={openHostpotModal}
+            setIsOpen={setOpenHotspotModal}
+            hotspotData={hotspotData}
+            shape={selectedShape}
+          />
+        )}
+      </APIProvider>
+    </div>
   );
 }
 

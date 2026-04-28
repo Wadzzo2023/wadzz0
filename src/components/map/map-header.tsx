@@ -66,7 +66,7 @@ export function MapHeader({
   });
 
   return (
-    <div className={`absolute left-0 right-0 z-30 p-4 ${layoutMode === "modern" ? "top-14" : "top-24"}`}>
+    <div className={`absolute left-0 right-0 z-30 p-4 ${layoutMode === "modern" ? "top-4" : "top-4"}`}>
       <div className="mx-auto max-w-4xl">
         <div className="flex items-center justify-between gap-4">
           {showCreatorList && creator.data && (
