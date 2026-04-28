@@ -622,7 +622,7 @@ const MyPins = memo(function MyPins({
             }}
           >
             <Image
-              src={pin.locationGroup?.creator.profileUrl ?? "/favicon.ico"}
+              src={pin.locationGroup?.image ?? pin.locationGroup?.creator.profileUrl ?? "/favicon.ico"}
               width={30}
               height={30}
               alt="Creator"
