@@ -25,7 +25,7 @@ export function MapControls({ onZoomIn, onZoomOut }: MapControlsProps) {
   });
 
   return (
-    <div className={`absolute right-4 z-20 flex flex-col gap-3 ${layoutMode === "modern" ? "top-14" : "top-24"}`}>
+    <div className={`absolute right-4 z-20 flex flex-col gap-3 ${layoutMode === "modern" ? "top-14" : "top-16"}`}>
       <div className="space-y-1 rounded-2xl border border-white/30 bg-white/90 p-2 shadow-xl backdrop-blur-md">
         <Button
           variant="ghost"

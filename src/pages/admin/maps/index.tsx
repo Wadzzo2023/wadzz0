@@ -12,6 +12,7 @@ import { useMapInteractionStore, useNearbyPinsStore } from "~/store/map-stores";
 import { useSelectedAutoSuggestion } from "~/hooks/use-selectedAutoSuggestion";
 import { useCreatorStorageAcc } from "~/lib/state/wallete/stellar-balances";
 import { api } from "~/utils/api";
+import { getCookie } from "cookies-next";
 import { MapPin } from "lucide-react";
 import Image from "next/image";
 import { MapHeader } from "~/components/map/map-header";
@@ -111,6 +112,13 @@ function AdminMapDashboardContent() {
     "circle" | "rectangle" | "polygon"
   >("polygon");
   const mapContainerRef = useRef<HTMLDivElement>(null);
+const [layoutMode] = useState<"modern" | "legacy">(() => {
+  const cookieMode = getCookie("wadzzo-layout-mode");
+  if (cookieMode === "legacy" || cookieMode === "modern") {
+    return cookieMode;
+  }
+  return "modern";
+});
 
   const { filterNearbyPins, clearAdminPins } = useNearbyPinsStore();
   const { selectedPlace: alreadySelectedPlace } = useSelectedAutoSuggestion();
@@ -211,7 +219,7 @@ function AdminMapDashboardContent() {
       )}
 
       <div
-        className="relative h-screen w-full overflow-hidden"
+        className={`relative ${layoutMode === "modern" ? "h-screen" : "h-full"} w-full max-h-screen overflow-hidden`}
         ref={mapContainerRef}
       >
         <div className="pointer-events-none absolute inset-0 z-10 bg-gradient-to-b from-slate-900/5 via-transparent to-transparent" />
