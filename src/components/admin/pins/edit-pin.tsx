@@ -134,7 +134,7 @@ export function PinInfoUpdateModal({ isOpen, onClose, pinData }: PinInfoUpdateMo
             pinRemainingLimit: remainingLimit,
         },
     })
-    const tiers = api.fan.member.getAllMembership.useQuery()
+    const tiers = api.fan.member.getAllMembership.useQuery({})
     const assets = api.fan.asset.myAssets.useQuery(undefined, {})
 
     const update = api.maps.pin.updatePin.useMutation({

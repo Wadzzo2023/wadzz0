@@ -9,6 +9,7 @@ import {
   protectedProcedure,
 } from "~/server/api/trpc";
 import { urlToIpfsHash } from "~/utils/ipfs";
+import { creatorExtraFiledsSchema } from "~/types/creator";
 
 export const creatorRouter = createTRPCRouter({
   getCreators: adminProcedure.query(async ({ ctx }) => {
@@ -25,6 +26,33 @@ export const creatorRouter = createTRPCRouter({
     });
     return creators;
   }),
+
+  updateNavPermission: adminProcedure
+    .input(
+      z.object({
+        creatorId: z.string(),
+        navPermission: z.boolean(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const creator = await ctx.db.creator.findUnique({
+        where: { id: input.creatorId },
+      });
+
+      const currentExtraFields = creatorExtraFiledsSchema.parse(
+        creator?.extraFields,
+      );
+
+      return await ctx.db.creator.update({
+        where: { id: input.creatorId },
+        data: {
+          extraFields: {
+            ...currentExtraFields,
+            navPermission: input.navPermission,
+          },
+        },
+      });
+    }),
 
   deleteCreator: adminProcedure
     .input(z.string())

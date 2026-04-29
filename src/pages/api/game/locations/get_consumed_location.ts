@@ -65,6 +65,8 @@ export default async function handler(
         select: {
           userId: true,
           viewedAt: true,
+          redeemCode: true,
+          isRedeemed: true,
         },
       },
     },
@@ -114,6 +116,9 @@ export default async function handler(
         location.locationGroup.creator.profileUrl ??
         WadzzoIconURL,
       url: location.locationGroup.link ?? "https://app.wadzzo.com/",
+      redeemCode: location.consumers.find((c) => c.userId === userId)?.redeemCode ?? null,
+      isRedeemed: location.consumers.find((c) => c.userId === userId)?.isRedeemed ?? null,
+
     };
     return loc;
   });

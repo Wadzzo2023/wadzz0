@@ -3,7 +3,7 @@
 import type { Location, LocationGroup } from "@prisma/client"
 import { Check, ChevronDown, Trash2, X } from "lucide-react"
 import Image from "next/image"
-import { useState } from "react"
+import { useState, useMemo } from "react"
 import toast from "react-hot-toast"
 import { Button } from "~/components/shadcn/ui/button"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "~/components/shadcn/ui/collapsible"
@@ -27,7 +27,6 @@ interface pinData {
   link?: string
 }
 
-// Loading skeleton component
 function LoadingSkeleton() {
   return (
     <div className="w-full p-4 space-y-4">
@@ -37,7 +36,6 @@ function LoadingSkeleton() {
           <div className="px-4 py-2 w-28 h-8 bg-gray-200 animate-pulse rounded ml-2"></div>
         </div>
       </div>
-
       {Array.from({ length: 3 }).map((_, i) => (
         <div key={i} className="border rounded-md overflow-hidden mb-4">
           <div className="flex items-center justify-between bg-gray-50 p-3">
@@ -65,20 +63,16 @@ function LoadingSkeleton() {
   )
 }
 
-// Main Pins component
 export default function Pins() {
   const [viewMode, setViewMode] = useState<"pending" | "approved">("pending")
 
-  // Separate queries for pending and approved pins
-  const pendingLocationGroups = api.maps.pin.getLocationGroups.useQuery(undefined, {
+  const pendingLocationGroups = api.maps.pin.getAdminLocationGroups.useQuery(undefined, {
     enabled: viewMode === "pending",
   })
-
   const approvedLocationGroups = api.maps.pin.getApprovedLocationGroups.useQuery(undefined, {
     enabled: viewMode === "approved",
   })
 
-  // Determine which data to use based on current view mode
   const locationGroups = viewMode === "pending" ? pendingLocationGroups : approvedLocationGroups
 
   if (locationGroups.isLoading) return <LoadingSkeleton />
@@ -86,7 +80,6 @@ export default function Pins() {
 
   return (
     <div className="w-full p-4 space-y-4">
-      {/* Improved tab-style navigation */}
       <div className="mb-6 border-b">
         <div className="flex">
           <button
@@ -136,15 +129,9 @@ function GroupPins({
   refetch: () => void
 }) {
   const groupByCreator: Record<string, GroupPins[]> = {}
-
   groups.forEach((group) => {
     const creatorId = group.creator.id
-    const creatorName = group.creator.name
-
-    if (!groupByCreator[creatorId]) {
-      groupByCreator[creatorId] = []
-    }
-
+    if (!groupByCreator[creatorId]) groupByCreator[creatorId] = []
     groupByCreator[creatorId].push(group)
   })
 
@@ -170,6 +157,16 @@ function PinsList({
   const [selectedGroup, setSelectedGroup] = useState<string[]>([])
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [pinData, setPinData] = useState<pinData | undefined>(undefined)
+
+  // All group IDs across every creator
+  const allGroupIds = useMemo(
+    () => Object.values(groupsByCreator).flatMap((groups) => groups.map((g) => g.id)),
+    [groupsByCreator],
+  )
+
+  const isAllSelected = allGroupIds.length > 0 && allGroupIds.every((id) => selectedGroup.includes(id))
+  const isIndeterminate = !isAllSelected && selectedGroup.length > 0
+
   const approveM = api.maps.pin.approveLocationGroups.useMutation({
     onSuccess: (data, variable) => {
       if (variable.approved) toast.success("Pins Approved Successfully!")
@@ -202,14 +199,24 @@ function PinsList({
     },
   })
 
-  function handleGroupSelection(groupId: string) {
+  // --- Selection helpers ---
+
+  function handleSelectAll(checked: boolean) {
+    setSelectedGroup(checked ? [...allGroupIds] : [])
+  }
+
+  function handleCreatorSelectAll(creatorId: string, checked: boolean) {
+    const creatorGroupIds = groupsByCreator[creatorId]?.map((g) => g.id) ?? []
     setSelectedGroup((prev) => {
-      if (prev.includes(groupId)) {
-        return prev.filter((id) => id !== groupId)
-      } else {
-        return [...prev, groupId]
-      }
+      const withoutCreator = prev.filter((id) => !creatorGroupIds.includes(id))
+      return checked ? [...withoutCreator, ...creatorGroupIds] : withoutCreator
     })
+  }
+
+  function handleGroupSelection(groupId: string) {
+    setSelectedGroup((prev) =>
+      prev.includes(groupId) ? prev.filter((id) => id !== groupId) : [...prev, groupId],
+    )
   }
 
   function handleDeletePin(pinId: string) {
@@ -222,9 +229,56 @@ function PinsList({
 
   return (
     <div className="w-full">
+
+      {/* ── Global select-all toolbar (pending only) ── */}
+      {mode === "pending" && (
+        <div className="flex items-center justify-between gap-3 mb-4 px-3 py-2 bg-gray-50 border rounded-md">
+          <label className="flex items-center gap-2 cursor-pointer select-none text-sm font-medium">
+            <input
+              type="checkbox"
+              className="checkbox checkbox-sm"
+              checked={isAllSelected}
+              ref={(el) => {
+                if (el) el.indeterminate = isIndeterminate
+              }}
+              onChange={(e) => handleSelectAll(e.target.checked)}
+            />
+            Select all
+            <span className="text-gray-500 font-normal">
+              ({selectedGroup.length} / {allGroupIds.length} selected)
+            </span>
+          </label>
+
+          {selectedGroup.length > 0 && (
+            <div className="flex items-center gap-2">
+              <button
+                className="btn btn-sm btn-error"
+                onClick={() => approveM.mutate({ locationGroupIds: selectedGroup, approved: false })}
+                disabled={approveM.isLoading}
+              >
+                <X className="h-3 w-3" />
+                Reject
+              </button>
+              <button
+                className="btn btn-sm btn-success"
+                onClick={() => approveM.mutate({ locationGroupIds: selectedGroup, approved: true })}
+                disabled={approveM.isLoading}
+              >
+                <Check className="h-3 w-3" />
+                Approve
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ── Creator sections ── */}
       <div className="space-y-4">
         {Object.entries(groupsByCreator).map(([creatorId, creatorGroups]) => {
           const creatorName = creatorGroups[0]?.creator.name ?? "Unknown Creator"
+          const creatorGroupIds = creatorGroups.map((g) => g.id)
+          const allCreatorSelected = creatorGroupIds.every((id) => selectedGroup.includes(id))
+          const someCreatorSelected = creatorGroupIds.some((id) => selectedGroup.includes(id))
 
           const groupPins: Group = {}
           creatorGroups.forEach((group) => {
@@ -239,16 +293,35 @@ function PinsList({
           return (
             <div key={`creator-${creatorId}`} className="border rounded-md overflow-hidden">
               <Collapsible className="w-full">
-                <div className="flex items-center justify-between bg-gray-50 p-3">
+                <div className="flex items-center justify-between bg-gray-50 p-3 gap-2">
                   <h4 className="text-sm font-semibold truncate">
                     {CREATOR_TERM}: {creatorName}
                   </h4>
-                  <CollapsibleTrigger asChild>
-                    <Button variant="ghost" size="sm" className="flex-shrink-0 h-8 w-8 p-0">
-                      <ChevronDown className="h-4 w-4" />
-                      <span className="sr-only">Toggle</span>
-                    </Button>
-                  </CollapsibleTrigger>
+
+                  <div className="flex items-center gap-2 flex-shrink-0">
+                    {/* Per-creator select-all (pending only) */}
+                    {mode === "pending" && (
+                      <label className="flex items-center gap-1.5 cursor-pointer select-none text-xs text-gray-600 border rounded px-2 py-1 bg-white hover:bg-gray-100 transition-colors">
+                        <input
+                          type="checkbox"
+                          className="checkbox checkbox-xs"
+                          checked={allCreatorSelected}
+                          ref={(el) => {
+                            if (el) el.indeterminate = someCreatorSelected && !allCreatorSelected
+                          }}
+                          onChange={(e) => handleCreatorSelectAll(creatorId, e.target.checked)}
+                        />
+                        Select all
+                      </label>
+                    )}
+
+                    <CollapsibleTrigger asChild>
+                      <Button variant="ghost" size="sm" className="flex-shrink-0 h-8 w-8 p-0">
+                        <ChevronDown className="h-4 w-4" />
+                        <span className="sr-only">Toggle</span>
+                      </Button>
+                    </CollapsibleTrigger>
+                  </div>
                 </div>
 
                 <CollapsibleContent>
@@ -268,10 +341,9 @@ function PinsList({
                                   />
                                 </label>
                               )}
-
                               <div className="flex flex-col overflow-hidden">
-                                <span className="text-sm font-medium ">Title: {pins[0]?.title}</span>
-                                <span className="text-xs text-gray-600 ">
+                                <span className="text-sm font-medium">Title: {pins[0]?.title}</span>
+                                <span className="text-xs text-gray-600">
                                   Description: {pins[0]?.description}
                                 </span>
                               </div>
@@ -291,7 +363,6 @@ function PinsList({
                                   <Trash2 className="h-4 w-4 text-red-500" />
                                 </Button>
                               )}
-
                               <CollapsibleTrigger asChild>
                                 <Button variant="ghost" size="sm" className="h-7 w-7 p-0">
                                   <ChevronDown className="h-4 w-4" />
@@ -363,42 +434,7 @@ function PinsList({
         })}
       </div>
 
-      {mode === "pending" && (
-        <div className="flex w-full py-4">
-          <div className="flex w-full items-end justify-end gap-4">
-            <button
-              className="btn btn-primary"
-              onClick={() => {
-                approveM.mutate({
-                  locationGroupIds: selectedGroup,
-                  approved: true,
-                })
-                toast("Selected Groups: " + selectedGroup.join(", "))
-              }}
-              disabled={selectedGroup.length === 0 || approveM.isLoading}
-            >
-              <Check />
-              Approve
-            </button>
-            <button
-              onClick={() =>
-                approveM.mutate({
-                  locationGroupIds: selectedGroup,
-                  approved: false,
-                })
-              }
-              className="btn btn-error"
-              disabled={selectedGroup.length === 0 || approveM.isLoading}
-            >
-              <X />
-              Reject
-            </button>
-          </div>
-        </div>
-      )}
-
       {pinData && <PinInfoUpdateModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} pinData={pinData} />}
     </div>
   )
 }
-

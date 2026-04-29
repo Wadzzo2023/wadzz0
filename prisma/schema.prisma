@@ -36,6 +36,7 @@ enum PinType {
     EXPERIENCE
     LAUNCH
     OTHER
+    LANDMARK
 }
 
 enum NotificationType {
@@ -204,7 +205,9 @@ model Creator {
 
     customPageAssetCodeIssuer String? // CODE-ISSUER-ASSET-USD
 
-    user               User                @relation(fields: [id], references: [id], onDelete: Cascade)
+    extraFields Json? // {navPermission?: true}
+
+    user               User                  @relation(fields: [id], references: [id], onDelete: Cascade)
     posts              Post[]
     subscriptions      Subscription[]
     assets             Asset[]
@@ -217,7 +220,11 @@ model Creator {
     Album              Album[]
     Song               Song[]
     SellPageAsset      SellPageAsset[]
-    createdAt          DateTime            @default(now())
+    pinAgentSessions   PinAgentChatSession[] @relation("pinAgentSessions")
+    pinAgentMessages   PinAgentChatHistory[] @relation("pinAgentMessages")
+    createdAt          DateTime              @default(now())
+    hotspots           Hotspot[]
+    locationGroupJobs  LocationGroupJob[]
 
     @@index([bio, name])
 }
@@ -287,6 +294,8 @@ model User {
     name          String?   @unique
     email         String?   @unique
     bio           String?
+    coverImage    String?
+    pronouns      String?
     image         String?
     emailVerified DateTime?
 
@@ -438,11 +447,11 @@ model MarketAsset {
     assetId Int
     asset   Asset @relation(fields: [assetId], references: [id], onDelete: Cascade)
 
-    placedAt DateTime @default(now())
-
-    placerId  String? // admin placing this assets
-    placer    Creator? @relation(fields: [placerId], references: [id], onDelete: Cascade)
+    placedAt  DateTime @default(now())
     createdAt DateTime @default(now())
+
+    placerId String? // admin placing this assets
+    placer   Creator? @relation(fields: [placerId], references: [id], onDelete: Cascade)
 
     @@unique([assetId, placerId])
 }
@@ -515,6 +524,36 @@ model Admin {
 }
 
 // ------------------------Mapping SCHEMA-------------------------
+model Hotspot {
+    id        String  @id @default(cuid())
+    creatorId String
+    creator   Creator @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+
+    // Drop schedule
+    dropEveryDays    Int // interval in days between drops
+    pinDurationDays  Int // lifetime of each dropped LocationGroup (days)
+    hotspotStartDate DateTime // when the first drop fires
+    hotspotEndDate   DateTime // after this no new drops
+
+    // Colletion
+    autoCollect Boolean @default(false) // if true then it will automatically collect from users when they come in the geo fence, otherwise they need to manually click collect button
+    multiPin    Boolean @default(false) // if true then it will drop multiple pins in the geo fence, otherwise it will drop only one pin
+
+    // Geo
+    shape   String // "circle" | "square" | "polygon"
+    geoJson Json // GeoJSON Feature
+
+    // QStash
+    qstashScheduleId String?
+    isActive         Boolean @default(true)
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    // The first LocationGroup is the "template" (hotspotTemplate: true).
+    // Every subsequent drop clones it and sets hotspotTemplate: false.
+    locationGroups LocationGroup[]
+}
 
 model LocationGroup {
     id String @id @default(cuid())
@@ -552,9 +591,11 @@ model LocationGroup {
     aiUrlDescriptions String[] @default([])
 
     multiPin Boolean @default(false)
-    type     PinType @default(OTHER) // Added new type field
+    type     PinType @default(OTHER) // EVENT, LANDMARK, BOUNTY, EXPERIENCE, LAUNCH, OTHER
 
     locations Location[]
+    hotspot   Hotspot?   @relation(fields: [hotspotId], references: [id])
+    hotspotId String?
 }
 
 model Location {
@@ -578,9 +619,11 @@ model LocationConsumer {
     user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
     locationId String
-    location   Location @relation(fields: [locationId], references: [id], onDelete: Cascade)
-
-    claimedAt DateTime?
+    location   Location  @relation(fields: [locationId], references: [id], onDelete: Cascade)
+    redeemCode String    @unique
+    isRedeemed Boolean   @default(false)
+    redeemedAt DateTime?
+    claimedAt  DateTime?
 
     viewedAt DateTime?
 
@@ -772,4 +815,59 @@ model QRDescription {
 
     @@unique([qrItemId, order]) // Ensure unique order per QR item
     @@index([qrItemId, order])
+}
+
+// Pin Agent Chat Session
+model PinAgentChatSession {
+    id        String  @id @default(cuid())
+    creatorId String
+    creator   Creator @relation("pinAgentSessions", fields: [creatorId], references: [id], onDelete: Cascade)
+
+    title    String
+    messages PinAgentChatHistory[]
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    @@index([creatorId, updatedAt])
+}
+
+// Pin Agent Chat History
+model PinAgentChatHistory {
+    id        String  @id @default(cuid())
+    creatorId String
+    creator   Creator @relation("pinAgentMessages", fields: [creatorId], references: [id], onDelete: Cascade)
+
+    sessionId String
+    session   PinAgentChatSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+    role    String // "user" or "assistant"
+    content String @db.Text
+
+    createdAt DateTime @default(now())
+
+    @@index([creatorId, createdAt])
+    @@index([sessionId, createdAt])
+}
+
+model LocationGroupJob {
+    id        String @id @default(cuid())
+    creatorId String
+
+    status    String @default("pending")
+    total     Int    @default(0)
+    completed Int    @default(0)
+
+    payload    Json
+    redeemMode String @default("separate")
+
+    log   Json    @default("[]")
+    error String?
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    creator Creator @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+
+    @@index([creatorId, createdAt])
 }

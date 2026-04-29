@@ -13,6 +13,7 @@ import { s3Router } from "./routers/s3";
 import { widgetRouter } from "./routers/widget";
 import { qrRouter } from "./routers/qr";
 import { agentRouter } from "./routers/agent";
+import { pinAgentRouter } from "./routers/pin-agent";
 
 /**
  * This is the primary router for your server.
@@ -34,6 +35,8 @@ export const appRouter = createTRPCRouter({
   widget: widgetRouter,
   qr: qrRouter,
   agent: agentRouter,
+  pinAgent: pinAgentRouter
+
 });
 
 // export type definition of API

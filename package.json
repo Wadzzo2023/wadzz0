@@ -15,6 +15,7 @@
     "test": "vitest"
   },
   "dependencies": {
+    "@ai-sdk/openai": "^0.0.66",
     "@albedo-link/intent": "^0.12.0",
     "@albedo-link/signature-verification": "^0.1.2",
     "@aws-sdk/client-s3": "^3.717.0",
@@ -68,6 +69,7 @@
     "@types/nodemailer": "^6.4.16",
     "@types/three": "^0.169.0",
     "@uiw/react-md-editor": "^4.0.4",
+    "@upstash/qstash": "^2.10.1",
     "@vis.gl/react-google-maps": "^1.1.0",
     "@walletconnect/modal": "2.6.2",
     "@walletconnect/sign-client": "2.11.2",
@@ -76,6 +78,7 @@
     "@web3modal/react": "^2.7.1",
     "@web3modal/standalone": "^2.4.3",
     "@web3modal/ui": "2.0.0-beta.7",
+    "ai": "^3.4.33",
     "axios": "^1.7.2",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
@@ -95,7 +98,7 @@
     "jwks-rsa": "^3.1.0",
     "lodash": "^4.17.21",
     "lodash.isequal": "^4.5.0",
-    "lottie-react": "^2.4.0",
+    "lottie-react": "^2.4.1",
     "lucide-react": "^0.471.0",
     "mapbox-gl": "^3.9.4",
     "next": "^14.2.5",
@@ -139,7 +142,7 @@
     "ts-pattern": "^5.2.0",
     "use-places-autocomplete": "^4.0.1",
     "vaul": "^0.9.1",
-    "zod": "^3.23.8",
+    "zod": "^3.25.76",
     "zustand": "^4.5.4"
   },
   "devDependencies": {
@@ -176,5 +179,6 @@
   },
   "engines": {
     "node": ">=18.17.0"
-  }
+  },
+  "packageManager": "pnpm@10.13.1+sha512.37ebf1a5c7a30d5fabe0c5df44ee8da4c965ca0c5af3dbab28c3a1681b70a256218d05c81c9c0dcf767ef6b8551eb5b960042b9ed4300c59242336377e01cfad"
 }

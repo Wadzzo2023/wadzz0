@@ -95,7 +95,9 @@ function NavigationButtons() {
 function LeftBottom() {
   return (
     <div className="flex w-full flex-col justify-center gap-1">
-      <ConnectWalletButton />
+      <div className="mb-4 flex w-full justify-center">
+        <ConnectWalletButton />
+      </div>
       <div className="flex justify-between space-x-2">
         <Link
           href={"https://facebook.com/wadzzo"}

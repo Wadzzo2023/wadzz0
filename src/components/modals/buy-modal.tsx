@@ -168,7 +168,7 @@ export default function BuyModal() {
 
                     <div className="flex items-center gap-2 text-sm text-gray-400">
                       <span className="h-auto p-0 text-xs text-[#00a8fc]">
-                        ISSUER ID: {addrShort(data.Asset.asset.issuer, 5)}
+                        ISSUER  ID: {addrShort(data.Asset.asset.issuer, 5)}
                       </span>
                       <Badge variant="destructive" className=" rounded-lg">
                         {data.Asset.asset.code}

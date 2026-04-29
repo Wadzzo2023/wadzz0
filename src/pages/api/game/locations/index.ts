@@ -109,7 +109,7 @@ export default async function handler(
         endDate: { gte: new Date() },
         subscriptionId: { equals: null },
         remaining: { gt: 0 },
-        hidden: false,
+        hidden: { equals: false },
       },
       include: {
         locations: {
@@ -117,6 +117,8 @@ export default async function handler(
             consumers: {
               select: {
                 userId: true,
+                redeemCode: true,
+                isRedeemed: true,
               },
             },
           },
@@ -204,9 +206,11 @@ export default async function handler(
         collected: location.collected,
         collection_limit_remaining: location.remaining,
         auto_collect: location.autoCollect,
-        brand_image_url: location.creator.profileUrl ?? abaterIconUrl,
+        brand_image_url: location.image ?? location.creator.profileUrl ?? WadzzoIconURL,
         brand_id: location.creatorId,
         public: true,
+        redeemCode: location.consumers.find((c) => c.userId === userId)?.redeemCode ?? null,
+        isRedeemed: location.consumers.find((c) => c.userId === userId)?.isRedeemed ?? null,
       };
     });
 

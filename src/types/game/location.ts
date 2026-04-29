@@ -14,6 +14,9 @@ export interface Location {
   brand_image_url: string;
   brand_id: string;
   aiUrlDescriptions?: string[];
+  redeemCode: string | null;
+  isRedeemed: boolean | null;
+
 }
 
 export interface ConsumedLocation extends Location {

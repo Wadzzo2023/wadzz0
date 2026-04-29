@@ -4,6 +4,7 @@ import {
   AdvancedMarker,
   Map,
   MapMouseEvent,
+  Marker,
 } from "@vis.gl/react-google-maps";
 import { motion } from "framer-motion";
 
@@ -328,6 +329,12 @@ function App() {
         disableDefaultUI={true}
         onDragend={() => handleDragEnd()}
       >
+        {position && (
+          <Marker
+            position={{ lat: position.lat, lng: position.lng }}
+
+          />
+        )}
         {centerChanged && searchCoordinates && (
           <AdvancedMarker
             style={{
@@ -388,7 +395,7 @@ function App() {
       <div className="hidden md:block">
         <SideMapItem setAlreadySelectedPlace={setAlreadySelectedPlace} />
       </div>
-      <div className="absolute bottom-5 right-2 flex flex-col items-center gap-4 md:flex-row">
+      <div className="absolute  bottom-24 md:bottom-5  right-2 flex flex-col items-center gap-4 md:flex-row">
         <ManualPinButton handleClick={handleManualPinClick} />
         <ReportCollection />
       </div>
@@ -453,11 +460,12 @@ const SideMapItem = memo(function SideMapItem({
                     </h3>
                     <div className="mt-1 flex items-center gap-1">
                       <Avatar className="h-6 w-6">
-                        <Image
+                        <img
                           width={24}
                           height={24}
                           src={pin.locationGroup?.image ?? "/favicon.ico"}
                           alt="Creator"
+                          className="h-full w-full"
                         />
                       </Avatar>
                       <Badge variant="secondary" className="text-xs">
@@ -614,8 +622,8 @@ const MyPins = memo(function MyPins({
               setIsAutoCollect(pin.autoCollect); // Set isAutoCollect to true when a pin is clicked
             }}
           >
-            <Image
-              src={pin.locationGroup?.creator.profileUrl ?? "/favicon.ico"}
+            <img
+              src={pin.locationGroup?.image ?? pin.locationGroup?.creator.profileUrl ?? "/favicon.ico"}
               width={30}
               height={30}
               alt="Creator"
