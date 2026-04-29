@@ -12,10 +12,10 @@ const withBundleAnalyzer = analyzer({
 const config = {
   transpilePackages: ["three"],
   typescript: {
-    ignoreBuildErrors: true,
+    ignoreBuildErrors: false,
   },
   eslint: {
-    ignoreDuringBuilds: true,
+    ignoreDuringBuilds: false,
   },
 
   reactStrictMode: true,

@@ -212,6 +212,13 @@ export const creatorRouter = createTRPCRouter({
   getCreators: protectedProcedure.query(async ({ input, ctx }) => {
     const items = await ctx.db.creator.findMany({
       where: { approved: { equals: true } },
+      include: {
+        _count: {
+          select: {
+            followers: true,
+          }
+        }
+      }
     });
     return items;
   }),

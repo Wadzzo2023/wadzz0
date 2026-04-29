@@ -189,7 +189,7 @@ const CreatorCollectionReport = ({
       {!isAdmin && (
         <div className="mb-6">
           <Button variant="ghost" size="sm" asChild className="mb-4">
-            <Link href="/fan/creator" className="flex items-center">
+            <Link href="/fans/creator" className="flex items-center">
               <ArrowLeft className="mr-2 h-4 w-4" />
               Back to Creator Dashboard
             </Link>
@@ -405,8 +405,8 @@ const CreatorCollectionReport = ({
                                 <div className="text-xs text-muted-foreground">
                                   {consumer.claimedAt
                                     ? new Date(
-                                        consumer.claimedAt,
-                                      ).toLocaleDateString()
+                                      consumer.claimedAt,
+                                    ).toLocaleDateString()
                                     : "Unknown date"}
                                 </div>
                               </div>
@@ -1198,8 +1198,8 @@ export function TableData({
                           <div className="text-xs">
                             {consumer.claimed_at
                               ? new Date(
-                                  consumer.claimed_at,
-                                ).toLocaleDateString()
+                                consumer.claimed_at,
+                              ).toLocaleDateString()
                               : "N/A"}
                           </div>
                         </TableCell>

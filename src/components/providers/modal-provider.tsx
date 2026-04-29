@@ -32,7 +32,6 @@ const ModalProvider = () => {
       <SendAssets />
       <ReceiveAssetsModal />
       <AddAssets />
-      <MapModalComponent />
       <CopyCutPinModal />
       <ClaimPinModal />
       <ShareModal />

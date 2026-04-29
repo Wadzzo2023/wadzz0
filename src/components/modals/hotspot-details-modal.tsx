@@ -66,7 +66,7 @@ const HotspotDetailModal: React.FC<Props> = ({
             <div className="flex items-start justify-between gap-3">
               <div>
                 <DialogTitle className="text-base font-semibold tracking-tight text-card-foreground">
-                  {h?.title || "Hotspot"}
+                  {h?.locationGroups[0]?.title ?? "Hotspot"}
                 </DialogTitle>
                 <DialogDescription className="mt-0.5 text-[0.7rem] uppercase tracking-widest text-muted-foreground">
                   {h ? "Schedule details" : null}
