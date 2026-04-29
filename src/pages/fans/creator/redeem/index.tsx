@@ -79,8 +79,8 @@ function TypeBadge({ type }: { type: string }) {
     };
     const cfg = map[type] ?? map.LANDMARK;
     return (
-        <span className={`flex items-center gap-1 rounded-md border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${cfg.cls}`}>
-            {cfg.icon}{cfg.label}
+        <span className={`flex items-center gap-1 rounded-md border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${cfg?.cls}`}>
+            {cfg?.icon}{cfg?.label}
         </span>
     );
 }
@@ -866,7 +866,7 @@ function HistoryTab() {
 
     // Group rendered items by location group
     const grouped = allItems.reduce<Record<string, { group: LocationGroup; items: HistoryItem[] }>>((acc, item) => {
-        const gid = item.location.id;
+        const gid = item.location?.id;
         if (!acc[gid]) acc[gid] = { group: item.location, items: [] };
         acc[gid].items.push(item);
         return acc;

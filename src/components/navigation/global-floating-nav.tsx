@@ -60,7 +60,7 @@ const baseItems: NavItem[] = Object.entries(LeftNavigation)
       item.path === "/assets" || item.text.toLowerCase().includes("collection");
     const mappedIcon = item.path.includes("/music")
       ? Music
-      : item.path === "/feed" || item.path === "/fans/home"
+      : item.path === "/fans/home"
         ? Newspaper
         : isCollectionRoute
           ? Library
@@ -116,7 +116,7 @@ function FloatingNavItem({
         isActive && "text-black",
         item.dashed ? "border-dashed border-black/35" : "border-solid",
         isActive &&
-          "shadow-[0_0_0_1px_rgba(22,163,74,0.5),0_0_18px_rgba(22,163,74,0.4)]",
+        "shadow-[0_0_0_1px_rgba(22,163,74,0.5),0_0_18px_rgba(22,163,74,0.4)]",
       )}
       transition={{ type: "spring", stiffness: 180, damping: 24, mass: 0.9 }}
     >
@@ -130,7 +130,7 @@ function FloatingNavItem({
         className={cn(
           "pointer-events-none absolute inset-0 z-0 rounded-xl shadow-[inset_1px_1px_1px_0_rgba(255,255,255,0.8),_inset_-1px_-1px_1px_1px_rgba(255,255,255,0.5)]",
           isActive &&
-            "shadow-[inset_1px_1px_1px_0_rgba(220,252,231,0.98),_inset_-1px_-1px_1px_1px_rgba(187,247,208,0.8),0_0_16px_rgba(22,163,74,0.42)]",
+          "shadow-[inset_1px_1px_1px_0_rgba(220,252,231,0.98),_inset_-1px_-1px_1px_1px_rgba(187,247,208,0.8),0_0_16px_rgba(22,163,74,0.42)]",
         )}
       />
 

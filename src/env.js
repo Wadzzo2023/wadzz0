@@ -34,8 +34,7 @@ export const env = createEnv({
     // squire
     SQUARE_ACCESS_TOKEN: z.string(),
     SQUARE_ENVIRONMENT: z.string(),
-    // QStash
-    QSTASH_TOKEN: z.string(),
+
     // AWS
     AWS_BUCKET_NAME: z.string(),
     AWS_BUCKET_REGION: z.string(),
@@ -98,7 +97,6 @@ export const env = createEnv({
     NEXT_PUBLIC_LOG_ENABLE: process.env.NEXT_PUBLIC_LOG_ENABLE,
     NEXT_PUBLIC_HOME_DOMAIN: process.env.NEXT_PUBLIC_HOME_DOMAIN,
     NEXT_PUBLIC_URL: process.env.NEXT_PUBLIC_URL,
-    QSTASH_TOKEN: process.env.QSTASH_TOKEN,
     MOTHER_SECRET: process.env.MOTHER_SECRET,
     STORAGE_SECRET: process.env.STORAGE_SECRET,
     PINATA_JWT: process.env.PINATA_JWT,

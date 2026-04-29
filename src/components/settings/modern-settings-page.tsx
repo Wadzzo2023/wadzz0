@@ -143,7 +143,6 @@ const AboutUser = ({ user }: { user: UserSettingsType }) => {
               />
             </div>
             <UploadS3Button
-              className=""
               id="settings-profile-upload"
               endpoint="imageUploader"
               variant="hidden"
