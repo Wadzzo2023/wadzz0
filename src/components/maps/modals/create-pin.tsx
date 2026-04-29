@@ -8,7 +8,7 @@ import toast from "react-hot-toast";
 import { match } from "ts-pattern";
 import { z } from "zod";
 import { useCreatorStorageAcc } from "~/lib/state/wallete/stellar-balances";
-import { useMapModalStore } from "~/pages/maps";
+import { useMapModalStore } from "~/store/map-stores";
 import { api } from "~/utils/api";
 import { BADWORDS } from "~/utils/banned-word";
 import { error, loading, success } from "~/utils/trcp/patterns";

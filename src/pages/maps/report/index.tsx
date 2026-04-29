@@ -20,7 +20,6 @@ import {
   ArrowDownRight,
   ArrowLeft,
   Settings,
-  MessageCircle,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -95,8 +94,6 @@ type ConsumerType = {
 import type { InferGetServerSidePropsType, GetServerSideProps } from "next";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "~/server/auth";
-import { PinAgentChatBox } from "~/components/agent/PinChat";
-import { useSession } from "next-auth/react";
 
 // @ts-expect-error i don't know the type
 export const getServerSideProps = async (context) => {
@@ -116,10 +113,6 @@ const CreatorCollectionReport = ({
   const [selectedDays, setSelectedDays] = useState<number | undefined>(
     undefined,
   );
-  const session = useSession();
-
-  const [isOpen, setIsOpen] = useState(false);
-
   const [searchTerm, setSearchTerm] = useState("");
   const [activeTab, setActiveTab] = useState("overview");
   const [creatorId, setCreatorId] = useState<string | undefined>(userId);
@@ -196,7 +189,7 @@ const CreatorCollectionReport = ({
       {!isAdmin && (
         <div className="mb-6">
           <Button variant="ghost" size="sm" asChild className="mb-4">
-            <Link href="/fans/creator" className="flex items-center">
+            <Link href="/fan/creator" className="flex items-center">
               <ArrowLeft className="mr-2 h-4 w-4" />
               Back to Creator Dashboard
             </Link>
@@ -412,8 +405,8 @@ const CreatorCollectionReport = ({
                                 <div className="text-xs text-muted-foreground">
                                   {consumer.claimedAt
                                     ? new Date(
-                                      consumer.claimedAt,
-                                    ).toLocaleDateString()
+                                        consumer.claimedAt,
+                                      ).toLocaleDateString()
                                     : "Unknown date"}
                                 </div>
                               </div>
@@ -455,19 +448,6 @@ const CreatorCollectionReport = ({
           </Card>
         </TabsContent>
       </Tabs>
-      <Button
-        onClick={() => setIsOpen(true)}
-        className="fixed bottom-6 right-6 rounded-full h-14 w-14 p-0 shadow-lg animate-bounce"
-        size="icon"
-      >
-        <MessageCircle className="h-7 w-7 fill-current" />
-
-      </Button>
-      <PinAgentChatBox
-        creatorId={session.data?.user.id}
-        isOpen={isOpen}
-        closeChat={() => setIsOpen(false)}
-      />
     </div>
   );
 };
@@ -1218,8 +1198,8 @@ export function TableData({
                           <div className="text-xs">
                             {consumer.claimed_at
                               ? new Date(
-                                consumer.claimed_at,
-                              ).toLocaleDateString()
+                                  consumer.claimed_at,
+                                ).toLocaleDateString()
                               : "N/A"}
                           </div>
                         </TableCell>

@@ -5,10 +5,9 @@ import { Button } from "~/components/shadcn/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/shadcn/ui/card"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "~/components/shadcn/ui/dialog"
 import { Badge } from "~/components/shadcn/ui/badge"
-import { Eye, Edit, Trash2, DollarSign, Package } from 'lucide-react'
+import { Eye, Edit, Trash2, DollarSign, Package, CheckCircle2, Clock, MoreHorizontal, TrendingUp, Calendar } from 'lucide-react'
 import { api } from "~/utils/api"
 import toast from "react-hot-toast"
-import SellPageAssetUpdate from "./sell-page-asset-update"
 import {
     AlertDialog,
     AlertDialogAction,
@@ -20,7 +19,11 @@ import {
     AlertDialogTitle,
     AlertDialogTrigger,
 } from "~/components/shadcn/ui/alert-dialog"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "~/components/shadcn/ui/dropdown-menu"
 import { PLATFORM_ASSET } from "~/lib/stellar/constant"
+import SellPageAssetUpdate from "./sell-page-asset-update"
+import { Skeleton } from "./shadcn/ui/skeleton"
+import { Separator } from "./shadcn/ui/separator"
 
 interface SellPageAsset {
     id: number
@@ -78,112 +81,192 @@ export default function SellPageAssetList() {
 
     if (isLoading) {
         return (
-            <div className="flex justify-center items-center p-8">
-                <span className="loading loading-spinner mr-2"></span>
-                Loading your assets...
+            <div className="space-y-6">
+                <div className="flex justify-between items-center">
+                    <Skeleton className="h-6 w-24" />
+                </div>
+                <div className="grid gap-6">
+                    {[1, 2, 3].map((i) => (
+                        <Card key={i} className="overflow-hidden">
+                            <CardHeader className="pb-4">
+                                <div className="flex justify-between items-start">
+                                    <div className="flex-1 space-y-2">
+                                        <Skeleton className="h-6 w-3/4" />
+                                        <Skeleton className="h-4 w-full" />
+                                    </div>
+                                    <Skeleton className="h-8 w-8 ml-4" />
+                                </div>
+                            </CardHeader>
+                            <CardContent>
+                                <div className="grid grid-cols-3 gap-4">
+                                    <Skeleton className="h-12 w-full" />
+                                    <Skeleton className="h-12 w-full" />
+                                    <Skeleton className="h-12 w-full" />
+                                </div>
+                            </CardContent>
+                        </Card>
+                    ))}
+                </div>
             </div>
         )
     }
 
     if (!assets || assets.length === 0) {
         return (
-            <div className="text-center p-8">
-                <Package className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-                <h3 className="text-lg font-medium text-muted-foreground mb-2">No assets found</h3>
-                <p className="text-sm text-muted-foreground">You haven{"'"}t created any sell page assets yet.</p>
+            <div className="text-center py-12">
+                <div className="mx-auto w-24 h-24 bg-muted rounded-full flex items-center justify-center mb-6">
+                    <Package className="h-12 w-12 text-muted-foreground" />
+                </div>
+                <h3 className="text-xl font-semibold text-foreground mb-2">No assets found</h3>
+                <p className="text-muted-foreground mb-6 max-w-sm mx-auto">
+                    You haven{"'"}t created any sell page assets yet. Create your first asset to get started.
+                </p>
+                <Button>
+                    <Package className="h-4 w-4 mr-2" />
+                    Create Asset
+                </Button>
             </div>
         )
     }
 
     return (
-        <div className="space-y-4">
+        <div className="space-y-6">
+            {/* Header */}
             <div className="flex justify-between items-center">
-                <Badge variant="secondary">{assets.length} assets</Badge>
+                <div className="flex items-center gap-3">
+                    <Badge variant="secondary" className="px-3 py-1">
+                        {assets.length} {assets.length === 1 ? "asset" : "assets"}
+                    </Badge>
+                    <Badge variant="outline" className="px-3 py-1">
+                        {assets.filter((a) => !a.isSold).length} available
+                    </Badge>
+                </div>
             </div>
 
-            <div className="grid gap-4">
+            {/* Asset Grid */}
+            <div className="grid gap-6">
                 {assets.map((asset) => (
-                    <Card key={asset.id} className={`${asset.isSold ? 'opacity-60' : ''}`}>
-                        <CardHeader className="pb-3">
+                    <Card
+                        key={asset.id}
+                        className={`overflow-hidden transition-all hover:shadow-md ${asset.isSold ? "bg-muted/30" : "bg-background"
+                            }`}
+                    >
+                        <CardHeader className="pb-4">
                             <div className="flex justify-between items-start">
                                 <div className="flex-1">
-                                    <CardTitle className="text-lg flex items-center gap-2">
-                                        {asset.title}
-                                        {asset.isSold && <Badge variant="secondary">Sold</Badge>}
-                                    </CardTitle>
+                                    <div className="flex items-center gap-3 mb-2">
+                                        <CardTitle className="text-xl font-semibold">{asset.title}</CardTitle>
+                                        <Badge
+                                            variant={asset.isSold ? "secondary" : "default"}
+                                            className={asset.isSold ? "bg-green-100 text-green-800" : "bg-blue-100 text-blue-800"}
+                                        >
+                                            {asset.isSold ? (
+                                                <>
+                                                    <CheckCircle2 className="h-3 w-3 mr-1" />
+                                                    Sold
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <Clock className="h-3 w-3 mr-1" />
+                                                    Available
+                                                </>
+                                            )}
+                                        </Badge>
+                                    </div>
                                     {asset.description && (
-                                        <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
-                                            {asset.description}
-                                        </p>
+                                        <p className="text-muted-foreground text-sm leading-relaxed line-clamp-2">{asset.description}</p>
                                     )}
-                                </div>
-                                <div className="flex gap-2 ml-4">
-                                    <Button
-                                        variant="outline"
-                                        size="sm"
-                                        onClick={() => handleView(asset)}
-                                    >
-                                        <Eye className="h-4 w-4" />
-                                    </Button>
-                                    {!asset.isSold && (
-                                        <>
-                                            <Button
-                                                variant="outline"
-                                                size="sm"
-                                                onClick={() => handleEdit(asset)}
-                                            >
-                                                <Edit className="h-4 w-4" />
-                                            </Button>
-                                            <AlertDialog>
-                                                <AlertDialogTrigger asChild>
-                                                    <Button variant="outline" size="sm">
-                                                        <Trash2 className="h-4 w-4 text-red-500" />
-                                                    </Button>
-                                                </AlertDialogTrigger>
-                                                <AlertDialogContent>
-                                                    <AlertDialogHeader>
-                                                        <AlertDialogTitle>Delete Asset</AlertDialogTitle>
-                                                        <AlertDialogDescription>
-                                                            Are you sure you want to delete {asset.title}? This action cannot be undone.
-                                                        </AlertDialogDescription>
-                                                    </AlertDialogHeader>
-                                                    <AlertDialogFooter>
-                                                        <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                                        <AlertDialogAction
-                                                            onClick={() => handleDelete(asset.id)}
-                                                            className="bg-red-600 hover:bg-red-700"
-                                                        >
-                                                            Delete
-                                                        </AlertDialogAction>
-                                                    </AlertDialogFooter>
-                                                </AlertDialogContent>
-                                            </AlertDialog>
-                                        </>
-                                    )}
-                                </div>
-                            </div>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
-                                <div>
-                                    <p className="text-muted-foreground">Amount</p>
-                                    <p className="font-medium">{asset.amountToSell} units</p>
-                                </div>
-                                <div>
-                                    <h3 className="font-medium text-sm text-muted-foreground"> Price in {PLATFORM_ASSET.code}</h3>
-                                    <p className="font-medium">{asset.price}</p>
-                                </div>
-                                <div>
-                                    <p className="text-muted-foreground">USD Price</p>
-                                    <p className="font-medium">${asset.priceUSD}</p>
                                 </div>
 
+                                {/* Actions */}
+                                <DropdownMenu>
+                                    <DropdownMenuTrigger asChild>
+                                        <Button variant="ghost" size="sm" className="ml-4">
+                                            <MoreHorizontal className="h-4 w-4" />
+                                        </Button>
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent align="end" className="w-48">
+                                        <DropdownMenuItem onClick={() => handleView(asset)}>
+                                            <Eye className="h-4 w-4 mr-2" />
+                                            View Details
+                                        </DropdownMenuItem>
+                                        {!asset.isSold && (
+                                            <>
+                                                <DropdownMenuItem onClick={() => handleEdit(asset)}>
+                                                    <Edit className="h-4 w-4 mr-2" />
+                                                    Edit Asset
+                                                </DropdownMenuItem>
+                                                <DropdownMenuSeparator />
+                                                <AlertDialog>
+                                                    <AlertDialogTrigger asChild>
+                                                        <DropdownMenuItem
+                                                            onSelect={(e) => e.preventDefault()}
+                                                            className="text-red-600 focus:text-red-600"
+                                                        >
+                                                            <Trash2 className="h-4 w-4 mr-2" />
+                                                            Delete Asset
+                                                        </DropdownMenuItem>
+                                                    </AlertDialogTrigger>
+                                                    <AlertDialogContent>
+                                                        <AlertDialogHeader>
+                                                            <AlertDialogTitle>Delete Asset</AlertDialogTitle>
+                                                            <AlertDialogDescription>
+                                                                Are you sure you want to delete {asset.title}? This action cannot be undone.
+                                                            </AlertDialogDescription>
+                                                        </AlertDialogHeader>
+                                                        <AlertDialogFooter>
+                                                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                            <AlertDialogAction
+                                                                onClick={() => handleDelete(asset.id)}
+                                                                className="bg-red-600 hover:bg-red-700"
+                                                            >
+                                                                Delete
+                                                            </AlertDialogAction>
+                                                        </AlertDialogFooter>
+                                                    </AlertDialogContent>
+                                                </AlertDialog>
+                                            </>
+                                        )}
+                                    </DropdownMenuContent>
+                                </DropdownMenu>
                             </div>
-                            <div className="mt-3 pt-3 border-t text-xs text-muted-foreground">
-                                <p>Created: {formatDate(asset.placedAt)}</p>
-                                {asset.isSold && asset.soldAt && (
-                                    <p>Sold: {formatDate(asset.soldAt)}</p>
-                                )}
+                        </CardHeader>
+
+                        <CardContent className="space-y-4">
+                            {/* Pricing Grid */}
+                            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                                <div className="bg-muted/50 rounded-lg p-4">
+                                    <div className="flex items-center gap-2 mb-1">
+                                        <Package className="h-4 w-4 text-muted-foreground" />
+                                        <span className="text-sm font-medium text-muted-foreground">Amount</span>
+                                    </div>
+                                    <p className="text-lg font-semibold">{asset.amountToSell.toLocaleString()}</p>
+                                    <p className="text-xs text-muted-foreground">units</p>
+                                </div>
+
+                                <div className="bg-muted/50 rounded-lg p-4">
+                                    <div className="flex items-center gap-2 mb-1">
+                                        <DollarSign className="h-4 w-4 text-muted-foreground" />
+                                        <span className="text-sm font-medium text-muted-foreground">Unit Price</span>
+                                    </div>
+                                    <p className="text-lg font-semibold">{asset.priceUSD}</p>
+                                    <p className="text-xs text-muted-foreground">
+                                        {asset.price} {PLATFORM_ASSET.code}
+                                    </p>
+                                </div>
+
+
+                                <div className="bg-muted/50 rounded-lg p-4">
+                                    <div className="flex items-center gap-2 mb-1">
+                                        <Calendar className="h-4 w-4 text-muted-foreground" />
+                                        <span className="text-sm font-medium text-muted-foreground">
+                                            {asset.isSold ? "Sold Date" : "Created"}
+                                        </span>
+                                    </div>
+                                    <p className="text-sm font-medium">
+                                        {formatDate(asset.isSold && asset.soldAt ? asset.soldAt : asset.placedAt)}
+                                    </p>
+                                </div>
                             </div>
                         </CardContent>
                     </Card>
@@ -192,74 +275,114 @@ export default function SellPageAssetList() {
 
             {/* View Dialog */}
             <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
-                <DialogContent className="max-w-2xl">
+                <DialogContent className="max-w-4xl max-h-[90vh] overflow-auto">
                     <DialogHeader>
-                        <DialogTitle className="flex items-center gap-2">
+                        <DialogTitle className="flex items-center gap-2 text-xl">
                             <Eye className="h-5 w-5" />
                             Asset Details
                         </DialogTitle>
                     </DialogHeader>
                     {selectedAsset && (
                         <div className="space-y-6">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div className="space-y-4">
-                                    <div>
-                                        <h3 className="font-medium text-sm text-muted-foreground">Title</h3>
-                                        <p className="text-lg font-medium">{selectedAsset.title}</p>
-                                    </div>
-                                    {selectedAsset.description && (
-                                        <div>
-                                            <h3 className="font-medium text-sm text-muted-foreground">Description</h3>
-                                            <p className="text-sm">{selectedAsset.description}</p>
-                                        </div>
-                                    )}
-                                    <div>
-                                        <h3 className="font-medium text-sm text-muted-foreground">Status</h3>
-                                        <Badge variant={selectedAsset.isSold ? "secondary" : "default"}>
-                                            {selectedAsset.isSold ? "Sold" : "Available"}
-                                        </Badge>
-                                    </div>
+                            {/* Header Info */}
+                            <div className="flex items-start justify-between">
+                                <div>
+                                    <h2 className="text-2xl font-bold mb-2">{selectedAsset.title}</h2>
+                                    <Badge
+                                        variant={selectedAsset.isSold ? "secondary" : "default"}
+                                        className={`${selectedAsset.isSold ? "bg-green-100 text-green-800" : "bg-blue-100 text-blue-800"} px-3 py-1`}
+                                    >
+                                        {selectedAsset.isSold ? (
+                                            <>
+                                                <CheckCircle2 className="h-4 w-4 mr-1" />
+                                                Sold
+                                            </>
+                                        ) : (
+                                            <>
+                                                <Clock className="h-4 w-4 mr-1" />
+                                                Available
+                                            </>
+                                        )}
+                                    </Badge>
                                 </div>
-                                <div className="space-y-4">
-                                    <div>
-                                        <h3 className="font-medium text-sm text-muted-foreground">Amount to Sell</h3>
-                                        <p className="text-lg font-medium">{selectedAsset.amountToSell} units</p>
-                                    </div>
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <div>
-                                            <h3 className="font-medium text-sm text-muted-foreground"> Price in {PLATFORM_ASSET.code}</h3>
-                                            <p className="font-medium">{selectedAsset.price}</p>
-                                        </div>
-                                        <div>
-                                            <h3 className="font-medium text-sm text-muted-foreground">USD Price</h3>
-                                            <p className="font-medium">${selectedAsset.priceUSD}</p>
-                                        </div>
-                                    </div>
+                            </div>
+
+                            {selectedAsset.description && (
+                                <div>
+                                    <h3 className="font-semibold text-lg mb-2">Description</h3>
+                                    <p className="text-muted-foreground leading-relaxed">{selectedAsset.description}</p>
+                                </div>
+                            )}
+
+                            <Separator />
+
+                            {/* Pricing Details */}
+                            <div>
+                                <h3 className="font-semibold text-lg mb-4">Pricing Information</h3>
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                    <Card>
+                                        <CardContent className="p-4">
+                                            <div className="flex items-center gap-2 mb-2">
+                                                <Package className="h-5 w-5 text-blue-600" />
+                                                <span className="font-medium">Amount</span>
+                                            </div>
+                                            <p className="text-2xl font-bold">{selectedAsset.amountToSell.toLocaleString()}</p>
+                                            <p className="text-sm text-muted-foreground">units available</p>
+                                        </CardContent>
+                                    </Card>
+
+
+
+                                    <Card>
+                                        <CardContent className="p-4">
+                                            <div className="flex items-center gap-2 mb-2">
+                                                <span className="font-medium">Unit Price ({PLATFORM_ASSET.code})</span>
+                                            </div>
+                                            <p className="text-2xl font-bold">{selectedAsset.price}</p>
+                                            <p className="text-sm text-muted-foreground">per unit</p>
+                                        </CardContent>
+                                    </Card>
+
                                     {selectedAsset.priceXLM > 0 && (
-                                        <div>
-                                            <h3 className="font-medium text-sm text-muted-foreground">XLM Price</h3>
-                                            <p className="font-medium">{selectedAsset.priceXLM} XLM</p>
-                                        </div>
+                                        <Card>
+                                            <CardContent className="p-4">
+                                                <div className="flex items-center gap-2 mb-2">
+                                                    <span className="font-medium">Unit Price (XLM)</span>
+                                                </div>
+                                                <p className="text-2xl font-bold">{selectedAsset.priceXLM}</p>
+                                                <p className="text-sm text-muted-foreground">per unit</p>
+                                            </CardContent>
+                                        </Card>
                                     )}
                                 </div>
                             </div>
-                            <div className="border-t pt-4">
-                                <div className="grid grid-cols-2 gap-4 text-sm">
-                                    <div>
-                                        <h3 className="font-medium text-muted-foreground">Total Platform Value</h3>
-                                        <p className="text-lg font-bold">{selectedAsset.price * selectedAsset.amountToSell}</p>
+
+                            <Separator />
+
+
+                            <Separator />
+
+                            {/* Timeline */}
+                            <div>
+                                <h3 className="font-semibold text-lg mb-4">Timeline</h3>
+                                <div className="space-y-3">
+                                    <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
+                                        <Calendar className="h-5 w-5 text-muted-foreground" />
+                                        <div>
+                                            <p className="font-medium">Created</p>
+                                            <p className="text-sm text-muted-foreground">{formatDate(selectedAsset.placedAt)}</p>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <h3 className="font-medium text-muted-foreground">Total USD Value</h3>
-                                        <p className="text-lg font-bold">${(selectedAsset.priceUSD * selectedAsset.amountToSell).toFixed(2)}</p>
-                                    </div>
+                                    {selectedAsset.isSold && selectedAsset.soldAt && (
+                                        <div className="flex items-center gap-3 p-3 bg-green-50 rounded-lg">
+                                            <CheckCircle2 className="h-5 w-5 text-green-600" />
+                                            <div>
+                                                <p className="font-medium text-green-800">Sold</p>
+                                                <p className="text-sm text-green-600">{formatDate(selectedAsset.soldAt)}</p>
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
-                            </div>
-                            <div className="border-t pt-4 text-xs text-muted-foreground">
-                                <p>Created: {formatDate(selectedAsset.placedAt)}</p>
-                                {selectedAsset.isSold && selectedAsset.soldAt && (
-                                    <p>Sold: {formatDate(selectedAsset.soldAt)}</p>
-                                )}
                             </div>
                         </div>
                     )}
@@ -276,14 +399,16 @@ export default function SellPageAssetList() {
                         </DialogTitle>
                     </DialogHeader>
                     {selectedAsset && (
-                        <SellPageAssetUpdate
-                            asset={selectedAsset}
-                            onClose={() => {
-                                setIsUpdateDialogOpen(false)
-                                setSelectedAsset(null)
-                                refetch()
-                            }}
-                        />
+                        <div className="p-4">
+                            <SellPageAssetUpdate
+                                asset={selectedAsset}
+                                onClose={() => {
+                                    setIsUpdateDialogOpen(false)
+                                    setSelectedAsset(null)
+                                    refetch()
+                                }}
+                            />
+                        </div>
                     )}
                 </DialogContent>
             </Dialog>

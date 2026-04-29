@@ -231,6 +231,54 @@ export const membershipRouter = createTRPCRouter({
       else false;
     }),
 
+  getFollowedCreators: protectedProcedure
+    .input(
+      z.object({
+        limit: z.number().default(10),
+        cursor: z.number().nullish(),
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      const { limit, cursor } = input;
+
+      const followed = await ctx.db.follow.findMany({
+        where: {
+          userId: ctx.session.user.id,
+        },
+        orderBy: {
+          followAt: "desc",
+        },
+        take: limit + 1,
+        skip: cursor ? 1 : 0,
+        cursor: cursor ? { id: cursor } : undefined,
+        include: {
+          creator: {
+            select: {
+              id: true,
+              name: true,
+              profileUrl: true,
+              bio: true,
+            },
+          },
+        },
+      });
+
+      let nextCursor: typeof cursor | undefined = undefined;
+      if (followed.length > limit) {
+        const nextItem = followed.pop();
+        nextCursor = nextItem?.id;
+      }
+
+      return {
+        items: followed.map((f) => ({
+          creatorId: f.creatorId,
+          followAt: f.followAt,
+          creator: f.creator,
+        })),
+        nextCursor,
+      };
+    }),
+
   followCreator: protectedProcedure
     .input(z.object({ creatorId: z.string() }))
     .mutation(async ({ ctx, input }) => {

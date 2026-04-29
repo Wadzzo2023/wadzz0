@@ -131,12 +131,12 @@ export const pinRouter = createTRPCRouter({
     return "you can now see this secret message!";
   }),
   createHotspot: creatorProcedure
-    .input(createHotspotFormSchema.extend({ creatorId: z.string().optional() }))
+    .input(createHotspotFormSchema)
     .mutation(async ({ ctx, input }) => {
       const { token, tier, pinCollectionLimit, pinNumber, autoCollect,
         dropEveryDays, pinDurationDays, hotspotStartDate, hotspotEndDate,
         hotspotShape, geoJson } = input
-      const creatorId = input.creatorId ?? ctx.session.user.id
+      const creatorId = ctx.session.user.id
       // Resolve privacy & tier
       let tierId: number | undefined
       let privacy: ItemPrivacy = ItemPrivacy.PUBLIC
@@ -1721,9 +1721,7 @@ export const pinRouter = createTRPCRouter({
           longitude: c.location.longitude,
         },
       }));
-      console.log("CURSOR:", cursor);
-      console.log("LIMIT:", limit);
-      console.log("RETURNED ITEMS:", items.length);
+
       return { items, nextCursor, total };
     }),
   redeemByCode: publicProcedure // swap to protectedProcedure if creators must be logged in

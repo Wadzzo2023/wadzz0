@@ -1,4 +1,5 @@
 import clsx from "clsx";
+import { getCookie } from "cookies-next";
 import AssetView from "~/components/marketplace/asset/asset_view";
 import { MoreAssetsSkeleton } from "~/components/marketplace/platforms_nfts";
 import {
@@ -6,15 +7,32 @@ import {
   useAssetMenu,
 } from "~/lib/state/marketplace/asset-tab-menu";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { usePlayer } from "~/components/context/PlayerContext";
 import { useModal } from "~/lib/state/play/use-modal-store";
 import { api } from "~/utils/api";
 import { ValidCreateCreator } from "../fans/creator";
+import { PLATFORM_ASSET } from "~/lib/stellar/constant";
 
 export default function MyAssetsPage() {
+  const [layoutMode, setLayoutMode] = useState<"modern" | "legacy">("modern");
+
+  useEffect(() => {
+    const storedMode = getCookie("wadzzo-layout-mode");
+    if (storedMode === "modern" || storedMode === "legacy") {
+      setLayoutMode(storedMode);
+    }
+  }, []);
+
+  const isModernLayout = layoutMode === "modern";
+
   return (
-    <div className="p-2">
+    <div
+      className={clsx(
+        "p-2 md:mx-auto",
+        isModernLayout ? "md:w-[85vw]" : "w-full",
+      )}
+    >
       <div className="flex justify-center">
         <AssetTabs />
       </div>
@@ -24,7 +42,7 @@ export default function MyAssetsPage() {
 }
 
 function RenderTabs() {
-  const { selectedMenu, setSelectedMenu } = useAssetMenu();
+  const { selectedMenu } = useAssetMenu();
   switch (selectedMenu) {
     case AssetMenu.OWN:
       return <MyAssets />;
@@ -38,6 +56,20 @@ function MyStorageAsset() {
 
   const acc = api.wallate.acc.getCreatorStorageInfo.useQuery();
   const { onOpen } = useModal();
+
+  const formatAssetPriceText = (asset: { marketPrice?: number | null; marketPriceUSD?: number | null }) => {
+    if (typeof asset.marketPrice === "number") {
+      return `${asset.marketPrice.toFixed(2)} ${PLATFORM_ASSET.code.toUpperCase()}`;
+    }
+    return "Not listed";
+  };
+
+  const formatAssetSubPriceText = (asset: { marketPriceUSD?: number | null }) => {
+    if (typeof asset.marketPriceUSD === "number") {
+      return `~$${asset.marketPriceUSD.toFixed(2)}`;
+    }
+    return undefined;
+  };
 
   if (acc.isLoading)
     return (
@@ -71,6 +103,15 @@ function MyStorageAsset() {
                 code={asset.name}
                 thumbnail={asset.thumbnail}
                 isNFT={true}
+                priceText={formatAssetPriceText(asset)}
+                subPriceText={formatAssetSubPriceText(asset)}
+                actionLabel="View Details"
+                onAction={() => {
+                  setCurrentTrack(null);
+                  onOpen("my asset info modal", {
+                    MyAsset: asset,
+                  });
+                }}
               />
             </div>
           );
@@ -90,12 +131,11 @@ function MyAssets() {
   const acc = api.wallate.acc.getAccountInfo.useQuery();
 
   const { onOpen } = useModal();
-  const { setCurrentTrack, setCurrentAudioPlayingId } = usePlayer();
+  const { setCurrentTrack } = usePlayer();
   const {
     data,
     fetchNextPage,
     hasNextPage,
-    isFetching,
     isFetchingNextPage,
     status,
   } = api.maps.pin.getMyCollectedPins.useInfiniteQuery(
@@ -107,8 +147,23 @@ function MyAssets() {
     },
   );
 
+  const formatAssetPriceText = (asset: { marketPrice?: number | null; marketPriceUSD?: number | null }) => {
+    if (typeof asset.marketPrice === "number") {
+      return `${asset.marketPrice.toFixed(2)} ${PLATFORM_ASSET.code.toUpperCase()}`;
+    }
+    return "Not listed";
+  };
+
+  const formatAssetSubPriceText = (asset: { marketPriceUSD?: number | null }) => {
+    if (typeof asset.marketPriceUSD === "number") {
+      return `~$${asset.marketPriceUSD.toFixed(2)}`;
+    }
+    return undefined;
+  };
+
   if (acc.isLoading || status === "loading")
     return <MoreAssetsSkeleton className="flex gap-2" />;
+
   if (acc.data ?? data) {
     return (
       <>
@@ -129,6 +184,15 @@ function MyAssets() {
                   code={asset.name}
                   thumbnail={asset.thumbnail}
                   isNFT={true}
+                  priceText={formatAssetPriceText(asset)}
+                  subPriceText={formatAssetSubPriceText(asset)}
+                  actionLabel="View Details"
+                  onAction={() => {
+                    setCurrentTrack(null);
+                    onOpen("my asset info modal", {
+                      MyAsset: asset,
+                    });
+                  }}
                 />
               </div>
             ))}
@@ -154,6 +218,13 @@ function MyAssets() {
                         "https://app.wadzzo.com/images/loading.png"
                       }
                       isPinned={true}
+                      actionLabel="View Details"
+                      onAction={() => {
+                        setCurrentTrack(null);
+                        onOpen("pin info modal", {
+                          collectedPinInfo: item,
+                        });
+                      }}
                     />
                   </div>
                 ))}
@@ -178,13 +249,51 @@ function MyAssets() {
 
 function AssetTabs() {
   const { selectedMenu, setSelectedMenu } = useAssetMenu();
+  const [layoutMode, setLayoutMode] = useState<"modern" | "legacy">("modern");
 
   const creator = api.fan.creator.meCreator.useQuery();
+  useEffect(() => {
+    const storedMode = getCookie("wadzzo-layout-mode");
+    if (storedMode === "modern" || storedMode === "legacy") {
+      setLayoutMode(storedMode);
+    }
+  }, []);
+
+  const tabs = Object.values(AssetMenu).filter((key) => {
+    if (key == AssetMenu.STORAGE && creator.data == undefined) return false;
+    return true;
+  });
+
+  if (layoutMode === "modern") {
+    return (
+      <div className="my-5 flex w-full justify-center">
+        <div className="relative w-fit overflow-hidden rounded-[0.9rem] border border-black/15 bg-[#f3f1ea]/80 p-[0.3rem] shadow-[0_8px_24px_rgba(0,0,0,0.05)]">
+          <div className="inline-flex items-center gap-0.5">
+            {tabs.map((key) => (
+              <button
+                key={key}
+                type="button"
+                onClick={handleClick(key)}
+                className={clsx(
+                  "relative inline-flex items-center justify-center rounded-[0.7rem] border px-3 py-1.5 text-sm font-normal transition-all duration-200",
+                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60",
+                  selectedMenu === key
+                    ? "border-white/60 bg-white/55 text-black shadow-[inset_1px_1px_1px_0_rgba(255,255,255,0.92),_inset_-1px_-1px_1px_1px_rgba(255,255,255,0.72),_0_8px_20px_rgba(255,255,255,0.24)] backdrop-blur-[6px]"
+                    : "border-transparent bg-transparent text-black/65 hover:bg-white/35 hover:text-black",
+                )}
+              >
+                {key}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div role="tablist" className="tabs-boxed tabs my-5 w-full max-w-md">
-      {Object.values(AssetMenu).map((key) => {
-        if (key == AssetMenu.STORAGE && creator.data == undefined) return null;
+      {tabs.map((key) => {
         return (
           <a
             key={key}

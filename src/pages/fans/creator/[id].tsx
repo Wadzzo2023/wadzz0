@@ -1,8 +1,9 @@
 import { Creator, Subscription } from "@prisma/client";
 import clsx from "clsx";
-import { useRouter } from "next/router";
 import { clientsign } from "package/connect_wallet";
-import React, { useState } from "react";
+import React, { useState, useState as useStateGlobal } from "react";
+import { useRouter } from "next/router";
+import { getCookie } from "cookies-next";
 import toast from "react-hot-toast";
 import MemberShipCard from "~/components/fan/creator/card";
 import { PostCard } from "~/components/fan/creator/post";
@@ -12,7 +13,7 @@ import {
 } from "~/lib/state/fan/creator-profile-menu";
 import { clientSelect } from "~/lib/stellar/fan/utils";
 import { api } from "~/utils/api";
-import { Loader2 } from "lucide-react";
+import { Loader2, Store } from "lucide-react";
 import { useSession } from "next-auth/react";
 import ViewMediaModal from "~/components/fan/shop/asset_view_modal";
 import ShopAssetComponent from "~/components/fan/shop/shop_asset";
@@ -66,6 +67,19 @@ export default function CreatorPage() {
 function CreatorPageView({ creatorId }: { creatorId: string }) {
   const { setBalance } =
     useCreatorStorageAcc();
+  const [layoutMode] = useStateGlobal<LayoutMode>(() => {
+    const cookieMode = getCookie("wadzzo-layout-mode");
+    if (cookieMode === "legacy" || cookieMode === "modern") {
+      return cookieMode;
+    }
+    if (typeof window !== "undefined") {
+      const storedMode = localStorage.getItem("layoutMode");
+      if (storedMode === "legacy" || storedMode === "modern") {
+        return storedMode;
+      }
+    }
+    return "modern";
+  });
 
 
   const acc = api.wallate.acc.getCreatorStorageBallancesByID.useQuery({
@@ -119,9 +133,9 @@ function CreatorPageView({ creatorId }: { creatorId: string }) {
               )}
             </div>
 
-            <ChooseMemberShip creator={creator} />
+            <ChooseMemberShip creator={creator} layoutMode={layoutMode} />
 
-            <Tabs />
+            <Tabs layoutMode={layoutMode} />
             <RenderTabs creatorId={creatorId} />
           </>
         </div>
@@ -145,7 +159,7 @@ function CreatorPosts({ creatorId }: { creatorId: string }) {
   if (!data) return <div>No data</div>;
   if (data.pages.length > 0) {
     return (
-      <div className="flex w-full flex-col items-center gap-4 bg-base-100 p-2 md:container md:mx-auto">
+      <div className="flex w-full flex-col items-center bg-base-100 p-2 md:container md:mx-auto">
         {data.pages[0]?.posts.length === 0 && (
           <Card className="text-center">
             <CardContent className="pt-6">
@@ -154,9 +168,10 @@ function CreatorPosts({ creatorId }: { creatorId: string }) {
           </Card>
         )}
 
-        {data.pages.map((page) =>
-          page.posts.map((el) => (
+        {data.pages.map((page, pageIndex) =>
+          page.posts.map((el, postIndex) => (
             <PostCard
+              isFirst={pageIndex === 0 && postIndex === 0}
               priority={1}
               commentCount={el._count.comments}
               creator={el.creator}
@@ -214,8 +229,36 @@ function RenderTabs({ creatorId }: { creatorId: string }) {
   }
 }
 
-function Tabs() {
+type LayoutMode = "modern" | "legacy";
+
+function Tabs({ layoutMode }: { layoutMode: LayoutMode }) {
   const { selectedMenu, setSelectedMenu } = useCreatorProfileMenu();
+  if (layoutMode === "modern") {
+    return (
+      <div className="my-5 flex w-full justify-center">
+        <div className="relative w-fit overflow-hidden rounded-[0.9rem] border border-black/15 bg-[#f3f1ea]/80 p-[0.3rem] shadow-[0_8px_24px_rgba(0,0,0,0.05)]">
+          <div className="inline-flex items-center gap-0.5">
+            {Object.values(CreatorProfileMenu).map((key) => (
+              <button
+                key={key}
+                type="button"
+                onClick={() => setSelectedMenu(key)}
+                className={clsx(
+                  "relative inline-flex items-center justify-center rounded-[0.7rem] border px-3 py-1.5 text-sm font-normal transition-all duration-200",
+                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60",
+                  selectedMenu === key
+                    ? "border-white/60 bg-white/55 text-black shadow-[inset_1px_1px_1px_0_rgba(255,255,255,0.92),_inset_-1px_-1px_1px_1px_rgba(255,255,255,0.72),_0_8px_20px_rgba(255,255,255,0.24)] backdrop-blur-[6px]"
+                    : "border-transparent bg-transparent text-black/65 hover:bg-white/35 hover:text-black",
+                )}
+              >
+                {key}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
   return (
     <div role="tablist" className="tabs-boxed tabs my-5 w-1/2 ">
       {Object.values(CreatorProfileMenu).map((key) => {
@@ -517,7 +560,7 @@ export function UnFollowButton({ creator }: { creator: CreatorWithPageAsset }) {
 
 
 
-export function ChooseMemberShip({ creator }: { creator: Creator }) {
+export function ChooseMemberShip({ creator, layoutMode }: { creator: Creator; layoutMode?: "modern" | "legacy" }) {
   const { data: subscriptonModel, isLoading } =
     api.fan.member.getCreatorMembership.useQuery(creator.id);
 
@@ -537,6 +580,7 @@ export function ChooseMemberShip({ creator }: { creator: Creator }) {
                 creator={creator}
                 subscription={el}
                 pageAsset={el.creator.pageAsset?.code}
+                layoutMode={layoutMode}
               />
             ))}
         </SubscriptionGridWrapper>
@@ -559,8 +603,8 @@ export function SubscriptionGridWrapper({
     if (element === 2) {
       return "gird-cols-1 sm:grid-cols-2";
     }
-    if (element === 3) {
-      return "gird-cols-1 sm:grid-cols-2 md:grid-cols-3";
+    if (element >= 3) {
+      return "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4";
     }
   }
   return (
@@ -582,11 +626,13 @@ function SubscriptionCard({
   creator,
   priority,
   pageAsset,
+  layoutMode,
 }: {
   subscription: SubscriptionType;
   creator: Creator;
   priority?: number;
   pageAsset?: string;
+  layoutMode?: "modern" | "legacy";
 }) {
   return (
     <MemberShipCard
@@ -595,6 +641,7 @@ function SubscriptionCard({
       priority={priority}
       subscription={subscription}
       pageAsset={pageAsset}
+      layoutMode={layoutMode}
     >
       <TierCompleted subscription={subscription} />
     </MemberShipCard>
@@ -636,7 +683,15 @@ function CreatorStoreItem({ creatorId }: { creatorId: string }) {
     );
 
   if (assets.data?.pages[0]?.nfts.length === 0) {
-    return <div>No assets</div>;
+    return (
+      <div className="flex flex-col items-center justify-center py-16 text-center">
+        <div className="rounded-full bg-zinc-100 p-4 mb-4">
+          <Store className="h-8 w-8 text-zinc-400" />
+        </div>
+        <p className="text-lg font-semibold text-zinc-900">No shop items yet</p>
+        <p className="text-sm text-zinc-500 mt-1">This creator hasn&apos;t added any items to their shop.</p>
+      </div>
+    );
   }
 
   if (assets.data) {

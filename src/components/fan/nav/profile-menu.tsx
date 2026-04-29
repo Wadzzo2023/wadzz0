@@ -24,7 +24,9 @@ function ProfileComponent({
         onClick={handleModeChange}
       >
         <SwitchCamera />
-        <p className="">Switch to {mode == Mode.Creator ? CREATOR_TERM : mode}</p>
+        <p className="">
+          Switch to {mode == Mode.Creator ? CREATOR_TERM : mode}
+        </p>
         <Sparkle />
       </div>
     </div>

@@ -6,7 +6,7 @@ import { useSession } from "next-auth/react";
 import WBRightSideBar from "~/components/wallet-balance/wb-right-sidebar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/shadcn/ui/tabs";
 
-import { Plus, QrCode, Send } from "lucide-react";
+import { QrCode, Send } from "lucide-react";
 import {
   checkStellarAccountActivity,
   clientsign,
@@ -23,6 +23,7 @@ import { api } from "~/utils/api";
 
 import { useRouter } from "next/router";
 import toast from "react-hot-toast";
+import { getCookie } from "cookies-next";
 
 const Wallets = () => {
   const session = useSession();
@@ -30,8 +31,8 @@ const Wallets = () => {
   const { needSign } = useNeedSign();
   const [isAccountActivate, setAccountActivate] = useState(false);
   const [isAccountActivateLoading, setAccountActivateLoading] = useState(false);
+  const [layoutMode, setLayoutMode] = useState<"modern" | "legacy">("modern");
   const router = useRouter();
-  const [isLoading, setLoading] = useState(false);
 
   async function checkAccountActivity(publicKey: string) {
     setAccountActivateLoading(true);
@@ -61,7 +62,7 @@ const Wallets = () => {
     if (router.query.id) {
       onOpen("send assets"); // Update state when id is available
     }
-  }, [router.query.id]);
+  }, [router.query.id, onOpen]);
 
   const checkStatus = useCallback(async () => {
     const user = session.data?.user;
@@ -73,6 +74,13 @@ const Wallets = () => {
 
   useEffect(() => {
     void checkStatus();
+  }, [checkStatus]);
+
+  useEffect(() => {
+    const storedMode = getCookie("wadzzo-layout-mode");
+    if (storedMode === "legacy" || storedMode === "modern") {
+      setLayoutMode(storedMode);
+    }
   }, []);
 
   const AddTrustMutation =
@@ -106,23 +114,12 @@ const Wallets = () => {
           }
           console.log("Error", error);
         } finally {
-          setLoading(false);
         }
       },
       onError: (error) => {
-        setLoading(false);
         toast.error(error.message);
       },
     });
-
-  const handleSubmit = async () => {
-    setLoading(true);
-    AddTrustMutation.mutate({
-      asset_code: PLATFORM_ASSET.code,
-      asset_issuer: PLATFORM_ASSET.issuer,
-      signWith: needSign(),
-    });
-  };
 
   if (!session.data) {
     return <div>Session not found</div>;
@@ -182,53 +179,157 @@ const Wallets = () => {
     );
   }
 
-  return (
-    <div className=" p-4 space-y-6">
-      <Card className="bg-gradient-to-r  from-[#39BD2B] to-blue-400 text-white">
-        <CardContent className="p-6">
-          <div className="flex flex-col md:flex-row justify-between items-center">
-            <div className="mb-4 md:mb-0">
-              {hasTrustLineOnPlatformAsset ? (
-                <>
-                  <h2 className="text-2xl font-semibold mb-2">Current Balance</h2>
-                  <p className="text-4xl font-bold">
-                    {platformBalance?.toString() === "0.0000000" ? "0" : platformBalance?.toString()}
-                    <span className="text-2xl ml-2">{PLATFORM_ASSET.code}</span>
-                  </p>
-                </>
-              ) : (
-                <div className="text-center md:text-left">
-                  <p className="text-xl mb-2">You haven{"'t"} added trust for {PLATFORM_ASSET.code} yet!</p>
-                  <Button
-                    onClick={() => AddTrustMutation.mutate({
-                      asset_code: PLATFORM_ASSET.code,
-                      asset_issuer: PLATFORM_ASSET.issuer,
-                      signWith: needSign(),
-                    })}
-                    disabled={AddTrustMutation.isLoading}
-                    variant="secondary"
-                  >
-                    {AddTrustMutation.isLoading ? "Adding Trustline..." : "Add Trustline"}
-                  </Button>
-                </div>
-              )}
+  if (layoutMode === "legacy") {
+    return (
+      <div className=" p-4 space-y-6">
+        <Card className="bg-gradient-to-r  from-[#39BD2B] to-blue-400 text-white">
+          <CardContent className="p-6">
+            <div className="flex flex-col md:flex-row justify-between items-center">
+              <div className="mb-4 md:mb-0">
+                {hasTrustLineOnPlatformAsset ? (
+                  <>
+                    <h2 className="text-2xl font-semibold mb-2">Current Balance</h2>
+                    <p className="text-4xl font-bold">
+                      {platformBalance?.toString() === "0.0000000" ? "0" : platformBalance?.toString()}
+                      <span className="text-2xl ml-2">{PLATFORM_ASSET.code}</span>
+                    </p>
+                  </>
+                ) : (
+                  <div className="text-center md:text-left">
+                    <p className="text-xl mb-2">You haven{"'t"} added trust for {PLATFORM_ASSET.code} yet!</p>
+                    <Button
+                      onClick={() => AddTrustMutation.mutate({
+                        asset_code: PLATFORM_ASSET.code,
+                        asset_issuer: PLATFORM_ASSET.issuer,
+                        signWith: needSign(),
+                      })}
+                      disabled={AddTrustMutation.isLoading}
+                      variant="secondary"
+                    >
+                      {AddTrustMutation.isLoading ? "Adding Trustline..." : "Add Trustline"}
+                    </Button>
+                  </div>
+                )}
+              </div>
+              <div className="flex gap-2">
+                <Button variant="secondary" onClick={() => onOpen("receive assets")}>
+                  <QrCode size={18} className="mr-2" />
+                  Receive
+                </Button>
+                <Button variant="secondary" onClick={() => onOpen("send assets")}>
+                  <Send size={18} className="mr-2" />
+                  Send
+                </Button>
+              </div>
             </div>
-            <div className="flex gap-2">
-              <Button variant="secondary" onClick={() => onOpen("receive assets")}>
-                <QrCode size={18} className="mr-2" />
-                Receive
-              </Button>
-              <Button variant="secondary" onClick={() => onOpen("send assets")}>
-                <Send size={18} className="mr-2" />
-                Send
-              </Button>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
 
+        <div className="hidden md:grid  md:grid-cols-2 gap-6 ">
+          <Card className="md:col-span-1 h-[calc(100vh-30vh)]">
+            <CardHeader>
+              <CardTitle>Transaction History</CardTitle>
+            </CardHeader>
+            <CardContent className="">
+              <TransactionHistory />
+            </CardContent>
+          </Card>
+          <Card className="h-[calc(100vh-30vh)]">
+            <CardHeader>
+              <CardTitle>My Assets</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <WBRightSideBar />
+            </CardContent>
+          </Card>
+        </div>
+        <div className="md:hidden">
+          <Tabs defaultValue="history" className="w-full">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="history">Transaction History</TabsTrigger>
+              <TabsTrigger value="assets">My Assets</TabsTrigger>
+            </TabsList>
+            <TabsContent value="history">
+              <Card className="h-[calc(100vh-40vh)]">
+                <CardHeader>
+                  <CardTitle>Transaction History</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <TransactionHistory />
+                </CardContent>
+              </Card>
+            </TabsContent>
+            <TabsContent value="assets">
+              <Card className="h-[calc(100vh-40vh)]">
+                <CardHeader>
+                  <CardTitle>My Assets</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <WBRightSideBar />
+                </CardContent>
+              </Card>
+            </TabsContent>
+          </Tabs>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen">
+      <section className="relative flex min-h-[72vh] w-full flex-col items-center justify-center overflow-hidden bg-gradient-to-b from-[#1b0e7a] via-[#5a2ac9] to-[#c69a86] px-4 pb-28 pt-14 text-white">
+        <div className="mx-auto w-full max-w-[85vw]">
+        {hasTrustLineOnPlatformAsset ? (
+          <div className="px-2 text-center">
+            <p className="text-lg font-medium text-white/75">Current Balance</p>
+            <p className="mt-2 max-w-full break-all text-[clamp(2rem,10vw,3.75rem)] font-semibold leading-[1.05] tracking-tight sm:break-normal">
+              {platformBalance?.toString() === "0.0000000" ? "0" : platformBalance?.toString()}
+            </p>
+            <p className="mt-3 text-xl font-medium text-white/85">{PLATFORM_ASSET.code}</p>
+          </div>
+        ) : (
+          <div className="max-w-xl text-center">
+            <p className="text-lg font-medium text-white/85">
+              You haven{"'t"} added trust for {PLATFORM_ASSET.code} yet.
+            </p>
+            <Button
+              onClick={() => AddTrustMutation.mutate({
+                asset_code: PLATFORM_ASSET.code,
+                asset_issuer: PLATFORM_ASSET.issuer,
+                signWith: needSign(),
+              })}
+              disabled={AddTrustMutation.isLoading}
+              className="mt-4 h-10 rounded-full bg-white/95 px-5 text-sm font-semibold text-[#1b0e7a] hover:bg-white"
+            >
+              {AddTrustMutation.isLoading ? "Adding Trustline..." : "Add Trustline"}
+            </Button>
+          </div>
+        )}
+
+        <div className="absolute bottom-10 left-1/2 flex w-full max-w-md -translate-x-1/2 gap-3 px-4">
+          <Button
+            variant="outline"
+            onClick={() => onOpen("receive assets")}
+            className="h-11 flex-1 rounded-full border-white/30 bg-white/15 text-white backdrop-blur-md hover:bg-white/25"
+          >
+            <QrCode size={18} className="mr-2" />
+            Receive
+          </Button>
+          <Button
+            onClick={() => onOpen("send assets")}
+            className="h-11 flex-1 rounded-full bg-white text-[#1b0e7a] hover:bg-white/90"
+          >
+            <Send size={18} className="mr-2" />
+            Send
+          </Button>
+        </div>
+        </div>
+      </section>
+
+      <section className="mx-auto w-full max-w-[85vw] pb-8 pt-6">
+        <div className="rounded-3xl bg-white/92 p-4 shadow-[0_14px_44px_-30px_rgba(15,23,42,0.35)] backdrop-blur-md md:p-6">
       <div className="hidden md:grid  md:grid-cols-2 gap-6 ">
-        <Card className="md:col-span-1 h-[calc(100vh-30vh)]">
+        <Card className="md:col-span-1 h-[calc(100vh-30vh)] border border-black/10 bg-white/70 shadow-[0_18px_40px_-24px_rgba(15,23,42,0.3)] backdrop-blur-xl">
           <CardHeader>
             <CardTitle>Transaction History</CardTitle>
           </CardHeader>
@@ -236,7 +337,7 @@ const Wallets = () => {
             <TransactionHistory />
           </CardContent>
         </Card>
-        <Card className="h-[calc(100vh-30vh)]">
+        <Card className="h-[calc(100vh-30vh)] border border-black/10 bg-white/70 shadow-[0_18px_40px_-24px_rgba(15,23,42,0.3)] backdrop-blur-xl">
           <CardHeader>
             <CardTitle>My Assets</CardTitle>
           </CardHeader>
@@ -247,12 +348,12 @@ const Wallets = () => {
       </div>
       <div className="md:hidden">
         <Tabs defaultValue="history" className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
+          <TabsList className="grid w-full grid-cols-2 border border-black/10 bg-white/80 shadow-[0_12px_30px_-20px_rgba(15,23,42,0.25)] backdrop-blur-xl">
             <TabsTrigger value="history">Transaction History</TabsTrigger>
             <TabsTrigger value="assets">My Assets</TabsTrigger>
           </TabsList>
           <TabsContent value="history">
-            <Card className="h-[calc(100vh-40vh)]">
+            <Card className="h-[calc(100vh-40vh)] border border-black/10 bg-white/70 shadow-[0_18px_40px_-24px_rgba(15,23,42,0.3)] backdrop-blur-xl">
               <CardHeader>
                 <CardTitle>Transaction History</CardTitle>
               </CardHeader>
@@ -262,7 +363,7 @@ const Wallets = () => {
             </Card>
           </TabsContent>
           <TabsContent value="assets">
-            <Card className="h-[calc(100vh-40vh)]">
+            <Card className="h-[calc(100vh-40vh)] border border-black/10 bg-white/70 shadow-[0_18px_40px_-24px_rgba(15,23,42,0.3)] backdrop-blur-xl">
               <CardHeader>
                 <CardTitle>My Assets</CardTitle>
               </CardHeader>
@@ -273,6 +374,8 @@ const Wallets = () => {
           </TabsContent>
         </Tabs>
       </div>
+      </div>
+      </section>
 
     </div>
   );

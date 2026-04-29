@@ -33,7 +33,33 @@ export const BottomNavigation = {
   Claim: { path: "/maps/pins/my", icon: HomeIcon, text: "CLAIM" },
 } as const;
 
-export default function LeftBar({ className }: { className?: string }) {
+export default function LeftBar({
+  className,
+  layoutMode = "modern",
+  onToggleLayoutMode,
+}: {
+  className?: string;
+  layoutMode?: "modern" | "legacy";
+  onToggleLayoutMode?: () => void;
+}) {
+  return (
+    <LeftBarContent
+      className={className}
+      layoutMode={layoutMode}
+      onToggleLayoutMode={onToggleLayoutMode}
+    />
+  );
+}
+
+function LeftBarContent({
+  className,
+  layoutMode,
+  onToggleLayoutMode,
+}: {
+  className?: string;
+  layoutMode: "modern" | "legacy";
+  onToggleLayoutMode?: () => void;
+}) {
   return (
     <div
       className={cn(
@@ -47,7 +73,10 @@ export default function LeftBar({ className }: { className?: string }) {
         </div>
       </div>
       <div className="flex w-full flex-col items-center ">
-        <LeftBottom />
+        <LeftBottom
+          layoutMode={layoutMode}
+          onToggleLayoutMode={onToggleLayoutMode}
+        />
       </div>
     </div>
   );
@@ -92,12 +121,25 @@ function NavigationButtons() {
   );
 }
 
-function LeftBottom() {
+function LeftBottom({
+  layoutMode,
+  onToggleLayoutMode,
+}: {
+  layoutMode: "modern" | "legacy";
+  onToggleLayoutMode?: () => void;
+}) {
   return (
     <div className="flex w-full flex-col justify-center gap-1">
-      <div className="mb-4 flex w-full justify-center">
-        <ConnectWalletButton />
-      </div>
+      {layoutMode === "legacy" && onToggleLayoutMode ? (
+        <button
+          type="button"
+          onClick={onToggleLayoutMode}
+          className="btn mb-1 w-full rounded-lg bg-black text-sm font-medium text-white hover:bg-black/85"
+        >
+          Switch to Modern
+        </button>
+      ) : null}
+      <ConnectWalletButton />
       <div className="flex justify-between space-x-2">
         <Link
           href={"https://facebook.com/wadzzo"}

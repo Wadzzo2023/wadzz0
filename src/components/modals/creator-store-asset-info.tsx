@@ -1,7 +1,6 @@
 import { motion } from "framer-motion";
 import { ArrowLeft, Loader2 } from "lucide-react";
 import { useSession } from "next-auth/react";
-import Image from "next/image";
 import { useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import toast from "react-hot-toast";
@@ -33,6 +32,21 @@ import { SparkleEffect } from "./modal-action-button";
 
 export const PaymentMethodEnum = z.enum(["asset", "xlm", "card"]);
 export type PaymentMethod = z.infer<typeof PaymentMethodEnum>;
+const FALLBACK_PREVIEW_IMAGE = "/images/logo.png";
+
+const getSafeImageUrl = (url?: string | null) => {
+  if (!url) return FALLBACK_PREVIEW_IMAGE;
+  const cleanUrl = url.split("?")[0]?.split("#")[0]?.toLowerCase() ?? "";
+  const isImage =
+    cleanUrl.endsWith(".png") ||
+    cleanUrl.endsWith(".jpg") ||
+    cleanUrl.endsWith(".jpeg") ||
+    cleanUrl.endsWith(".webp") ||
+    cleanUrl.endsWith(".gif") ||
+    cleanUrl.endsWith(".svg") ||
+    cleanUrl.endsWith(".avif");
+  return isImage ? url : FALLBACK_PREVIEW_IMAGE;
+};
 
 export default function CreatorStoreAssetInfoModal() {
   const { onClose, isOpen, type, data } = useModal();
@@ -75,12 +89,13 @@ export default function CreatorStoreAssetInfoModal() {
                     {/* Image Container */}
                     <div className="relative aspect-square bg-[#1e1f22]">
                       <SparkleEffect />
-                      <Image
-                        src={data.creatorStoreAsset.asset.thumbnail}
+                      <img
+                        src={getSafeImageUrl(data.creatorStoreAsset.asset.thumbnail)}
                         alt={data.creatorStoreAsset.asset.name}
-                        width={1000}
-                        height={1000}
                         className="h-full w-full object-cover"
+                        onError={(e) => {
+                          e.currentTarget.src = FALLBACK_PREVIEW_IMAGE;
+                        }}
                       />
                     </div>
 
@@ -138,38 +153,41 @@ export default function CreatorStoreAssetInfoModal() {
                 {/* Right Column - Bundle Info */}
                 <div className=" rounded-sm bg-gray-300 p-1   md:col-span-4">
                   {data.creatorStoreAsset.asset.mediaType === "IMAGE" ? (
-                    <Image
-                      src={data.creatorStoreAsset.asset.mediaUrl}
+                    <img
+                      src={getSafeImageUrl(data.creatorStoreAsset.asset.mediaUrl)}
                       alt={data.creatorStoreAsset.asset.name}
-                      width={1000}
-                      height={1000}
                       className={clsx(
                         "h-full max-h-[800px] w-full overflow-y-auto object-cover ",
                         data.creatorStoreAsset.asset.tierId ? " blur-md" : "",
                       )}
+                      onError={(e) => {
+                        e.currentTarget.src = FALLBACK_PREVIEW_IMAGE;
+                      }}
                     />
                   ) : data.creatorStoreAsset.asset.mediaType === "VIDEO" ? (
-                    <Image
-                      src={data.creatorStoreAsset.asset.thumbnail}
+                    <img
+                      src={getSafeImageUrl(data.creatorStoreAsset.asset.thumbnail)}
                       alt={data.creatorStoreAsset.asset.name}
-                      width={1000}
-                      height={1000}
                       className={clsx(
                         "h-full max-h-[800px] w-full overflow-y-auto object-cover ",
                         data.creatorStoreAsset.asset.tierId ? " blur-md" : "",
                         data.creatorStoreAsset.asset.tierId ? " blur-md" : "",
                       )}
+                      onError={(e) => {
+                        e.currentTarget.src = FALLBACK_PREVIEW_IMAGE;
+                      }}
                     />
                   ) : data.creatorStoreAsset.asset.mediaType === "MUSIC" ? (
-                    <Image
-                      src={data.creatorStoreAsset.asset.thumbnail}
+                    <img
+                      src={getSafeImageUrl(data.creatorStoreAsset.asset.thumbnail)}
                       alt={data.creatorStoreAsset.asset.name}
-                      width={1000}
-                      height={1000}
                       className={clsx(
                         "h-full max-h-[800px] w-full overflow-y-auto object-cover ",
                         data.creatorStoreAsset.asset.tierId ? " blur-md" : "",
                       )}
+                      onError={(e) => {
+                        e.currentTarget.src = FALLBACK_PREVIEW_IMAGE;
+                      }}
                     />
                   ) : (
                     data.creatorStoreAsset.asset.mediaType === "THREE_D" && (

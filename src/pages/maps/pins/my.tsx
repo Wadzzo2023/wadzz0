@@ -1,3 +1,4 @@
+import clsx from "clsx";
 import { Location, LocationConsumer, LocationGroup } from "@prisma/client";
 import { formatDate } from "date-fns";
 import Image from "next/image";
@@ -23,11 +24,72 @@ import { addrShort } from "~/utils/utils";
 import useNeedSign from "~/lib/hook";
 import { clientsign } from "package/connect_wallet";
 import { clientSelect } from "~/lib/stellar/fan/utils";
+import { getCookie } from "cookies-next";
 interface GiftTabProps {
   customerPubkey: string
 }
+
+type PinsTab = "consumed" | "gifts";
+
 export default function Page() {
   const session = useSession()
+
+  const [layoutMode] = useState<"modern" | "legacy">(() => {
+    const cookieMode = getCookie("wadzzo-layout-mode");
+    if (cookieMode === "legacy" || cookieMode === "modern") {
+      return cookieMode;
+    }
+    if (typeof window !== "undefined") {
+      const storedMode = localStorage.getItem("layoutMode");
+      if (storedMode === "legacy" || storedMode === "modern") {
+        return storedMode;
+      }
+    }
+    return "modern";
+  });
+
+  const [selectedTab, setSelectedTab] = useState<PinsTab>("consumed");
+
+  if (layoutMode === "modern") {
+    return (
+      <div className="mx-auto w-full max-w-7xl px-4 pb-24 pt-5 md:px-6">
+        <div className="my-5 flex w-full justify-center">
+          <div className="relative w-fit overflow-hidden rounded-[0.9rem] border border-black/15 bg-[#f3f1ea]/80 p-[0.3rem] shadow-[0_8px_24px_rgba(0,0,0,0.05)]">
+            <div className="inline-flex items-center gap-0.5">
+              <button
+                type="button"
+                onClick={() => setSelectedTab("consumed")}
+                className={clsx(
+                  "relative inline-flex items-center justify-center rounded-[0.7rem] border px-3 py-1.5 text-sm font-normal transition-all duration-200",
+                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60",
+                  selectedTab === "consumed"
+                    ? "border-white/60 bg-white/55 text-black shadow-[inset_1px_1px_1px_0_rgba(255,255,255,0.92),_inset_-1px_-1px_1px_1px_rgba(255,255,255,0.72),_0_8px_20px_rgba(255,255,255,0.24)] backdrop-blur-[6px]"
+                    : "border-transparent bg-transparent text-black/65 hover:bg-white/35 hover:text-black"
+                )}
+              >
+                Consumed Pins
+              </button>
+              <button
+                type="button"
+                onClick={() => setSelectedTab("gifts")}
+                className={clsx(
+                  "relative inline-flex items-center justify-center rounded-[0.7rem] border px-3 py-1.5 text-sm font-normal transition-all duration-200",
+                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60",
+                  selectedTab === "gifts"
+                    ? "border-white/60 bg-white/55 text-black shadow-[inset_1px_1px_1px_0_rgba(255,255,255,0.92),_inset_-1px_-1px_1px_1px_rgba(255,255,255,0.72),_0_8px_20px_rgba(255,255,255,0.24)] backdrop-blur-[6px]"
+                    : "border-transparent bg-transparent text-black/65 hover:bg-white/35 hover:text-black"
+                )}
+              >
+                Gift Items
+              </button>
+            </div>
+          </div>
+        </div>
+        {selectedTab === "consumed" ? <ConsumedPins /> : <GiftTab customerPubkey={session.data?.user?.id ?? ""} />}
+      </div>
+    );
+  }
+
   return (
     <div className="container mx-auto py-6">
       <Tabs defaultValue="consumed" className="w-full">
@@ -225,6 +287,8 @@ export function GiftTab({ customerPubkey }: GiftTabProps) {
         getNextPageParam: (lastPage) => lastPage.nextCursor,
       })
 
+  const allGifts = data?.pages.flatMap((page) => page.balances) ?? [];
+  const hasGifts = allGifts.length > 0;
 
   const container = {
     hidden: { opacity: 0 },
@@ -251,39 +315,53 @@ export function GiftTab({ customerPubkey }: GiftTabProps) {
         </Button>
       </div>
 
+      {isLoading && (
+        <div className="flex h-[50vh] items-center justify-center">
+          <p className="text-gray-500">Loading...</p>
+        </div>
+      )}
 
+      {!hasGifts && !isLoading && (
+        <div className="flex h-[50vh] flex-col items-center justify-center text-center">
+          <div className="rounded-full bg-zinc-100 p-4 mb-4">
+            <Gift className="h-8 w-8 text-zinc-400" />
+          </div>
+          <p className="text-lg font-semibold text-zinc-900">No gift items yet</p>
+          <p className="text-sm text-zinc-500 mt-1">You're all caught up!</p>
+        </div>
+      )}
 
-
-      <motion.div
-        variants={container}
-        initial="hidden"
-        animate="show"
-        className="grid gap-4 md:grid-cols-2 lg:grid-cols-3"
-      >
-        {
-          data?.pages.map((page, index) => {
-            return page.balances.map((gift) => {
-              return (
-                <GiftCard
-                  key={gift.id}
-                  id={gift.id}
-                  amount={gift.amount}
-                  asset={gift.asset}
-                  sponsor={gift.sponsor}
-                  isCollected={collectedGifts.has(gift.id)}
-                  customerPubkey={customerPubkey}
-                />
-              )
-            })
+      {hasGifts && (
+        <motion.div
+          variants={container}
+          initial="hidden"
+          animate="show"
+          className="grid gap-4 md:grid-cols-2 lg:grid-cols-3"
+        >
+          {
+            data?.pages.map((page, index) => {
+              return page.balances.map((gift) => {
+                return (
+                  <GiftCard
+                    key={gift.id}
+                    id={gift.id}
+                    amount={gift.amount}
+                    asset={gift.asset}
+                    sponsor={gift.sponsor}
+                    isCollected={collectedGifts.has(gift.id)}
+                    customerPubkey={customerPubkey}
+                  />
+                )
+              })
+            }
+            )
           }
-          )
-        }
-      </motion.div>
+        </motion.div>
+      )}
 
 
 
-
-      {hasNextPage && (
+      {hasNextPage && hasGifts && (
         <Button
           className="flex w-1/2 items-center justify-center  shadow-sm shadow-black md:w-1/4"
           onClick={() => void fetchNextPage()}

@@ -20,6 +20,11 @@ const config = {
     "src/components/fan/nav/profile-menu.tsx",
     "src/pages/api/file.ts",
     "src/lib/play/locar/*.js",
+    "src/pages/pin-manage/index.tsx",
+    "src/components/agent/AgentChat.tsx",
+    "src/components/agent/PinChat.tsx",
+    "src/components/agent/*.tsx",
+    "src/components/map/**/*.tsx",
   ],
   rules: {
     // These opinionated rules are enabled in stylistic-type-checked above.

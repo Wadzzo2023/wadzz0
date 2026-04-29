@@ -1,4 +1,6 @@
 import Head from "next/head";
+import { useState } from "react";
+import { getCookie } from "cookies-next";
 import { PostCard } from "~/components/fan/creator/post";
 
 import { useSession } from "next-auth/react";
@@ -6,8 +8,24 @@ import Loading from "~/components/wallete/loading";
 import { getAssetBalanceFromBalance } from "~/lib/stellar/marketplace/test/acc";
 import { api } from "~/utils/api";
 import { env } from "~/env";
+import TrendingSidebar, { FollowedSidebar } from "~/components/fan/nav/fans-home-sidebar";
+import { Card, CardContent, CardHeader } from "~/components/shadcn/ui/card";
 
 export default function Home() {
+  const [layoutMode] = useState<"modern" | "legacy">(() => {
+    const cookieMode = getCookie("wadzzo-layout-mode");
+    if (cookieMode === "legacy" || cookieMode === "modern") {
+      return cookieMode;
+    }
+    if (typeof window !== "undefined") {
+      const storedMode = localStorage.getItem("layoutMode");
+      if (storedMode === "legacy" || storedMode === "modern") {
+        return storedMode;
+      }
+    }
+    return "modern";
+  });
+
   return (
     <>
       <Head>
@@ -18,19 +36,41 @@ export default function Home() {
         />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <main className="">
-        <AuthShowcase />
+      <main className="min-h-screen">
+        <div className="flex w-full">
+          <AuthShowcase layoutMode={layoutMode} />
+          {layoutMode === "modern" && (
+            <div className="hidden w-80 flex-col gap-4 p-4 lg:flex">
+              <Card>
+                <CardHeader className="border-b p-3">
+                  <h3 className="text-center text-sm font-medium">Trending Creators</h3>
+                </CardHeader>
+                <CardContent className="p-2">
+                  <TrendingSidebar />
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader className="border-b p-3">
+                  <h3 className="text-center text-sm font-medium">Followed Creators</h3>
+                </CardHeader>
+                <CardContent className="p-2">
+                  <FollowedSidebar />
+                </CardContent>
+              </Card>
+            </div>
+          )}
+        </div>
       </main>
     </>
   );
 }
 
-function AuthShowcase() {
+function AuthShowcase({ layoutMode }: { layoutMode: "modern" | "legacy" }) {
   const { data, status } = useSession();
-  // if (status == "authenticated") return <div>{data.user.id}</div>;
+
   return (
     <div className="w-full">
-      <h1 className="flex items-center justify-center rounded-md  bg-base-100 py-3 text-center text-2xl font-bold shadow-md">
+      <h1 className={layoutMode === "modern" ? "flex items-center justify-center rounded-md bg-base-100 py-3 text-center text-2xl font-bold" : "flex items-center justify-center rounded-md bg-base-100 py-3 text-center text-2xl font-bold shadow-md"}>
         News Feed
       </h1>
       {/* <div className="flex flex-col items-center">
@@ -75,18 +115,20 @@ function AllRecentPost() {
 
   if (posts.data) {
     return (
-      <div className="flex w-full flex-col items-center gap-4 bg-base-100 p-2 md:container md:mx-auto">
-        {posts.data.pages.map((page) => (
-          <>
+      <div className="flex w-full flex-col items-center gap-4 bg-white p-2 md:container md:mx-auto">
+        {posts.data.pages.map((page, pageIndex) => (
+          <div key={page.posts[0]?.id} className="w-full">
             {page.posts.length === 0 && <p>There are no post yet</p>}
-            {page.posts.map((post) => (
-              <PostCard
-                priority={1}
-                commentCount={post._count.comments}
-                creator={post.creator}
-                key={post.id}
-                post={post}
-                likeCount={post._count.likes}
+            {page.posts.map((post, index) => (
+              <div key={post.id} className="w-full">
+                <PostCard
+                  isFirst={pageIndex === 0 && index === 0}
+                  priority={1}
+                  commentCount={post._count.comments}
+                  creator={post.creator}
+                  key={post.id}
+                  post={post}
+                  likeCount={post._count.likes}
                 locked={post.subscription ? true : false}
                 show={(() => {
                   if (post.subscription) {
@@ -119,10 +161,11 @@ function AllRecentPost() {
                     return false;
                   } else return true;
                 })()}
-                media={post.medias ? post.medias : []}
+media={post.medias ? post.medias : []}
               />
+              </div>
             ))}
-          </>
+          </div>
         ))}
 
         {posts.hasNextPage && (

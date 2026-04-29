@@ -13,6 +13,36 @@ type Pin = {
     }
 } & Location
 
+export type MapModalData = {
+    title?: string
+    description?: string
+    lat?: number
+    lng?: number
+    startDate?: Date
+    endDate?: Date
+    url?: string
+    autoCollect?: boolean
+    pinCollectionLimit?: number
+}
+
+interface MapModalStoreState {
+    isOpen: boolean
+    setIsOpen: (value: boolean) => void
+    position: google.maps.LatLngLiteral | undefined
+    setPosition: (pos: google.maps.LatLngLiteral | undefined) => void
+    prevData?: MapModalData
+    setPrevData: (value?: MapModalData) => void
+}
+
+export const useMapModalStore = create<MapModalStoreState>((set) => ({
+    isOpen: false,
+    setIsOpen: (value) => set({ isOpen: value }),
+    position: undefined,
+    setPosition: (pos) => set({ position: pos }),
+    prevData: undefined,
+    setPrevData: (value) => set({ prevData: value }),
+}))
+
 // Re-defining ModalData here as use-modal-store.ts is being removed
 export type ModalData = {
     long: number

@@ -171,21 +171,21 @@ export function SinglePostView({ post }: { post: extendedPost }) {
   const postUrl = `/fans/posts/${post.id}`;
 
   return (
-    <div className=" flex h-full flex-col items-center  md:p-5 ">
-      <h2 className="mb-5 text-center text-2xl font-bold">
+    <div className="mx-auto flex h-full w-full max-w-6xl flex-col items-center px-3 pb-8 pt-3 md:px-6 md:pt-5">
+      <h2 className="mb-4 text-center text-2xl font-bold md:mb-5">
         Post by {post.creator.name}
       </h2>
-      <div className="w-full ">
-        <div className=" ">
-          <div className="flex  w-full flex-col items-center justify-between ">
+      <div className="w-full">
+        <div>
+          <div className="flex w-full flex-col items-center justify-between">
 
-            <div className="flex h-full w-full flex-1 overflow-auto rounded-box bg-base-100">
-              <div className="h-full w-full  overflow-auto">
+            <div className="flex h-full w-full flex-1 overflow-auto rounded-[18px] border border-[#ebe7df] bg-base-100">
+              <div className="h-full w-full overflow-auto">
                 <div
                   key={post.id}
-                  className="h-full  w-full  overflow-auto  rounded-none   shadow-xl scrollbar-hide"
+                  className="h-full w-full overflow-auto rounded-[18px] shadow-none scrollbar-hide"
                 >
-                  <div className="flex h-full w-full flex-col overflow-auto pt-6  md:px-6">
+                  <div className="flex h-full w-full flex-col overflow-auto px-3 pt-4 md:px-6 md:pt-6">
                     <div>
                       <div className="flex justify-between">
                         <div className="flex gap-2">

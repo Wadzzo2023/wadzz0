@@ -20,7 +20,11 @@ export function isRechargeAbleClient(walletType: WalletType): boolean {
   );
 }
 
-export function SiteAssetBalance() {
+export function SiteAssetBalance({
+  layoutMode = "modern",
+}: {
+  layoutMode?: "modern" | "legacy";
+}) {
   const { setBalance, setActive, active } = useUserStellarAcc();
   const session = useSession();
   const { selectedMenu } = useMode();
@@ -50,10 +54,17 @@ export function SiteAssetBalance() {
   if (bal.isLoading) return <div className="skeleton h-10 w-48"></div>;
   if (notificationCount === undefined)
     return <div className="skeleton h-10 w-48"></div>;
+
+  const isLegacy = layoutMode === "legacy";
+  const legacyButtonClass = "";
+  const modernButtonClass =
+    "h-7 bg-muted px-2 text-foreground hover:bg-muted/90";
+  const sharedButtonClass = isLegacy ? legacyButtonClass : modernButtonClass;
+
   return (
     <div className=" flex items-center justify-center gap-1 ">
       <Link href="/walletBalance" className="">
-        <Button className="">
+        <Button className={sharedButtonClass}>
           {/* <div className="flex h-6 w-6 rounded-full  bg-white md:hidden">
             <Image
               alt="logo"
@@ -82,13 +93,17 @@ export function SiteAssetBalance() {
           href={"/recharge"}
           // href="/recharge"
         >
-          <Button className="">
+          <Button className={sharedButtonClass}>
             <ShoppingCart />
           </Button>
         </Link>
       )}
       <Button
-        className=" relative "
+        className={
+          isLegacy
+            ? "relative"
+            : "relative h-7 bg-muted px-2 text-foreground hover:bg-muted/90"
+        }
         onClick={async () => {
           await router.push("/notification");
           updateNotification();

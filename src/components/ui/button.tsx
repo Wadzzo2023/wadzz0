@@ -18,6 +18,7 @@ export default function Button({
 
   return (
     <button
+      onClick={() => router.push(path)}
       className={clsx(
         "btn  w-full",
         router.pathname == path && "bg-[#39BD2B] text-white",

@@ -16,7 +16,7 @@ export default function AboutPage() {
           <p className="mb-6 text-lg text-gray-700">
             Wadzzo is an innovative platform designed to transform the way people engage with brands through gamified experiences. Our mission is to bridge the digital and physical worlds by enabling users to explore their surroundings, discover rewards, and connect with brands in a fun, interactive way.
           </p>
-          <Link href="/fans/home">
+          <Link href="/feed">
             <Button >
               Join as BRANDS
             </Button>

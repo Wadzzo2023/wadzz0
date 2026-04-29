@@ -1,11 +1,11 @@
 import { create } from "zustand";
 
-interface CopyCutModalProps {
-    isOpen: boolean;
-    setIsOpen: (isOpen: boolean) => void;
+interface CopyCutModalState {
+  isOpen: boolean;
+  setIsOpen: (value: boolean) => void;
 }
 
-export const useCopyCutModalStore = create<CopyCutModalProps>((set) => ({
-    isOpen: false,
-    setIsOpen: (isOpen) => set({ isOpen }),
+export const useCopyCutModalStore = create<CopyCutModalState>((set) => ({
+  isOpen: false,
+  setIsOpen: (value) => set({ isOpen: value }),
 }));
