@@ -61,8 +61,10 @@ export default function Layout({
 
   useEffect(() => {
     const storedMode = getCookie(LAYOUT_MODE_COOKIE);
-    if (storedMode === "legacy" || storedMode === "modern") {
-      setLayoutMode(storedMode);
+    if (storedMode === "modern") {
+      setLayoutMode("modern");
+    } else {
+      setLayoutMode("legacy");
     }
   }, []);
 

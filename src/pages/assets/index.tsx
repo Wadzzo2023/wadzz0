@@ -15,12 +15,14 @@ import { ValidCreateCreator } from "../fans/creator";
 import { PLATFORM_ASSET } from "~/lib/stellar/constant";
 
 export default function MyAssetsPage() {
-  const [layoutMode, setLayoutMode] = useState<"modern" | "legacy">("modern");
+  const [layoutMode, setLayoutMode] = useState<"modern" | "legacy">("legacy");
 
   useEffect(() => {
     const storedMode = getCookie("wadzzo-layout-mode");
-    if (storedMode === "modern" || storedMode === "legacy") {
-      setLayoutMode(storedMode);
+    if (storedMode === "modern") {
+      setLayoutMode("modern");
+    } else {
+      setLayoutMode("legacy");
     }
   }, []);
 
@@ -249,13 +251,15 @@ function MyAssets() {
 
 function AssetTabs() {
   const { selectedMenu, setSelectedMenu } = useAssetMenu();
-  const [layoutMode, setLayoutMode] = useState<"modern" | "legacy">("modern");
+  const [layoutMode, setLayoutMode] = useState<"modern" | "legacy">("legacy");
 
   const creator = api.fan.creator.meCreator.useQuery();
   useEffect(() => {
     const storedMode = getCookie("wadzzo-layout-mode");
-    if (storedMode === "modern" || storedMode === "legacy") {
-      setLayoutMode(storedMode);
+    if (storedMode === "modern") {
+      setLayoutMode("modern");
+    } else {
+      setLayoutMode("legacy");
     }
   }, []);
 

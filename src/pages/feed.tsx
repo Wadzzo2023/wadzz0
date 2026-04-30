@@ -49,16 +49,22 @@ function FeedContent() {
 
   const [layoutMode] = useState<"modern" | "legacy">(() => {
     const cookieMode = getCookie(LAYOUT_MODE_COOKIE);
-    if (cookieMode === "legacy" || cookieMode === "modern") {
-      return cookieMode;
+    if (cookieMode === "modern") {
+      return "modern";
+    }
+    if (cookieMode === "legacy") {
+      return "legacy";
     }
     if (typeof window !== "undefined") {
       const storedMode = localStorage.getItem("layoutMode");
-      if (storedMode === "legacy" || storedMode === "modern") {
-        return storedMode;
+      if (storedMode === "modern") {
+        return "modern";
+      }
+      if (storedMode === "legacy") {
+        return "legacy";
       }
     }
-    return "modern";
+    return "legacy";
   });
   const isLegacy = layoutMode === "legacy";
 

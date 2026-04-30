@@ -34,10 +34,10 @@ import AgentChat from "~/components/AgentChat";
 
 type Pin = {
   locationGroup:
-    | (LocationGroup & {
-        creator: { profileUrl: string | null };
-      })
-    | null;
+  | (LocationGroup & {
+    creator: { profileUrl: string | null };
+  })
+  | null;
   _count: {
     consumers: number;
   };
@@ -441,13 +441,12 @@ const MyPins = memo(function MyPins({
             }}
           >
             <Image
-              src={pin.locationGroup?.creator.profileUrl ?? "/favicon.ico"}
+              src={pin.locationGroup?.image ?? pin.locationGroup?.creator.profileUrl ?? "/favicon.ico"}
               width={30}
               height={30}
               alt="Creator"
-              className={`h-10 w-10 bg-white ${
-                !pin.autoCollect ? "rounded-full " : ""
-              } ${pin._count.consumers <= 0 ? "opacity-100" : "opacity-50 "}`}
+              className={`h-10 w-10 bg-white ${!pin.autoCollect ? "rounded-full " : ""
+                } ${pin._count.consumers <= 0 ? "opacity-100" : "opacity-50 "}`}
             />
           </AdvancedMarker>
         ))}

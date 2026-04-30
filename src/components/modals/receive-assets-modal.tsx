@@ -22,15 +22,17 @@ const ReceiveAssetsModal = () => {
   const session = useSession();
   const isModalOpen = isOpen && type === "receive assets";
   const router = useRouter();
-  const [layoutMode, setLayoutMode] = useState<"modern" | "legacy">("modern");
+  const [layoutMode, setLayoutMode] = useState<"modern" | "legacy">("legacy");
   const [tilt, setTilt] = useState({ x: 0, y: 0 });
 
   const isLegacyLayout = layoutMode === "legacy";
 
   useEffect(() => {
     const storedMode = getCookie("wadzzo-layout-mode");
-    if (storedMode === "legacy" || storedMode === "modern") {
-      setLayoutMode(storedMode);
+    if (storedMode === "modern") {
+      setLayoutMode("modern");
+    } else {
+      setLayoutMode("legacy");
     }
   }, []);
 

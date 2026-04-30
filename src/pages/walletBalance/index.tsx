@@ -31,7 +31,7 @@ const Wallets = () => {
   const { needSign } = useNeedSign();
   const [isAccountActivate, setAccountActivate] = useState(false);
   const [isAccountActivateLoading, setAccountActivateLoading] = useState(false);
-  const [layoutMode, setLayoutMode] = useState<"modern" | "legacy">("modern");
+  const [layoutMode, setLayoutMode] = useState<"modern" | "legacy">("legacy");
   const router = useRouter();
 
   async function checkAccountActivity(publicKey: string) {
@@ -78,8 +78,10 @@ const Wallets = () => {
 
   useEffect(() => {
     const storedMode = getCookie("wadzzo-layout-mode");
-    if (storedMode === "legacy" || storedMode === "modern") {
-      setLayoutMode(storedMode);
+    if (storedMode === "modern") {
+      setLayoutMode("modern");
+    } else {
+      setLayoutMode("legacy");
     }
   }, []);
 

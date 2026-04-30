@@ -10,12 +10,14 @@ import CreatorTrack from "~/components/music/creator/track";
 import TrackSection, { TrackSectionSkeleton } from "~/components/music/track/section";
 
 export default function MusicPage() {
-  const [layoutMode, setLayoutMode] = useState<"modern" | "legacy">("modern");
+  const [layoutMode, setLayoutMode] = useState<"modern" | "legacy">("legacy");
 
   useEffect(() => {
     const storedMode = getCookie("wadzzo-layout-mode");
-    if (storedMode === "modern" || storedMode === "legacy") {
-      setLayoutMode(storedMode);
+    if (storedMode === "modern") {
+      setLayoutMode("modern");
+    } else {
+      setLayoutMode("legacy");
     }
   }, []);
 
