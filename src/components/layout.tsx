@@ -26,6 +26,7 @@ import { PostVideoProvider } from "./context/PostVideoContext";
 import FallingSnowflakes from "./christmas/FallingSnowflakes";
 import { Player } from "./Player";
 import { PlayerToggle } from "./playerToggle";
+import ModernConnectDialog from "./modern-connect-dialog";
 
 const RightDialog = dynamic(async () => await import("./right_dialog"));
 const ConnectWalletButton = dynamic(
@@ -234,6 +235,7 @@ export default function Layout({
                   <RightDialog />
                   <Player />
                   <Toaster />
+                  <ModernConnectDialog />
                 </div>
 
                 {!isLegacyLayout && !hasOpenDialog && session.status === "authenticated" ? (

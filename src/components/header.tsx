@@ -13,7 +13,11 @@ import {
   Menu,
   UserCircle2,
   Headphones,
+  Wallet,
 } from "lucide-react";
+import { ConnectWalletButton } from "package/connect_wallet";
+import ModernConnectWalletButton from "./modern-connect-wallet-button";
+import ModernLoginButton from "./modern-login-button";
 
 import { SiteAssetBalance } from "./marketplace/recharge/site_asset_bal";
 import { Button } from "~/components/shadcn/ui/button";
@@ -107,7 +111,9 @@ function ModernHeader({
                 onToggleLayoutMode={onToggleLayoutMode}
                 layoutMode="modern"
               />
-            ) : null}
+            ) : (
+              <ModernLoginButton />
+            )}
           </div>
         </div>
       </div>
@@ -215,6 +221,10 @@ function HeaderUserDropdown({
               </button>
             </div>
           </div>
+        </div>
+
+        <div className="mt-2">
+          <ModernConnectWalletButton />
         </div>
 
         <DropdownMenuSeparator className="my-2" />
