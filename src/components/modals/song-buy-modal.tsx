@@ -140,7 +140,7 @@ export default function SongBuyModal() {
                         <span className="font-semibold text-black">{data.Song.asset.code}</span>
                         <span className="hidden h-5 w-px bg-black/10 md:block" />
                         <span>
-                          Creator <span className="font-semibold text-black">{addrShort(data.Song.asset.creatorId, 5)}</span>
+                          Creator <span className="font-semibold text-black">{addrShort(data.Song.asset?.creatorId ?? "", 5)}</span>
                         </span>
                       </div>
                     </div>

@@ -78,7 +78,7 @@ export default function AssetInfoModal() {
       })
     : 0;
 
-if (data.MyAsset) {
+  if (data.MyAsset) {
     return (
       <Dialog open={isModalOpen} onOpenChange={handleClose}>
         <DialogContent className="max-h-[90vh] max-w-6xl overflow-hidden border-0 bg-[#fbfaf6] p-0 shadow-[0_24px_80px_rgba(15,23,42,0.18)]">
@@ -109,7 +109,7 @@ if (data.MyAsset) {
                       <span className="font-semibold text-black">{data.MyAsset.code}</span>
                       <span className="hidden h-5 w-px bg-black/10 md:block" />
                       <span>
-                        Creator <span className="font-semibold text-black">{addrShort(data.MyAsset.creatorId, 5)}</span>
+                        Creator <span className="font-semibold text-black">{addrShort(data.MyAsset?.creatorId ?? "Unknown", 5)}</span>
                       </span>
                     </div>
                   </div>
@@ -151,7 +151,7 @@ if (data.MyAsset) {
                     trailing={
                       <button
                         type="button"
-                        onClick={() => navigator.clipboard.writeText(data.MyAsset.issuer)}
+                        onClick={() => navigator.clipboard.writeText(data.MyAsset?.issuer ?? "")}
                         className="inline-flex items-center justify-center text-black/55 transition hover:text-black"
                       >
                         <Copy className="h-4 w-4" />
@@ -160,11 +160,11 @@ if (data.MyAsset) {
                   />
                   <DetailRow
                     label="Creator ID"
-                    value={addrShort(data.MyAsset.creatorId, 5)}
+                    value={addrShort(data.MyAsset?.creatorId ?? "", 5)}
                     trailing={
                       <button
                         type="button"
-                        onClick={() => navigator.clipboard.writeText(data.MyAsset.creatorId)}
+                        onClick={() => navigator.clipboard.writeText(data.MyAsset?.creatorId ?? "")}
                         className="inline-flex items-center justify-center text-black/55 transition hover:text-black"
                       >
                         <Copy className="h-4 w-4" />
@@ -190,7 +190,7 @@ if (data.MyAsset) {
                     </h3>
                   </div>
                   <p className="min-h-[120px] text-sm leading-6 text-black/72">
-                    {data.MyAsset.description || "No description provided for this asset."}
+                    {data.MyAsset.description ?? "No description provided for this asset."}
                   </p>
                 </div>
               </div>

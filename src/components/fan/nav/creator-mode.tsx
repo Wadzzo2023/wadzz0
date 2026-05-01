@@ -3,20 +3,30 @@ import Link from "next/link";
 import Button from "~/components/ui/button";
 
 export const CreatorNavigation = {
-  Page: { path: "/fans/creator", icon: PenSquare, text: "PAGE" },
-  Create: { path: "/fans/creator/posts", icon: PenSquare, text: "POST" },
-  Store: { path: "/fans/creator/store", icon: Store, text: "STORE" },
+  Page: {
+    path: "/fans/creator", icon: PenSquare, text: "PAGE", needAproval: true
+  },
+  Create: {
+    path: "/fans/creator/posts", icon: PenSquare, text: "POST", needAproval: true
+  },
+  Store: {
+    path: "/fans/creator/store", icon: Store, text: "STORE", needAproval: true,
+  },
 
   Settings: {
     path: "/fans/creator/settings",
     icon: Settings2,
     text: "SETTINGS",
+    needAproval: false,
+
   },
-  Gift: { path: "/fans/creator/gift", icon: Bell, text: "GIFT" },
-  Map: { path: "/maps", icon: Bell, text: "MAP" },
-  PinManage: { path: "/pin-manage", icon: Bell, text: "PIN MANAGE" },
-  Report: { path: "/maps/report", icon: Bell, text: "REPORT" },
-  Bounty: { path: "/fans/creator/bounty", icon: Bell, text: "BOUNTY" },
+  Gift: {
+    path: "/fans/creator/gift", icon: Bell, text: "GIFT", needAproval: true,
+  },
+  Map: { path: "/maps", icon: Bell, text: "MAP", needAproval: false },
+  PinManage: { path: "/pin-manage", icon: Bell, text: "PIN MANAGE", needAproval: false },
+  Report: { path: "/maps/report", icon: Bell, text: "REPORT", needAproval: false },
+  Bounty: { path: "/fans/creator/bounty", icon: Bell, text: "BOUNTY", needAproval: true },
 } as const;
 
 export function CreatorNavButtons() {

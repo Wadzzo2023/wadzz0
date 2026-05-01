@@ -6,11 +6,12 @@ import CustomAvatar from "~/components/ui/avater";
 import { Loader2, UserPlus } from "lucide-react";
 import Link from "next/link";
 import toast from "react-hot-toast";
+import { useSession } from "next-auth/react";
 
 export default function TrendingSidebar() {
-  const { data: sessionData } = api.auth.getSession.useQuery();
-  const currentUserId = sessionData?.user?.id;
-  
+  const session = useSession();
+  const currentUserId = session.data?.user?.id;
+
   const { data, isLoading } = api.fan.creator.getCreators.useQuery();
   const creators = data ?? [];
 

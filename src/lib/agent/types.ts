@@ -1,108 +1,124 @@
-/**
- * Types for Pin Creation Agent
- */
+// ============================================================
+// AGENT TYPES
+// ============================================================
+
+export type AgentTask = "event" | "landmark" | null;
+export type AgentStep =
+  | "idle"
+  | "clarify_task"
+  | "event_search"
+  | "event_confirm_list"
+  | "event_pin_dates"
+  | "event_pin_config"
+  | "event_final_confirm"
+  | "landmark_search"
+  | "landmark_confirm_list"
+  | "landmark_redeem_mode"
+  | "landmark_pin_dates"
+  | "landmark_pin_config"
+  | "landmark_final_confirm"
+  | "pin_generation"
+  | "done";
 
 export interface EventData {
+  id: string;
   title: string;
   description: string;
+  startDate: string; // ISO
+  endDate: string; // ISO
   latitude: number;
   longitude: number;
-  startDate: string; // ISO string
-  endDate: string; // ISO string
-  url?: string;
-  image?: string;
   venue?: string;
   address?: string;
-  // Pin configuration parameters
-  pinCollectionLimit?: number;
-  pinNumber?: number;
-  autoCollect?: boolean;
-  multiPin?: boolean;
-  radius?: number;
-  id?: string;
+  url?: string;
+  image?: string;
 }
 
 export interface LandmarkData {
   id: string;
   title: string;
-  category: string;
-  address?: string;
-  description?: string;
+  description: string;
   latitude: number;
   longitude: number;
-  startDate?: string;
-  endDate?: string;
-  // Pin configuration parameters
+  venue?: string;
+  address?: string;
+  url?: string;
+  image?: string;
+  category?: string;
+}
+
+export interface PinConfig {
+  startDate: string;
+  endDate: string;
   pinCollectionLimit?: number;
   pinNumber?: number;
   autoCollect?: boolean;
   radius?: number;
 }
 
-export interface AgentResponse {
-  message: string;
-  events?: EventData[];
-  type: "text" | "events" | "update";
-}
-
-export interface ChatMessage {
-  role: "user" | "assistant" | "system";
-  content: string;
-}
-
-export interface PinConfiguration {
-  pinCollectionLimit: number;
-  pinNumber: number;
-  autoCollect: boolean;
-  multiPin: boolean;
-  radius: number;
-}
-
-export type AgentTask = "event" | "landmark";
-
-export interface Message {
-  role: "user" | "assistant" | "system";
-  content: string;
-  uiData?: {
-    type:
-      | "task_select"
-      | "event_list"
-      | "landmark_list"
-      | "location_list"
-      | "config_step"
-      | "complete"
-      | "error"
-      | "idle";
-    data?: Record<string, unknown>;
-  };
-}
-
 export interface PinItem {
-  id?: string;
   title: string;
-  category?: string;
-  address?: string;
-  description?: string;
+  description: string;
   latitude: number;
   longitude: number;
-  startDate?: string;
-  endDate?: string;
+  url?: string;
+  image?: string;
+  venue?: string;
+  address?: string;
+  startDate: string;
+  endDate: string;
   pinCollectionLimit?: number;
   pinNumber?: number;
   autoCollect?: boolean;
   multiPin?: boolean;
   radius?: number;
+  type?: "EVENT" | "LANDMARK";
 }
 
 export interface AgentState {
-  step:
-    | "idle"
-    | "task_select"
+  step: AgentStep;
+  task: AgentTask;
+  searchQuery?: string;
+  searchArea?: string;
+  events?: EventData[];
+  selectedEvents?: EventData[];
+  landmarks?: LandmarkData[];
+  selectedLandmarks?: LandmarkData[];
+  pinConfig?: Partial<PinConfig>;
+  pins?: PinItem[];
+  redeemMode?: "separate" | "single";
+  pendingModification?: {
+    indices?: number[];
+    names?: string[];
+  };
+}
+
+export interface Message {
+  role: "user" | "assistant";
+  content: string;
+  // Optional structured data for rich UI rendering
+  uiData?: {
+    type:
     | "event_list"
     | "landmark_list"
-    | "location_list"
-    | "config_step"
-    | "complete"
-    | "error";
-  task: AgentTask | null;
+    | "pin_config_form"
+    | "date_picker"
+    | "confirm"
+    | "task_select"
+    | "pin_result"
+    | "next_action"
+    | "redeem_mode_select";
+    data: unknown;
+  };
+}
+
+export interface ChatRequest {
+  messages: { role: "user" | "assistant"; content: string }[];
+  state: AgentState;
+}
+
+export interface ChatResponse {
+  message: string;
+  state: AgentState;
+  uiData?: Message["uiData"];
 }

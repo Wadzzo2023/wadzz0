@@ -24,8 +24,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import { Card, CardContent, CardHeader, CardTitle } from "../shadcn/ui/card"
 import { Badge } from "../shadcn/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../shadcn/ui/tabs"
-import { UploadS3Button } from "../common/upload-button"
 import { Switch } from "../shadcn/ui/switch"
+import { UploadS3Button } from "~/pages/test"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -79,6 +79,7 @@ type CreateHotspotType = z.infer<typeof createHotspotFormSchema>
 
 interface CreateHotspotModalProps {
     isOpen: boolean
+    creatorId?: string
     setIsOpen: (open: boolean) => void
     /** GeoJSON Feature representing the drawn shape (circle / rect / polygon) */
     hotspotData: GeoJSON.Feature | null
@@ -101,6 +102,7 @@ function formatDateForInput(date: Date) {
 // ─── Main Component ───────────────────────────────────────────────────────────
 
 export default function CreateHotspotModal({
+    creatorId,
     isOpen,
     setIsOpen,
     hotspotData,
@@ -185,6 +187,7 @@ export default function CreateHotspotModal({
 
         addHotspotM.mutate({
             ...data,
+            creatorId,
             autoCollect: collectionMode === "auto",
             description: data.description ?? "",
             url: data.url ?? "",
@@ -970,7 +973,6 @@ function ImageUploadField({ coverUrl, setCover, setValue }: {
                 <CardContent className="p-6 text-center">
                     <UploadS3Button
                         endpoint="imageUploader"
-                        className="w-full"
                         onClientUploadComplete={(res) => {
                             if (res?.url) { setCover(res.url); setValue("image", res.url) }
                         }}

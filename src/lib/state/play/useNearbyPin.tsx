@@ -78,6 +78,8 @@ const pins: ConsumedLocation[] = generateMultipleRandomBoxPositions(
     brand_id: "brand_id",
     modal_url: "https://example.com/modal",
     viewed: false,
+    redeemCode: null,
+    isRedeemed: null,
   };
 });
 

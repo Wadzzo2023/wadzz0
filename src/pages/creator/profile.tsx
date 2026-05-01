@@ -128,7 +128,7 @@ export default function CreatorProfile() {
     });
 
   const { data: subscriptions, isLoading: subscriptionsLoading } =
-    api.fan.member.getAllMembership.useQuery();
+    api.fan.member.getAllMembership.useQuery({});
   const { data: pageAsset, isLoading: pageAssetLoading } =
     api.fan.creator.getCreatorPageAsset.useQuery();
 

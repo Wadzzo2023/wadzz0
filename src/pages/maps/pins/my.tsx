@@ -333,7 +333,7 @@ export function GiftTab({ customerPubkey }: GiftTabProps) {
             <Gift className="h-8 w-8 text-zinc-400" />
           </div>
           <p className="text-lg font-semibold text-zinc-900">No gift items yet</p>
-          <p className="text-sm text-zinc-500 mt-1">You're all caught up!</p>
+          <p className="text-sm text-zinc-500 mt-1">You{"'"}re all caught up!</p>
         </div>
       )}
 

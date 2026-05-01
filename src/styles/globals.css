@@ -3,203 +3,126 @@
 @tailwind utilities;
 
 @layer base {
+
   :root,
   .light {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --background: 110 20% 98%;
+    --foreground: 110 15% 12%;
 
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 110 15% 12%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover-foreground: 110 15% 12%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    --primary: 110 65% 45%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 110 25% 88%;
+    --secondary-foreground: 110 15% 20%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted: 110 15% 92%;
+    --muted-foreground: 110 10% 45%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+          --accent: 89 33% 38%;
+    --accent-foreground: 110 20% 90%;
 
     --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --success: 142 71% 45%;
+    --warning: 38 92% 50%;
+
+    --border: 110 20% 85%;
+    --input: 110 15% 90%;
+    --ring: 110 65% 45%;
 
     --radius: 0.5rem;
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
+    --background: 110 15% 6%;
+    --foreground: 110 10% 95%;
 
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
+    --card: 110 20% 8%;
+    --card-foreground: 110 10% 95%;
 
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 110 20% 8%;
+    --popover-foreground: 110 10% 95%;
 
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
+    --primary: 110 65% 55%;
+    --primary-foreground: 110 20% 5%;
 
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
+    --secondary: 110 15% 15%;
+    --secondary-foreground: 110 20% 85%;
 
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
+    --muted: 110 12% 12%;
+    --muted-foreground: 110 8% 65%;
 
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
+    --accent: 110 20% 18%;
+    --accent-foreground: 110 15% 88%;
 
     --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
+    --success: 142 76% 36%;
+    --warning: 38 92% 50%;
+
+    --border: 110 15% 18%;
+    --input: 110 12% 16%;
+    --ring: 110 65% 55%;
   }
 }
+/* Add these styles to your globals.css file */
+.quill-editor-wrapper {
+  height: 100%;
+}
 
+.quill-editor {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.quill-editor .ql-container {
+  flex: 1;
+  overflow: auto;
+}
+
+.quill-editor .ql-editor {
+  min-height: 100px;
+}
+
+/* Prevent focus outline issues */
+.quill-editor .ql-editor:focus {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* Ensure the editor doesn't lose focus on click */
+.quill-editor .ql-editor {
+  caret-color: currentColor;
+}
 @layer base {
   * {
     @apply border-border;
   }
+
   body {
     @apply bg-background text-foreground;
   }
-}
-
-@layer components {
-  .scrollbar-style {
-    @apply scrollbar-thin scrollbar-track-base-content/5 scrollbar-thumb-base-content/5 scrollbar-track-rounded-md  scrollbar-thumb-rounded hover:scrollbar-thumb-base-content/40;
-  }
-
-  .tsd {
-    @apply transition-all duration-500 ease-in-out;
-  }
-
-  .aac-sbt {
-    @apply font-bold transition-all duration-75 ease-in-out hover:scale-105
-     hover:font-semibold hover:tracking-wider hover:text-blue-500 focus:ring-8 focus:ring-blue-300 
-     active:scale-90 active:ring-blue-500;
-  }
-
-  .acc-bt {
-    @apply tsd overflow-hidden rounded-xl
-    bg-slate-800/60 px-4 py-3 text-xl
-    font-bold tracking-wider text-slate-900/80 backdrop-blur hover:scale-105 hover:border-blue-400 hover:bg-slate-900/80 hover:text-slate-300/70
-    focus:border-blue-400 focus:outline-none focus:ring focus:ring-blue-300 active:scale-90;
-  }
-
-  .main-asset-area {
-    @apply scrollbar-style grid max-h-full gap-3 overflow-y-auto px-1 md:grid-cols-3 xl:grid-cols-5 2xl:grid-cols-8;
-  }
-}
-
-.gradient-background {
-  background: linear-gradient(
-    180deg,
-    rgba(181, 228, 118, 0.84) 12.21%,
-    rgba(131, 215, 203, 0.84) 81.69%
-  );
-}
-.background-color {
-  background: linear-gradient(0deg, rgb(62 62 62 / 17%), rgb(62 62 62 / 19%)),
-    linear-gradient(0deg, hsla(0, 0%, 54%, 0.61), hsl(0deg 0% 54% / 62%));
-}
-
-html,
-body {
-  background: url("/images/header.jpg") no-repeat center center fixed;
-  -webkit-background-size: cover;
-  -moz-background-size: cover;
-  -o-background-size: cover;
-  background-size: cover;
-}
-.ql-editor {
-  overflow-wrap: break-word;
-  word-wrap: break-word;
-  word-break: break-word;
-  white-space: pre-wrap;
-  width: 100%;
-  max-width: 100%;
-  box-sizing: border-box;
-}
-
-.ql-editor img,
-.ql-editor .ql-video {
-  max-width: 100%;
-  height: auto;
-}
-
-.ql-editor * {
-  word-wrap: break-word;
-}
-#ihx {
-  background: url("/images/guitar.svg");
-  background-size: 10%;
-  animation: pan 135s linear infinite;
 }
 @keyframes fall {
   0% {
     transform: translateY(-10%) rotate(0deg);
   }
+
   100% {
     transform: translateY(110vh) rotate(360deg);
   }
 }
-
 .animate-fall {
   animation-name: fall;
   animation-timing-function: linear;
   animation-iteration-count: infinite;
-}
-
-@keyframes pan {
-  0% {
-    background-position: 0% 0%;
-  }
-
-  100% {
-    background-position: 100% 0%;
-  }
-}
-
-
-
-#map-container {
-  height: 100%;
-  width: 100%;
-  /* temporarily set the background color so we can tell where the map container is positioned */
-  background-color: lightgrey;
-}
-
-.sidebar {
-  background-color: rgb(35 55 75 / 90%);
-  color: #fff;
-  padding: 6px 12px;
-  font-family: monospace;
-  z-index: 1;
-  position: absolute;
-  top: 0;
-  left: 0;
-  margin: 12px;
-  border-radius: 4px;
-}
-
-.reset-button {
-  position: absolute;
-  top: 50px;
-  z-index: 1;
-  left: 12px;
-  padding: 4px 10px;
-  border-radius: 10px;
-  cursor: pointer;
 }

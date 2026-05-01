@@ -66,7 +66,7 @@ function LoadingSkeleton() {
 export default function Pins() {
   const [viewMode, setViewMode] = useState<"pending" | "approved">("pending")
 
-  const pendingLocationGroups = api.maps.pin.getLocationGroups.useQuery(undefined, {
+  const pendingLocationGroups = api.maps.pin.getAdminLocationGroups.useQuery(undefined, {
     enabled: viewMode === "pending",
   })
   const approvedLocationGroups = api.maps.pin.getApprovedLocationGroups.useQuery(undefined, {

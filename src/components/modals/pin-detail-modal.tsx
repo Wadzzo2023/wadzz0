@@ -27,11 +27,11 @@ import { Button } from "~/components/shadcn/ui/button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "~/components/shadcn/ui/dialog"
 import { api } from "~/utils/api"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useRouter } from "next/navigation"
+import { useRouter } from "next/navigation" // Changed from next/router to next/navigation
 import { Controller, useForm } from "react-hook-form"
 import * as z from "zod"
 import { Input } from "~/components/shadcn/ui/input"
-import type { ItemPrivacy } from "@prisma/client"
+import type { ItemPrivacy } from "@prisma/client" // Added PinType
 import { Label } from "~/components/shadcn/ui/label"
 import { useCreatorStorageAcc } from "~/lib/state/wallete/stellar-balances"
 import { BADWORDS } from "~/utils/banned-word"
@@ -41,13 +41,13 @@ import { Textarea } from "~/components/shadcn/ui/textarea"
 import { Badge } from "~/components/shadcn/ui/badge"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "~/components/shadcn/ui/card"
 import { Separator } from "~/components/shadcn/ui/separator"
-import { useMapInteractionStore } from "~/store/map-stores"
+import { useMapInteractionStore } from "~/store/map-stores" // Changed to useMapInteractionStore
+
+// Re-using the Pin type from map-stores.ts for consistency
 import type { Location, LocationGroup } from "@prisma/client"
-import { PinType as PinTypeEnum } from "@prisma/client"
-import { UploadS3Button } from "../common/upload-button"
+import { PinType as PinTypeEnum } from "@prisma/client" // Declare PinType
 import { useCopyCutModalStore } from "~/store/copy-cut-modal-store"
-import { getCookie } from "cookies-next"
-import clsx from "clsx"
+import { UploadS3Button } from "~/pages/test"
 
 type Pin = {
     locationGroup:
@@ -73,19 +73,19 @@ export const NO_ASSET = -99
 
 const MapOptionModal = () => {
     const {
-        selectedPinForDetail: data,
-        closePinDetailModal: handleClose,
+        selectedPinForDetail: data, // Use selectedPinForDetail from the store as 'data'
+        closePinDetailModal: handleClose, // Use closePinDetailModal from the store
         isPinCut,
         isPinCopied,
         setPinCopied,
         setPinCut,
-        setIsAutoCollect,
+        setIsAutoCollect, // This is for the copiedPinData, not the current pin's autoCollect
         setManual,
         setDuplicate,
         setPrevData,
     } = useMapInteractionStore()
 
-    const [isFormLocal, setIsFormLocal] = React.useState(false)
+    const [isFormLocal, setIsFormLocal] = React.useState(false) // Local state for form view
     const session = useSession()
     const router = useRouter()
     const [activeTab, setActiveTab] = useState<string>("details")
@@ -547,8 +547,8 @@ function PinInfo({
                     <img
                         src={locationGroup.image ?? "/placeholder.svg"}
                         alt={locationGroup.title ?? "Pin image"}
-                        fill
-                        className="object-cover"
+
+                        className="object-cover h-full w-full"
                     />
                 </div>
             )}
@@ -983,7 +983,6 @@ function PinInfoUpdate({
                                                     className="rounded  "
                                                     width={120}
                                                     height={120}
-                                                    quality={100}
                                                     alt="preview image"
                                                     src={coverUrl ?? image ?? "/placeholder.svg"}
                                                 />

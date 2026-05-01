@@ -355,9 +355,7 @@ function AdminMap() {
         {selectedCreator && <CreateAdminPinModal />}
         {selectedCreator && (
           <AgentChat
-            setIsOpen={setIsOpen}
-            setPosition={setPosition}
-            setPrevData={setPrevData}
+            creatorId={selectedCreator.id}
           />
         )}
       </APIProvider>

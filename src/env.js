@@ -34,13 +34,16 @@ export const env = createEnv({
     // squire
     SQUARE_ACCESS_TOKEN: z.string(),
     SQUARE_ENVIRONMENT: z.string(),
-    // QStash
-    QSTASH_TOKEN: z.string(),
+
     // AWS
     AWS_BUCKET_NAME: z.string(),
     AWS_BUCKET_REGION: z.string(),
     AWS_ACCESS_KEY: z.string(),
     AWS_SECRET_ACCESS_KEY: z.string(),
+    //QStash
+    QSTASH_TOKEN: z.string(),
+    QSTASH_CURRENT_SIGNING_KEY: z.string(),
+    QSTASH_NEXT_SIGNING_KEY: z.string(),
   },
 
   /**
@@ -94,7 +97,6 @@ export const env = createEnv({
     NEXT_PUBLIC_LOG_ENABLE: process.env.NEXT_PUBLIC_LOG_ENABLE,
     NEXT_PUBLIC_HOME_DOMAIN: process.env.NEXT_PUBLIC_HOME_DOMAIN,
     NEXT_PUBLIC_URL: process.env.NEXT_PUBLIC_URL,
-    QSTASH_TOKEN: process.env.QSTASH_TOKEN,
     MOTHER_SECRET: process.env.MOTHER_SECRET,
     STORAGE_SECRET: process.env.STORAGE_SECRET,
     PINATA_JWT: process.env.PINATA_JWT,
@@ -108,6 +110,10 @@ export const env = createEnv({
     AWS_BUCKET_REGION: process.env.NEXT_AWS_BUCKET_REGION,
     AWS_ACCESS_KEY: process.env.NEXT_AWS_ACCESS_KEY,
     AWS_SECRET_ACCESS_KEY: process.env.NEXT_AWS_SECRET_ACCESS_KEY,
+    //QStash
+    QSTASH_TOKEN: process.env.QSTASH_TOKEN,
+    QSTASH_CURRENT_SIGNING_KEY: process.env.QSTASH_CURRENT_SIGNING_KEY,
+    QSTASH_NEXT_SIGNING_KEY: process.env.QSTASH_NEXT_SIGNING_KEY,
 
     // Mapbox
     NEXT_PUBLIC_MAPBOX_API: process.env.NEXT_PUBLIC_MAPBOX_API,

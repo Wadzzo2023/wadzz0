@@ -1,7 +1,6 @@
 import { Song } from "@prisma/client";
 import Image from "next/image";
 import Link from "next/link";
-import { SongItemType } from "../track/music_item";
 
 export default function PlayerTrackCover({
   item,

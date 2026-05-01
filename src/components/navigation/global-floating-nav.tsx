@@ -62,7 +62,7 @@ const baseItems: NavItem[] = Object.entries(LeftNavigation)
       item.path === "/assets" || item.text.toLowerCase().includes("collection");
     const mappedIcon = item.path.includes("/music")
       ? Music
-      : item.path === "/feed" || item.path === "/fans/home"
+      : item.path === "/fans/home"
         ? Newspaper
         : isCollectionRoute
           ? Library
