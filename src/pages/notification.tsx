@@ -16,16 +16,22 @@ type NotificationTab = "user" | "creator";
 const Notification = () => {
   const [layoutMode] = useState<"modern" | "legacy">(() => {
     const cookieMode = getCookie("wadzzo-layout-mode");
-    if (cookieMode === "legacy" || cookieMode === "modern") {
-      return cookieMode;
+    if (cookieMode === "modern") {
+      return "modern";
+    }
+    if (cookieMode === "legacy") {
+      return "legacy";
     }
     if (typeof window !== "undefined") {
       const storedMode = localStorage.getItem("layoutMode");
-      if (storedMode === "legacy" || storedMode === "modern") {
-        return storedMode;
+      if (storedMode === "modern") {
+        return "modern";
+      }
+      if (storedMode === "legacy") {
+        return "legacy";
       }
     }
-    return "modern";
+    return "legacy";
   });
 
   const [selectedTab, setSelectedTab] = useState<NotificationTab>("user");

@@ -882,16 +882,22 @@ export default function AgentChat({ creatorId }: AgentChatProps) {
 
     const [layoutMode] = useState<"modern" | "legacy">(() => {
         const cookieMode = getCookie("wadzzo-layout-mode");
-        if (cookieMode === "legacy" || cookieMode === "modern") {
-            return cookieMode;
+        if (cookieMode === "modern") {
+            return "modern";
+        }
+        if (cookieMode === "legacy") {
+            return "legacy";
         }
         if (typeof window !== "undefined") {
             const storedMode = localStorage.getItem("layoutMode");
-            if (storedMode === "legacy" || storedMode === "modern") {
-                return storedMode;
+            if (storedMode === "modern") {
+                return "modern";
+            }
+            if (storedMode === "legacy") {
+                return "legacy";
             }
         }
-        return "modern";
+        return "legacy";
     });
 
     const endRef = useRef<HTMLDivElement>(null)
@@ -1218,7 +1224,7 @@ export default function AgentChat({ creatorId }: AgentChatProps) {
 
             {/* Neon input bar */}
             {!isMinimized && (
-                <div className={`fixed left-1/2 z-40 w-full max-w-2xl -translate-x-1/2 px-4 ${layoutMode === "modern" ? "bottom-24" : "bottom-6"}`}>
+                <div className={`fixed left-1/2 z-40 w-full max-w-2xl -translate-x-1/2 px-4 ${layoutMode === "modern" ? "bottom-28" : "bottom-6"}`}>
                     <style>{`
             @keyframes neon-glow {
               0%, 100% { box-shadow: 0 0 5px rgba(34,197,94,.3), 0 0 10px rgba(34,197,94,.2); }

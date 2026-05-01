@@ -12,12 +12,14 @@ export default function AllTags() {
   const { selectTag, selectedTag } = useTagStore();
   const { setData } = useRightStore();
   const { setData: setMarketData } = useMarketRightStore();
-  const [layoutMode, setLayoutMode] = useState<"modern" | "legacy">("modern");
+   const [layoutMode, setLayoutMode] = useState<"modern" | "legacy">("legacy");
 
   useEffect(() => {
     const storedMode = getCookie("wadzzo-layout-mode");
-    if (storedMode === "modern" || storedMode === "legacy") {
-      setLayoutMode(storedMode);
+    if (storedMode === "modern") {
+      setLayoutMode("modern");
+    } else {
+      setLayoutMode("legacy");
     }
   }, []);
 

@@ -438,7 +438,7 @@ const MyPins = memo(function MyPins({
               setIsAutoCollect(pin.autoCollect); // Set isAutoCollect to true when a pin is clicked
             }}
           >
-            <img
+            <Image
               src={pin.locationGroup?.image ?? pin.locationGroup?.creator.profileUrl ?? "/favicon.ico"}
               width={30}
               height={30}
