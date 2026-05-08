@@ -654,10 +654,10 @@ they'd like to create event pins or landmark pins. Be brief and natural.`,
           : { search_events: agentTools.search_events, search_landmarks: agentTools.search_landmarks };
 
         pass1 = await generateText({
-          model: openai("gpt-4o"),
+          model: openai("gpt-4o-mini"),
           system: buildToolPrompt(state as AgentState, message),
           tools: scopedTools,
-          maxSteps: 5,
+          maxSteps: 3,
           messages: baseMessages,
         });
 
