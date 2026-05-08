@@ -878,9 +878,53 @@ export default function AgentChat({ creatorId }: AgentChatProps) {
   const [messages, setMessages] = useState<Message[]>([WELCOME])
   const [input, setInput] = useState("")
   const [agentState, setAgentState] = useState<AgentState>(INITIAL_STATE)
-
+  const [pollingJobId, setPollingJobId] = useState<string | null>(null);
+  const [isWaiting, setIsWaiting] = useState(false);
   const endRef = useRef<HTMLDivElement>(null)
-  const chatMutation = api.agent.chat.useMutation()
+
+  const chatMutation = api.agent.chat.useMutation();
+
+  const { data: agentJobResult } = api.agent.agentJobResult.useQuery(
+    { jobId: pollingJobId! },
+    {
+      enabled: !!pollingJobId,
+      refetchInterval: (data) => {
+        if (data?.status === "completed" || data?.status === "failed") return false;
+        return 1500; // poll every 1.5s
+      },
+      refetchIntervalInBackground: true,
+    }
+  );
+
+  useEffect(() => {
+    if (!agentJobResult) return;
+
+    if (agentJobResult.status === "completed" && agentJobResult.result) {
+      const { message, state: newState, uiData, jobId } = agentJobResult.result;
+      setPollingJobId(null);
+      setIsWaiting(false);
+
+      const newMessage: Message = {
+        role: "assistant",
+        content: message,
+        uiData: uiData ? {
+          type: uiData.type as Message["uiData"] extends { type: infer T } ? T : never,
+          data: uiData.data,
+        } : undefined,
+      };
+      setMessages((prev) => [...prev, newMessage]);
+      setAgentState(newState);
+    }
+
+    if (agentJobResult.status === "failed") {
+      setPollingJobId(null);
+      setIsWaiting(false);
+      setMessages((prev) => [...prev, {
+        role: "assistant",
+        content: "Sorry, something went wrong. Please try again.",
+      }]);
+    }
+  }, [agentJobResult]);
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: "smooth" })
@@ -889,47 +933,35 @@ export default function AgentChat({ creatorId }: AgentChatProps) {
   // ── Core send ─────────────────────────────────────────────────────────────
 
   const send = useCallback(
-    async (userMsg: string, stateOverride?: Partial<AgentState> | undefined) => {
-      setIsOpen(true)
-      if (!userMsg.trim() || chatMutation.isLoading) return
+    async (userMsg: string, stateOverride?: Partial<AgentState>) => {
+      setIsOpen(true);
+      if (!userMsg.trim() || isWaiting) return;
 
-      const currentState = stateOverride
-        ? { ...agentState, ...stateOverride }
-        : agentState
+      const currentState = stateOverride ? { ...agentState, ...stateOverride } : agentState;
+      const history = messages.map((m) => ({ role: m.role, content: m.content }));
 
-      const history = messages.map((m) => ({ role: m.role, content: m.content }))
-
-      setMessages((prev) => [...prev, { role: "user", content: userMsg }])
-      setInput("")
+      setMessages((prev) => [...prev, { role: "user", content: userMsg }]);
+      setInput("");
+      setIsWaiting(true);
 
       try {
-        const res = await chatMutation.mutateAsync({
+        const { jobId } = await chatMutation.mutateAsync({
           message: userMsg,
           history,
           state: currentState,
-          creatorId: creatorId
-        })
-
-        const newMessage: Message = {
-          role: "assistant" as const,
-          content: res.message,
-          uiData: res.uiData ? {
-            type: res.uiData.type as Message["uiData"] extends { type: infer T } ? T : never,
-            data: res.uiData.data,
-          } : undefined,
-        }
-        setMessages((prev) => [...prev, newMessage])
-        setAgentState(res.state)
+          creatorId,
+        });
+        setPollingJobId(jobId); // start polling
       } catch {
-        const errorMessage: Message = {
-          role: "assistant" as const,
+        setIsWaiting(false);
+        setMessages((prev) => [...prev, {
+          role: "assistant",
           content: "Sorry, something went wrong. Please try again.",
-        }
-        setMessages((prev) => [...prev, errorMessage])
+        }]);
       }
     },
-    [agentState, chatMutation, messages, creatorId],
-  )
+    [agentState, chatMutation, messages, creatorId, isWaiting],
+  );
 
   // ── Handlers ──────────────────────────────────────────────────────────────
 
@@ -1222,15 +1254,15 @@ export default function AgentChat({ creatorId }: AgentChatProps) {
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder="Ask me anything..."
-              disabled={chatMutation.isLoading}
+              disabled={isWaiting}
               className="flex-1 rounded-full bg-white px-5 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none disabled:opacity-50"
             />
             <button
               onClick={() => void send(input)}
-              disabled={!input.trim() || chatMutation.isLoading}
+              disabled={!input.trim() || isWaiting}
               className="flex flex-shrink-0 items-center justify-center rounded-full bg-primary px-4 py-3 text-primary-foreground transition-all hover:scale-105 hover:shadow-lg active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100"
             >
-              {chatMutation.isLoading ? (
+              {isWaiting ? (
                 <Loader2 className="h-5 w-5 animate-spin" />
               ) : (
                 <Send className="h-5 w-5" />
@@ -1315,7 +1347,7 @@ export default function AgentChat({ creatorId }: AgentChatProps) {
             ))}
 
             {/* Typing indicator */}
-            {chatMutation.isLoading && (
+            {isWaiting && (
               <div className="flex justify-start animate-in fade-in">
                 <div className="rounded-3xl rounded-tl-lg bg-muted px-4 py-3 shadow-sm">
                   <div className="flex items-center gap-2 text-muted-foreground">

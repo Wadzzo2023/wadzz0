@@ -225,6 +225,7 @@ model Creator {
     createdAt          DateTime              @default(now())
     hotspots           Hotspot[]
     locationGroupJobs  LocationGroupJob[]
+    agentJobs          AgentJob[]
 
     @@index([bio, name])
 }
@@ -868,6 +869,21 @@ model LocationGroupJob {
     updatedAt DateTime @updatedAt
 
     creator Creator @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+
+    @@index([creatorId, createdAt])
+}
+
+model AgentJob {
+    id        String  @id @default(cuid())
+    creatorId String
+    creator   Creator @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+
+    status String  @default("pending")
+    result Json?
+    error  String?
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
 
     @@index([creatorId, createdAt])
 }
