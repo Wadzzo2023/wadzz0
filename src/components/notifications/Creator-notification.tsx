@@ -127,7 +127,7 @@ const getNotificationColor = (type: NotificationType) => {
 const CreatorNotifications = ({ isModernLayout }: { isModernLayout?: boolean }) => {
   if (isModernLayout) {
     return (
-      <div className="container mx-auto px-4 py-6">
+      <div className="container mx-auto px-0 md:px-4 py-6">
         <div className="flex flex-row items-start justify-center">
           <Notifications isModernLayout={isModernLayout} />
         </div>

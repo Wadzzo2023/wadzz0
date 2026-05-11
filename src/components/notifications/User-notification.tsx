@@ -41,7 +41,7 @@ const getNotificationIcon = (type: NotificationType) => {
 export default function UserNotification({ isModernLayout }: { isModernLayout?: boolean }) {
   if (isModernLayout) {
     return (
-      <div className="container mx-auto px-4 py-6">
+      <div className="container mx-auto px-0 md:px-4 py-6">
         <div className="flex flex-row items-start justify-center">
           <Notifications isModernLayout={isModernLayout} />
         </div>
@@ -285,7 +285,7 @@ const Notifications = ({ isModernLayout }: { isModernLayout?: boolean }) => {
             >
               <Bell className="h-6 w-6 text-indigo-500" />
             </motion.div>
-            <h1 className="text-2xl font-bold">Notifications</h1>
+            <h1 className="text-2xl font-bold max-md:hidden">Notifications</h1>
             {newNotificationCount() > 0 && (
               <motion.div
                 initial={{ scale: 0 }}

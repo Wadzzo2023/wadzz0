@@ -48,7 +48,7 @@ const Notification = () => {
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        className={cn("container mx-auto py-8", "max-w-[85vw] pb-28")}
+        className={cn("container mx-auto py-8", "md:max-w-[85vw] pb-28 max-md:!px-4")}
       >
         <motion.div
           initial={{ y: -20 }}
