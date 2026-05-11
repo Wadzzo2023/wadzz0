@@ -13,73 +13,6 @@ import { Skeleton } from "~/components/shadcn/ui/skeleton";
 import { Glass } from "~/components/glass/glass";
 import { cn } from "~/lib/utils";
 
-type DummyNotification = {
-  id: number;
-  createdAt: Date;
-  notificationObject: {
-    entityType: NotificationType;
-    entityId: number;
-    actor: { name: string | null; image: string | null; id: string };
-  };
-};
-
-const DUMMY_CREATOR_NOTIFICATIONS: DummyNotification[] = [
-  {
-    id: 1,
-    createdAt: new Date(Date.now() - 1000 * 60 * 5),
-    notificationObject: {
-      entityType: NotificationType.LIKE,
-      entityId: 201,
-      actor: { name: "Frank", image: null, id: "user_frank" },
-    },
-  },
-  {
-    id: 2,
-    createdAt: new Date(Date.now() - 1000 * 60 * 30),
-    notificationObject: {
-      entityType: NotificationType.COMMENT,
-      entityId: 202,
-      actor: { name: "Grace", image: null, id: "user_grace" },
-    },
-  },
-  {
-    id: 3,
-    createdAt: new Date(Date.now() - 1000 * 60 * 120),
-    notificationObject: {
-      entityType: NotificationType.FOLLOW,
-      entityId: 203,
-      actor: { name: "Hank", image: null, id: "user_hank" },
-    },
-  },
-  {
-    id: 4,
-    createdAt: new Date(Date.now() - 1000 * 60 * 240),
-    notificationObject: {
-      entityType: NotificationType.BOUNTY_PARTICIPANT,
-      entityId: 204,
-      actor: { name: "Ivy", image: null, id: "user_ivy" },
-    },
-  },
-  {
-    id: 5,
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24),
-    notificationObject: {
-      entityType: NotificationType.BOUNTY_SUBMISSION,
-      entityId: 205,
-      actor: { name: "Jack", image: null, id: "user_jack" },
-    },
-  },
-  {
-    id: 6,
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 48),
-    notificationObject: {
-      entityType: NotificationType.REPLY,
-      entityId: 206,
-      actor: { name: "Kate", image: null, id: "user_kate" },
-    },
-  },
-];
-
 const getNotificationIcon = (type: NotificationType) => {
   switch (type) {
     case NotificationType.LIKE:
@@ -302,12 +235,44 @@ const Notifications = ({ isModernLayout }: { isModernLayout?: boolean }) => {
   const [viewedNotifications, setViewedNotifications] = useState<Set<number>>(new Set());
   const [filter, setFilter] = useState<string>("all");
 
-  const notificationsToRender = DUMMY_CREATOR_NOTIFICATIONS;
-  const isUsingDummy = true;
+  const notifications =
+    api.fan.notification.getCreatorNotifications.useInfiniteQuery(
+      { limit: 10 },
+      {
+        getNextPageParam: (lastPage) => lastPage.nextCursor,
+        refetchInterval: 30000,
+      },
+    );
 
-  const newNotificationCount = () => 0;
+  useEffect(() => {
+    if (notifications.data) {
+      const newViewedSet = new Set(viewedNotifications);
+      notifications.data.pages.forEach((page) => {
+        page.items.forEach((notification) => {
+          newViewedSet.add(notification.id);
+        });
+      });
+      setViewedNotifications(newViewedSet);
+    }
+  }, [notifications.data]);
 
-  const groupedNotifications = notificationsToRender.reduce(
+  const newNotificationCount = () => {
+    if (!notifications.data) return 0;
+
+    let count = 0;
+    notifications.data.pages.forEach((page) => {
+      page.items.forEach((notification) => {
+        if (!viewedNotifications.has(notification.id)) {
+          count++;
+        }
+      });
+    });
+    return count;
+  };
+
+  const allNotifications = notifications.data?.pages.flatMap((page) => page.items) ?? [];
+
+  const groupedNotifications = allNotifications.reduce(
     (groups, notification) => {
       const date = new Date(notification.createdAt).toLocaleDateString();
       if (!groups[date]) {
@@ -316,7 +281,7 @@ const Notifications = ({ isModernLayout }: { isModernLayout?: boolean }) => {
       groups[date].push(notification);
       return groups;
     },
-    {} as Record<string, typeof notificationsToRender>,
+    {} as Record<string, typeof allNotifications>,
   );
 
   const today = new Date().toLocaleDateString();
@@ -327,8 +292,6 @@ const Notifications = ({ isModernLayout }: { isModernLayout?: boolean }) => {
     if (dateString === yesterday) return "Yesterday";
     return dateString;
   };
-
-  const hasUnread = notificationsToRender.some((n) => !viewedNotifications.has(n.id));
 
   const filteredEntries = Object.entries(groupedNotifications)
     .sort(([dateA], [dateB]) => new Date(dateB).getTime() - new Date(dateA).getTime())
@@ -368,7 +331,7 @@ const Notifications = ({ isModernLayout }: { isModernLayout?: boolean }) => {
             >
               <Users className="h-5 w-5 text-indigo-600" />
             </motion.div>
-            <div>
+            <div className="max-md:hidden">
               <h1 className="text-2xl font-bold">Creator Notifications</h1>
               <p className="text-sm text-gray-500">Updates from your fans and followers</p>
             </div>
@@ -423,7 +386,19 @@ const Notifications = ({ isModernLayout }: { isModernLayout?: boolean }) => {
           </div>
         </motion.div>
 
-        {!hasFilteredResults && filter === "unread" ? (
+        {notifications.isLoading ? (
+          <div className="space-y-4">
+            {[1, 2, 3, 4, 5].map((i) => (
+              <div key={i} className="flex items-start gap-4 p-2">
+                <Skeleton className="h-10 w-10 rounded-full" />
+                <div className="space-y-2">
+                  <Skeleton className="h-4 w-[250px]" />
+                  <Skeleton className="h-3 w-[100px]" />
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : !hasFilteredResults && filter === "unread" ? (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -462,7 +437,7 @@ const Notifications = ({ isModernLayout }: { isModernLayout?: boolean }) => {
                   </div>
 
                   {dateNotifications.map((notification, index) => {
-                    const isNew = isUsingDummy ? false : !viewedNotifications.has(notification.id);
+                    const isNew = !viewedNotifications.has(notification.id);
                     let message = "";
                     let url = "";
                     let enable = false;
@@ -594,20 +569,33 @@ const Notifications = ({ isModernLayout }: { isModernLayout?: boolean }) => {
               ))}
             </AnimatePresence>
 
-            <motion.div
-              className="flex justify-center p-4"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.5 }}
-            >
-              <Button
-                variant="outline"
-                className="w-full"
+            {notifications.hasNextPage && (
+              <motion.div
+                className="flex justify-center p-4"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.5 }}
               >
-                <ChevronDown className="mr-2 h-4 w-4" />
-                Load More
-              </Button>
-            </motion.div>
+                <Button
+                  variant="outline"
+                  onClick={() => void notifications.fetchNextPage()}
+                  disabled={notifications.isFetchingNextPage}
+                  className="w-full"
+                >
+                  {notifications.isFetchingNextPage ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Loading...
+                    </>
+                  ) : (
+                    <>
+                      <ChevronDown className="mr-2 h-4 w-4" />
+                      Load More
+                    </>
+                  )}
+                </Button>
+              </motion.div>
+            )}
           </div>
         )}
       </div>

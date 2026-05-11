@@ -60,7 +60,7 @@ const Notification = () => {
           <p className="mt-2 text-muted-foreground">Stay updated with all your activities</p>
         </motion.div>
 
-        <Tabs defaultValue="user" className="w-full">
+        <Tabs value={selectedTab} onValueChange={(v) => setSelectedTab(v as NotificationTab)} className="w-full">
           <div className="mb-6 flex justify-center">
             <div className="relative mx-auto w-fit overflow-hidden rounded-[0.9rem] border border-black/15 p-[0.3rem] shadow-[0_8px_24px_rgba(0,0,0,0.05)]">
               <Glass
@@ -122,7 +122,7 @@ const Notification = () => {
 
   return (
     <div>
-      <Tabs defaultValue="user" className="w-full p-4 text-center">
+      <Tabs value={selectedTab} onValueChange={(v) => setSelectedTab(v as NotificationTab)} className="w-full p-4 text-center">
         <div className="grid w-full max-w-md grid-cols-2 h-14 p-1 rounded-xl bg-primary shadow-sm shadow-foreground mx-auto">
           {TABS.map((tab) => {
             const isActive = selectedTab === tab.value;
