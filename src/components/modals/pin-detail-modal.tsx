@@ -48,6 +48,7 @@ import type { Location, LocationGroup } from "@prisma/client"
 import { PinType as PinTypeEnum } from "@prisma/client" // Declare PinType
 import { useCopyCutModalStore } from "~/store/copy-cut-modal-store"
 import { UploadS3Button } from "~/pages/test"
+import { getCookie } from "cookies-next"
 
 type Pin = {
     locationGroup:

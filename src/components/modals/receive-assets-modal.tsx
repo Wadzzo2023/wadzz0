@@ -118,9 +118,9 @@ const ReceiveAssetsModal = () => {
             <div className="text-center">
               <p className="text-sm text-white">{shortAddress}</p>
               <div className="mt-1 flex items-center justify-center gap-2 text-xs text-white">
-                <span className="max-w-[92%] truncate">
+                <p className="max-w-[92%] break-all">
                   {session?.data?.user?.id}
-                </span>
+                </p>
                 <button
                   onClick={onCopyAddress}
                   className="rounded-md p-1 text-white/60 transition hover:bg-white/10 hover:text-white"
