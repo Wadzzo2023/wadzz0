@@ -84,14 +84,14 @@ export const notificationRouter = createTRPCRouter({
         take: limit + 1,
         skip: skip,
         cursor: cursor ? { id: cursor } : undefined,
-        where: {
-          AND: [
-            {
-              notifierId: ctx.session.user.id,
-            },
-            { isCreator: false },
-          ],
-        },
+        // where: {
+        //   AND: [
+        //     {
+        //       // notifierId: ctx.session.user.id,
+        //     },
+        //     { isCreator: false },
+        //   ],
+        // },
         include: {
           notificationObject: {
             select: {

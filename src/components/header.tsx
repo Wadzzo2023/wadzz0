@@ -107,10 +107,18 @@ function ModernHeader({
           <div className="flex items-center gap-2">
             <SiteAssetBalance layoutMode="modern" />
             {session.status === "authenticated" ? (
-              <HeaderUserDropdown
-                onToggleLayoutMode={onToggleLayoutMode}
-                layoutMode="modern"
-              />
+              <>
+                <HeaderUserDropdown
+                  onToggleLayoutMode={onToggleLayoutMode}
+                  layoutMode="modern"
+                />
+                <Button
+                  onClick={() => void signOut({ callbackUrl: "/" })}
+                  className="relative h-7 bg-muted px-2 text-foreground hover:bg-muted/90"
+                >
+                  <LogOut className="h-4 w-4" />
+                </Button>
+              </>
             ) : (
               <ModernLoginButton />
             )}

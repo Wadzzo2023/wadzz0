@@ -54,6 +54,10 @@ const Notifications = ({ layoutMode = "modern" }: { layoutMode?: "modern" | "leg
       { getNextPageParam: (lastPage) => lastPage.nextCursor },
     );
 
+  // const notifications = [{
+
+  // }]
+
   const allNotifications = notifications.data?.pages.flatMap((page) => page.notifications) ?? [];
   const hasNotifications = allNotifications.length > 0;
 
