@@ -44,7 +44,7 @@ export default function PaymentCard({ pubkey, offer, xdr }: PaymentCardType) {
   });
 
   return (
-    <div className="max-w-sm">
+    <div className="max-w-sm rounded-xl bg-background p-6 shadow-sm">
       <PaymentForm
         applicationId={env.NEXT_PUBLIC_SQUARE_APP_ID}
         cardTokenizeResponseReceived={(token, verifiedBuyer) =>
