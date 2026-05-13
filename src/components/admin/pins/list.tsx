@@ -390,7 +390,7 @@ function PinsList({
                                         className={`border-t border-gray-200 ${index % 2 === 0 ? "bg-white" : "bg-gray-50"}`}
                                       >
                                         <td className="p-1">
-                                          <Image
+                                          <img
                                             alt="pin image"
                                             width={32}
                                             height={32}

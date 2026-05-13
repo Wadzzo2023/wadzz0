@@ -111,7 +111,7 @@ function ClaimConsumedPin({
         <td className="border-b border-gray-200 bg-white px-5 py-5 text-sm">
           <div className="flex items-center">
             <div className="h-10 w-10 flex-shrink-0">
-              <Image
+              <img
                 height={1000}
                 width={1000}
                 className="h-full w-full rounded-full object-contain"

@@ -69,7 +69,7 @@ export default function SinglePinPage() {
                 </p>
               </div>
               <div className="flex items-center justify-center">
-                <Image
+                <img
                   src={demoPin.image ?? "/favicon.ico"}
                   alt={"demo pin"}
                   width={300}

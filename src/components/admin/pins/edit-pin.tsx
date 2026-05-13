@@ -276,7 +276,7 @@ export function PinInfoUpdateModal({ isOpen, onClose, pinData }: PinInfoUpdateMo
 
                                 {coverUrl && (
                                     <div className="border rounded p-2">
-                                        <Image
+                                        <img
                                             width={80}
                                             height={80}
                                             alt="preview image"
