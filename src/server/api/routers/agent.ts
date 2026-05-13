@@ -7,28 +7,6 @@ import { qstash } from "~/lib/qstash";
 import { BASE_URL } from "~/lib/common";
 
 
-<<<<<<< HEAD
-
-
-// ─── Zod input schema ─────────────────────────────────────────────────────────
-
-const AgentStateSchema = z.object({
-  step: z.string(),
-  task: z.enum(["event", "landmark"]).nullable().optional(),
-  searchQuery: z.string().nullish(),
-  searchArea: z.string().nullish(),
-  events: z.array(z.any()).nullish(),
-  selectedEvents: z.array(z.any()).nullish(),
-  landmarks: z.array(z.any()).nullish(),
-  selectedLandmarks: z.array(z.any()).nullish(),
-  pinConfig: z.record(z.string(), z.any()).nullish(),
-  pins: z.array(z.any()).nullish(),
-  redeemMode: z.enum(["separate", "single"]).nullish(),
-  pendingModification: z.object({
-    indices: z.array(z.number()).optional(),
-    names: z.array(z.string()).optional(),
-  }).nullish(),
-=======
 // ─── Schemas ──────────────────────────────────────────────────────────────────
 
 const MessageSchema = z.object({
@@ -53,7 +31,6 @@ const PinOptionsSchema = z.object({
   autoCollect: z.boolean().default(false),
   groupingMode: z.enum(["per-location", "single-group"]).default("per-location"),
   pinNumber: z.number().min(1).max(200).default(1), // ← add this
->>>>>>> 5657b4d4 (refactor: update agent types and pin creation logic)
 });
 
 // ─── Router ───────────────────────────────────────────────────────────────────
@@ -211,68 +188,4 @@ export const agentRouter = createTRPCRouter({
         updatedAt: job.updatedAt.getTime(),
       };
     }),
-<<<<<<< HEAD
-
-  // ── main chat mutation ─────────────────────────────────────────────────────
-  // ── main chat mutation — now just enqueues to QStash ──────────────────────
-  chat: creatorProcedure
-    .input(z.object({
-      message: z.string(),
-      history: z.array(z.object({
-        role: z.enum(["user", "assistant"]),
-        content: z.string(),
-      })),
-      state: AgentStateSchema,
-      creatorId: z.string().optional(),
-    }))
-    .mutation(async ({ ctx, input }) => {
-      const { message, history, state, creatorId } = input;
-      const creator_Id = creatorId ?? ctx.session?.user.id ?? "";
-
-      // Create job record
-      const job = await ctx.db.agentJob.create({
-        data: {
-          creatorId: creator_Id,
-          status: "pending",
-        },
-      });
-
-      // Enqueue to QStash — returns immediately, no timeout risk
-      await qstash.publishJSON({
-        url: `${BASE_URL}/api/agent`,
-        body: {
-          jobId: job.id,
-          message,
-          history,
-          state,
-          creatorId: creator_Id,
-        },
-        retries: 0, // don't retry AI calls
-      });
-
-      return { jobId: job.id };
-    }),
-
-  // ── poll agent job result ──────────────────────────────────────────────────
-  agentJobResult: creatorProcedure
-    .input(z.object({ jobId: z.string() }))
-    .query(async ({ ctx, input }) => {
-      const job = await ctx.db.agentJob.findUnique({
-        where: { id: input.jobId },
-      });
-      if (!job) throw new Error("Job not found");
-      return {
-        status: job.status as "pending" | "completed" | "failed",
-        result: job.result as {
-          message: string;
-          state: AgentState;
-          uiData?: Message["uiData"];
-          jobId?: string;
-        } | null,
-        error: job.error,
-      };
-    }),
-
-=======
->>>>>>> 5657b4d4 (refactor: update agent types and pin creation logic)
 });
