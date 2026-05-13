@@ -1,2 +1,2 @@
 
-export const BASE_URL = "https://app.wadzzo.com";
+export const BASE_URL = "https://funnier-jeni-qualmishly.ngrok-free.dev";
