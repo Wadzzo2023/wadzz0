@@ -1,5 +1,7 @@
 import clsx from "clsx";
 import { getCookie } from "cookies-next";
+import { motion } from "framer-motion";
+import { PackageSearch, Store } from "lucide-react";
 import AssetView from "~/components/marketplace/asset/asset_view";
 import { MoreAssetsSkeleton } from "~/components/marketplace/platforms_nfts";
 import {
@@ -15,12 +17,14 @@ import { ValidCreateCreator } from "../fans/creator";
 import { PLATFORM_ASSET } from "~/lib/stellar/constant";
 
 export default function MyAssetsPage() {
-  const [layoutMode, setLayoutMode] = useState<"modern" | "legacy">("modern");
+  const [layoutMode, setLayoutMode] = useState<"modern" | "legacy">("legacy");
 
   useEffect(() => {
     const storedMode = getCookie("wadzzo-layout-mode");
-    if (storedMode === "modern" || storedMode === "legacy") {
-      setLayoutMode(storedMode);
+    if (storedMode === "modern") {
+      setLayoutMode("modern");
+    } else {
+      setLayoutMode("legacy");
     }
   }, []);
 
@@ -36,22 +40,22 @@ export default function MyAssetsPage() {
       <div className="flex justify-center">
         <AssetTabs />
       </div>
-      <RenderTabs />
+      <RenderTabs isModernLayout={isModernLayout} />
     </div>
   );
 }
 
-function RenderTabs() {
+function RenderTabs({ isModernLayout }: { isModernLayout: boolean }) {
   const { selectedMenu } = useAssetMenu();
   switch (selectedMenu) {
     case AssetMenu.OWN:
-      return <MyAssets />;
+      return <MyAssets isModernLayout={isModernLayout} />;
     case AssetMenu.STORAGE:
-      return <MyStorageAsset />;
+      return <MyStorageAsset isModernLayout={isModernLayout} />;
   }
 }
 
-function MyStorageAsset() {
+function MyStorageAsset({ isModernLayout }: { isModernLayout: boolean }) {
   const { setCurrentTrack } = usePlayer();
 
   const acc = api.wallate.acc.getCreatorStorageInfo.useQuery();
@@ -77,16 +81,13 @@ function MyStorageAsset() {
     );
 
   if (acc.data)
-    return (
+    return acc.data.dbAssets.length > 0 ? (
       <div
         style={{
           scrollbarGutter: "stable",
         }}
         className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 "
       >
-        {acc.data?.accAssets.length === 0 && (
-          <p className="w-full text-center">You have no asset</p>
-        )}
         {acc.data?.dbAssets.map((asset, i) => {
           return (
             <div
@@ -117,6 +118,23 @@ function MyStorageAsset() {
           );
         })}
       </div>
+    ) : isModernLayout ? (
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4 }}
+        className="flex flex-col items-center justify-center py-20 text-center"
+      >
+        <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-100 to-purple-100 shadow-inner">
+          <Store className="h-10 w-10 text-indigo-400" />
+        </div>
+        <h3 className="text-xl font-semibold text-foreground">No assets listed</h3>
+        <p className="mt-2 max-w-sm text-sm text-muted-foreground">
+          Your secondary marketplace is empty. Start by creating or purchasing assets to see them here.
+        </p>
+      </motion.div>
+    ) : (
+      <p className="w-full text-center">You have no asset</p>
     );
 
   if (acc.data === undefined)
@@ -127,7 +145,7 @@ function MyStorageAsset() {
     );
 }
 
-function MyAssets() {
+function MyAssets({ isModernLayout }: { isModernLayout: boolean }) {
   const acc = api.wallate.acc.getAccountInfo.useQuery();
 
   const { onOpen } = useModal();
@@ -164,12 +182,16 @@ function MyAssets() {
   if (acc.isLoading || status === "loading")
     return <MoreAssetsSkeleton className="flex gap-2" />;
 
-  if (acc.data ?? data) {
+  const dbAssets = acc.data?.dbAssets ?? [];
+  const collectedPins = data?.pages.flatMap((p) => p.items) ?? [];
+  const hasAssets = dbAssets.length > 0 || collectedPins.length > 0;
+
+  if (hasAssets) {
     return (
       <>
         <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
           <>
-            {acc.data?.dbAssets.map((asset, i) => (
+            {dbAssets.map((asset, i) => (
               <div
                 key={i}
                 onClick={() => {
@@ -244,18 +266,35 @@ function MyAssets() {
     );
   }
 
-  return null;
+  return isModernLayout ? (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4 }}
+      className="flex flex-col items-center justify-center py-20 text-center"
+    >
+      <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-br from-amber-100 to-orange-100 shadow-inner">
+        <PackageSearch className="h-10 w-10 text-amber-400" />
+      </div>
+      <h3 className="text-xl font-semibold text-foreground">Your collection is empty</h3>
+      <p className="mt-2 max-w-sm text-sm text-muted-foreground">
+        Discover and collect NFTs or location pins from the marketplace to start building your collection.
+      </p>
+    </motion.div>
+  ) : null;
 }
 
 function AssetTabs() {
   const { selectedMenu, setSelectedMenu } = useAssetMenu();
-  const [layoutMode, setLayoutMode] = useState<"modern" | "legacy">("modern");
+  const [layoutMode, setLayoutMode] = useState<"modern" | "legacy">("legacy");
 
   const creator = api.fan.creator.meCreator.useQuery();
   useEffect(() => {
     const storedMode = getCookie("wadzzo-layout-mode");
-    if (storedMode === "modern" || storedMode === "legacy") {
-      setLayoutMode(storedMode);
+    if (storedMode === "modern") {
+      setLayoutMode("modern");
+    } else {
+      setLayoutMode("legacy");
     }
   }, []);
 

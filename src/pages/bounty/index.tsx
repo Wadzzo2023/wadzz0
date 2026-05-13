@@ -20,7 +20,7 @@ const Bounty: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [sortOption, setSortOption] = useState<sortOptionEnum>(sortOptionEnum.DATE_DESC);
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
-  const [layoutMode, setLayoutMode] = useState<"modern" | "legacy">("modern");
+  const [layoutMode, setLayoutMode] = useState<"modern" | "legacy">("legacy");
 
   const getAllBounty = api.bounty.Bounty.getAllBounties.useInfiniteQuery(
     {
@@ -45,8 +45,10 @@ const Bounty: React.FC = () => {
 
   useEffect(() => {
     const storedMode = getCookie("wadzzo-layout-mode");
-    if (storedMode === "legacy" || storedMode === "modern") {
-      setLayoutMode(storedMode);
+    if (storedMode === "modern") {
+      setLayoutMode("modern");
+    } else {
+      setLayoutMode("legacy");
     }
   }, []);
 

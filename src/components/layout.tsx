@@ -26,6 +26,7 @@ import { PostVideoProvider } from "./context/PostVideoContext";
 import FallingSnowflakes from "./christmas/FallingSnowflakes";
 import { Player } from "./Player";
 import { PlayerToggle } from "./playerToggle";
+import ModernConnectDialog from "./modern-connect-dialog";
 
 const RightDialog = dynamic(async () => await import("./right_dialog"));
 const ConnectWalletButton = dynamic(
@@ -61,8 +62,10 @@ export default function Layout({
 
   useEffect(() => {
     const storedMode = getCookie(LAYOUT_MODE_COOKIE);
-    if (storedMode === "legacy" || storedMode === "modern") {
-      setLayoutMode(storedMode);
+    if (storedMode === "modern") {
+      setLayoutMode("modern");
+    } else {
+      setLayoutMode("legacy");
     }
   }, []);
 
@@ -232,6 +235,7 @@ export default function Layout({
                   <RightDialog />
                   <Player />
                   <Toaster />
+                  <ModernConnectDialog />
                 </div>
 
                 {!isLegacyLayout && !hasOpenDialog && session.status === "authenticated" ? (

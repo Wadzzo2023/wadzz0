@@ -48,6 +48,7 @@ import type { Location, LocationGroup } from "@prisma/client"
 import { PinType as PinTypeEnum } from "@prisma/client" // Declare PinType
 import { useCopyCutModalStore } from "~/store/copy-cut-modal-store"
 import { UploadS3Button } from "~/pages/test"
+import { getCookie } from "cookies-next"
 
 type Pin = {
     locationGroup:
@@ -90,6 +91,28 @@ const MapOptionModal = () => {
     const router = useRouter()
     const [activeTab, setActiveTab] = useState<string>("details")
     const utils = api.useUtils()
+
+    const [layoutMode] = useState<"modern" | "legacy">(() => {
+        const cookieMode = getCookie("wadzzo-layout-mode");
+        if (cookieMode === "modern") {
+            return "modern";
+        }
+        if (cookieMode === "legacy") {
+            return "legacy";
+        }
+        if (typeof window !== "undefined") {
+            const storedMode = localStorage.getItem("layoutMode");
+            if (storedMode === "modern") {
+                return "modern";
+            }
+            if (storedMode === "legacy") {
+                return "legacy";
+            }
+        }
+        return "legacy";
+    });
+
+    const isModern = layoutMode === "modern";
     const pinM = api.maps.pin.getPinM.useMutation({
         onSuccess: (data) => {
             setPrevData(data)

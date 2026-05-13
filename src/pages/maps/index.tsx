@@ -117,10 +117,10 @@ function CreatorMapDashboardContent() {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const [layoutMode] = useState<"modern" | "legacy">(() => {
     const cookieMode = getCookie("wadzzo-layout-mode");
-    if (cookieMode === "legacy" || cookieMode === "modern") {
-      return cookieMode;
+    if (cookieMode === "modern") {
+      return "modern";
     }
-    return "modern";
+    return "legacy";
   });
   const { filterNearbyPins } = useNearbyPinsStore();
   const { selectedPlace: alreadySelectedPlace } = useSelectedAutoSuggestion();

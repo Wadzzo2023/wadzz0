@@ -46,13 +46,15 @@ function AssetView({
   actionLabel,
   onAction,
 }: AssetViewProps) {
-  const [layoutMode, setLayoutMode] = useState<"modern" | "legacy">("modern");
+  const [layoutMode, setLayoutMode] = useState<"modern" | "legacy">("legacy");
   const safeThumbnail = getSafeThumbnailSrc(thumbnail);
 
   useEffect(() => {
     const storedMode = getCookie("wadzzo-layout-mode");
-    if (storedMode === "modern" || storedMode === "legacy") {
-      setLayoutMode(storedMode);
+    if (storedMode === "modern") {
+      setLayoutMode("modern");
+    } else {
+      setLayoutMode("legacy");
     }
   }, []);
 

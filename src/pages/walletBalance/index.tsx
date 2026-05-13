@@ -5,6 +5,7 @@ import { PLATFORM_ASSET } from "~/lib/stellar/constant";
 import { useSession } from "next-auth/react";
 import WBRightSideBar from "~/components/wallet-balance/wb-right-sidebar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/shadcn/ui/tabs";
+import { Glass } from "~/components/glass/glass";
 
 import { QrCode, Send } from "lucide-react";
 import {
@@ -31,7 +32,7 @@ const Wallets = () => {
   const { needSign } = useNeedSign();
   const [isAccountActivate, setAccountActivate] = useState(false);
   const [isAccountActivateLoading, setAccountActivateLoading] = useState(false);
-  const [layoutMode, setLayoutMode] = useState<"modern" | "legacy">("modern");
+  const [layoutMode, setLayoutMode] = useState<"modern" | "legacy">("legacy");
   const router = useRouter();
 
   async function checkAccountActivity(publicKey: string) {
@@ -78,8 +79,10 @@ const Wallets = () => {
 
   useEffect(() => {
     const storedMode = getCookie("wadzzo-layout-mode");
-    if (storedMode === "legacy" || storedMode === "modern") {
-      setLayoutMode(storedMode);
+    if (storedMode === "modern") {
+      setLayoutMode("modern");
+    } else {
+      setLayoutMode("legacy");
     }
   }, []);
 
@@ -277,7 +280,7 @@ const Wallets = () => {
 
   return (
     <div className="min-h-screen">
-      <section className="relative flex min-h-[72vh] w-full flex-col items-center justify-center overflow-hidden bg-gradient-to-b from-[#1b0e7a] via-[#5a2ac9] to-[#c69a86] px-4 pb-28 pt-14 text-white">
+      <section className="relative flex min-h-[55vh] w-full flex-col items-center justify-center overflow-hidden bg-gradient-to-b from-[#050510] via-[#140a2e] to-[#0a0a14] px-4 pb-28 pt-14 text-white">
         <div className="mx-auto w-full max-w-[85vw]">
         {hasTrustLineOnPlatformAsset ? (
           <div className="px-2 text-center">
@@ -299,7 +302,7 @@ const Wallets = () => {
                 signWith: needSign(),
               })}
               disabled={AddTrustMutation.isLoading}
-              className="mt-4 h-10 rounded-full bg-white/95 px-5 text-sm font-semibold text-[#1b0e7a] hover:bg-white"
+              className="mt-4 h-10 rounded-full bg-white/95 px-5 text-sm font-semibold text-[#302b63] hover:bg-white"
             >
               {AddTrustMutation.isLoading ? "Adding Trustline..." : "Add Trustline"}
             </Button>
@@ -307,17 +310,27 @@ const Wallets = () => {
         )}
 
         <div className="absolute bottom-10 left-1/2 flex w-full max-w-md -translate-x-1/2 gap-3 px-4">
-          <Button
-            variant="outline"
-            onClick={() => onOpen("receive assets")}
-            className="h-11 flex-1 rounded-full border-white/30 bg-white/15 text-white backdrop-blur-md hover:bg-white/25"
-          >
-            <QrCode size={18} className="mr-2" />
-            Receive
-          </Button>
+          <div className="relative flex-1">
+            <Glass
+              className={{
+                root: "pointer-events-none absolute inset-0 z-0 rounded-xl overflow-hidden",
+                tint: "bg-white/15",
+                effect: "backdrop-blur-md",
+                shine: "shadow-[inset_1px_1px_1px_0_rgba(255,255,255,0.4),_inset_-1px_-1px_1px_1px_rgba(255,255,255,0.15)]",
+              }}
+            />
+            <Button
+              variant="outline"
+              onClick={() => onOpen("receive assets")}
+              className="relative z-10 h-11 w-full rounded-xl border-white/30 bg-transparent text-white hover:bg-white/25 hover:text-white"
+            >
+              <QrCode size={18} className="mr-2" />
+              Receive
+            </Button>
+          </div>
           <Button
             onClick={() => onOpen("send assets")}
-            className="h-11 flex-1 rounded-full bg-white text-[#1b0e7a] hover:bg-white/90"
+            className="h-11 flex-1 rounded-xl bg-white text-[#302b63] hover:bg-white/90"
           >
             <Send size={18} className="mr-2" />
             Send

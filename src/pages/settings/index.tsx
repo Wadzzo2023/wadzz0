@@ -9,12 +9,14 @@ import { SettingsMenu, useSettingsMenu } from "~/lib/state/fan/settings-menu";
 
 export default function Settings() {
   const { data } = useSession();
-  const [layoutMode, setLayoutMode] = useState<"modern" | "legacy">("modern");
+  const [layoutMode, setLayoutMode] = useState<"modern" | "legacy">("legacy");
 
   useEffect(() => {
     const storedMode = getCookie("wadzzo-layout-mode");
-    if (storedMode === "modern" || storedMode === "legacy") {
-      setLayoutMode(storedMode);
+    if (storedMode === "modern") {
+      setLayoutMode("modern");
+    } else {
+      setLayoutMode("legacy");
     }
   }, []);
 
