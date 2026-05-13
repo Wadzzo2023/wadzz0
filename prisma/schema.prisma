@@ -225,6 +225,7 @@ model Creator {
     pinAgentMessages   PinAgentChatHistory[] @relation("pinAgentMessages")
     locationGroupJobs  LocationGroupJob[]
     createdAt          DateTime              @default(now())
+    agentJobs          AgentJob[]
 
     @@index([bio, name])
 }
@@ -612,7 +613,7 @@ model LocationConsumer {
     user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
     locationId String
-    location   Location @relation(fields: [locationId], references: [id], onDelete: Cascade)
+    location   Location  @relation(fields: [locationId], references: [id], onDelete: Cascade)
     redeemCode String    @unique
     isRedeemed Boolean   @default(false)
     redeemedAt DateTime?
@@ -861,6 +862,22 @@ model LocationGroupJob {
     updatedAt DateTime @updatedAt
 
     creator Creator @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+
+    @@index([creatorId, createdAt])
+}
+
+model AgentJob {
+    id        String  @id @default(cuid())
+    creatorId String
+    creator   Creator @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+
+    status  String  @default("pending")
+    result  Json?
+    error   String?
+    payload Json // ← add this
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
 
     @@index([creatorId, createdAt])
 }
