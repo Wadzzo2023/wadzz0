@@ -878,9 +878,10 @@ model AgentJob {
     creatorId String
     creator   Creator @relation(fields: [creatorId], references: [id], onDelete: Cascade)
 
-    status String  @default("pending")
-    result Json?
-    error  String?
+    status  String  @default("pending")
+    result  Json?
+    error   String?
+    payload Json // ← add this
 
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt

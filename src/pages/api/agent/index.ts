@@ -1,697 +1,949 @@
+// src/app/api/agent/run/route.ts  (or pages/api/agent/run.ts — see config below)
+//
+// QStash calls this endpoint after agent.create enqueues a job.
+// It runs the full LLM agent pipeline and writes the result back to AgentJob.
+// The frontend polls agentJobResult until status === "completed" | "failed".
+
 import type { NextApiRequest, NextApiResponse } from "next";
 import { verifySignature } from "@upstash/qstash/nextjs";
-import { generateText, type CoreMessage } from "ai";
-import { openai } from "@ai-sdk/openai";
 import { db } from "~/server/db";
-import { agentTools } from "~/lib/agent/tools";
+import { ChatOpenAI } from "@langchain/openai";
+import { HumanMessage, AIMessage, SystemMessage } from "@langchain/core/messages";
+import type { BaseMessage } from "@langchain/core/messages";
+
+import {
+    ALL_TOOLS,
+    AGENT_SYSTEM_PROMPT,
+    searchViaGooglePlacesExported,
+    gapFillNicheViaWebSearch,
+} from "~/lib/agent/tools";
+import { createAgent } from "langchain";
+import type {
+    PinIntent,
+    AgentStage,
+    AgentResponse,
+    Pin,
+    MessageRole,
+    PinOptions,
+} from "~/lib/agent/types";
 import { qstash } from "~/lib/qstash";
 import { BASE_URL } from "~/lib/common";
-import type { AgentState, AgentStep, EventData, LandmarkData, Message, PinItem } from "~/lib/agent/types";
-import { type Prisma } from "@prisma/client";
 
+// ─── Required for raw body (QStash signature verification) ───────────────────
 
 export const config = { api: { bodyParser: false } };
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
-function todayISO() {
-    return new Date().toISOString();
-}
-function in100YearsISO() {
-    const d = new Date();
-    d.setFullYear(d.getFullYear() + 100);
-    return d.toISOString();
-}
-
-const SEARCH_STEPS = new Set<AgentStep>(["event_search", "landmark_search"]);
-const GENERATE_STEPS = new Set<AgentStep>([
-    "event_final_confirm",
-    "landmark_final_confirm",
-]);
-
-// Steps that previously bypassed the LLM entirely. Now they still run through
-// the LLM — but enforceStepTransition still fires AFTER the LLM responds, so
-// the UI progression is preserved while the user's message is actually read.
-const TRANSITION_STEPS = new Set<AgentStep>([
-    "landmark_confirm_list",
-    "landmark_redeem_mode",
-    "landmark_pin_config",
-    "event_confirm_list",
-    "event_pin_dates",
-    "event_pin_config",
-]);
-
-// ─── Intent reset detection ───────────────────────────────────────────────────
-// Called before any step logic. Returns true if the user clearly wants to
-// abandon the current flow and start fresh.
-
-const RESET_PHRASES = [
-    // Explicit restart commands
-    /\bstart\s+over\b/i,
-    /\bstart\s+again\b/i,
-    /\brestart\b/i,
-    /\bcancel\b/i,
-    /\bdiscard\b/i,
-    /\bnever\s+mind\b/i,
-    /\bforget\s+it\b/i,
-    /\bgo\s+back\b/i,
-    // Task switching - any mention of wanting event or landmark when in different mode
-    /\beat (event|landmark)/i,
-    /\bdo (event|landmark)/i,
-    /\bwant\s+(event|landmark)/i,
-    /\bneed\s+(event|landmark)/i,
-    /\blet'?s\s+do\s+(event|landmark)/i,
-    /\blet'?s\s+create\s+(event|landmark)/i,
-    /\bswitch.*?(event|landmark)/i,
-    /\bchange.*?(event|landmark)/i,
-    /\binstead\b/i,
-    /\bactually\b/i,
-    /\bon\s+second\s+thought\b/i,
-    /\b(i|we)\s+(want|need|would\s+like|wanna|can\s+i|should|d\s+like)\s+(to\s+)?(switch|change|do|create|make|search for|look for|find)\s+(a\s+)?(new\s+)?(event|landmark)/i,
-];
-
-function detectIntentReset(message: string, currentStep: AgentStep): boolean {
-    if (currentStep === "idle" || currentStep === "clarify_task" || currentStep === "done") {
-        return false;
-    }
-    return RESET_PHRASES.some((re) => re.test(message));
-}
-
-// ─── Slim state helpers ───────────────────────────────────────────────────────
-
-function slimPinForPrompt(p: PinItem) {
-    return {
-        title: p.title,
-        description: p.description?.slice(0, 80),
-        latitude: p.latitude,
-        longitude: p.longitude,
-        startDate: p.startDate,
-        endDate: p.endDate,
-        pinNumber: p.pinNumber,
-        pinCollectionLimit: p.pinCollectionLimit,
-        autoCollect: p.autoCollect,
-        radius: p.radius,
-    };
-}
-function slimEventForPrompt(e: EventData) {
-    return { id: e.id, title: e.title, startDate: e.startDate, endDate: e.endDate, latitude: e.latitude, longitude: e.longitude };
-}
-function slimLandmarkForPrompt(l: LandmarkData) {
-    return { id: l.id, title: l.title, latitude: l.latitude, longitude: l.longitude };
-}
-function slimStateForToolPrompt(state: AgentState) {
-    const step = state.step as AgentStep;
-    if (GENERATE_STEPS.has(step)) {
-        return { step: state.step, task: state.task, redeemMode: state.redeemMode, pins: (state.pins ?? []).map(slimPinForPrompt) };
-    }
-    return { step: state.step, task: state.task, searchArea: state.searchArea };
-}
-function slimStateForJsonPrompt(state: AgentState) {
-    return {
-        step: state.step, task: state.task, searchArea: state.searchArea,
-        redeemMode: state.redeemMode, pinConfig: state.pinConfig,
-        selectedEvents: (state.selectedEvents ?? []).map(slimEventForPrompt),
-        selectedLandmarks: (state.selectedLandmarks ?? []).map(slimLandmarkForPrompt),
-        pins: (state.pins ?? []).map(slimPinForPrompt),
-    };
-}
-
-// ─── Prompts ──────────────────────────────────────────────────────────────────
-
-function buildToolPrompt(state: AgentState, userMessage: string): string {
-    const step = state.step as AgentStep;
-    const canSearch = SEARCH_STEPS.has(step);
-    const canGenerate = GENERATE_STEPS.has(step);
-
-    let toolRules = "";
-    if (canSearch) {
-        const isEventSearch = step === "event_search";
-        toolRules = isEventSearch
-            ? `- MUST call search_events with event type, count, and area.
-- Extract from user message: type (e.g. "music", "sports", "concerts"), count/number (e.g. "10 events"), and area (country, city, or region e.g. "Bangladesh", "Dhaka", "USA", "Canada").
-- COUNTRY-LEVEL SEARCHES ARE VALID: "Bangladesh", "USA", "Canada" are completely acceptable areas.
-- If count not specified, ask "How many events do you want?"
-- If type not specified, ask "What type of event? (music, sports, concerts, festivals, etc.)"
-- If area not specified, ask "Which country or region? (e.g. Bangladesh, USA, Canada)"
-- Once you have ALL THREE (type, count, area), call search_events immediately.
-- NEVER ask for a more specific location if you already have a country.
-- NEVER ask for more info once you have these three parameters.`
-            : `- MUST call search_landmarks with query, count, and area.
-- Extract from user message: type/name of place (query), number requested (count), and CITY/AREA.
-- CITY/AREA IS REQUIRED - not just a country name. Cities like "Dhaka", "New York", "Tokyo" are valid.
-- If user says a country name (e.g. "USA", "Canada", "France", "Japan"), you MUST extract its capital or main city.
-  Examples: "USA" → "New York", "France" → "Paris", "Japan" → "Tokyo", "Bangladesh" → "Dhaka"
-- If count not specified, ask "How many do you want?" 
-- If area not specified, ask "Which city or area? (e.g. Dhaka, New York, Tokyo)" - do NOT accept just country names.
-- If you have ALL THREE (query, count, city/area or capital), call search_landmarks immediately.
-- Special case: If user says "anywhere in US", "anywhere in Canada", etc., use default cities (NYC, Geneseo, etc.) without asking.
-- NEVER ask for more info once you have these three parameters.`;
-    } else if (canGenerate) {
-        toolRules = `- Call generate_pins with the confirmed pin payloads from state.pins.
-- Do NOT ask questions, just pass the pins array directly to the tool.`;
-    } else {
-        toolRules = `- Do NOT call any tools. Just converse naturally.`;
-    }
-
-    return `
-You are the Wadzzo Pin Generation Agent.
-TODAY: ${todayISO()}
-CURRENT STEP: ${step}
-CURRENT STATE: ${JSON.stringify(slimStateForToolPrompt(state))}
-USER'S MESSAGE: "${userMessage}"
-
-TOOL RULES FOR THIS STEP:
-${toolRules}
-
-INTENT CHANGE RULES:
-- If the user's message clearly wants to switch task (e.g. "I want to do landmarks instead",
-  "actually let's do events", "cancel and start over"), do NOT call any tools. Just reply
-  warmly acknowledging the change and ask what they'd like to do. The system will reset state.
-- If the user asks a question mid-flow (e.g. "what does auto-collect mean?"), answer it
-  naturally, then gently remind them where they were in the flow.
-- If the user is confused or frustrated, acknowledge it and offer to restart or continue.
-
-CRITICAL RULES:
-- search_landmarks REQUIRES all three: query (type of place), count (number), and area (city)
-- search_events REQUIRES both: type (music/sports/concert) and area (city)
-- If parameters are missing, ask the user for them BEFORE calling the tool.
-- "your area" or "my area" means use current location if available, or ask "Which area?"
-- NEVER call a tool without all required parameters.
-
-IMPORTANT:
-- NEVER call search_events or search_landmarks unless CURRENT STEP is "event_search" or "landmark_search"
-- NEVER call generate_pins unless CURRENT STEP is "event_final_confirm" or "landmark_final_confirm"
-- For all other steps just reply naturally, no tool calls
-Converse naturally. Do NOT output JSON.
-`.trim();
-}
-
-function buildJsonPrompt(state: AgentState, toolData: ToolPassData, userMessage: string): string {
-    const t = todayISO();
-    const y = in100YearsISO();
-    const slimToolData = {
-        eventsFound: toolData.eventsFound ? toolData.eventsFound.map(slimEventForPrompt) : null,
-        landmarksFound: toolData.landmarksFound ? toolData.landmarksFound.map(slimLandmarkForPrompt) : null,
-        pinsGenerated: toolData.pinsGenerated ? { count: toolData.pinsGenerated.count } : null,
-    };
-
-    return `
-You are the Wadzzo response formatter. Output ONLY a single JSON object — no prose, no markdown, no code fences.
-TODAY: ${t}
-IN_100_YEARS: ${y}
-USER'S ACTUAL MESSAGE: "${userMessage}"
-CURRENT STATE:
-${JSON.stringify(slimStateForJsonPrompt(state), null, 2)}
-TOOL RESULTS THIS TURN:
-${JSON.stringify(slimToolData, null, 2)}
-
-━━━ INTENT CHANGE HANDLING ━━━
-CRITICAL: Check if the user's message wants to:
-1. SWITCH TASK (landmark → event or event → landmark) e.g. "I want events", "switch to landmark", "actually events"
-2. RESTART/CANCEL (discard current flow)
-3. NEW SEARCH (same task type but different query - e.g. "now search for 100 gyms in Tokyo instead of KFC")
-
-For task switches or restart, output:
-{
-  "message": "<warm acknowledgement + ask what they want to do>",
-  "step": "clarify_task",
-  "stateUpdates": { "task": null },
-  "uiData": { "type": "task_select", "data": {} }
-}
-
-For new search (same task type), go back to search step:
-{
-  "message": "<acknowledge new search request>",
-  "step": "${state.task}_search",
-  "stateUpdates": { "searchArea": null },
-  "uiData": null
-}
-
-Be aggressive about detecting intent changes - if user mentions event while doing landmarks, or vice versa, RESET.
-If user says "search for", "find me", "show me", treat as new search request of same type.
-
-━━━ FLOW ━━━
-EVENT FLOW
-  idle/clarify_task       → ask Event or Landmark? uiData={type:"task_select"}
-  clarify_task            → user picks event: step="event_search", ask country/city/area
-  event_search            → after search_events: step="event_confirm_list" uiData={type:"event_list",data:{events}}
-  event_confirm_list      → BRANCHING:
-    - User wants landmarks/switch: step="clarify_task", uiData={type:"task_select"}
-    - User wants different search: step="event_search"
-    - User confirms selection: step="event_pin_dates" uiData={type:"date_picker"}
-  event_pin_dates         → after dates: step="event_pin_config" uiData={type:"pin_config_form",data:{items:[{id,title}],isLandmark:false}}
-  event_pin_config        → after config: step="event_final_confirm" uiData={type:"confirm",data:{pins}}
-  event_final_confirm     → after approved + generate_pins: step="done" uiData={type:"pin_result",data:{count}}
-LANDMARK FLOW
-  clarify_task            → user picks landmark: step="landmark_search", ask type+count+area
-  landmark_search         → after search_landmarks: step="landmark_confirm_list" uiData={type:"landmark_list",data:{landmarks}}
-  landmark_confirm_list   → BRANCHING:
-    - User wants events/switch: step="clarify_task", uiData={type:"task_select"}
-    - User wants different search: step="landmark_search"
-    - User confirms selection: step="landmark_pin_config" (NO date step)
-  landmark_pin_config     → after config: step="landmark_final_confirm" uiData={type:"confirm",data:{pins}}
-  landmark_final_confirm  → after approved + generate_pins: step="done" uiData={type:"pin_result",data:{count}}
-
-━━━ RULES ━━━
-TOOL CALLING (search_landmarks / search_events):
-- Requires ALL parameters before calling. If any missing, don't call - just ask for it.
-- If tool was NOT called this turn (TOOL RESULTS are empty/null), you likely need to ask for missing parameter.
-- Example: "100 restaurants" in landmark_search has count+query but no area → DON'T proceed to confirm_list yet.
-  Instead: message="Which country or region? (e.g. Bangladesh, USA, Canada)", step="landmark_search" (stay here), no state changes.
-- Example: "restaurants in Dhaka" has query+area but no count → message="How many?", step="landmark_search", no state changes.
-- Example: "100 restaurants in Dhaka" has all three → tool WAS called → check toolData.landmarksFound.
-  If no results, message="No restaurants found in Dhaka, try another search?", step="landmark_search"
-  If results exist, message="Found X restaurants!", step="landmark_confirm_list", set selectedLandmarks
-
-TASK SWITCHING RULES (AT ANY STEP):
-- If user mentions wanting EVENT while doing LANDMARK (or vice versa) → ALWAYS reset to clarify_task
-- If user says "cancel", "start over", "restart" → reset to clarify_task
-- If user says "new search", "different search", "search for X instead" → go back to ${state.task}_search step
-- Pattern priority: Task switch > New search > Ask for missing params > Continue current flow
-
-DATA HANDLING:
-- Landmark: pinCollectionLimit=999999, pinNumber=1, startDate=${t}, endDate=${y} (always fixed)
-- Default: radius=2, autoCollect=false
-- If toolData.eventsFound → step="event_confirm_list"
-- If toolData.landmarksFound → step="landmark_confirm_list"
-- If toolData.pinsGenerated → step="done"
-
-CONVERSATION:
-- Always respond to what the user actually said
-- If the user asks a clarifying question mid-flow, answer it and keep step the same
-- If asking for missing parameter, explain why (e.g. "I need your area to search")
-
-IMPORTANT - PARAMETER EXTRACTION:
-At landmark_search:
-- MUST extract CITY/AREA, not just country. If user says country name, CONVERT it to its capital or main city.
-  Examples: "USA" → "New York", "France" → "Paris", "Japan" → "Tokyo", "Bangladesh" → "Dhaka", "UK" → "London"
-- If user says "100 restaurants" → EXTRACT: count=100, query="restaurants", area=MISSING
-  OUTPUT: "Which city or area? (e.g. Dhaka, New York, London)" - do NOT accept just countries.
-- If user says "restaurants in USA" → EXTRACT: count=MISSING, query="restaurants", area="New York" (extracted capital)
-  OUTPUT: "How many locations?"
-- If user says "100 restaurants in France" → EXTRACT ALL THREE: count=100, query="restaurants", area="Paris"
-  OUTPUT: Tool was called (check TOOL RESULTS). If results exist, proceed to next step.
-- If user says "100 restaurants in Dhaka" → EXTRACT ALL THREE
-  OUTPUT: Tool was called (check TOOL RESULTS). If results exist, proceed to next step.
-- Special: "anywhere in US" or "anywhere in Canada" → use default cities (NYC, Geneseo) without asking.
-
-At event_search:
-- If user says "music in New York" → EXTRACT: type="music", area="New York"
-  OUTPUT: Tool was called. If results exist, proceed to confirm_list.
-- If user says "music" only → EXTRACT: type="music", area=MISSING
-  OUTPUT: Ask "Which country or region? (e.g. Bangladesh, USA, Canada)"
-
-━━━ OUTPUT ━━━
-{
-  "message": string,
-  "step": string,
-  "stateUpdates": {
-    "task"?: "event"|"landmark"|null,
-    "searchArea"?: string,
-    "events"?: EventData[],
-    "selectedEvents"?: EventData[],
-    "landmarks"?: LandmarkData[],
-    "selectedLandmarks"?: LandmarkData[],
-    "pins"?: PinItem[]
-  },
-  "uiData": {type:string,data:any}|null
-}
-`.trim();
-}
-
-// buildQuickMessagePrompt is now used only for TRANSITION_STEPS — but the
-// model receives the actual user message so it can respond to it properly.
-function buildQuickMessagePrompt(step: AgentStep, state: AgentState, userMessage: string): string {
-    const stepContext: Partial<Record<AgentStep, string>> = {
-        landmark_confirm_list: `The user just confirmed their landmark selection. ${(state.selectedLandmarks ?? state.landmarks ?? []).length} landmarks are selected. You're about to show pin configuration options.`,
-        landmark_pin_config: `The user just configured their landmark pins. You're about to show the final review.`,
-        event_confirm_list: `The user just confirmed their event selection. ${(state.selectedEvents ?? state.events ?? []).length} events are selected. You're about to set up dates.`,
-        event_pin_dates: `The user just set the dates for their event pins. You're about to show pin configuration options.`,
-        event_pin_config: `The user just configured their event pins. You're about to show the final review.`,
-        landmark_redeem_mode: `The user just chose their redeem mode. You're about to show the final review.`,
-    };
-
-    const ctx = stepContext[step] ?? `Current step: ${step}.`;
-
-    return `You are a friendly assistant for a pin generation app called Wadzzo.
-Context: ${ctx}
-The user just said: "${userMessage}"
-
-First, respond to what the user actually said — if they asked a question, answer it.
-If they said something off-topic or showed hesitation, acknowledge it warmly.
-Then in 1-2 sentences, tell them what's happening next in the flow.
-Be concise and natural. No JSON, no lists, no markdown.`;
-}
-
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-interface ToolPassData {
-    eventsFound: EventData[] | null;
-    landmarksFound: LandmarkData[] | null;
-    pinsGenerated: { count: number; pins: PinItem[] } | null;
+interface JobPayload {
+    jobId: string;
 }
 
-interface ParsedResponse {
-    message: string;
-    step: AgentStep;
-    stateUpdates: Partial<AgentState>;
-    uiData: Message["uiData"] | null;
+interface AgentRunInput {
+    messages: { role: MessageRole; text: string }[];
+    intent: Partial<PinIntent> | null;
+    pinOptions: PinOptions | null;
+    creatorId: string;
+    pins?: Pin[];  // ← add this line
 }
 
-// ─── Extract tool results ─────────────────────────────────────────────────────
+// ─── LangChain helpers ────────────────────────────────────────────────────────
 
-function extractToolData(responseMessages: CoreMessage[]): ToolPassData {
-    const data: ToolPassData = { eventsFound: null, landmarksFound: null, pinsGenerated: null };
-    for (const msg of responseMessages) {
-        if (msg.role !== "tool") continue;
-        const content = Array.isArray(msg.content) ? msg.content : [];
-        for (const block of content) {
-            if (block.type !== "tool-result") continue;
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const result = block.result as Record<string, any>;
-            if (block.toolName === "search_events" && Array.isArray(result?.events))
-                data.eventsFound = result.events as EventData[];
-            if (block.toolName === "search_landmarks" && Array.isArray(result?.landmarks))
-                data.landmarksFound = result.landmarks as LandmarkData[];
-            if (block.toolName === "generate_pins" && result?.success === true)
-                data.pinsGenerated = { count: result.count as number, pins: result.pins as PinItem[] };
+function toLangChainMessages(msgs: { role: MessageRole; text: string }[]): BaseMessage[] {
+    return msgs.map((m) => {
+        if (m.role === "user") return new HumanMessage(m.text);
+        if (m.role === "assistant") return new AIMessage(m.text);
+        return new SystemMessage(m.text);
+    });
+}
+
+function parseAgentOutput(raw: string): AgentResponse | null {
+    const clean = raw.replace(/```json\s*/gi, "").replace(/```\s*/g, "").trim();
+    const start = clean.indexOf("{");
+    const end = clean.lastIndexOf("}");
+    if (start === -1 || end === -1) return null;
+    try {
+        const parsed = JSON.parse(clean.slice(start, end + 1)) as AgentResponse;
+        if (!parsed.type) return null;
+        return parsed;
+    } catch {
+        return null;
+    }
+}
+
+async function reformatToJson(rawText: string): Promise<AgentResponse> {
+    const SYSTEM = `Convert the message below into one of these JSON shapes. Return ONLY valid JSON, no markdown.
+1. {"type":"results","message":"...","searchType":"LANDMARK"|"EVENT","pinCount":N,"confirmPrompt":"Drop N pins?"}
+2. {"type":"confirm","message":"...","summary":{"what":"...","where":"...","count":N,"type":"LANDMARK"|"EVENT"}}
+3. {"type":"question","message":"...","fields":[{"id":"...","label":"...","inputType":"multiple_choice"|"text"|"number","options":["..."]}]}
+4. {"type":"success","message":"...","count":N}
+5. {"type":"info","message":"..."}
+Rules: no pins array, strip all markdown from message fields.`;
+    try {
+        const llm = new ChatOpenAI({ model: "gpt-5.4-mini", temperature: 0 });
+        const res = await llm.invoke([
+            { role: "system", content: SYSTEM },
+            { role: "user", content: `Convert:\n\n${rawText.slice(0, 2000)}` },
+        ]);
+        const text =
+            typeof res.content === "string"
+                ? res.content
+                : Array.isArray(res.content)
+                    ? res.content
+                        .filter((b): b is { type: "text"; text: string } => (b as { type: string }).type === "text")
+                        .map((b) => b.text)
+                        .join("")
+                    : "";
+        return parseAgentOutput(text) ?? { type: "info", message: rawText.replace(/[*#`[\]!]/g, "").trim().slice(0, 500) };
+    } catch {
+        return { type: "info", message: "Something went wrong. Please try again." };
+    }
+}
+
+function stageFromResponse(r: AgentResponse): AgentStage {
+    switch (r.type) {
+        case "question": return "clarifying";
+        case "results": return "confirming";
+        case "confirm": return "confirming";
+        case "success": return "done";
+        default: return "extracting_intent";
+    }
+}
+
+function mergeIntent(
+    response: AgentResponse,
+    current: Partial<PinIntent> | null | undefined,
+    actualPinCount?: number
+): PinIntent {
+    const base: PinIntent = {
+        count: current?.count ?? 1,
+        countSpecified: current?.countSpecified ?? false,
+        query: current?.query ?? null,
+        area: current?.area ?? null,
+        areaType: current?.areaType ?? "unknown",
+        confirmed: current?.confirmed ?? false,
+        isNiche: current?.isNiche ?? false,
+        pinNumber: current?.pinNumber ?? 1,
+        ambiguousPinIntent: current?.ambiguousPinIntent ?? false,
+    };
+    if (response.type === "confirm") {
+        base.query = response.summary?.what ?? base.query;
+        base.area = response.summary?.where ?? base.area;
+        base.count = response.summary?.count ?? base.count;
+    }
+    if (response.type === "results") {
+        const pinCount = actualPinCount ?? (response as { pinCount?: number }).pinCount;
+        if (pinCount != null) base.count = pinCount;
+    }
+    if (response.type === "success") {
+        base.confirmed = true;
+        base.count = response.count ?? base.count;
+    }
+    return base;
+}
+
+// ─── Intent extractor ─────────────────────────────────────────────────────────
+
+async function extractIntent(
+    msgs: { role: string; text: string }[],
+    prior: Partial<PinIntent> | null | undefined
+): Promise<PinIntent> {
+    const llm = new ChatOpenAI({ model: "gpt-4o-mini", temperature: 0 });
+    const convo = msgs.map((m) => `${m.role.toUpperCase()}: ${m.text}`).join("\n");
+
+    const res = await llm.invoke([
+        {
+            role: "system",
+            content: `You are an intent extractor for a map pin-drop assistant.
+Return ONLY valid JSON — no markdown, no explanation, no code fences:
+{"query":string|null,"area":string|null,"count":number,"countSpecified":boolean,"areaType":"city"|"region"|"country"|"worldwide"|"unknown","confirmed":boolean,"pinNumber":number,"ambiguousPinIntent":boolean}
+
+════════════════════════════════════════
+CRITICAL — "pin/pins" AS ACTION WORD
+════════════════════════════════════════
+
+The words "pin" and "pins" are the ACTION VERB meaning "drop a map marker".
+They are NEVER the subject/category to search for.
+
+NEVER set query="pin" or query="pins" under any circumstances.
+
+════════════════════════════════════════
+CORE RULE — "drop/place/put N pins"
+════════════════════════════════════════
+
+"drop N pins", "place N pins", "put N pins" WITH NO CATEGORY always means:
+  → pinNumber=N   (N pins at each location found)
+  → count=1       (find 1 location unless area implies more)
+  → countSpecified=false
+  → query=null    (ask the user what to search for)
+  → ambiguousPinIntent=false
+
+This is NEVER ambiguous when query is null.
+
+Examples:
+  "drop 5 pins in dhaka"          → pinNumber=5,  count=1, query=null, countSpecified=false
+  "drop 10 pins in tokyo"         → pinNumber=10, count=1, query=null, countSpecified=false
+  "place 3 pins in london"        → pinNumber=3,  count=1, query=null, countSpecified=false
+  "put 2 pins in paris"           → pinNumber=2,  count=1, query=null, countSpecified=false
+  "drop a pin in berlin"          → pinNumber=1,  count=1, query=null, countSpecified=false
+  "drop 100 pins in new york"     → pinNumber=100, count=1, query=null, countSpecified=false
+
+════════════════════════════════════════
+FIELD RULES
+════════════════════════════════════════
+
+query:
+  - The thing to search for (e.g. "KFC", "hospitals", "attic recording studio")
+  - ALWAYS correct obvious typos: "hostipals"→"hospitals", "resturant"→"restaurant"
+  - null if no category/subject is mentioned
+  - NEVER "pin" or "pins"
+  - Preserve prior if not updated: PRIOR="${prior?.query ?? "null"}"
+
+area:
+  - Geographic area (e.g. "Tokyo", "United States", "worldwide")
+  - null if target is a specific named venue
+  - null if not mentioned
+  - Preserve prior if not updated: PRIOR="${prior?.area ?? "null"}"
+
+count:
+  - Total number of DISTINCT LOCATIONS to find
+  - Default: 1
+  - Only set >1 when a category is present AND a large number is given
+  - Preserve prior if not updated: PRIOR=${prior?.count ?? 1}
+
+countSpecified:
+  - true ONLY if user explicitly gave a number that maps to count (category present + N>10)
+  - false when query=null (N maps to pinNumber instead)
+  - Default: false
+  - PRIOR: ${prior?.countSpecified ?? false}
+
+areaType:
+  - "city"      → single city
+  - "region"    → state/province/area
+  - "country"   → full country
+  - "worldwide" → global
+  - "unknown"   → not specified
+  - Preserve prior if not updated: PRIOR="${prior?.areaType ?? "unknown"}"
+
+confirmed:
+  - true ONLY if user says "yes", "confirm", "drop it", "go ahead", "do it", "ok drop"
+  - false otherwise
+  - PRIOR: ${prior?.confirmed ?? false}
+
+════════════════════════════════════════
+pinNumber RULES
+════════════════════════════════════════
+
+pinNumber = how many pins to place AT EACH individual location.
+Default: 1
+PRIOR: ${prior?.pinNumber ?? 1}
+
+━━ STEP 1 — "drop/place/put N pins" with NO category (HIGHEST PRIORITY) ━━
+If the user says "drop/place/put N pins" and there is NO category/subject:
+  → pinNumber=N, count=1, countSpecified=false, query=null
+  → This wins over ALL other steps
+
+Examples:
+  "drop 5 pins in dhaka"          → pinNumber=5,  count=1,    query=null
+  "drop 100 pins in new york"     → pinNumber=100, count=1,   query=null
+  "place 3 pins in london"        → pinNumber=3,  count=1,    query=null
+
+━━ STEP 2 — Explicit per-location phrase ━━
+Any of these patterns set pinNumber=N:
+  "N pins at each [thing]"        → pinNumber=N
+  "N per location"                → pinNumber=N
+  "N at every location"           → pinNumber=N
+  "N at each"                     → pinNumber=N
+  "N pins at/around each [thing]" → pinNumber=N
+
+Examples:
+  "drop 5 pins at each KFC in London"       → pinNumber=5,  count=auto, query="KFC"
+  "3 per location at hospitals in Tokyo"    → pinNumber=3,  count=auto, query="hospitals"
+  "drop 10 at every restaurant in Berlin"   → pinNumber=10, count=auto, query="restaurants"
+
+━━ STEP 3 — Specific named venue + number ━━
+A specific named venue = a unique individually-identifiable place (not a category).
+  ✓ Specific: "the attic recording studio", "McDonald's Times Square", "Central Park"
+  ✗ Generic:  "hospitals", "KFC", "restaurants", "banks", "schools"
+
+If query IS a specific named venue AND a number N is given:
+  → pinNumber=N, count=1, countSpecified=false
+
+Examples:
+  "drop 100 pin at the attic recording studio" → pinNumber=100, count=1
+  "drop 50 pins at Central Park"               → pinNumber=50,  count=1
+  "5 pins at the Eiffel Tower"                 → pinNumber=5,   count=1
+
+━━ STEP 4 — Large N (>10) + generic category + area ━━
+If query IS a generic category AND N > 10 AND area is specified:
+  → count=N, countSpecified=true, pinNumber=1
+
+Examples:
+  "100 KFC pins in the US"            → count=100, pinNumber=1, query="KFC"
+  "drop 50 hospitals in California"   → count=50,  pinNumber=1, query="hospitals"
+  "200 restaurants worldwide"         → count=200, pinNumber=1, query="restaurants"
+  "drop 15 cafes in Paris"            → count=15,  pinNumber=1, query="cafes"
+
+━━ STEP 5 — Ambiguous: small N (2–10) + generic category + area ━━
+ONLY applies when ALL of these are true:
+  1. A category/subject IS present
+  2. N is between 2 and 10
+  3. No "each/per location" phrase
+  → ambiguousPinIntent=true, pinNumber=N, count=1, countSpecified=false
+
+Examples:
+  "place 5 pins in USA restaurant"    → ambiguousPinIntent=true, pinNumber=5,  query="restaurant"
+  "drop 3 pins in Tokyo hospital"     → ambiguousPinIntent=true, pinNumber=3,  query="hospital"
+  "put 2 pins in London cafe"         → ambiguousPinIntent=true, pinNumber=2,  query="cafe"
+
+━━ STEP 6 — Default ━━
+  pinNumber=1, ambiguousPinIntent=false
+
+════════════════════════════════════════
+FULL DISAMBIGUATION TABLE
+════════════════════════════════════════
+
+Message                                               | count | pinNumber | countSpec | ambiguous | query
+"drop 5 pins in dhaka"                                |   1   |     5     |   false   |   false   | null  ← ask what
+"drop 10 pins in tokyo"                               |   1   |    10     |   false   |   false   | null  ← ask what
+"drop 100 pins in new york"                           |   1   |   100     |   false   |   false   | null  ← ask what
+"place 3 pins in london"                              |   1   |     3     |   false   |   false   | null  ← ask what
+"drop a pin in berlin"                                |   1   |     1     |   false   |   false   | null  ← ask what
+"drop 100 KFC pins in the US"                         |  100  |     1     |   true    |   false   | "KFC"
+"drop 5 pins at each KFC in London"                   | auto  |     5     |   false   |   false   | "KFC"
+"drop 50 pins at Central Park"                        |   1   |    50     |   false   |   false   | "Central Park"
+"drop 10 pins at McDonald's Times Square"             |   1   |    10     |   false   |   false   | "McDonald's Times Square"
+"drop a pin at Eiffel Tower"                          |   1   |     1     |   false   |   false   | "Eiffel Tower"
+"drop pins at hospitals in Tokyo"                     | auto  |     2     |   false   |   false   | "hospitals"
+"5 per location at pharmacies in NY"                  | auto  |     5     |   false   |   false   | "pharmacies"
+"drop 3 pins at each of 10 hospitals"                 |  10   |     3     |   true    |   false   | "hospitals"
+"place 5 pins in USA restaurant"                      |   1   |     5     |   false   |   true    | "restaurant"
+"drop 3 pins in Tokyo hospital"                       |   1   |     3     |   false   |   true    | "hospital"
+"drop 50 pins in Tokyo restaurant"                    |  50   |     1     |   true    |   false   | "restaurant"
+"drop 15 cafes in Paris"                              |  15   |     1     |   true    |   false   | "cafes"
+"put 2 pins in London cafe"                           |   1   |     2     |   false   |   true    | "cafe"
+"drop 8 pins in Berlin pharmacy"                      |   1   |     8     |   false   |   true    | "pharmacy"
+"drop 11 pins in Berlin pharmacy"                     |  11   |     1     |   true    |   false   | "pharmacy"
+"drop 100 pin at the attic recording studio"          |   1   |   100     |   false   |   false   | "The Attic Recording Studio"
+
+CRITICAL RULES (in priority order):
+  1. "drop/place/put N pins" with NO category       → pinNumber=N, count=1, query=null (STEP 1 wins)
+  2. "each/per location/at each" phrase present     → ALWAYS pinNumber (STEP 2)
+  3. specific named place + number                  → ALWAYS pinNumber (STEP 3)
+  4. N > 10 + generic category + area               → ALWAYS count (STEP 4)
+  5. N 2–10 + generic category, no "each"           → ambiguous=true (STEP 5)
+  6. category BEFORE "pins" in sentence             → count wins
+     "drop 100 restaurant pins in USA"              → count=100, pinNumber=1, query="restaurants"
+  7. NEVER set query="pin" or query="pins"
+  8. NEVER set ambiguousPinIntent=true when query=null
+
+════════════════════════════════════════
+PRIOR VALUES (preserve unless message updates them)
+════════════════════════════════════════
+query          = ${prior?.query ?? "null"}
+area           = ${prior?.area ?? "null"}
+count          = ${prior?.count ?? 1}
+countSpecified = ${prior?.countSpecified ?? false}
+areaType       = ${prior?.areaType ?? "unknown"}
+confirmed      = ${prior?.confirmed ?? false}
+pinNumber      = ${prior?.pinNumber ?? 1}
+
+Only update a field if the latest user message changes it.
+Never null out a prior value unless the user explicitly resets.`,
+        },
+        {
+            role: "user",
+            content: `Full conversation:\n${convo}`,
+        },
+    ]);
+
+    const raw =
+        typeof res.content === "string"
+            ? res.content
+            : Array.isArray(res.content)
+                ? res.content
+                    .filter(
+                        (b): b is { type: "text"; text: string } =>
+                            (b as { type: string }).type === "text"
+                    )
+                    .map((b) => b.text)
+                    .join("")
+                : "";
+
+    try {
+        const parsed = JSON.parse(
+            raw.replace(/```json|```/g, "").trim()
+        ) as Partial<PinIntent> & { pinNumber?: number; ambiguousPinIntent?: boolean };
+
+        return {
+            count: parsed.count ?? prior?.count ?? 1,
+            countSpecified: parsed.countSpecified ?? prior?.countSpecified ?? false,
+            query: parsed.query ?? prior?.query ?? null,
+            area: parsed.area ?? prior?.area ?? null,
+            areaType: parsed.areaType ?? prior?.areaType ?? "unknown",
+            confirmed: parsed.confirmed ?? prior?.confirmed ?? false,
+            isNiche: prior?.isNiche ?? false,
+            pinNumber: parsed.pinNumber ?? prior?.pinNumber ?? 1,
+            ambiguousPinIntent: parsed.ambiguousPinIntent ?? false,
+        };
+    } catch {
+        return {
+            count: prior?.count ?? 1,
+            countSpecified: prior?.countSpecified ?? false,
+            query: prior?.query ?? null,
+            area: prior?.area ?? null,
+            areaType: prior?.areaType ?? "unknown",
+            confirmed: prior?.confirmed ?? false,
+            isNiche: prior?.isNiche ?? false,
+            pinNumber: prior?.pinNumber ?? 1,
+            ambiguousPinIntent: false,
+        };
+    }
+}
+// ─── Intent context builder ───────────────────────────────────────────────────
+
+function buildIntentContext(intent: PinIntent): string {
+    const today = new Date().toISOString().split("T")[0]!;
+    const totalCount = intent.count ?? 1;
+    const countSpecified = intent.countSpecified ?? false;
+    const pinNumber = intent.pinNumber ?? 1;
+    const ambiguous = intent.ambiguousPinIntent ?? false;
+
+    // ── EARLY EXIT: query is missing — force agent to ask immediately ─────
+    if (!intent.query) {
+        const areaText = intent.area ? ` in ${intent.area}` : "";
+        return `
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[SESSION — ${today}]
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+MISSING: query (WHAT to search for)
+
+MANDATORY INSTRUCTION:
+The user has not specified what to search for.
+You MUST NOT call any tools (no web_search, no places_search, nothing).
+You MUST respond IMMEDIATELY with this exact JSON and nothing else:
+
+{
+  "type": "question",
+  "message": "What would you like to find${areaText}?",
+  "fields": [
+    {
+      "id": "query",
+      "label": "What are you looking for?",
+      "inputType": "text",
+      "placeholder": "e.g. hospitals, restaurants, KFC, hotels..."
+    }
+  ]
+}
+
+DO NOT call web_search. DO NOT search for "pin" or "pins".
+DO NOT proceed until the user answers this question.
+`;
+    }
+
+    // ── Known / missing fields ────────────────────────────────────────────────
+
+    const known: string[] = [
+        countSpecified
+            ? `count=${totalCount} (user specified)`
+            : `count=unspecified (return ALL found)`,
+    ];
+    const missing: string[] = [];
+
+    if (intent.query) known.push(`query="${intent.query}"`);
+    else missing.push("query (WHAT to search for)");
+
+    if (intent.area) known.push(`area="${intent.area}"`);
+
+    // ── Ambiguous pin intent — must clarify before anything ──────────────────
+
+    const ambiguousSection = ambiguous
+        ? `
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+⚠️  AMBIGUOUS INTENT — CLARIFY FIRST
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+The user gave the number ${pinNumber} with a generic category and area.
+It is unclear whether they meant:
+  (A) Find ${pinNumber} locations total
+  (B) Drop ${pinNumber} pins at each location found
+
+You MUST respond with this clarifying question ONLY.
+Do NOT call any search tools. Do NOT search anything yet.
+Respond with ONLY this exact JSON:
+{
+  "type": "question",
+  "message": "Just to clarify — what did you mean by the number ${pinNumber}?",
+  "fields": [
+    {
+      "id": "pinIntent",
+      "label": "What did you mean by ${pinNumber}?",
+      "inputType": "multiple_choice",
+      "options": [
+        "Find ${pinNumber} locations total (1 pin each)",
+        "Drop ${pinNumber} pins at each location found"
+      ]
+    }
+  ]
+}
+`
+        : "";
+
+    // ── Count / search strategy (ONLY about finding locations) ───────────────
+
+    let countSection: string;
+
+    if (ambiguous) {
+        countSection = `SEARCH STRATEGY: Paused — awaiting clarification above. Do not search.`;
+
+    } else if (!countSpecified || totalCount == null) {
+        countSection = `
+SEARCH STRATEGY — RETURN ALL:
+  - count is unspecified — return every location found, do not cap.
+  - Run places_search with area="${intent.area ?? ""}" as the location constraint.
+  - ONLY return results physically located in "${intent.area ?? "the specified area"}". 
+  - Discard any result whose address does not match the area. Do not return worldwide results.
+  - Do not ask the user how many.`;
+
+    } else if (totalCount === 1) {
+        countSection = `
+SEARCH STRATEGY — SINGLE LOCATION:
+  - Find exactly 1 location.
+  - Run one web_search + one places_search or geocode_address.
+  - Stop after the first valid result. Do not over-fetch.`;
+
+    } else {
+        const numCities = Math.ceil(totalCount / 5);
+        const perCityBuffered = Math.ceil(totalCount / numCities) * 2;
+
+        countSection = `
+SEARCH STRATEGY — MULTI LOCATION:
+  - Find exactly ${totalCount} distinct locations. This is the ONLY goal of the search phase.
+  - Step 1: call web_search("${intent.query ?? ""}") to understand what you are looking for.
+  - Step 2 (choose one):
+      If isNiche=true OR query is a specific named chain/brand:
+        → geocode_address for each named location found.
+      If a specific country is detected in area:
+        → country_city_search(query, country, ${totalCount}).
+      Otherwise (general category across region):
+        → search ${numCities} cities × ${perCityBuffered} results each (2× buffer to cover duplicates).
+  - De-duplicate across all cities.
+  - Cap final list to exactly ${totalCount} locations before responding.
+  - Buffer rule: always fetch 2× needed per city to account for failures/duplicates.`;
+    }
+
+    // ── pinNumber — completely separate from search, just a pin property ─────
+
+    const pinNumberSection = `
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+PIN NUMBER PROPERTY
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+pinNumber = ${pinNumber}
+
+This is a PROPERTY VALUE that gets stamped onto each pin object.
+It has NO effect on how many locations to search for.
+It has NO effect on search strategy or result count.
+It is NOT the number of locations. It is NOT the count.
+
+Rules:
+  - Do NOT use pinNumber to decide how many places to search.
+  - Do NOT multiply it with count for any purpose.
+  - Do NOT mention it in your search logic.
+  - Do NOT ask the user about it again — it is already resolved.
+  - Simply pass pinNumber=${pinNumber} through to the results response
+    so the UI can pre-fill the stepper correctly.`;
+
+    // ── Output format ─────────────────────────────────────────────────────────
+
+    const outputRules = `
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+OUTPUT RULES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  * Never include a raw pins array in your JSON response.
+  * Never ask for count or area if they are already known.
+  * Only ask if query is genuinely unknown.
+  * Allowed response shapes:
+
+  Found locations:
+  {
+    "type": "results",
+    "message": "Found <N> <query> in <area>",
+    "searchType": "LANDMARK" | "EVENT",
+    "pinCount": <number of locations found>,
+    "confirmPrompt": "Drop these pins?"
+  }
+
+  Clarifying question:
+  {
+    "type": "question",
+    "message": "...",
+    "fields": [{ "id": "...", "label": "...", "inputType": "multiple_choice" | "text" | "number", "options": ["..."] }]
+  }
+
+  Info / error:
+  { "type": "info", "message": "..." }`;
+
+    // ── Assemble ──────────────────────────────────────────────────────────────
+
+    return [
+        ``,
+        `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`,
+        `[SESSION — ${today}]`,
+        `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`,
+        `Known : ${known.join(" | ")}`,
+        missing.length
+            ? `Missing : ${missing.join(", ")}`
+            : `Status  : ALL PARAMS KNOWN — proceed immediately`,
+        ambiguousSection,
+        countSection,
+        pinNumberSection,
+        outputRules,
+    ]
+        .filter(Boolean)
+        .join("\n");
+}
+// ─── Gap-fill ─────────────────────────────────────────────────────────────────
+
+async function gapFillPins(
+    current: Pin[],
+    target: number,
+    query: string,
+    alreadySearchedCities: string[],
+    area: string | null,
+    isNiche: boolean
+): Promise<Pin[]> {
+    if (current.length >= target) return current;
+
+    if (isNiche) {
+        const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAP_API_KEY ?? "";
+        const foundNames = current.map((p) => p.title);
+        const seenIds = new Set(current.map((p) => p.id));
+        const combined = [...current];
+        for (let round = 0; round < 3 && combined.length < target; round++) {
+            const newPins = await gapFillNicheViaWebSearch(query, foundNames, target - combined.length, apiKey);
+            if (!newPins.length) break;
+            for (const p of newPins) {
+                if (combined.length >= target) break;
+                if (!seenIds.has(p.id)) { seenIds.add(p.id); foundNames.push(p.title); combined.push(p); }
+            }
+        }
+        return combined;
+    }
+
+    const seenIds = new Set(current.map((p) => p.id));
+    const combined = [...current];
+    const llm = new ChatOpenAI({ model: "gpt-5.4-mini", temperature: 0 });
+    const cityRes = await llm.invoke([{
+        role: "user",
+        content: `List ${Math.ceil((target - current.length) / 5) + alreadySearchedCities.length} major cities in "${area ?? "worldwide"}". Return ONLY: {"cities":["City1","City2"]}`,
+    }]);
+    const cityText = typeof cityRes.content === "string" ? cityRes.content : "";
+    let allCities: string[] = [];
+    try {
+        allCities = (JSON.parse(cityText.replace(/```json|```/g, "").trim()) as { cities: string[] }).cities ?? [];
+    } catch { return combined; }
+
+    const searched = new Set(alreadySearchedCities.map((c) => c.toLowerCase()));
+    const newCities = allCities.filter((c) => !searched.has(c.toLowerCase()));
+    const perCity = Math.ceil((target - combined.length) / Math.max(newCities.length, 1)) * 2;
+
+    const results = await Promise.all(
+        newCities.map((city) => searchViaGooglePlacesExported(query, city, perCity).catch(() => [] as Pin[]))
+    );
+    for (const cityPins of results) {
+        for (const p of cityPins) {
+            if (combined.length >= target) break;
+            if (!seenIds.has(p.id)) { seenIds.add(p.id); combined.push(p); }
+        }
+        if (combined.length >= target) break;
+    }
+    return combined;
+}
+
+function detectIsNiche(messages: BaseMessage[]): boolean {
+    for (const msg of messages) {
+        if (msg._getType() !== "tool") continue;
+        try {
+            const parsed = JSON.parse(msg.content as string) as { isNiche?: boolean; namedLocations?: unknown[] };
+            if (parsed.isNiche === true) return true;
+            if (Array.isArray(parsed.namedLocations) && parsed.namedLocations.length > 0) return true;
+        } catch { /* skip */ }
+    }
+    return false;
+}
+
+// ─── Core agent runner ────────────────────────────────────────────────────────
+
+async function runAgent(input: AgentRunInput): Promise<{
+    reply: string;
+    stage: AgentStage;
+    intent: PinIntent;
+    pins?: Pin[];
+    pinOptions?: { autoCollect: boolean; groupingMode: "per-location" | "single-group" };
+    jobId?: string; // set when pins are enqueued for creation
+}> {
+    const { messages, intent: currentIntent, pinOptions, creatorId, pins: incomingPins } = input;
+    // ── Short-circuit: pins already collected, just create the job ────────
+    if (pinOptions && incomingPins && incomingPins.length > 0) {
+        const { autoCollect, groupingMode, pinNumber } = pinOptions;
+
+        const mappedPins = incomingPins.map((pin) => ({
+            ...pin,
+            autoCollect,
+            pinNumber,
+        }));
+
+        const lgJob = await db.locationGroupJob.create({
+            data: {
+                creatorId,
+                status: "pending",
+                total: mappedPins.length,
+                completed: 0,
+                payload: JSON.stringify({ pins: mappedPins, redeemMode: groupingMode }),
+                log: [],
+            },
+        });
+
+        await qstash.publishJSON({
+            url: `${BASE_URL}/api/create-pins`,
+            body: { jobId: lgJob.id, creatorId, pins: mappedPins, redeemMode: groupingMode },
+            retries: 3,
+        });
+
+        const currentIntent2 = currentIntent ?? {};
+        return {
+            reply: JSON.stringify({
+                type: "success",
+                message: `Queued ${mappedPins.length} pins for creation…`,
+                count: mappedPins.length,
+            }),
+            stage: "done" as AgentStage,
+            intent: {
+                count: currentIntent2.count ?? mappedPins.length,
+                countSpecified: currentIntent2.countSpecified ?? true,
+                query: currentIntent2.query ?? null,
+                area: currentIntent2.area ?? null,
+                areaType: currentIntent2.areaType ?? "unknown",
+                confirmed: true,
+                isNiche: currentIntent2.isNiche ?? false,
+                pinNumber,
+                ambiguousPinIntent: false,
+            },
+            jobId: lgJob.id,
+        };
+    }
+    // ── End short-circuit ─────────────────────────────────────────────────
+    // 1. Extract intent
+    const intent = await extractIntent(messages, currentIntent);
+
+    // 2. Build system prompt
+    const systemPrompt = AGENT_SYSTEM_PROMPT + buildIntentContext(intent);
+
+    // 3. Run LLM agent
+    const agent = createAgent({
+        model: new ChatOpenAI({ model: "gpt-5.4-mini", temperature: 0.2 }),
+        tools: [...ALL_TOOLS],
+        systemPrompt,
+        name: "pin_drop_agent",
+    });
+
+    const result = await agent.invoke({ messages: toLangChainMessages(messages) });
+
+    // 4. Harvest pins from tool call results
+    const responsePins: Pin[] = [];
+    const searchedCities: string[] = [];
+
+    for (const msg of result.messages) {
+        if (msg._getType() !== "tool") continue;
+        try {
+            const toolInput = (msg as unknown as { additional_kwargs?: { tool_input?: string } })
+                .additional_kwargs?.tool_input;
+            if (toolInput) {
+                const parsed = JSON.parse(toolInput) as { city?: string };
+                if (parsed.city) searchedCities.push(parsed.city);
+            }
+        } catch { /* ignore */ }
+
+        try {
+            const parsed = JSON.parse(msg.content as string) as { pins?: Pin[] };
+            if (Array.isArray(parsed.pins) && parsed.pins.length > 0) {
+                responsePins.push(...parsed.pins);
+                (msg as unknown as { content: string }).content = JSON.stringify({
+                    total: parsed.pins.length,
+                    message: `Found ${parsed.pins.length} pins.`,
+                });
+            }
+        } catch { /* not a pin result */ }
+    }
+
+    // 5. Detect niche flag
+    const isNiche = detectIsNiche(result.messages) || (intent.isNiche ?? false);
+
+    // 6. Cap / gap-fill
+    let cappedPins: Pin[];
+    if (!intent.countSpecified || intent.count == null) {
+        cappedPins = responsePins;
+    } else {
+        const target = intent.count;
+        cappedPins =
+            responsePins.length >= target
+                ? responsePins.slice(0, target)
+                : (await gapFillPins(responsePins, target, intent.query ?? "", searchedCities, intent.area ?? null, isNiche)).slice(0, target);
+    }
+
+    // 7. Parse response JSON
+    const lastMsg = result.messages.at(-1);
+    const rawOutput = typeof lastMsg?.content === "string" ? lastMsg.content : JSON.stringify(lastMsg?.content ?? "");
+    let agentResponse = parseAgentOutput(rawOutput) ?? (await reformatToJson(rawOutput));
+
+    // 8. Guard: 0 pins → attempt worldwide fallback before giving up
+    const shouldFallbackInfo =
+        agentResponse.type === "info" &&
+        cappedPins.length === 0 &&
+        intent.query &&
+        /no locations found|try a different search/i.test(agentResponse.message);
+
+    if ((agentResponse.type === "results" && cappedPins.length === 0) || shouldFallbackInfo) {
+        const fallbackTarget = intent.countSpecified && intent.count != null ? intent.count : 10;
+        const worldwidePins = intent.query
+            ? await gapFillPins(responsePins, fallbackTarget, intent.query, searchedCities, null, isNiche)
+            : [];
+
+        if (worldwidePins.length > 0) {
+            cappedPins = intent.countSpecified && intent.count != null ? worldwidePins.slice(0, intent.count) : worldwidePins;
+            agentResponse = {
+                type: "results",
+                message: `Found ${cappedPins.length} ${intent.query ?? "locations"} worldwide.`,
+                searchType: (agentResponse.type === "results" ? agentResponse.searchType : "LANDMARK"),
+                pinCount: cappedPins.length,
+                confirmPrompt: `Drop these ${cappedPins.length} pins?`,
+            };
+        } else {
+            agentResponse = {
+                type: "info",
+                message: `No locations found for "${intent.query}" in "${intent.area ?? "worldwide"}". Try a different search.`,
+            };
         }
     }
-    return data;
-}
 
-// ─── Deterministic step transitions ───────────────────────────────────────────
-// These still run AFTER the LLM has responded and the user's message has been
-// read. They just enforce the UI progression, not block the conversation.
-
-function enforceStepTransition(
-    currentStep: AgentStep,
-    state: AgentState,
-    toolData: ToolPassData,
-    parsed: ParsedResponse,
-): ParsedResponse {
-    type CfgMap = Record<string, Record<string, unknown>>;
-
-    if (currentStep === "event_confirm_list") {
-        const items = (state.selectedEvents ?? state.events ?? []).map((e) => ({
-            id: e.id, title: e.title, defaultStart: e.startDate, defaultEnd: e.endDate,
-        }));
-        return { ...parsed, step: "event_pin_dates", uiData: { type: "date_picker", data: { items } } };
+    if (agentResponse.type === "results" && cappedPins.length > 0) {
+        agentResponse.pinCount = cappedPins.length;
+        agentResponse.message = agentResponse.message?.replace(/\d+/, String(cappedPins.length));
+        if (agentResponse.confirmPrompt) {
+            agentResponse.confirmPrompt = `Drop these ${cappedPins.length} pins?`;
+        }
     }
 
-    if (currentStep === "event_pin_dates") {
-        const items = (state.selectedEvents ?? state.events ?? []).map((e) => ({
-            id: e.id, title: e.title, latitude: e.latitude, longitude: e.longitude,
-        }));
-        return { ...parsed, step: "event_pin_config", uiData: { type: "pin_config_form", data: { items, isLandmark: false } } };
-    }
+    // 9. If confirmed → apply options + enqueue pin-creation job
+    let locationGroupJobId: string | undefined;
 
-    if (currentStep === "event_pin_config") {
-        const cfgMap = (state.pinConfig ?? {}) as CfgMap;
-        const pins: PinItem[] = (state.selectedEvents ?? []).map((e) => {
-            const cfg = cfgMap[e.id] ?? {};
-            return {
-                title: e.title, description: e.description, latitude: e.latitude, longitude: e.longitude,
-                venue: e.venue, address: e.address, url: e.url, image: e.image,
-                startDate: (cfg.startDate as string) ?? e.startDate,
-                endDate: (cfg.endDate as string) ?? e.endDate,
-                pinNumber: (cfg.pinNumber as number) ?? 5,
-                pinCollectionLimit: (cfg.pinCollectionLimit as number) ?? 100,
-                autoCollect: (cfg.autoCollect as boolean) ?? false,
-                radius: (cfg.radius as number) ?? 2,
-                type: "EVENT",
-            };
+    if (pinOptions && cappedPins.length > 0) {
+        const { autoCollect, groupingMode } = pinOptions;
+
+        cappedPins = cappedPins.map((pin) => ({
+            ...pin,
+            autoCollect,
+            pinNumber: pinOptions.pinNumber,
+        }));
+        // Create LocationGroupJob
+        const lgJob = await db.locationGroupJob.create({
+            data: {
+                creatorId,
+                status: "pending",
+                total: cappedPins.length,
+                completed: 0,
+                payload: JSON.stringify({ pins: cappedPins, redeemMode: groupingMode }),
+                log: [],
+            },
         });
-        return { ...parsed, step: "event_final_confirm", uiData: { type: "confirm", data: { pins } } };
-    }
+        locationGroupJobId = lgJob.id;
 
-    if (currentStep === "landmark_confirm_list") {
-        const items = (state.selectedLandmarks ?? state.landmarks ?? []).map((l) => ({
-            id: l.id, title: l.title, latitude: l.latitude, longitude: l.longitude,
-        }));
-        return { ...parsed, step: "landmark_pin_config", uiData: { type: "pin_config_form", data: { items, isLandmark: true } } };
-    }
-
-    if (currentStep === "landmark_pin_config") {
-        return { ...parsed, step: "landmark_redeem_mode", uiData: { type: "redeem_mode_select", data: {} } };
-    }
-
-    if (currentStep === "landmark_redeem_mode") {
-        const cfgMap = (state.pinConfig ?? {}) as CfgMap;
-        const start = todayISO();
-        const end = in100YearsISO();
-        const pins: PinItem[] = (state.selectedLandmarks ?? []).map((l) => {
-            const cfg = cfgMap[l.id] ?? {};
-            return {
-                title: l.title, description: l.description, latitude: l.latitude, longitude: l.longitude,
-                venue: l.venue, address: l.address, url: l.url, image: l.image,
-                startDate: start, endDate: end,
-                pinNumber: 1, pinCollectionLimit: 999999,
-                autoCollect: (cfg.autoCollect as boolean) ?? false,
-                radius: (cfg.radius as number) ?? 2,
-                type: "LANDMARK",
-            };
+        await qstash.publishJSON({
+            url: `${BASE_URL}/api/create-pins`,
+            body: { jobId: lgJob.id, creatorId, pins: cappedPins, redeemMode: groupingMode },
+            retries: 3,
         });
-        return { ...parsed, step: "landmark_final_confirm", uiData: { type: "confirm", data: { pins } } };
-    }
 
-    if (toolData.pinsGenerated) {
-        return {
-            ...parsed, step: "done",
-            stateUpdates: { ...parsed.stateUpdates, pins: toolData.pinsGenerated.pins },
-            uiData: { type: "pin_result", data: { count: toolData.pinsGenerated.count } },
+        agentResponse = {
+            type: "success",
+            message: `Queued ${cappedPins.length} pin${cappedPins.length !== 1 ? "s" : ""} for creation…`,
+            count: cappedPins.length,
         };
     }
 
-    if (toolData.eventsFound?.length && currentStep === "event_search") {
-        return {
-            ...parsed, step: "event_confirm_list",
-            stateUpdates: { ...parsed.stateUpdates, events: toolData.eventsFound, selectedEvents: toolData.eventsFound },
-            uiData: { type: "event_list", data: { events: toolData.eventsFound } },
-        };
-    }
+    const outputIntent = mergeIntent(agentResponse, { ...intent, isNiche }, cappedPins.length || undefined);
 
-    if (toolData.landmarksFound?.length && currentStep === "landmark_search") {
-        return {
-            ...parsed, step: "landmark_confirm_list",
-            stateUpdates: { ...parsed.stateUpdates, landmarks: toolData.landmarksFound, selectedLandmarks: toolData.landmarksFound },
-            uiData: { type: "landmark_list", data: { landmarks: toolData.landmarksFound } },
-        };
-    }
-
-    return parsed;
+    return {
+        reply: JSON.stringify(agentResponse),
+        stage: stageFromResponse(agentResponse),
+        intent: outputIntent,
+        pins: !pinOptions && cappedPins.length > 0 ? cappedPins : undefined,
+        pinOptions: agentResponse.type === "results"
+            ? { autoCollect: false, groupingMode: "per-location" }
+            : undefined,
+        jobId: locationGroupJobId,
+    };
 }
 
 // ─── Handler ──────────────────────────────────────────────────────────────────
 
 async function handler(req: NextApiRequest, res: NextApiResponse) {
-    if (req.method !== "POST") return res.status(405).end();
+    if (req.method !== "POST") {
+        return res.status(405).json({ error: "Method not allowed" });
+    }
 
-    const { jobId, message, history, state, creatorId } = req.body as {
-        jobId: string;
-        message: string;
-        history: { role: "user" | "assistant"; content: string }[];
-        state: AgentState;
-        creatorId: string;
-    };
+    let body: JobPayload;
+    try {
+        body = req.body as JobPayload;
+    } catch {
+        return res.status(400).json({ error: "Invalid JSON body" });
+    }
 
-    const currentStep = state.step as AgentStep;
+    const { jobId } = body;
+    if (!jobId) return res.status(400).json({ error: "Missing jobId" });
 
-    // helper to save result and finish
-    async function finish(result: {
-        message: string;
-        state: AgentState;
-        uiData?: Message["uiData"];
-        jobId?: string;
-    }) {
+    // Load the AgentJob row
+    const job = await db.agentJob.findUnique({ where: { id: jobId } });
+    if (!job) return res.status(404).json({ error: "Job not found" });
+
+    // Mark as processing
+    await db.agentJob.update({
+        where: { id: jobId },
+        data: { status: "processing" },
+    });
+
+    let agentInput: AgentRunInput;
+    try {
+        agentInput = JSON.parse(job.payload as string) as AgentRunInput;
+    } catch {
         await db.agentJob.update({
             where: { id: jobId },
-            data: {
-                status: "completed", result: result as unknown as Prisma.InputJsonValue  // ✅
-            },
+            data: { status: "failed", error: "Invalid job payload" },
         });
-        return res.status(200).json({ ok: true });
+        return res.status(200).json({ ok: false, error: "Invalid payload" });
     }
 
     try {
-        // ── Intent reset ───────────────────────────────────────────────────────
-        if (detectIntentReset(message, currentStep)) {
-            const resetResponse = await generateText({
-                model: openai("gpt-4o-mini"),
-                messages: [{
-                    role: "user" as const,
-                    content: `You are a friendly assistant for a pin creation app called Wadzzo.
-  The user was in the middle of creating ${state.task ?? "pins"} but they said: "${message}"
-  Respond warmly, acknowledge what they said, confirm you're starting fresh, and ask whether
-  they'd like to create event pins or landmark pins. Be brief and natural.`,
-                }],
-            });
-            return await finish({
-                message: resetResponse.text.trim(),
-                state: {
-                    step: "clarify_task" as AgentStep,
-                    task: null,
-                    searchQuery: undefined,
-                    searchArea: undefined,
-                    events: [],
-                    selectedEvents: [],
-                    landmarks: [],
-                    selectedLandmarks: [],
-                    pinConfig: {},
-                    pins: [],
-                    redeemMode: undefined,
-                },
-                uiData: { type: "task_select", data: {} },
-            });
-        }
+        const result = await runAgent(agentInput);
 
-        const MAX_HISTORY = 6;
-        const trimmedHistory = history.slice(-MAX_HISTORY).map((m) => ({
-            role: m.role,
-            content: m.role === "assistant" && m.content.length > 400
-                ? m.content.slice(0, 400) + "…"
-                : m.content,
-        }));
-
-        const baseMessages: CoreMessage[] = [
-            ...trimmedHistory.map((m) => ({ role: m.role as "user" | "assistant", content: m.content })),
-            { role: "user" as const, content: message },
-        ];
-
-        const needsToolCall = SEARCH_STEPS.has(currentStep) || GENERATE_STEPS.has(currentStep);
-        const isTransitionStep = TRANSITION_STEPS.has(currentStep);
-
-        // ── Transition steps ───────────────────────────────────────────────────
-        if (isTransitionStep) {
-            const quickMsg = await generateText({
-                model: openai("gpt-4o-mini"),
-                messages: [{ role: "user", content: buildQuickMessagePrompt(currentStep, state, message) }],
-            });
-            const emptyParsed: ParsedResponse = {
-                message: quickMsg.text.trim(),
-                step: currentStep,
-                stateUpdates: {},
-                uiData: null,
-            };
-            const enforced = enforceStepTransition(
-                currentStep, state,
-                { eventsFound: null, landmarksFound: null, pinsGenerated: null },
-                emptyParsed,
-            );
-            return await finish({
-                message: enforced.message,
-                state: { ...state, ...enforced.stateUpdates, step: enforced.step },
-                uiData: enforced.uiData ?? undefined,
-            });
-        }
-
-        // ── Pass 1: Tool calling ───────────────────────────────────────────────
-        let pass1 = null;
-        let toolData: ToolPassData = { eventsFound: null, landmarksFound: null, pinsGenerated: null };
-
-        if (needsToolCall) {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const scopedTools: Record<string, any> = GENERATE_STEPS.has(currentStep)
-                ? { generate_pins: agentTools.generate_pins }
-                : { search_events: agentTools.search_events, search_landmarks: agentTools.search_landmarks };
-
-            pass1 = await generateText({
-                model: openai("gpt-4o-mini"),
-                system: buildToolPrompt(state, message),
-                tools: scopedTools,
-                maxSteps: 3,
-                messages: baseMessages,
-            });
-
-            toolData = extractToolData(pass1.response.messages);
-
-            // ── Pin generation ─────────────────────────────────────────────────
-            if (toolData.pinsGenerated?.pins.length) {
-                const generatedPins = toolData.pinsGenerated.pins;
-                const statePins = state.pins ?? [];
-                const pins = generatedPins.map((p, idx) => ({ ...statePins[idx], ...p }));
-                const redeemMode = state.redeemMode ?? "separate";
-
-                const pinJob = await db.locationGroupJob.create({
-                    data: {
-                        creatorId,
-                        status: "pending",
-                        total: pins.length,
-                        payload: pins as object[],
-                        redeemMode,
-                    },
-                });
-
-                await qstash.publishJSON({
-                    url: `${BASE_URL}/api/create-pins`,
-                    body: { jobId: pinJob.id, creatorId, pins, redeemMode },
-                    retries: 2,
-                });
-
-                const count = pins.length;
-                return await finish({
-                    message: `✅ Got it! Creating ${count} pin${count !== 1 ? "s" : ""} in the background — you can track progress below.`,
-                    state: { ...state, step: "done" as AgentStep, pins },
-                    uiData: { type: "pin_result", data: { count, jobId: pinJob.id } },
-                    jobId: pinJob.id,
-                });
-            }
-
-            // ── Fast path: search results ──────────────────────────────────────
-            const hasResults =
-                (toolData.landmarksFound?.length ?? 0) +
-                (toolData.eventsFound?.length ?? 0) > 0;
-
-            if (hasResults && SEARCH_STEPS.has(currentStep)) {
-                const syntheticParsed: ParsedResponse = {
-                    message: toolData.landmarksFound?.length && currentStep === "landmark_search"
-                        ? `Found ${toolData.landmarksFound.length} landmarks. Please select which ones you'd like to use.`
-                        : `Found ${toolData.eventsFound?.length} events. Please select which ones you'd like to use.`,
-                    step: currentStep,
-                    stateUpdates: {},
-                    uiData: null,
-                };
-                const enforced = enforceStepTransition(currentStep, state, toolData, syntheticParsed);
-                return await finish({
-                    message: enforced.message,
-                    state: { ...state, ...enforced.stateUpdates, step: enforced.step },
-                    uiData: enforced.uiData ?? undefined,
-                });
-            }
-        }
-
-        // ── Pass 2: JSON formatter ─────────────────────────────────────────────
-        const pass2 = await generateText({
-            model: openai("gpt-4o-mini"),
-            system: buildJsonPrompt(state, toolData, message),
-            messages: baseMessages,
-        });
-
-        let parsed: ParsedResponse;
-        try {
-            const clean = pass2.text.replace(/```json\s*/g, "").replace(/```\s*/g, "").trim();
-            parsed = JSON.parse(clean) as ParsedResponse;
-        } catch {
-            parsed = { message: pass2.text || (pass1?.text ?? ""), step: currentStep, stateUpdates: {}, uiData: null };
-        }
-
-        const enforced = parsed.step === "clarify_task"
-            ? parsed
-            : enforceStepTransition(currentStep, state, toolData, parsed);
-
-        return await finish({
-            message: enforced.message,
-            state: { ...state, ...enforced.stateUpdates, step: enforced.step },
-            uiData: enforced.uiData ?? undefined,
-        });
-
-    } catch (err) {
-        const msg = err instanceof Error ? err.message : "Unknown error";
         await db.agentJob.update({
             where: { id: jobId },
-            data: { status: "failed", error: msg },
+            data: {
+                status: "completed",
+                result: result as object,
+            },
+        });
+
+        return res.status(200).json({ ok: true });
+    } catch (err) {
+        const message = err instanceof Error ? err.message : "Unknown error";
+        console.error(`[/api/agent] Job ${jobId} failed:`, err);
+
+        await db.agentJob.update({
+            where: { id: jobId },
+            data: { status: "failed", error: message },
         }).catch(() => null);
-        return res.status(200).json({ ok: true }); // always 200 to QStash
+
+        return res.status(200).json({ ok: false, error: message });
     }
 }
 
