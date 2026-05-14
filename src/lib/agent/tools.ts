@@ -349,40 +349,34 @@ function extractTextFromLLMContent(content: unknown): string {
   }
   return stringifyToolResponseContent(content);
 }
-/**
- * Smart geocode: tries up to 4 strategies to resolve a NamedLocation to coords.
- *
- * 1. Full address string
- * 2. "Name, City, Country" (great for landmarks)
- * 3. Google Places Text Search (finds things geocoding misses)
- * 4. "City, Country" (coarse fallback)
- */
+
 export async function smartGeocode(
   location: NamedLocation,
   apiKey: string
-): Promise<{ lat: number; lng: number } | null> {
+): Promise<{ lat: number; lng: number; image?: string; url?: string } | null> {
   // Strategy 1: full address
-  if (isAddressGeocodeWorthy(location.address)) {
-    const coords = await geocodeRaw(location.address, apiKey);
-    if (coords) {
-      console.log(`[smartGeocode] ✓ Strategy 1 (address) for "${location.name}"`);
-      return coords;
-    }
-  }
+  // if (isAddressGeocodeWorthy(location.address)) {
+  //   const coords = await geocodeRaw(location.address, apiKey);
+  //   if (coords) {
+  //     console.log(`[smartGeocode] ✓ Strategy 1 (address) for "${location.name}"`);
+  //     return coords;
+  //   }
+  // }
 
-  // Strategy 2: "Name, City, Country"
-  if (location.name && (location.city || location.country)) {
-    const parts = [location.name, location.city, location.country].filter(Boolean);
-    const coords = await geocodeRaw(parts.join(", "), apiKey);
-    if (coords) {
-      console.log(`[smartGeocode] ✓ Strategy 2 (name+city) for "${location.name}"`);
-      return coords;
-    }
-  }
+  // // Strategy 2: "Name, City, Country"
+  // if (location.name && (location.city || location.country)) {
+  //   const parts = [location.name, location.city, location.country].filter(Boolean);
+  //   const coords = await geocodeRaw(parts.join(", "), apiKey);
+  //   if (coords) {
+  //     console.log(`[smartGeocode] ✓ Strategy 2 (name+city) for "${location.name}"`);
+  //     return coords;
+  //   }
+  // }
 
   // Strategy 3: Google Places Text Search — finds landmarks by name
   if (location.name) {
-    const area = location.city ?? location.country ?? "";
+    const area = location.address ?? location.city ?? location.country ?? "";
+    console.log("name, area", location.name, area);
     const pins = await searchPlacesNewAPI(
       location.name,
       area,
@@ -390,19 +384,25 @@ export async function smartGeocode(
       apiKey
     );
     if (pins.length > 0) {
-      console.log(`[smartGeocode] ✓ Strategy 3 (Places API) for "${location.name}"`);
-      return { lat: pins[0].latitude, lng: pins[0].longitude };
+      return {
+        lat: pins[0].latitude,
+        lng: pins[0].longitude,
+        image: pins[0].image,
+        url: pins[0].url,
+      }
     }
+
   }
 
+
   // Strategy 4: coarse — just city + country
-  if (location.city && location.country) {
-    const coords = await geocodeRaw(`${location.city}, ${location.country}`, apiKey);
-    if (coords) {
-      console.log(`[smartGeocode] ✓ Strategy 4 (city only) for "${location.name}" — coarse`);
-      return coords;
-    }
-  }
+  // if (location.city && location.country) {
+  //   const coords = await geocodeRaw(`${location.city}, ${location.country}`, apiKey);
+  //   if (coords) {
+  //     console.log(`[smartGeocode] ✓ Strategy 4 (city only) for "${location.name}" — coarse`);
+  //     return coords;
+  //   }
+  // }
 
   console.warn(`[smartGeocode] ✗ All strategies failed for "${location.name}"`);
   return null;
@@ -1108,6 +1108,8 @@ export const smartGeocodeTool = tool(
               radius: 2,
               autoCollect: false,
               address: loc.address,
+              image: coords.image,
+              url: coords.url,
             };
           })
         )
