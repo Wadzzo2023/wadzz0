@@ -1256,7 +1256,7 @@ function MessageBubble({
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 
-export default function AgentChat({ creatorId }: { creatorId: string }) {
+export default function AgentChat({ creatorId }: { creatorId?: string }) {
   const [messages, setMessages] = useState<LocalChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [intent, setIntent] = useState<PinIntent>({

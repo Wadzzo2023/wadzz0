@@ -48,8 +48,8 @@ export const agentRouter = createTRPCRouter({
       })
     )
     .mutation(async ({ input, ctx }) => {
-      const creatorId = ctx.session?.user?.id ??
-        input.creatorId;
+      const creatorId = input.creatorId ?? ctx.session?.user?.id
+
 
       if (!creatorId) {
         throw new TRPCError({
