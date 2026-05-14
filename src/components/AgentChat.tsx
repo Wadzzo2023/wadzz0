@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import { api } from "~/utils/api";
 import type {
   ChatMessage,
@@ -1274,7 +1274,7 @@ export default function AgentChat({ creatorId }: { creatorId?: string }) {
   const [isDropping, setIsDropping] = useState(false);
   const [currentPins, setCurrentPins] = useState<Pin[]>([]);
   const [isOpen, setIsOpen] = useState(true);
-  const [isMinimized, setIsMinimized] = useState(false);
+  const [isMinimized, setIsMinimized] = useState(true);
 
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -1412,7 +1412,7 @@ export default function AgentChat({ creatorId }: { creatorId?: string }) {
         inputRef.current?.focus();
       }
     },
-    [isLoading, intent, currentPins, buildHistory, chatCreate, pollJob]
+    [isLoading, intent, currentPins, buildHistory, chatCreate, pollJob, creatorId]
   );
 
   // ── Handle question answers ───────────────────────────────────────────────
@@ -1489,7 +1489,8 @@ export default function AgentChat({ creatorId }: { creatorId?: string }) {
           messages: buildHistory("Yes, confirm and drop the pins."),
           intent: { ...intent, confirmed: true },
           pinOptions: options,
-          pins: currentPins,  // ← add this line
+          pins: currentPins,
+          creatorId,
         });
 
         // Step 2: poll until the agent finishes (it will enqueue the QStash pin-drop job)
@@ -1565,7 +1566,7 @@ export default function AgentChat({ creatorId }: { creatorId?: string }) {
         setIsLoading(false);
       }
     },
-    [intent, currentPins, buildHistory, chatCreate, pollJob]
+    [intent, currentPins, buildHistory, chatCreate, pollJob, creatorId]
   );
 
   // ── Called when background pin-drop job finishes ──────────────────────────
@@ -1603,6 +1604,7 @@ export default function AgentChat({ creatorId }: { creatorId?: string }) {
         const { jobId } = await chatCreate.mutateAsync({
           messages: buildHistory("Yes, confirm and drop the pins."),
           intent: { ...intent, confirmed: true },
+          creatorId,
         });
 
         await pollJob(jobId);
@@ -1649,10 +1651,10 @@ export default function AgentChat({ creatorId }: { creatorId?: string }) {
         setIsLoading(false);
       }
     },
-    [intent, currentPins, buildHistory, chatCreate, pollJob]
+    [intent, currentPins, buildHistory, chatCreate, pollJob, creatorId]
   );
 
-  // ── Dismiss ─────────────────────────────────────────��─────────────────────
+  // ── Dismiss ───────────────────────────────────────────
 
   const handleDismiss = useCallback(() => {
     void sendMessage("Cancel that, let me start over.");
@@ -1686,6 +1688,25 @@ export default function AgentChat({ creatorId }: { creatorId?: string }) {
   }
 
   const isEmpty = messages.length === 0;
+
+  const pendingAssistantResponse = useMemo(() => {
+    for (let i = messages.length - 1; i >= 0; i--) {
+      const msg = messages[i];
+      if (msg.role !== "assistant" || msg.content.kind !== "response") continue;
+      return msg;
+    }
+    return null;
+  }, [messages]);
+
+  const isInteractionPending = useMemo(() => {
+    if (!pendingAssistantResponse) return false;
+
+    const { data, questionAnswered, resultsConfirmed } = pendingAssistantResponse.content;
+    if (data.type === "question" && !questionAnswered) return true;
+    if (data.type === "results" && !resultsConfirmed) return true;
+    if (data.type === "confirm") return true;
+    return false;
+  }, [pendingAssistantResponse]);
 
   // ── Render ────────────────────────────────────────────────────────────────
 
@@ -1723,12 +1744,12 @@ export default function AgentChat({ creatorId }: { creatorId?: string }) {
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder="Ask me anything..."
-              disabled={isLoading || isDropping}
+              disabled={isLoading || isDropping || isInteractionPending}
               className="flex-1 rounded-full bg-white px-5 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none disabled:opacity-50"
             />
             <button
               onClick={() => void sendMessage(input)}
-              disabled={!input.trim() || isLoading}
+              disabled={!input.trim() || isLoading || isInteractionPending}
               className="flex flex-shrink-0 items-center justify-center rounded-full bg-primary px-4 py-3 text-primary-foreground transition-all hover:scale-105 hover:shadow-lg active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100"
             >
               {isLoading ? (
