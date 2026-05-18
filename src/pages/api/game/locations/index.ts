@@ -206,7 +206,7 @@ export default async function handler(
         collected: location.collected,
         collection_limit_remaining: location.remaining,
         auto_collect: location.autoCollect,
-        brand_image_url: location.image ?? location.creator.profileUrl ?? WadzzoIconURL,
+        brand_image_url: location.creator.profileUrl ?? WadzzoIconURL,
         brand_id: location.creatorId,
         public: true,
         redeemCode: location.consumers.find((c) => c.userId === userId)?.redeemCode ?? null,
