@@ -166,14 +166,6 @@ function haversineM(lat1: number, lng1: number, lat2: number, lng2: number): num
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
-const VAGUE_TERMS = ["various", "worldwide", "multiple", "unknown", "tbd", "several", "many"];
-
-function isAddressGeocodeWorthy(addr: string | undefined | null): boolean {
-  if (!addr?.trim()) return false;
-  if (addr.split(/\s+/).length < 2) return false;
-  if (VAGUE_TERMS.some((v) => addr.toLowerCase().includes(v))) return false;
-  return true;
-}
 
 function stripJsonFences(text: string): string {
   return text.replace(/```json\s*/gi, "").replace(/```/g, "").trim();

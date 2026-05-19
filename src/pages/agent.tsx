@@ -1,4 +1,4 @@
-import AgentChat from "~/components/AgentChat";
+import AgentChat from "~/components/agent/AgentChat";
 
 export default function AgentPage() {
   return (

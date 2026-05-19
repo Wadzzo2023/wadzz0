@@ -13,3 +13,36 @@ export function generateRedeemCode(): string {
     CHARS[Math.floor(Math.random() * CHARS.length)]
   ).join("")
 }
+export function fmt(dateStr: string | null | undefined): string {
+  if (!dateStr) return "—";
+  return new Date(dateStr).toLocaleDateString(undefined, {
+    month: "short", day: "numeric", year: "numeric",
+  });
+}
+
+export function fmtShort(dateStr: string | null | undefined): string {
+  if (!dateStr) return "—";
+  return new Date(dateStr).toLocaleDateString(undefined, {
+    month: "short", day: "numeric",
+  });
+}
+
+export function fmtDateTime(dateStr: string | null | undefined): string {
+  if (!dateStr) return "—";
+  return new Date(dateStr).toLocaleDateString(undefined, {
+    month: "short", day: "numeric", year: "numeric",
+    hour: "2-digit", minute: "2-digit",
+  });
+}
+
+/** Derive pin status from DB fields. */
+export function derivePinStatus(
+  endDate: string | null,
+  remaining: number,
+  limit: number,
+): "active" | "expired" | "fully_claimed" | "collection_disabled" {
+  if (limit === 0) return "collection_disabled";
+  if (remaining === 0) return "fully_claimed";
+  if (endDate && new Date(endDate) < new Date()) return "expired";
+  return "active";
+}

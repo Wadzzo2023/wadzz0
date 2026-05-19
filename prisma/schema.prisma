@@ -551,8 +551,6 @@ model Hotspot {
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 
-    // The first LocationGroup is the "template" (hotspotTemplate: true).
-    // Every subsequent drop clones it and sets hotspotTemplate: false.
     locationGroups LocationGroup[]
 }
 
@@ -585,6 +583,10 @@ model LocationGroup {
 
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
+
+    latitude  Float
+    longitude Float
+    radius    Float
 
     image String?
 

@@ -44,12 +44,17 @@ export const agentRouter = createTRPCRouter({
         pinOptions: PinOptionsSchema.optional(),
         creatorId: z.string().optional(),
         pins: z.array(z.any()).optional(),
-
+        loadMore: z.boolean().optional(),
+        loadMoreOffset: z.number().int().min(0).optional(),
+        loadMoreType: z.enum(["pin_list",
+          "report",
+          "collector_report",
+          "collector_loyalty",
+          "location_collectors"]).optional(),
       })
     )
     .mutation(async ({ input, ctx }) => {
       const creatorId = input.creatorId ?? ctx.session?.user?.id
-
 
       if (!creatorId) {
         throw new TRPCError({
@@ -69,7 +74,10 @@ export const agentRouter = createTRPCRouter({
             intent: input.intent ?? null,
             pinOptions: input.pinOptions ?? null,
             creatorId,
-            pins: input.pins ?? null,
+            pins: input.loadMore ? null : (input.pins ?? null), // ← strip pins on loadMore
+            loadMore: input.loadMore ?? false,
+            loadMoreOffset: input.loadMoreOffset ?? 0,
+            loadMoreType: input.loadMoreType ?? null,
           }),
         },
       });
@@ -187,5 +195,80 @@ export const agentRouter = createTRPCRouter({
         createdAt: job.createdAt.getTime(),
         updatedAt: job.updatedAt.getTime(),
       };
+    }),
+
+
+  editPinDirect: protectedProcedure
+    .input(z.object({
+      locationGroupIds: z.array(z.string()),
+      fields: z.object({
+        title: z.string().nullable().optional(),
+        description: z.string().nullable().optional(),
+        startDate: z.string().nullable().optional(),
+        endDate: z.string().nullable().optional(),
+        latitude: z.number().nullable().optional(),
+        longitude: z.number().nullable().optional(),
+        radius: z.number().nullable().optional(),
+        image: z.string().nullable().optional(),
+        link: z.string().nullable().optional(),
+        multiPin: z.boolean().nullable().optional(),
+      }),
+      locationEdits: z.record(
+        z.string(),
+        z.object({
+          latitude: z.number().nullable().optional(),
+          longitude: z.number().nullable().optional(),
+          autoCollect: z.boolean().nullable().optional(),
+          hidden: z.boolean().nullable().optional(),
+        })
+      ).optional(),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const creatorId = ctx.session.user.id;
+      const { locationGroupIds, fields, locationEdits } = input;
+
+      // 1. Update LocationGroup fields
+      const pinFields = Object.fromEntries(
+        Object.entries(fields).filter(([, v]) => v !== null && v !== undefined)
+      );
+      if (Object.keys(pinFields).length > 0) {
+        await ctx.db.locationGroup.updateMany({
+          where: { id: { in: locationGroupIds }, creatorId },
+          data: pinFields,
+        });
+      }
+
+      // 2. Update Location fields
+      if (locationEdits) {
+        await Promise.all(
+          Object.entries(locationEdits).map(([locationId, locFields]) => {
+            const clean = Object.fromEntries(
+              Object.entries(locFields).filter(([, v]) => v !== null && v !== undefined)
+            );
+            if (Object.keys(clean).length === 0) return Promise.resolve();
+            return ctx.db.location.updateMany({
+              where: { id: locationId, locationGroup: { creatorId } },
+              data: clean,
+            });
+          })
+        );
+      }
+
+      return { ok: true, updated: locationGroupIds.length };
+    }),
+
+  deletePinDirect: protectedProcedure
+    .input(z.object({
+      locationGroupIds: z.array(z.string()),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const creatorId = ctx.session.user.id;
+
+      await ctx.db.locationGroup.updateMany({
+        where: { id: { in: input.locationGroupIds }, creatorId },
+        data: { hidden: true },
+      });
+
+      return { ok: true, deleted: input.locationGroupIds.length };
     }),
 });

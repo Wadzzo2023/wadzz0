@@ -30,7 +30,7 @@ import CreateAdminPinModal from "~/components/maps/admin/create-pin";
 import { useSelectCreatorStore } from "~/components/hooks/use-select-creator-store";
 import { Label } from "~/components/shadcn/ui/label";
 import { Switch } from "~/components/shadcn/ui/switch";
-import AgentChat from "~/components/AgentChat";
+import AgentChat from "~/components/agent/AgentChat";
 
 type Pin = {
   locationGroup:

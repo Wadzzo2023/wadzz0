@@ -27,7 +27,7 @@ import { api } from "~/utils/api";
 
 import Link from "next/link";
 import { create } from "zustand";
-import AgentChat from "~/components/AgentChat";
+import AgentChat from "~/components/agent/AgentChat";
 import { Button } from "~/components/shadcn/ui/button";
 import { Label } from "~/components/shadcn/ui/label";
 import { Switch } from "~/components/shadcn/ui/switch";
