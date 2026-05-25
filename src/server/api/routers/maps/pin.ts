@@ -181,6 +181,9 @@ export const pinRouter = createTRPCRouter({
               subscriptionId: tierId,
               startDate: now,
               endDate: firstDropEnd,
+              latitude: 0,
+              longitude: 0,
+              radius: 0,
               approved: true,
               locations: {
                 createMany: {
@@ -366,6 +369,9 @@ export const pinRouter = createTRPCRouter({
           assetId: assetId,
           pageAsset: pageAsset,
           limit: pinCollectionLimit,
+          latitude: input.lat,
+          longitude: input.lng,
+          radius: input.radius,
           image: input.image,
           link: input.url,
           locations: {
@@ -443,6 +449,9 @@ export const pinRouter = createTRPCRouter({
           pageAsset: pageAsset,
           limit: pinCollectionLimit,
           image: input.image,
+          latitude: input.lat,
+          longitude: input.lng,
+          radius: input.radius,
           link: input.url,
           locations: {
             createMany: {
@@ -2170,6 +2179,9 @@ export async function dropPinsForHotspot(db: PrismaClient, hotspotId: string) {
       link: lastGroup.link,
       type: lastGroup.type,
       approved: true,
+      latitude: 0,
+      longitude: 0,
+      radius: 0,
       privacy: lastGroup.privacy,
       multiPin: lastGroup.multiPin,
       assetId: lastGroup.assetId,

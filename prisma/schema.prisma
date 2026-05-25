@@ -220,11 +220,11 @@ model Creator {
     Album              Album[]
     Song               Song[]
     SellPageAsset      SellPageAsset[]
-    hotspots           Hotspot[]
     pinAgentSessions   PinAgentChatSession[] @relation("pinAgentSessions")
     pinAgentMessages   PinAgentChatHistory[] @relation("pinAgentMessages")
-    locationGroupJobs  LocationGroupJob[]
     createdAt          DateTime              @default(now())
+    hotspots           Hotspot[]
+    locationGroupJobs  LocationGroupJob[]
     agentJobs          AgentJob[]
 
     @@index([bio, name])
@@ -295,6 +295,8 @@ model User {
     name          String?   @unique
     email         String?   @unique
     bio           String?
+    coverImage    String?
+    pronouns      String?
     image         String?
     emailVerified DateTime?
 
@@ -446,11 +448,11 @@ model MarketAsset {
     assetId Int
     asset   Asset @relation(fields: [assetId], references: [id], onDelete: Cascade)
 
-    placedAt DateTime @default(now())
-
-    placerId  String? // admin placing this assets
-    placer    Creator? @relation(fields: [placerId], references: [id], onDelete: Cascade)
+    placedAt  DateTime @default(now())
     createdAt DateTime @default(now())
+
+    placerId String? // admin placing this assets
+    placer   Creator? @relation(fields: [placerId], references: [id], onDelete: Cascade)
 
     @@unique([assetId, placerId])
 }
@@ -523,6 +525,34 @@ model Admin {
 }
 
 // ------------------------Mapping SCHEMA-------------------------
+model Hotspot {
+    id        String  @id @default(cuid())
+    creatorId String
+    creator   Creator @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+
+    // Drop schedule
+    dropEveryDays    Int // interval in days between drops
+    pinDurationDays  Int // lifetime of each dropped LocationGroup (days)
+    hotspotStartDate DateTime // when the first drop fires
+    hotspotEndDate   DateTime // after this no new drops
+
+    // Colletion
+    autoCollect Boolean @default(false) // if true then it will automatically collect from users when they come in the geo fence, otherwise they need to manually click collect button
+    multiPin    Boolean @default(false) // if true then it will drop multiple pins in the geo fence, otherwise it will drop only one pin
+
+    // Geo
+    shape   String // "circle" | "square" | "polygon"
+    geoJson Json // GeoJSON Feature
+
+    // QStash
+    qstashScheduleId String?
+    isActive         Boolean  @default(true)
+    hidden           Boolean  @default(false)
+    createdAt        DateTime @default(now())
+    updatedAt        DateTime @updatedAt
+
+    locationGroups LocationGroup[]
+}
 
 model LocationGroup {
     id String @id @default(cuid())
@@ -554,42 +584,21 @@ model LocationGroup {
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 
+    latitude  Float
+    longitude Float
+    radius    Float
+
     image String?
 
     link              String?
     aiUrlDescriptions String[] @default([])
 
     multiPin Boolean @default(false)
-    type     PinType @default(OTHER) // Added new type field
+    type     PinType @default(OTHER) // EVENT, LANDMARK, BOUNTY, EXPERIENCE, LAUNCH, OTHER
 
     locations Location[]
     hotspot   Hotspot?   @relation(fields: [hotspotId], references: [id])
     hotspotId String?
-}
-
-model Hotspot {
-    id        String  @id @default(cuid())
-    creatorId String
-    creator   Creator @relation(fields: [creatorId], references: [id], onDelete: Cascade)
-
-    dropEveryDays    Int
-    pinDurationDays  Int
-    hotspotStartDate DateTime
-    hotspotEndDate   DateTime
-
-    autoCollect Boolean @default(false)
-    multiPin    Boolean @default(false)
-
-    shape   String
-    geoJson Json
-
-    qstashScheduleId String?
-    isActive         Boolean @default(true)
-
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
-
-    locationGroups LocationGroup[]
 }
 
 model Location {
