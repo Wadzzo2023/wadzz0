@@ -1055,6 +1055,8 @@ export default function AgentBlockDisplay({
 
     const isEmpty = messages.length === 0;
 
+
+
     return (
         <>
             {/* ── Minimized pill ──────────────────────────────────────────────────── */}
@@ -1082,10 +1084,12 @@ export default function AgentBlockDisplay({
                             ref={inputRef}
                             type="text"
                             value={input}
+
                             onChange={(e) => setInput(e.target.value)}
                             onKeyDown={onKeyDown}
                             placeholder="Ask me anything…"
-                            disabled={isLoading || isDropping || isInteractionPending}
+                            disabled
+                            // disabled={isLoading || isDropping || isInteractionPending}
                             className="flex-1 rounded-full bg-white px-5 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none disabled:opacity-50"
                         />
                         <button
@@ -1154,8 +1158,12 @@ export default function AgentBlockDisplay({
                         </div>
                     </div>
 
+                    <div className="flex flex-col  items-center justify-center h-full ">
+                        ⚠️ This feature is currently under development and may not work as expected.
+                    </div>
+
                     {/* Messages */}
-                    <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4">
+                    {/* <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4">
                         {isEmpty ? (
                             <div className="flex flex-col items-center justify-center h-full gap-4">
                                 <div className="text-center space-y-2">
@@ -1212,7 +1220,7 @@ export default function AgentBlockDisplay({
                             })
                         )}
                         <div ref={bottomRef} />
-                    </div>
+                    </div> */}
                 </div>
             )}
         </>
