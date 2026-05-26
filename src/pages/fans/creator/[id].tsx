@@ -57,7 +57,7 @@ export default function CreatorPage() {
   const creatorId = router.query.id;
 
   if (typeof creatorId == "string" && creatorId.length === 56) {
-    return <CreatorPageView creatorId={creatorId} />;
+    return <CreatorPageView key={creatorId} creatorId={creatorId} />;
   }
 
   return <div>Error</div>;
