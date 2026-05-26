@@ -46,7 +46,7 @@ export default function Home() {
         <div className="flex w-full">
           <AuthShowcase layoutMode={layoutMode} />
           {layoutMode === "modern" && (
-            <div className="hidden w-80 flex-col gap-4 p-4 lg:flex">
+            <div className="hidden w-80 flex-col gap-4 p-4 lg:flex sticky top-4 self-start h-fit">
               <Card>
                 <CardHeader className="border-b p-3">
                   <h3 className="text-center text-sm font-medium">Trending Creators</h3>

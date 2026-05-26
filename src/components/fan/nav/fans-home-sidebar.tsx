@@ -43,7 +43,7 @@ export default function TrendingSidebar() {
   }
 
   return (
-    <div className="space-y-1 overflow-y-auto max-h-[400px]">
+    <div className="space-y-1 overflow-y-auto max-h-[400px] scrollbar-hide">
       {creators.map((creator) => (
         <div key={creator.id} className="flex items-center justify-between gap-2 p-2 hover:bg-muted/50 rounded-lg transition-colors">
           <Link href={`/fans/creator/${creator.id}`} className="flex items-center gap-2 flex-1">
@@ -106,7 +106,7 @@ export function FollowedSidebar() {
   }
 
   return (
-    <div className="space-y-1 overflow-y-auto max-h-[400px]">
+    <div className="space-y-1 overflow-y-auto max-h-[400px] scrollbar-hide">
       {followedCreators.map((item) => (
         <Link
           key={item.creatorId}
