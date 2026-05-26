@@ -13,6 +13,7 @@ import Layout from "~/components/layout";
 import "~/styles/globals.css";
 import "~/styles/music.scss";
 import ProgressProvider from "~/components/progress-bar";
+import { useRouter } from "next/router";
 
 const queryClient = new QueryClient();
 
@@ -28,12 +29,14 @@ const MyApp: AppType<{ session: Session | null }> = ({
   Component,
   pageProps: { session, ...pageProps },
 }) => {
+  const router = useRouter();
+
   return (
     <SessionProvider session={session}>
       <QueryClientProvider client={queryClient}>
         <ProgressProvider>
           <Layout className={inner.className}>
-            <Component {...pageProps} />
+            <Component key={router.asPath} {...pageProps} />
           </Layout>
           <PopupImports className={inner.className} />
         </ProgressProvider>
