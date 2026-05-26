@@ -5,6 +5,7 @@ import { usePageAssetRightStore } from "~/lib/state/wallete/page_asset_right";
 import { useTagStore } from "~/lib/state/wallete/tag";
 import { AssetVariant } from "../right-sidebar";
 import AssetView from "./asset/asset_view";
+import Link from "next/link";
 
 export type CreatorPageAssetType = {
   name: string;
@@ -24,9 +25,7 @@ function PageAssetComponent({ item }: { item: CreatorPageAssetType }) {
   const { selectedTag } = useTagStore();
   const router = useRouter();
   return (
-    <div onClick={async () => {
-      await router.push(`/fans/creator/${item.id}`);
-    }}>
+    <Link href={`/fans/creator/${item.id}`} className="w-full">
 
       <AssetView
         code={
@@ -36,7 +35,7 @@ function PageAssetComponent({ item }: { item: CreatorPageAssetType }) {
         isNFT={false}
       />
 
-    </div>
+    </Link>
   );
 }
 
