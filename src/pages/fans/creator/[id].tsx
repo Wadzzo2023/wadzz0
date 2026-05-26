@@ -2,7 +2,7 @@ import { Creator, Subscription } from "@prisma/client";
 import clsx from "clsx";
 import { useRouter } from "next/router";
 import { clientsign } from "package/connect_wallet";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import toast from "react-hot-toast";
 import MemberShipCard from "~/components/fan/creator/card";
 import { PostCard } from "~/components/fan/creator/post";
@@ -54,18 +54,13 @@ import { MarketAssetType } from "~/lib/state/play/use-modal-store";
 
 export default function CreatorPage() {
   const router = useRouter();
-  const [creatorId, setCreatorId] = useState<string | undefined>(undefined);
+  const creatorId = router.query.id;
 
-  useEffect(() => {
-    const id = router.query.id;
-    if (typeof id === "string" && id.length === 56) {
-      setCreatorId(id);
-    }
-  }, [router.query.id]);
+  if (typeof creatorId == "string" && creatorId.length === 56) {
+    return <CreatorPageView creatorId={creatorId} />;
+  }
 
-  if (!creatorId) return null;
-
-  return <CreatorPageView key={creatorId} creatorId={creatorId} />;
+  return <div>Error</div>;
 }
 
 function CreatorPageView({ creatorId }: { creatorId: string }) {
