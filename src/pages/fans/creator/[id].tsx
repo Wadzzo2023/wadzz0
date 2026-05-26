@@ -54,19 +54,18 @@ import { MarketAssetType } from "~/lib/state/play/use-modal-store";
 
 export default function CreatorPage() {
   const router = useRouter();
-  const creatorId = router.query.id;
+  const [creatorId, setCreatorId] = useState<string | undefined>(undefined);
+
   useEffect(() => {
-    if (!router.isReady) return;
+    const id = router.query.id;
+    if (typeof id === "string" && id.length === 56) {
+      setCreatorId(id);
+    }
+  }, [router.query.id]);
 
-    // Now 'creatorId' is guaranteed to be available
-    console.log("Fetching data for ID:", creatorId);
-  }, [router.isReady, creatorId]);
+  if (!creatorId) return null;
 
-  if (typeof creatorId == "string" && creatorId.length === 56) {
-    return <CreatorPageView key={creatorId} creatorId={creatorId} />;
-  }
-
-  return <div>Error</div>;
+  return <CreatorPageView key={creatorId} creatorId={creatorId} />;
 }
 
 function CreatorPageView({ creatorId }: { creatorId: string }) {
