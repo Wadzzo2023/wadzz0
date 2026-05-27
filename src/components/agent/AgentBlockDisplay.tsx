@@ -378,52 +378,58 @@ function ResultsConfirmPanel({
                         <Switch id="auto-collect-switch" checked={autoCollect} onCheckedChange={setAutoCollect} />
                     </div>
 
-                    <p className="text-xs font-medium text-muted-foreground mt-1">Pins per Location</p>
-                    <div className={cn(
-                        "flex items-center justify-between gap-3 rounded-lg border px-3 py-2.5 transition-colors",
-                        pinNumber > 1 ? "border-primary/40 bg-primary/5" : "border-border bg-muted/30",
-                    )}>
-                        <div className="flex flex-col gap-1 flex-1">
-                            <Label className="text-xs font-medium text-foreground">Pin Number</Label>
-                            <p className="text-[11px] text-muted-foreground leading-tight">
-                                {pinNumber === 1 ? "One pin per location" : `${pinNumber} pins at each location`}
-                            </p>
-                        </div>
-                        <div className="flex items-center gap-1.5">
-                            <button
-                                type="button"
-                                onClick={() => setPinNumber((n) => Math.max(1, n - 1))}
-                                disabled={pinNumber <= 1}
-                                className={cn(
-                                    "w-7 h-7 rounded-lg border flex items-center justify-center text-sm font-bold transition-all active:scale-95 flex-shrink-0",
-                                    pinNumber <= 1
-                                        ? "border-border bg-muted/30 text-muted-foreground/40 cursor-not-allowed"
-                                        : "border-border bg-muted hover:bg-muted/80 text-foreground",
-                                )}
-                            >
-                                −
-                            </button>
-                            <input
-                                type="number" min={1} max={200} value={pinNumber}
-                                onChange={(e) => {
-                                    const p = parseInt(e.target.value, 10);
-                                    if (!isNaN(p)) setPinNumber(Math.min(200, Math.max(1, p)));
-                                }}
-                                className={cn(
-                                    "w-12 h-7 rounded-lg border text-center text-sm font-semibold bg-muted text-foreground tabular-nums focus:outline-none focus:border-primary transition-colors [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none",
-                                    pinNumber > 1 ? "border-primary/40" : "border-border",
-                                )}
-                            />
-                            <button
-                                type="button"
-                                onClick={() => setPinNumber((n) => Math.min(200, n + 1))}
-                                className="w-7 h-7 rounded-lg border border-border bg-muted hover:bg-muted/80 text-foreground flex items-center justify-center text-sm font-bold transition-all active:scale-95 flex-shrink-0"
-                            >
-                                +
-                            </button>
-                        </div>
-                    </div>
+                    {
+                        groupingMode === "per-location" && (
+                            <>
+                                <p className="text-xs font-medium text-muted-foreground mt-1">Pins per Location</p>
+                                <div className={cn(
+                                    "flex items-center justify-between gap-3 rounded-lg border px-3 py-2.5 transition-colors",
+                                    pinNumber > 1 ? "border-primary/40 bg-primary/5" : "border-border bg-muted/30",
+                                )}>
+                                    <div className="flex flex-col gap-1 flex-1">
+                                        <Label className="text-xs font-medium text-foreground">Pin Number</Label>
+                                        <p className="text-[11px] text-muted-foreground leading-tight">
+                                            {pinNumber === 1 ? "One pin per location" : `${pinNumber} pins at each location`}
+                                        </p>
+                                    </div>
+                                    <div className="flex items-center gap-1.5">
+                                        <button
+                                            type="button"
+                                            onClick={() => setPinNumber((n) => Math.max(1, n - 1))}
+                                            disabled={pinNumber <= 1}
+                                            className={cn(
+                                                "w-7 h-7 rounded-lg border flex items-center justify-center text-sm font-bold transition-all active:scale-95 flex-shrink-0",
+                                                pinNumber <= 1
+                                                    ? "border-border bg-muted/30 text-muted-foreground/40 cursor-not-allowed"
+                                                    : "border-border bg-muted hover:bg-muted/80 text-foreground",
+                                            )}
+                                        >
+                                            −
+                                        </button>
+                                        <input
+                                            type="number" min={1} max={200} value={pinNumber}
+                                            onChange={(e) => {
+                                                const p = parseInt(e.target.value, 10);
+                                                if (!isNaN(p)) setPinNumber(Math.min(200, Math.max(1, p)));
+                                            }}
+                                            className={cn(
+                                                "w-12 h-7 rounded-lg border text-center text-sm font-semibold bg-muted text-foreground tabular-nums focus:outline-none focus:border-primary transition-colors [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none",
+                                                pinNumber > 1 ? "border-primary/40" : "border-border",
+                                            )}
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={() => setPinNumber((n) => Math.min(200, n + 1))}
+                                            className="w-7 h-7 rounded-lg border border-border bg-muted hover:bg-muted/80 text-foreground flex items-center justify-center text-sm font-bold transition-all active:scale-95 flex-shrink-0"
+                                        >
+                                            +
+                                        </button>
+                                    </div>
+                                </div>
 
+                            </>
+                        )
+                    }
                     {pinNumber > 1 && (
                         <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-primary/10 border border-primary/20 w-fit">
                             <MapPin className="w-3 h-3 text-primary flex-shrink-0" />
@@ -1055,8 +1061,6 @@ export default function AgentBlockDisplay({
 
     const isEmpty = messages.length === 0;
 
-
-
     return (
         <>
             {/* ── Minimized pill ──────────────────────────────────────────────────── */}
@@ -1084,12 +1088,11 @@ export default function AgentBlockDisplay({
                             ref={inputRef}
                             type="text"
                             value={input}
-
                             onChange={(e) => setInput(e.target.value)}
                             onKeyDown={onKeyDown}
                             placeholder="Ask me anything…"
-                            disabled
-                            // disabled={isLoading || isDropping || isInteractionPending}
+
+                            disabled={isLoading || isDropping || isInteractionPending}
                             className="flex-1 rounded-full bg-white px-5 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none disabled:opacity-50"
                         />
                         <button
@@ -1158,12 +1161,8 @@ export default function AgentBlockDisplay({
                         </div>
                     </div>
 
-                    <div className="flex flex-col  items-center justify-center h-full ">
-                        ⚠️ This feature is currently under development and may not work as expected.
-                    </div>
-
                     {/* Messages */}
-                    {/* <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4">
+                    <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4">
                         {isEmpty ? (
                             <div className="flex flex-col items-center justify-center h-full gap-4">
                                 <div className="text-center space-y-2">
@@ -1220,7 +1219,7 @@ export default function AgentBlockDisplay({
                             })
                         )}
                         <div ref={bottomRef} />
-                    </div> */}
+                    </div>
                 </div>
             )}
         </>
