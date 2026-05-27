@@ -582,8 +582,7 @@ export interface GeneratedPin {
   url?: string;
   image?: string;
   address?: string;
-  category?: string;
-  metadata?: Record<string, unknown>;
+  gPlaceId?: string;
 }
 
 export interface Pin extends GeneratedPin {
@@ -613,6 +612,26 @@ export interface ClarifyQuestion {
   placeholder?: string;
 }
 
+export interface AgentRunInput {
+  messages: { role: MessageRole; text: string }[];
+  intent: Partial<PinIntent> | null;
+  pinOptions: PinOptions | null;
+  creatorId: string;
+  pins?: Pin[];
+  loadMore?: boolean;
+  loadMoreOffset?: number;
+  loadMoreType?: string;
+}
+
+export interface AgentRunOutput {
+  reply: string;
+  stage: AgentStage;
+  intent: PinIntent;
+  pins?: Pin[];
+  pinOptions?: { autoCollect: boolean; groupingMode: GroupingMode };
+  jobId?: string;
+  mode?: AgentMode;
+}
 // ─────────────────────────────────────────────────────────────────────────────
 // tRPC / poll output
 // ─────────────────────────────────────────────────────────────────────────────

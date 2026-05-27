@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { cn, fmt } from "~/lib/utils";
 import { PaginationFooter } from "~/components/agent/shared/pagination-footer";
-import type { CollectorLoyaltyResponse, CollectorLoyalty } from "~/lib/agent/types";
+import type { CollectorLoyaltyResponse, CollectorLoyalty } from "~/types/agent/types";
 
 interface Props {
     data: CollectorLoyaltyResponse["data"];

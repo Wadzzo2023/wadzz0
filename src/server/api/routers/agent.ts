@@ -3,8 +3,8 @@ import { z } from "zod";
 import { publicProcedure, createTRPCRouter, protectedProcedure } from "../trpc";
 import { TRPCError } from "@trpc/server";
 import { db } from "~/server/db";
-import { qstash } from "~/lib/qstash";
-import { BASE_URL } from "~/lib/common";
+import { taskClient } from "~/lib/express/taskClient-sdk";
+import { AgentPollResult } from "~/types/agent/types";
 
 
 // ─── Schemas ──────────────────────────────────────────────────────────────────
@@ -83,14 +83,17 @@ export const agentRouter = createTRPCRouter({
       });
 
 
-      await qstash.publishJSON({
-        url: `${BASE_URL}/api/agent`,
-        body: { jobId: job.id },
-        retries: 2,
+      const { jobId } = await taskClient.enqueue("agent_run", creatorId, {
+        messages: input.messages,
+        intent: input.intent ?? null,
+        pinOptions: input.pinOptions ?? null,
+        creatorId,
+        pins: input.pins ?? null,
+        loadMore: input.loadMore ?? false,
+        loadMoreOffset: input.loadMoreOffset ?? 0,
+        loadMoreType: input.loadMoreType ?? null,
       });
-
-      // 3. Return immediately — UI polls pollJobResult
-      return { jobId: job.id };
+      return { jobId };
     }),
 
   /**
@@ -101,28 +104,14 @@ export const agentRouter = createTRPCRouter({
   pollJobResult: publicProcedure
     .input(z.object({ jobId: z.string() }))
     .query(async ({ input }) => {
-      const job = await db.agentJob.findUnique({
-        where: { id: input.jobId },
-      });
+      const job = await taskClient.poll(input.jobId);
 
-      if (!job) {
-        throw new TRPCError({ code: "NOT_FOUND", message: "Job not found" });
-      }
-
-      type JobStatus = "pending" | "processing" | "completed" | "failed";
-      type JobResult = {
-        reply: string;
-        stage: string;
-        intent: unknown;
-        pins?: unknown[];
-        pinOptions?: unknown;
-        jobId?: string; // locationGroupJob id (pin-drop phase)
-      } | null;
+      console.log("job,", job);
 
       return {
-        jobId: job.id,
-        status: job.status as JobStatus,
-        result: job.result as JobResult,
+        jobId: job.jobId,
+        status: job.status,
+        result: job.result as AgentPollResult | null,
         error: job.error,
       };
     }),

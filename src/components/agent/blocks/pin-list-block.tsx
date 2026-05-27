@@ -8,7 +8,7 @@ import { PinEditForm, type PinEditFields, type HotspotScope, type LocationEditFi
 import { PinDeleteDialog, type DeleteTarget } from "~/components/agent/pins/pin-delete-dialog";
 import { HotspotListBlock } from "~/components/agent/blocks/hotspot-list-block";
 import type { HotspotEditFields } from "~/components/agent/hotspot/hotspot-edit-form";
-import type { PinListData } from "~/lib/agent/types";
+import type { PinListData } from "~/types/agent/types";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 

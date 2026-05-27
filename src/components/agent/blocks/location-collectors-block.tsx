@@ -4,7 +4,7 @@ import { cn, fmt } from "~/lib/utils";
 import { SectionHeader } from "~/components/agent/shared/section-header";
 import { MetricCard } from "~/components/agent/shared/metric-card";
 import { PaginationFooter } from "~/components/agent/shared/pagination-footer";
-import type { LocationCollectorsResponse } from "~/lib/agent/types";
+import type { LocationCollectorsResponse } from "~/types/agent/types";
 
 interface Props {
     data: LocationCollectorsResponse["data"];

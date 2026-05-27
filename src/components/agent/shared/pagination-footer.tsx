@@ -2,7 +2,7 @@
 
 import { Loader2, ChevronDown } from "lucide-react";
 import { Button } from "~/components/shadcn/ui/button";
-import type { PaginationMeta } from "~/lib/agent/types";
+import type { PaginationMeta } from "~/types/agent/types";
 
 interface PaginationFooterProps {
     pagination: PaginationMeta | null | undefined;

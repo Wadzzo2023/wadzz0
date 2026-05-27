@@ -1,7 +1,7 @@
 "use client";
 
 import { cn } from "~/lib/utils";
-import type { PinTypeAnalyticsResponse } from "~/lib/agent/types";
+import type { PinTypeAnalyticsResponse } from "~/types/agent/types";
 
 interface Props {
     data: PinTypeAnalyticsResponse["data"];

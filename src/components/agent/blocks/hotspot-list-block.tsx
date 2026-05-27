@@ -4,7 +4,7 @@ import { SectionHeader } from "~/components/agent/shared/section-header";
 import { HotspotTile } from "~/components/agent/hotspot/hotspot-title";
 import type { PinEditFields, HotspotScope, LocationEditFields } from "~/components/agent/pins/pin-edit-form";
 import type { HotspotEditFields } from "~/components/agent/hotspot/hotspot-edit-form";
-import type { HotspotRow } from "~/lib/agent/types";
+import type { HotspotRow } from "~/types/agent/types";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 

@@ -2,7 +2,7 @@
 
 import { cn } from "~/lib/utils";
 import { MetricCard } from "~/components/agent/shared/metric-card";
-import type { TimeAnalyticsResponse } from "~/lib/agent/types";
+import type { TimeAnalyticsResponse } from "~/types/agent/types";
 
 interface Props {
     data: TimeAnalyticsResponse["data"];

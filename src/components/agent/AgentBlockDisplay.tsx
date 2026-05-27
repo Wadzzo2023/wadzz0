@@ -23,8 +23,8 @@ import type {
     LocalChatMessage, PinIntent, PinOptions, Pin,
     QuestionResponse, ResultsResponse, ConfirmResponse,
     SuccessResponse, InfoResponse, GroupingMode,
-} from "~/lib/agent/types";
-import { STAGE_LABEL } from "~/lib/agent/types";
+} from "~/types/agent/types";
+import { STAGE_LABEL } from "~/types/agent/types";
 import type { PinEditFields, HotspotScope, LocationEditFields } from "~/components/agent/pins/pin-edit-form";
 import type { HotspotEditFields } from "~/components/agent/hotspot/hotspot-edit-form";
 import { api } from "~/utils/api";

@@ -1,6 +1,6 @@
 "use client";
 
-import type { SuccessResponse } from "~/lib/agent/types";
+import type { SuccessResponse } from "~/types/agent/types";
 
 // ─── SuccessBlock ─────────────────────────────────────────────────────────────
 

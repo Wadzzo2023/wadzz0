@@ -4,7 +4,7 @@ import { useState } from "react";
 import { cn } from "~/lib/utils";
 import { Button } from "~/components/shadcn/ui/button";
 import { Trash2, Pencil, PauseCircle, PlayCircle } from "lucide-react";
-import type { PinListPinRow, HotspotRow, PinListMode, HotspotListMode } from "~/lib/agent/types";
+import type { PinListPinRow, HotspotRow, PinListMode, HotspotListMode } from "~/types/agent/types";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 

@@ -546,10 +546,10 @@ model Hotspot {
 
     // QStash
     qstashScheduleId String?
-    isActive         Boolean @default(true)
-
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+    isActive         Boolean  @default(true)
+    hidden           Boolean  @default(false)
+    createdAt        DateTime @default(now())
+    updatedAt        DateTime @updatedAt
 
     locationGroups LocationGroup[]
 }
@@ -889,4 +889,11 @@ model AgentJob {
     updatedAt DateTime @updatedAt
 
     @@index([creatorId, createdAt])
+}
+
+model GeoCache {
+    key       String   @id
+    value     String   @db.Text
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import { cn, fmt } from "~/lib/utils";
-import type { AreaRecommendationResponse } from "~/lib/agent/types";
+import type { AreaRecommendationResponse } from "~/types/agent/types";
 
 interface Props {
     data: AreaRecommendationResponse["data"];

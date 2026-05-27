@@ -2,7 +2,7 @@
 
 import { useState, useRef, useCallback, useMemo } from "react";
 import { api } from "~/utils/api";
-import { parseAgentResponse } from "~/lib/agent/types";
+import { parseAgentResponse } from "~/types/agent/types";
 import type {
     LocalChatMessage, PinIntent, AgentStage,
     Pin, PinOptions, AgentPollResult, AgentMode,
@@ -10,7 +10,7 @@ import type {
     PinListData, ReportData, CollectorReportData,
     PinListResponse, ReportResponse, CollectorReportResponse,
     CollectorLoyaltyResponse, LocationCollectorsResponse,
-} from "~/lib/agent/types";
+} from "~/types/agent/types";
 import type { PinEditFields, HotspotScope, LocationEditFields } from "~/components/agent/pins/pin-edit-form";
 import type { HotspotEditFields } from "~/components/agent/hotspot/hotspot-edit-form";
 import AgentBlockDisplay from "~/components/agent/AgentBlockDisplay";
