@@ -213,7 +213,7 @@ export default function BrandCreationForm({
         setShowConfetti(true);
         setTimeout(() => {
           onClose();
-          router.push("/map");
+          router.push("/fans/creator");
         }, 2000);
       },
       onError: (error) => {
