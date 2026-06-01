@@ -267,7 +267,7 @@ const MapModalComponent = () => {
                     <ShieldBan size={15} className="mr-1" /> Enable Auto Collect
                   </Button>
                 )}{" "}
-                <GenerateDescriptionButton
+                {/* <GenerateDescriptionButton
                   pinId={data.pinId ?? ""}
                   onDescriptionsGenerated={(descriptions, summary) => {
                     // You can handle the generated descriptions and summary here
@@ -279,7 +279,7 @@ const MapModalComponent = () => {
                       // setDescription(summary);
                     }
                   }}
-                />
+                /> */}
               </div>
             )}
             <DialogFooter className=" px-6 py-4"></DialogFooter>

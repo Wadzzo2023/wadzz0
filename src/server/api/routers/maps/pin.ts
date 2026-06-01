@@ -524,6 +524,7 @@ export const pinRouter = createTRPCRouter({
             ...dateCondition,
             OR: [{ approved: true }, { approved: null }],
           },
+          hidden: false,
         },
         include: {
           _count: { select: { consumers: true } },
@@ -984,6 +985,7 @@ export const pinRouter = createTRPCRouter({
     .input(z.object({ id: z.string() }))
     .mutation(async ({ ctx, input }) => {
       const isAdmin = await ctx.db.admin.findUnique({ where: { id: ctx.session.user.id } });
+
       const items = await ctx.db.location.update({
         where: {
           id: input.id,

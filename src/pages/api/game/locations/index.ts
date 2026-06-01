@@ -110,6 +110,11 @@ export default async function handler(
         subscriptionId: { equals: null },
         remaining: { gt: 0 },
         hidden: { equals: false },
+        locations: {
+          some: {
+            hidden: false,
+          }
+        },
       },
       include: {
         locations: {
@@ -136,7 +141,6 @@ export default async function handler(
         },
       },
     });
-    console.log("locationGroup", locationGroup);
     const pins = locationGroup
       .flatMap((group) => {
         const multiPin = group.multiPin;

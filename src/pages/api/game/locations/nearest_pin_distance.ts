@@ -27,7 +27,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     // Fetch all locations from the database
     const locations = await db.location.findMany({
-        where: { autoCollect: true }, // Optional: Filter only auto-collect locations
+        where: { autoCollect: true, hidden: false }, // Optional: Filter only auto-collect locations
         select: { id: true, latitude: true, longitude: true },
     });
 
