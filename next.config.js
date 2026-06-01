@@ -21,27 +21,14 @@ const config = {
   reactStrictMode: true,
   images: {
     remotePatterns: [
-      { hostname: "wadzzo.s3.amazonaws.com" },
       {
-        hostname: "utfs.io",
+        protocol: "https",
+        hostname: "**",
       },
       {
-        hostname: "gateway.pinata.cloud",
+        protocol: "http",
+        hostname: "**",
       },
-      { hostname: "app.wadzzo.com" },
-      {
-        hostname: "firebasestorage.googleapis.com",
-      },
-      { hostname: "raw.githubusercontent.com" },
-      { hostname: "avatars.githubusercontent.com" },
-      { hostname: "ipfs.io" },
-      { hostname: "daisyui.com" },
-      { hostname: "picsum.photos" },
-      { hostname: `${process.env.NEXT_AWS_BUCKET_NAME}.s3.amazonaws.com` },
-      {
-        hostname: `${process.env.NEXT_AWS_BUCKET_NAME}.s3.us-east-1.amazonaws.com`,
-      },
-      { hostname: "placehold.co" },
     ],
   },
 

@@ -116,7 +116,7 @@ type FormErrors = { [K in keyof FormData]?: string[] };
 interface BrandCreationFormProps {
   isOpen: boolean;
   onClose: () => void;
-  creator?: CreateBrand;
+  creator?: CreateBrand | null;
   edit?: boolean;
 }
 
@@ -456,7 +456,11 @@ export default function BrandCreationForm({
               assetImagePreview: undefined,
             }),
         };
-        RequestForBrandCreation.mutate(submissionData);
+        RequestForBrandCreation.mutate({
+          ...submissionData,
+          storagePub: creator?.storagePub,
+          storageSecret: creator?.storageSecret,
+        });
       } catch (error) {
         if (error instanceof z.ZodError) {
           const newErrors: FormErrors = {};

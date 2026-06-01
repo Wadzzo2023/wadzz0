@@ -22,13 +22,15 @@ export type CreateBrand = {
     code: string;
     thumbnail: string | null;
   } | null;
+  storagePub: string | undefined;
+  storageSecret: string | undefined;
 };
 
 export default function CreateBrandButton({
   creator,
   edit,
 }: {
-  creator?: CreateBrand;
+  creator: CreateBrand | null | undefined;
   edit?: boolean;
 }) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);

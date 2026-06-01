@@ -145,6 +145,21 @@ export const creatorRouter = createTRPCRouter({
       },
     });
   }),
+  meCreatorORSeller: protectedProcedure.query(async ({ ctx }) => {
+    return ctx.db.creator.findFirst({
+      where: {
+        OR: [{
+          id: ctx.session.user.id,
+          approved: {
+            equals: true,
+          },
+        }, {
+          id: ctx.session.user.id,
+          notCreatorButSeller: true,
+        }]
+      },
+    });
+  }),
   vanitySubscription: protectedProcedure.query(async ({ ctx }) => {
     const creator = ctx.db.creator.findFirst({
       where: { user: { id: ctx.session.user.id } },
@@ -176,9 +191,9 @@ export const creatorRouter = createTRPCRouter({
       const data = await ctx.db.creator.create({
         data: {
           name: truncateString(id),
-          aprovalSend: true,
+          aprovalSend: false,
           bio: id,
-
+          notCreatorButSeller: true,
           user: { connect: { id: id } },
           storagePub: i.publicKey,
           storageSecret: i.secretKey,
@@ -844,7 +859,10 @@ export const creatorRouter = createTRPCRouter({
     }),
 
   requestForBrandCreation: protectedProcedure
-    .input(RequestBrandCreateFormSchema)
+    .input(RequestBrandCreateFormSchema.innerType().extend({
+      storagePub: z.string().optional(),
+      storageSecret: z.string().optional(),
+    }))
     .mutation(async ({ ctx, input }) => {
       const creator = await ctx.db.creator.findUnique({
         where: { id: ctx.session.user.id },
@@ -861,8 +879,8 @@ export const creatorRouter = createTRPCRouter({
             profileUrl: input.profileUrl,
             coverUrl: input.coverUrl,
             bio: input.bio,
-            storagePub: BLANK_KEYWORD,
-            storageSecret: BLANK_KEYWORD,
+            storagePub: input.storagePub ?? BLANK_KEYWORD,
+            storageSecret: input.storageSecret ?? BLANK_KEYWORD,
             name: input.displayName,
             aprovalSend: true,
             customPageAssetCodeIssuer: `${input.assetCode}-${input.issuer}`,
@@ -876,8 +894,8 @@ export const creatorRouter = createTRPCRouter({
             profileUrl: input.profileUrl,
             coverUrl: input.coverUrl,
             bio: input.bio,
-            storagePub: BLANK_KEYWORD,
-            storageSecret: BLANK_KEYWORD,
+            storagePub: input.storagePub ?? BLANK_KEYWORD,
+            storageSecret: input.storageSecret ?? BLANK_KEYWORD,
             name: input.displayName,
             aprovalSend: true,
             pageAsset: {

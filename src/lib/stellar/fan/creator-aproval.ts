@@ -124,3 +124,60 @@ export async function creatorAprovalTrx({
 
   return { xdr, storage: storage ? undefined : storageInfo, escrow };
 }
+
+export async function creatorAprovalTrustlineTrx({
+  storage,
+  customPageAssetCodeIssuer,
+}: {
+  storage?: AccountType;
+  customPageAssetCodeIssuer: string;
+}) {
+  const server = new Horizon.Server(STELLAR_URL);
+  const storageAcc = storage
+    ? Keypair.fromSecret(storage.secretKey)
+    : Keypair.random();
+  const motherAcc = Keypair.fromSecret(env.MOTHER_SECRET);
+  const [code, issuer] = customPageAssetCodeIssuer.split("-");
+  if (!code || !issuer) {
+    throw new Error("Invalid customPageAssetCodeIssuer");
+  }
+  const asset = new Asset(code, issuer);
+
+  const transactionInitializer = await server.loadAccount(
+    motherAcc.publicKey(),
+  );
+
+  const Tx1 = new TransactionBuilder(transactionInitializer, {
+    fee: TrxBaseFee,
+    networkPassphrase,
+  });
+
+  if (!storage) {
+    // create storage account
+    Tx1.addOperation(
+      Operation.createAccount({
+        destination: storageAcc.publicKey(),
+        startingBalance: "1.5", //
+      }),
+    );
+  }
+  Tx1.addOperation(
+    Operation.changeTrust({
+      asset,
+      source: storageAcc.publicKey(),
+    }),
+  ).setTimeout(0);
+
+  const buildTrx = Tx1.build();
+
+  buildTrx.sign(motherAcc, storageAcc);
+
+  const xdr = buildTrx.toXDR();
+
+  const storageInfo: AccountType = {
+    publicKey: storageAcc.publicKey(),
+    secretKey: storageAcc.secret(),
+  };
+
+  return { xdr, storage: storage ? undefined : storageInfo, escrow: undefined };
+}

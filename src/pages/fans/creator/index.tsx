@@ -49,7 +49,7 @@ function CreatorExist() {
   );
 
   if (isLoading) return <Loading />;
-  if (creator) {
+  if (creator && !creator.notCreatorButSeller) {
     if (creator.approved === null) {
       if (creator.aprovalSend) {
         return (
@@ -63,7 +63,7 @@ function CreatorExist() {
       return <p>You are banned. Contact to admin</p>;
     }
   } else {
-    return <CreateBrandButton />;
+    return <CreateBrandButton creator={creator} />;
   }
 }
 
