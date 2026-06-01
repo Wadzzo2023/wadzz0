@@ -336,6 +336,15 @@ const UserBountyPage = () => {
                     <h1 className="mt-4 text-center text-3xl font-extrabold text-gray-900 dark:text-white  lg:text-4xl">
                       Your Submissions
                     </h1>
+                    {
+                      data?.BountyWinner.some((winner) => winner.user.id === session.data?.user.id) && (
+                        <div className="mb-4 mt-2 flex items-center justify-center rounded-lg bg-green-100 p-4 text-sm text-green-700" role="alert">
+                          <span className="font-medium">Congratulations! </span> You are one of the winners of this bounty!
+                          <br />
+                          <span className="font-medium">Please check your wallet or you can swap the rewarded amount </span>
+                        </div>
+                      )
+                    }
                     {submissionData?.length === 0 && (
                       <p className="w-full text-center">
                         There is no submission yet
@@ -634,7 +643,7 @@ const UserBountyPage = () => {
                               }
                             >
                               <span className="flex items-center">
-                                {PLATFORM_ASSET.code}{" "}
+                                Winner!! {" "} can swap {PLATFORM_ASSET.code}{" "}
                                 <ArrowRight className="ml-2 mr-2" size={16} />{" "}
                                 USDC
                               </span>
