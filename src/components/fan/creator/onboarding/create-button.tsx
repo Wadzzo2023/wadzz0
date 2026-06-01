@@ -1,5 +1,4 @@
 "use client";
-
 import { useState } from "react";
 import { Button } from "~/components/shadcn/ui/button";
 import BrandCreationForm from "./create-form";
@@ -11,6 +10,7 @@ import {
   CardDescription,
   CardContent,
 } from "~/components/shadcn/ui/card";
+import { Pencil, Sparkles } from "lucide-react";
 
 export type CreateBrand = {
   name: string;
@@ -18,7 +18,6 @@ export type CreateBrand = {
   profileUrl: string | null;
   coverUrl: string | null;
   vanityURL: string | null;
-
   pageAsset: {
     code: string;
     thumbnail: string | null;
@@ -35,29 +34,44 @@ export default function CreateBrandButton({
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   return (
-    <div className="flex h-screen items-center justify-center p-4">
+    <div className="flex h-full items-center justify-center bg-background p-4">
       {edit ? (
-        <Button onClick={() => setIsDialogOpen(true)}>
-          {edit ? "Update Your data" : "Create Your Brand"}
+        <Button
+          onClick={() => setIsDialogOpen(true)}
+          variant="outline"
+          className="gap-2 border-border font-medium text-foreground transition-all hover:border-primary/40 hover:bg-secondary hover:shadow-sm"
+        >
+          <Pencil className="h-4 w-4" />
+          Update Your Brand
         </Button>
       ) : (
-        <Card className="w-full max-w-md">
-          <CardHeader>
-            <CardTitle className="text-center text-2xl font-bold">
-              Brand Creation
+        <Card className="w-full max-w-sm overflow-hidden border border-border shadow-xl">
+          {/* Decorative top bar */}
+          <div className="h-1.5 w-full bg-primary" />
+
+          <CardHeader className="pb-2 pt-8 text-center">
+            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary shadow-lg">
+              <Sparkles className="h-6 w-6 text-primary-foreground" />
+            </div>
+            <CardTitle className="text-2xl font-bold tracking-tight text-foreground">
+              Create Your Brand
             </CardTitle>
-            <CardDescription className="text-center">
-              Start your journey by creating your unique brand identity
+            <CardDescription className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
+              Build your unique identity and start connecting with your audience today.
             </CardDescription>
           </CardHeader>
-          <CardContent className="flex justify-center">
+
+          <CardContent className="pb-8 pt-4">
             <Button
               onClick={() => setIsDialogOpen(true)}
-              size="lg"
-              className="w-full sm:w-auto"
+              className="w-full gap-2 bg-primary py-5 text-sm font-semibold text-primary-foreground transition-all hover:bg-primary/90 hover:shadow-md"
             >
-              Create Your Brand
+              <Sparkles className="h-4 w-4" />
+              Get Started
             </Button>
+            <p className="mt-3 text-center text-xs text-muted-foreground">
+              Free to create · No credit card required
+            </p>
           </CardContent>
         </Card>
       )}
