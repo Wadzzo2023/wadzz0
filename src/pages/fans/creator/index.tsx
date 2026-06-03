@@ -122,7 +122,7 @@ function ConditionallyRenderMenuPage({ creator }: { creator: Creator }) {
 export function ValidCreateCreator({ message }: { message?: string }) {
   const { platformAssetBalance, getXLMBalance } = useUserStellarAcc();
   const requiredToken = api.fan.trx.getRequiredPlatformAsset.useQuery({
-    xlm: 1,
+    xlm: 3.5,
   });
 
   const xlmBalance = getXLMBalance() ?? "0";
@@ -135,7 +135,7 @@ export function ValidCreateCreator({ message }: { message?: string }) {
     const requiredTokenNumber = requiredToken.data;
     if (
       platformAssetBalance >= requiredTokenNumber ||
-      Number(xlmBalance) >= 1
+      Number(xlmBalance) >= 3.5
     ) {
       return <CreateCreator requiredToken={requiredTokenNumber} />;
     } else {
