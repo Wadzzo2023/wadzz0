@@ -8,7 +8,7 @@ export interface Location {
   url: string;
   image_url: string;
   collected: boolean;
-
+  circular_image_url: string;
   collection_limit_remaining: number;
   auto_collect: boolean;
   brand_image_url: string;

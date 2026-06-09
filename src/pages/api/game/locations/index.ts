@@ -207,6 +207,7 @@ export default async function handler(
         url: location.link ?? "https://wadzzo.com/",
         image_url:
           location.image ?? location.creator.profileUrl ?? WadzzoIconURL,
+        circular_image_url: location.creator.circularProfileUrl ?? WadzzoCircularIconURL,
         collected: location.collected,
         collection_limit_remaining: location.remaining,
         auto_collect: location.autoCollect,
@@ -227,3 +228,4 @@ export default async function handler(
 }
 
 export const WadzzoIconURL = "https://app.wadzzo.com/images/loading.png";
+export const WadzzoCircularIconURL = "https://app.wadzzo.com/images/circular-default.png";

@@ -38,6 +38,7 @@ import {
   protectedProcedure,
   publicProcedure,
 } from "~/server/api/trpc";
+import { createCircularImage } from "~/server/circular-image";
 import { BADWORDS } from "~/utils/banned-word";
 import { truncateString } from "~/utils/string";
 export const brandCreateRequestSchema = z.object({
@@ -258,8 +259,9 @@ export const creatorRouter = createTRPCRouter({
   changeCreatorProfilePicture: protectedProcedure
     .input(z.string())
     .mutation(async ({ ctx, input }) => {
+      const circularProfileUrl = await createCircularImage(input);
       await ctx.db.creator.update({
-        data: { profileUrl: input },
+        data: { profileUrl: input, circularProfileUrl },
         where: { id: ctx.session.user.id },
       });
     }),
@@ -784,10 +786,16 @@ export const creatorRouter = createTRPCRouter({
       console.log(input);
       const { data, action } = input;
       console.log(data);
+
+      const circularProfileUrl = data.profileUrl
+        ? await createCircularImage(data.profileUrl)
+        : undefined;
+
       if (action === "page_asset") {
         await ctx.db.creator.update({
           data: {
             profileUrl: data.profileUrl,
+            circularProfileUrl,
             coverUrl: data.coverUrl,
             bio: data.bio,
             name: data.displayName,
@@ -805,13 +813,13 @@ export const creatorRouter = createTRPCRouter({
             issuer: BLANK_KEYWORD,
             limit: 0,
           },
-          // where: { creatorId: ctx.session.user.id },
         });
       } else if (action === "create") {
         await ctx.db.creator.create({
           data: {
             id: ctx.session.user.id,
             profileUrl: data.profileUrl,
+            circularProfileUrl,
             coverUrl: data.coverUrl,
             bio: data.bio,
             storagePub: BLANK_KEYWORD,
@@ -838,6 +846,7 @@ export const creatorRouter = createTRPCRouter({
         await ctx.db.creator.update({
           data: {
             profileUrl: data.profileUrl,
+            circularProfileUrl,
             coverUrl: data.coverUrl,
             vanityURL: data.vanityUrl.toLocaleLowerCase(),
             bio: data.bio,
@@ -872,11 +881,16 @@ export const creatorRouter = createTRPCRouter({
         throw new Error("Creator already exists");
       }
 
+      const circularProfileUrl = input.profileUrl
+        ? await createCircularImage(input.profileUrl)
+        : undefined;
+
       if (input.assetType === "custom") {
         await ctx.db.creator.create({
           data: {
             id: ctx.session.user.id,
             profileUrl: input.profileUrl,
+            circularProfileUrl,
             coverUrl: input.coverUrl,
             bio: input.bio,
             storagePub: input.storagePub ?? BLANK_KEYWORD,
@@ -892,6 +906,7 @@ export const creatorRouter = createTRPCRouter({
           data: {
             id: ctx.session.user.id,
             profileUrl: input.profileUrl,
+            circularProfileUrl,
             coverUrl: input.coverUrl,
             bio: input.bio,
             storagePub: input.storagePub ?? BLANK_KEYWORD,

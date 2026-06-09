@@ -183,12 +183,13 @@ model CreatorPageAsset {
 }
 
 model Creator {
-    id         String   @id
-    joinedAt   DateTime @default(now())
-    profileUrl String?
-    coverUrl   String?
-    bio        String?
-    name       String
+    id                 String   @id
+    joinedAt           DateTime @default(now())
+    profileUrl         String?
+    circularProfileUrl String?
+    coverUrl           String?
+    bio                String?
+    name               String
 
     backgroundSVG String?
     showSVG       Boolean @default(false)
