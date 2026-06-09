@@ -67,6 +67,7 @@ export default async function handler(
           viewedAt: true,
           redeemCode: true,
           isRedeemed: true,
+          claimedAt: true,
         },
       },
     },
@@ -119,6 +120,7 @@ export default async function handler(
       url: location.locationGroup.link ?? "https://app.wadzzo.com/",
       redeemCode: location.consumers.find((c) => c.userId === userId)?.redeemCode ?? null,
       isRedeemed: location.consumers.find((c) => c.userId === userId)?.isRedeemed ?? null,
+      claimedAt: location.consumers.find((c) => c.userId === userId)?.claimedAt ?? null,
 
     };
     return loc;
