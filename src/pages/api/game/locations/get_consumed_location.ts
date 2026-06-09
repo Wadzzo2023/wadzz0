@@ -106,7 +106,7 @@ export default async function handler(
       auto_collect: location.autoCollect,
       brand_image_url:
         location.locationGroup?.creator.profileUrl ?? avaterIconUrl,
-      circular_image_url: location.creator.circularProfileUrl ?? WadzzoCircularIconURL,
+      circular_image_url: location.locationGroup.creator.circularProfileUrl ?? WadzzoCircularIconURL,
       brand_id: location.locationGroup?.creator.id,
       modal_url: "https://vong.cong/",
       collected: true,
