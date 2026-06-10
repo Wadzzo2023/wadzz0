@@ -4,7 +4,7 @@ import { EnableCors } from "~/server/api-cors";
 import { db } from "~/server/db";
 import { ConsumedLocation } from "~/types/game/location";
 import { avaterIconUrl } from "../brands";
-import { WadzzoIconURL } from "./index";
+import { WadzzoCircularIconURL, WadzzoIconURL } from "./index";
 
 // import { getSession } from "next-auth/react";
 
@@ -67,6 +67,7 @@ export default async function handler(
           viewedAt: true,
           redeemCode: true,
           isRedeemed: true,
+          claimedAt: true,
         },
       },
     },
@@ -106,6 +107,7 @@ export default async function handler(
       auto_collect: location.autoCollect,
       brand_image_url:
         location.locationGroup?.creator.profileUrl ?? avaterIconUrl,
+      circular_image_url: location.locationGroup.creator.circularProfileUrl ?? WadzzoCircularIconURL,
       brand_id: location.locationGroup?.creator.id,
       modal_url: "https://vong.cong/",
       collected: true,
@@ -118,6 +120,7 @@ export default async function handler(
       url: location.locationGroup.link ?? "https://app.wadzzo.com/",
       redeemCode: location.consumers.find((c) => c.userId === userId)?.redeemCode ?? null,
       isRedeemed: location.consumers.find((c) => c.userId === userId)?.isRedeemed ?? null,
+      claimedAt: location.consumers.find((c) => c.userId === userId)?.claimedAt ?? null,
 
     };
     return loc;

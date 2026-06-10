@@ -18,9 +18,10 @@ import { useUserStellarAcc } from "~/lib/state/wallete/stellar-balances";
 import { clientSelect } from "~/lib/stellar/fan/utils";
 import { api } from "~/utils/api";
 
-import { Coins, DollarSign, Loader, User } from "lucide-react";
+import { Clock, Coins, DollarSign, Loader, User } from "lucide-react";
 import { Label } from "~/components/shadcn/ui/label";
 import { RadioGroup, RadioGroupItem } from "~/components/shadcn/ui/radio-group";
+import { Card, CardContent, CardFooter } from "~/components/shadcn/ui/card"
 
 import { Button } from "~/components/shadcn/ui/button";
 import {
@@ -34,6 +35,8 @@ import {
 import { PLATFORM_ASSET } from "~/lib/stellar/constant";
 import { PaymentMethod, PaymentMethodEnum } from "~/components/BuyItem";
 import CreateBrandButton from "~/components/fan/creator/onboarding/create-button";
+import { Progress } from "~/components/shadcn/ui/progress";
+import Link from "next/link";
 
 export default function CreatorProfile() {
   return <CreatorExist />;
@@ -46,18 +49,12 @@ function CreatorExist() {
   );
 
   if (isLoading) return <Loading />;
-  if (creator) {
+  if (creator && !creator.notCreatorButSeller) {
     if (creator.approved === null) {
       if (creator.aprovalSend) {
         return (
-          <div className="flex h-screen w-full flex-col items-center justify-center gap-2 ">
-            <p>Approval sent to the admin</p>
-            <CreateBrandButton edit creator={creator} />
-          </div>
+          <PendingPage createdAt={creator.createdAt} />
         );
-      } else {
-        // this case is when already creator is created , with just storage acc for secondary market send.
-        return <CreateBrandButton creator={creator} />;
       }
     } else if (creator.approved) {
       return <CreatorPageTemplate creator={creator} />;
@@ -66,7 +63,7 @@ function CreatorExist() {
       return <p>You are banned. Contact to admin</p>;
     }
   } else {
-    return <CreateBrandButton />;
+    return <CreateBrandButton creator={creator} />;
   }
 }
 
@@ -125,7 +122,7 @@ function ConditionallyRenderMenuPage({ creator }: { creator: Creator }) {
 export function ValidCreateCreator({ message }: { message?: string }) {
   const { platformAssetBalance, getXLMBalance } = useUserStellarAcc();
   const requiredToken = api.fan.trx.getRequiredPlatformAsset.useQuery({
-    xlm: 1,
+    xlm: 3.5,
   });
 
   const xlmBalance = getXLMBalance() ?? "0";
@@ -138,7 +135,7 @@ export function ValidCreateCreator({ message }: { message?: string }) {
     const requiredTokenNumber = requiredToken.data;
     if (
       platformAssetBalance >= requiredTokenNumber ||
-      Number(xlmBalance) >= 1
+      Number(xlmBalance) >= 3.5
     ) {
       return <CreateCreator requiredToken={requiredTokenNumber} />;
     } else {
@@ -252,7 +249,7 @@ function CreateCreator({ requiredToken }: { requiredToken: number }) {
                     value={PaymentMethodEnum.enum.asset}
                     id={PaymentMethodEnum.enum.asset}
                     className="border-primary"
-                    // disabled
+                  // disabled
                   />
                   <Label
                     htmlFor={PLATFORM_ASSET.code}
@@ -325,4 +322,69 @@ function CreateCreator({ requiredToken }: { requiredToken: number }) {
       </div>
     </div>
   );
+}
+function PendingPage({ createdAt }: {
+  createdAt: Date
+}) {
+
+  const applicationDate = new Date(createdAt)
+  applicationDate.setDate(applicationDate.getDate())
+
+  // admin can accept the applciation within 2-3 days
+  // so we will show the progress bar for 3 days with dynamic progress from 100% to 0%
+  const progressPercent = 100 - Math.floor((Date.now() - applicationDate.getTime()) / (1000 * 60 * 60 * 24) * 100 / 3)
+
+
+  const formattedDate = applicationDate.toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  })
+
+  return (
+    <div className="h-full flex items-center justify-center p-4 bg-background">
+      <Card className="w-full max-w-md border-primary/20 shadow-md">
+        <div className="h-2 bg-primary w-full"></div>
+
+        <CardContent className="pt-6 pb-4">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="rounded-full bg-primary/10 p-3">
+              <Clock className="h-5 w-5 text-primary" />
+            </div>
+            <div>
+              <h1 className="text-xl font-bold">Application Pending</h1>
+              <p className="text-sm text-muted-foreground">Submitted on {formattedDate}</p>
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            <div>
+              <div className="flex justify-between text-sm mb-2">
+                <span>Application Status</span>
+                <span className="font-medium text-primary">In Review</span>
+              </div>
+              <Progress value={progressPercent} className="h-2" />
+            </div>
+
+            <div className="bg-muted/30 rounded-lg p-4 text-sm">
+              <p>
+                Thank you for your organization application. Our team is currently reviewing your submission. This process
+                typically takes 2-3 business days.
+              </p>
+              <p className="mt-2">You{"'ll"} receive an email notification once a decision has been made.</p>
+            </div>
+          </div>
+        </CardContent>
+
+        <CardFooter className="border-t bg-muted/10 pt-4">
+          <div className="w-full flex justify-between">
+            <Button variant="outline" size="sm" asChild>
+              <Link href="https://app.wadzzo.com/support">Contact Support</Link>
+            </Button>
+
+          </div>
+        </CardFooter>
+      </Card>
+    </div>
+  )
 }

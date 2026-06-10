@@ -42,7 +42,7 @@ export async function createStorageTrx({
 
   // total platform token r
 
-  const requiredAsset2refundXlm = await getPlatformAssetNumberForXLM(1);
+  const requiredAsset2refundXlm = await getPlatformAssetNumberForXLM(3.5);
   const total =
     requiredAsset2refundXlm +
     Number(TrxBaseFeeInPlatformAsset) +
@@ -66,7 +66,7 @@ export async function createStorageTrx({
     .addOperation(
       Operation.payment({
         destination: pubkey,
-        amount: "1", // 0.5 for pubkey and .5 for storage trust, and 4 for storage bal
+        amount: "2", // 0.5 for pubkey and .5 for storage trust, and 4 for storage bal
         asset: Asset.native(),
         source: motherAcc.publicKey(),
       }),
@@ -76,7 +76,7 @@ export async function createStorageTrx({
     .addOperation(
       Operation.createAccount({
         destination: storageAcc.publicKey(),
-        startingBalance: "1", // 4 for escrow and 0.5 for trust
+        startingBalance: "1.5", // 4 for escrow and 0.5 for trust
         source: pubkey,
       }),
     )
@@ -127,7 +127,7 @@ export async function createStorageTrxWithXLM({
     .addOperation(
       Operation.createAccount({
         destination: storageAcc.publicKey(),
-        startingBalance: "1", // 4 for escrow and 0.5 for trust
+        startingBalance: "1.5", // 4 for escrow and 0.5 for trust
       }),
     )
     .setTimeout(0)

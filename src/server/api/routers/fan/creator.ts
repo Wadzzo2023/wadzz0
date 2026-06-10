@@ -1,10 +1,11 @@
+import axios from "axios";
 import { User } from "lucide-react";
 import { getAccSecret } from "package/connect_wallet";
 import { env } from "process";
 import { z } from "zod";
 import { PaymentMethodEnum } from "~/components/BuyItem";
 import { CreatorAboutShema } from "~/components/fan/creator/about";
-import { brandCreateRequestSchema } from "~/components/fan/creator/onboarding/create-form";
+import { RequestBrandCreateFormSchema } from "~/components/fan/creator/onboarding/create-form";
 import { MAX_ASSET_LIMIT } from "~/components/fan/creator/page_asset/new";
 import {
   getCreatorShopAssetBalance,
@@ -37,9 +38,26 @@ import {
   protectedProcedure,
   publicProcedure,
 } from "~/server/api/trpc";
+import { createCircularImage } from "~/server/circular-image";
 import { BADWORDS } from "~/utils/banned-word";
 import { truncateString } from "~/utils/string";
-
+export const brandCreateRequestSchema = z.object({
+  displayName: z.string().min(1, "Display name is required"),
+  bio: z.string().max(500, "Bio must be 500 characters or less"),
+  pageAssetName: z
+    .string()
+    .min(1, "Page asset name is required")
+    .max(12, "Page asset name must be 12 characters or less")
+    .regex(/^[^\s]+$/, "Page asset name cannot contain spaces"),
+  vanityUrl: z
+    .string()
+    .min(2, "Vanity URL must be 2 characters or more")
+    .max(30, "Vanity URL must be 30 characters or less")
+    .regex(/^[^\s]+$/, "Vanity URL cannot contain spaces"),
+  profileUrl: z.string().url().optional(),
+  coverUrl: z.string().url().optional(),
+  assetThumbnail: z.string().url().optional(),
+});
 export const creatorRouter = createTRPCRouter({
   getCreator: protectedProcedure
     .input(z.object({ id: z.string() }).optional())
@@ -128,6 +146,21 @@ export const creatorRouter = createTRPCRouter({
       },
     });
   }),
+  meCreatorORSeller: protectedProcedure.query(async ({ ctx }) => {
+    return ctx.db.creator.findFirst({
+      where: {
+        OR: [{
+          id: ctx.session.user.id,
+          approved: {
+            equals: true,
+          },
+        }, {
+          id: ctx.session.user.id,
+          notCreatorButSeller: true,
+        }]
+      },
+    });
+  }),
   vanitySubscription: protectedProcedure.query(async ({ ctx }) => {
     const creator = ctx.db.creator.findFirst({
       where: { user: { id: ctx.session.user.id } },
@@ -159,9 +192,9 @@ export const creatorRouter = createTRPCRouter({
       const data = await ctx.db.creator.create({
         data: {
           name: truncateString(id),
-          aprovalSend: true,
+          aprovalSend: false,
           bio: id,
-
+          notCreatorButSeller: true,
           user: { connect: { id: id } },
           storagePub: i.publicKey,
           storageSecret: i.secretKey,
@@ -226,8 +259,9 @@ export const creatorRouter = createTRPCRouter({
   changeCreatorProfilePicture: protectedProcedure
     .input(z.string())
     .mutation(async ({ ctx, input }) => {
+      const circularProfileUrl = await createCircularImage(input);
       await ctx.db.creator.update({
-        data: { profileUrl: input },
+        data: { profileUrl: input, circularProfileUrl },
         where: { id: ctx.session.user.id },
       });
     }),
@@ -721,7 +755,26 @@ export const creatorRouter = createTRPCRouter({
         });
       }
     }),
+  checkCustomAssetValidity: protectedProcedure
+    .input(z.object({ assetCode: z.string(), issuer: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      console.log("input", input);
+      console.log(
+        "process.env.NEXT_PUBLIC_STELLAR_PUBNET",
+        process.env.NEXT_PUBLIC_STELLAR_PUBNET,
+      );
 
+      const isPubnet = process.env.NEXT_PUBLIC_STELLAR_PUBNET === "true"; // Explicit comparison
+
+      const url = `https://api.stellar.expert/explorer/${isPubnet ? "public" : "testnet"}/asset/${input.assetCode}-${input.issuer}`;
+
+      console.log("Generated URL:", url);
+
+      console.log("url", url);
+      const response = await axios.get(url);
+      console.log("response", response.data);
+      return response.status === 200;
+    }),
   requestBrandCreate: protectedProcedure
     .input(
       z.object({
@@ -733,10 +786,16 @@ export const creatorRouter = createTRPCRouter({
       console.log(input);
       const { data, action } = input;
       console.log(data);
+
+      const circularProfileUrl = data.profileUrl
+        ? await createCircularImage(data.profileUrl)
+        : undefined;
+
       if (action === "page_asset") {
         await ctx.db.creator.update({
           data: {
             profileUrl: data.profileUrl,
+            circularProfileUrl,
             coverUrl: data.coverUrl,
             bio: data.bio,
             name: data.displayName,
@@ -754,13 +813,13 @@ export const creatorRouter = createTRPCRouter({
             issuer: BLANK_KEYWORD,
             limit: 0,
           },
-          // where: { creatorId: ctx.session.user.id },
         });
       } else if (action === "create") {
         await ctx.db.creator.create({
           data: {
             id: ctx.session.user.id,
             profileUrl: data.profileUrl,
+            circularProfileUrl,
             coverUrl: data.coverUrl,
             bio: data.bio,
             storagePub: BLANK_KEYWORD,
@@ -787,6 +846,7 @@ export const creatorRouter = createTRPCRouter({
         await ctx.db.creator.update({
           data: {
             profileUrl: data.profileUrl,
+            circularProfileUrl,
             coverUrl: data.coverUrl,
             vanityURL: data.vanityUrl.toLocaleLowerCase(),
             bio: data.bio,
@@ -805,5 +865,82 @@ export const creatorRouter = createTRPCRouter({
           where: { id: ctx.session.user.id },
         });
       }
+    }),
+
+  requestForBrandCreation: protectedProcedure
+    .input(RequestBrandCreateFormSchema.innerType().extend({
+      storagePub: z.string().optional(),
+      storageSecret: z.string().optional(),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const creator = await ctx.db.creator.findUnique({
+        where: { id: ctx.session.user.id },
+      });
+
+      if (creator) {
+        throw new Error("Creator already exists");
+      }
+
+      const circularProfileUrl = input.profileUrl
+        ? await createCircularImage(input.profileUrl)
+        : undefined;
+
+      if (input.assetType === "custom") {
+        await ctx.db.creator.create({
+          data: {
+            id: ctx.session.user.id,
+            profileUrl: input.profileUrl,
+            circularProfileUrl,
+            coverUrl: input.coverUrl,
+            bio: input.bio,
+            storagePub: input.storagePub ?? BLANK_KEYWORD,
+            storageSecret: input.storageSecret ?? BLANK_KEYWORD,
+            name: input.displayName,
+            aprovalSend: true,
+            customPageAssetCodeIssuer: `${input.assetCode}-${input.issuer}`,
+          },
+        });
+      }
+      if (input.assetType === "new") {
+        await ctx.db.creator.create({
+          data: {
+            id: ctx.session.user.id,
+            profileUrl: input.profileUrl,
+            circularProfileUrl,
+            coverUrl: input.coverUrl,
+            bio: input.bio,
+            storagePub: input.storagePub ?? BLANK_KEYWORD,
+            storageSecret: input.storageSecret ?? BLANK_KEYWORD,
+            name: input.displayName,
+            aprovalSend: true,
+            pageAsset: {
+              create: {
+                code: input.assetName,
+                issuer: BLANK_KEYWORD,
+                thumbnail: input.assetImage,
+                limit: 0,
+              },
+            },
+          },
+        });
+      }
+
+      // await createOrRenewVanitySubscription({
+      //   creatorId: ctx.session.user.id,
+      //   isChanging: false,
+      //   amount: 0,
+      //   vanityURL: input.vanityUrl.toLocaleLowerCase(),
+      // });
+    }),
+  checkVanityURLAvailabilityMutation: protectedProcedure
+    .input(z.object({ vanityURL: z.string().min(2).max(30) }))
+    .mutation(async ({ ctx, input }) => {
+      const existingCreator = await ctx.db.creator.findUnique({
+        where: { vanityURL: input.vanityURL },
+      });
+
+      const exixt = BADWORDS.includes(input.vanityURL) || existingCreator;
+
+      return { isAvailable: !exixt };
     }),
 });

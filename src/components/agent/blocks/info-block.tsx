@@ -13,7 +13,7 @@ import { CollectorLoyaltyBlock } from "~/components/agent/blocks/collector-loyal
 import { LocationCollectorsBlock } from "~/components/agent/blocks/location-collectors-block";
 import { AreaRecommendationBlock } from "~/components/agent/blocks/area-recommendation-block";
 
-import type { AgentResponse } from "~/lib/agent/types";
+import type { AgentResponse } from "~/types/agent/types";
 import type { PinEditFields, HotspotScope, LocationEditFields } from "~/components/agent/pins/pin-edit-form";
 import type { HotspotEditFields } from "~/components/agent/hotspot/hotspot-edit-form";
 

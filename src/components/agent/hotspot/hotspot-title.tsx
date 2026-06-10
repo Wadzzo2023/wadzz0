@@ -8,7 +8,7 @@ import { PinRow, type PinRowData } from "~/components/agent/pins/pin-row";
 import { PinEditForm, type PinEditFields, type HotspotScope, type LocationEditFields, type PinData } from "~/components/agent/pins/pin-edit-form";
 import { PinDeleteDialog, type DeleteTarget } from "~/components/agent/pins/pin-delete-dialog";
 import { HotspotEditForm, type HotspotEditFields } from "~/components/agent/hotspot/hotspot-edit-form";
-import type { HotspotRow, HotspotLocationGroup } from "~/lib/agent/types";
+import type { HotspotRow, HotspotLocationGroup } from "~/types/agent/types";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 

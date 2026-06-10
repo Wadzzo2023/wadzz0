@@ -6,7 +6,7 @@ import { cn, fmt } from "~/lib/utils";
 import { MetricCard } from "~/components/agent/shared/metric-card";
 import { Stat } from "~/components/agent/shared/stat";
 import { StatusBadge } from "~/components/agent/shared/status-badge";
-import type { TopPinsReportResponse } from "~/lib/agent/types";
+import type { TopPinsReportResponse } from "~/types/agent/types";
 
 interface Props {
     data: TopPinsReportResponse["data"];

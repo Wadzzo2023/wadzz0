@@ -56,10 +56,10 @@ function Page({ postId }: { postId: string }) {
                 {`(╯°□°)╯︵ ┻━┻`}
               </div>
               <h2 className="text-xl mb-2">
-                Error 404: Post Not Found.
+                You don{"'"}t have permission to view this Post or it doesn{"'"}t exist.
               </h2>
               <p className="text-muted-foreground mb-8">
-                We couldn{"'"}t find a Post with this  URL.
+                Please make sure you have the correct link or contact the creator for access.
               </p>
               <div className="flex gap-4 justify-center">
                 <Button

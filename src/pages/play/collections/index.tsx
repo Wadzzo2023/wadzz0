@@ -94,6 +94,9 @@ export default function MyCollectionScreen() {
       brand_name: "Dummy Brand",
       modal_url: "https://www.google.com",
       viewed: true,
+      redeemCode: "REDEEM123",
+      isRedeemed: false,
+
     },
   ];
   const getCollections = async () => {

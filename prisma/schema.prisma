@@ -183,12 +183,13 @@ model CreatorPageAsset {
 }
 
 model Creator {
-    id         String   @id
-    joinedAt   DateTime @default(now())
-    profileUrl String?
-    coverUrl   String?
-    bio        String?
-    name       String
+    id                 String   @id
+    joinedAt           DateTime @default(now())
+    profileUrl         String?
+    circularProfileUrl String?
+    coverUrl           String?
+    bio                String?
+    name               String
 
     backgroundSVG String?
     showSVG       Boolean @default(false)
@@ -197,8 +198,9 @@ model Creator {
     storagePub    String
     storageSecret String
 
-    aprovalSend Boolean
-    approved    Boolean? // if undefined than it is sended for aproval, false means banned, true means aproved
+    aprovalSend         Boolean
+    approved            Boolean? // if undefined than it is sended for aproval, false means banned, true means aproved
+    notCreatorButSeller Boolean  @default(false) // only for if normal user want to sell or place to market
 
     // pageAsset
     pageAssetId Int?
@@ -226,6 +228,7 @@ model Creator {
     hotspots           Hotspot[]
     locationGroupJobs  LocationGroupJob[]
     agentJobs          AgentJob[]
+    locationTags       LocationTag[]
 
     @@index([bio, name])
 }
@@ -546,12 +549,37 @@ model Hotspot {
 
     // QStash
     qstashScheduleId String?
-    isActive         Boolean @default(true)
-
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+    isActive         Boolean  @default(true)
+    hidden           Boolean  @default(false)
+    createdAt        DateTime @default(now())
+    updatedAt        DateTime @updatedAt
 
     locationGroups LocationGroup[]
+}
+
+model LocationTag {
+    id        String  @id @default(cuid())
+    name      String  @unique
+    label     String
+    creatorId String
+    creator   Creator @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+
+    locationGroups LocationGroupTag[]
+}
+
+model LocationGroupTag {
+    locationGroupId String
+    locationGroup   LocationGroup @relation(fields: [locationGroupId], references: [id], onDelete: Cascade)
+    tagId           String
+    tag             LocationTag   @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+    @@id([locationGroupId, tagId])
+}
+
+model LocationTagCache {
+    title     String   @id
+    tags      String[]
+    createdAt DateTime @default(now())
 }
 
 model LocationGroup {
@@ -588,7 +616,8 @@ model LocationGroup {
     longitude Float
     radius    Float
 
-    image String?
+    image          String?
+    optimizedImage String?
 
     link              String?
     aiUrlDescriptions String[] @default([])
@@ -596,9 +625,10 @@ model LocationGroup {
     multiPin Boolean @default(false)
     type     PinType @default(OTHER) // EVENT, LANDMARK, BOUNTY, EXPERIENCE, LAUNCH, OTHER
 
-    locations Location[]
-    hotspot   Hotspot?   @relation(fields: [hotspotId], references: [id])
-    hotspotId String?
+    locations         Location[]
+    hotspot           Hotspot?           @relation(fields: [hotspotId], references: [id])
+    hotspotId         String?
+    locationGroupTags LocationGroupTag[]
 }
 
 model Location {
@@ -889,4 +919,11 @@ model AgentJob {
     updatedAt DateTime @updatedAt
 
     @@index([creatorId, createdAt])
+}
+
+model GeoCache {
+    key       String   @id
+    value     String   @db.Text
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
 }

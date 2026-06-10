@@ -179,7 +179,7 @@ function MyAssets() {
 function AssetTabs() {
   const { selectedMenu, setSelectedMenu } = useAssetMenu();
 
-  const creator = api.fan.creator.meCreator.useQuery();
+  const creator = api.fan.creator.meCreatorORSeller.useQuery();
 
   return (
     <div role="tablist" className="tabs-boxed tabs my-5 w-full max-w-md">

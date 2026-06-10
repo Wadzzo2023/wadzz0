@@ -1,7 +1,7 @@
 "use client";
 
 import { cn, fmt } from "~/lib/utils";
-import type { HotspotTrendResponse } from "~/lib/agent/types";
+import type { HotspotTrendResponse } from "~/types/agent/types";
 
 interface Props {
     data: HotspotTrendResponse["data"];

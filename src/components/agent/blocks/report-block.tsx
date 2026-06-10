@@ -6,7 +6,7 @@ import { SectionHeader } from "~/components/agent/shared/section-header";
 import { MetricCard } from "~/components/agent/shared/metric-card";
 import { PaginationFooter } from "~/components/agent/shared/pagination-footer";
 import { fmtDateTime } from "~/lib/utils";
-import type { ReportData } from "~/lib/agent/types";
+import type { ReportData } from "~/types/agent/types";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 

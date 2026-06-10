@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { MAX_ASSET_LIMIT } from "~/components/fan/creator/page_asset/new";
-import { creatorAprovalTrx } from "~/lib/stellar/fan/creator-aproval";
+import { creatorAprovalTrustlineTrx, creatorAprovalTrx } from "~/lib/stellar/fan/creator-aproval";
 import { AccountSchema, AccountType } from "~/lib/stellar/fan/utils";
 import {
   adminProcedure,
@@ -81,7 +81,7 @@ export const creatorRouter = createTRPCRouter({
               approved: true,
               storagePub: input.storage.publicKey,
               storageSecret: input.storage.secretKey,
-
+              notCreatorButSeller: false,
               pageAsset: {
                 update: {
                   issuer: input.escrow.publicKey,
@@ -144,7 +144,7 @@ export const creatorRouter = createTRPCRouter({
       };
 
       const pageAsset = creator.pageAsset;
-
+      const customPageAssetCodeIssuer = creator.customPageAssetCodeIssuer;
       if (pageAsset) {
         const thumbnail = pageAsset.thumbnail;
         const ipfs = urlToIpfsHash(thumbnail) ?? "ipfs";
@@ -155,6 +155,12 @@ export const creatorRouter = createTRPCRouter({
             ipfs: ipfs,
             limit: MAX_ASSET_LIMIT.toString(),
           },
+        });
+      }
+      if (customPageAssetCodeIssuer) {
+        return await creatorAprovalTrustlineTrx({
+          storage: validStorage ? storage : undefined,
+          customPageAssetCodeIssuer: customPageAssetCodeIssuer,
         });
       }
     }),

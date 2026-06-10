@@ -110,6 +110,11 @@ export default async function handler(
         subscriptionId: { equals: null },
         remaining: { gt: 0 },
         hidden: { equals: false },
+        locations: {
+          some: {
+            hidden: false,
+          }
+        },
       },
       include: {
         locations: {
@@ -136,7 +141,6 @@ export default async function handler(
         },
       },
     });
-    console.log("locationGroup", locationGroup);
     const pins = locationGroup
       .flatMap((group) => {
         const multiPin = group.multiPin;
@@ -202,7 +206,8 @@ export default async function handler(
         brand_name: location.creator.name,
         url: location.link ?? "https://wadzzo.com/",
         image_url:
-          location.image ?? location.creator.profileUrl ?? WadzzoIconURL,
+          location.optimizedImage ?? location.image ?? location.creator.profileUrl ?? WadzzoIconURL,
+        circular_image_url: location.creator.circularProfileUrl ?? WadzzoCircularIconURL,
         collected: location.collected,
         collection_limit_remaining: location.remaining,
         auto_collect: location.autoCollect,
@@ -223,3 +228,4 @@ export default async function handler(
 }
 
 export const WadzzoIconURL = "https://app.wadzzo.com/images/loading.png";
+export const WadzzoCircularIconURL = "https://app.wadzzo.com/images/circular-default.png";

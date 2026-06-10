@@ -5,7 +5,7 @@ import { SectionHeader } from "~/components/agent/shared/section-header";
 import { MetricCard } from "~/components/agent/shared/metric-card";
 import { Stat } from "~/components/agent/shared/stat";
 import { StatusBadge } from "~/components/agent/shared/status-badge";
-import type { SinglePinReportResponse } from "~/lib/agent/types";
+import type { SinglePinReportResponse } from "~/types/agent/types";
 
 interface Props {
     data: SinglePinReportResponse["data"];

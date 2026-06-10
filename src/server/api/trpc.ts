@@ -158,7 +158,11 @@ export const creatorProcedure = t.procedure.use(async ({ ctx, next }) => {
       where: { id: ctx.session.user.id },
     });
 
-    if (!creator) throw new TRPCError({ code: "UNAUTHORIZED" });
+    const admin = await ctx.db.admin.findUnique({
+      where: { id: ctx.session.user.id },
+    });
+
+    if (!creator && !admin) throw new TRPCError({ code: "UNAUTHORIZED" });
   }
 
   return next({
