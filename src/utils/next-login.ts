@@ -48,7 +48,7 @@ export async function WalleteNextLogin({
     redirect: false,
   } as AuthCredentialType);
 
-  // console.log({ response });
+  console.log({ response });
   return response;
 }
 

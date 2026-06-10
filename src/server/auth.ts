@@ -140,11 +140,14 @@ export const authOptions: NextAuthOptions = {
           }
           throw new Error("Invalid signature");
         }
-        // wallet rabet and frieghter
+        // wallet rabet, frieghter, walletConnect, metamask
         if (
           cred.walletType == WalletType.rabet ||
           cred.walletType == WalletType.frieghter ||
-          cred.walletType == WalletType.walletConnect
+          cred.walletType == WalletType.walletConnect ||
+          cred.walletType == WalletType.metamask ||
+          cred.walletType == WalletType.xBull ||
+          cred.walletType == WalletType.hana
         ) {
           const { pubkey, signedXDR, fromAppSign } = cred;
           const isValid = await verifyXDRSignature({

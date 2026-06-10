@@ -23,11 +23,13 @@ export const walleteAuthSchema = z.object({
     z.literal(WalletType.frieghter),
     z.literal(WalletType.rabet),
     z.literal(WalletType.walletConnect),
+    z.literal(WalletType.metamask),
+    z.literal(WalletType.xBull),
+    z.literal(WalletType.hana),
   ]),
   pubkey: z.string(),
   signedXDR: z.string(),
   fromAppSign: z.string().optional(),
-
 });
 
 export const providerAuthShema = z.object({
