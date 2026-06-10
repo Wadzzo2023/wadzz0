@@ -616,7 +616,8 @@ model LocationGroup {
     longitude Float
     radius    Float
 
-    image String?
+    image          String?
+    optimizedImage String?
 
     link              String?
     aiUrlDescriptions String[] @default([])

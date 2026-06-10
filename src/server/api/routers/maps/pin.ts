@@ -13,6 +13,7 @@ import { ItemPrivacy } from "@prisma/client";
 import { PinType } from "@prisma/client";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
+import { createOptimizedImage } from "~/server/image-optimizer";
 import { createHotspotFormSchema } from "~/components/modals/create-hotspot-modal";
 import { updateMapFormSchema } from "~/components/modals/pin-detail-modal";
 import { hotspotClient } from "~/lib/express/hotspotClient-sdk";
@@ -300,6 +301,10 @@ export const pinRouter = createTRPCRouter({
       let pageAsset = false;
       if (token === PAGE_ASSET_NUM) { assetId = undefined; pageAsset = true; }
 
+      const optimizedImage = input.image
+        ? await createOptimizedImage(input.image).catch(() => null)
+        : null;
+
       const locations = Array.from({ length: pinNumber }).map(() => {
         const loc = getLocationInLatLngRad(input.lat, input.lng, input.radius);
         return {
@@ -320,6 +325,7 @@ export const pinRouter = createTRPCRouter({
           pageAsset,
           limit: pinCollectionLimit,
           image: input.image,
+          optimizedImage,
           link: input.url,
           latitude: input.lat,
           longitude: input.lng,
@@ -350,7 +356,9 @@ export const pinRouter = createTRPCRouter({
       let assetId = token;
       let pageAsset = false;
       if (token === PAGE_ASSET_NUM) { assetId = undefined; pageAsset = true; }
-
+      const optimizedImage = input.image
+        ? await createOptimizedImage(input.image).catch(() => null)
+        : null;
       const locations = Array.from({ length: pinNumber }).map(() => {
         const loc = getLocationInLatLngRad(input.lat, input.lng, input.radius);
         return {
@@ -371,6 +379,7 @@ export const pinRouter = createTRPCRouter({
           pageAsset,
           limit: pinCollectionLimit,
           image: input.image,
+          optimizedImage,
           link: input.url,
           latitude: input.lat,
           longitude: input.lng,
@@ -494,10 +503,16 @@ export const pinRouter = createTRPCRouter({
           updatedRemainingLimit = pinRemainingLimit;
         }
 
+        const imageChanged = image !== undefined && image !== findLocation.locationGroup.image;
+        const optimizedImage = imageChanged
+          ? await createOptimizedImage(image).catch(() => null)
+          : undefined;
+
         return await ctx.db.locationGroup.update({
           where: { id: findLocation.locationGroup.id },
           data: {
             title, description, image, startDate, endDate,
+            ...(optimizedImage !== undefined && { optimizedImage }),
             limit: updatedLimit, remaining: updatedRemainingLimit,
             link: url, multiPin,
           },
@@ -1370,7 +1385,15 @@ export const pinRouter = createTRPCRouter({
         where: { id, creatorId: ctx.session.user.id },
       });
       if (!group) throw new TRPCError({ code: "NOT_FOUND", message: "Group not found" });
-      return ctx.db.locationGroup.update({ where: { id }, data });
+      const imageChanged = data.image !== undefined && data.image !== group.image;
+      const optimizedImage = imageChanged
+        ? await createOptimizedImage(data.image!).catch(() => null)
+        : undefined;
+
+      return ctx.db.locationGroup.update({
+        where: { id },
+        data: { ...data, ...(optimizedImage !== undefined && { optimizedImage }) },
+      });
     }),
 
   deleteLocationGroup: protectedProcedure
