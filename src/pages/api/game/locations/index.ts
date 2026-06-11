@@ -207,7 +207,7 @@ export default async function handler(
         brand_name: location.creator.name,
         url: location.link ?? "https://wadzzo.com/",
         image_url:
-          location.image ?? location.creator.profileUrl ?? WadzzoIconURL,
+          location.optimizedImage ?? location.image ?? location.creator.profileUrl ?? WadzzoIconURL,
         circular_image_url: location.creator.circularProfileUrl ?? WadzzoCircularIconURL,
         collected: location.collected,
         collection_limit_remaining: location.remaining,
