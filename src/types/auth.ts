@@ -26,6 +26,7 @@ export const walleteAuthSchema = z.object({
     z.literal(WalletType.metamask),
     z.literal(WalletType.xBull),
     z.literal(WalletType.hana),
+    z.literal(WalletType.hotWallet),
   ]),
   pubkey: z.string(),
   signedXDR: z.string(),
