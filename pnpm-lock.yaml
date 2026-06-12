@@ -23,9 +23,9 @@ importers:
       '@aws-sdk/s3-request-presigner':
         specifier: ^3.717.0
         version: 3.741.0
-      '@creit-tech/xbull-wallet-connect':
-        specifier: github:Creit-Tech/xBull-Wallet-Connect
-        version: '@creit.tech/xbull-wallet-connect@https://codeload.github.com/Creit-Tech/xBull-Wallet-Connect/tar.gz/79c0d93d8e11faf246d0dc80dcbac6976d71e244'
+      '@creit.tech/xbull-wallet-connect':
+        specifier: ^0.4.0
+        version: 0.4.0
       '@headlessui/react':
         specifier: ^1.7.19
         version: 1.7.19(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
@@ -802,9 +802,8 @@ packages:
   '@cfworker/json-schema@4.1.1':
     resolution: {integrity: sha512-gAmrUZSGtKc3AiBL71iNWxDsyUC5uMaKKGdvzYsBoTW/xi42JQHl7eKV2OYzCUqvc+D2RCcf7EXY2iCyFIk6og==}
 
-  '@creit.tech/xbull-wallet-connect@https://codeload.github.com/Creit-Tech/xBull-Wallet-Connect/tar.gz/79c0d93d8e11faf246d0dc80dcbac6976d71e244':
-    resolution: {tarball: https://codeload.github.com/Creit-Tech/xBull-Wallet-Connect/tar.gz/79c0d93d8e11faf246d0dc80dcbac6976d71e244}
-    version: 0.3.0
+  '@creit.tech/xbull-wallet-connect@0.4.0':
+    resolution: {integrity: sha512-LrCUIqUz50SkZ4mv2hTqSmwews8CNRYVoZ9+VjLsK/1U8PByzXTxv1vZyenj6avRTG86ifpoeihz7D3D5YIDrQ==}
     engines: {node: '>=16'}
 
   '@discoveryjs/json-ext@0.5.7':
@@ -8936,7 +8935,7 @@ snapshots:
 
   '@cfworker/json-schema@4.1.1': {}
 
-  '@creit.tech/xbull-wallet-connect@https://codeload.github.com/Creit-Tech/xBull-Wallet-Connect/tar.gz/79c0d93d8e11faf246d0dc80dcbac6976d71e244':
+  '@creit.tech/xbull-wallet-connect@0.4.0':
     dependencies:
       rxjs: 7.8.1
       tweetnacl: 1.0.3
