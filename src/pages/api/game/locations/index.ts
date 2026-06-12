@@ -39,7 +39,12 @@ export default async function handler(
     });
   }
 
-  const userAcc = await StellarAccount.create(userId);
+  let userAcc: StellarAccount | null = null;
+  try {
+    userAcc = await StellarAccount.create(userId);
+  } catch {
+    // account not found on Stellar — treat as zero balances
+  }
 
   let creatorsId: string[] | undefined = undefined;
   if (data.data.filterId === "1") {
@@ -155,7 +160,7 @@ export default async function handler(
           const creatorPageAsset = group.creator.pageAsset;
           const subscription = group.Subscription;
 
-          if (creatorPageAsset && subscription) {
+          if (creatorPageAsset && subscription && userAcc) {
             const bal = userAcc.getTokenBalance(
               creatorPageAsset.code,
               creatorPageAsset.issuer,
