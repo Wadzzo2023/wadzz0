@@ -140,7 +140,7 @@ export const authOptions: NextAuthOptions = {
           }
           throw new Error("Invalid signature");
         }
-        // wallet rabet and frieghter
+        // wallet rabet, frieghter, walletConnect, metamask
         if (
           cred.walletType == WalletType.rabet ||
           cred.walletType == WalletType.frieghter ||

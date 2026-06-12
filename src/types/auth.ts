@@ -31,7 +31,6 @@ export const walleteAuthSchema = z.object({
   pubkey: z.string(),
   signedXDR: z.string(),
   fromAppSign: z.string().optional(),
-
 });
 
 export const providerAuthShema = z.object({
