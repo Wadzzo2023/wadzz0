@@ -144,7 +144,11 @@ export const authOptions: NextAuthOptions = {
         if (
           cred.walletType == WalletType.rabet ||
           cred.walletType == WalletType.frieghter ||
-          cred.walletType == WalletType.walletConnect
+          cred.walletType == WalletType.walletConnect ||
+          cred.walletType == WalletType.metamask ||
+          cred.walletType == WalletType.xBull ||
+          cred.walletType == WalletType.hana ||
+          cred.walletType == WalletType.hotWallet
         ) {
           const { pubkey, signedXDR, fromAppSign } = cred;
           const isValid = await verifyXDRSignature({
