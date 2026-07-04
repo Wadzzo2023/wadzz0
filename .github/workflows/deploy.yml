@@ -1,0 +1,78 @@
+name: Build and Deploy to EC2
+
+on:
+  push:
+    branches: [master]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'   # change to 'pnpm' if you use pnpm (you have pnpm-lock.yaml)
+
+      # If you use pnpm (looks like you do, based on pnpm-lock.yaml)
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Create .env.production
+        run: |
+          cat > .env.production << 'EOF'
+          ${{ secrets.ENV_PRODUCTION }}
+          EOF
+
+      - name: Build Next.js app
+        run: pnpm run build
+
+      - name: Prisma generate (if using Prisma)
+        run: pnpm exec prisma generate
+
+      # Package only what's needed to run: standalone server + static assets + public
+      - name: Prepare deploy package
+        run: |
+          mkdir -p deploy_package
+          cp -r .next/standalone/* deploy_package/
+          mkdir -p deploy_package/.next
+          cp -r .next/static deploy_package/.next/static
+          cp -r public deploy_package/public
+          # include prisma schema/client if needed at runtime
+          if [ -d prisma ]; then cp -r prisma deploy_package/prisma; fi
+
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/deploy_key.pem
+          chmod 600 ~/.ssh/deploy_key.pem
+          ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Sync files to EC2
+        run: |
+          rsync -avz --delete \
+            -e "ssh -i ~/.ssh/deploy_key.pem" \
+            deploy_package/ \
+            ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:${{ secrets.EC2_APP_PATH }}/
+
+      - name: Restart app on EC2
+        run: |
+          ssh -i ~/.ssh/deploy_key.pem ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
+            cd ${{ secrets.EC2_APP_PATH }}
+            if command -v pm2 &> /dev/null; then
+              pm2 restart nextjs-app || pm2 start server.js --name nextjs-app
+              pm2 save
+            else
+              echo "pm2 not found — install it once manually: npm i -g pm2"
+              exit 1
+            fi
+          EOF
