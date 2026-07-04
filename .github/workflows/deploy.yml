@@ -35,18 +35,16 @@ jobs:
       - name: Build Next.js app
         run: pnpm run build
 
-      - name: Prisma generate (if using Prisma)
+      - name: Prisma generate
         run: pnpm exec prisma generate
 
       - name: Prepare deploy package
         run: |
           mkdir -p deploy_package
           cp -r .next deploy_package/
-          cp -r node_modules deploy_package/
           cp -r public deploy_package/
           cp package.json deploy_package/
-          cp .env.production deploy_package/
-          if [ -f pnpm-lock.yaml ]; then cp pnpm-lock.yaml deploy_package/; fi
+          cp pnpm-lock.yaml deploy_package/
           if [ -d prisma ]; then cp -r prisma deploy_package/prisma; fi
 
       - name: Setup SSH
@@ -58,20 +56,18 @@ jobs:
 
       - name: Sync files to EC2
         run: |
-          rsync -avz --delete \
+          rsync -avz \
+            --exclude='.env.production' \
+            --exclude='node_modules' \
             -e "ssh -i ~/.ssh/deploy_key.pem" \
             deploy_package/ \
             ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:${{ secrets.EC2_APP_PATH }}/
 
-      - name: Restart app on EC2
+      - name: Install deps and restart app on EC2
         run: |
           ssh -i ~/.ssh/deploy_key.pem ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
             cd ${{ secrets.EC2_APP_PATH }}
-            if command -v pm2 &> /dev/null; then
-              pm2 restart wadzzo || pm2 start "pnpm run start" --name wadzzo
-              pm2 save
-            else
-              echo "pm2 not found — install it once manually: npm i -g pm2"
-              exit 1
-            fi
+            pnpm install
+            pm2 restart wadzzo || pm2 start "pnpm run start" --name wadzzo
+            pm2 save
           EOF
