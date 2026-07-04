@@ -79,6 +79,7 @@ export const createPinFormSchema = z.object({
   pinCollectionLimit: z.number().min(0),
   tier: z.string().optional(),
   multiPin: z.boolean().optional(),
+  tags: z.array(z.string()).default([]),
 });
 
 export const PAGE_ASSET_NUM = -10;
@@ -114,6 +115,7 @@ export const createAdminPinFormSchema = z.object({
   tier: z.string().optional(),
   multiPin: z.boolean().optional(),
   creatorId: z.string(),
+  tags: z.array(z.string()).default([]),
 });
 
 export const pinRouter = createTRPCRouter({
@@ -314,7 +316,7 @@ export const pinRouter = createTRPCRouter({
         };
       });
 
-      await ctx.db.locationGroup.create({
+      const locationGroup = await ctx.db.locationGroup.create({
         data: {
           creatorId: ctx.session.user.id,
           endDate: input.endDate,
@@ -337,6 +339,16 @@ export const pinRouter = createTRPCRouter({
           multiPin,
         },
       });
+      if (input.tags && input.tags.length > 0) {
+        await ctx.db.locationGroupTag.createMany({
+          data: input.tags.map((tagId) => ({
+            locationGroupId: locationGroup.id,
+            tagId,
+          })),
+          skipDuplicates: true,
+        })
+      }
+      return locationGroup;
     }),
 
   createForAdminPin: adminProcedure
@@ -368,7 +380,7 @@ export const pinRouter = createTRPCRouter({
         };
       });
 
-      await ctx.db.locationGroup.create({
+      const locationGroup = await ctx.db.locationGroup.create({
         data: {
           creatorId,
           endDate: input.endDate,
@@ -391,6 +403,16 @@ export const pinRouter = createTRPCRouter({
           multiPin,
         },
       });
+      if (input.tags && input.tags.length > 0) {
+        await ctx.db.locationGroupTag.createMany({
+          data: input.tags.map((tagId) => ({
+            locationGroupId: locationGroup.id,
+            tagId,
+          })),
+          skipDuplicates: true,
+        })
+      }
+      return locationGroup;
     }),
 
   getPin: publicProcedure.input(z.string()).query(async ({ ctx, input }) => {
