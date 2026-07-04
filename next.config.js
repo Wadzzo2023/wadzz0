@@ -17,7 +17,7 @@ const config = {
   eslint: {
     ignoreDuringBuilds: true,
   },
-  output: "standalone",
+
   reactStrictMode: true,
   images: {
     remotePatterns: [

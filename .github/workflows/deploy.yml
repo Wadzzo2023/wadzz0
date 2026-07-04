@@ -38,15 +38,15 @@ jobs:
       - name: Prisma generate (if using Prisma)
         run: pnpm exec prisma generate
 
-      # Package only what's needed to run: standalone server + static assets + public
+      # Package everything needed to run without standalone mode
       - name: Prepare deploy package
         run: |
           mkdir -p deploy_package
-          cp -r .next/standalone/* deploy_package/
-          mkdir -p deploy_package/.next
-          cp -r .next/static deploy_package/.next/static
-          cp -r public deploy_package/public
-          # include prisma schema/client if needed at runtime
+          cp -r .next deploy_package/
+          cp -r node_modules deploy_package/
+          cp -r public deploy_package/
+          cp package.json deploy_package/
+          if [ -f pnpm-lock.yaml ]; then cp pnpm-lock.yaml deploy_package/; fi
           if [ -d prisma ]; then cp -r prisma deploy_package/prisma; fi
 
       - name: Setup SSH
