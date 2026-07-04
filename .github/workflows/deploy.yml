@@ -38,7 +38,6 @@ jobs:
       - name: Prisma generate (if using Prisma)
         run: pnpm exec prisma generate
 
-      # Package everything needed to run without standalone mode
       - name: Prepare deploy package
         run: |
           mkdir -p deploy_package
@@ -46,6 +45,7 @@ jobs:
           cp -r node_modules deploy_package/
           cp -r public deploy_package/
           cp package.json deploy_package/
+          cp .env.production deploy_package/
           if [ -f pnpm-lock.yaml ]; then cp pnpm-lock.yaml deploy_package/; fi
           if [ -d prisma ]; then cp -r prisma deploy_package/prisma; fi
 
@@ -66,9 +66,12 @@ jobs:
       - name: Restart app on EC2
         run: |
           ssh -i ~/.ssh/deploy_key.pem ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
-            export NVM_DIR="$HOME/.nvm"
-            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
             cd ${{ secrets.EC2_APP_PATH }}
-            pm2 restart wadzzo || pm2 start "pnpm run start" --name wadzzo
-            pm2 save
+            if command -v pm2 &> /dev/null; then
+              pm2 restart wadzzo || pm2 start "pnpm run start" --name wadzzo
+              pm2 save
+            else
+              echo "pm2 not found — install it once manually: npm i -g pm2"
+              exit 1
+            fi
           EOF
