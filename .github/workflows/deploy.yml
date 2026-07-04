@@ -45,12 +45,12 @@ jobs:
       - name: Sync entire repo (except env, node_modules) to EC2
         run: |
           rsync -avz \
-            --exclude='.env.production' \
-            --exclude='node_modules' \
-            --exclude='.git' \
-            -e "ssh -i ~/.ssh/deploy_key.pem" \
-            ./ \
-            ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:${{ secrets.EC2_APP_PATH }}/
+          --exclude='.env.production' \
+          --exclude='node_modules' \
+          --exclude='.git' \
+          -e "ssh -i ~/.ssh/deploy_key.pem" \
+          ./ \
+          ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:${{ secrets.EC2_APP_PATH }}/
 
       - name: Install deps and restart app on EC2
         run: |
