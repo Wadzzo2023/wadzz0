@@ -68,7 +68,7 @@ jobs:
           ssh -i ~/.ssh/deploy_key.pem ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
             cd ${{ secrets.EC2_APP_PATH }}
             if command -v pm2 &> /dev/null; then
-              pm2 restart nextjs-app || pm2 start server.js --name nextjs-app
+              pm2 restart wadzzo || pm2 start server.js --name wadzzo
               pm2 save
             else
               echo "pm2 not found — install it once manually: npm i -g pm2"
