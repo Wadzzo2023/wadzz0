@@ -35,17 +35,15 @@ jobs:
       - name: Build Next.js app
         run: pnpm run build
 
-      - name: Prisma generate
-        run: pnpm exec prisma generate
-
-      - name: Prepare deploy package
+      - name: Sync entire repo (except env, node_modules) to EC2
         run: |
-          mkdir -p deploy_package
-          cp -r .next deploy_package/
-          cp -r public deploy_package/
-          cp package.json deploy_package/
-          cp pnpm-lock.yaml deploy_package/
-          if [ -d prisma ]; then cp -r prisma deploy_package/prisma; fi
+          rsync -avz \
+            --exclude='.env.production' \
+            --exclude='node_modules' \
+            --exclude='.git' \
+            -e "ssh -i ~/.ssh/deploy_key.pem" \
+            ./ \
+            ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:${{ secrets.EC2_APP_PATH }}/
 
       - name: Setup SSH
         run: |
@@ -53,15 +51,6 @@ jobs:
           echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/deploy_key.pem
           chmod 600 ~/.ssh/deploy_key.pem
           ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
-
-      - name: Sync files to EC2
-        run: |
-          rsync -avz \
-            --exclude='.env.production' \
-            --exclude='node_modules' \
-            -e "ssh -i ~/.ssh/deploy_key.pem" \
-            deploy_package/ \
-            ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:${{ secrets.EC2_APP_PATH }}/
 
       - name: Install deps and restart app on EC2
         run: |
