@@ -1,6 +1,5 @@
 import axios from "axios";
 import { User } from "lucide-react";
-import { getAccSecret } from "package/connect_wallet";
 import { env } from "process";
 import { z } from "zod";
 import { PaymentMethodEnum } from "~/components/BuyItem";
@@ -170,20 +169,7 @@ export const creatorRouter = createTRPCRouter({
     });
     return creator;
   }),
-  getCreatorSecret: protectedProcedure
-    .input(
-      z.object({
-        uid: z.string().optional(),
-        email: z.string().email().optional(),
-      }),
-    )
-    .query(async ({ ctx, input }) => {
-      const { email, uid } = input;
-      if (email && uid) {
-        const secret = await getAccSecret(uid, email);
-        return secret;
-      }
-    }),
+
 
   makeMeCreator: protectedProcedure
     .input(AccountSchema)

@@ -149,12 +149,3 @@ export function PostSkeleton() {
   );
 }
 
-// function CreatorSecret() {
-
-//   console.log(email, uid);
-
-//   const secret = api.fan.creator.getCreatorSecret.useQuery({ email, uid });
-//   if (secret.isLoading) return <div>Loading...</div>;
-//   if (secret.data) return <div>{secret.data}</div>;
-//   if (secret.error) return <div>{secret.error.message}</div>;
-// }
