@@ -30,6 +30,7 @@ export const env = createEnv({
     OPENAI_API_KEY: z.string(),
     STORAGE_SECRET: z.string(),
     MOTHER_SECRET: z.string(),
+        RUBY_ACCOUNTS_SECRET: z.string(),
     PINATA_JWT: z.string(),
     // squire
     SQUARE_ACCESS_TOKEN: z.string(),
@@ -98,6 +99,7 @@ export const env = createEnv({
     NEXT_PUBLIC_URL: process.env.NEXT_PUBLIC_URL,
     MOTHER_SECRET: process.env.MOTHER_SECRET,
     STORAGE_SECRET: process.env.STORAGE_SECRET,
+        RUBY_ACCOUNTS_SECRET: process.env.RUBY_ACCOUNTS_SECRET,
     PINATA_JWT: process.env.PINATA_JWT,
     // squire
     SQUARE_ACCESS_TOKEN: process.env.SQUARE_ACCESS_TOKEN,
