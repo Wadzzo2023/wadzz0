@@ -5,13 +5,13 @@ import toast from "react-hot-toast";
 import ConvertCard from "~/components/marketplace/recharge/convert_card";
 import OfferCard from "~/components/marketplace/recharge/offer_card";
 import PaymentCard from "~/components/marketplace/recharge/pay_card";
-import { Offer } from "~/components/marketplace/recharge/types";
+import type { Offer } from "~/components/marketplace/recharge/types";
 import { Button } from "~/components/shadcn/ui/button";
 import { useRecharge } from "~/lib/state/recharge";
 import { api } from "~/utils/api";
 
 function PayPage() {
-  const { convertOpen, setOpen } = useRecharge();
+  const { convertOpen } = useRecharge();
 
   return (
     <div className="flex flex-col items-center justify-center gap-4">
@@ -26,7 +26,7 @@ function PayPage() {
 function CovertSiteAsset() {
   const [selected, setSelected] = useState(false);
   const xdrMuation = api.marketplace.steller.convertSiteAsset.useMutation({
-    async onSuccess(data, variables, context) {
+    async onSuccess(data) {
       if (data) {
         const presignedxdr = data;
         const res = await submitSignedXDRToServer4User(presignedxdr);
@@ -72,8 +72,6 @@ function SiteAssetBuy() {
   const [selectedIdx, setSelection] = useState<number>(() => 0);
   const offersQ = api.marketplace.pay.getOffers.useQuery();
 
-  const { data } = api.bounty.Bounty.getCurrentUSDFromAsset.useQuery();
-
   const xdrMutation = api.marketplace.pay.getRechargeXDR.useMutation({
     onSuccess: (data) => {
       setXDR(data);
@@ -116,6 +114,7 @@ function SiteAssetBuy() {
                 xdr={xdr}
                 {...{ pubkey: session.data.user.id }}
                 offer={selectedOffer}
+                onSuccess={() => setXDR(undefined)}
               />
             ) : (
               <Button

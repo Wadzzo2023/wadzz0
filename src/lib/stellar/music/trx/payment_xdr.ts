@@ -1,6 +1,5 @@
 import {
   Asset,
-  BASE_FEE,
   Horizon,
   Keypair,
   Operation,
@@ -17,7 +16,6 @@ import {
 } from "../../constant";
 import { env } from "~/env";
 import { StellarAccount } from "../../marketplace/test/Account";
-import { b } from "vitest/dist/suite-IbNSsUWN";
 import { getplatformAssetNumberForXLM } from "../../fan/get_token_price";
 
 const log = console;
@@ -252,7 +250,7 @@ export async function XDR4BuyAssetWithSquire({
   const hasTrust = buyerAcc.hasTrustline(code, issuerPub);
 
   const Tx2 = new TransactionBuilder(transactionInializer, {
-    fee: BASE_FEE,
+    fee: TrxBaseFee,
     networkPassphrase,
   });
 

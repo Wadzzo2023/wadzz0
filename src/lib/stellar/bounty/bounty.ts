@@ -1,6 +1,5 @@
 import {
   Asset,
-  BASE_FEE,
   Horizon,
   Keypair,
   Operation,
@@ -156,7 +155,7 @@ export async function SendBountyBalanceToUserAccount({
   }
 
   const transaction = new TransactionBuilder(account, {
-    fee: BASE_FEE.toString(),
+    fee: TrxBaseFee.toString(),
     networkPassphrase,
   });
 
@@ -187,7 +186,7 @@ export async function SendBountyBalanceToUserAccountViaXLM({
   const account = await server.loadAccount(motherAcc.publicKey());
 
   const transaction = new TransactionBuilder(account, {
-    fee: BASE_FEE.toString(),
+    fee: TrxBaseFee.toString(),
     networkPassphrase,
   });
 
@@ -254,7 +253,7 @@ export async function SendBountyBalanceToWinner({
   });
 
   const transaction = new TransactionBuilder(account, {
-    fee: BASE_FEE.toString(),
+    fee: TrxBaseFee.toString(),
     networkPassphrase,
   });
 
@@ -299,7 +298,7 @@ export async function SendBountyBalanceToWinnerViaXLM({
   }
 
   const transaction = new TransactionBuilder(account, {
-    fee: BASE_FEE.toString(),
+    fee: TrxBaseFee.toString(),
     networkPassphrase,
   });
 

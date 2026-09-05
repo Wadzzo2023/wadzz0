@@ -1,45 +1,62 @@
 import { CreditCard, PaymentForm } from "react-square-web-payments-sdk";
 import { api } from "~/utils/api";
-import { Offer } from "./types";
+import type { Offer } from "./types";
 
 import { useState } from "react";
 import { env } from "~/env";
 import toast from "react-hot-toast";
 import { submitSignedXDRToServer4User } from "package/connect_wallet/src/lib/stellar/trx/payment_fb_g";
-import { rechargeTask } from "~/trigger/recharge";
-
-type FIRST = { xlm: number; secret: string } | undefined;
 
 type PaymentCardType = {
   offer: Offer;
   pubkey: string;
   xdr: string;
+  onSuccess?: () => void;
 };
-export default function PaymentCard({ pubkey, offer, xdr }: PaymentCardType) {
+
+export default function PaymentCard({ offer, xdr, onSuccess }: PaymentCardType) {
   const [loading, setLoading] = useState(false);
 
   const paymentMutation = api.marketplace.pay.payment.useMutation({
-    async onSuccess(data, variables, context) {
+    async onSuccess(data) {
+      if (
+        data &&
+        typeof data === "object" &&
+        "alreadySubmitted" in data &&
+        data.alreadySubmitted
+      ) {
+        toast.success("Payment Successful! Tokens have been added to your account.");
+        setLoading(false);
+        onSuccess?.();
+        return;
+      }
+
       if (data) {
-        const tostId = toast.loading("Submitting transaction");
-        submitSignedXDRToServer4User(xdr)
-          .then((data) => {
-            if (data) {
-              toast.success("Payment Successful");
-            } else {
-              toast.error("Payment failed, Contact to admin");
-            }
-          })
-          .catch((e) => {
-            console.log(e);
-            toast.error("Payment failed");
-          })
-          .finally(() => {
-            toast.dismiss(tostId);
-          });
+        const toastId = toast.loading("Submitting transaction");
+        try {
+          const res = await submitSignedXDRToServer4User(xdr);
+          if (res) {
+            toast.success("Payment Successful");
+            onSuccess?.();
+          } else {
+            toast.error("Payment failed, Contact to admin");
+          }
+        } catch (e: unknown) {
+          console.error(e);
+          const msg = e instanceof Error ? e.message : "Token transfer failed";
+          toast.error(msg);
+        } finally {
+          toast.dismiss(toastId);
+          setLoading(false);
+        }
       } else {
         toast.error("Payment failed. Please try again.");
+        setLoading(false);
       }
+    },
+    onError(err) {
+      toast.error(err.message ?? "Payment failed. Please try again.");
+      setLoading(false);
     },
   });
 
@@ -47,24 +64,16 @@ export default function PaymentCard({ pubkey, offer, xdr }: PaymentCardType) {
     <div className="max-w-sm">
       <PaymentForm
         applicationId={env.NEXT_PUBLIC_SQUARE_APP_ID}
-        cardTokenizeResponseReceived={(token, verifiedBuyer) =>
-          void (async () => {
-            setLoading(true);
-            // console.log("token:", token);
-            // console.log("verifiedBuyer:", verifiedBuyer);
+        cardTokenizeResponseReceived={(token, _verifiedBuyer) => {
+          if (loading || paymentMutation.isLoading) return;
+          setLoading(true);
 
-            paymentMutation.mutate({
-              sourceId: token.token,
-              amount: offer.price * 100, // payment gatway take cent input
-            });
-
-            // if (token.token) {
-            //   rechargeTask.trigger({ sourceId: token.token, xdr: "xdr" });
-            // }
-
-            setLoading(false);
-          })()
-        }
+          paymentMutation.mutate({
+            sourceId: token.token,
+            amount: Math.round(offer.price * 100), // cents
+            tokenNum: offer.num,
+          });
+        }}
         locationId={env.NEXT_PUBLIC_SQUARE_LOCATION}
       >
         <CreditCard
@@ -78,7 +87,7 @@ export default function PaymentCard({ pubkey, offer, xdr }: PaymentCardType) {
           }}
         />
       </PaymentForm>
-      {loading && <p>Loading...</p>}
+      {loading && <p className="mt-2 text-sm text-center text-muted-foreground">Processing payment...</p>}
     </div>
   );
 }

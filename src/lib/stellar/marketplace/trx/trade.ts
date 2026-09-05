@@ -1,6 +1,5 @@
 import {
   Asset,
-  BASE_FEE,
   Horizon,
   Keypair,
   Operation,
@@ -40,7 +39,7 @@ export async function tradeAssetXDR(props: {
   const transactionInializer = await server.loadAccount(pubkey);
 
   const Tx = new TransactionBuilder(transactionInializer, {
-    fee: BASE_FEE,
+    fee: TrxBaseFee,
     networkPassphrase,
   })
 

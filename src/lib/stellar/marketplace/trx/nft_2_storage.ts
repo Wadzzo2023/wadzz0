@@ -1,6 +1,5 @@
 import {
   Asset,
-  BASE_FEE,
   Horizon,
   Keypair,
   Operation,
@@ -130,7 +129,7 @@ export async function sendNftback({
   const transactionInializer = await server.loadAccount(motherAcc.publicKey());
 
   const Tx1 = new TransactionBuilder(transactionInializer, {
-    fee: BASE_FEE,
+    fee: TrxBaseFee,
     networkPassphrase,
   })
     // add platform fee
