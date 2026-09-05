@@ -55,6 +55,7 @@ export const payRouter = createTRPCRouter({
         sourceId: z.string().optional(),
         amount: z.number(),
         tokenNum: z.number().optional(),
+        verificationToken: z.string().optional(),
       }),
     )
     .mutation(async ({ input, ctx }) => {
@@ -65,7 +66,7 @@ export const payRouter = createTRPCRouter({
         });
       }
 
-      const { amount, sourceId, tokenNum } = input;
+      const { amount, sourceId, tokenNum, verificationToken } = input;
       const user = ctx.session.user;
 
       const idempotencyKey = randomUUID();
@@ -74,6 +75,7 @@ export const payRouter = createTRPCRouter({
         const response = await paymentsApi.createPayment({
           idempotencyKey,
           sourceId,
+          verificationToken,
           amountMoney: {
             currency: "USD",
             amount: BigInt(Math.round(amount)),

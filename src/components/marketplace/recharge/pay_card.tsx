@@ -64,16 +64,25 @@ export default function PaymentCard({ offer, xdr, onSuccess }: PaymentCardType) 
     <div className="max-w-sm">
       <PaymentForm
         applicationId={env.NEXT_PUBLIC_SQUARE_APP_ID}
-        cardTokenizeResponseReceived={(token, _verifiedBuyer) => {
+        cardTokenizeResponseReceived={(token, verifiedBuyer) => {
           if (loading || paymentMutation.isLoading) return;
           setLoading(true);
 
           paymentMutation.mutate({
             sourceId: token.token,
+            verificationToken: verifiedBuyer?.token,
             amount: Math.round(offer.price * 100), // cents
             tokenNum: offer.num,
           });
         }}
+        createPaymentRequest={() => ({
+          countryCode: "US",
+          currencyCode: "USD",
+          total: {
+            amount: `${offer.price}`,
+            label: `${offer.num} Tokens`,
+          },
+        })}
         locationId={env.NEXT_PUBLIC_SQUARE_LOCATION}
       >
         <CreditCard
