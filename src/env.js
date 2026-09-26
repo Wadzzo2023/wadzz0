@@ -6,6 +6,13 @@ export const env = createEnv({
    * Specify your server-side environment variables schema here. This way you can ensure the app
    * isn't built with invalid env vars.
    */ server: {
+    GOOGLE_CLOUD_PROJECT: z.string().optional(),
+    GOOGLE_CLOUD_PROJECT_NUMBER: z.string().optional(),
+    GCS_MURAL_BUCKET: z.string().optional(),
+    VISION_LOCATION: z.string().optional(),
+    VISION_PRODUCT_SET_ID: z.string().optional(),
+    VISION_INDEX_ENDPOINT_ID: z.string().optional(),
+
     DATABASE_URL: z
       .string()
       .url()
@@ -81,6 +88,13 @@ export const env = createEnv({
    * You can't destruct `process.env` as a regular object in the Next.js edge runtimes (e.g.
    * middlewares) or client-side so we need to destruct manually.
    */ runtimeEnv: {
+    GOOGLE_CLOUD_PROJECT: process.env.GOOGLE_CLOUD_PROJECT,
+    GOOGLE_CLOUD_PROJECT_NUMBER: process.env.GOOGLE_CLOUD_PROJECT_NUMBER,
+    GCS_MURAL_BUCKET: process.env.GCS_MURAL_BUCKET,
+    VISION_LOCATION: process.env.VISION_LOCATION,
+    VISION_PRODUCT_SET_ID: process.env.VISION_PRODUCT_SET_ID,
+    VISION_INDEX_ENDPOINT_ID: process.env.VISION_INDEX_ENDPOINT_ID,
+
     NEXT_PUBLIC_SITE: process.env.NEXT_PUBLIC_SITE,
     NEXT_PUBLIC_PLATFORM_CREATOR_TERM:
       process.env.NEXT_PUBLIC_PLATFORM_CREATOR_TERM,

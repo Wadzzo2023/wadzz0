@@ -629,6 +629,15 @@ model LocationGroup {
     hotspot           Hotspot?           @relation(fields: [hotspotId], references: [id])
     hotspotId         String?
     locationGroupTags LocationGroupTag[]
+
+    /// Reference photos of the mural, several angles and lighting conditions.
+    /// Empty on every non-mural drop.
+    muralRefImages String[] @default([])
+
+    /// Cloud Vision Product Search product name, e.g.
+    /// projects/<p>/locations/<l>/products/<id>.
+    /// Non-null means indexed and collectable by scanning.
+    muralProductId String?
 }
 
 model Location {
