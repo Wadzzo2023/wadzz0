@@ -150,12 +150,15 @@ export async function prepareGiftClaim(ctx: Ctx, { userId, balanceId, signer }: 
   if (needsTrust) tx.addOperation(Operation.changeTrust({ asset: new Asset(gift.code, gift.issuer) }));
   tx.addOperation(Operation.claimClaimableBalance({ balanceId }));
   const built = tx.build();
+  const sender = gift.sponsor ? await ctx.db.user.findUnique({ where: { id: gift.sponsor }, select: { id: true } }) : null;
   const asset = gift.code !== "XLM" ? await ctx.db.asset.findFirst({ where: { code: gift.code, issuer: gift.issuer }, select: { id: true } }) : null;
   const row = await ctx.db.assetTransaction.create({
     data: {
       type: "GIFT_CLAIM",
       assetId: asset?.id,
       buyerId: userId,
+      // who sent the gift (a Wadzzo user), so a brand can be told it was claimed
+      sellerId: sender?.id,
       quantity: Math.floor(gift.amount),
       method: "NONE",
       currency: "XLM",

@@ -7,6 +7,8 @@ import { StellarAccount, horizon, transactionSucceeded } from "~/lib/stellar/acc
 import { networkPassphrase } from "~/lib/stellar/constant";
 import type { Db } from "~/server/db";
 
+import { announceSettled } from "~/server/notify-events";
+
 import { platformToUsd } from "./prices";
 
 const delay = (ms: number) => new Promise((r) => setTimeout(r, ms));
@@ -37,6 +39,7 @@ export async function settle(db: Db, id: string, { attempts = 6, wait = 1500 } =
 }
 
 async function applySuccess(db: Db, row: AssetTransaction) {
+  let applied = false;
   const result = await db.$transaction(async (tx) => {
     // Only the first caller applies effects (status guard).
     const { count } = await tx.assetTransaction.updateMany({
@@ -44,6 +47,7 @@ async function applySuccess(db: Db, row: AssetTransaction) {
       data: { status: "SUCCESS", error: null },
     });
     if (count === 0) return tx.assetTransaction.findUniqueOrThrow({ where: { id: row.id } });
+    applied = true;
 
     if (row.assetId && row.minted > 0) {
       await tx.asset.update({ where: { id: row.assetId }, data: { mintedCount: { increment: row.minted } } });
@@ -63,6 +67,7 @@ async function applySuccess(db: Db, row: AssetTransaction) {
     return tx.assetTransaction.findUniqueOrThrow({ where: { id: row.id } });
   });
   if (row.type === "UNLIST" && row.marketAssetId) await dropEmptyListing(db, row.marketAssetId);
+  if (applied) await announceSettled(db, result);
   return result;
 }
 
