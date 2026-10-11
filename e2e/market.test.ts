@@ -94,24 +94,24 @@ describe("fan app money flows (testnet)", () => {
 
     try {
       // 1. buy one from the brand: minted on demand
-      await step("BUY x1", A, await preparePurchase(ctx as never, { buyerId: A.publicKey(), listingId: listing.id, method: "PLATFORM_ASSET", signer: undefined, quantity: 1 }));
+      await step("BUY x1", A, await preparePurchase(ctx, { buyerId: A.publicKey(), listingId: listing.id, method: "PLATFORM_ASSET", signer: undefined, quantity: 1 }));
       expect(await bal(A.publicKey(), item)).toBe(1);
 
       // 2. bulk: three more
-      await step("BUY x3", A, await preparePurchase(ctx as never, { buyerId: A.publicKey(), listingId: listing.id, method: "PLATFORM_ASSET", signer: undefined, quantity: 3 }));
+      await step("BUY x3", A, await preparePurchase(ctx, { buyerId: A.publicKey(), listingId: listing.id, method: "PLATFORM_ASSET", signer: undefined, quantity: 3 }));
       expect(await bal(A.publicKey(), item)).toBe(4);
       expect((await db.asset.findUniqueOrThrow({ where: { id: asset.id } })).mintedCount).toBe(4);
       const brandBefore = await bal(brand.publicKey(), PLATFORM_ASSET);
 
       // 3. A opens a storage account and lists 2 copies at 20 Wadzzo
-      await step("STORAGE", A, await prepareStorageSetup(ctx as never, { userId: A.publicKey(), payIn: "PLATFORM_ASSET", signer: undefined }));
-      await step("LIST x2", A, await prepareListing(ctx as never, { userId: A.publicKey(), assetId: asset.id, copies: 2, price: 20, payIn: "PLATFORM_ASSET", signer: undefined }));
+      await step("STORAGE", A, await prepareStorageSetup(ctx, { userId: A.publicKey(), payIn: "PLATFORM_ASSET", signer: undefined }));
+      await step("LIST x2", A, await prepareListing(ctx, { userId: A.publicKey(), assetId: asset.id, copies: 2, price: 20, payIn: "PLATFORM_ASSET", signer: undefined }));
       const resale = await db.marketAsset.findFirstOrThrow({ where: { assetId: asset.id, placerId: A.publicKey() } });
       expect(resale.price).toBe(20);
 
       // 4. B buys one resale copy: the seller is paid, the brand earns its 10% royalty
       const aBefore = await bal(A.publicKey(), PLATFORM_ASSET);
-      await step("RESALE x1", B, await preparePurchase(ctx as never, { buyerId: B.publicKey(), listingId: resale.id, method: "PLATFORM_ASSET", signer: undefined, quantity: 1 }));
+      await step("RESALE x1", B, await preparePurchase(ctx, { buyerId: B.publicKey(), listingId: resale.id, method: "PLATFORM_ASSET", signer: undefined, quantity: 1 }));
       expect(await bal(B.publicKey(), item)).toBe(1);
       const sellerGain = (await bal(A.publicKey(), PLATFORM_ASSET)) - aBefore;
       const royalty = (await bal(brand.publicKey(), PLATFORM_ASSET)) - brandBefore;
@@ -120,9 +120,9 @@ describe("fan app money flows (testnet)", () => {
       expect(royalty).toBeCloseTo(2, 5);
 
       // 5. B sends 5 Wadzzo to C (direct) and to a brand-new wallet D (creates the account)
-      await step("SEND direct", B, { ok: true, ...(await prepareSend(ctx as never, { userId: B.publicKey(), signer: undefined, code: PLATFORM_ASSET.code, issuer: PLATFORM_ASSET.issuer, to: C.publicKey(), amount: 5 })) });
+      await step("SEND direct", B, { ok: true, ...(await prepareSend(ctx, { userId: B.publicKey(), signer: undefined, code: PLATFORM_ASSET.code, issuer: PLATFORM_ASSET.issuer, to: C.publicKey(), amount: 5 })) });
       expect(await bal(C.publicKey(), PLATFORM_ASSET)).toBe(5);
-      const sd = await prepareSend(ctx as never, { userId: B.publicKey(), signer: undefined, code: "XLM", issuer: null, to: D.publicKey(), amount: 3 });
+      const sd = await prepareSend(ctx, { userId: B.publicKey(), signer: undefined, code: "XLM", issuer: null, to: D.publicKey(), amount: 3 });
       await step("SEND to new wallet", B, { ok: true, ...sd });
       expect(await bal(D.publicKey(), "XLM")).toBeGreaterThan(0);
 
@@ -134,7 +134,7 @@ describe("fan app money flows (testnet)", () => {
       const gifts = await pendingGifts(B.publicKey());
       console.log("PENDING GIFTS", gifts.length);
       expect(gifts.length).toBe(1);
-      await step("ACCEPT gift", B, { ...(await prepareGiftClaim(ctx as never, { userId: B.publicKey(), balanceId: gifts[0]!.id, signer: undefined })), ok: true });
+      await step("ACCEPT gift", B, { ...(await prepareGiftClaim(ctx, { userId: B.publicKey(), balanceId: gifts[0]!.id, signer: undefined })), ok: true });
       expect(await bal(B.publicKey(), item)).toBe(2);
 
       // the brand and the fans were told

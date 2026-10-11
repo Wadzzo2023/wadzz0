@@ -11,7 +11,7 @@
     "postinstall": "prisma generate",
     "lint": "eslint .",
     "start": "next start",
-    "test": "vitest run",
+    "test": "vitest run --passWithNoTests",
     "test:e2e": "vitest run --config vitest.e2e.config.mts",
     "typecheck": "tsc --noEmit"
   },
