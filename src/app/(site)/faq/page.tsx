@@ -55,7 +55,7 @@ export default function FaqPage() {
     mainEntity: FAQ.flatMap((t) => t.items).map((i) => ({ "@type": "Question", name: i.q, acceptedAnswer: { "@type": "Answer", text: i.a } })),
   };
   return (
-    <PageBody className="space-y-8">
+    <PageBody wide className="space-y-8">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }} />
       <StaticHeader eyebrow="Help" title={<>Frequently asked <span className="text-gradient">questions</span></>} description="Everything about collecting, paying, memberships and bounties on Wadzzo." />
       {FAQ.map((t) => (

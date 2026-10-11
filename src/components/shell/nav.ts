@@ -1,22 +1,27 @@
-import { Home, Layers, Newspaper, Store, Target, type LucideIcon } from "lucide-react";
+import { Activity, Home, Layers, Newspaper, Store, Target, Users, Wallet, type LucideIcon } from "lucide-react";
 
 /**
- * Bottom navigation on every screen size (app-style). The brand entry
- * (Manage brand / Create brand) is added after these; everything else lives
- * in the account menu.
+ * Sidebar navigation. `MAIN` is browsing, `ACCOUNT` is the signed-in
+ * wallet's own pages. Notifications are the bell in the header; Settings and
+ * Sign out are in the avatar menu.
  */
-export type NavItem = { href: string; label: string; icon: LucideIcon; match?: string[] };
+export type NavItem = { href: string; label: string; icon: LucideIcon; match?: string[]; authOnly?: boolean };
 
-export const TABS: NavItem[] = [
-  { href: "/", label: "Home", icon: Home, match: ["/creators", "/creator"] },
+export const MAIN: NavItem[] = [
+  { href: "/", label: "Home", icon: Home },
   { href: "/marketplace", label: "Market", icon: Store, match: ["/item"] },
   { href: "/collection", label: "Collection", icon: Layers },
   { href: "/bounties", label: "Bounties", icon: Target },
   { href: "/feed", label: "Feed", icon: Newspaper, match: ["/posts"] },
+  { href: "/creators", label: "Creators", icon: Users, match: ["/creator"] },
 ];
 
+export const ACCOUNT: NavItem[] = [
+  { href: "/wallet", label: "Wallet", icon: Wallet },
+  { href: "/activity", label: "Activity", icon: Activity },
+];
 
 export function isActive(pathname: string, item: NavItem) {
-  if (item.href === "/") return pathname === "/" || (item.match ?? []).some((p) => pathname === p || pathname.startsWith(p + "/"));
+  if (item.href === "/") return pathname === "/";
   return [item.href, ...(item.match ?? [])].some((p) => pathname === p || pathname.startsWith(p + "/"));
 }

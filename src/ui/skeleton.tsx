@@ -15,7 +15,7 @@ export function Skeleton({ className, ...props }: React.HTMLAttributes<HTMLDivEl
 /** A page while access is checked: PageBody padding, header, then a grid of cards. */
 export function PageSkeleton({ cards = 6 }: { cards?: number }) {
   return (
-    <div className="mx-auto w-full max-w-6xl px-4 pt-5 pb-28 sm:px-6 lg:px-8 lg:pt-8 lg:pb-10" role="status" aria-label="Loading">
+    <div className="mx-auto w-full max-w-7xl px-4 pt-5 pb-10 sm:px-6 lg:pt-8" role="status" aria-label="Loading">
       <div className="space-y-2">
         <Skeleton className="h-3 w-20" />
         <Skeleton className="h-8 w-56" />
@@ -33,7 +33,7 @@ export function PageSkeleton({ cards = 6 }: { cards?: number }) {
 /** A create/edit page (FormPage): header + actions, section cards, and the side panel. */
 export function FormSkeleton({ sections = 3, aside = true }: { sections?: number; aside?: boolean }) {
   return (
-    <div className="mx-auto w-full max-w-6xl px-4 pt-5 pb-40 sm:px-6 lg:px-8 lg:pt-8 lg:pb-12" role="status" aria-label="Loading form">
+    <div className="mx-auto w-full max-w-7xl px-4 pt-5 pb-10 sm:px-6 lg:pt-8" role="status" aria-label="Loading form">
       <div className="flex items-end justify-between gap-4">
         <div className="space-y-2">
           <Skeleton className="h-3 w-16" />

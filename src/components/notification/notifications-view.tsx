@@ -10,7 +10,7 @@ import { SignedIn } from "~/components/shell/sign-in-prompt";
 import { Button } from "~/components/shadcn/ui/button";
 import { cn } from "~/lib/utils";
 import { EmptyState } from "~/ui/empty-state";
-import { PageBody } from "~/ui/page-header";
+import { PageBody, PageHeader } from "~/ui/page-header";
 import { Avatar } from "~/ui/person";
 import { Skeleton } from "~/ui/skeleton";
 import { api, type RouterOutputs } from "~/utils/api";
@@ -64,18 +64,19 @@ function NotificationsView() {
   const earlier = items.filter((n) => n.seen);
 
   return (
-    <PageBody className="space-y-5">
-      <div className="flex items-end justify-between gap-3">
-        <div>
-          <h1 className="font-hud text-2xl font-bold tracking-tight sm:text-3xl">Notifications</h1>
-          <p className="text-sm text-muted-foreground">New posts, bounties and replies from the brands you follow.</p>
-        </div>
-        {hasUnseen && (
-          <Button variant="outline" size="sm" className="glass shrink-0 rounded-xl" disabled={markAll.isPending || markAll.isSuccess} onClick={() => markAll.mutate()}>
-            <CheckCheck className="size-4" /> Mark all read
-          </Button>
-        )}
-      </div>
+    <PageBody wide className="space-y-5">
+      <PageHeader
+        eyebrow="Account"
+        title="Notifications"
+        description="New posts, bounties and replies from the brands you follow."
+        actions={
+          hasUnseen && (
+            <Button variant="outline" size="sm" className="glass shrink-0 rounded-xl" disabled={markAll.isPending || markAll.isSuccess} onClick={() => markAll.mutate()}>
+              <CheckCheck className="size-4" /> Mark all read
+            </Button>
+          )
+        }
+      />
 
       {q.isLoading ? (
         <div className="glass space-y-2 rounded-2xl p-2">

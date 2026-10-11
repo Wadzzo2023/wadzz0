@@ -44,7 +44,7 @@ export function PageHeader({
   );
 }
 
-/** Standard page body: max width and padding (the footer leaves room for the bottom tabs). */
+/** Standard page body: max width and padding. */
 export function PageBody({ children, className, wide = false }: { children: ReactNode; className?: string; wide?: boolean }) {
   return (
     <div className={cn("mx-auto w-full px-4 pb-10 pt-5 sm:px-6 lg:pt-8", wide ? "max-w-7xl" : "max-w-5xl", className)}>

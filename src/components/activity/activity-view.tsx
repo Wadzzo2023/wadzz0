@@ -12,7 +12,7 @@ import { env } from "~/env";
 import { formatAmount } from "~/lib/stellar/quote";
 import { cn } from "~/lib/utils";
 import { EmptyState } from "~/ui/empty-state";
-import { PageBody } from "~/ui/page-header";
+import { PageBody, PageHeader } from "~/ui/page-header";
 import { Skeleton } from "~/ui/skeleton";
 import { StatusPill, type Tone } from "~/ui/status-pill";
 import { api, type RouterOutputs } from "~/utils/api";
@@ -60,12 +60,12 @@ export function ActivityView({ me }: { me: string }) {
   const rows = q.data?.pages.flatMap((p) => p.items) ?? [];
 
   return (
-    <PageBody className="space-y-5">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <h1 className="font-hud text-2xl font-bold tracking-tight sm:text-3xl">Activity</h1>
-          <p className="text-sm text-muted-foreground">Every purchase, sale and listing, with exactly what it cost.</p>
-        </div>
+    <PageBody wide className="space-y-5">
+      <PageHeader
+        eyebrow="Account"
+        title="Activity"
+        description="Every purchase, sale and listing, with exactly what it cost."
+        actions={
         <div className="glass flex w-fit gap-1 rounded-xl p-1" role="tablist">
           {ROLES.map((r) => (
             <button
@@ -83,7 +83,8 @@ export function ActivityView({ me }: { me: string }) {
             </button>
           ))}
         </div>
-      </div>
+        }
+      />
 
       {q.isLoading ? (
         <ActivitySkeleton rows={6} />

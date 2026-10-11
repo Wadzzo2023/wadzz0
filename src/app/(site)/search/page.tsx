@@ -10,7 +10,7 @@ import { ListingCard, ListingGrid } from "~/components/market/listing-card";
 import { SearchField } from "~/components/search/search-field";
 import { serverApi } from "~/server/api/server";
 import { EmptyState } from "~/ui/empty-state";
-import { PageBody } from "~/ui/page-header";
+import { PageBody, PageHeader } from "~/ui/page-header";
 
 const queryOf = (sp: Record<string, string | string[] | undefined>) => (typeof sp.q === "string" ? sp.q.trim().slice(0, 80) : "");
 
@@ -40,10 +40,7 @@ export default async function SearchPage({ searchParams }: PageProps<"/search">)
 
   return (
     <PageBody wide className="space-y-8">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <h1 className="min-w-0 truncate font-hud text-2xl font-bold tracking-tight sm:text-3xl">{q ? <>Results for “{q}”</> : "Search"}</h1>
-        <SearchField value={q} />
-      </div>
+      <PageHeader eyebrow="Search" title={q ? <>Results for “{q}”</> : "Search Wadzzo"} actions={<SearchField value={q} />} />
 
       {!results ? (
         <EmptyState icon={Search} title="Search Wadzzo" description="Type at least 2 characters to find items, creators, posts and bounties." />

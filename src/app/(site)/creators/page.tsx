@@ -5,7 +5,7 @@ import { CreatorCard } from "~/components/creator/creator-card";
 import { CreatorSearch, LoadMoreCreators } from "~/components/creator/creator-list";
 import { serverApi } from "~/server/api/server";
 import { EmptyState } from "~/ui/empty-state";
-import { PageBody } from "~/ui/page-header";
+import { PageBody, PageHeader } from "~/ui/page-header";
 
 export const metadata: Metadata = {
   title: "Creators",
@@ -20,10 +20,7 @@ export default async function CreatorsPage({ searchParams }: PageProps<"/creator
 
   return (
     <PageBody wide className="space-y-5">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <h1 className="font-hud text-2xl font-bold tracking-tight sm:text-3xl">Creators</h1>
-        <CreatorSearch value={q} />
-      </div>
+      <PageHeader eyebrow="Discover" title="Creators" description="Brands and creators on Wadzzo." actions={<CreatorSearch value={q} />} />
       {first.items.length === 0 ? (
         <EmptyState icon={Users} title="No creators found" description="Try a different name." />
       ) : (

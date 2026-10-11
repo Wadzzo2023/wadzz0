@@ -1,37 +1,34 @@
 "use client";
 
-import { Bell, Search, Store, X } from "lucide-react";
+import { Bell, Search, X } from "lucide-react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { AnimatePresence, motion } from "motion/react";
 import { Suspense, useState, type ReactNode } from "react";
 
-import { env } from "~/env";
 import { useRequireAuth } from "~/hooks/use-require-auth";
-import { cn } from "~/lib/utils";
 import { api } from "~/utils/api";
 
 import { BrandMark } from "./brand-mark";
-import { TABS, isActive, type NavItem } from "./nav";
+import { CurrencyToggle } from "./currency-toggle";
 import { SearchBox } from "./search-box";
+import { DesktopSidebar, MobileNav } from "./sidebar";
 import { UserMenu } from "./user-menu";
 import { WalletChip } from "./wallet-chip";
-import { CurrencyToggle } from "./currency-toggle";
 
 /**
- * App-style layout on every screen: a top bar (logo, search, balance,
- * notifications, account — the account menu also holds the site links) and
- * bottom tabs. No footer.
+ * Sidebar on large screens (collapsible to icons), a slide-in drawer on small
+ * ones. The top bar holds search, balance, notifications and the account menu.
+ * No bottom nav, no footer.
  */
 export function SiteShell({ children }: { children: ReactNode }) {
   return (
-    <div className="flex min-h-dvh flex-col bg-background">
-      <TopBar />
-      {/* bottom padding keeps content clear of the bottom tabs */}
-      <main id="main" className="min-w-0 flex-1 pb-28">
-        {children}
-      </main>
-      <BottomTabs />
+    <div className="flex min-h-dvh bg-background">
+      <DesktopSidebar />
+      <div className="flex min-w-0 flex-1 flex-col">
+        <TopBar />
+        <main id="main" className="min-w-0 flex-1 pb-[var(--safe-bottom)]">
+          {children}
+        </main>
+      </div>
     </div>
   );
 }
@@ -61,9 +58,9 @@ function TopBar() {
   const [searching, setSearching] = useState(false);
   return (
     <header className="sticky top-0 z-40 border-b border-foreground/[0.06] bg-background/70 backdrop-blur-xl">
-      <div className="mx-auto flex h-16 max-w-7xl items-center gap-3 px-4 sm:px-6">
-        <BrandMark compact className="sm:hidden" />
-        <BrandMark className="hidden sm:flex" />
+      <div className="mx-auto flex h-16 max-w-7xl items-center gap-2 px-3 sm:gap-3 sm:px-6">
+        <MobileNav />
+        <BrandMark compact className="xl:hidden" />
         <Suspense>
           <SearchBox className="mx-auto hidden w-full max-w-lg md:block" />
         </Suspense>
@@ -77,7 +74,7 @@ function TopBar() {
           >
             {searching ? <X className="size-5" /> : <Search className="size-5" />}
           </button>
-          <CurrencyToggle />
+          <CurrencyToggle className="hidden sm:flex" />
           <WalletChip className="h-9 rounded-full px-3" compact />
           <NotificationBell />
           <UserMenu />
@@ -91,114 +88,5 @@ function TopBar() {
         </div>
       )}
     </header>
-  );
-}
-
-/** The brand entry in the bottom nav: manage your brand, or create one. */
-function useBrandEntry() {
-  const { signedIn } = useRequireAuth();
-  const me = api.user.me.useQuery(undefined, { enabled: signedIn, staleTime: 5 * 60_000 });
-  const isBrand = Boolean(me.data?.creator && !me.data.creator.notCreatorButSeller);
-  const base = env.NEXT_PUBLIC_BRAND_PORTAL_URL.replace(/\/$/, "");
-  return isBrand
-    ? { label: "My brand", href: base, logo: me.data?.creator?.profileUrl ?? null, name: me.data?.creator?.name ?? null }
-    : { label: "Create brand", href: `${base}/onboarding`, logo: null, name: null };
-}
-
-/**
- * Bottom navigation: a floating glass pill of icon tabs. The active tab grows
- * into a green capsule with its label, and the capsule glides between tabs.
- * The brand entry is a matching glass orb beside the pill with the brand's logo.
- */
-function BottomTabs() {
-  const pathname = usePathname() ?? "";
-  const brand = useBrandEntry();
-
-  return (
-    <div className="pointer-events-none fixed inset-x-0 bottom-0 z-40 flex justify-center px-3 pb-[calc(var(--safe-bottom)+0.75rem)] sm:pb-5">
-      <motion.div
-        initial={{ y: 40, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ type: "spring", stiffness: 160, damping: 22 }}
-        className="pointer-events-auto flex max-w-full items-center gap-2.5"
-      >
-        <nav
-          aria-label="Sections"
-          className="glass-liquid flex items-center gap-0.5 rounded-full p-1.5"
-        >
-          {TABS.map((t) => (
-            <Tab key={t.href} item={t} active={isActive(pathname, t)} />
-          ))}
-        </nav>
-        <BrandButton brand={brand} />
-      </motion.div>
-    </div>
-  );
-}
-
-/** Manage / create your brand: a glass orb (same material as the pill) showing the brand's logo. */
-function BrandButton({ brand }: { brand: { label: string; href: string; logo: string | null; name: string | null } }) {
-  return (
-    <a
-      href={brand.href}
-      target="_blank"
-      rel="noreferrer"
-      aria-label={brand.label}
-      className="glass-liquid group relative flex size-[3.75rem] shrink-0 items-center justify-center rounded-full p-1.5 transition-transform hover:scale-105 active:scale-95"
-    >
-      {brand.logo ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img src={brand.logo} alt="" className="size-full rounded-full object-cover" />
-      ) : brand.name ? (
-        <span className="flex size-full items-center justify-center rounded-full bg-primary/12 font-hud text-lg font-bold text-primary">{brand.name.trim()[0]?.toUpperCase()}</span>
-      ) : (
-        <span className="flex size-full items-center justify-center rounded-full bg-primary/10 text-primary">
-          <Store className="size-5" />
-        </span>
-      )}
-      <span className="pointer-events-none absolute bottom-full mb-2 whitespace-nowrap rounded-full bg-foreground px-2.5 py-1 text-xs font-semibold text-background opacity-0 shadow-md transition-[opacity,transform] group-hover:-translate-y-0.5 group-hover:opacity-100 group-focus-visible:opacity-100">
-        {brand.label}
-      </span>
-    </a>
-  );
-}
-
-function Tab({ item, active }: { item: NavItem; active: boolean }) {
-  const Icon = item.icon;
-  return (
-    <Link
-      href={item.href}
-      aria-current={active ? "page" : undefined}
-      aria-label={item.label}
-      className={cn(
-        "relative flex h-12 items-center rounded-full px-3 transition-colors sm:px-3.5",
-        active ? "text-primary-foreground" : "text-foreground/65 hover:bg-white/30 hover:text-foreground dark:hover:bg-white/10",
-      )}
-    >
-      {active && (
-        <motion.span
-          layoutId="bottom-tab-active"
-          transition={{ type: "spring", stiffness: 380, damping: 32 }}
-          className="absolute inset-0 rounded-full bg-primary shadow-[inset_0_1px_0_hsl(0_0%_100%/0.45),inset_0_-2px_6px_hsl(0_0%_0%/0.15),0_0_22px_-2px_hsl(var(--primary)/0.75)]"
-        />
-      )}
-      <span className="relative z-10 flex items-center">
-        <Icon className="size-5 shrink-0" strokeWidth={active ? 2.4 : 2} />
-        <AnimatePresence initial={false}>
-          {active && (
-            <motion.span
-              key="label"
-              initial={{ width: 0, opacity: 0, marginLeft: 0 }}
-              animate={{ width: "auto", opacity: 1, marginLeft: 8 }}
-              exit={{ width: 0, opacity: 0, marginLeft: 0 }}
-              transition={{ type: "spring", stiffness: 380, damping: 32 }}
-              className="overflow-hidden whitespace-nowrap text-sm font-semibold"
-            >
-              {item.label}
-            </motion.span>
-          )}
-        </AnimatePresence>
-      </span>
-    </Link>
   );
 }
