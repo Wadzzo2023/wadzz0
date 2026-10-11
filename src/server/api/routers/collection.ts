@@ -105,4 +105,13 @@ export const collectionRouter = createTRPCRouter({
       if (!l || l.placerId !== ctx.session.user.id) throw new TRPCError({ code: "NOT_FOUND" });
       await ctx.db.marketAsset.update({ where: { id: input.listingId }, data: { price: input.price, priceUSD: await platformToUsd(input.price) } });
     }),
+
+  /** Items I created (as a brand), with how far each edition has been minted. */
+  created: protectedProcedure.query(({ ctx }) =>
+    ctx.db.asset.findMany({
+      where: { creatorId: ctx.session.user.id },
+      select: { ...assetCardSelect, limit: true, mintedCount: true, privacy: true, marketItems: { where: { placerId: ctx.session.user.id }, select: { id: true, price: true } } },
+      orderBy: { id: "desc" },
+    }),
+  ),
 });

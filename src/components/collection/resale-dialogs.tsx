@@ -18,7 +18,7 @@ type PayIn = "PLATFORM_ASSET" | "XLM";
 
 function SignButton({ step, idle, disabled, onClick }: { step: string; idle: string; disabled?: boolean; onClick: () => void }) {
   return (
-    <Button className="w-full" size="lg" disabled={disabled || step === "signing" || step === "confirming"} onClick={onClick}>
+    <Button className="w-full" size="lg" disabled={Boolean(disabled) || step === "signing" || step === "confirming"} onClick={onClick}>
       {step === "signing" ? "Confirm in your wallet…" : step === "confirming" ? "Confirming on Stellar…" : idle}
     </Button>
   );

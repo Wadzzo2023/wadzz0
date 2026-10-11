@@ -20,13 +20,13 @@ function timeLeft(end: Date | null) {
 /** A bounty in a list: brand, task, reward per winner, deadline and the viewer's status. */
 export function BountyCard({ bounty, className }: { bounty: BountyCardData; className?: string }) {
   return (
-    <Link href={`/bounties/${bounty.id}`} className={cn("group flex flex-col overflow-hidden rounded-xl border bg-card transition-colors hover:border-line-bright", className)}>
-      <div className="relative aspect-[16/9] bg-surface-2">
+    <Link href={`/bounties/${bounty.id}`} className={cn("glass group flex flex-col overflow-hidden rounded-2xl transition-all duration-300 hover:glow hover:-translate-y-1", className)}>
+      <div className="relative aspect-[16/9] overflow-hidden bg-surface-2">
         {bounty.imageUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={bounty.imageUrl} alt="" loading="lazy" className="size-full object-cover" />
+          <img src={bounty.imageUrl} alt="" loading="lazy" className="size-full object-cover transition-transform duration-500 group-hover:scale-105" />
         ) : (
-          <div className="flex size-full items-center justify-center text-primary/60">
+          <div className="flex size-full items-center justify-center bg-[radial-gradient(circle,hsl(var(--primary)/0.25),transparent_70%)] text-primary/70">
             <Target className="size-10" />
           </div>
         )}
@@ -45,7 +45,7 @@ export function BountyCard({ bounty, className }: { bounty: BountyCardData; clas
         </div>
         <p className="line-clamp-2 font-hud text-sm font-semibold">{bounty.title}</p>
         <div className="mt-auto flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
-          <span className="font-hud text-sm font-bold text-foreground">{formatAmount(bounty.rewardAsset, bounty.assetCode)}</span>
+          <span className="font-hud text-sm font-bold text-gradient">{formatAmount(bounty.rewardAsset, bounty.assetCode)}</span>
           <span className="inline-flex items-center gap-1">
             <Users className="size-3.5" /> {bounty.participants}
           </span>
