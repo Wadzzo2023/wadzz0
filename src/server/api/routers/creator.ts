@@ -59,10 +59,22 @@ export const creatorRouter = createTRPCRouter({
           select: { id: true, name: true, description: true, features: true, color: true, popular: true, price: true },
           orderBy: { price: "asc" },
         },
-        _count: { select: { followers: true, posts: true } },
+        _count: {
+          select: {
+            followers: true,
+            posts: true,
+            // same rules as bounty.list, so the tab count matches its list
+            Bounty: { where: { ...platformScope(ctx), status: "APPROVED", currentWinnerCount: { lt: ctx.db.bounty.fields.totalWinner } } },
+          },
+        },
       },
     });
     if (!creator) throw new TRPCError({ code: "NOT_FOUND", message: "Creator not found" });
+
+    // same rules as market.listings({ creatorId }): the brand's drops plus fan resales of its items
+    const items = await ctx.db.marketAsset.count({
+      where: { ...platformScope(ctx), privacy: { in: ["PUBLIC", "FOR_SALE", "PRIVATE", "TIER"] }, placerId: { not: null }, asset: { creatorId: creator.id } },
+    });
 
     const me = ctx.session?.user.id;
     const page = pageAssetRef(creator);
@@ -73,7 +85,7 @@ export const creatorRouter = createTRPCRouter({
     const myTier = [...creator.subscriptions].reverse().find((t) => held >= t.price) ?? null;
 
     const { customPageAssetCodeIssuer: _c, ...rest } = creator;
-    return { ...rest, pageAsset: page ? { ...page, thumbnail: creator.pageAsset?.thumbnail ?? null } : null, viewer: { signedIn: Boolean(me), following, pageTokens: held, tierId: myTier?.id ?? null, isSelf: me === creator.id } };
+    return { ...rest, counts: { followers: creator._count.followers, posts: creator._count.posts, bounties: creator._count.Bounty, items }, pageAsset: page ? { ...page, thumbnail: creator.pageAsset?.thumbnail ?? null } : null, viewer: { signedIn: Boolean(me), following, pageTokens: held, tierId: myTier?.id ?? null, isSelf: me === creator.id } };
   }),
 
   /**

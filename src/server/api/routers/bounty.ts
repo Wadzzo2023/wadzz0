@@ -263,6 +263,8 @@ export const bountyRouter = createTRPCRouter({
       z.object({
         filter: z.enum(LIST_FILTERS).default("open"),
         search: z.string().trim().max(80).optional(),
+        /** one brand's bounties (the creator page) */
+        creatorId: z.string().optional(),
         limit: z.number().int().min(1).max(40).default(20),
         cursor: z.number().int().nullish(),
       }),
@@ -271,6 +273,7 @@ export const bountyRouter = createTRPCRouter({
       const userId = ctx.session?.user.id;
       const where: Prisma.BountyWhereInput = {
         ...platformScope(ctx),
+        ...(input.creatorId && { creatorId: input.creatorId }),
         status: "APPROVED",
         currentWinnerCount: { lt: ctx.db.bounty.fields.totalWinner },
         AND: [

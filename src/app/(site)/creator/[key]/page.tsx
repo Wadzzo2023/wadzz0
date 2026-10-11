@@ -1,11 +1,12 @@
 import { TRPCError } from "@trpc/server";
-import { BadgeCheck } from "lucide-react";
+import { BadgeCheck, ExternalLink } from "lucide-react";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { cache } from "react";
+import { cache, Suspense } from "react";
 
 import { FollowButton, ShareButton } from "~/components/creator/creator-actions";
 import { CreatorTabs } from "~/components/creator/creator-tabs";
+import { Button } from "~/components/shadcn/ui/button";
 import { env } from "~/env";
 import { serverApi } from "~/server/api/server";
 import { PageBody } from "~/ui/page-header";
@@ -52,8 +53,8 @@ export default async function CreatorPage({ params }: PageProps<"/creator/[key]"
   return (
     <div>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }} />
-      {/* Cover */}
-      <div className="relative h-44 overflow-hidden sm:h-64">
+      {/* Cover, full width like the other page banners */}
+      <div className="relative h-[34svh] min-h-[220px] max-h-[380px] overflow-hidden bg-black">
         {profile.coverUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={profile.coverUrl} alt="" className="size-full object-cover" />
@@ -61,48 +62,47 @@ export default async function CreatorPage({ params }: PageProps<"/creator/[key]"
           // eslint-disable-next-line @next/next/no-img-element
           <img src={profile.profileUrl} alt="" className="size-full scale-125 object-cover opacity-60 blur-3xl" />
         ) : (
-          <div className="size-full bg-gradient-to-br from-primary/40 via-cyan-500/20 to-purple-500/30" />
+          <div className="size-full bg-[radial-gradient(circle_at_20%_30%,hsl(var(--primary)/0.45),transparent_55%),radial-gradient(circle_at_80%_70%,hsl(190_90%_50%/0.3),transparent_55%)]" />
         )}
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-background/20 to-background" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-transparent to-background" />
       </div>
 
-      <PageBody wide className="relative -mt-16 space-y-8 pt-0 sm:-mt-20">
-        <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:gap-5">
-            <span className="w-fit rounded-full bg-gradient-to-tr from-primary via-green-hot to-cyan-400 p-[3px] shadow-[0_0_40px_-8px_hsl(var(--primary)/0.8)]">
-              <Avatar src={profile.profileUrl} name={profile.name} className="size-24 border-4 border-background text-3xl sm:size-32" />
-            </span>
-            <div className="min-w-0 space-y-1.5 pb-1">
+      <PageBody wide className="relative space-y-6 pt-0">
+        {/* Avatar overlaps the cover; name, bio and actions sit beside it */}
+        <header className="flex flex-col gap-4 sm:flex-row sm:items-end">
+          <span className="-mt-14 w-fit shrink-0 rounded-full bg-gradient-to-tr from-primary via-green-hot to-cyan-400 p-[3px] shadow-[0_0_40px_-8px_hsl(var(--primary)/0.8)] sm:-mt-20">
+            <Avatar src={profile.profileUrl} name={profile.name} className="size-24 border-4 border-background text-3xl sm:size-36" />
+          </span>
+          <div className="flex min-w-0 flex-1 flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+            <div className="min-w-0 space-y-1">
               <h1 className="flex items-center gap-2 font-hud text-3xl font-bold tracking-tight sm:text-4xl">
                 <span className="truncate">{profile.name}</span>
                 <BadgeCheck className="size-6 shrink-0 text-primary" aria-label="Verified creator" />
               </h1>
-              <div className="flex flex-wrap gap-2 text-sm">
-                <span className="glass rounded-full px-3 py-1">
-                  <b className="font-hud tabular-nums">{profile._count.followers.toLocaleString("en-US")}</b> <span className="text-muted-foreground">followers</span>
-                </span>
-                <span className="glass rounded-full px-3 py-1">
-                  <b className="font-hud tabular-nums">{profile._count.posts.toLocaleString("en-US")}</b> <span className="text-muted-foreground">posts</span>
-                </span>
-                {profile.pageAsset && (
-                  <span className="glass rounded-full px-3 py-1">
-                    <span className="text-muted-foreground">Token</span> <b className="font-hud text-primary">{profile.pageAsset.code}</b>
-                  </span>
-                )}
-              </div>
+              {profile.bio && <p className="max-w-2xl whitespace-pre-line break-words text-sm leading-relaxed text-muted-foreground">{profile.bio}</p>}
+              <p className="text-xs text-muted-foreground">
+                {profile.counts.followers.toLocaleString("en-US")} follower{profile.counts.followers === 1 ? "" : "s"} · Joined{" "}
+                {new Date(profile.joinedAt).toLocaleDateString("en-US", { month: "long", year: "numeric" })}
+              </p>
             </div>
-          </div>
-          {!profile.viewer.isSelf && (
-            <div className="flex items-center gap-2">
-              <FollowButton creatorId={profile.id} initial={profile.viewer.following} />
+            <div className="flex shrink-0 items-center gap-2">
+              {profile.viewer.isSelf ? (
+                <Button asChild variant="outline" className="glass rounded-full">
+                  <a href={env.NEXT_PUBLIC_BRAND_PORTAL_URL} target="_blank" rel="noreferrer">
+                    <ExternalLink className="size-4" /> Manage brand
+                  </a>
+                </Button>
+              ) : (
+                <FollowButton creatorId={profile.id} initial={profile.viewer.following} />
+              )}
               <ShareButton title={profile.name} />
             </div>
-          )}
+          </div>
         </header>
 
-        {profile.bio && <p className="max-w-3xl whitespace-pre-line text-[15px] leading-relaxed text-muted-foreground">{profile.bio}</p>}
-
-        <CreatorTabs profile={profile} listings={listings.items} nextCursor={listings.nextCursor} offers={offers} />
+        <Suspense>
+          <CreatorTabs profile={profile} listings={listings.items} nextCursor={listings.nextCursor} offers={offers} />
+        </Suspense>
       </PageBody>
     </div>
   );
