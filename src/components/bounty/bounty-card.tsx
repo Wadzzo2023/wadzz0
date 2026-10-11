@@ -1,27 +1,30 @@
-import { Clock, Target, Trophy, Users } from "lucide-react";
-import Link from "next/link";
+"use client";
 
-import { type BountyCardData, deadlineLabel, formatTokens, formatUsd, spotsFilled, viewerBadge } from "~/lib/bounty";
+import { CheckCircle2, Clock, Share2, Target, UserCheck, UserPlus } from "lucide-react";
+import Link from "next/link";
+import toast from "react-hot-toast";
+
+import { useRequireAuth } from "~/hooks/use-require-auth";
+import { type BountyCardData, deadlineLabel, formatTokens } from "~/lib/bounty";
 import { cn } from "~/lib/utils";
 import { Avatar } from "~/ui/person";
 import { Skeleton } from "~/ui/skeleton";
-import { StatusPill } from "~/ui/status-pill";
+import { api } from "~/utils/api";
 
 /**
- * A bounty as a poster: the cover fills the whole card and everything sits on
- * top of it — status and deadline up top; brand, task, reward and winner
- * spots on a frosted panel at the bottom.
+ * A bounty card: the cover fills the card behind a dark scrim, and on top sit
+ * the reward line and spots left, the title and a short teaser, then the brand
+ * with Join / Share. The whole card links to the bounty; the actions sit above
+ * that link.
  */
 export function BountyCard({ bounty, className }: { bounty: BountyCardData; className?: string }) {
-  const badge = viewerBadge(bounty);
   const deadline = deadlineLabel(bounty.endDate);
-  const filled = spotsFilled(bounty);
+  const href = `/bounties/${bounty.id}`;
 
   return (
-    <Link
-      href={`/bounties/${bounty.id}`}
+    <article
       className={cn(
-        "group relative isolate flex aspect-[4/3] flex-col justify-between overflow-hidden rounded-2xl bg-surface-2 p-2 text-white ring-1 ring-foreground/10 transition-all duration-300 hover:glow hover:-translate-y-1",
+        "group relative isolate flex min-h-60 flex-col overflow-hidden rounded-2xl bg-surface-2 p-5 text-white ring-1 ring-foreground/10 transition-all duration-300 hover:glow hover:-translate-y-1",
         className,
       )}
     >
@@ -30,60 +33,107 @@ export function BountyCard({ bounty, className }: { bounty: BountyCardData; clas
         // eslint-disable-next-line @next/next/no-img-element
         <img src={bounty.imageUrl} alt="" loading="lazy" className="absolute inset-0 -z-10 size-full object-cover transition-transform duration-700 group-hover:scale-110" />
       ) : (
-        <div className="absolute inset-0 -z-10 flex items-center justify-center bg-[radial-gradient(circle_at_25%_20%,hsl(var(--primary)/0.55),transparent_60%),radial-gradient(circle_at_80%_75%,hsl(190_90%_45%/0.45),transparent_60%)] bg-black">
-          <Target className="size-20 text-white/25" />
+        <div className="absolute inset-0 -z-10 flex items-center justify-center bg-black bg-[radial-gradient(circle_at_25%_20%,hsl(var(--primary)/0.55),transparent_60%),radial-gradient(circle_at_80%_75%,hsl(190_90%_45%/0.45),transparent_60%)]">
+          <Target className="size-20 text-white/20" />
         </div>
       )}
-      <div className="absolute inset-0 -z-10 bg-gradient-to-b from-black/45 via-black/5 to-black/85" />
+      <div className="absolute inset-0 -z-10 bg-gradient-to-b from-black/75 via-black/60 to-black/85" />
 
-      {/* top */}
-      <div className="flex items-start justify-between gap-2">
-        <StatusPill tone={badge.tone} className="text-[10px] !text-white bg-black/45 shadow-sm ring-1 ring-white/15 backdrop-blur-md">
-          {badge.label}
-        </StatusPill>
-        {deadline && (
-          <span className={cn("inline-flex items-center gap-1 rounded-full bg-black/45 px-2 py-0.5 text-[10px] font-semibold ring-1 ring-white/15 backdrop-blur-md", deadline.urgent && "text-amber-300")}>
-            <Clock className="size-3" /> {deadline.text}
+      {/* reward + spots */}
+      <div className="flex items-center justify-between gap-3">
+        <p className="flex min-w-0 items-center gap-1.5 text-sm">
+          <CheckCircle2 className="size-5 shrink-0 text-[hsl(112_85%_62%)]" />
+          <span className="font-hud text-lg font-bold tabular-nums text-[hsl(112_85%_62%)] drop-shadow-[0_0_12px_hsl(112_85%_55%/0.5)]">{formatTokens(bounty.rewardAsset)}</span>
+          <span className="font-semibold text-[hsl(112_70%_70%)]">{bounty.assetCode}</span>
+          <span className="truncate text-white/65">
+            / {bounty.totalWinners} winner{bounty.totalWinners === 1 ? "" : "s"}
           </span>
+        </p>
+        <span className={cn("shrink-0 rounded-full bg-white/15 px-2.5 py-1 text-xs font-semibold ring-1 ring-white/20 backdrop-blur-md", !bounty.open && "text-white/60")}>
+          {bounty.open ? `${bounty.spotsLeft} left` : bounty.viewer.won ? "You won" : "Closed"}
+        </span>
+      </div>
+
+      {/* title + teaser — the title's link stretches over the whole card */}
+      <div className="mt-4 flex-1 space-y-2">
+        <h3 className="line-clamp-2 font-hud text-lg font-bold leading-snug">
+          <Link href={href} className="after:absolute after:inset-0 after:-z-0 focus-visible:outline-none">
+            {bounty.title}
+          </Link>
+        </h3>
+        {bounty.summary && <p className="line-clamp-3 text-sm leading-relaxed text-white/70">{bounty.summary}</p>}
+        {deadline && (
+          <p className={cn("inline-flex items-center gap-1 text-xs font-medium text-white/60", deadline.urgent && "text-amber-300")}>
+            <Clock className="size-3" /> {deadline.text}
+          </p>
         )}
       </div>
 
-      {/* bottom panel */}
-      <div className="space-y-2 rounded-xl bg-black/40 p-2.5 ring-1 ring-white/15 backdrop-blur-xl">
-        <div className="flex items-center gap-2">
-          <Avatar src={bounty.brand.avatarUrl} name={bounty.brand.name} className="size-5 border border-white/40 text-[8px]" />
-          <span className="truncate text-[11px] font-semibold text-white/85">{bounty.brand.name}</span>
-        </div>
-        <p className="line-clamp-2 font-hud text-sm font-bold leading-snug">{bounty.title}</p>
-
-        <div className="flex items-end justify-between gap-3">
-          <div className="min-w-0">
-                        <p className="font-hud text-lg font-bold leading-tight text-[hsl(112_85%_62%)] drop-shadow-[0_0_14px_hsl(112_85%_55%/0.55)]">{formatUsd(bounty.rewardUsd)}</p>
-            <p className="truncate text-[11px] tabular-nums text-white/60">
-              {formatTokens(bounty.rewardAsset)} {bounty.assetCode}
-            </p>
-          </div>
-          <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-white/10 px-1.5 py-0.5 text-[11px] font-semibold">
-            <Users className="size-3" /> {bounty.participants}
-          </span>
-        </div>
-
-        <div className="space-y-1">
-          <div className="flex items-center justify-between text-[11px] text-white/70">
-            <span className="inline-flex items-center gap-1">
-              <Trophy className="size-3" /> {bounty.open ? `${bounty.spotsLeft}/${bounty.totalWinners} spots left` : `${bounty.totalWinners} winner${bounty.totalWinners === 1 ? "" : "s"}`}
-            </span>
-            <span className="tabular-nums">{filled}%</span>
-          </div>
-          <div className="h-1.5 overflow-hidden rounded-full bg-white/15">
-            <div className="h-full rounded-full bg-gradient-to-r from-primary to-cyan-400" style={{ width: `${Math.max(filled, 3)}%` }} />
-          </div>
+      {/* brand + actions */}
+      <div className="mt-5 flex items-center justify-between gap-3">
+        <span className="flex min-w-0 items-center gap-2 text-sm text-white/75">
+          <Avatar src={bounty.brand.avatarUrl} name={bounty.brand.name} className="size-7 border border-white/30 text-[10px]" />
+          <span className="truncate">By {bounty.brand.name}</span>
+        </span>
+        <div className="relative z-10 flex shrink-0 items-center gap-1 text-sm font-semibold">
+          <JoinAction bounty={bounty} href={href} />
+          <span className="h-4 w-px bg-white/25" aria-hidden />
+          <ShareAction title={bounty.title} href={href} />
         </div>
       </div>
-    </Link>
+    </article>
+  );
+}
+
+function JoinAction({ bounty, href }: { bounty: BountyCardData; href: string }) {
+  const { requireAuth } = useRequireAuth();
+  const utils = api.useUtils();
+  const join = api.bounty.join.useMutation({
+    onSuccess: () => {
+      toast.success("You joined — submit your entry from the bounty page");
+      void utils.bounty.list.invalidate();
+      void utils.bounty.mine.invalidate();
+    },
+    onError: (e) => toast.error(e.message),
+  });
+  const action = "inline-flex items-center gap-1.5 rounded-lg px-2 py-1 transition-colors";
+
+  if (bounty.viewer.joined || join.isSuccess) {
+    return (
+      <Link href={href} className={cn(action, "text-[hsl(112_85%_62%)] hover:bg-white/10")}>
+        <UserCheck className="size-4" /> Joined
+      </Link>
+    );
+  }
+  if (!bounty.open) return null;
+  return (
+    <button
+      type="button"
+      disabled={join.isPending}
+      onClick={requireAuth(() => join.mutate({ id: bounty.id }))}
+      className={cn(action, "text-[hsl(112_85%_62%)] hover:bg-white/10 disabled:opacity-60")}
+    >
+      <UserPlus className="size-4" /> {join.isPending ? "Joining…" : "Join"}
+    </button>
+  );
+}
+
+function ShareAction({ title, href }: { title: string; href: string }) {
+  const share = async () => {
+    const url = new URL(href, window.location.origin).toString();
+    if (navigator.share) await navigator.share({ title, url }).catch(() => undefined);
+    else {
+      await navigator.clipboard.writeText(url);
+      toast.success("Link copied");
+    }
+  };
+  return (
+    <button type="button" onClick={() => void share()} className="inline-flex items-center gap-1.5 rounded-lg px-2 py-1 text-white/80 transition-colors hover:bg-white/10 hover:text-white">
+      <Share2 className="size-4" /> Share
+    </button>
   );
 }
 
 export function BountyCardSkeleton() {
-  return <Skeleton className="aspect-[4/3] rounded-2xl" />;
+  return <Skeleton className="min-h-60 rounded-2xl" />;
 }

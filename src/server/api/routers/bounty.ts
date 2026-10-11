@@ -118,12 +118,28 @@ function isOpen(b: {
   );
 }
 
+/** Bounty descriptions are rich-text HTML; a card only needs a short plain-text teaser. */
+function toSummary(html: string | null) {
+  const text = (html ?? "")
+    .replace(/<[^>]*>/g, " ")
+    .replace(/&nbsp;/g, " ")
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/\s+/g, " ")
+    .trim();
+  return text.length > 220 ? `${text.slice(0, 217).trimEnd()}…` : text;
+}
+
 function toCard(row: CardRow) {
   const perWinner = row.totalWinner > 0 ? row.totalWinner : 1;
   const latest = row.submissions[0];
   return {
     id: row.id,
     title: row.title,
+    summary: toSummary(row.description),
     imageUrl: row.imageUrls[0] ?? null,
     brand: {
       id: row.creator.id,
