@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 
 import { FeedView } from "~/components/post/feed-view";
-import { PageBody, PageHeader } from "~/ui/page-header";
+import { serverApi } from "~/server/api/server";
+import { PageBody } from "~/ui/page-header";
 
 export const metadata: Metadata = {
   title: "Feed",
@@ -9,11 +10,16 @@ export const metadata: Metadata = {
   alternates: { canonical: "/feed" },
 };
 
-export default function FeedPage() {
+export const dynamic = "force-dynamic";
+
+export default async function FeedPage() {
+  const api = await serverApi();
+  const creators = await api.creator.list({ limit: 6 });
+
   return (
-    <PageBody className="space-y-6">
-      <PageHeader className="mx-auto max-w-2xl" eyebrow="Feed" title={<span>What creators are <span className="text-gradient">posting</span></span>} />
-      <FeedView />
+    <PageBody wide className="space-y-5">
+      <h1 className="font-hud text-2xl font-bold tracking-tight sm:text-3xl">Feed</h1>
+      <FeedView suggested={creators.items} />
     </PageBody>
   );
 }
