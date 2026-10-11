@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, ChevronsUpDown, Layers, LogOut, Monitor, Moon, Settings, Store, Sun, User, Wallet } from "lucide-react";
+import { Activity, Bell, Check, ChevronsUpDown, LogOut, Monitor, Moon, Settings, Sun, User, Users, Wallet } from "lucide-react";
 import { signOut } from "next-auth/react";
 import { useTheme } from "next-themes";
 import Link from "next/link";
@@ -15,7 +15,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "~/components/shadcn/ui/dropdown-menu";
-import { env } from "~/env";
 import { useRequireAuth } from "~/hooks/use-require-auth";
 import { cn } from "~/lib/utils";
 import { api } from "~/utils/api";
@@ -45,7 +44,6 @@ export function UserMenu({ compact = false }: { compact?: boolean }) {
   const id = session?.user.id;
   const name = me.data?.name ?? session?.user.name ?? "Your account";
   const image = me.data?.image ?? session?.user.image ?? undefined;
-  const isBrand = me.data?.creator && !me.data.creator.notCreatorButSeller;
 
   return (
     <DropdownMenu>
@@ -75,26 +73,19 @@ export function UserMenu({ compact = false }: { compact?: boolean }) {
           {id && <span className="block truncate font-mono text-[11px] text-muted-foreground">{addrShort(id, 6)}</span>}
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem asChild className="gap-2">
-          <Link href="/collection">
-            <Layers className="size-4" /> My collection
-          </Link>
-        </DropdownMenuItem>
-        <DropdownMenuItem asChild className="gap-2">
-          <Link href="/wallet">
-            <Wallet className="size-4" /> Wallet
-          </Link>
-        </DropdownMenuItem>
-        <DropdownMenuItem asChild className="gap-2">
-          <Link href="/settings">
-            <Settings className="size-4" /> Settings
-          </Link>
-        </DropdownMenuItem>
-        <DropdownMenuItem asChild className="gap-2">
-          <a href={env.NEXT_PUBLIC_BRAND_PORTAL_URL} target="_blank" rel="noreferrer">
-            <Store className="size-4" /> {isBrand ? "Brand portal" : "Become a creator"}
-          </a>
-        </DropdownMenuItem>
+        {[
+          { href: "/wallet", label: "Wallet", icon: Wallet },
+          { href: "/activity", label: "Activity", icon: Activity },
+          { href: "/notifications", label: "Notifications", icon: Bell },
+          { href: "/creators", label: "Creators", icon: Users },
+          { href: "/settings", label: "Settings", icon: Settings },
+        ].map((l) => (
+          <DropdownMenuItem key={l.href} asChild className="gap-2">
+            <Link href={l.href}>
+              <l.icon className="size-4" /> {l.label}
+            </Link>
+          </DropdownMenuItem>
+        ))}
         <DropdownMenuSeparator />
         <DropdownMenuLabel className="label-caps">Theme</DropdownMenuLabel>
         {THEMES.map((t) => (

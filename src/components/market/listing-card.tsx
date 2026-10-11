@@ -14,7 +14,6 @@ export function ListingCard({ listing, className }: { listing: ListingCardData; 
   const meta = MEDIA_META[a.mediaType];
   const resale = listing.placerId !== a.creatorId;
   const locked = !resale && (listing.privacy === "PRIVATE" || listing.privacy === "TIER");
-  const left = a.limit == null ? null : Math.max(0, a.limit - a.mintedCount);
 
   return (
     <Link
@@ -45,7 +44,8 @@ export function ListingCard({ listing, className }: { listing: ListingCardData; 
         <p className="truncate text-xs text-muted-foreground">{resale ? `by ${a.creator?.name ?? "creator"} · sold by ${listing.placer?.name ?? "fan"}` : (a.creator?.name ?? "Wadzzo")}</p>
         <div className="mt-auto flex items-end justify-between gap-2 pt-1.5">
           <span className="font-hud text-base font-bold tabular-nums">{formatAmount(listing.price, PLATFORM_ASSET.code)}</span>
-          {!resale && left !== null && <span className="text-[11px] text-muted-foreground">{left > 0 ? `${left} left` : "Sold out"}</span>}
+          {/* Exact availability (stock + mintable) is checked on the item page; cards show the edition size. */}
+          {!resale && <span className="text-[11px] text-muted-foreground">{a.limit == null ? "Open edition" : `Edition of ${a.limit.toLocaleString()}`}</span>}
         </div>
       </div>
     </Link>
@@ -67,5 +67,5 @@ export function ListingCardSkeleton() {
 
 /** Responsive grid: 2 columns on phones up to 5 on wide screens. */
 export function ListingGrid({ children, className }: { children: React.ReactNode; className?: string }) {
-  return <div className={cn("grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4 2xl:grid-cols-5", className)}>{children}</div>;
+  return <div className={cn("grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6", className)}>{children}</div>;
 }

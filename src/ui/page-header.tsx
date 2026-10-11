@@ -44,10 +44,10 @@ export function PageHeader({
   );
 }
 
-/** Standard page body: max width, padding, and room above the phone tab bar. */
+/** Standard page body: max width and padding (the footer leaves room for the bottom tabs). */
 export function PageBody({ children, className, wide = false }: { children: ReactNode; className?: string; wide?: boolean }) {
   return (
-    <div className={cn("mx-auto w-full px-4 pb-28 pt-5 sm:px-6 lg:px-8 lg:pb-10 lg:pt-8", wide ? "max-w-[1400px]" : "max-w-6xl", className)}>
+    <div className={cn("mx-auto w-full px-4 pb-10 pt-5 sm:px-6 lg:pt-8", wide ? "max-w-7xl" : "max-w-5xl", className)}>
       {children}
     </div>
   );

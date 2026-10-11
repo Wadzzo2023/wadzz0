@@ -308,3 +308,13 @@
   width: 1rem;
   height: 1rem;
 }
+
+/* Hero carousel: the active thumbnail's progress bar. */
+@keyframes hero-progress {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}

@@ -76,7 +76,7 @@ export default async function ItemPage({ params }: PageProps<"/item/[id]">) {
         <span className="text-foreground">{item.name}</span>
       </nav>
 
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_420px] lg:gap-10">
+      <div className="grid gap-6 lg:grid-cols-[minmax(0,560px)_minmax(0,1fr)] lg:gap-10">
         <div className="space-y-6">
           <ItemMedia assetId={item.id} name={item.name} thumbnail={item.thumbnail} mediaType={item.mediaType} />
           <section className="space-y-2 lg:hidden">
