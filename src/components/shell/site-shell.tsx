@@ -3,6 +3,7 @@
 import { Bell, Search, Store, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { AnimatePresence, motion } from "motion/react";
 import { Suspense, useState, type ReactNode } from "react";
 
 import { env } from "~/env";
@@ -100,36 +101,44 @@ function useBrandEntry() {
   return isBrand ? { label: "My brand", href: base } : { label: "Create brand", href: `${base}/onboarding` };
 }
 
-/** Bottom tabs: full-width bar on phones, a floating pill on larger screens. */
+/**
+ * Bottom navigation: a floating glass pill of icon tabs. The active tab grows
+ * into a green capsule with its label, and the capsule glides between tabs.
+ * The brand entry sits beside the pill as its own round action button.
+ */
 function BottomTabs() {
   const pathname = usePathname() ?? "";
   const brand = useBrandEntry();
 
   return (
-    <nav
-      aria-label="Sections"
-      className={cn(
-        "fixed inset-x-0 bottom-0 z-40 border-t bg-card/95 pb-[var(--safe-bottom)] backdrop-blur-md supports-[backdrop-filter]:bg-card/85",
-        "sm:inset-x-auto sm:bottom-4 sm:left-1/2 sm:w-[min(40rem,calc(100%-2rem))] sm:-translate-x-1/2 sm:rounded-2xl sm:border sm:pb-0 sm:shadow-xl sm:shadow-black/10",
-      )}
-    >
-      <div className="flex h-16 items-stretch sm:px-2">
-        {TABS.map((t) => (
-          <Tab key={t.href} item={t} active={isActive(pathname, t)} />
-        ))}
+    <div className="pointer-events-none fixed inset-x-0 bottom-0 z-40 flex justify-center px-3 pb-[calc(var(--safe-bottom)+0.75rem)] sm:pb-5">
+      <motion.div
+        initial={{ y: 40, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ type: "spring", stiffness: 160, damping: 22 }}
+        className="pointer-events-auto flex max-w-full items-center gap-2"
+      >
+        <nav
+          aria-label="Sections"
+          className="flex items-center gap-0.5 rounded-full border border-white/40 bg-card/80 p-1.5 shadow-[0_10px_40px_-10px_rgba(0,0,0,0.35)] ring-1 ring-black/5 backdrop-blur-xl dark:border-white/10 dark:ring-white/5"
+        >
+          {TABS.map((t) => (
+            <Tab key={t.href} item={t} active={isActive(pathname, t)} />
+          ))}
+        </nav>
         <a
           href={brand.href}
           target="_blank"
           rel="noreferrer"
-          className="flex min-w-0 flex-1 flex-col items-center justify-center gap-1 text-muted-foreground transition-colors hover:text-foreground active:scale-95"
+          aria-label={brand.label}
+          title={brand.label}
+          className="group flex h-[3.75rem] items-center gap-2 rounded-full bg-gradient-to-br from-primary to-green-hot px-[1.15rem] text-primary-foreground shadow-[0_10px_30px_-8px_hsl(var(--primary)/0.7)] ring-4 ring-background/60 transition-transform hover:scale-105 active:scale-95"
         >
-          <span className="flex h-7 w-11 items-center justify-center rounded-full bg-primary text-primary-foreground">
-            <Store className="size-4 shrink-0" />
-          </span>
-          <span className="w-full truncate px-0.5 text-center font-hud text-[10px] font-semibold uppercase leading-none tracking-wider">{brand.label}</span>
+          <Store className="size-5 shrink-0" />
+          <span className="hidden whitespace-nowrap text-sm font-semibold md:inline">{brand.label}</span>
         </a>
-      </div>
-    </nav>
+      </motion.div>
+    </div>
   );
 }
 
@@ -139,12 +148,36 @@ function Tab({ item, active }: { item: NavItem; active: boolean }) {
     <Link
       href={item.href}
       aria-current={active ? "page" : undefined}
-      className={cn("flex min-w-0 flex-1 flex-col items-center justify-center gap-1 transition-colors active:scale-95", active ? "text-primary" : "text-muted-foreground hover:text-foreground")}
+      aria-label={item.label}
+      className={cn(
+        "relative flex h-12 items-center rounded-full px-3 transition-colors sm:px-3.5",
+        active ? "text-primary-foreground" : "text-muted-foreground hover:bg-accent/70 hover:text-foreground",
+      )}
     >
-      <span className={cn("flex h-7 w-11 items-center justify-center rounded-full transition-colors", active && "bg-primary/12")}>
-        <Icon className="size-5 shrink-0" />
+      {active && (
+        <motion.span
+          layoutId="bottom-tab-active"
+          transition={{ type: "spring", stiffness: 380, damping: 32 }}
+          className="absolute inset-0 rounded-full bg-primary shadow-md shadow-primary/30"
+        />
+      )}
+      <span className="relative z-10 flex items-center">
+        <Icon className="size-5 shrink-0" strokeWidth={active ? 2.4 : 2} />
+        <AnimatePresence initial={false}>
+          {active && (
+            <motion.span
+              key="label"
+              initial={{ width: 0, opacity: 0, marginLeft: 0 }}
+              animate={{ width: "auto", opacity: 1, marginLeft: 8 }}
+              exit={{ width: 0, opacity: 0, marginLeft: 0 }}
+              transition={{ type: "spring", stiffness: 380, damping: 32 }}
+              className="overflow-hidden whitespace-nowrap text-sm font-semibold"
+            >
+              {item.label}
+            </motion.span>
+          )}
+        </AnimatePresence>
       </span>
-      <span className="w-full truncate px-0.5 text-center font-hud text-[10px] font-semibold uppercase leading-none tracking-wider">{item.label}</span>
     </Link>
   );
 }
