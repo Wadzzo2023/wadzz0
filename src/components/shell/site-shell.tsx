@@ -122,7 +122,7 @@ function BottomTabs() {
       >
         <nav
           aria-label="Sections"
-          className="glass flex items-center gap-0.5 rounded-full p-1.5 shadow-[0_10px_40px_-10px_rgba(0,0,0,0.5)]"
+          className="glass-liquid flex items-center gap-0.5 rounded-full p-1.5"
         >
           {TABS.map((t) => (
             <Tab key={t.href} item={t} active={isActive(pathname, t)} />
@@ -142,7 +142,7 @@ function BrandButton({ brand }: { brand: { label: string; href: string; logo: st
       target="_blank"
       rel="noreferrer"
       aria-label={brand.label}
-      className="glass group relative flex size-[3.75rem] shrink-0 items-center justify-center rounded-full p-1.5 shadow-[0_10px_40px_-10px_rgba(0,0,0,0.5)] transition-transform hover:scale-105 active:scale-95"
+      className="glass-liquid group relative flex size-[3.75rem] shrink-0 items-center justify-center rounded-full p-1.5 transition-transform hover:scale-105 active:scale-95"
     >
       {brand.logo ? (
         // eslint-disable-next-line @next/next/no-img-element
@@ -170,14 +170,14 @@ function Tab({ item, active }: { item: NavItem; active: boolean }) {
       aria-label={item.label}
       className={cn(
         "relative flex h-12 items-center rounded-full px-3 transition-colors sm:px-3.5",
-        active ? "text-primary-foreground" : "text-muted-foreground hover:bg-accent/70 hover:text-foreground",
+        active ? "text-primary-foreground" : "text-foreground/65 hover:bg-white/30 hover:text-foreground dark:hover:bg-white/10",
       )}
     >
       {active && (
         <motion.span
           layoutId="bottom-tab-active"
           transition={{ type: "spring", stiffness: 380, damping: 32 }}
-          className="absolute inset-0 rounded-full bg-primary shadow-[0_0_20px_-2px_hsl(var(--primary)/0.7)]"
+          className="absolute inset-0 rounded-full bg-primary shadow-[inset_0_1px_0_hsl(0_0%_100%/0.45),inset_0_-2px_6px_hsl(0_0%_0%/0.15),0_0_22px_-2px_hsl(var(--primary)/0.75)]"
         />
       )}
       <span className="relative z-10 flex items-center">
