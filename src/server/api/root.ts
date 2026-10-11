@@ -1,43 +1,20 @@
-import { createTRPCRouter } from "~/server/api/trpc";
-import { fanRouter } from "./routers/fan/root";
-import { musicRouter } from "./routers/music/root";
-import { marketplaceRouter } from "./routers/marketplace/root";
-import { wallateRouter } from "./routers/wallate/root";
-import { authRouter } from "./routers/auth/root";
-import { mapsRouter } from "./routers/maps/root";
-import { gameRouter } from "./routers/game";
-import { wallateBalanceRouter } from "./routers/walletBalance/root";
-import { adminRouter } from "./routers/admin/root";
-import { BountyRouters } from "./routers/bounty/root";
-import { s3Router } from "./routers/s3";
-import { widgetRouter } from "./routers/widget";
-import { qrRouter } from "./routers/qr";
-import { agentRouter } from "./routers/agent";
-import { pinAgentRouter } from "./routers/pin-agent";
+import { createCallerFactory, createTRPCRouter } from "~/server/api/trpc";
 
-/**
- * This is the primary router for your server.
- *
- * All routers added in /api/routers should be manually added here.
- */
+import { activityRouter } from "./routers/activity";
+import { collectionRouter } from "./routers/collection";
+import { marketRouter } from "./routers/market";
+import { purchaseRouter } from "./routers/purchase";
+import { txRouter } from "./routers/tx";
+
 export const appRouter = createTRPCRouter({
-  fan: fanRouter,
-  music: musicRouter,
-  marketplace: marketplaceRouter,
-  wallate: wallateRouter,
-  auth: authRouter,
-  maps: mapsRouter,
-  game: gameRouter,
-  walletBalance: wallateBalanceRouter,
-  admin: adminRouter,
-  bounty: BountyRouters,
-  s3: s3Router,
-  widget: widgetRouter,
-  qr: qrRouter,
-  agent: agentRouter,
-  pinAgent: pinAgentRouter
-
+  market: marketRouter,
+  purchase: purchaseRouter,
+  collection: collectionRouter,
+  activity: activityRouter,
+  tx: txRouter,
 });
 
-// export type definition of API
 export type AppRouter = typeof appRouter;
+
+/** Server-side caller (server components): `const api = createCaller(await createTRPCContext())`. */
+export const createCaller = createCallerFactory(appRouter);

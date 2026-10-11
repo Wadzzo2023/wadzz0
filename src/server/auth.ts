@@ -1,8 +1,5 @@
-/* eslint-disable */
 import { verifyMessageSignature } from "@albedo-link/signature-verification";
 import axios from "axios";
-import { type GetServerSidePropsContext } from "next";
-
 import {
   getServerSession,
   type DefaultSession,
@@ -24,6 +21,7 @@ import { auth } from "package/connect_wallet/src/lib/firebase/firebase-auth";
 import { getPublicKeyAPISchema } from "package/connect_wallet/src/lib/stellar/wallet_clients/type";
 import { z } from "zod";
 import { db } from "~/server/db";
+import { getCurrentPlatform, recordUserPlatform } from "~/server/platform";
 import { AuthCredentialType } from "~/types/auth";
 import { truncateString } from "~/utils/string";
 
@@ -140,7 +138,7 @@ export const authOptions: NextAuthOptions = {
           }
           throw new Error("Invalid signature");
         }
-        // wallet rabet, frieghter, walletConnect, metamask
+        // wallet rabet and frieghter
         if (
           cred.walletType == WalletType.rabet ||
           cred.walletType == WalletType.frieghter ||
@@ -241,17 +239,8 @@ export const authOptions: NextAuthOptions = {
 
 };
 
-/**
- * Wrapper for `getServerSession` so that you don't need to import the `authOptions` in every file.
- *
- * @see https://next-auth.js.org/configuration/nextjs
- */
-export const getServerAuthSession = (ctx: {
-  req: GetServerSidePropsContext["req"];
-  res: GetServerSidePropsContext["res"];
-}) => {
-  return getServerSession(ctx.req, ctx.res, authOptions);
-};
+/** The signed-in session in server components, route handlers and tRPC (App Router). */
+export const getServerAuthSession = () => getServerSession(authOptions);
 
 async function dbUser(
   pubkey: string,
@@ -259,9 +248,11 @@ async function dbUser(
   email?: string,
   signUpMethod?: string,
 ) {
+  const platform = await getCurrentPlatform();
   const user = await db.user.findUnique({ where: { id: pubkey } });
   // if user exists, check if email is set, if not set it
   if (user) {
+    await recordUserPlatform(platform, user.id, { signUpMethod, isNewUser: false });
     const profileEmail = user.email;
     if (!profileEmail && email) {
       await db.user.update({
@@ -288,8 +279,10 @@ async function dbUser(
         fromAppSignup: fromAppSign === "true" ? true : false,
         email: email,
         firstSignUpMethod: signUpMethod,
+        signupPlatformId: platform.id,
       },
     });
+    await recordUserPlatform(platform, data.id, { signUpMethod, isNewUser: true });
     return data;
   }
 }
@@ -310,6 +303,8 @@ async function getUserPublicKey({
         uid,
         email,
         from: env.NEXT_PUBLIC_ASSET_CODE ?? "Wadzzo",
+        // registered platforms are funded by their own account (stellar-accounts config/platforms)
+        platform: env.PLATFORM_SLUG,
         fromAppSign: fromAppSign ? "true" : "false",
       },
     },

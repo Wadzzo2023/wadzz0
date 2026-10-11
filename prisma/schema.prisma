@@ -1,5 +1,5 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
+// COPY of brand-wadzzo/prisma/schema.prisma — the shared database's source of truth.
+// Edit the schema in brand-wadzzo, then copy it here. Never `prisma db push` from this repo.
 
 generator client {
     provider      = "prisma-client-js"
@@ -8,11 +8,7 @@ generator client {
 
 datasource db {
     provider = "postgresql"
-    // NOTE: When using mysql or sqlserver, uncomment the @db.Text annotations in model Account below
-    // Further reading:
-    // https://next-auth.js.org/adapters/prisma#create-the-prisma-schema
-    // https://www.prisma.io/docs/reference/api-reference/prisma-schema-reference#string
-    url      = env("DATABASE_URL")
+    // Prisma 7: the connection URL lives in prisma.config.ts.
 }
 
 // ------------------------Generic SCHEMA-------------------------
@@ -88,9 +84,16 @@ model NotificationObject {
 model Subscription {
     id Int @id @default(autoincrement())
 
-    name     String
-    features String
-    price    Float // here price is the copy of creator page asset
+    name        String
+    description String   @default("")
+    features    String[] // one perk per entry
+    /// palette name the UI maps to theme-safe classes: green | blue | purple | gold | rose | slate
+    color       String   @default("green")
+    popular     Boolean  @default(false)
+    isActive    Boolean  @default(true)
+    /// page tokens a fan must hold to be in this tier
+    price       Float
+    createdAt   DateTime @default(now())
 
     creatorId String
     creator   Creator @relation(fields: [creatorId], references: [id], onDelete: Cascade)
@@ -98,8 +101,12 @@ model Subscription {
     posts         Post[]
     assets        Asset[]
     LocationGroup LocationGroup[]
+    // white-label platform this row belongs to (see model Platform)
+    platformId String   @default("wadzzo")
+    platform   Platform @relation(fields: [platformId], references: [id])
 
     @@unique([name, creatorId])
+    @@index([platformId])
 }
 
 model Like {
@@ -219,8 +226,6 @@ model Creator {
     LocationGroup      LocationGroup[]
     Bounty             Bounty[]
     vanitySubscription VanitySubscription?
-    Album              Album[]
-    Song               Song[]
     SellPageAsset      SellPageAsset[]
     pinAgentSessions   PinAgentChatSession[] @relation("pinAgentSessions")
     pinAgentMessages   PinAgentChatHistory[] @relation("pinAgentMessages")
@@ -229,8 +234,23 @@ model Creator {
     locationGroupJobs  LocationGroupJob[]
     agentJobs          AgentJob[]
     locationTags       LocationTag[]
+    events        CreatorEvent[]
+    announcements CreatorAnnouncement[]
+    mapEmbeds          MapEmbed[]
+    agentConversations AgentConversation[]
+    issuer             CreatorIssuer?
+    royaltyTransactions AssetTransaction[] @relation("TxCreator")
+
+    // The brand's own home area; overrides its platform's (see Platform.homeArea).
+    homeArea     Json?
+    homeAreaName String?
+
+    // white-label platform this row belongs to (see model Platform)
+    platformId String   @default("wadzzo")
+    platform   Platform @relation(fields: [platformId], references: [id])
 
     @@index([bio, name])
+    @@index([platformId])
 }
 
 model VanitySubscription {
@@ -262,8 +282,12 @@ model Post {
     likes          Like[]
     comments       Comment[]
     medias         Media[]
+    // white-label platform this row belongs to (see model Platform)
+    platformId String   @default("wadzzo")
+    platform   Platform @relation(fields: [platformId], references: [id])
 
     @@index([heading])
+    @@index([platformId])
 }
 
 // Necessary for Next auth
@@ -314,7 +338,6 @@ model User {
     comments         Comment[]
     assets           User_Asset[]
     Admin            Admin[]
-    songs            User_Song[]
     followings       Follow[]
     LocationConsumer LocationConsumer[]
 
@@ -331,6 +354,21 @@ model User {
     RedeemConsumer RedeemConsumer[]
 
     QRItem QRItem[]
+    eventRsvps           EventRsvp[]
+    eventComments        EventComment[]
+    announcementComments AnnouncementComment[]
+
+    muralsDiscovered  Mural[]            @relation("MuralDiscoverer")
+    muralScans        MuralScan[]
+    muralScanSessions MuralScanSession[]
+    coinBalances      CoinBalance[] // one per platform
+    coinLedger        CoinLedger[]
+    purchases         AssetTransaction[] @relation("TxBuyer")
+    sales             AssetTransaction[] @relation("TxSeller")
+    // platform the user first signed up on; every platform joined is in UserPlatform
+    signupPlatformId String         @default("wadzzo")
+    signupPlatform   Platform       @relation("SignupPlatform", fields: [signupPlatformId], references: [id])
+    platforms        UserPlatform[]
 }
 
 model VerificationToken {
@@ -339,51 +377,6 @@ model VerificationToken {
     expires    DateTime
 
     @@unique([identifier, token])
-}
-
-// ------------------------MUSIC SCHEMA-------------------------
-
-model Album {
-    id          Int      @id @default(autoincrement())
-    name        String
-    description String
-    coverImgUrl String
-    creatorId   String?
-    creator     Creator? @relation(fields: [creatorId], references: [id], onDelete: SetNull)
-    createdAt   DateTime @default(now())
-    songs       Song[]
-}
-
-model Song {
-    id Int @id @default(autoincrement())
-
-    artist String
-
-    assetId Int   @unique
-    asset   Asset @relation(fields: [assetId], references: [id], onDelete: Cascade)
-
-    creatorId String?
-    creator   Creator? @relation(fields: [creatorId], references: [id], onDelete: SetNull)
-
-    price    Float
-    priceUSD Float
-
-    albumId Int
-    album   Album @relation(fields: [albumId], references: [id], onDelete: Cascade)
-
-    createdAt DateTime @default(now())
-
-    User_Song User_Song[]
-}
-
-model User_Song {
-    userId String
-    user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-    songId Int
-    song   Song @relation(fields: [songId], references: [id], onDelete: Cascade)
-
-    @@id([userId, songId])
 }
 
 enum ItemPrivacy {
@@ -402,10 +395,18 @@ model Asset {
     name        String
     description String?
 
-    limit Int? // if null then it is unlimited
+    /// Max copies that may ever exist; null = unlimited. Enforced by the server
+    /// when it mints (the issuer stays unlocked so copies can be minted on demand).
+    limit Int?
+    /// Copies issued on-chain so far (into storage or straight to a buyer/claimer).
+    mintedCount Int @default(0)
+    /// % of every resale price paid to the creator (0–15).
+    royaltyPercent Float @default(0)
 
     code          String
     issuer        String
+    /// Legacy per-asset issuer secret. New assets are issued by the creator's
+    /// CreatorIssuer and leave this empty.
     issuerPrivate String?
 
     mediaType MediaType
@@ -420,19 +421,26 @@ model Asset {
     tierId Int?
     tier   Subscription? @relation(fields: [tierId], references: [id], onDelete: SetNull)
 
-    song          Song?
     buyers        User_Asset[]
     marketItems   MarketAsset[]
     LocationGroup LocationGroup[]
     Redeem        Redeem[]
+    transactions  AssetTransaction[]
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @default(now()) @updatedAt
+
+    // white-label platform this row belongs to (see model Platform)
+    platformId String   @default("wadzzo")
+    platform   Platform @relation(fields: [platformId], references: [id])
 
     @@unique([code, issuer])
     @@index([name, description])
+    @@index([platformId])
 }
 
 // this will eliminate asset buy modal overhead.
 enum MarketType {
-    SONG
     ADMIN
     FAN
 }
@@ -457,7 +465,110 @@ model MarketAsset {
     placerId String? // admin placing this assets
     placer   Creator? @relation(fields: [placerId], references: [id], onDelete: Cascade)
 
+    transactions AssetTransaction[]
+
+    // white-label platform this row belongs to (see model Platform)
+    platformId String   @default("wadzzo")
+    platform   Platform @relation(fields: [platformId], references: [id])
+
     @@unique([assetId, placerId])
+    @@index([platformId])
+}
+
+/// A creator's Stellar issuer account. One per creator, set up (and paid for by
+/// the creator) before their first on-demand asset; every later asset of theirs
+/// is issued by it, so new assets cost no issuer account. The secret is kept
+/// encrypted (AES-256-GCM, key ISSUER_ENCRYPTION_KEY) and never leaves the server.
+model CreatorIssuer {
+    creatorId       String   @id
+    creator         Creator  @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+    publicKey       String   @unique
+    secretEncrypted String
+    /// true once the account exists on-chain
+    active          Boolean  @default(false)
+    createdAt       DateTime @default(now())
+}
+
+enum AssetTxType {
+    ISSUER_SETUP // creator opens their issuer account
+    STORAGE_SETUP // user opens a storage (resale) account
+    MINT_TO_STORAGE // creator mints copies into their own storage
+    PURCHASE // fan buys from the creator (from stock or minted on demand)
+    RESALE_PURCHASE // fan buys from another fan's resale listing
+    PAGE_ASSET_PURCHASE // fan buys a creator's page tokens
+    CLAIM // fan claims from a pin (minted on demand if needed)
+    GIFT // creator sends a copy to a fan
+    LIST // seller moves copies into storage to sell
+    UNLIST // seller takes copies back from storage
+}
+
+enum AssetTxStatus {
+    PENDING // built, waiting for signature/submission (void after expiresAt)
+    SUCCESS
+    FAILED
+}
+
+enum PaymentMethod {
+    PLATFORM_ASSET
+    XLM
+    CARD
+    NONE
+}
+
+/// Every on-chain action on an item, with what it cost. Built by the server
+/// (status PENDING, hash known before signing), then confirmed against Horizon.
+/// Drives activity/transaction history and reserves supply while pending.
+model AssetTransaction {
+    id     String        @id @default(cuid())
+    type   AssetTxType
+    status AssetTxStatus @default(PENDING)
+
+    assetId       Int?
+    asset         Asset?       @relation(fields: [assetId], references: [id], onDelete: SetNull)
+    marketAssetId Int?
+    marketAsset   MarketAsset? @relation(fields: [marketAssetId], references: [id], onDelete: SetNull)
+
+    quantity Int @default(1)
+    /// copies newly minted by this transaction (counted toward Asset.limit)
+    minted   Int @default(0)
+
+    buyerId   String?
+    buyer     User?    @relation("TxBuyer", fields: [buyerId], references: [id], onDelete: SetNull)
+    sellerId  String?
+    seller    User?    @relation("TxSeller", fields: [sellerId], references: [id], onDelete: SetNull)
+    /// the item's creator (receives price or royalty)
+    creatorId String?
+    creator   Creator? @relation("TxCreator", fields: [creatorId], references: [id], onDelete: SetNull)
+
+    method   PaymentMethod @default(NONE)
+    /// currency of the amounts below: platform asset code, "XLM" or "USD"
+    currency String
+    price         Float @default(0)
+    royaltyAmount Float @default(0)
+    platformFee   Float @default(0)
+    networkFee    Float @default(0)
+    /// XLM reserves (trustline/account) the payer covered, in `currency`
+    reserveCost   Float @default(0)
+    total         Float @default(0)
+
+    /// card payment id (Square) when method = CARD; the card is charged before delivery
+    paymentRef String?   @unique
+    /// Stellar transaction hash (known before signing)
+    txHash    String?   @unique
+    error     String?
+    expiresAt DateTime?
+
+    // white-label platform this row belongs to (see model Platform)
+    platformId String   @default("wadzzo")
+    platform   Platform @relation(fields: [platformId], references: [id])
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    @@index([buyerId, createdAt])
+    @@index([sellerId, createdAt])
+    @@index([assetId, status])
+    @@index([platformId])
 }
 
 model SellPageAsset {
@@ -525,6 +636,10 @@ model Admin {
 
     user       User         @relation(fields: [id], references: [id], onDelete: Cascade)
     AdminAsset AdminAsset[]
+    // white-label platform this row belongs to (see model Platform)
+    platformId String   @default("wadzzo")
+    platform   Platform @relation(fields: [platformId], references: [id])
+    @@index([platformId])
 }
 
 // ------------------------Mapping SCHEMA-------------------------
@@ -555,6 +670,10 @@ model Hotspot {
     updatedAt        DateTime @updatedAt
 
     locationGroups LocationGroup[]
+    // white-label platform this row belongs to (see model Platform)
+    platformId String   @default("wadzzo")
+    platform   Platform @relation(fields: [platformId], references: [id])
+    @@index([platformId])
 }
 
 model LocationTag {
@@ -629,6 +748,11 @@ model LocationGroup {
     hotspot           Hotspot?           @relation(fields: [hotspotId], references: [id])
     hotspotId         String?
     locationGroupTags LocationGroupTag[]
+    events CreatorEvent[]
+    // white-label platform this row belongs to (see model Platform)
+    platformId String   @default("wadzzo")
+    platform   Platform @relation(fields: [platformId], references: [id])
+    @@index([platformId])
 }
 
 model Location {
@@ -663,6 +787,10 @@ model LocationConsumer {
     hidden Boolean @default(false)
 
     createdAt DateTime @default(now())
+    // white-label platform this row belongs to (see model Platform)
+    platformId String   @default("wadzzo")
+    platform   Platform @relation(fields: [platformId], references: [id])
+    @@index([platformId])
 }
 
 model Bounty {
@@ -688,8 +816,13 @@ model Bounty {
     BountyWinner       BountyWinner[]
     User               User?               @relation(fields: [userId], references: [id])
     userId             String?
+    events CreatorEvent[]
+    // white-label platform this row belongs to (see model Platform)
+    platformId String   @default("wadzzo")
+    platform   Platform @relation(fields: [platformId], references: [id])
 
     @@index([title, description])
+    @@index([platformId])
 }
 
 model BountyWinner {
@@ -740,8 +873,12 @@ model BountyParticipant {
     user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
     joinedAt DateTime @default(now())
+    // white-label platform this row belongs to (see model Platform)
+    platformId String   @default("wadzzo")
+    platform   Platform @relation(fields: [platformId], references: [id])
 
     @@unique([bountyId, userId])
+    @@index([platformId])
 }
 
 model BountySubmission {
@@ -805,6 +942,10 @@ model Redeem {
     redeemConsumers RedeemConsumer[]
     assetRedeemId   Int
     assetRedeem     Asset            @relation(fields: [assetRedeemId], references: [id], onDelete: Cascade)
+    // white-label platform this row belongs to (see model Platform)
+    platformId String   @default("wadzzo")
+    platform   Platform @relation(fields: [platformId], references: [id])
+    @@index([platformId])
 }
 
 model RedeemConsumer {
@@ -832,8 +973,12 @@ model QRItem {
     // Relations
     creator      User            @relation(fields: [creatorId], references: [id], onDelete: Cascade)
     descriptions QRDescription[]
+    // white-label platform this row belongs to (see model Platform)
+    platformId String   @default("wadzzo")
+    platform   Platform @relation(fields: [platformId], references: [id])
 
     @@unique([id, creatorId])
+    @@index([platformId])
 }
 
 model QRDescription {
@@ -850,7 +995,8 @@ model QRDescription {
     @@index([qrItemId, order])
 }
 
-// Pin Agent Chat Session
+/// Deprecated: the old pin-analysis chat, unused since the map agent rebuild
+/// (see AgentConversation). Kept so existing rows aren't dropped without a decision.
 model PinAgentChatSession {
     id        String  @id @default(cuid())
     creatorId String
@@ -865,7 +1011,7 @@ model PinAgentChatSession {
     @@index([creatorId, updatedAt])
 }
 
-// Pin Agent Chat History
+/// Deprecated: see PinAgentChatSession.
 model PinAgentChatHistory {
     id        String  @id @default(cuid())
     creatorId String
@@ -905,6 +1051,8 @@ model LocationGroupJob {
     @@index([creatorId, createdAt])
 }
 
+/// Deprecated: nothing reads or writes this since the map agent rebuild. Kept so
+/// existing rows aren't dropped without a decision.
 model AgentJob {
     id        String  @id @default(cuid())
     creatorId String
@@ -921,9 +1069,524 @@ model AgentJob {
     @@index([creatorId, createdAt])
 }
 
+// ------------------------MAP AGENT (chat on the Pins map)-------------------------
+
+/// One chat between a person and the map agent, acting for one brand. Listed per
+/// brand AND per person, so an admin acting for a brand keeps their own chats.
+model AgentConversation {
+    id         String   @id @default(cuid())
+    creatorId  String
+    creator    Creator  @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+    platformId String
+    platform   Platform @relation(fields: [platformId], references: [id])
+    userId     String // who is chatting: the brand itself, or an admin acting for it
+    title      String
+
+    messages AgentMessage[]
+    actions  AgentAction[]
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    @@index([creatorId, userId, updatedAt])
+}
+
+model AgentMessage {
+    id             String            @id @default(cuid())
+    conversationId String
+    conversation   AgentConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+    role   String // "user" | "assistant"
+    text   String @db.Text
+    blocks Json   @default("[]") // cards shown with the message (AgentBlock[])
+    steps  Json   @default("[]") // what the agent did while answering (AgentStep[])
+
+    createdAt DateTime @default(now())
+
+    @@index([conversationId, createdAt])
+}
+
+/// A change the agent proposed. Nothing happens until the person confirms it;
+/// the brand app then re-checks access and carries it out once.
+model AgentAction {
+    id             String            @id @default(cuid())
+    conversationId String
+    conversation   AgentConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+    creatorId      String
+
+    type    String
+    payload Json
+    status  String @default("pending") // pending | running | done | failed | cancelled
+    result  Json?
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    @@index([conversationId])
+}
+
 model GeoCache {
     key       String   @id
     value     String   @db.Text
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
+}
+
+// ------------------------EVENTS & ANNOUNCEMENTS-------------------------
+model CreatorEvent {
+    id String @id @default(cuid())
+
+    creatorId String
+    creator   Creator @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+
+    title       String
+    description String
+    coverImage  String?
+
+    startDate DateTime
+    endDate   DateTime
+
+    // Venue is optional — an event can be online-only (link), in person, or both.
+    venueName String?
+    address   String?
+    latitude  Float?
+    longitude Float?
+
+    link      String?
+    linkLabel String?
+
+    // null = unlimited RSVPs
+    capacity Int?
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    pins     LocationGroup[]
+    bounties Bounty[]
+    rsvps    EventRsvp[]
+    comments EventComment[]
+    // white-label platform this row belongs to (see model Platform)
+    platformId String   @default("wadzzo")
+    platform   Platform @relation(fields: [platformId], references: [id])
+
+    @@index([creatorId])
+    @@index([startDate])
+    @@index([platformId])
+}
+
+model EventRsvp {
+    id String @id @default(cuid())
+
+    eventId String
+    event   CreatorEvent @relation(fields: [eventId], references: [id], onDelete: Cascade)
+    userId  String
+    user    User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    createdAt DateTime @default(now())
+
+    @@unique([eventId, userId])
+}
+
+model EventComment {
+    id String @id @default(cuid())
+
+    eventId String
+    event   CreatorEvent @relation(fields: [eventId], references: [id], onDelete: Cascade)
+    userId  String
+    user    User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    content   String
+    createdAt DateTime @default(now())
+
+    @@index([eventId, createdAt])
+}
+
+model CreatorAnnouncement {
+    id String @id @default(cuid())
+
+    creatorId String
+    creator   Creator @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+
+    title  String
+    body   String
+    images String[] @default([])
+
+    pinned    Boolean   @default(false)
+    ctaLabel  String?
+    ctaUrl    String?
+    // Hidden from the feed after this moment; null = never expires.
+    expiresAt DateTime?
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    comments AnnouncementComment[]
+    // white-label platform this row belongs to (see model Platform)
+    platformId String   @default("wadzzo")
+    platform   Platform @relation(fields: [platformId], references: [id])
+
+    @@index([creatorId])
+    @@index([createdAt])
+    @@index([platformId])
+}
+
+model AnnouncementComment {
+    id String @id @default(cuid())
+
+    announcementId String
+    announcement   CreatorAnnouncement @relation(fields: [announcementId], references: [id], onDelete: Cascade)
+    userId         String
+    user           User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    content   String
+    createdAt DateTime @default(now())
+
+    @@index([announcementId, createdAt])
+}
+
+// ------------------------WEBSITE MAP EMBEDS-------------------------
+enum EmbedTheme {
+    AUTO
+    LIGHT
+    DARK
+}
+
+enum EmbedPinSource {
+    // Every brand's live pins in view.
+    ALL
+    // Only the embed owner's own pins.
+    CREATOR
+}
+
+enum EmbedGesture {
+    // Page scroll wins; zoom needs Ctrl/Cmd + scroll or two fingers.
+    COOPERATIVE
+    // The map takes every scroll and drag, like the app.
+    GREEDY
+}
+
+model MapEmbed {
+    id String @id @default(cuid())
+
+    creatorId String
+    creator   Creator @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+
+    name    String
+    enabled Boolean @default(true)
+
+    centerLat Float
+    centerLng Float
+    zoom      Float @default(12)
+
+    // Adds a "Near me" button that asks for location only when tapped.
+    userLocation Boolean      @default(false)
+    gestureMode  EmbedGesture @default(COOPERATIVE)
+
+    theme       EmbedTheme @default(AUTO)
+    accentColor String     @default("#39ff88")
+
+    pinSource EmbedPinSource @default(ALL)
+
+    // Empty = every pin type.
+    pinTypes        PinType[] @default([])
+    showFilterChips Boolean   @default(false)
+    showSearch      Boolean   @default(true)
+    showNearby      Boolean   @default(true)
+    // Approved murals in view (on by default; brands can switch it off).
+    showMurals      Boolean   @default(true)
+
+    // A button is hidden when its URL is null.
+    eventsLabel   String  @default("Find Events")
+    eventsUrl     String?
+    bountiesLabel String  @default("View Bounties")
+    bountiesUrl   String?
+
+    // Hostnames allowed to frame this embed; empty = any site.
+    allowedDomains String[] @default([])
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    stats MapEmbedDailyStat[]
+    // white-label platform this row belongs to (see model Platform)
+    platformId String   @default("wadzzo")
+    platform   Platform @relation(fields: [platformId], references: [id])
+
+    @@index([creatorId])
+    @@index([platformId])
+}
+
+model MapEmbedDailyStat {
+    embedId String
+    embed   MapEmbed @relation(fields: [embedId], references: [id], onDelete: Cascade)
+    // UTC day.
+    day     DateTime @db.Date
+
+    views          Int @default(0)
+    pinTaps        Int @default(0)
+    openClicks     Int @default(0)
+    eventsClicks   Int @default(0)
+    bountiesClicks Int @default(0)
+
+    @@id([embedId, day])
+}
+
+// ── Murals ──────────────────────────────────────────────────────────────────
+// User-discovered street art. Plan: wadzzoAR/docs/murals/plan.md.
+// Brands are not involved; scans earn Wadzzo Coins (off-chain ledger below).
+
+enum MuralStatus {
+    DISCOVERED // fewer than MuralSettings.confirmationsNeeded distinct scanners
+    PENDING    // in the admin queue
+    APPROVED
+    REJECTED
+}
+
+enum MuralRejectReason {
+    NOT_A_MURAL // users keep the coins they earned
+    FRAUD       // coins earned from it are revoked (never below 0)
+}
+
+enum CoinReason {
+    MURAL_SCAN
+    MURAL_DISCOVERY
+    MURAL_REVOKE
+    ADMIN_ADJUST
+}
+
+model Mural {
+    id        String  @id @default(cuid())
+    // "Mural on Bedford Ave", from reverse geocoding the first scan.
+    autoTitle String
+    title     String?
+    artist    String?
+    // Who filled in title/artist (any of the first scanners; first one wins).
+    namedById String?
+
+    latitude  Float
+    longitude Float
+    // Public photo; picked from a keyframe, admin can change it.
+    coverUrl  String
+
+    status       MuralStatus        @default(DISCOVERED)
+    rejectReason MuralRejectReason?
+    decidedAt    DateTime?
+    decidedById  String?
+
+    distinctScanners Int @default(0)
+    scanCount        Int @default(0)
+
+    discovererId String
+    discoverer   User   @relation("MuralDiscoverer", fields: [discovererId], references: [id], onDelete: Cascade)
+
+    // Set when an admin merges a duplicate into another record.
+    mergedIntoId String?
+    mergedInto   Mural?  @relation("MuralMerge", fields: [mergedIntoId], references: [id], onDelete: SetNull)
+    mergedFrom   Mural[] @relation("MuralMerge")
+
+    embeddings MuralEmbedding[]
+    scans      MuralScan[]
+    ledger     CoinLedger[]
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+    // white-label platform this row belongs to (see model Platform)
+    platformId String   @default("wadzzo")
+    platform   Platform @relation(fields: [platformId], references: [id])
+
+    @@index([status])
+    @@index([latitude, longitude])
+    @@index([platformId])
+}
+
+// Reference image embeddings (MobileCLIP S0, 512-d, normalised) taken from
+// accepted scans; capped per mural and spread across angles.
+model MuralEmbedding {
+    id        String   @id @default(cuid())
+    muralId   String
+    mural     Mural    @relation(fields: [muralId], references: [id], onDelete: Cascade)
+    vector    Float[]
+    scanId    String?
+    createdAt DateTime @default(now())
+
+    @@index([muralId])
+}
+
+model MuralScan {
+    id      String @id @default(cuid())
+    muralId String
+    mural   Mural  @relation(fields: [muralId], references: [id], onDelete: Cascade)
+    userId  String
+    user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    latitude  Float
+    longitude Float
+    accuracyM Float
+    // IANA zone derived from the GPS fix, never from the device.
+    timeZone  String
+    // YYYY-MM-DD in timeZone; the per-mural daily limit counts on this.
+    localDay  String
+    // S3 URLs: left, centre, right. Admin-only, plus the scanner themselves.
+    keyframes String[]
+    // Cloud Vision + on-device scores, kept for review and threshold tuning.
+    vision    Json
+    platform  String // "web" | "ios" | "android"
+
+    // 1..confirmationsNeeded for the first distinct scanners, else null.
+    discoveryRank Int?
+    coinsAwarded  Int
+
+    createdAt DateTime @default(now())
+
+    @@index([userId, muralId, localDay])
+    @@index([muralId])
+}
+
+// Every scan attempt, accepted or not: replay protection, rate limits,
+// Cloud Vision spend, abuse review.
+model MuralScanSession {
+    id        String   @id @default(cuid())
+    userId    String
+    user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+    latitude  Float
+    longitude Float
+    accuracyM Float
+    // S3 keys handed out for the three keyframes.
+    frameKeys String[]
+
+    startedAt  DateTime  @default(now())
+    finishedAt DateTime?
+    // "accepted" or a reject code (plan §6.7).
+    outcome    String?
+    scanId     String?   @unique
+    // Cloud Vision units spent on this attempt.
+    costUnits  Int       @default(0)
+
+    @@index([userId, startedAt])
+}
+
+model CoinBalance {
+    userId     String
+    user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+    // coins are earned and spent per platform
+    platformId String   @default("wadzzo")
+    platform   Platform @relation(fields: [platformId], references: [id])
+    balance    Int      @default(0)
+    updatedAt  DateTime @updatedAt
+
+    @@id([userId, platformId])
+}
+
+model CoinLedger {
+    id        String     @id @default(cuid())
+    userId    String
+    user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+    // Negative for revokes.
+    amount    Int
+    reason    CoinReason
+    muralId   String?
+    mural     Mural?     @relation(fields: [muralId], references: [id], onDelete: SetNull)
+    scanId    String?
+    note      String?
+    createdAt DateTime   @default(now())
+    // white-label platform this row belongs to (see model Platform)
+    platformId String   @default("wadzzo")
+    platform   Platform @relation(fields: [platformId], references: [id])
+
+    @@index([userId, createdAt])
+    @@index([muralId])
+    @@index([platformId])
+}
+
+// Single row (id = 1), edited in brand-wadzzo Admin › Mural review › Settings.
+model MuralSettings {
+    id                  Int      @id @default(1)
+    coinsPerScan        Int      @default(10)
+    discoveryBonus      Int      @default(50)
+    dailyScansPerMural  Int      @default(3)
+    confirmationsNeeded Int      @default(3)
+    updatedAt           DateTime @updatedAt
+    updatedById         String?
+}
+
+// ------------------------PLATFORM (white-label) SCHEMA-------------------------
+
+/// A white-label deployment sharing this database (wadzzo, clintoncounty, ...).
+/// `id` is the slug and must equal the deployment's PLATFORM_SLUG env.
+/// The root platform (wadzzo) sees and manages every platform's data.
+model Platform {
+    id          String   @id // slug, e.g. "wadzzo", "clintoncounty"
+    name        String
+    isRoot      Boolean  @default(false)
+    webUrl      String // e.g. https://web.clintoncounty-ia.gov
+    brandUrl    String // e.g. https://brand.clintoncounty-ia.gov
+    assetCode   String?
+    assetIssuer String?
+    active      Boolean  @default(true)
+    createdAt   DateTime @default(now())
+    updatedAt   DateTime @updatedAt
+
+    // Default home area for this platform's brands (the map agent searches here
+    // unless told otherwise). A polygon Feature in the map kit's [lat, lng]
+    // storage format (src/components/map-kit/geo.ts). A brand may override it.
+    homeArea     Json?
+    homeAreaName String?
+
+    agentConversations AgentConversation[]
+
+    signups            User[]         @relation("SignupPlatform")
+    members            UserPlatform[]
+    auditLogs          AuditLog[]
+    creators           Creator[]
+    locationGroups     LocationGroup[]
+    locationConsumers  LocationConsumer[]
+    hotspots           Hotspot[]
+    bounties           Bounty[]
+    bountyParticipants BountyParticipant[]
+    events             CreatorEvent[]
+    announcements      CreatorAnnouncement[]
+    murals             Mural[]
+    coinLedger         CoinLedger[]
+    assets             Asset[]
+    marketAssets       MarketAsset[]
+    posts              Post[]
+    subscriptions      Subscription[]
+    mapEmbeds          MapEmbed[]
+    qrItems            QRItem[]
+    redeems            Redeem[]
+    admins             Admin[]
+    coinBalances       CoinBalance[]
+    assetTransactions  AssetTransaction[]
+}
+
+/// History of every platform a user has used (first and last seen).
+model UserPlatform {
+    userId       String
+    user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+    platformId   String
+    platform     Platform @relation(fields: [platformId], references: [id])
+    signUpMethod String?
+    firstSeenAt  DateTime @default(now())
+    lastSeenAt   DateTime @default(now())
+
+    @@id([userId, platformId])
+    @@index([platformId, firstSeenAt])
+}
+
+/// Who did what, from which platform. Admin actions, signups, platform joins.
+model AuditLog {
+    id               String   @id @default(cuid())
+    platformId       String // platform the request came from
+    platform         Platform @relation(fields: [platformId], references: [id])
+    actorId          String? // user id; no FK so the log outlives the user
+    action           String // e.g. "brand.approve", "pin.hide", "admin.add", "user.signup"
+    entityType       String
+    entityId         String
+    targetPlatformId String? // platform of the affected row, when it differs (root acting on a sub-platform)
+    meta             Json?
+    createdAt        DateTime @default(now())
+
+    @@index([platformId, createdAt])
+    @@index([entityType, entityId])
+    @@index([actorId])
 }

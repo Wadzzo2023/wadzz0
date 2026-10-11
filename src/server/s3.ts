@@ -169,3 +169,10 @@ function convertSize(value: string) {
   const maxFileSizeInBytes = maxFileSizeInMB * 1024 * 1024;
   return maxFileSizeInBytes;
 }
+
+/** Upload bytes made on the server (e.g. an AI-generated image); returns the public URL. */
+export async function uploadBufferToS3(body: Buffer, contentType: string) {
+  const key = generateFileName();
+  await s3Client.send(new PutObjectCommand({ Bucket: env.AWS_BUCKET_NAME, Key: key, Body: body, ContentType: contentType }));
+  return getAwsS3PublicUrl(key);
+}

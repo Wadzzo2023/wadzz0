@@ -1,20 +1,12 @@
-/**
- * YOU PROBABLY DON'T NEED TO EDIT THIS FILE, UNLESS:
- * 1. You want to modify request context (see Part 1).
- * 2. You want to create a new middleware or type of procedure (see Part 3).
- *
- * TL;DR - This is where all the tRPC server stuff is created and plugged in. The pieces you will
- * need to use are documented accordingly near the end.
- */
-
+import type { Platform } from "@prisma/client";
 import { initTRPC, TRPCError } from "@trpc/server";
-import { type CreateNextContextOptions } from "@trpc/server/adapters/next";
 import { type Session } from "next-auth";
 import superjson from "superjson";
 import { ZodError } from "zod";
 
 import { getServerAuthSession } from "~/server/auth";
 import { db } from "~/server/db";
+import { getCurrentPlatform } from "~/server/platform";
 
 /**
  * 1. CONTEXT
@@ -26,6 +18,8 @@ import { db } from "~/server/db";
 
 interface CreateContextOptions {
   session: Session | null;
+  /** the white-label platform this deployment serves */
+  platform: Platform;
 }
 
 /**
@@ -41,25 +35,15 @@ interface CreateContextOptions {
 const createInnerTRPCContext = (opts: CreateContextOptions) => {
   return {
     session: opts.session,
+    platform: opts.platform,
     db,
   };
 };
 
-/**
- * This is the actual context you will use in your router. It will be used to process every request
- * that goes through your tRPC endpoint.
- *
- * @see https://trpc.io/docs/context
- */
-export const createTRPCContext = async (opts: CreateNextContextOptions) => {
-  const { req, res } = opts;
-
-  // Get the session from the server using the getServerSession wrapper function
-  const session = await getServerAuthSession({ req, res });
-
-  return createInnerTRPCContext({
-    session,
-  });
+/** Context for every tRPC request (App Router fetch handler): session, platform, db. */
+export const createTRPCContext = async () => {
+  const [session, platform] = await Promise.all([getServerAuthSession(), getCurrentPlatform()]);
+  return createInnerTRPCContext({ session, platform });
 };
 
 /**
@@ -97,6 +81,7 @@ const t = initTRPC.context<typeof createTRPCContext>().create({
  * @see https://trpc.io/docs/router
  */
 export const createTRPCRouter = t.router;
+export const createCallerFactory = t.createCallerFactory;
 
 /**
  * Public (unauthenticated) procedure
@@ -116,55 +101,9 @@ export const publicProcedure = t.procedure;
  * @see https://trpc.io/docs/procedures
  */
 export const protectedProcedure = t.procedure.use(({ ctx, next }) => {
-  if (!ctx.session || !ctx.session.user) {
+  if (!ctx.session?.user) {
     throw new TRPCError({ code: "UNAUTHORIZED" });
   }
-  return next({
-    ctx: {
-      // infers the `session` as non-nullable
-      session: { ...ctx.session, user: ctx.session.user },
-    },
-  });
-});
-
-export const adminProcedure = t.procedure.use(async ({ ctx, next }) => {
-  if (!ctx.session || !ctx.session.user) {
-    throw new TRPCError({ code: "UNAUTHORIZED" });
-  }
-
-  if (ctx.session && ctx.session.user) {
-    const admin = await ctx.db.admin.findUnique({
-      where: { id: ctx.session.user.id },
-    });
-
-    if (!admin) throw new TRPCError({ code: "UNAUTHORIZED" });
-  }
-
-  return next({
-    ctx: {
-      // infers the `session` as non-nullable
-      session: { ...ctx.session, user: ctx.session.user },
-    },
-  });
-});
-
-export const creatorProcedure = t.procedure.use(async ({ ctx, next }) => {
-  if (!ctx.session || !ctx.session.user) {
-    throw new TRPCError({ code: "UNAUTHORIZED" });
-  }
-
-  if (ctx.session && ctx.session.user) {
-    const creator = await ctx.db.creator.findUnique({
-      where: { id: ctx.session.user.id },
-    });
-
-    const admin = await ctx.db.admin.findUnique({
-      where: { id: ctx.session.user.id },
-    });
-
-    if (!creator && !admin) throw new TRPCError({ code: "UNAUTHORIZED" });
-  }
-
   return next({
     ctx: {
       // infers the `session` as non-nullable

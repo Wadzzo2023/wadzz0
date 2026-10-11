@@ -8,37 +8,45 @@
     "resolveJsonModule": true,
     "moduleDetection": "force",
     "isolatedModules": true,
-
     /* Strictness */
     "strict": true,
     "noUncheckedIndexedAccess": true,
     "checkJs": true,
-
     /* Bundled projects */
-    "lib": ["dom", "dom.iterable", "ES2022"],
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "ES2022"
+    ],
     "noEmit": true,
     "module": "ESNext",
-    "moduleResolution": "node",
-    "jsx": "preserve",
-    "plugins": [{ "name": "next" }],
+    "moduleResolution": "bundler",
+    "jsx": "react-jsx",
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
     "incremental": true,
-
-    /* Path Aliases */
-    "baseUrl": ".",
+    /* Path Aliases (relative to this file; no baseUrl — deprecated in TS 6) */
     "paths": {
-      "~/*": ["./src/*"]
+      "~/*": [
+        "./src/*"
+      ],
+      "package/*": [
+        "./package/*"
+      ]
     }
   },
   "include": [
-    ".eslintrc.cjs",
     "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx",
     "**/*.cjs",
     "**/*.js",
+    "**/*.mjs",
     ".next/types/**/*.ts",
-    "test/**/*.ts|js",
-    "trigger.config.ts"
-, "src/pages/chat.jsx"  ],
-  "exclude": ["node_modules"]
+    ".next/dev/types/**/*.ts"
+  ],
+  "exclude": ["node_modules", ".next", "package/connect_wallet/node_modules"]
 }

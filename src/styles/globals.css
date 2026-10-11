@@ -1,211 +1,359 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+@import "tw-animate-css";
 
-@layer base {
+@plugin "@tailwindcss/typography";
+@plugin "tailwind-scrollbar" {
+  nocompatible: true;
+}
+@plugin "tailwind-scrollbar-hide";
 
-  :root,
-  .light {
-    --background: 110 20% 98%;
-    --foreground: 110 15% 12%;
+/* Class-based dark mode (next-themes puts `.dark` on <html>). */
+@custom-variant dark (&:is(.dark *));
 
-    --card: 0 0% 100%;
-    --card-foreground: 110 15% 12%;
+/* ═══════════════════════════════════════════════════════════════════════════
+   Wadzzo tokens — the same palette as the fan apps (wadzzoAR `arcade.css`),
+   so the portal and the apps read as one product. `:root` is light, `.dark`
+   overrides. Components never use these directly: they're mapped onto the
+   shadcn variables below, which every primitive already reads.
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 110 15% 12%;
+   The portal is a work tool, so it uses the palette with a calmer finish than
+   the game UI: flat surfaces, hairline borders, modest radii, no glow.
+   ═══════════════════════════════════════════════════════════════════════════ */
+:root {
+  --ar-void: 140 25% 97%;
+  --ar-bg: 140 20% 95%;
+  --ar-surface: 0 0% 100%;
+  --ar-surface-2: 140 14% 96%;
+  --ar-surface-3: 140 10% 91%;
+  --ar-line: 140 10% 86%;
+  --ar-line-bright: 140 10% 72%;
 
-    --primary: 110 65% 45%;
-    --primary-foreground: 0 0% 100%;
+  --ar-text: 150 30% 9%;
+  --ar-text-dim: 150 14% 30%;
+  --ar-text-faint: 150 8% 46%;
 
-    --secondary: 110 25% 88%;
-    --secondary-foreground: 110 15% 20%;
+  --ar-green: 118 70% 25%;
+  --ar-green-hot: 116 78% 20%;
+  --ar-green-deep: 120 55% 22%;
+  --ar-green-ink: 120 40% 97%;
 
-    --muted: 110 15% 92%;
-    --muted-foreground: 110 10% 45%;
+  --rarity-common: 200 14% 38%;
+  --rarity-rare: 199 85% 32%;
+  --rarity-epic: 272 62% 46%;
+  --rarity-legendary: 38 85% 30%;
+  --rarity-mythic: 322 72% 42%;
 
-    --accent: 89 33% 38%;
-    --accent-foreground: 110 20% 90%;
+  --ar-danger: 358 72% 42%;
+  --ar-warning: 38 85% 36%;
+  --ar-info: 204 80% 38%;
+  --ar-locked: 220 10% 42%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 100%;
+  /* shadcn mapping */
+  --background: var(--ar-bg);
+  --foreground: var(--ar-text);
+  --card: var(--ar-surface);
+  --card-foreground: var(--ar-text);
+  --popover: var(--ar-surface);
+  --popover-foreground: var(--ar-text);
+  --primary: var(--ar-green);
+  --primary-foreground: var(--ar-green-ink);
+  --secondary: var(--ar-surface-2);
+  --secondary-foreground: var(--ar-text);
+  --muted: var(--ar-surface-2);
+  --muted-foreground: var(--ar-text-dim);
+  --accent: var(--ar-surface-3);
+  --accent-foreground: var(--ar-text);
+  --destructive: var(--ar-danger);
+  --destructive-foreground: 0 0% 100%;
+  --success: var(--ar-green);
+  --warning: var(--ar-warning);
+  --info: var(--ar-info);
+  --border: var(--ar-line);
+  --input: var(--ar-line);
+  --ring: var(--ar-green);
+  --radius: 12px;
 
-    --success: 142 71% 45%;
-    --warning: 38 92% 50%;
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
 
-    --border: 110 20% 85%;
-    --input: 110 15% 90%;
-    --ring: 110 65% 45%;
+  --font-body: "Sora Variable";
+  --font-display: "Chakra Petch";
+}
 
-    --radius: 0.5rem;
+.dark {
+  --ar-void: 152 30% 3%;
+  --ar-bg: 152 22% 5%;
+  --ar-surface: 152 16% 9%;
+  --ar-surface-2: 152 14% 12%;
+  --ar-surface-3: 152 12% 17%;
+  --ar-line: 152 12% 20%;
+  --ar-line-bright: 152 14% 32%;
+
+  --ar-text: 150 16% 96%;
+  --ar-text-dim: 150 8% 70%;
+  --ar-text-faint: 150 6% 50%;
+
+  --ar-green: 115 68% 52%;
+  --ar-green-hot: 110 90% 64%;
+  --ar-green-deep: 118 62% 28%;
+  --ar-green-ink: 120 80% 8%;
+
+  --rarity-common: 195 8% 62%;
+  --rarity-rare: 192 88% 56%;
+  --rarity-epic: 272 82% 66%;
+  --rarity-legendary: 42 96% 56%;
+  --rarity-mythic: 320 90% 64%;
+
+  --ar-danger: 358 74% 60%;
+  --ar-warning: 42 96% 56%;
+  --ar-info: 200 90% 62%;
+  --ar-locked: 220 8% 48%;
+
+  --destructive-foreground: 0 0% 100%;
+}
+
+@theme inline {
+  --font-sans: var(--font-body), ui-sans-serif, system-ui, sans-serif;
+  --font-hud: var(--font-display), var(--font-body), ui-sans-serif, sans-serif;
+
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+  --color-success: hsl(var(--success));
+  --color-warning: hsl(var(--warning));
+  --color-info: hsl(var(--info));
+
+  /* Wadzzo names, for the few places that need the raw palette. */
+  --color-surface: hsl(var(--ar-surface));
+  --color-surface-2: hsl(var(--ar-surface-2));
+  --color-surface-3: hsl(var(--ar-surface-3));
+  --color-line-bright: hsl(var(--ar-line-bright));
+  --color-faint: hsl(var(--ar-text-faint));
+  --color-green-hot: hsl(var(--ar-green-hot));
+  --color-rarity-common: hsl(var(--rarity-common));
+  --color-rarity-rare: hsl(var(--rarity-rare));
+  --color-rarity-epic: hsl(var(--rarity-epic));
+  --color-rarity-legendary: hsl(var(--rarity-legendary));
+  --color-rarity-mythic: hsl(var(--rarity-mythic));
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+
+  --animate-accordion-down: accordion-down 0.2s ease-out;
+  --animate-accordion-up: accordion-up 0.2s ease-out;
+  @keyframes accordion-down {
+    from {
+      height: 0;
+    }
+    to {
+      height: var(--radix-accordion-content-height);
+    }
   }
-
-  .dark {
-    --background: 110 15% 6%;
-    --foreground: 110 10% 95%;
-
-    --card: 110 20% 8%;
-    --card-foreground: 110 10% 95%;
-
-    --popover: 110 20% 8%;
-    --popover-foreground: 110 10% 95%;
-
-    --primary: 110 65% 55%;
-    --primary-foreground: 110 20% 5%;
-
-    --secondary: 110 15% 15%;
-    --secondary-foreground: 110 20% 85%;
-
-    --muted: 110 12% 12%;
-    --muted-foreground: 110 8% 65%;
-
-    --accent: 110 20% 18%;
-    --accent-foreground: 110 15% 88%;
-
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 100%;
-
-    --success: 142 76% 36%;
-    --warning: 38 92% 50%;
-
-    --border: 110 15% 18%;
-    --input: 110 12% 16%;
-    --ring: 110 65% 55%;
+  @keyframes accordion-up {
+    from {
+      height: var(--radix-accordion-content-height);
+    }
+    to {
+      height: 0;
+    }
   }
 }
+
 @layer base {
-  * {
-    @apply border-border;
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: hsl(var(--border));
   }
+
+  html {
+    color-scheme: light;
+    -webkit-tap-highlight-color: transparent;
+  }
+  html.dark {
+    color-scheme: dark;
+  }
+
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background font-sans text-foreground antialiased;
+  }
+
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
+  }
+
+  ::selection {
+    background: hsl(var(--primary) / 0.22);
+  }
+
+  /* Quiet, theme-aware scrollbars everywhere. */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--ar-line-bright)) transparent;
+  }
+
+  :focus-visible {
+    outline: 2px solid hsl(var(--ring));
+    outline-offset: 2px;
   }
 }
 
-@layer components {
-  .scrollbar-style {
-    @apply scrollbar-thin scrollbar-track-base-content/5 scrollbar-thumb-base-content/5 scrollbar-track-rounded-md  scrollbar-thumb-rounded hover:scrollbar-thumb-base-content/40;
+/* ═══════════════════════════════════════════════════════════════════════════
+   Status tones — the one way to colour a state (live, waiting, failed, info,
+   neutral). Pages use these (via <StatusPill> or directly) instead of raw
+   Tailwind colours, so both themes stay readable and consistent.
+   ═══════════════════════════════════════════════════════════════════════════ */
+@utility tone-success {
+  background-color: hsl(var(--success) / 0.12);
+  color: hsl(var(--success));
+}
+@utility tone-warning {
+  background-color: hsl(var(--warning) / 0.14);
+  color: hsl(var(--warning));
+}
+@utility tone-danger {
+  background-color: hsl(var(--destructive) / 0.12);
+  color: hsl(var(--destructive));
+}
+@utility tone-info {
+  background-color: hsl(var(--info) / 0.12);
+  color: hsl(var(--info));
+}
+@utility tone-neutral {
+  background-color: hsl(var(--muted));
+  color: hsl(var(--muted-foreground));
+}
+@utility tone-primary {
+  background-color: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+}
+
+/* Small uppercase label above a value or section (stat cards, table heads). */
+@utility label-caps {
+  font-family: var(--font-display), var(--font-body), ui-sans-serif, sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: hsl(var(--muted-foreground));
+}
+
+/* One shimmer for every skeleton (same sweep as the fan apps). */
+@utility skeleton {
+  position: relative;
+  overflow: hidden;
+  background: hsl(var(--ar-surface-2));
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    transform: translateX(-100%);
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      hsl(var(--ar-green) / 0.07) 45%,
+      hsl(var(--ar-green) / 0.13) 50%,
+      hsl(var(--ar-green) / 0.07) 55%,
+      transparent 100%
+    );
+    animation: skeleton-sweep 1.6s ease-in-out infinite;
   }
-
-  .tsd {
-    @apply transition-all duration-500 ease-in-out;
-  }
-
-  .aac-sbt {
-    @apply font-bold transition-all duration-75 ease-in-out hover:scale-105
-     hover:font-semibold hover:tracking-wider hover:text-blue-500 focus:ring-8 focus:ring-blue-300 
-     active:scale-90 active:ring-blue-500;
-  }
-
-  .acc-bt {
-    @apply tsd overflow-hidden rounded-xl
-    bg-slate-800/60 px-4 py-3 text-xl
-    font-bold tracking-wider text-slate-900/80 backdrop-blur hover:scale-105 hover:border-blue-400 hover:bg-slate-900/80 hover:text-slate-300/70
-    focus:border-blue-400 focus:outline-none focus:ring focus:ring-blue-300 active:scale-90;
-  }
-
-  .main-asset-area {
-    @apply scrollbar-style grid max-h-full gap-3 overflow-y-auto px-1 md:grid-cols-3 xl:grid-cols-5 2xl:grid-cols-8;
-  }
 }
-
-.gradient-background {
-  background: linear-gradient(
-    180deg,
-    rgba(181, 228, 118, 0.84) 12.21%,
-    rgba(131, 215, 203, 0.84) 81.69%
-  );
-}
-.background-color {
-  background: linear-gradient(0deg, rgb(62 62 62 / 17%), rgb(62 62 62 / 19%)),
-    linear-gradient(0deg, hsla(0, 0%, 54%, 0.61), hsl(0deg 0% 54% / 62%));
-}
-
-html,
-body {
-  background: url("/images/header.jpg") no-repeat center center fixed;
-  -webkit-background-size: cover;
-  -moz-background-size: cover;
-  -o-background-size: cover;
-  background-size: cover;
-}
-.ql-editor {
-  overflow-wrap: break-word;
-  word-wrap: break-word;
-  word-break: break-word;
-  white-space: pre-wrap;
-  width: 100%;
-  max-width: 100%;
-  box-sizing: border-box;
-}
-
-.ql-editor img,
-.ql-editor .ql-video {
-  max-width: 100%;
-  height: auto;
-}
-
-.ql-editor * {
-  word-wrap: break-word;
-}
-#ihx {
-  background: url("/images/guitar.svg");
-  background-size: 10%;
-  animation: pan 135s linear infinite;
-}
-@keyframes fall {
-  0% {
-    transform: translateY(-10%) rotate(0deg);
-  }
+@keyframes skeleton-sweep {
   100% {
-    transform: translateY(110vh) rotate(360deg);
+    transform: translateX(100%);
   }
 }
 
-.animate-fall {
-  animation-name: fall;
-  animation-timing-function: linear;
-  animation-iteration-count: infinite;
-}
-
-@keyframes pan {
-  0% {
-    background-position: 0% 0%;
+@layer utilities {
+  .quill-editor-wrapper {
+    height: 100%;
   }
-
-  100% {
-    background-position: 100% 0%;
+  .quill-editor {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+  .quill-editor .ql-container {
+    flex: 1;
+    overflow: auto;
+  }
+  .quill-editor .ql-editor {
+    min-height: 100px;
+    caret-color: currentColor;
+  }
+  .quill-editor .ql-editor:focus {
+    outline: none !important;
+    box-shadow: none !important;
   }
 }
 
-
-
-#map-container {
-  height: 100%;
-  width: 100%;
-  /* temporarily set the background color so we can tell where the map container is positioned */
-  background-color: lightgrey;
+/* Quill's toolbar/editor on the portal's surfaces, both themes. */
+.ql-toolbar.ql-snow,
+.ql-container.ql-snow {
+  border-color: hsl(var(--border)) !important;
+}
+.ql-toolbar.ql-snow {
+  border-top-left-radius: var(--radius);
+  border-top-right-radius: var(--radius);
+  background: hsl(var(--ar-surface-2));
+}
+.ql-container.ql-snow {
+  border-bottom-left-radius: var(--radius);
+  border-bottom-right-radius: var(--radius);
+}
+.dark .ql-snow .ql-stroke {
+  stroke: hsl(var(--ar-text-dim));
+}
+.dark .ql-snow .ql-fill,
+.dark .ql-snow .ql-picker {
+  fill: hsl(var(--ar-text-dim));
+  color: hsl(var(--ar-text-dim));
 }
 
-.sidebar {
-  background-color: rgb(35 55 75 / 90%);
-  color: #fff;
-  padding: 6px 12px;
-  font-family: monospace;
-  z-index: 1;
-  position: absolute;
-  top: 0;
-  left: 0;
-  margin: 12px;
-  border-radius: 4px;
+@media (prefers-reduced-motion: reduce) {
+  .skeleton::after {
+    animation: none;
+  }
 }
 
-.reset-button {
-  position: absolute;
-  top: 50px;
-  z-index: 1;
-  left: 12px;
-  padding: 4px 10px;
-  border-radius: 10px;
-  cursor: pointer;
+/* Compat for DaisyUI's spinner markup still used by pages not yet rebuilt. */
+@utility loading-spinner {
+  display: inline-block;
+  width: 1.25rem;
+  height: 1.25rem;
+  border-radius: 9999px;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  animation: spin 0.7s linear infinite;
+  vertical-align: middle;
+}
+@utility loading-xs {
+  width: 0.75rem;
+  height: 0.75rem;
+}
+@utility loading-sm {
+  width: 1rem;
+  height: 1rem;
 }

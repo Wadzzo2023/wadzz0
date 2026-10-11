@@ -1,2 +1,0 @@
--- AlterTable
-ALTER TABLE "Subscription" ADD COLUMN     "price" DOUBLE PRECISION NOT NULL DEFAULT 1000;

@@ -1,11 +1,11 @@
 import { signIn } from "next-auth/react";
-import { z } from "zod";
+import { type z } from "zod";
 import {
-  AuthCredentialType,
-  albedoSchema,
-  appleAuthSchema,
-  providerAuthShema,
-  walleteAuthSchema,
+  type AuthCredentialType,
+  type albedoSchema,
+  type appleAuthSchema,
+  type providerAuthShema,
+  type walleteAuthSchema,
 } from "~/types/auth";
 import { hashPassword } from "~/utils/hash";
 
@@ -32,7 +32,7 @@ export async function AlbedoNextLogin({
     token,
     walletType,
     redirect: false,
-  } as AuthCredentialType);
+  });
   return response;
 }
 
@@ -46,9 +46,9 @@ export async function WalleteNextLogin({
     walletType,
     signedXDR,
     redirect: false,
-  } as AuthCredentialType);
+  });
 
-  console.log({ response });
+  // console.log({ response });
   return response;
 }
 
@@ -62,7 +62,7 @@ export async function ProviderNextLogin({
     token,
     walletType,
     redirect: false,
-  } as AuthCredentialType);
+  });
   return response;
 }
 
@@ -78,6 +78,6 @@ export async function ProviderAppleLogin({
     appleToken,
     walletType,
     redirect: false,
-  } as AuthCredentialType);
+  });
   return response;
 }
