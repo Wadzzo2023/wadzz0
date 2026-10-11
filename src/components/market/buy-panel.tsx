@@ -12,8 +12,6 @@ import { Button } from "~/components/shadcn/ui/button";
 import { useRequireAuth } from "~/hooks/use-require-auth";
 import { useSignAndConfirm } from "~/hooks/use-sign-and-confirm";
 import { MAX_PER_PURCHASE, formatAmount } from "~/lib/stellar/quote";
-import { cn } from "~/lib/utils";
-import { Avatar } from "~/ui/person";
 import { QuantityStepper } from "~/ui/quantity-stepper";
 import { Skeleton } from "~/ui/skeleton";
 import { StatusPill } from "~/ui/status-pill";
@@ -23,59 +21,22 @@ type Item = RouterOutputs["market"]["item"];
 type Listing = NonNullable<Item["original"]>;
 
 /**
- * Buying an item: pick a listing (the creator's or a resale) and how to pay;
- * the server checks everything first and shows exactly what it will cost, so
- * the buyer only signs a transaction that will go through.
+ * Buying one listing of an item: the creator's own by default, or a fan's
+ * resale when the page was opened from one. The server checks everything
+ * first and shows exactly what it will cost, so the buyer only signs a
+ * transaction that will go through.
  */
-export function BuyPanel({ item }: { item: Item }) {
-  const listings = [...(item.original ? [item.original] : []), ...item.resales];
-  const [listingId, setListingId] = useState<number | undefined>(listings[0]?.id);
-  const listing = listings.find((l) => l.id === listingId);
-
+export function BuyPanel({ item, listing }: { item: Item; listing: Listing | null }) {
   if (!listing) {
     return (
       <div className="rounded-xl border border-dashed p-6 text-center">
         <ShoppingBag className="mx-auto mb-2 size-6 text-muted-foreground" />
-        <p className="font-hud font-semibold">Not for sale right now</p>
-        <p className="mt-1 text-sm text-muted-foreground">Nobody is selling this item at the moment.</p>
+        <p className="font-hud font-semibold">Not for sale from the creator right now</p>
+        <p className="mt-1 text-sm text-muted-foreground">{item.resales.length ? "Fans are reselling it — see the resale listings below." : "Nobody is selling this item at the moment."}</p>
       </div>
     );
   }
-
-  return (
-    <div className="space-y-4">
-      {listings.length > 1 && (
-        <div className="space-y-2">
-          <p className="label-caps">Choose a seller</p>
-          <div className="space-y-1.5">
-            {listings.map((l) => (
-              <ListingOption key={l.id} l={l} item={item} active={l.id === listingId} onSelect={() => setListingId(l.id)} />
-            ))}
-          </div>
-        </div>
-      )}
-      <Checkout key={listing.id} item={item} listing={listing} />
-    </div>
-  );
-}
-
-function ListingOption({ l, item, active, onSelect }: { l: Listing; item: Item; active: boolean; onSelect: () => void }) {
-  const original = l.placerId === item.creatorId;
-  return (
-    <button
-      type="button"
-      onClick={onSelect}
-      aria-pressed={active}
-      className={cn("flex w-full items-center gap-3 rounded-lg border p-2.5 text-left transition-colors", active ? "border-primary/60 bg-primary/5" : "hover:border-line-bright")}
-    >
-      <Avatar src={l.placer?.profileUrl} name={l.placer?.name} className="size-8" />
-      <span className="min-w-0 flex-1">
-        <span className="block truncate text-sm font-medium">{l.placer?.name ?? "Seller"}</span>
-        <span className="text-xs text-muted-foreground">{original ? "From the creator" : "Resale"}</span>
-      </span>
-      <Price tokens={l.price} usd={l.priceUSD} size="sm" className="items-end text-right" />
-    </button>
-  );
+  return <Checkout key={listing.id} item={item} listing={listing} />;
 }
 
 function Checkout({ item, listing }: { item: Item; listing: Listing }) {

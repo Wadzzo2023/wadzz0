@@ -1,5 +1,5 @@
 import { TRPCError } from "@trpc/server";
-import { BadgeCheck, ChevronRight, ExternalLink } from "lucide-react";
+import { BadgeCheck, ChevronRight, ExternalLink, Repeat2 } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -9,6 +9,7 @@ import { creatorHref } from "~/lib/creator";
 import { ItemActivity } from "~/components/market/item-activity";
 import { BuyPanel } from "~/components/market/buy-panel";
 import { ItemActions } from "~/components/market/item-actions";
+import { ListingCard, ListingGrid } from "~/components/market/listing-card";
 import { MintProgress } from "~/components/market/mint-progress";
 import { ItemMedia } from "~/components/media/item-media";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/shadcn/ui/tabs";
@@ -16,6 +17,7 @@ import { MEDIA_META } from "~/components/media/media-meta";
 import { env } from "~/env";
 import { serverApi } from "~/server/api/server";
 import { PageBody } from "~/ui/page-header";
+import { Section } from "~/ui/section";
 import { Avatar } from "~/ui/person";
 
 const getItem = cache(async (id: number) => {
@@ -45,9 +47,16 @@ export async function generateMetadata({ params }: PageProps<"/item/[id]">): Pro
   };
 }
 
-export default async function ItemPage({ params }: PageProps<"/item/[id]">) {
+export default async function ItemPage({ params, searchParams }: PageProps<"/item/[id]">) {
   const item = await load(params);
   if (!item) notFound();
+
+  // ?listing=<id> opens the page on one fan resale; otherwise it sells the creator's own listing.
+  const wanted = Number((await searchParams).listing);
+  const resale = Number.isInteger(wanted) ? (item.resales.find((r) => r.id === wanted) ?? null) : null;
+  const listing = resale ?? item.original;
+  const related = await (await serverApi()).market.related({ assetId: item.id });
+  const resales = related.resales.filter((r) => r.id !== resale?.id);
 
   const meta = MEDIA_META[item.mediaType];
   const lowest = [item.original, ...item.resales].filter(Boolean).sort((a, b) => a!.price - b!.price)[0];
@@ -125,8 +134,19 @@ export default async function ItemPage({ params }: PageProps<"/item/[id]">) {
 
             <MintProgress minted={item.mintedCount} limit={item.limit} />
 
+            {resale && (
+              <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl bg-primary/10 px-4 py-2.5 text-sm ring-1 ring-primary/25">
+                <span className="flex items-center gap-2 font-medium">
+                  <Repeat2 className="size-4 text-primary" /> Resale from {resale.placer?.name ?? "a fan"}
+                </span>
+                <Link href={`/item/${item.id}`} className="font-semibold text-primary hover:underline">
+                  Buy from the creator instead
+                </Link>
+              </div>
+            )}
+
             <div className="glass rounded-2xl p-4 shadow-[0_20px_60px_-25px_hsl(var(--primary)/0.4)] sm:p-5">
-              <BuyPanel item={item} />
+              <BuyPanel item={item} listing={listing} />
             </div>
 
             <Tabs defaultValue="overview">
@@ -190,6 +210,36 @@ export default async function ItemPage({ params }: PageProps<"/item/[id]">) {
               </TabsContent>
             </Tabs>
           </div>
+        </div>
+
+        <div className="mt-14 space-y-10">
+          {resales.length > 0 && (
+            <Section title="Resale listings" description={`Fans reselling ${item.name}, cheapest first.`}>
+              <ListingGrid>
+                {resales.map((l) => (
+                  <ListingCard key={l.id} listing={l} />
+                ))}
+              </ListingGrid>
+            </Section>
+          )}
+          {related.moreFromCreator.length > 0 && item.creator && (
+            <Section title={`More from ${item.creator.name}`} href={creatorHref(item.creator)}>
+              <ListingGrid>
+                {related.moreFromCreator.map((l) => (
+                  <ListingCard key={l.id} listing={l} />
+                ))}
+              </ListingGrid>
+            </Section>
+          )}
+          {related.similar.length > 0 && (
+            <Section title={`More ${meta.label.toLowerCase()} items`} href={`/marketplace?type=${item.mediaType}`}>
+              <ListingGrid>
+                {related.similar.map((l) => (
+                  <ListingCard key={l.id} listing={l} />
+                ))}
+              </ListingGrid>
+            </Section>
+          )}
         </div>
       </PageBody>
     </div>

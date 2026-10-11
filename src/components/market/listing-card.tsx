@@ -24,7 +24,7 @@ export function ListingCard({ listing, className }: { listing: ListingCardData; 
 
   return (
     <Link
-      href={`/item/${a.id}`}
+      href={resale ? `/item/${a.id}?listing=${listing.id}` : `/item/${a.id}`}
       className={cn(
         "glass group flex flex-col rounded-2xl p-2 transition-all duration-300",
         "hover:glow hover:-translate-y-1",

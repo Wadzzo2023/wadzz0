@@ -125,6 +125,58 @@ export const marketRouter = createTRPCRouter({
     return { ...asset, original, resales };
   }),
 
+  /**
+   * What sits below an item: fan resales of the same item, the creator's other
+   * items, and similar items from other creators (creator drops only).
+   */
+  related: publicProcedure.input(z.object({ assetId: z.number().int(), take: z.number().int().min(1).max(12).default(6) })).query(async ({ ctx, input }) => {
+    const asset = await ctx.db.asset.findFirst({
+      where: { id: input.assetId, ...platformScope(ctx) },
+      select: { id: true, creatorId: true, mediaType: true },
+    });
+    if (!asset) throw new TRPCError({ code: "NOT_FOUND", message: "Item not found" });
+
+    const visible: Prisma.MarketAssetWhereInput = {
+      ...platformScope(ctx),
+      privacy: { in: VISIBLE },
+      placerId: { not: null },
+    };
+    const brandOk: Prisma.AssetWhereInput = { OR: [{ creatorId: null }, { creator: { approved: { not: false } } }] };
+
+    const resalesAll = await ctx.db.marketAsset.findMany({
+      where: { ...visible, assetId: asset.id },
+      select: listingCardSelect,
+      orderBy: { price: "asc" },
+    });
+    const resales = resalesAll.filter((l) => l.placerId !== asset.creatorId);
+
+    const moreFromCreator = asset.creatorId
+      ? await ctx.db.marketAsset.findMany({
+          where: { ...visible, placerId: asset.creatorId, asset: { creatorId: asset.creatorId, id: { not: asset.id } } },
+          select: listingCardSelect,
+          orderBy: { id: "desc" },
+          take: input.take,
+        })
+      : [];
+
+    // Same media type, other creators' own listings (a column-to-column test Prisma can't express).
+    const ids = await ctx.db.$queryRaw<{ id: number }[]>`
+      SELECT m.id FROM "MarketAsset" m JOIN "Asset" a ON a.id = m."assetId"
+      WHERE m."placerId" = a."creatorId" AND a."mediaType" = ${asset.mediaType}::"MediaType"
+        AND a.id <> ${asset.id} AND a."creatorId" IS DISTINCT FROM ${asset.creatorId}
+      ORDER BY m.id DESC LIMIT 60`;
+    const similar = ids.length
+      ? await ctx.db.marketAsset.findMany({
+          where: { ...visible, id: { in: ids.map((r) => r.id) }, asset: brandOk },
+          select: listingCardSelect,
+          orderBy: { id: "desc" },
+          take: input.take,
+        })
+      : [];
+
+    return { resales, moreFromCreator, similar };
+  }),
+
   /** Recent successful sales of an item (public activity on the item page). */
   itemActivity: publicProcedure.input(z.object({ assetId: z.number().int() })).query(({ ctx, input }) =>
     ctx.db.assetTransaction.findMany({
