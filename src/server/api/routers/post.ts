@@ -20,6 +20,13 @@ const postSelect = {
   subscription: { select: { id: true, name: true, price: true, color: true } },
   medias: { select: { id: true, url: true, type: true } },
   _count: { select: { likes: { where: { status: true } }, comments: true } },
+  // the latest few top-level comments, shown under the post in feeds
+  comments: {
+    where: { parentCommentID: null },
+    orderBy: { createdAt: "desc" },
+    take: 3,
+    select: { id: true, content: true, createdAt: true, userId: true, user: { select: { name: true, image: true } } },
+  },
 } satisfies Prisma.PostSelect;
 
 type PostRow = Prisma.PostGetPayload<{ select: typeof postSelect }>;
@@ -34,7 +41,7 @@ async function present(db: Db, viewerId: string | undefined, rows: PostRow[]) {
     ? new Set((await db.like.findMany({ where: { userId: viewerId, status: true, postId: { in: rows.map((r) => r.id) } }, select: { postId: true } })).map((l) => l.postId))
     : new Set<number>();
 
-  return rows.map(({ creator, ...p }) => {
+  return rows.map(({ creator, comments, ...p }) => {
     const page = pageAssetRef(creator);
     const locked = Boolean(p.subscription) && viewerId !== creator.id && balanceOf(page) < (p.subscription?.price ?? 0);
     const { customPageAssetCodeIssuer: _c, pageAsset: _p, ...creatorOut } = creator;
@@ -48,6 +55,8 @@ async function present(db: Db, viewerId: string | undefined, rows: PostRow[]) {
       locked,
       unlock: locked && p.subscription ? { tierName: p.subscription.name, price: p.subscription.price, code: page?.code ?? null } : null,
       liked: liked.has(p.id),
+      /** oldest first, so they read top to bottom */
+      recentComments: [...comments].reverse(),
     };
   });
 }

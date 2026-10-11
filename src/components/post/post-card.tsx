@@ -2,9 +2,9 @@
 
 import { formatDistanceToNow } from "date-fns";
 import DOMPurify from "isomorphic-dompurify";
-import { BadgeCheck, Heart, Lock, MessageCircle, Share2 } from "lucide-react";
+import { BadgeCheck, Heart, Lock, MessageCircle, SendHorizontal, Share2 } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import toast from "react-hot-toast";
 
 import { creatorHref } from "~/lib/creator";
@@ -31,6 +31,8 @@ export function PostCard({ post, full = false }: { post: PostData; full?: boolea
   const { requireAuth } = useRequireAuth();
   const [liked, setLiked] = useState(post.liked);
   const [likes, setLikes] = useState(post._count.likes);
+  const [commentCount, setCommentCount] = useState(post._count.comments);
+  const inputRef = useRef<HTMLInputElement>(null);
   const like = api.post.like.useMutation({ onError: () => (setLiked((l) => !l), setLikes((n) => n + (liked ? 1 : -1))) });
   const href = `/posts/${post.id}`;
 
@@ -114,9 +116,19 @@ export function PostCard({ post, full = false }: { post: PostData; full?: boolea
         >
           <Heart className={cn("size-4", liked && "fill-current")} /> {likes}
         </button>
-        <Link href={`${href}#comments`} className="inline-flex h-9 items-center gap-1.5 rounded-xl px-3 font-semibold tabular-nums text-muted-foreground transition-colors hover:bg-foreground/[0.05] hover:text-foreground">
-          <MessageCircle className="size-4" /> {post._count.comments}
-        </Link>
+        {full ? (
+          <Link href="#comments" className="inline-flex h-9 items-center gap-1.5 rounded-xl px-3 font-semibold tabular-nums text-muted-foreground transition-colors hover:bg-foreground/[0.05] hover:text-foreground">
+            <MessageCircle className="size-4" /> {commentCount}
+          </Link>
+        ) : (
+          <button
+            type="button"
+            onClick={() => inputRef.current?.focus()}
+            className="inline-flex h-9 items-center gap-1.5 rounded-xl px-3 font-semibold tabular-nums text-muted-foreground transition-colors hover:bg-foreground/[0.05] hover:text-foreground"
+          >
+            <MessageCircle className="size-4" /> {commentCount}
+          </button>
+        )}
         <button
           type="button"
           onClick={() => void share()}
@@ -125,7 +137,99 @@ export function PostCard({ post, full = false }: { post: PostData; full?: boolea
           <Share2 className="size-4" /> Share
         </button>
       </footer>
+
+      {!full && <InlineComments post={post} href={href} count={commentCount} onAdded={() => setCommentCount((n) => n + 1)} inputRef={inputRef} />}
     </article>
+  );
+}
+
+type RecentComment = PostData["recentComments"][number];
+
+/**
+ * The latest few comments under a post in a feed, plus a one-line box to add
+ * one without leaving the feed. The full thread (and replies) is on the post
+ * page via "View all".
+ */
+function InlineComments({
+  post,
+  href,
+  count,
+  onAdded,
+  inputRef,
+}: {
+  post: PostData;
+  href: string;
+  count: number;
+  onAdded: () => void;
+  inputRef: React.RefObject<HTMLInputElement | null>;
+}) {
+  const { signedIn, session, openSignIn } = useRequireAuth();
+  const [added, setAdded] = useState<RecentComment[]>([]);
+  const [text, setText] = useState("");
+  const add = api.post.comment.useMutation({
+    onSuccess: (c) => {
+      setAdded((a) => [...a, { id: c.id, content: c.content, createdAt: c.createdAt, userId: c.userId, user: { name: session?.user.name ?? null, image: session?.user.image ?? null } }]);
+      setText("");
+      onAdded();
+    },
+    onError: (e) => toast.error(e.message),
+  });
+  // the server's latest 3, then anything posted here, keeping the last 3
+  const shown = [...post.recentComments, ...added].slice(-3);
+
+  const submit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!signedIn) return openSignIn();
+    if (text.trim()) add.mutate({ postId: post.id, content: text.trim() });
+  };
+
+  return (
+    <div className="-mt-1 space-y-3">
+      {count > shown.length && (
+        <Link href={`${href}#comments`} className="text-sm font-medium text-muted-foreground hover:text-foreground">
+          View all {count.toLocaleString("en-US")} comments
+        </Link>
+      )}
+      {shown.length > 0 && (
+        <ul className="space-y-2.5">
+          {shown.map((c) => (
+            <li key={c.id} className="flex gap-2.5">
+              <Avatar src={c.user.image} name={c.user.name} className="size-7 text-[10px]" />
+              <div className="min-w-0 flex-1 rounded-2xl rounded-tl-sm bg-foreground/[0.04] px-3 py-2">
+                <p className="text-xs">
+                  <span className="font-semibold">{c.user.name ?? "Fan"}</span>{" "}
+                  <span className="text-muted-foreground">{formatDistanceToNow(new Date(c.createdAt), { addSuffix: true })}</span>
+                </p>
+                <p className="line-clamp-3 whitespace-pre-line break-words text-sm text-foreground/90">{c.content}</p>
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
+      <form onSubmit={submit} className="flex items-center gap-2.5">
+        <Avatar src={session?.user.image ?? null} name={session?.user.name ?? null} className="size-7 text-[10px]" />
+        <div className="flex h-10 flex-1 items-center rounded-full bg-foreground/[0.04] pl-4 pr-1 ring-1 ring-foreground/[0.08] focus-within:ring-primary/50">
+          <input
+            ref={inputRef}
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            onFocus={() => !signedIn && openSignIn()}
+            maxLength={2000}
+            placeholder={signedIn ? "Write a comment…" : "Sign in to comment"}
+            aria-label="Write a comment"
+            className="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+          />
+          <button
+            type="submit"
+            disabled={add.isPending || (signedIn && !text.trim())}
+            aria-label="Send comment"
+            className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground transition-opacity disabled:opacity-40"
+          >
+            <SendHorizontal className="size-4" />
+          </button>
+        </div>
+      </form>
+    </div>
   );
 }
 
