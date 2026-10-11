@@ -33,7 +33,11 @@ const TYPE_LABEL: Record<AssetTxType, string> = {
   TOKEN_PURCHASE: "Bought tokens",
   TOKEN_SWAP: "Swapped tokens for XLM",
   GIFT_CLAIM: "Accepted gift",
+  TRANSFER: "Sent",
 };
+
+/** A send reads "Sent" to the sender and "Received" to the recipient. */
+const labelFor = (r: Row, me: string) => (r.type === "TRANSFER" && r.buyerId !== me ? "Received" : TYPE_LABEL[r.type]);
 
 const STATUS: Record<Row["status"], { tone: Tone; label: string }> = {
   SUCCESS: { tone: "success", label: "Completed" },
@@ -153,8 +157,8 @@ function ActivityRows({ rows, me }: { rows: Row[]; me: string }) {
                 )}
                 <span className="min-w-0 flex-1">
                   <span className="block truncate text-sm font-semibold">
-                    {TYPE_LABEL[r.type]}
-                    {r.asset && ` · ${r.asset.name}`}
+                    {labelFor(r, me)}
+                    {r.asset ? ` · ${r.asset.name}` : r.type === "TRANSFER" ? ` · ${r.currency}` : ""}
                   </span>
                   <span className="text-xs text-muted-foreground">{format(new Date(r.createdAt), "d MMM yyyy, HH:mm")}</span>
                 </span>
@@ -168,15 +172,15 @@ function ActivityRows({ rows, me }: { rows: Row[]; me: string }) {
         })}
       </ul>
       <Dialog open={!!open} onOpenChange={(o) => !o && setOpen(null)}>
-        <DialogContent className="sm:max-w-md">{open && <Receipt r={open} />}</DialogContent>
+        <DialogContent className="sm:max-w-md">{open && <Receipt r={open} me={me} />}</DialogContent>
       </Dialog>
     </>
   );
 }
 
-function Receipt({ r }: { r: Row }) {
+function Receipt({ r, me }: { r: Row; me: string }) {
   const lines: [string, number][] = [
-    [r.type === "LIST" ? "Asking price (each)" : "Price", r.price],
+    [r.type === "LIST" ? "Asking price (each)" : r.type === "TRANSFER" ? "Amount" : "Price", r.price],
     ["Creator royalty (included)", r.royaltyAmount],
     ["Platform fee", r.platformFee],
     ["Network fee", r.networkFee],
@@ -185,7 +189,7 @@ function Receipt({ r }: { r: Row }) {
   return (
     <>
       <DialogHeader>
-        <DialogTitle className="font-hud">{TYPE_LABEL[r.type]}</DialogTitle>
+        <DialogTitle className="font-hud">{labelFor(r, me)}</DialogTitle>
       </DialogHeader>
       <div className="space-y-4 text-sm">
         {r.asset && (
@@ -204,7 +208,7 @@ function Receipt({ r }: { r: Row }) {
             </div>
           ))}
           <div className="flex justify-between gap-3 border-t pt-2 font-semibold">
-            <dt>Total paid</dt>
+            <dt>{r.type === "TRANSFER" ? (r.buyerId === me ? "Total sent" : "Total received") : "Total paid"}</dt>
             <dd className="tabular-nums">{formatAmount(r.total, r.currency)}</dd>
           </div>
         </dl>

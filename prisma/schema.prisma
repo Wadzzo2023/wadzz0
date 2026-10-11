@@ -503,6 +503,7 @@ enum AssetTxType {
     TOKEN_PURCHASE // fan buys platform tokens by card
     TOKEN_SWAP // fan swaps platform tokens for XLM
     GIFT_CLAIM // fan accepts a pending (claimable) gift
+    TRANSFER // user sends XLM or a token to another address (direct, or as a claimable gift)
 }
 
 enum AssetTxStatus {

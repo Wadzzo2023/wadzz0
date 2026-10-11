@@ -7,9 +7,17 @@ import { PLATFORM_ASSET } from "~/lib/stellar/constant";
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "~/server/api/trpc";
 import { platformToUsd, platformToXlm } from "~/server/stellar/prices";
 import { signerFor } from "~/server/stellar/session-signer";
+import { prepareSend, quoteSend } from "~/server/stellar/transfer";
 import { buyTokenPack, pendingGifts, prepareGiftClaim, prepareSwap, quoteSwap, tokenPacks } from "~/server/stellar/wallet";
 
-/** My wallet: balances, buying tokens, swapping, pending gifts. */
+const sendInput = z.object({
+  code: z.string().min(1).max(12),
+  issuer: z.string().length(56).nullable(),
+  to: z.string().trim(),
+  amount: z.number().positive(),
+});
+
+/** My wallet: balances, buying tokens, swapping, sending, pending gifts. */
 export const walletRouter = createTRPCRouter({
   balances: protectedProcedure.query(async ({ ctx }) => {
     const me = ctx.session.user.id;
@@ -26,6 +34,18 @@ export const walletRouter = createTRPCRouter({
       where: { OR: others.map((b) => ({ code: b.asset_code, issuer: b.asset_issuer })) },
       select: { code: true, issuer: true, thumbnail: true, creator: { select: { id: true, name: true } } },
     });
+    // Everything else: items (named from the Asset table) and any other token.
+    const isPage = (b: { asset_code: string; asset_issuer: string }) => pageTokens.some((p) => p.code === b.asset_code && p.issuer === b.asset_issuer);
+    const rest = others.filter((b) => !isPage(b));
+    const items = rest.length
+      ? await ctx.db.asset.findMany({ where: { OR: rest.map((b) => ({ code: b.asset_code, issuer: b.asset_issuer })) }, select: { id: true, name: true, code: true, issuer: true, thumbnail: true } })
+      : [];
+    const tokens = rest
+      .map((b) => {
+        const item = items.find((i) => i.code === b.asset_code && i.issuer === b.asset_issuer);
+        return { code: b.asset_code, issuer: b.asset_issuer, balance: Number(b.balance), name: item?.name ?? null, thumbnail: item?.thumbnail ?? null, itemId: item?.id ?? null };
+      })
+      .filter((t) => t.balance > 0);
     const platformTokens = acc.platformBalance();
     return {
       active: true as const,
@@ -33,6 +53,7 @@ export const walletRouter = createTRPCRouter({
       xlm: { total: acc.nativeBalance(), spendable: acc.spendableXlm(), reserved: acc.minimumBalance() },
       platform: { code: PLATFORM_ASSET.code, balance: platformTokens, trusted: acc.trustsPlatformAsset(), usd: await platformToUsd(platformTokens).catch(() => null) },
       pageTokens: pageTokens.map((p) => ({ ...p, balance: acc.tokenBalance(p.code, p.issuer) })),
+      tokens,
     };
   }),
 
@@ -52,6 +73,13 @@ export const walletRouter = createTRPCRouter({
   swapPrepare: protectedProcedure
     .input(z.object({ tokens: z.number().positive() }))
     .mutation(({ ctx, input }) => prepareSwap(ctx, { userId: ctx.session.user.id, tokens: input.tokens, signer: signerFor(ctx.session) })),
+
+  /** Sending XLM or any token to another address: a quote first, then the transaction to sign. */
+  sendQuote: protectedProcedure.input(sendInput).query(({ ctx, input }) => quoteSend(ctx.session.user.id, input)),
+
+  sendPrepare: protectedProcedure
+    .input(sendInput)
+    .mutation(({ ctx, input }) => prepareSend(ctx, { userId: ctx.session.user.id, signer: signerFor(ctx.session), ...input })),
 
   gifts: protectedProcedure.query(({ ctx }) => pendingGifts(ctx.session.user.id)),
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowDownToLine, ArrowLeftRight, Check, Copy, Gift, Plus, Wallet } from "lucide-react";
+import { ArrowDownToLine, ArrowLeftRight, Check, Coins, Copy, Gift, Plus, Send, Wallet } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import toast from "react-hot-toast";
@@ -12,6 +12,7 @@ import { useRequireAuth } from "~/hooks/use-require-auth";
 import { useSignAndConfirm } from "~/hooks/use-sign-and-confirm";
 import { isCustodial } from "~/lib/custodial";
 import { creatorHref } from "~/lib/creator";
+import { PLATFORM_ASSET } from "~/lib/stellar/constant";
 import { cn } from "~/lib/utils";
 import { EmptyState } from "~/ui/empty-state";
 import { ErrorState } from "~/ui/error-state";
@@ -20,6 +21,7 @@ import { Avatar } from "~/ui/person";
 import { Skeleton } from "~/ui/skeleton";
 import { api, type RouterOutputs } from "~/utils/api";
 
+import { SendDialog, type SendableAsset } from "./send-dialog";
 import { GetTokensDialog, ReceiveDialog, SwapDialog } from "./wallet-dialogs";
 
 type Balances = RouterOutputs["wallet"]["balances"];
@@ -36,13 +38,30 @@ export function WalletPage() {
   );
 }
 
-type DialogKind = "get" | "swap" | "receive" | null;
+type DialogKind = "get" | "swap" | "receive" | "send" | null;
 
-/** Balances up top with the main actions, then XLM, page tokens and pending gifts. */
+/** Everything sendable, in the order it's listed: XLM, the platform token, page tokens, then items and other tokens. */
+function sendableAssets(b: Balances): SendableAsset[] {
+  if (!b.active) return [];
+  return [
+    { code: "XLM", issuer: null, balance: b.xlm.spendable, label: "Stellar Lumens", thumbnail: null },
+    ...(b.platform.trusted ? [{ code: b.platform.code, issuer: PLATFORM_ASSET.issuer, balance: b.platform.balance, label: "Platform token", thumbnail: null }] : []),
+    ...b.pageTokens.map((t) => ({ code: t.code, issuer: t.issuer, balance: t.balance, label: `${t.creator.name} page token`, thumbnail: t.thumbnail })),
+    ...b.tokens.map((t) => ({ code: t.code, issuer: t.issuer, balance: t.balance, label: t.name ?? "Token", thumbnail: t.thumbnail })),
+  ];
+}
+
+/** Balances up top with the main actions, then every asset (each sendable), XLM details and pending gifts. */
 function WalletView() {
   const balances = api.wallet.balances.useQuery();
   const [open, setOpen] = useState<DialogKind>(null);
+  const [sendAsset, setSendAsset] = useState<SendableAsset | undefined>(undefined);
   const me = useRequireAuth().session?.user.id;
+  const assets = balances.data ? sendableAssets(balances.data) : [];
+  const send = (a?: SendableAsset) => {
+    setSendAsset(a);
+    setOpen("send");
+  };
 
   return (
     <PageBody wide className="space-y-6">
@@ -59,11 +78,11 @@ function WalletView() {
         <ErrorState message={balances.error.message} onRetry={() => void balances.refetch()} />
       ) : balances.data ? (
         <>
-          <BalanceHero b={balances.data} onAction={setOpen} />
-          <div className="grid gap-4 lg:grid-cols-2">
-            {balances.data.active ? <XlmCard xlm={balances.data.xlm} /> : <InactiveCard />}
+          <BalanceHero b={balances.data} onAction={(k) => (k === "send" ? send() : setOpen(k))} />
+          <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_24rem]">
+            <AssetsCard assets={assets} balances={balances.data} onSend={send} />
             <div className="space-y-4">
-              <PageTokensCard tokens={balances.data.active ? balances.data.pageTokens : []} />
+              {balances.data.active ? <XlmCard xlm={balances.data.xlm} /> : <InactiveCard />}
               <GiftsCard />
             </div>
           </div>
@@ -73,6 +92,7 @@ function WalletView() {
 
       {open === "get" && <GetTokensDialog onClose={() => setOpen(null)} />}
       {open === "swap" && balances.data?.active && <SwapDialog balance={balances.data.platform.balance} code={balances.data.platform.code} onClose={() => setOpen(null)} />}
+      {open === "send" && assets.length > 0 && <SendDialog assets={assets} initial={sendAsset} onClose={() => setOpen(null)} />}
       {open === "receive" && balances.data && <ReceiveDialog address={balances.data.address} onClose={() => setOpen(null)} />}
     </PageBody>
   );
@@ -102,7 +122,8 @@ function BalanceHero({ b, onAction }: { b: Balances; onAction: (k: DialogKind) =
   const custodial = isCustodial(session?.user.walletType);
   const actions = [
     ...(custodial ? [{ id: "get" as const, label: "Get tokens", icon: Plus, primary: true }] : []),
-    ...(b.active ? [{ id: "swap" as const, label: "Swap", icon: ArrowLeftRight, primary: !custodial }] : []),
+    ...(b.active ? [{ id: "send" as const, label: "Send", icon: Send, primary: !custodial }] : []),
+    ...(b.active ? [{ id: "swap" as const, label: "Swap", icon: ArrowLeftRight, primary: false }] : []),
     { id: "receive" as const, label: "Receive", icon: ArrowDownToLine, primary: false },
   ];
   return (
@@ -129,7 +150,7 @@ function BalanceHero({ b, onAction }: { b: Balances; onAction: (k: DialogKind) =
             </p>
           )}
         </div>
-        <div className={cn("grid gap-2 sm:flex", actions.length === 3 ? "grid-cols-3" : "grid-cols-2")}>
+        <div className={cn("grid gap-2 sm:flex", actions.length >= 4 ? "grid-cols-4" : actions.length === 3 ? "grid-cols-3" : "grid-cols-2")}>
           {actions.map((a) => (
             <button
               key={a.id}
@@ -193,39 +214,57 @@ function InactiveCard() {
   );
 }
 
-function PageTokensCard({ tokens }: { tokens: Extract<Balances, { active: true }>["pageTokens"] }) {
+/** Every asset in the wallet, each with Send. Items link to their page, page tokens to the brand's membership. */
+function AssetsCard({ assets, balances, onSend }: { assets: SendableAsset[]; balances: Balances; onSend: (a: SendableAsset) => void }) {
+  const hrefFor = (a: SendableAsset) => {
+    if (!balances.active || !a.issuer) return null;
+    const page = balances.pageTokens.find((t) => t.code === a.code && t.issuer === a.issuer);
+    if (page) return `${creatorHref(page.creator)}?tab=membership`;
+    const item = balances.tokens.find((t) => t.code === a.code && t.issuer === a.issuer);
+    return item?.itemId ? `/item/${item.itemId}` : null;
+  };
   return (
     <section className="glass space-y-3 rounded-2xl p-5">
       <div className="flex items-center justify-between">
-        <h2 className="font-hud font-bold">Page tokens</h2>
-        <span className="text-xs text-muted-foreground">Unlock brand memberships</span>
+        <h2 className="font-hud font-bold">Assets</h2>
+        <span className="text-xs text-muted-foreground">{assets.length} in your wallet</span>
       </div>
-      {tokens.length === 0 ? (
-        <p className="text-sm text-muted-foreground">
-          You don&apos;t hold any brand page tokens yet.{" "}
-          <Link href="/creators" className="font-medium text-primary hover:underline">
-            Find creators
-          </Link>
-        </p>
+      {assets.length === 0 ? (
+        <EmptyState icon={Coins} title="Nothing here yet" description="Your XLM, tokens and items will show up here." className="border-0 py-6" />
       ) : (
-        <ul className="space-y-1">
-          {tokens.map((t) => (
-            <li key={`${t.code}-${t.issuer}`}>
-              <Link href={`${creatorHref(t.creator)}?tab=membership`} className="flex items-center gap-3 rounded-xl p-2 transition-colors hover:bg-foreground/[0.04]">
-                {t.thumbnail ? (
+        <ul className="divide-y divide-foreground/[0.06]">
+          {assets.map((a) => {
+            const href = hrefFor(a);
+            const body = (
+              <>
+                {a.thumbnail ? (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={t.thumbnail} alt="" className="size-10 rounded-xl object-cover" />
+                  <img src={a.thumbnail} alt="" className="size-10 shrink-0 rounded-xl object-cover" />
                 ) : (
-                  <Avatar name={t.code} className="size-10" />
+                  <Avatar name={a.code} className="size-10 shrink-0" />
                 )}
                 <span className="min-w-0 flex-1">
-                  <span className="block truncate text-sm font-semibold">{t.code}</span>
-                  <span className="block truncate text-xs text-muted-foreground">{t.creator.name}</span>
+                  <span className="block truncate text-sm font-semibold">{a.code}</span>
+                  <span className="block truncate text-xs text-muted-foreground">{a.label}</span>
                 </span>
-                <span className="font-hud font-bold tabular-nums">{num(t.balance)}</span>
-              </Link>
-            </li>
-          ))}
+              </>
+            );
+            return (
+              <li key={`${a.code}:${a.issuer ?? "native"}`} className="flex items-center gap-3 py-2.5">
+                {href ? (
+                  <Link href={href} className="flex min-w-0 flex-1 items-center gap-3 rounded-lg hover:opacity-80">
+                    {body}
+                  </Link>
+                ) : (
+                  <span className="flex min-w-0 flex-1 items-center gap-3">{body}</span>
+                )}
+                <span className="font-hud font-bold tabular-nums">{num(a.balance, a.code === "XLM" ? 4 : 2)}</span>
+                <Button size="sm" variant="ghost" className="rounded-lg" disabled={a.balance <= 0} onClick={() => onSend(a)} aria-label={`Send ${a.code}`}>
+                  <Send className="size-3.5" /> <span className="hidden sm:inline">Send</span>
+                </Button>
+              </li>
+            );
+          })}
         </ul>
       )}
     </section>
