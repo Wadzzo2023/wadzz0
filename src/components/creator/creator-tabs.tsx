@@ -147,7 +147,8 @@ function PageTokenCard({ profile, onMembership }: { profile: Profile; onMembersh
 }
 
 function PageLinkCard({ profile }: { profile: Profile }) {
-  const path = `/creator/${profile.vanityURL ?? profile.id}`;
+  // brands with a vanity name get the short link (wadzzo.com/name redirects to their page)
+  const path = profile.vanityURL ? `/${profile.vanityURL}` : `/creator/${profile.id}`;
   const copy = () => {
     void navigator.clipboard.writeText(`${env.NEXT_PUBLIC_URL.replace(/\/$/, "")}${path}`).then(
       () => toast.success("Link copied"),
