@@ -131,7 +131,7 @@ function toSummary(html: string | null) {
   return text.length > 220 ? `${text.slice(0, 217).trimEnd()}…` : text;
 }
 
-function toCard(row: CardRow) {
+function toCard(row: CardRow, userId: string | undefined) {
   const perWinner = row.totalWinner > 0 ? row.totalWinner : 1;
   const latest = row.submissions[0];
   return {
@@ -153,6 +153,7 @@ function toCard(row: CardRow) {
     requiredBalance: row.requiredBalance,
     createdAt: row.createdAt,
     open: isOpen(row),
+    isOwner: !!userId && userId === row.creatorId,
     viewer: {
       joined: row.participants.length > 0,
       won: row.BountyWinner.length > 0,
@@ -314,7 +315,7 @@ export const bountyRouter = createTRPCRouter({
 
       const nextCursor =
         rows.length > input.limit ? rows.pop()!.id : null;
-      return { items: rows.map(toCard), nextCursor };
+      return { items: rows.map((r) => toCard(r, userId)), nextCursor };
     }),
 
   /** Header numbers for the bounty page: open bounties and their total reward pool. */
@@ -339,7 +340,7 @@ export const bountyRouter = createTRPCRouter({
       orderBy: { joinedAt: "desc" },
       select: { bounty: { include: cardInclude(userId) } },
     });
-    return joins.map((j) => toCard(j.bounty));
+    return joins.map((j) => toCard(j.bounty, userId));
   }),
 
   byId: publicProcedure
@@ -358,7 +359,7 @@ export const bountyRouter = createTRPCRouter({
       if (!row || !inPlatformScope(ctx, row.platformId)) {
         throw new TRPCError({ code: "NOT_FOUND", message: "Bounty not found" });
       }
-      const card = toCard(row);
+      const card = toCard(row, userId);
       if (row.status !== "APPROVED" && !card.viewer.joined) {
         throw new TRPCError({ code: "NOT_FOUND", message: "Bounty not found" });
       }
@@ -369,7 +370,6 @@ export const bountyRouter = createTRPCRouter({
         status: row.status,
         totalEntries: row._count.submissions,
         commentCount: row._count.comments,
-        isOwner: userId === row.creatorId,
       };
     }),
 

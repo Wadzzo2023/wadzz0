@@ -1,9 +1,10 @@
 "use client";
 
-import { CheckCircle2, Share2, Target, UserCheck, UserPlus } from "lucide-react";
+import { CheckCircle2, FileText, Lock, Settings2, Share2, Target, Trophy, Upload, UserPlus } from "lucide-react";
 import Link from "next/link";
 import toast from "react-hot-toast";
 
+import { env } from "~/env";
 import { useRequireAuth } from "~/hooks/use-require-auth";
 import { type BountyCardData, formatTokens } from "~/lib/bounty";
 import { cn } from "~/lib/utils";
@@ -49,7 +50,7 @@ export function BountyCard({ bounty, className }: { bounty: BountyCardData; clas
           </span>
         </p>
         <span className={cn("shrink-0 rounded-full bg-white/15 px-2.5 py-1 text-xs font-semibold ring-1 ring-white/20 backdrop-blur-md", !bounty.open && "text-white/60")}>
-          {bounty.open ? `${bounty.spotsLeft} left` : bounty.viewer.won ? "You won" : "Closed"}
+          {bounty.open ? `${bounty.spotsLeft} left` : "Closed"}
         </span>
       </div>
 
@@ -79,33 +80,71 @@ export function BountyCard({ bounty, className }: { bounty: BountyCardData; clas
   );
 }
 
+/**
+ * The card's main action, following the same rules as the detail page:
+ * owner → manage in the portal; winner → trophy; joined → submit (or view
+ * entries once closed); open → join, unless the viewer holds less than the
+ * required balance; closed → nothing to do.
+ */
 function JoinAction({ bounty, href }: { bounty: BountyCardData; href: string }) {
-  const { requireAuth } = useRequireAuth();
+  const { signedIn, requireAuth } = useRequireAuth();
   const utils = api.useUtils();
   const join = api.bounty.join.useMutation({
     onSuccess: () => {
-      toast.success("You joined — submit your entry from the bounty page");
+      toast.success("You joined — now submit your entry");
       void utils.bounty.list.invalidate();
       void utils.bounty.mine.invalidate();
     },
     onError: (e) => toast.error(e.message),
   });
-  const action = "inline-flex items-center gap-1.5 rounded-lg px-2 py-1 transition-colors";
+  const joined = bounty.viewer.joined || join.isSuccess;
+  const needsBalance = bounty.open && !joined && !bounty.isOwner && bounty.requiredBalance > 0;
+  const balance = api.user.platformBalance.useQuery(undefined, { enabled: signedIn && needsBalance });
+  const short = needsBalance && balance.data != null && balance.data.balance < bounty.requiredBalance;
 
-  if (bounty.viewer.joined || join.isSuccess) {
+  const action = "inline-flex items-center gap-1.5 rounded-lg px-2 py-1 transition-colors hover:bg-white/10";
+  const green = "text-[hsl(112_85%_62%)]";
+
+  if (bounty.isOwner) {
+    const portal = env.NEXT_PUBLIC_BRAND_PORTAL_URL.replace(/\/$/, "");
     return (
-      <Link href={href} className={cn(action, "text-[hsl(112_85%_62%)] hover:bg-white/10")}>
-        <UserCheck className="size-4" /> Joined
+      <a href={`${portal}/bounties/${bounty.id}`} target="_blank" rel="noreferrer" className={cn(action, green)}>
+        <Settings2 className="size-4" /> Manage
+      </a>
+    );
+  }
+  if (bounty.viewer.won) {
+    return (
+      <Link href={href} className={cn(action, "text-amber-300")}>
+        <Trophy className="size-4" /> You won
       </Link>
     );
   }
-  if (!bounty.open) return null;
+  if (joined) {
+    return bounty.open ? (
+      <Link href={`${href}?section=entries`} className={cn(action, green)}>
+        <Upload className="size-4" /> {bounty.viewer.entryCount ? "Submit another" : "Submit entry"}
+      </Link>
+    ) : bounty.viewer.entryCount ? (
+      <Link href={`${href}?section=entries`} className={cn(action, "text-white/80")}>
+        <FileText className="size-4" /> My entries
+      </Link>
+    ) : null;
+  }
+  if (!bounty.open) return <span className="px-2 py-1 text-white/50">Closed</span>;
+  if (short) {
+    return (
+      <Link href="/wallet" title={`Hold at least ${bounty.requiredBalance.toLocaleString("en-US")} ${bounty.assetCode} to join`} className={cn(action, "text-amber-300")}>
+        <Lock className="size-4" /> Need {formatTokens(bounty.requiredBalance)} {bounty.assetCode}
+      </Link>
+    );
+  }
   return (
     <button
       type="button"
-      disabled={join.isPending}
+      disabled={join.isPending || (needsBalance && balance.isLoading)}
       onClick={requireAuth(() => join.mutate({ id: bounty.id }))}
-      className={cn(action, "text-[hsl(112_85%_62%)] hover:bg-white/10 disabled:opacity-60")}
+      className={cn(action, green, "disabled:opacity-60")}
     >
       <UserPlus className="size-4" /> {join.isPending ? "Joining…" : "Join"}
     </button>
