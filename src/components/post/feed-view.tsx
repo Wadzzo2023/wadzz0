@@ -4,7 +4,7 @@ import { ArrowRight, Newspaper, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 
-import { creatorHref } from "~/components/creator/creator-card";
+import { creatorHref } from "~/lib/creator";
 import { FollowButton } from "~/components/creator/creator-actions";
 import { Button } from "~/components/shadcn/ui/button";
 import { useRequireAuth } from "~/hooks/use-require-auth";

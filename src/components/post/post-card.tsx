@@ -7,7 +7,7 @@ import Link from "next/link";
 import { useState } from "react";
 import toast from "react-hot-toast";
 
-import { creatorHref } from "~/components/creator/creator-card";
+import { creatorHref } from "~/lib/creator";
 import { tierColor } from "~/components/creator/tier-card";
 import { Button } from "~/components/shadcn/ui/button";
 import { useRequireAuth } from "~/hooks/use-require-auth";

@@ -4,7 +4,7 @@ import Link from "next/link";
 import { Avatar } from "~/ui/person";
 import type { RouterOutputs } from "~/utils/api";
 
-import { creatorHref } from "./creator-card";
+import { creatorHref } from "~/lib/creator";
 
 type Creator = RouterOutputs["creator"]["list"]["items"][number];
 

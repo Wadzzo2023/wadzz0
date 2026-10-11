@@ -5,7 +5,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { cache } from "react";
 
-import { creatorHref } from "~/components/creator/creator-card";
+import { creatorHref } from "~/lib/creator";
 import { ItemActivity } from "~/components/market/item-activity";
 import { BuyPanel } from "~/components/market/buy-panel";
 import { ItemActions } from "~/components/market/item-actions";
