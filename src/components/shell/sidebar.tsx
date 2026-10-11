@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowUpRight, ChevronLeft, ChevronRight, Menu, Monitor, Moon, Store, Sun } from "lucide-react";
+import { ChevronLeft, ChevronRight, Menu, Monitor, Moon, Store, Sun } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTheme } from "next-themes";
@@ -66,8 +66,8 @@ function useBrandEntry() {
   const isBrand = Boolean(me.data?.creator && !me.data.creator.notCreatorButSeller);
   const base = env.NEXT_PUBLIC_BRAND_PORTAL_URL.replace(/\/$/, "");
   return isBrand
-    ? { label: "My brand", href: base, logo: me.data?.creator?.profileUrl ?? null, name: me.data?.creator?.name ?? null }
-    : { label: "Create brand", href: `${base}/onboarding`, logo: null, name: null };
+    ? { label: "My brand", hint: "Open brand studio", href: base, logo: me.data?.creator?.profileUrl ?? null, name: me.data?.creator?.name ?? null }
+    : { label: "Create brand", hint: "Start selling", href: `${base}/onboarding`, logo: null, name: null };
 }
 
 function NavLink({ item, active, collapsed, onNavigate }: { item: NavItem; active: boolean; collapsed: boolean; onNavigate?: () => void }) {
@@ -94,13 +94,15 @@ function BrandCard({ collapsed, onNavigate }: { collapsed: boolean; onNavigate?:
   const brand = useBrandEntry();
   const initial = brand.name?.trim()[0]?.toUpperCase();
 
-  const mark = brand.logo ? (
+  const tile = brand.logo ? (
     // eslint-disable-next-line @next/next/no-img-element
-    <img src={brand.logo} alt="" className="size-6 shrink-0 rounded-full object-cover" />
+    <img src={brand.logo} alt="" className="size-9 shrink-0 rounded-lg object-cover" />
   ) : initial ? (
-    <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-primary/15 font-hud text-xs font-bold">{initial}</span>
+    <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary/12 font-hud text-base font-bold text-primary">{initial}</span>
   ) : (
-    <Store className="size-[18px] shrink-0" />
+    <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary/12 text-primary">
+      <Store className="size-[18px]" />
+    </span>
   );
 
   return (
@@ -112,15 +114,18 @@ function BrandCard({ collapsed, onNavigate }: { collapsed: boolean; onNavigate?:
       title={collapsed ? brand.label : undefined}
       aria-label={collapsed ? brand.label : undefined}
       className={cn(
-        "group flex h-10 items-center gap-3 rounded-lg border border-primary/50 text-sm font-semibold text-primary transition-colors hover:border-primary hover:bg-primary/10",
-        collapsed ? "justify-center" : "px-3",
+        "group flex items-center gap-3 rounded-xl border border-foreground/[0.08] bg-surface-2 transition-colors hover:border-primary/50",
+        collapsed ? "justify-center p-1.5" : "p-2",
       )}
     >
-      {mark}
+      {tile}
       {!collapsed && (
         <>
-          <span className="min-w-0 flex-1 truncate">{brand.name ?? brand.label}</span>
-          <ArrowUpRight className="size-4 shrink-0 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+          <span className="min-w-0 flex-1 leading-tight">
+            <span className="block truncate text-sm font-semibold">{brand.name ?? brand.label}</span>
+            <span className="block truncate text-xs text-muted-foreground">{brand.hint}</span>
+          </span>
+          <ChevronRight className="size-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:text-primary" />
         </>
       )}
     </a>
@@ -194,10 +199,6 @@ function SidebarBody({
         <BrandMark compact={collapsed} />
       </div>
 
-      <div className={cn("shrink-0 pb-3", collapsed ? "px-2" : "px-3")}>
-        <BrandCard collapsed={collapsed} onNavigate={onNavigate} />
-      </div>
-
       <nav aria-label="Sections" className={cn("flex-1 space-y-1 pb-3", collapsed ? "px-2" : "px-3")}>
         {MAIN.map((item) => (
           <NavLink key={item.href} item={item} active={isActive(pathname, item)} collapsed={collapsed} onNavigate={onNavigate} />
@@ -213,6 +214,7 @@ function SidebarBody({
       </nav>
 
       <div className={cn("shrink-0 space-y-3 pb-[max(0.75rem,var(--safe-bottom))]", collapsed ? "px-2" : "px-3")}>
+        <BrandCard collapsed={collapsed} onNavigate={onNavigate} />
         {showCurrency && (
           <div className="flex items-center justify-between gap-2 px-1">
             <span className="text-xs font-medium text-muted-foreground">Show prices in</span>
