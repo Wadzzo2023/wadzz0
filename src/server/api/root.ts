@@ -10,6 +10,7 @@ import { notificationRouter } from "./routers/notification";
 import { postRouter } from "./routers/post";
 import { purchaseRouter } from "./routers/purchase";
 import { searchRouter } from "./routers/search";
+import { supportRouter } from "./routers/support";
 import { txRouter } from "./routers/tx";
 import { userRouter } from "./routers/user";
 import { walletRouter } from "./routers/wallet";
@@ -28,6 +29,7 @@ export const appRouter = createTRPCRouter({
   user: userRouter,
   wallet: walletRouter,
   search: searchRouter,
+  support: supportRouter,
 });
 
 export type AppRouter = typeof appRouter;
