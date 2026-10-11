@@ -1,6 +1,6 @@
 "use client";
 
-import { ExternalLink, Layers, Pencil, Play, Repeat2, Sparkles, Store, Undo2 } from "lucide-react";
+import { Copy, ExternalLink, Layers, Pencil, Play, Repeat2, Sparkles, Store, Undo2 } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 
@@ -15,7 +15,9 @@ import { cn } from "~/lib/utils";
 import { EmptyState } from "~/ui/empty-state";
 import { ErrorState } from "~/ui/error-state";
 import { PageBody } from "~/ui/page-header";
+import { PageHero } from "~/ui/page-hero";
 import { Skeleton } from "~/ui/skeleton";
+import { SearchInput } from "~/ui/toolbar";
 import { api, type RouterOutputs } from "~/utils/api";
 
 import { ListDialog, StorageSetupDialog } from "./resale-dialogs";
@@ -37,8 +39,15 @@ export function CollectionView() {
   const [listing, setListing] = useState<Owned | null>(null);
   const [setup, setSetup] = useState<Owned | null>(null);
 
+  const [search, setSearch] = useState("");
+  const q = search.trim().toLowerCase();
+  const match = (name: string) => !q || name.toLowerCase().includes(q);
+
   const ownedItems = owned.data?.filter((x) => x.owned > 0) ?? [];
   const selling = owned.data?.filter((x) => x.listing) ?? [];
+  const shownOwned = ownedItems.filter((x) => match(x.asset.name));
+  const shownSelling = selling.filter((x) => match(x.asset.name));
+  const shownCreated = created.data?.filter((a) => match(a.name)) ?? [];
   const copies = ownedItems.reduce((s, x) => s + x.owned, 0);
   const listedCopies = owned.data?.reduce((s, x) => s + x.listed, 0) ?? 0;
   const isCreator = (created.data?.length ?? 0) > 0;
@@ -52,103 +61,104 @@ export function CollectionView() {
   ];
 
   return (
-    <PageBody wide className="space-y-6">
-      <header className="space-y-4">
-        <div>
-          <p className="label-caps text-primary">You</p>
-          <h1 className="font-hud text-3xl font-bold tracking-tight sm:text-4xl">
+    <>
+      <PageHero
+        eyebrow="You"
+        title={
+          <>
             My <span className="text-gradient">collection</span>
-          </h1>
-          <p className="mt-1 max-w-2xl text-sm text-muted-foreground">Items you bought, claimed or were gifted. Open one to play its full content, or resell it to other fans.</p>
+          </>
+        }
+        description="Items you bought, claimed or were gifted. Open one to play its full content, or resell it to other fans."
+        image={ownedItems[0]?.asset.thumbnail ?? created.data?.[0]?.thumbnail ?? null}
+        stats={[
+          { icon: Layers, label: "Items", value: owned.data ? num.format(ownedItems.length) : "–" },
+          { icon: Copy, label: "Copies", value: owned.data ? num.format(copies) : "–" },
+          { icon: Store, label: "Listed for resale", value: owned.data ? num.format(listedCopies) : "–" },
+        ]}
+      />
+
+      <PageBody wide className="space-y-6 pt-6">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="glass flex w-fit max-w-full gap-1 overflow-x-auto rounded-xl p-1" role="tablist">
+            {tabs.map((t) => (
+              <button
+                key={t.id}
+                type="button"
+                role="tab"
+                aria-selected={tab === t.id}
+                onClick={() => setTab(t.id)}
+                className={cn(
+                  "flex h-9 shrink-0 items-center gap-1.5 rounded-lg px-4 text-sm font-semibold transition-colors",
+                  tab === t.id ? "bg-primary text-primary-foreground shadow-[0_0_20px_-6px_hsl(var(--primary)/0.8)]" : "text-muted-foreground hover:text-foreground",
+                )}
+              >
+                {t.label}
+                {t.count != null && <span className={cn("rounded-full px-1.5 text-[11px] tabular-nums", tab === t.id ? "bg-black/15" : "bg-foreground/10")}>{t.count}</span>}
+              </button>
+            ))}
+          </div>
+          <SearchInput value={search} onSearch={setSearch} placeholder="Search your items" />
         </div>
-        <dl className="grid grid-cols-3 gap-2 sm:max-w-xl">
-          {[
-            ["Items", ownedItems.length],
-            ["Copies", copies],
-            ["Listed for resale", listedCopies],
-          ].map(([k, v]) => (
-            <div key={k} className="glass rounded-xl p-3">
-              <dt className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">{k}</dt>
-              <dd className="font-hud text-2xl font-bold tabular-nums">{owned.data ? num.format(v as number) : "–"}</dd>
+
+        {owned.isLoading ? (
+          <div className={grid}>
+            {Array.from({ length: 10 }).map((_, i) => (
+              <Skeleton key={i} className="aspect-[3/4] rounded-2xl" />
+            ))}
+          </div>
+        ) : owned.error ? (
+          <ErrorState message={owned.error.message} onRetry={() => void owned.refetch()} />
+        ) : tab === "owned" ? (
+          shownOwned.length ? (
+            <div className={grid}>
+              {shownOwned.map((x) => (
+                <OwnedCard key={x.asset.id} x={x} onResell={() => resell(x)} />
+              ))}
             </div>
-          ))}
-        </dl>
-      </header>
-
-      <div className="glass flex w-fit gap-1 rounded-xl p-1" role="tablist">
-        {tabs.map((t) => (
-          <button
-            key={t.id}
-            type="button"
-            role="tab"
-            aria-selected={tab === t.id}
-            onClick={() => setTab(t.id)}
-            className={cn(
-              "flex h-9 items-center gap-1.5 rounded-lg px-4 text-sm font-semibold transition-colors",
-              tab === t.id ? "bg-primary text-primary-foreground shadow-[0_0_20px_-6px_hsl(var(--primary)/0.8)]" : "text-muted-foreground hover:text-foreground",
-            )}
-          >
-            {t.label}
-            {t.count != null && <span className={cn("rounded-full px-1.5 text-[11px] tabular-nums", tab === t.id ? "bg-black/15" : "bg-foreground/10")}>{t.count}</span>}
-          </button>
-        ))}
-      </div>
-
-      {owned.isLoading ? (
-        <div className={grid}>
-          {Array.from({ length: 10 }).map((_, i) => (
-            <Skeleton key={i} className="aspect-[3/4] rounded-2xl" />
-          ))}
-        </div>
-      ) : owned.error ? (
-        <ErrorState message={owned.error.message} onRetry={() => void owned.refetch()} />
-      ) : tab === "owned" ? (
-        ownedItems.length ? (
+          ) : q && ownedItems.length ? (
+            <EmptyState icon={Layers} title="No items match" description="Try a different name." />
+          ) : (
+            <EmptyState icon={Layers} title="No items yet" description="Items you buy, claim or receive as gifts show up here." action={<Button asChild className="rounded-xl"><Link href="/marketplace">Browse the marketplace</Link></Button>} />
+          )
+        ) : tab === "selling" ? (
+          shownSelling.length ? (
+            <div className={grid}>
+              {shownSelling.map((x) => (
+                <SellingCard key={x.asset.id} x={x} />
+              ))}
+            </div>
+          ) : (
+            <EmptyState icon={Store} title={q && selling.length ? "No listings match" : "Nothing listed"} description="Resell an item from the Owned tab — it waits in your storage until someone buys it." />
+          )
+        ) : (
           <div className={grid}>
-            {ownedItems.map((x) => (
-              <OwnedCard key={x.asset.id} x={x} onResell={() => resell(x)} />
+            {shownCreated.map((a) => (
+              <CreatedCard key={a.id} a={a} />
             ))}
           </div>
-        ) : (
-          <EmptyState icon={Layers} title="No items yet" description="Items you buy, claim or receive as gifts show up here." action={<Button asChild className="rounded-xl"><Link href="/marketplace">Browse the marketplace</Link></Button>} />
-        )
-      ) : tab === "selling" ? (
-        selling.length ? (
-          <div className={grid}>
-            {selling.map((x) => (
-              <SellingCard key={x.asset.id} x={x} />
-            ))}
-          </div>
-        ) : (
-          <EmptyState icon={Store} title="Nothing listed" description="Resell an item from the Owned tab — it waits in your storage until someone buys it." />
-        )
-      ) : (
-        <div className={grid}>
-          {created.data?.map((a) => (
-            <CreatedCard key={a.id} a={a} />
-          ))}
-        </div>
-      )}
+        )}
 
-      {setup && (
-        <StorageSetupDialog
-          open
-          onOpenChange={(o) => !o && setSetup(null)}
-          onDone={() => {
-            void storage.refetch();
-            setListing(setup);
-            setSetup(null);
-          }}
-        />
-      )}
-      {listing && (
-        <ListDialog
-          open
-          onOpenChange={(o) => !o && setListing(null)}
-          item={{ assetId: listing.asset.id, name: listing.asset.name, owned: listing.owned, royaltyPercent: listing.asset.royaltyPercent, currentPrice: listing.listing?.price }}
-        />
-      )}
-    </PageBody>
+        {setup && (
+          <StorageSetupDialog
+            open
+            onOpenChange={(o) => !o && setSetup(null)}
+            onDone={() => {
+              void storage.refetch();
+              setListing(setup);
+              setSetup(null);
+            }}
+          />
+        )}
+        {listing && (
+          <ListDialog
+            open
+            onOpenChange={(o) => !o && setListing(null)}
+            item={{ assetId: listing.asset.id, name: listing.asset.name, owned: listing.owned, royaltyPercent: listing.asset.royaltyPercent, currentPrice: listing.listing?.price }}
+          />
+        )}
+      </PageBody>
+    </>
   );
 }
 
