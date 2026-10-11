@@ -190,7 +190,7 @@ function SidebarBody({
 
   return (
     <div className="flex h-full min-h-0 flex-col overflow-y-auto overscroll-contain">
-      <div className={cn("flex h-16 shrink-0 items-center", collapsed ? "justify-center" : "px-4")}>
+      <div className={cn("mb-3 flex h-16 shrink-0 items-center border-b border-foreground/[0.06]", collapsed ? "justify-center" : "px-4")}>
         <BrandMark compact={collapsed} />
       </div>
 
