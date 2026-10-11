@@ -36,17 +36,9 @@ export function SettingsPage() {
   );
 }
 
-const TABS = [
-  { id: "profile", label: "Profile" },
-  { id: "appearance", label: "Appearance" },
-  { id: "account", label: "Account" },
-] as const;
-type Tab = (typeof TABS)[number]["id"];
-
-/** Laid out like a profile page: cover and picture up top, then tabs for editing. */
+/** Laid out like a profile page: cover and picture up top, then everything to edit on one screen. */
 function SettingsView() {
   const me = api.user.me.useQuery();
-  const [tab, setTab] = useState<Tab>("profile");
   if (me.isLoading || !me.data) {
     return (
       <div>
@@ -63,27 +55,12 @@ function SettingsView() {
       <h1 className="sr-only">Settings</h1>
       <ProfileHeader me={me.data} />
       <PageBody wide className="space-y-6 pt-6">
-        <div className="glass flex w-fit max-w-full gap-1 overflow-x-auto rounded-xl p-1" role="tablist">
-          {TABS.map((t) => (
-            <button
-              key={t.id}
-              type="button"
-              role="tab"
-              aria-selected={tab === t.id}
-              onClick={() => setTab(t.id)}
-              className={cn(
-                "flex h-9 shrink-0 items-center rounded-lg px-4 text-sm font-semibold transition-colors",
-                tab === t.id ? "bg-primary text-primary-foreground shadow-[0_0_20px_-6px_hsl(var(--primary)/0.8)]" : "text-muted-foreground hover:text-foreground",
-              )}
-            >
-              {t.label}
-            </button>
-          ))}
-        </div>
-        <div className="max-w-2xl" role="tabpanel">
-          {tab === "profile" && <ProfileForm me={me.data} />}
-          {tab === "appearance" && <AppearanceCard />}
-          {tab === "account" && <AccountCard me={me.data} />}
+        <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_24rem]">
+          <ProfileForm me={me.data} />
+          <div className="space-y-4">
+            <AppearanceCard />
+            <AccountCard me={me.data} />
+          </div>
         </div>
       </PageBody>
     </div>
@@ -207,7 +184,8 @@ function ProfileForm({ me }: { me: Me }) {
   };
 
   return (
-    <form onSubmit={save} className="glass space-y-5 rounded-2xl p-5">
+    <form onSubmit={save} className="glass space-y-5 self-start rounded-2xl p-5">
+      <h2 className="font-hud font-bold">Profile</h2>
       <label className="block space-y-1.5">
         <span className="text-sm font-semibold">Display name</span>
         <Input value={name} onChange={(e) => setName(e.target.value)} minLength={2} maxLength={100} required className="h-11 rounded-xl" />
