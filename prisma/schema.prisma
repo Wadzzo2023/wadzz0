@@ -52,6 +52,16 @@ enum NotificationType {
     BOUNTY_DOUBT
     BOUNTY_DOUBT_CREATE
     BOUNTY_DOUBT_REPLY
+    // commerce and delivery (brand side)
+    ITEM_SOLD
+    ROYALTY_EARNED
+    ITEM_SOLD_OUT
+    GIFT_CLAIMED
+    PIN_COLLECTED
+    // commerce and delivery (fan side)
+    ITEM_PURCHASED
+    RESALE_SOLD
+    GIFT_RECEIVED
 }
 
 // it is kinda notification actor and the entity that is being acted upon
@@ -67,6 +77,10 @@ model Notification {
 
     notifierId String
     isCreator  Boolean @default(false) // Notification for creators if true, for users if false
+
+    // inbox lists and the unread badge
+    @@index([notifierId, isCreator, createdAt])
+    @@index([notifierId, isCreator, seen])
 }
 
 model NotificationObject {
@@ -78,6 +92,8 @@ model NotificationObject {
     actorId      String
     actor        User             @relation(fields: [actorId], references: [id], onDelete: Cascade)
     isUser       Boolean          @default(true)
+    /// event details that aren't a row of their own: item name, amount, quantity, currency…
+    meta         Json?
 }
 
 // ------------------------FAN SCHEMA-------------------------
