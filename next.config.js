@@ -6,8 +6,6 @@
 const config = {
   transpilePackages: ["three"],
   reactStrictMode: true,
-  // Amplify rejects deploys over 220MB. Server source maps were ~130MB of the output.
-  experimental: { serverSourceMaps: false },
   images: {
     remotePatterns: [
       { protocol: "https", hostname: "**" },

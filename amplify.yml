@@ -5,35 +5,15 @@ frontend:
       commands:
         - nvm use 22 || nvm install 22
         - corepack enable
-        - pnpm config set store-dir .pnpm-store
         - pnpm install --frozen-lockfile
     build:
       commands:
-        # Amplify's SSR runtime only sees env vars that are written to .env.production.
-        - 'env | grep -E "^(ISSUER_ENCRYPTION_KEY|RUBY_ACCOUNTS_SECRET|QSTASH_TOKEN|QSTASH_CURRENT_SIGNING_KEY|QSTASH_NEXT_SIGNING_KEY|UPLOADTHING_SECRET|UPLOADTHING_APP_ID|NEXT_PUBLIC_STELLAR_PUBNET|NEXT_PUBLIC_STAGE|STORAGE_SECRET|MOTHER_SECRET|NEXT_PUBLIC_ASSET_CODE|NEXT_PUBLIC_ASSET_ISSUER|NEXT_PUBLIC_HOME_DOMAIN|NEXT_PUBLIC_LOG_ENABLE|PINATA_JWT|SQUARE_ACCESS_TOKEN|NEXT_PUBLIC_SQUARE_APP_ID|NEXT_PUBLIC_SQUARE_LOCATION|SQUARE_ENVIRONMENT|NEXT_PUBLIC_AUTH_FIREBASE_API_KEY|NEXT_PUBLIC_AUTH_DOMAIN|NEXT_PUBLIC_AUTH_PROJECT_ID|NEXT_PUBLIC_AUTH_STORAGE_BUCKET|NEXT_PUBLIC_AUTH_MESSAGING_SENDER_ID|NEXT_PUBLIC_AUTH_APP_ID|FIREBASE_ADMIN_PRIVATE_KEY|FIREBASE_ADMIN_CLIENT_EMAIL|DATABASE_URL|NEXTAUTH_SECRET|NEXTAUTH_URL|NEXT_AWS_SECRET_ACCESS_KEY|NEXT_AWS_ACCESS_KEY|NEXT_AWS_BUCKET_REGION|NEXT_AWS_BUCKET_NAME|NEXT_PUBLIC_MAPBOX_API|OPENAI_API_KEY|PLATFORM_SLUG|NEXT_PUBLIC_SITE|NEXT_PUBLIC_DESC|NEXT_PUBLIC_URL|NEXT_PUBLIC_BRAND_PORTAL_URL|NEXT_PUBLIC_NODEMAILER_USER|NEXT_PUBLIC_NODEMAILER_PASS)=" >> .env.production || true'
-        - cp .env.production .env
         - pnpm run build
-        # Build cache isn't needed at runtime (it did not change the measured output size).
-        - rm -rf .next/cache
-        # Amplify builds its server bundle (compute/node_modules) from node_modules, and rejects
-        # output over 220MB. These build-only / wrong-OS binaries aren't needed at runtime:
-        # the Next.js SWC compiler (~195MB, only used by `next build`) and Alpine (musl) sharp (~19MB).
-        # See https://docs.aws.amazon.com/amplify/latest/userguide/troubleshooting-SSR.html
-        - rm -rf node_modules/.pnpm/@next+swc-*
-        - rm -rf node_modules/.pnpm/@img+sharp*linuxmusl*
-        # TEMP diagnostics: Amplify rejects output over 220MB (was 409MB); find out what is big.
-        - 'echo "=== SIZE: .next total ==="; du -sh .next || true'
-        - 'echo "=== SIZE: .next/* ==="; du -sk .next/* | sort -rn | head -15 || true'
-        - 'echo "=== SIZE: .next/server/* ==="; du -sk .next/server/* | sort -rn | head -15 || true'
-        - 'echo "=== SIZE: .map files in .next ==="; find .next -name "*.map" -type f -exec cat {} + | wc -c || true'
-        - 'echo "=== SIZE: 40 largest files in .next (bytes) ==="; find .next -type f -exec ls -l {} + | awk "{print \$5, \$9}" | sort -rn | head -40 || true'
-        - 'echo "=== SIZE: node_modules/.pnpm top 25 (KB) ==="; du -sk node_modules/.pnpm/* | sort -rn | head -25 || true'
-        - 'echo "=== SIZE: .next/standalone/node_modules/.pnpm top 25 (KB) ==="; du -sk .next/standalone/node_modules/.pnpm/* | sort -rn | head -25 || true'
-        - 'echo "=== SIZE: end ==="'
   artifacts:
     baseDirectory: .next
     files:
       - '**/*'
   cache:
     paths:
-      - .pnpm-store/**/*
+      - node_modules/**/*
+      - .next/cache/**/*
