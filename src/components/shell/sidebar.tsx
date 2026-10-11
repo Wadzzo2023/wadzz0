@@ -227,25 +227,25 @@ function SidebarBody({
         <ThemeSwitch collapsed={collapsed} />
         {!collapsed && (
           <>
-            <div className="flex flex-wrap items-center gap-x-1.5 gap-y-1 px-1 text-[11px] text-muted-foreground">
-              {INFO_LINKS.map((l, i) => (
-                <span key={l.href} className="flex items-center gap-1.5">
-                  {i > 0 && <span aria-hidden className="size-[3px] rounded-full bg-muted-foreground/50" />}
-                  <Link href={l.href} onClick={onNavigate} className="transition-colors hover:text-foreground">
-                    {l.label}
-                  </Link>
-                </span>
-              ))}
-            </div>
-            <div className="flex items-center justify-between border-t border-foreground/[0.06] px-1 pt-3 text-[11px] text-muted-foreground">
-              <span>© {new Date().getFullYear()} Wadzzo</span>
-              <span className="flex items-center gap-3">
+            <div className="flex flex-col items-center gap-2 border-t border-foreground/[0.06] pt-3 text-center text-[11px] text-muted-foreground">
+              <div className="flex flex-wrap items-center justify-center gap-x-1.5 gap-y-1">
+                {INFO_LINKS.map((l, i) => (
+                  <span key={l.href} className="flex items-center gap-1.5">
+                    {i > 0 && <span aria-hidden className="size-[3px] rounded-full bg-muted-foreground/50" />}
+                    <Link href={l.href} onClick={onNavigate} className="transition-colors hover:text-foreground">
+                      {l.label}
+                    </Link>
+                  </span>
+                ))}
+              </div>
+              <span className="flex items-center justify-center gap-3">
                 {SOCIALS.map((s) => (
                   <a key={s.href} href={s.href} target="_blank" rel="noreferrer" aria-label={s.label} title={s.label} className="transition-colors hover:text-foreground">
                     <s.icon className="size-3.5" />
                   </a>
                 ))}
               </span>
+              <span>© {new Date().getFullYear()} Wadzzo</span>
             </div>
           </>
         )}
