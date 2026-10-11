@@ -21,7 +21,7 @@ export function BountyCard({ bounty, className }: { bounty: BountyCardData; clas
     <Link
       href={`/bounties/${bounty.id}`}
       className={cn(
-        "group relative isolate flex aspect-[3/4] flex-col justify-between overflow-hidden rounded-2xl bg-surface-2 p-2 text-white ring-1 ring-foreground/10 transition-all duration-300 hover:glow hover:-translate-y-1",
+        "group relative isolate flex aspect-[4/3] flex-col justify-between overflow-hidden rounded-2xl bg-surface-2 p-2 text-white ring-1 ring-foreground/10 transition-all duration-300 hover:glow hover:-translate-y-1",
         className,
       )}
     >
@@ -85,5 +85,5 @@ export function BountyCard({ bounty, className }: { bounty: BountyCardData; clas
 }
 
 export function BountyCardSkeleton() {
-  return <Skeleton className="aspect-[3/4] rounded-2xl" />;
+  return <Skeleton className="aspect-[4/3] rounded-2xl" />;
 }

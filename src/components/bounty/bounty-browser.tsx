@@ -24,7 +24,7 @@ const TABS = [
 ] as const;
 type Tab = (typeof TABS)[number]["id"];
 
-const grid = "grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5";
+const grid = "grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3";
 
 /** Bounty browser: filter tabs + search, a "needs you" strip, and the card grid. */
 export function BountyBrowser({ initial }: { initial: BountyCardData[] }) {
