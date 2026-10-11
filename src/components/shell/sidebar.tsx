@@ -227,14 +227,17 @@ function SidebarBody({
         <ThemeSwitch collapsed={collapsed} />
         {!collapsed && (
           <>
-            <div className="flex flex-wrap justify-between gap-x-3 gap-y-1 px-1 text-[13px] text-muted-foreground">
-              {INFO_LINKS.map((l) => (
-                <Link key={l.href} href={l.href} onClick={onNavigate} className="transition-colors hover:text-foreground">
-                  {l.label}
-                </Link>
+            <div className="flex flex-wrap items-center gap-x-1.5 gap-y-1 px-1 text-[11px] text-muted-foreground">
+              {INFO_LINKS.map((l, i) => (
+                <span key={l.href} className="flex items-center gap-1.5">
+                  {i > 0 && <span aria-hidden className="size-[3px] rounded-full bg-muted-foreground/50" />}
+                  <Link href={l.href} onClick={onNavigate} className="transition-colors hover:text-foreground">
+                    {l.label}
+                  </Link>
+                </span>
               ))}
             </div>
-            <div className="flex items-center justify-between border-t border-foreground/[0.06] px-1 pt-3 text-xs text-muted-foreground">
+            <div className="flex items-center justify-between border-t border-foreground/[0.06] px-1 pt-3 text-[11px] text-muted-foreground">
               <span>© {new Date().getFullYear()} Wadzzo</span>
               <span className="flex items-center gap-3">
                 {SOCIALS.map((s) => (
