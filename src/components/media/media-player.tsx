@@ -39,7 +39,7 @@ export function MediaPlayer({
   const fullscreen = () => void (document.fullscreenElement ? document.exitFullscreen() : frame.current?.requestFullscreen());
 
   return (
-    <div ref={frame} className={cn("group relative overflow-hidden rounded-xl border bg-surface-2", className)}>
+    <div ref={frame} className={cn("group relative overflow-hidden rounded-2xl bg-surface-2", className)}>
       <div className="aspect-square w-full [:fullscreen_&]:h-full [:fullscreen_&]:aspect-auto">
         {type === "IMAGE" && (
           // eslint-disable-next-line @next/next/no-img-element
@@ -118,15 +118,28 @@ function AudioPlayer({ url, poster, title }: { url: string; poster?: string | nu
   const toggle = () => void (audio.current?.paused ? audio.current.play() : audio.current?.pause());
 
   return (
-    <div className="relative flex size-full flex-col justify-end">
+    <div className="relative flex size-full flex-col items-center justify-center gap-5 overflow-hidden bg-black p-6 text-white">
       {poster && (
         // eslint-disable-next-line @next/next/no-img-element
-        <img src={poster} alt="" className="absolute inset-0 size-full object-cover" />
+        <img src={poster} alt="" aria-hidden className="absolute inset-0 size-full scale-125 object-cover opacity-50 blur-3xl" />
       )}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+      <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/40 to-black/80" />
       <audio ref={audio} src={url} preload="metadata" muted={muted} />
-      <div className="relative space-y-3 p-4 text-white">
-        <p className="truncate font-hud text-lg font-semibold">{title}</p>
+
+      {/* cover art, gently pulsing while it plays */}
+      <div className={cn("relative aspect-square w-[52%] overflow-hidden rounded-2xl bg-white/5 shadow-2xl ring-1 ring-white/15 transition-transform duration-500", playing && "scale-[1.03]")}>
+        {poster ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={poster} alt="" className="size-full object-cover" />
+        ) : (
+          <div className="flex size-full items-center justify-center text-white/60">
+            <Volume2 className="size-10" />
+          </div>
+        )}
+      </div>
+
+      <div className="relative w-full max-w-sm space-y-3">
+        <p className="truncate text-center font-hud text-lg font-semibold">{title}</p>
         <input
           type="range"
           min={0}
@@ -137,19 +150,21 @@ function AudioPlayer({ url, poster, title }: { url: string; poster?: string | nu
           aria-label="Seek"
           className="w-full accent-[hsl(var(--primary))]"
         />
-        <div className="flex items-center gap-3">
+        <div className="flex items-center justify-between font-mono text-[11px] tabular-nums text-white/70">
+          <span>{time(pos)}</span>
+          <span>{time(dur)}</span>
+        </div>
+        <div className="flex items-center justify-center gap-6">
+          <span className="size-5" aria-hidden />
           <button
             type="button"
             onClick={toggle}
             aria-label={playing ? "Pause" : "Play"}
-            className="flex size-12 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg transition-transform active:scale-95"
+            className="flex size-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-[0_0_30px_-4px_hsl(var(--primary)/0.8)] transition-transform hover:scale-105 active:scale-95"
           >
-            {playing ? <Pause className="size-5" /> : <Play className="ml-0.5 size-5" />}
+            {playing ? <Pause className="size-6" /> : <Play className="ml-0.5 size-6" />}
           </button>
-          <span className="font-mono text-xs tabular-nums text-white/80">
-            {time(pos)} / {time(dur)}
-          </span>
-          <button type="button" onClick={() => setMuted((m) => !m)} aria-label={muted ? "Unmute" : "Mute"} className="ml-auto text-white/85 hover:text-white">
+          <button type="button" onClick={() => setMuted((m) => !m)} aria-label={muted ? "Unmute" : "Mute"} className="text-white/80 hover:text-white">
             {muted ? <VolumeX className="size-5" /> : <Volume2 className="size-5" />}
           </button>
         </div>

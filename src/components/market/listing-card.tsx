@@ -26,8 +26,8 @@ export function ListingCard({ listing, className }: { listing: ListingCardData; 
     <Link
       href={`/item/${a.id}`}
       className={cn(
-        "group flex flex-col rounded-2xl border bg-card p-2 transition-all duration-300",
-        "hover:-translate-y-1 hover:border-primary/40 hover:shadow-xl hover:shadow-primary/10",
+        "glass group flex flex-col rounded-2xl p-2 transition-all duration-300",
+        "hover:glow hover:-translate-y-1",
         className,
       )}
     >
@@ -48,7 +48,7 @@ export function ListingCard({ listing, className }: { listing: ListingCardData; 
             </span>
           ) : null}
         </div>
-        <span className="absolute inset-x-2 bottom-2 flex h-9 translate-y-[140%] items-center justify-center rounded-lg bg-primary text-sm font-semibold text-primary-foreground shadow-lg transition-transform duration-300 group-hover:translate-y-0">
+        <span className="absolute inset-x-2 bottom-2 flex h-9 translate-y-[140%] items-center justify-center rounded-lg bg-primary text-sm font-bold text-primary-foreground shadow-[0_0_24px_-4px_hsl(var(--primary)/0.8)] transition-transform duration-300 group-hover:translate-y-0">
           Buy now
         </span>
       </div>
@@ -60,7 +60,7 @@ export function ListingCard({ listing, className }: { listing: ListingCardData; 
           {a.creator && <BadgeCheck className="size-3.5 shrink-0 text-primary" aria-label="Creator" />}
         </div>
         <p className="truncate font-hud text-[15px] font-semibold leading-tight">{a.name}</p>
-        <div className="mt-auto flex items-end justify-between gap-2 rounded-xl bg-surface-2 px-2.5 py-2">
+        <div className="mt-auto flex items-end justify-between gap-2 rounded-xl bg-foreground/[0.04] px-2.5 py-2 ring-1 ring-foreground/[0.06]">
           <div className="min-w-0">
             <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Price</p>
             <p className="truncate font-hud text-sm font-bold tabular-nums">
@@ -79,7 +79,7 @@ export function ListingCard({ listing, className }: { listing: ListingCardData; 
 
 export function ListingCardSkeleton() {
   return (
-    <div className="rounded-2xl border bg-card p-2">
+    <div className="glass rounded-2xl p-2">
       <Skeleton className="aspect-square rounded-xl" />
       <div className="space-y-2 px-1.5 pb-1 pt-2.5">
         <Skeleton className="h-3 w-1/2" />

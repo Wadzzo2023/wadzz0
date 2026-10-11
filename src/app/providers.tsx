@@ -13,7 +13,7 @@ const WalletPopups = dynamic(() => import("package/connect_wallet/src/components
 export function Providers({ children }: { children: ReactNode }) {
   return (
     <SessionProvider>
-      <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+      <ThemeProvider attribute="class" defaultTheme="dark" enableSystem storageKey="wadzzo-theme" disableTransitionOnChange>
         <TRPCReactProvider>
           {children}
           <WalletPopups className="font-sans" />

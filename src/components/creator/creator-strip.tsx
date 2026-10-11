@@ -21,7 +21,7 @@ export function CreatorStrip({ creators }: { creators: Creator[] }) {
       <div className="-mx-4 flex gap-4 overflow-x-auto px-4 pb-1 [scrollbar-width:none] sm:mx-0 sm:px-0 [&::-webkit-scrollbar]:hidden">
         {creators.map((c) => (
           <Link key={c.id} href={creatorHref(c)} className="group flex w-20 shrink-0 flex-col items-center gap-1.5 text-center">
-            <span className="rounded-full bg-gradient-to-tr from-primary to-green-hot p-[2px] transition-transform group-hover:scale-105">
+            <span className="rounded-full bg-gradient-to-tr from-primary via-green-hot to-cyan-400 p-[2px] transition-transform group-hover:scale-105">
               <span className="block rounded-full bg-background p-[2px]">
                 <Avatar src={c.profileUrl} name={c.name} className="size-16 text-lg" />
               </span>

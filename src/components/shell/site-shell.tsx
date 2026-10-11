@@ -59,7 +59,7 @@ function NotificationBell() {
 function TopBar() {
   const [searching, setSearching] = useState(false);
   return (
-    <header className="sticky top-0 z-40 border-b bg-background/85 backdrop-blur-md supports-[backdrop-filter]:bg-background/70">
+    <header className="sticky top-0 z-40 border-b border-foreground/[0.06] bg-background/70 backdrop-blur-xl">
       <div className="mx-auto flex h-16 max-w-7xl items-center gap-3 px-4 sm:px-6">
         <BrandMark compact className="sm:hidden" />
         <BrandMark className="hidden sm:flex" />
@@ -122,7 +122,7 @@ function BottomTabs() {
       >
         <nav
           aria-label="Sections"
-          className="flex items-center gap-0.5 rounded-full border border-white/40 bg-card/80 p-1.5 shadow-[0_10px_40px_-10px_rgba(0,0,0,0.35)] ring-1 ring-black/5 backdrop-blur-xl dark:border-white/10 dark:ring-white/5"
+          className="glass flex items-center gap-0.5 rounded-full p-1.5 shadow-[0_10px_40px_-10px_rgba(0,0,0,0.5)]"
         >
           {TABS.map((t) => (
             <Tab key={t.href} item={t} active={isActive(pathname, t)} />
@@ -142,7 +142,7 @@ function BrandButton({ brand }: { brand: { label: string; href: string; logo: st
       target="_blank"
       rel="noreferrer"
       aria-label={brand.label}
-      className="group relative flex size-[3.75rem] shrink-0 items-center justify-center rounded-full border border-white/40 bg-card/80 p-1.5 shadow-[0_10px_40px_-10px_rgba(0,0,0,0.35)] ring-1 ring-black/5 backdrop-blur-xl transition-transform hover:scale-105 active:scale-95 dark:border-white/10 dark:ring-white/5"
+      className="glass group relative flex size-[3.75rem] shrink-0 items-center justify-center rounded-full p-1.5 shadow-[0_10px_40px_-10px_rgba(0,0,0,0.5)] transition-transform hover:scale-105 active:scale-95"
     >
       {brand.logo ? (
         // eslint-disable-next-line @next/next/no-img-element
@@ -177,7 +177,7 @@ function Tab({ item, active }: { item: NavItem; active: boolean }) {
         <motion.span
           layoutId="bottom-tab-active"
           transition={{ type: "spring", stiffness: 380, damping: 32 }}
-          className="absolute inset-0 rounded-full bg-primary shadow-md shadow-primary/30"
+          className="absolute inset-0 rounded-full bg-primary shadow-[0_0_20px_-2px_hsl(var(--primary)/0.7)]"
         />
       )}
       <span className="relative z-10 flex items-center">

@@ -14,9 +14,9 @@ export function useRequireAuth() {
   const signedIn = session.status === "authenticated";
 
   const requireAuth = useCallback(
-    <A extends unknown[]>(fn: (...args: A) => void) =>
+    <A extends unknown[]>(fn: (...args: A) => void | Promise<void>) =>
       (...args: A) => {
-        if (signedIn) fn(...args);
+        if (signedIn) void fn(...args);
         else openSignIn(true);
       },
     [signedIn, openSignIn],

@@ -152,8 +152,10 @@ function Checkout({ item, listing }: { item: Item; listing: Listing }) {
     <div className="space-y-4">
       <div className="flex items-end justify-between gap-3">
         <div>
-          <p className="label-caps">{isResale ? "Resale price" : "Price"}</p>
-          <p className="font-hud text-3xl font-bold tabular-nums">{formatAmount(listing.price, PLATFORM_ASSET.code)}</p>
+          <p className="label-caps">{isResale ? "Resale price" : "Price"}{quantity > 1 && " · each"}</p>
+          <p className="font-hud text-4xl font-bold tabular-nums">
+            <span className="text-gradient">{listing.price.toLocaleString()}</span> <span className="text-lg text-muted-foreground">{PLATFORM_ASSET.code}</span>
+          </p>
           <p className="text-sm text-muted-foreground">≈ {formatAmount(listing.priceUSD, "USD")}</p>
         </div>
         {q &&
@@ -168,7 +170,7 @@ function Checkout({ item, listing }: { item: Item; listing: Listing }) {
       </div>
 
       {!signedIn ? (
-        <Button size="lg" className="w-full" onClick={openSignIn}>
+        <Button size="lg" className="h-12 w-full rounded-xl text-base font-bold shadow-[0_0_30px_-6px_hsl(var(--primary)/0.8)]" onClick={openSignIn}>
           Sign in to buy
         </Button>
       ) : (
@@ -188,17 +190,17 @@ function Checkout({ item, listing }: { item: Item; listing: Listing }) {
             </div>
           ) : (
             <>
-              <CostBreakdown lines={q.lines} total={q.total} currency={q.currency} balance={q.balance} />
+              <CostBreakdown lines={q.lines} total={q.total} currency={q.currency} balance={q.balance} collapsible />
               {q.payout.royalty > 0 && (
                 <p className="text-xs text-muted-foreground">
                   The seller receives {formatAmount(q.payout.seller, q.payout.currency)}; the creator earns {formatAmount(q.payout.royalty, q.payout.currency)} royalty.
                 </p>
               )}
-              <ProblemList problems={q.problems} creatorHref={creatorHref} onFollow={followCreator} />
+              {q.problems.length > 0 && <ProblemList problems={q.problems} creatorHref={creatorHref} onFollow={followCreator} />}
               {method === "CARD" ? (
                 q.ok && <CardForm usd={q.total} disabled={busy} onToken={(t) => void payCard(t)} />
               ) : (
-                <Button size="lg" className="w-full" disabled={!q.ok || busy} onClick={buy}>
+                <Button size="lg" className="h-12 w-full rounded-xl text-base font-bold shadow-[0_0_30px_-6px_hsl(var(--primary)/0.8)] disabled:shadow-none" disabled={!q.ok || busy} onClick={buy}>
                   {sign.step === "signing"
                     ? "Confirm in your wallet…"
                     : sign.step === "confirming"

@@ -53,10 +53,10 @@ export function LockedPreview({
 }) {
   const meta = MEDIA_META[mediaType];
   return (
-    <div className={cn("relative overflow-hidden rounded-xl border bg-surface-2", className)}>
+    <div className={cn("relative overflow-hidden rounded-2xl bg-surface-2", className)}>
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img src={thumbnail} alt={name} className="aspect-square w-full object-cover" />
-      <div className="absolute inset-x-0 bottom-0 flex items-center gap-2 bg-gradient-to-t from-black/75 to-transparent p-3 pt-10 text-white">
+      <div className="absolute inset-x-3 bottom-3 flex items-center gap-2.5 rounded-xl bg-black/55 p-2.5 text-white ring-1 ring-white/10 backdrop-blur-md">
         <span className="flex size-8 items-center justify-center rounded-lg bg-white/15 backdrop-blur-sm">
           {checking ? <span className="loading-spinner loading-sm" /> : <Lock className="size-4" />}
         </span>
