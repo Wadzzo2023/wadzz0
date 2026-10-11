@@ -15,7 +15,7 @@ import { api } from "~/utils/api";
 
 import { BrandMark } from "./brand-mark";
 import { CurrencyToggle } from "./currency-toggle";
-import { ACCOUNT, HELP, MAIN, isActive, type NavItem } from "./nav";
+import { ACCOUNT, INFO_LINKS, MAIN, isActive, type NavItem } from "./nav";
 
 const THEMES = [
   { id: "light", label: "Light", icon: Sun },
@@ -161,7 +161,7 @@ function ThemeSwitch({ collapsed }: { collapsed: boolean }) {
     );
   }
   return (
-    <div role="radiogroup" aria-label="Theme" className="inline-grid grid-cols-3 gap-0.5 rounded-lg bg-foreground/[0.04] p-0.5">
+    <div role="radiogroup" aria-label="Theme" className="grid grid-cols-3 gap-1 rounded-lg bg-foreground/[0.04] p-1">
       {THEMES.map((t) => (
         <button
           key={t.id}
@@ -172,7 +172,7 @@ function ThemeSwitch({ collapsed }: { collapsed: boolean }) {
           title={t.label}
           onClick={() => setTheme(t.id)}
           className={cn(
-            "flex h-7 w-9 items-center justify-center rounded-md transition-colors",
+            "flex h-7 items-center justify-center rounded-md transition-colors",
             theme === t.id ? "bg-background text-primary shadow-sm" : "text-muted-foreground hover:text-foreground",
           )}
         >
@@ -214,10 +214,6 @@ function SidebarBody({
             ))}
           </>
         )}
-        <div className="my-2 border-t border-foreground/[0.06]" role="separator" />
-        {HELP.map((item) => (
-          <NavLink key={item.href} item={item} active={isActive(pathname, item)} collapsed={collapsed} onNavigate={onNavigate} />
-        ))}
       </nav>
 
       <div className={cn("shrink-0 space-y-3 pb-[max(0.75rem,var(--safe-bottom))]", collapsed ? "px-2" : "px-3")}>
@@ -228,26 +224,26 @@ function SidebarBody({
             <CurrencyToggle />
           </div>
         )}
-        {collapsed ? (
-          <ThemeSwitch collapsed />
-        ) : (
+        <ThemeSwitch collapsed={collapsed} />
+        {!collapsed && (
           <>
-            <div className="flex items-center justify-between gap-2">
-              <ThemeSwitch collapsed={false} />
-              <span className="flex items-center gap-3 pr-1 text-muted-foreground">
+            <div className="flex flex-wrap justify-between gap-x-3 gap-y-1 px-1 text-[13px] text-muted-foreground">
+              {INFO_LINKS.map((l) => (
+                <Link key={l.href} href={l.href} onClick={onNavigate} className="transition-colors hover:text-foreground">
+                  {l.label}
+                </Link>
+              ))}
+            </div>
+            <div className="flex items-center justify-between border-t border-foreground/[0.06] px-1 pt-3 text-xs text-muted-foreground">
+              <span>© {new Date().getFullYear()} Wadzzo</span>
+              <span className="flex items-center gap-3">
                 {SOCIALS.map((s) => (
                   <a key={s.href} href={s.href} target="_blank" rel="noreferrer" aria-label={s.label} title={s.label} className="transition-colors hover:text-foreground">
-                    <s.icon className="size-4" />
+                    <s.icon className="size-3.5" />
                   </a>
                 ))}
               </span>
             </div>
-            <p className="px-1 text-[11px] text-muted-foreground">
-              <Link href="/privacy" onClick={onNavigate} className="transition-colors hover:text-foreground">
-                Privacy
-              </Link>
-              <span aria-hidden> · </span>© {new Date().getFullYear()} Wadzzo
-            </p>
           </>
         )}
       </div>

@@ -1,8 +1,8 @@
-import { Activity, HelpCircle, Home, Info, Layers, LifeBuoy, Newspaper, Store, Target, Users, Wallet, type LucideIcon } from "lucide-react";
+import { Activity, Home, Layers, Newspaper, Store, Target, Users, Wallet, type LucideIcon } from "lucide-react";
 
 /**
  * Sidebar navigation. `MAIN` is browsing, `ACCOUNT` is the signed-in
- * wallet's own pages, `HELP` is the info pages. Notifications are the bell in the header; Settings and
+ * wallet's own pages. Notifications are the bell in the header; Settings and
  * Sign out are in the avatar menu.
  */
 export type NavItem = { href: string; label: string; icon: LucideIcon; match?: string[]; authOnly?: boolean };
@@ -21,10 +21,12 @@ export const ACCOUNT: NavItem[] = [
   { href: "/activity", label: "Activity", icon: Activity },
 ];
 
-export const HELP: NavItem[] = [
-  { href: "/about", label: "About", icon: Info },
-  { href: "/faq", label: "FAQ", icon: HelpCircle },
-  { href: "/support", label: "Support", icon: LifeBuoy },
+/** Info pages, listed at the bottom of the sidebar. */
+export const INFO_LINKS = [
+  { href: "/about", label: "About" },
+  { href: "/faq", label: "FAQ" },
+  { href: "/support", label: "Support" },
+  { href: "/privacy", label: "Privacy" },
 ];
 
 export function isActive(pathname: string, item: NavItem) {
