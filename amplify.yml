@@ -1,0 +1,25 @@
+version: 1
+frontend:
+  phases:
+    preBuild:
+      commands:
+        - nvm use 22 || nvm install 22
+        - corepack enable
+        - pnpm config set store-dir .pnpm-store
+        - pnpm install --frozen-lockfile
+    build:
+      commands:
+        # Amplify's SSR runtime only sees env vars that are written to .env.production.
+        - 'env | grep -E "^(ISSUER_ENCRYPTION_KEY|RUBY_ACCOUNTS_SECRET|QSTASH_TOKEN|QSTASH_CURRENT_SIGNING_KEY|QSTASH_NEXT_SIGNING_KEY|UPLOADTHING_SECRET|UPLOADTHING_APP_ID|NEXT_PUBLIC_STELLAR_PUBNET|NEXT_PUBLIC_STAGE|STORAGE_SECRET|MOTHER_SECRET|NEXT_PUBLIC_ASSET_CODE|NEXT_PUBLIC_ASSET_ISSUER|NEXT_PUBLIC_HOME_DOMAIN|NEXT_PUBLIC_LOG_ENABLE|PINATA_JWT|SQUARE_ACCESS_TOKEN|NEXT_PUBLIC_SQUARE_APP_ID|NEXT_PUBLIC_SQUARE_LOCATION|SQUARE_ENVIRONMENT|NEXT_PUBLIC_AUTH_FIREBASE_API_KEY|NEXT_PUBLIC_AUTH_DOMAIN|NEXT_PUBLIC_AUTH_PROJECT_ID|NEXT_PUBLIC_AUTH_STORAGE_BUCKET|NEXT_PUBLIC_AUTH_MESSAGING_SENDER_ID|NEXT_PUBLIC_AUTH_APP_ID|FIREBASE_ADMIN_PRIVATE_KEY|FIREBASE_ADMIN_CLIENT_EMAIL|DATABASE_URL|NEXTAUTH_SECRET|NEXTAUTH_URL|NEXT_AWS_SECRET_ACCESS_KEY|NEXT_AWS_ACCESS_KEY|NEXT_AWS_BUCKET_REGION|NEXT_AWS_BUCKET_NAME|NEXT_PUBLIC_MAPBOX_API|OPENAI_API_KEY|PLATFORM_SLUG|NEXT_PUBLIC_SITE|NEXT_PUBLIC_DESC|NEXT_PUBLIC_URL|NEXT_PUBLIC_BRAND_PORTAL_URL|NEXT_PUBLIC_NODEMAILER_USER|NEXT_PUBLIC_NODEMAILER_PASS)=" >> .env.production || true'
+        - cp .env.production .env
+        - pnpm run build
+        # .next/cache (Turbopack build cache, ~240MB) would count toward Amplify's
+        # 220MB deploy-size limit, so drop it from the output.
+        - rm -rf .next/cache
+  artifacts:
+    baseDirectory: .next
+    files:
+      - '**/*'
+  cache:
+    paths:
+      - .pnpm-store/**/*
