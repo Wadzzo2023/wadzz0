@@ -7,7 +7,9 @@ import toast from "react-hot-toast";
 
 import { SignedIn } from "~/components/shell/sign-in-prompt";
 import { Button } from "~/components/shadcn/ui/button";
+import { useRequireAuth } from "~/hooks/use-require-auth";
 import { useSignAndConfirm } from "~/hooks/use-sign-and-confirm";
+import { isCustodial } from "~/lib/custodial";
 import { creatorHref } from "~/lib/creator";
 import { cn } from "~/lib/utils";
 import { EmptyState } from "~/ui/empty-state";
@@ -92,9 +94,12 @@ function CopyAddress({ address, className }: { address: string; className?: stri
 }
 
 function BalanceHero({ b, onAction }: { b: Balances; onAction: (k: DialogKind) => void }) {
+  const { session } = useRequireAuth();
+  // card top-ups are only for custodial (email/social) accounts
+  const custodial = isCustodial(session?.user.walletType);
   const actions = [
-    { id: "get" as const, label: "Get tokens", icon: Plus, primary: true },
-    ...(b.active ? [{ id: "swap" as const, label: "Swap", icon: ArrowLeftRight, primary: false }] : []),
+    ...(custodial ? [{ id: "get" as const, label: "Get tokens", icon: Plus, primary: true }] : []),
+    ...(b.active ? [{ id: "swap" as const, label: "Swap", icon: ArrowLeftRight, primary: !custodial }] : []),
     { id: "receive" as const, label: "Receive", icon: ArrowDownToLine, primary: false },
   ];
   return (
@@ -116,10 +121,12 @@ function BalanceHero({ b, onAction }: { b: Balances; onAction: (k: DialogKind) =
               {b.platform.usd != null && <p className="text-sm text-white/70">≈ {b.platform.usd.toLocaleString("en-US", { style: "currency", currency: "USD" })}</p>}
             </>
           ) : (
-            <p className="max-w-md text-white/75">Your Stellar account isn&apos;t active yet. Getting tokens activates it for you.</p>
+            <p className="max-w-md text-white/75">
+              Your Stellar account isn&apos;t active yet. {custodial ? "Getting tokens activates it for you." : "Send at least 1 XLM to this address from your wallet to activate it."}
+            </p>
           )}
         </div>
-        <div className="grid grid-cols-3 gap-2 sm:flex">
+        <div className={cn("grid gap-2 sm:flex", actions.length === 3 ? "grid-cols-3" : "grid-cols-2")}>
           {actions.map((a) => (
             <button
               key={a.id}
@@ -178,7 +185,7 @@ function InactiveCard() {
   return (
     <section className="glass space-y-2 rounded-2xl p-5">
       <h2 className="font-hud font-bold">XLM</h2>
-      <p className="text-sm text-muted-foreground">Stellar accounts need a small XLM reserve before they can hold anything. It&apos;s added for you the first time you get tokens.</p>
+      <p className="text-sm text-muted-foreground">Stellar accounts need a small XLM reserve before they can hold anything.</p>
     </section>
   );
 }

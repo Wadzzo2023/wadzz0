@@ -1,5 +1,7 @@
+import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
+import { isCustodial } from "~/lib/custodial";
 import { StellarAccount } from "~/lib/stellar/account";
 import { PLATFORM_ASSET } from "~/lib/stellar/constant";
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "~/server/api/trpc";
@@ -39,7 +41,11 @@ export const walletRouter = createTRPCRouter({
 
   buyPack: protectedProcedure
     .input(z.object({ usd: z.number(), sourceId: z.string().min(1), verificationToken: z.string().optional() }))
-    .mutation(({ ctx, input }) => buyTokenPack(ctx, { userId: ctx.session.user.id, email: ctx.session.user.email, ...input })),
+    .mutation(({ ctx, input }) => {
+      // Card packs are for custodial (email/social) accounts; wallet users bring their own tokens.
+      if (!isCustodial(ctx.session.user.walletType)) throw new TRPCError({ code: "FORBIDDEN", message: "Card top-ups are only available for email and social accounts." });
+      return buyTokenPack(ctx, { userId: ctx.session.user.id, email: ctx.session.user.email, ...input });
+    }),
 
   swapQuote: protectedProcedure.input(z.object({ tokens: z.number().positive() })).query(({ ctx, input }) => quoteSwap(ctx.session.user.id, input.tokens)),
 
