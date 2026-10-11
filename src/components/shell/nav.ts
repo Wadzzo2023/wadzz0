@@ -15,12 +15,6 @@ export const TABS: NavItem[] = [
   { href: "/feed", label: "Feed", icon: Newspaper, match: ["/posts"] },
 ];
 
-export const FOOTER_LINKS = [
-  { href: "/about", label: "About" },
-  { href: "/faq", label: "FAQ" },
-  { href: "/support", label: "Support" },
-  { href: "/privacy", label: "Privacy" },
-];
 
 export function isActive(pathname: string, item: NavItem) {
   if (item.href === "/") return pathname === "/" || (item.match ?? []).some((p) => pathname === p || pathname.startsWith(p + "/"));
