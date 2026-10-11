@@ -22,6 +22,7 @@ frontend:
         - 'echo "=== SIZE: .map files in .next ==="; find .next -name "*.map" -type f -exec cat {} + | wc -c || true'
         - 'echo "=== SIZE: 40 largest files in .next (bytes) ==="; find .next -type f -exec ls -l {} + | awk "{print \$5, \$9}" | sort -rn | head -40 || true'
         - 'echo "=== SIZE: node_modules/.pnpm top 25 (KB) ==="; du -sk node_modules/.pnpm/* | sort -rn | head -25 || true'
+        - 'echo "=== SIZE: .next/standalone/node_modules/.pnpm top 25 (KB) ==="; du -sk .next/standalone/node_modules/.pnpm/* | sort -rn | head -25 || true'
         - 'echo "=== SIZE: end ==="'
   artifacts:
     baseDirectory: .next

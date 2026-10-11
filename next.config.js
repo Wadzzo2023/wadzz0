@@ -6,6 +6,12 @@
 const config = {
   transpilePackages: ["three"],
   reactStrictMode: true,
+  // Amplify rejects deploys over 220MB. Server source maps were ~130MB of the output.
+  experimental: { serverSourceMaps: false },
+  // Alpine (musl) sharp binaries are never used on Amplify's glibc runtime.
+  outputFileTracingExcludes: {
+    "/*": ["node_modules/.pnpm/@img+sharp-libvips-linuxmusl*/**/*"],
+  },
   images: {
     remotePatterns: [
       { protocol: "https", hostname: "**" },
