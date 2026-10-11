@@ -810,6 +810,9 @@ model LocationConsumer {
 
     hidden Boolean @default(false)
 
+    /// the CLAIM transaction (AssetTransaction.id) delivering this pin's item to the collector's wallet; unique = one claim per collect
+    claimTxId String? @unique
+
     createdAt DateTime @default(now())
     // white-label platform this row belongs to (see model Platform)
     platformId String   @default("wadzzo")
