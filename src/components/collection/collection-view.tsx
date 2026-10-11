@@ -65,7 +65,7 @@ export function CollectionView() {
           {[
             ["Items", ownedItems.length],
             ["Copies", copies],
-            ["Listed", listedCopies],
+            ["Listed for resale", listedCopies],
           ].map(([k, v]) => (
             <div key={k} className="glass rounded-xl p-3">
               <dt className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">{k}</dt>
@@ -266,6 +266,10 @@ function CreatedCard({ a }: { a: Created }) {
       <div className="flex flex-1 flex-col gap-2 px-1.5 pb-1 pt-2.5">
         <p className="truncate font-hud text-[15px] font-semibold">{a.name}</p>
         <div className="space-y-1">
+          <div className="flex justify-between text-xs text-muted-foreground">
+            <span>Stock</span>
+            <span className="font-semibold tabular-nums text-foreground">{a.stock.toLocaleString()}</span>
+          </div>
           <div className="flex justify-between text-xs text-muted-foreground">
             <span>Minted</span>
             <span className="tabular-nums">

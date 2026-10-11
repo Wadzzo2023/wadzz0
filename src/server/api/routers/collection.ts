@@ -62,7 +62,14 @@ export const collectionRouter = createTRPCRouter({
     return assets
       .map((a) => {
         const h = held.get(`${a.code}:${a.issuer}`)!;
-        return { asset: a, owned: Math.floor(h.wallet), listed: Math.floor(h.listed), listing: listings.find((l) => l.assetId === a.id) ?? null };
+        // A creator's own items in their storage are their stock (shown under Created), not resale listings.
+        const isMine = a.creator?.id === me;
+        return {
+          asset: a,
+          owned: Math.floor(h.wallet),
+          listed: isMine ? 0 : Math.floor(h.listed),
+          listing: isMine ? null : (listings.find((l) => l.assetId === a.id) ?? null),
+        };
       })
       .filter((x) => x.owned > 0 || x.listed > 0)
       .sort((x, y) => y.asset.id - x.asset.id);
@@ -106,12 +113,18 @@ export const collectionRouter = createTRPCRouter({
       await ctx.db.marketAsset.update({ where: { id: input.listingId }, data: { price: input.price, priceUSD: await platformToUsd(input.price) } });
     }),
 
-  /** Items I created (as a brand), with how far each edition has been minted. */
-  created: protectedProcedure.query(({ ctx }) =>
-    ctx.db.asset.findMany({
-      where: { creatorId: ctx.session.user.id },
-      select: { ...assetCardSelect, limit: true, mintedCount: true, privacy: true, marketItems: { where: { placerId: ctx.session.user.id }, select: { id: true, price: true } } },
-      orderBy: { id: "desc" },
-    }),
-  ),
+  /** Items I created (as a brand): mint progress, copies waiting in my storage (stock), and whether they're on sale. */
+  created: protectedProcedure.query(async ({ ctx }) => {
+    const me = ctx.session.user.id;
+    const [assets, storageRow] = await Promise.all([
+      ctx.db.asset.findMany({
+        where: { creatorId: me },
+        select: { ...assetCardSelect, limit: true, mintedCount: true, privacy: true, marketItems: { where: { placerId: me }, select: { id: true, price: true } } },
+        orderBy: { id: "desc" },
+      }),
+      getStorage(ctx.db, me),
+    ]);
+    const storage = storageRow ? await StellarAccount.load(storageRow.storagePub) : null;
+    return assets.map((a) => ({ ...a, stock: Math.floor(storage?.tokenBalance(a.code, a.issuer) ?? 0) }));
+  }),
 });
