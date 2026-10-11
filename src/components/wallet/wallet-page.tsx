@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useState } from "react";
 import toast from "react-hot-toast";
 
+import { RecentActivity } from "~/components/activity/activity-view";
 import { SignedIn } from "~/components/shell/sign-in-prompt";
 import { Button } from "~/components/shadcn/ui/button";
 import { useRequireAuth } from "~/hooks/use-require-auth";
@@ -41,6 +42,7 @@ type DialogKind = "get" | "swap" | "receive" | null;
 function WalletView() {
   const balances = api.wallet.balances.useQuery();
   const [open, setOpen] = useState<DialogKind>(null);
+  const me = useRequireAuth().session?.user.id;
 
   return (
     <PageBody wide className="space-y-6">
@@ -65,6 +67,7 @@ function WalletView() {
               <GiftsCard />
             </div>
           </div>
+          {me && <RecentActivity me={me} />}
         </>
       ) : null}
 
