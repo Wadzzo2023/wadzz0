@@ -22,7 +22,7 @@ export const CATEGORIES: Record<InboxScope, InboxCategory[]> = {
     { id: "following", label: "From brands", types: ["POST", "BOUNTY", "SHOP_ASSET"] },
     { id: "replies", label: "Replies", types: ["COMMENT", "REPLY", "BOUNTY_COMMENT", "BOUNTY_REPLY", "BOUNTY_DOUBT_CREATE", "BOUNTY_DOUBT_REPLY"] },
     { id: "wallet", label: "Wallet", types: ["ITEM_PURCHASED", "RESALE_SOLD", "GIFT_RECEIVED"] },
-    { id: "bounties", label: "Bounties", types: ["BOUNTY_WINNER"] },
+    { id: "bounties", label: "Bounties", types: ["BOUNTY_WINNER", "BOUNTY_ENTRY_REVIEWED", "BOUNTY_ENDED", "BOUNTY_CANCELLED"] },
   ],
 };
 
@@ -54,4 +54,6 @@ export const BOUNTY_TYPES = new Set<NotificationType>([
   "BOUNTY_DOUBT",
   "BOUNTY_DOUBT_CREATE",
   "BOUNTY_DOUBT_REPLY",
+  "BOUNTY_ENTRY_REVIEWED",
+  "BOUNTY_ENDED",
 ]);

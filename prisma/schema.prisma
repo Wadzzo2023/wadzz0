@@ -52,6 +52,10 @@ enum NotificationType {
     BOUNTY_DOUBT
     BOUNTY_DOUBT_CREATE
     BOUNTY_DOUBT_REPLY
+    // bounty lifecycle (fan side)
+    BOUNTY_ENTRY_REVIEWED
+    BOUNTY_ENDED
+    BOUNTY_CANCELLED
     // commerce and delivery (brand side)
     ITEM_SOLD
     ROYALTY_EARNED

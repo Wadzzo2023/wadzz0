@@ -1,9 +1,9 @@
-import { Award, Gift, MessageCircle, MessagesSquare, Newspaper, Reply, ShoppingBag, Tag, Target, type LucideIcon } from "lucide-react";
+import { Award, Ban, CheckCircle2, Flag, Gift, MessageCircle, MessagesSquare, Newspaper, Reply, ShoppingBag, Tag, Target, type LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
 
 import type { InboxItem } from "~/server/notification-inbox";
 
-type Meta = { item?: string; assetId?: number; qty?: number; amount?: number; currency?: string };
+type Meta = { bounty?: string; status?: string; item?: string; assetId?: number; qty?: number; amount?: number; currency?: string };
 
 export type Described = { icon: LucideIcon; tone: string; text: ReactNode; href?: string };
 
@@ -41,6 +41,20 @@ export function describeFan(i: InboxItem): Described {
       return { icon: MessagesSquare, tone: "tone-info", text: <>{who} sent you a message about a bounty</>, href: `/bounties/${i.entityId}?section=chat` };
     case "BOUNTY_DOUBT_REPLY":
       return { icon: MessagesSquare, tone: "tone-info", text: <>{who} replied to your question</>, href: `/bounties/${i.entityId}?section=chat` };
+    case "BOUNTY_ENTRY_REVIEWED": {
+      const name = i.title ?? m.bounty;
+      const what = m.status === "APPROVED" ? "was approved" : m.status === "REJECTED" ? "wasn't accepted" : "is being reviewed";
+      return {
+        icon: m.status === "REJECTED" ? Ban : CheckCircle2,
+        tone: m.status === "REJECTED" ? "tone-danger" : m.status === "APPROVED" ? "tone-success" : "tone-info",
+        text: <>Your entry{name ? <> to {b(name)}</> : null} {what}</>,
+        href: `/bounties/${i.entityId}?section=entries`,
+      };
+    }
+    case "BOUNTY_ENDED":
+      return { icon: Flag, tone: "tone-neutral", text: <>{b(i.title ?? m.bounty ?? "A bounty")} has ended — all winners were chosen</>, href: `/bounties/${i.entityId}` };
+    case "BOUNTY_CANCELLED":
+      return { icon: Ban, tone: "tone-danger", text: <>{b(m.bounty ?? "A bounty")} was cancelled by the brand</> };
     case "ITEM_PURCHASED":
       return { icon: ShoppingBag, tone: "tone-success", text: <>You bought {m.qty && m.qty > 1 ? `${m.qty}× ` : ""}{b(m.item ?? "an item")}{money(m) ? ` for ${money(m)}` : ""}</>, href: itemHref };
     case "RESALE_SOLD":
