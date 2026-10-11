@@ -7,7 +7,6 @@ import type { ReactNode } from "react";
 import { BountyCard } from "~/components/bounty/bounty-card";
 import { CreatorCard } from "~/components/creator/creator-card";
 import { ListingCard, ListingGrid } from "~/components/market/listing-card";
-import { SearchField } from "~/components/search/search-field";
 import { serverApi } from "~/server/api/server";
 import { EmptyState } from "~/ui/empty-state";
 import { PageBody, PageHeader } from "~/ui/page-header";
@@ -40,7 +39,7 @@ export default async function SearchPage({ searchParams }: PageProps<"/search">)
 
   return (
     <PageBody wide className="space-y-8">
-      <PageHeader eyebrow="Search" title={q ? <>Results for “{q}”</> : "Search Wadzzo"} actions={<SearchField value={q} />} />
+      <PageHeader eyebrow="Search" title={q ? <>Results for “{q}”</> : "Search Wadzzo"} />
 
       {!results ? (
         <EmptyState icon={Search} title="Search Wadzzo" description="Type at least 2 characters to find items, creators, posts and bounties." />
