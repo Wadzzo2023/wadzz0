@@ -17,8 +17,8 @@ export default async function FeedPage() {
   const creators = await api.creator.list({ limit: 6 });
 
   return (
-    <PageBody wide className="space-y-5">
-      <h1 className="font-hud text-2xl font-bold tracking-tight sm:text-3xl">Feed</h1>
+    <PageBody wide>
+      <h1 className="sr-only">Feed</h1>
       <FeedView suggested={creators.items} />
     </PageBody>
   );
