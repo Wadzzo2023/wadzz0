@@ -1,4 +1,3 @@
-import { differenceInHours, formatDistanceToNowStrict } from "date-fns";
 
 import type { Tone } from "~/ui/status-pill";
 import type { RouterOutputs } from "~/utils/api";
@@ -34,14 +33,6 @@ export function viewerBadge(b: Pick<BountyCardData, "viewer" | "open">): { label
 export const formatUsd = (n: number) => n.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: n < 10 ? 2 : 0 });
 
 export const formatTokens = (n: number) => n.toLocaleString("en-US", { maximumFractionDigits: 2 });
-
-/** "3 days left", "5 hours left", "Ended" — or null without an end date. */
-export function deadlineLabel(endDate: Date | string | null) {
-  if (!endDate) return null;
-  const end = new Date(endDate);
-  if (end.getTime() <= Date.now()) return { text: "Ended", urgent: false };
-  return { text: `${formatDistanceToNowStrict(end)} left`, urgent: differenceInHours(end, new Date()) < 48 };
-}
 
 /** Share of winner spots already filled (0–100). */
 export const spotsFilled = (b: Pick<BountyCardData, "spotsLeft" | "totalWinners">) =>

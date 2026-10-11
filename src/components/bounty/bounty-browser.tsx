@@ -18,13 +18,12 @@ import { BountyCard, BountyCardSkeleton } from "./bounty-card";
 
 const TABS = [
   { id: "open", label: "Open" },
-  { id: "ending", label: "Ending soon" },
   { id: "top", label: "Top rewards" },
   { id: "joined", label: "Joined" },
 ] as const;
 type Tab = (typeof TABS)[number]["id"];
 
-const grid = "grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3";
+const grid = "grid grid-cols-1 gap-4 lg:grid-cols-2";
 
 /** Bounty browser: filter tabs + search, a "needs you" strip, and the card grid. */
 export function BountyBrowser({ initial }: { initial: BountyCardData[] }) {

@@ -69,7 +69,7 @@ const ENTRY_INPUT = {
   medias: z.array(ENTRY_MEDIA).max(MAX_ENTRY_FILES).default([]),
 };
 
-const LIST_FILTERS = ["open", "ending", "top"] as const;
+const LIST_FILTERS = ["open", "top"] as const;
 
 const creatorSelect = { id: true, name: true, profileUrl: true } as const;
 
@@ -99,21 +99,19 @@ type CardRow = Prisma.BountyGetPayload<{
 }>;
 
 /**
- * Open means still accepting entries: approved, not past its end date, and
- * with at least one winner slot left. `currentWinnerCount` is what the
+ * Open means still accepting entries: approved and with at least one winner
+ * slot left (bounties have no end date). `currentWinnerCount` is what the
  * old app itself compares against (`currentWinnerCount === totalWinner`
  * disables "Submit"), and unlike counting `BountyWinner` rows it isn't
  * inflated by the old app's swap flow, which inserts extra winner rows.
  */
 function isOpen(b: {
   status: string;
-  endDate: Date | null;
   currentWinnerCount: number;
   totalWinner: number;
 }) {
   return (
     b.status === "APPROVED" &&
-    (!b.endDate || b.endDate.getTime() > Date.now()) &&
     b.currentWinnerCount < b.totalWinner
   );
 }
@@ -153,7 +151,6 @@ function toCard(row: CardRow) {
     spotsLeft: Math.max(0, row.totalWinner - row.currentWinnerCount),
     participants: row._count.participants,
     requiredBalance: row.requiredBalance,
-    endDate: row.endDate,
     createdAt: row.createdAt,
     open: isOpen(row),
     viewer: {
@@ -271,15 +268,11 @@ export const bountyRouter = createTRPCRouter({
     )
     .query(async ({ ctx, input }) => {
       const userId = ctx.session?.user.id;
-      const now = new Date();
-
       const where: Prisma.BountyWhereInput = {
         ...platformScope(ctx),
         status: "APPROVED",
         currentWinnerCount: { lt: ctx.db.bounty.fields.totalWinner },
         AND: [
-          { OR: [{ endDate: null }, { endDate: { gt: now } }] },
-          ...(input.filter === "ending" ? [{ endDate: { not: null } }] : []),
           ...(input.search
             ? [
                 {
@@ -306,11 +299,9 @@ export const bountyRouter = createTRPCRouter({
       };
 
       const orderBy: Prisma.BountyOrderByWithRelationInput[] =
-        input.filter === "ending"
-          ? [{ endDate: "asc" }, { id: "desc" }]
-          : input.filter === "top"
-            ? [{ priceInUSD: "desc" }, { id: "desc" }]
-            : [{ createdAt: "desc" }, { id: "desc" }];
+        input.filter === "top"
+          ? [{ priceInUSD: "desc" }, { id: "desc" }]
+          : [{ createdAt: "desc" }, { id: "desc" }];
 
       const rows = await ctx.db.bounty.findMany({
         where,
@@ -328,13 +319,11 @@ export const bountyRouter = createTRPCRouter({
 
   /** Header numbers for the bounty page: open bounties and their total reward pool. */
   stats: publicProcedure.query(async ({ ctx }) => {
-    const now = new Date();
     const open = await ctx.db.bounty.aggregate({
       where: {
         ...platformScope(ctx),
         status: "APPROVED",
         currentWinnerCount: { lt: ctx.db.bounty.fields.totalWinner },
-        OR: [{ endDate: null }, { endDate: { gt: now } }],
       },
       _count: { _all: true },
       _sum: { priceInUSD: true },

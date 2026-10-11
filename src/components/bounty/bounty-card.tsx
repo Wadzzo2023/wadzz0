@@ -1,11 +1,11 @@
 "use client";
 
-import { CheckCircle2, Clock, Share2, Target, UserCheck, UserPlus } from "lucide-react";
+import { CheckCircle2, Share2, Target, UserCheck, UserPlus } from "lucide-react";
 import Link from "next/link";
 import toast from "react-hot-toast";
 
 import { useRequireAuth } from "~/hooks/use-require-auth";
-import { type BountyCardData, deadlineLabel, formatTokens } from "~/lib/bounty";
+import { type BountyCardData, formatTokens } from "~/lib/bounty";
 import { cn } from "~/lib/utils";
 import { Avatar } from "~/ui/person";
 import { Skeleton } from "~/ui/skeleton";
@@ -18,7 +18,6 @@ import { api } from "~/utils/api";
  * that link.
  */
 export function BountyCard({ bounty, className }: { bounty: BountyCardData; className?: string }) {
-  const deadline = deadlineLabel(bounty.endDate);
   const href = `/bounties/${bounty.id}`;
 
   return (
@@ -62,11 +61,6 @@ export function BountyCard({ bounty, className }: { bounty: BountyCardData; clas
           </Link>
         </h3>
         {bounty.summary && <p className="line-clamp-3 text-sm leading-relaxed text-white/70">{bounty.summary}</p>}
-        {deadline && (
-          <p className={cn("inline-flex items-center gap-1 text-xs font-medium text-white/60", deadline.urgent && "text-amber-300")}>
-            <Clock className="size-3" /> {deadline.text}
-          </p>
-        )}
       </div>
 
       {/* brand + actions */}

@@ -3,7 +3,6 @@
 import { formatDistanceToNow } from "date-fns";
 import {
   BadgeCheck,
-  Clock,
   ExternalLink,
   FileText,
   Lock,
@@ -32,7 +31,7 @@ import { Textarea } from "~/components/shadcn/ui/textarea";
 import { env } from "~/env";
 import { useBountySeen } from "~/hooks/use-bounty-attention";
 import { useRequireAuth } from "~/hooks/use-require-auth";
-import { ENTRY_STATUS, type BountyDetail, deadlineLabel, formatTokens, formatUsd, spotsFilled, viewerBadge } from "~/lib/bounty";
+import { ENTRY_STATUS, type BountyDetail, formatTokens, formatUsd, spotsFilled, viewerBadge } from "~/lib/bounty";
 import { cn } from "~/lib/utils";
 import { EmptyState } from "~/ui/empty-state";
 import { PageBody } from "~/ui/page-header";
@@ -69,7 +68,6 @@ export function BountyView({ initial }: { initial: BountyDetail }) {
 
   const joined = b.viewer.joined;
   const badge = viewerBadge(b);
-  const deadline = deadlineLabel(b.endDate);
   const cover = b.imageUrls[0] ?? null;
   const openSubmit = () => {
     setSection("entries");
@@ -107,11 +105,6 @@ export function BountyView({ initial }: { initial: BountyDetail }) {
               <BadgeCheck className="size-4 text-primary" />
             </Link>
             <StatusPill tone={badge.tone}>{badge.label}</StatusPill>
-            {deadline && (
-              <span className={cn("glass inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold", deadline.urgent ? "text-amber-500" : "text-muted-foreground")}>
-                <Clock className="size-3.5" /> {deadline.text}
-              </span>
-            )}
           </div>
           <h1 className="max-w-4xl font-hud text-3xl font-bold leading-[1.1] tracking-tight sm:text-5xl">{b.title}</h1>
         </header>
