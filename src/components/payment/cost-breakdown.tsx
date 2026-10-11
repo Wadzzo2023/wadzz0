@@ -97,7 +97,7 @@ export function ProblemList({ problems, creatorHref, onFollow }: { problems: Pro
     <ul className="space-y-2" aria-live="polite">
       {problems.map((p) => {
         const action = p.action ? ACTION[p.action] : null;
-        const href = p.action === "join_tier" ? (creatorHref ? `${creatorHref}#tiers` : undefined) : action?.href;
+        const href = p.action === "join_tier" ? (creatorHref ? `${creatorHref}?tab=membership` : undefined) : action?.href;
         return (
           <li key={p.code} className="flex flex-col gap-2 rounded-lg border border-destructive/30 bg-destructive/5 p-3 text-sm sm:flex-row sm:items-center">
             <span className="flex min-w-0 flex-1 items-start gap-2">

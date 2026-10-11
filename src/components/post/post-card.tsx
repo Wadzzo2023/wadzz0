@@ -100,7 +100,7 @@ export function PostCard({ post, full = false }: { post: PostData; full?: boolea
             {post.lockedMedia.length > 0 && ` and see its ${post.lockedMedia.length} attachment${post.lockedMedia.length > 1 ? "s" : ""}`}.
           </p>
           <Button asChild size="sm" className="mt-1 rounded-xl">
-            <Link href={`${creatorHref(post.creator)}#tiers`}>Unlock with membership</Link>
+            <Link href={`${creatorHref(post.creator)}?tab=membership`}>Unlock with membership</Link>
           </Button>
         </div>
       ) : (
