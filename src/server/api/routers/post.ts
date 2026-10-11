@@ -68,6 +68,8 @@ export const postRouter = createTRPCRouter({
       z.object({
         scope: z.enum(["all", "following"]).default("all"),
         creatorId: z.string().optional(),
+        /** match on the post title */
+        search: z.string().trim().max(80).optional(),
         limit: z.number().int().min(1).max(30).default(10),
         cursor: z.number().int().nullish(),
       }),
@@ -80,6 +82,7 @@ export const postRouter = createTRPCRouter({
           ...platformScope(ctx),
           creator: { approved: true },
           ...(input.creatorId && { creatorId: input.creatorId }),
+          ...(input.search && { heading: { contains: input.search, mode: "insensitive" as const } }),
           ...(input.scope === "following" && me && { creator: { approved: true, followers: { some: { userId: me } } } }),
         },
         select: postSelect,
