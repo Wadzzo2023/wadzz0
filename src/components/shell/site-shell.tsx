@@ -16,6 +16,7 @@ import { TABS, isActive, type NavItem } from "./nav";
 import { SearchBox } from "./search-box";
 import { UserMenu } from "./user-menu";
 import { WalletChip } from "./wallet-chip";
+import { CurrencyToggle } from "./currency-toggle";
 
 /**
  * App-style layout on every screen: a top bar (logo, search, balance,
@@ -76,6 +77,7 @@ function TopBar() {
           >
             {searching ? <X className="size-5" /> : <Search className="size-5" />}
           </button>
+          <CurrencyToggle />
           <WalletChip className="h-9 rounded-full px-3" compact />
           <NotificationBell />
           <UserMenu />

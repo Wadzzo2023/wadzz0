@@ -8,6 +8,7 @@ import toast from "react-hot-toast";
 import { RecentActivity } from "~/components/activity/activity-view";
 import { SignedIn } from "~/components/shell/sign-in-prompt";
 import { Button } from "~/components/shadcn/ui/button";
+import { useCurrency } from "~/hooks/use-currency";
 import { useRequireAuth } from "~/hooks/use-require-auth";
 import { useSignAndConfirm } from "~/hooks/use-sign-and-confirm";
 import { isCustodial } from "~/lib/custodial";
@@ -118,6 +119,7 @@ function CopyAddress({ address, className }: { address: string; className?: stri
 
 function BalanceHero({ b, onAction }: { b: Balances; onAction: (k: DialogKind) => void }) {
   const { session } = useRequireAuth();
+  const { currency } = useCurrency();
   // card top-ups are only for custodial (email/social) accounts
   const custodial = isCustodial(session?.user.walletType);
   const actions = [
@@ -139,10 +141,21 @@ function BalanceHero({ b, onAction }: { b: Balances; onAction: (k: DialogKind) =
           </div>
           {b.active ? (
             <>
-              <p className="break-all font-hud text-4xl font-bold leading-none tracking-tight tabular-nums sm:text-6xl">
-                {num(b.platform.balance)} <span className="text-lg font-semibold text-white/60 sm:text-2xl">{b.platform.code}</span>
-              </p>
-              {b.platform.usd != null && <p className="text-sm text-white/70">≈ {b.platform.usd.toLocaleString("en-US", { style: "currency", currency: "USD" })}</p>}
+              {currency === "USD" && b.platform.usd != null ? (
+                <>
+                  <p className="break-all font-hud text-4xl font-bold leading-none tracking-tight tabular-nums sm:text-6xl">{b.platform.usd.toLocaleString("en-US", { style: "currency", currency: "USD" })}</p>
+                  <p className="text-sm text-white/70">
+                    {num(b.platform.balance)} {b.platform.code}
+                  </p>
+                </>
+              ) : (
+                <>
+                  <p className="break-all font-hud text-4xl font-bold leading-none tracking-tight tabular-nums sm:text-6xl">
+                    {num(b.platform.balance)} <span className="text-lg font-semibold text-white/60 sm:text-2xl">{b.platform.code}</span>
+                  </p>
+                  {b.platform.usd != null && <p className="text-sm text-white/70">≈ {b.platform.usd.toLocaleString("en-US", { style: "currency", currency: "USD" })}</p>}
+                </>
+              )}
             </>
           ) : (
             <p className="max-w-md text-white/75">

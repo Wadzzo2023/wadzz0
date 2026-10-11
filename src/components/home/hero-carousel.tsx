@@ -5,9 +5,8 @@ import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 
 import { MEDIA_META } from "~/components/media/media-meta";
+import { usePriceText } from "~/components/price/price";
 import { Button } from "~/components/shadcn/ui/button";
-import { PLATFORM_ASSET } from "~/lib/stellar/constant";
-import { formatAmount } from "~/lib/stellar/quote";
 import { cn } from "~/lib/utils";
 import type { ListingCard } from "~/server/api/routers/market";
 import { Avatar } from "~/ui/person";
@@ -21,6 +20,7 @@ const INTERVAL_MS = 6000;
  */
 export function HeroCarousel({ slides }: { slides: ListingCard[] }) {
   const [i, setI] = useState(0);
+  const priceText = usePriceText();
   const [paused, setPaused] = useState(false);
   const [touchX, setTouchX] = useState<number | null>(null);
   const n = slides.length;
@@ -83,7 +83,7 @@ export function HeroCarousel({ slides }: { slides: ListingCard[] }) {
                     </span>
                   )}
                   <Button asChild size="sm" tabIndex={active ? 0 : -1}>
-                    <Link href={`/item/${a.id}`}>Buy · {formatAmount(s.price, PLATFORM_ASSET.code)}</Link>
+                    <Link href={`/item/${a.id}`}>Buy · {priceText(s.price, s.priceUSD)}</Link>
                   </Button>
                 </div>
               </div>

@@ -6,11 +6,11 @@ import { useState } from "react";
 
 import { CardForm } from "~/components/payment/card-form";
 import { CostBreakdown, ProblemList } from "~/components/payment/cost-breakdown";
+import { Price } from "~/components/price/price";
 import { MethodPicker, type PayMethod } from "~/components/payment/method-picker";
 import { Button } from "~/components/shadcn/ui/button";
 import { useRequireAuth } from "~/hooks/use-require-auth";
 import { useSignAndConfirm } from "~/hooks/use-sign-and-confirm";
-import { PLATFORM_ASSET } from "~/lib/stellar/constant";
 import { MAX_PER_PURCHASE, formatAmount } from "~/lib/stellar/quote";
 import { cn } from "~/lib/utils";
 import { Avatar } from "~/ui/person";
@@ -73,7 +73,7 @@ function ListingOption({ l, item, active, onSelect }: { l: Listing; item: Item; 
         <span className="block truncate text-sm font-medium">{l.placer?.name ?? "Seller"}</span>
         <span className="text-xs text-muted-foreground">{original ? "From the creator" : "Resale"}</span>
       </span>
-      <span className="font-hud font-semibold tabular-nums">{formatAmount(l.price, PLATFORM_ASSET.code)}</span>
+      <Price tokens={l.price} usd={l.priceUSD} size="sm" className="items-end text-right" />
     </button>
   );
 }
@@ -153,10 +153,7 @@ function Checkout({ item, listing }: { item: Item; listing: Listing }) {
       <div className="flex items-end justify-between gap-3">
         <div>
           <p className="label-caps">{isResale ? "Resale price" : "Price"}{quantity > 1 && " · each"}</p>
-          <p className="font-hud text-4xl font-bold tabular-nums">
-            <span className="text-gradient">{listing.price.toLocaleString("en-US")}</span> <span className="text-lg text-muted-foreground">{PLATFORM_ASSET.code}</span>
-          </p>
-          <p className="text-sm text-muted-foreground">≈ {formatAmount(listing.priceUSD, "USD")}</p>
+          <Price tokens={listing.price} usd={listing.priceUSD} size="xl" gradient className="mt-0.5" />
         </div>
         {q &&
           (q.copiesLeft === 0 ? (

@@ -27,11 +27,12 @@ import toast from "react-hot-toast";
 
 import { RichText } from "~/components/post/post-card";
 import { Button } from "~/components/shadcn/ui/button";
+import { Price } from "~/components/price/price";
 import { Textarea } from "~/components/shadcn/ui/textarea";
 import { env } from "~/env";
 import { useBountySeen } from "~/hooks/use-bounty-attention";
 import { useRequireAuth } from "~/hooks/use-require-auth";
-import { ENTRY_STATUS, type BountyDetail, formatTokens, formatUsd, spotsFilled, viewerBadge } from "~/lib/bounty";
+import { ENTRY_STATUS, type BountyDetail, formatTokens, spotsFilled, viewerBadge } from "~/lib/bounty";
 import { cn } from "~/lib/utils";
 import { EmptyState } from "~/ui/empty-state";
 import { PageBody } from "~/ui/page-header";
@@ -186,12 +187,7 @@ function RewardCard({ b, onSubmit, onShowEntries }: { b: BountyDetail; onSubmit:
       <div className="flex items-start justify-between gap-3">
         <div>
           <p className="label-caps">Reward per winner</p>
-          <p className="font-hud text-4xl font-bold leading-tight">
-            <span className="text-gradient">{formatUsd(b.rewardUsd)}</span>
-          </p>
-          <p className="text-sm tabular-nums text-muted-foreground">
-            {formatTokens(b.rewardAsset)} {b.assetCode}
-          </p>
+          <Price tokens={b.rewardAsset} usd={b.rewardUsd} code={b.assetCode} size="xl" gradient className="mt-0.5" />
         </div>
         <Button variant="outline" size="icon" className="glass rounded-full" onClick={() => void share()} aria-label="Share">
           <Share2 className="size-4" />

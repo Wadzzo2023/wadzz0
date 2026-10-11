@@ -2,6 +2,7 @@
 
 import { CheckCircle2, FileText, Lock, Settings2, Share2, Target, Trophy, Upload, UserPlus } from "lucide-react";
 import Link from "next/link";
+import { usePriceText } from "~/components/price/price";
 import toast from "react-hot-toast";
 
 import { env } from "~/env";
@@ -20,6 +21,7 @@ import { api } from "~/utils/api";
  */
 export function BountyCard({ bounty, className }: { bounty: BountyCardData; className?: string }) {
   const href = `/bounties/${bounty.id}`;
+  const priceText = usePriceText();
 
   return (
     <article
@@ -43,8 +45,9 @@ export function BountyCard({ bounty, className }: { bounty: BountyCardData; clas
       <div className="flex items-center justify-between gap-3">
         <p className="flex min-w-0 items-center gap-1.5 text-sm">
           <CheckCircle2 className="size-5 shrink-0 text-[hsl(112_85%_62%)]" />
-          <span className="font-hud text-lg font-bold tabular-nums text-[hsl(112_85%_62%)] drop-shadow-[0_0_12px_hsl(112_85%_55%/0.5)]">{formatTokens(bounty.rewardAsset)}</span>
-          <span className="font-semibold text-[hsl(112_70%_70%)]">{bounty.assetCode}</span>
+          <span className="font-hud text-lg font-bold tabular-nums text-[hsl(112_85%_62%)] drop-shadow-[0_0_12px_hsl(112_85%_55%/0.5)]">
+            {priceText(bounty.rewardAsset, bounty.rewardUsd, bounty.assetCode)}
+          </span>
           <span className="truncate text-white/65">
             / {bounty.totalWinners} winner{bounty.totalWinners === 1 ? "" : "s"}
           </span>

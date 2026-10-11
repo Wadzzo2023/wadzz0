@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useState } from "react";
 
 import { MEDIA_META } from "~/components/media/media-meta";
+import { Price } from "~/components/price/price";
 import { Button } from "~/components/shadcn/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "~/components/shadcn/ui/dialog";
 import { Input } from "~/components/shadcn/ui/input";
@@ -231,9 +232,7 @@ function SellingCard({ x }: { x: Owned }) {
         <p className="truncate font-hud text-[15px] font-semibold">{x.asset.name}</p>
         <div className="rounded-xl bg-foreground/[0.04] px-2.5 py-2 ring-1 ring-foreground/[0.06]">
           <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Your price</p>
-          <p className="font-hud text-sm font-bold tabular-nums">
-            {num.format(x.listing.price)} <span className="text-xs text-primary">{PLATFORM_ASSET.code}</span>
-          </p>
+          <Price tokens={x.listing.price} usd={x.listing.priceUSD} size="sm" />
         </div>
         <div className="mt-auto grid grid-cols-2 gap-1.5">
           <Button size="sm" variant="outline" className="rounded-lg" onClick={() => setEditing(true)}>

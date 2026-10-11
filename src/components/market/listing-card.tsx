@@ -1,8 +1,8 @@
 import { BadgeCheck, Lock, Repeat2 } from "lucide-react";
 import Link from "next/link";
+import { Price } from "~/components/price/price";
 
 import { MEDIA_META } from "~/components/media/media-meta";
-import { PLATFORM_ASSET } from "~/lib/stellar/constant";
 import { cn } from "~/lib/utils";
 import type { ListingCard as ListingCardData } from "~/server/api/routers/market";
 import { Avatar } from "~/ui/person";
@@ -63,9 +63,7 @@ export function ListingCard({ listing, className }: { listing: ListingCardData; 
         <div className="mt-auto flex items-end justify-between gap-2 rounded-xl bg-foreground/[0.04] px-2.5 py-2 ring-1 ring-foreground/[0.06]">
           <div className="min-w-0">
             <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Price</p>
-            <p className="truncate font-hud text-sm font-bold tabular-nums">
-              {num.format(listing.price)} <span className="text-xs font-semibold text-primary">{PLATFORM_ASSET.code}</span>
-            </p>
+            <Price tokens={listing.price} usd={listing.priceUSD} size="sm" />
           </div>
           <div className="shrink-0 text-right">
             <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">{resale ? "Seller" : "Edition"}</p>
