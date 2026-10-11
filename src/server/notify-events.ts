@@ -59,9 +59,12 @@ export async function announceSettled(db: Db, row: AssetTransaction) {
         }
         return;
       }
-      case "GIFT":
-        if (asset && row.buyerId && brandId) await notifyFan(db, { actorId: brandId, type: "GIFT_RECEIVED", entityId: asset.id, userId: row.buyerId, meta });
+      case "GIFT": {
+        // sent straight to the fan (buyer), or as a gift they accept later (the seller column names the recipient)
+        const to = row.buyerId ?? row.sellerId;
+        if (asset && to && brandId) await notifyFan(db, { actorId: brandId, type: "GIFT_RECEIVED", entityId: asset.id, userId: to, meta });
         return;
+      }
       case "TRANSFER":
         // a direct send: the recipient (a Wadzzo user) hears about it
         if (row.buyerId && row.sellerId) await notifyFan(db, { actorId: row.buyerId, type: "GIFT_RECEIVED", entityId: asset?.id ?? 0, userId: row.sellerId, meta });
