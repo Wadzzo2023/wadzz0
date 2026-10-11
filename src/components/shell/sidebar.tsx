@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowUpRight, ChevronLeft, ChevronRight, Menu, Monitor, Moon, Sparkles, Sun } from "lucide-react";
+import { ArrowUpRight, ChevronLeft, ChevronRight, Menu, Monitor, Moon, Store, Sun } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTheme } from "next-themes";
@@ -66,8 +66,8 @@ function useBrandEntry() {
   const isBrand = Boolean(me.data?.creator && !me.data.creator.notCreatorButSeller);
   const base = env.NEXT_PUBLIC_BRAND_PORTAL_URL.replace(/\/$/, "");
   return isBrand
-    ? { label: "My brand", hint: "Creator studio", href: base, logo: me.data?.creator?.profileUrl ?? null, name: me.data?.creator?.name ?? null }
-    : { label: "Create brand", hint: "Sell on Wadzzo", href: `${base}/onboarding`, logo: null, name: null };
+    ? { label: "My brand", href: base, logo: me.data?.creator?.profileUrl ?? null, name: me.data?.creator?.name ?? null }
+    : { label: "Create brand", href: `${base}/onboarding`, logo: null, name: null };
 }
 
 function NavLink({ item, active, collapsed, onNavigate }: { item: NavItem; active: boolean; collapsed: boolean; onNavigate?: () => void }) {
@@ -92,18 +92,15 @@ function NavLink({ item, active, collapsed, onNavigate }: { item: NavItem; activ
 
 function BrandCard({ collapsed, onNavigate }: { collapsed: boolean; onNavigate?: () => void }) {
   const brand = useBrandEntry();
-  const isBrand = brand.label === "My brand";
   const initial = brand.name?.trim()[0]?.toUpperCase();
 
   const mark = brand.logo ? (
     // eslint-disable-next-line @next/next/no-img-element
-    <img src={brand.logo} alt="" className="size-9 shrink-0 rounded-full object-cover ring-2 ring-primary/50" />
+    <img src={brand.logo} alt="" className="size-6 shrink-0 rounded-full object-cover" />
   ) : initial ? (
-    <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary/15 font-hud text-base font-bold text-primary ring-2 ring-primary/50">{initial}</span>
+    <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-primary/15 font-hud text-xs font-bold">{initial}</span>
   ) : (
-    <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-white/20 text-primary-foreground">
-      <Sparkles className="size-4" />
-    </span>
+    <Store className="size-[18px] shrink-0" />
   );
 
   return (
@@ -115,22 +112,17 @@ function BrandCard({ collapsed, onNavigate }: { collapsed: boolean; onNavigate?:
       title={collapsed ? brand.label : undefined}
       aria-label={collapsed ? brand.label : undefined}
       className={cn(
-        "group relative flex items-center gap-3 overflow-hidden rounded-xl transition-all hover:-translate-y-0.5",
-        collapsed ? "justify-center p-1.5" : "p-2.5",
-        isBrand
-          ? "bg-background ring-1 ring-primary/40 hover:ring-primary/70 hover:shadow-[0_10px_30px_-12px_hsl(var(--primary)/0.7)]"
-          : "bg-gradient-to-br from-primary to-[hsl(150_75%_38%)] text-primary-foreground shadow-[0_10px_26px_-10px_hsl(var(--primary)/0.8)]",
+        "group flex h-10 items-center gap-3 rounded-lg border border-primary/50 text-sm font-semibold text-primary transition-colors hover:border-primary hover:bg-primary/10",
+        collapsed ? "justify-center" : "px-3",
       )}
     >
-      {isBrand && <span aria-hidden className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_0%_0%,hsl(var(--primary)/0.22),transparent_65%)]" />}
-      <span className="relative">{mark}</span>
+      {mark}
       {!collapsed && (
-        <span className="relative min-w-0 flex-1 leading-tight">
-          <span className="block truncate text-sm font-semibold">{brand.label}</span>
-          <span className={cn("block truncate text-xs", isBrand ? "text-muted-foreground" : "text-primary-foreground/80")}>{brand.hint}</span>
-        </span>
+        <>
+          <span className="min-w-0 flex-1 truncate">{brand.name ?? brand.label}</span>
+          <ArrowUpRight className="size-4 shrink-0 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+        </>
       )}
-      {!collapsed && <ArrowUpRight className={cn("relative size-4 shrink-0 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5", isBrand ? "text-primary" : "text-primary-foreground/80")} />}
     </a>
   );
 }
@@ -202,6 +194,10 @@ function SidebarBody({
         <BrandMark compact={collapsed} />
       </div>
 
+      <div className={cn("shrink-0 pb-3", collapsed ? "px-2" : "px-3")}>
+        <BrandCard collapsed={collapsed} onNavigate={onNavigate} />
+      </div>
+
       <nav aria-label="Sections" className={cn("flex-1 space-y-1 pb-3", collapsed ? "px-2" : "px-3")}>
         {MAIN.map((item) => (
           <NavLink key={item.href} item={item} active={isActive(pathname, item)} collapsed={collapsed} onNavigate={onNavigate} />
@@ -217,7 +213,6 @@ function SidebarBody({
       </nav>
 
       <div className={cn("shrink-0 space-y-3 pb-[max(0.75rem,var(--safe-bottom))]", collapsed ? "px-2" : "px-3")}>
-        <BrandCard collapsed={collapsed} onNavigate={onNavigate} />
         {showCurrency && (
           <div className="flex items-center justify-between gap-2 px-1">
             <span className="text-xs font-medium text-muted-foreground">Show prices in</span>
