@@ -12,7 +12,7 @@ export const userRouter = createTRPCRouter({
   me: protectedProcedure.query(({ ctx }) =>
     ctx.db.user.findUnique({
       where: { id: ctx.session.user.id },
-      select: { id: true, name: true, bio: true, image: true, coverImage: true, email: true, joinedAt: true, creator: { select: { approved: true, notCreatorButSeller: true } } },
+      select: { id: true, name: true, bio: true, image: true, coverImage: true, email: true, joinedAt: true, creator: { select: { approved: true, notCreatorButSeller: true, name: true, profileUrl: true } } },
     }),
   ),
 

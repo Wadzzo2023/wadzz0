@@ -98,13 +98,15 @@ function useBrandEntry() {
   const me = api.user.me.useQuery(undefined, { enabled: signedIn, staleTime: 5 * 60_000 });
   const isBrand = Boolean(me.data?.creator && !me.data.creator.notCreatorButSeller);
   const base = env.NEXT_PUBLIC_BRAND_PORTAL_URL.replace(/\/$/, "");
-  return isBrand ? { label: "My brand", href: base } : { label: "Create brand", href: `${base}/onboarding` };
+  return isBrand
+    ? { label: "My brand", href: base, logo: me.data?.creator?.profileUrl ?? null, name: me.data?.creator?.name ?? null }
+    : { label: "Create brand", href: `${base}/onboarding`, logo: null, name: null };
 }
 
 /**
  * Bottom navigation: a floating glass pill of icon tabs. The active tab grows
  * into a green capsule with its label, and the capsule glides between tabs.
- * The brand entry sits beside the pill as its own round action button.
+ * The brand entry is a matching glass orb beside the pill with the brand's logo.
  */
 function BottomTabs() {
   const pathname = usePathname() ?? "";
@@ -116,7 +118,7 @@ function BottomTabs() {
         initial={{ y: 40, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ type: "spring", stiffness: 160, damping: 22 }}
-        className="pointer-events-auto flex max-w-full items-center gap-2"
+        className="pointer-events-auto flex max-w-full items-center gap-2.5"
       >
         <nav
           aria-label="Sections"
@@ -126,19 +128,36 @@ function BottomTabs() {
             <Tab key={t.href} item={t} active={isActive(pathname, t)} />
           ))}
         </nav>
-        <a
-          href={brand.href}
-          target="_blank"
-          rel="noreferrer"
-          aria-label={brand.label}
-          title={brand.label}
-          className="group flex h-[3.75rem] items-center gap-2 rounded-full bg-gradient-to-br from-primary to-green-hot px-[1.15rem] text-primary-foreground shadow-[0_10px_30px_-8px_hsl(var(--primary)/0.7)] ring-4 ring-background/60 transition-transform hover:scale-105 active:scale-95"
-        >
-          <Store className="size-5 shrink-0" />
-          <span className="hidden whitespace-nowrap text-sm font-semibold md:inline">{brand.label}</span>
-        </a>
+        <BrandButton brand={brand} />
       </motion.div>
     </div>
+  );
+}
+
+/** Manage / create your brand: a glass orb (same material as the pill) showing the brand's logo. */
+function BrandButton({ brand }: { brand: { label: string; href: string; logo: string | null; name: string | null } }) {
+  return (
+    <a
+      href={brand.href}
+      target="_blank"
+      rel="noreferrer"
+      aria-label={brand.label}
+      className="group relative flex size-[3.75rem] shrink-0 items-center justify-center rounded-full border border-white/40 bg-card/80 p-1.5 shadow-[0_10px_40px_-10px_rgba(0,0,0,0.35)] ring-1 ring-black/5 backdrop-blur-xl transition-transform hover:scale-105 active:scale-95 dark:border-white/10 dark:ring-white/5"
+    >
+      {brand.logo ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={brand.logo} alt="" className="size-full rounded-full object-cover" />
+      ) : brand.name ? (
+        <span className="flex size-full items-center justify-center rounded-full bg-primary/12 font-hud text-lg font-bold text-primary">{brand.name.trim()[0]?.toUpperCase()}</span>
+      ) : (
+        <span className="flex size-full items-center justify-center rounded-full bg-primary/10 text-primary">
+          <Store className="size-5" />
+        </span>
+      )}
+      <span className="pointer-events-none absolute bottom-full mb-2 whitespace-nowrap rounded-full bg-foreground px-2.5 py-1 text-xs font-semibold text-background opacity-0 shadow-md transition-[opacity,transform] group-hover:-translate-y-0.5 group-hover:opacity-100 group-focus-visible:opacity-100">
+        {brand.label}
+      </span>
+    </a>
   );
 }
 
