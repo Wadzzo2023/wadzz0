@@ -2,6 +2,7 @@ import "server-only";
 
 import type { AssetTransaction } from "@prisma/client";
 
+import { StellarAccount } from "~/lib/stellar/account";
 import type { Db } from "~/server/db";
 import { notify, notifyBrand, notifyFan } from "~/server/notify";
 
@@ -38,6 +39,23 @@ export async function announceSettled(db: Db, row: AssetTransaction) {
         // the last copy just went
         if (brandId && row.minted > 0 && asset.limit != null && asset.mintedCount >= asset.limit && asset.mintedCount - row.minted < asset.limit) {
           await notifyBrand(db, { actorId: row.buyerId, type: "ITEM_SOLD_OUT", entityId: asset.id, creatorId: brandId, meta });
+        }
+        return;
+      }
+      case "PAGE_ASSET_PURCHASE": {
+        // a fan bought page tokens: if that lifted them into a new membership tier, tell the brand
+        if (!row.buyerId || !row.creatorId) return;
+        const [page, tiers, buyer] = await Promise.all([
+          db.creatorPageAsset.findUnique({ where: { creatorId: row.creatorId }, select: { code: true, issuer: true } }),
+          db.subscription.findMany({ where: { creatorId: row.creatorId, isActive: true }, select: { name: true, price: true }, orderBy: { price: "asc" } }),
+          StellarAccount.load(row.buyerId),
+        ]);
+        if (!page || !tiers.length || !buyer) return;
+        const after = buyer.tokenBalance(page.code, page.issuer);
+        const top = (balance: number) => tiers.filter((t) => t.price <= balance).at(-1);
+        const reached = top(after);
+        if (reached && reached.name !== top(after - row.quantity)?.name) {
+          await notifyBrand(db, { actorId: row.buyerId, type: "SUBSCRIPTION", entityId: 0, creatorId: row.creatorId, meta: { tier: reached.name } });
         }
         return;
       }
