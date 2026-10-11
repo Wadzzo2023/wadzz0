@@ -34,7 +34,7 @@ export function TierCard({ tier, code, current, reached, action }: { tier: Tier;
         ) : null}
       </div>
       <p className="mt-1 font-hud text-2xl font-bold tabular-nums">
-        {tier.price.toLocaleString()} <span className="text-sm font-medium text-muted-foreground">{code}</span>
+        {tier.price.toLocaleString("en-US")} <span className="text-sm font-medium text-muted-foreground">{code}</span>
       </p>
       <p className="text-xs text-muted-foreground">page tokens held</p>
       {tier.description && <p className="mt-3 text-sm text-muted-foreground">{tier.description}</p>}

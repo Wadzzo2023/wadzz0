@@ -1,72 +1,48 @@
 import { differenceInHours, formatDistanceToNowStrict } from "date-fns";
 
+import type { Tone } from "~/ui/status-pill";
 import type { RouterOutputs } from "~/utils/api";
 
 /**
- * ── Bounty display helpers ─────────────────────────────────────────────────
- *
- * One place that turns the router's facts into the words and tones the UI
- * shows, so a bounty's status reads the same on a list card, the detail
- * header and the pinned action bar.
+ * One place that turns the bounty router's facts into the words and tones the
+ * UI shows, so a bounty reads the same on a card, the detail header and the
+ * action panel.
  */
 
-export type BountyCard = RouterOutputs["bounty"]["list"]["items"][number];
+export type BountyCardData = RouterOutputs["bounty"]["list"]["items"][number];
 export type BountyDetail = RouterOutputs["bounty"]["byId"];
-export type EntryStatus = NonNullable<
-  BountyCard["viewer"]["latestEntryStatus"]
->;
+export type EntryStatus = NonNullable<BountyCardData["viewer"]["latestEntryStatus"]>;
 
-export type Tone = "green" | "gold" | "danger" | "muted" | "info";
-
-export const TONE_CLASS: Record<Tone, string> = {
-  green: "border-ar-green/50 bg-ar-green/15 text-ar-green-hot",
-  gold: "border-rarity-legendary/50 bg-rarity-legendary/15 text-rarity-legendary",
-  danger: "border-ar-danger/50 bg-ar-danger/15 text-ar-danger",
-  muted: "border-ar-line-bright bg-white/[0.05] text-ar-faint",
-  info: "border-rarity-rare/50 bg-rarity-rare/15 text-rarity-rare",
-};
-
-/**
- * The review states wadzz0's brand-side screen moves an entry through, in
- * the fan's words. "Checked" there means the brand opened it.
- */
+/** The review states the brand moves an entry through, in the fan's words. */
 export const ENTRY_STATUS: Record<EntryStatus, { label: string; tone: Tone }> = {
-  UNCHECKED: { label: "Sent", tone: "muted" },
+  UNCHECKED: { label: "Sent", tone: "neutral" },
   CHECKED: { label: "Seen", tone: "info" },
-  ONREVIEW: { label: "In review", tone: "info" },
-  APPROVED: { label: "Approved", tone: "green" },
+  ONREVIEW: { label: "In review", tone: "warning" },
+  APPROVED: { label: "Approved", tone: "success" },
   REJECTED: { label: "Not selected", tone: "danger" },
 };
 
-/** The one badge a card shows for where *you* stand on it. */
-export function viewerBadge(b: Pick<BountyCard, "viewer" | "open">): {
-  label: string;
-  tone: Tone;
-} {
-  if (b.viewer.won) return { label: "You won", tone: "gold" };
+/** The one badge for where the viewer stands on a bounty. */
+export function viewerBadge(b: Pick<BountyCardData, "viewer" | "open">): { label: string; tone: Tone } {
+  if (b.viewer.won) return { label: "You won", tone: "warning" };
   if (b.viewer.latestEntryStatus) return ENTRY_STATUS[b.viewer.latestEntryStatus];
-  if (!b.open) return { label: "Closed", tone: "muted" };
-  if (b.viewer.joined) return { label: "Joined", tone: "green" };
-  return { label: "Open", tone: "green" };
+  if (!b.open) return { label: "Closed", tone: "neutral" };
+  if (b.viewer.joined) return { label: "Joined", tone: "primary" };
+  return { label: "Open", tone: "success" };
 }
 
-export const formatUsd = (n: number) =>
-  n.toLocaleString(undefined, {
-    style: "currency",
-    currency: "USD",
-    maximumFractionDigits: n < 10 ? 2 : 0,
-  });
+export const formatUsd = (n: number) => n.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: n < 10 ? 2 : 0 });
 
-export const formatAmount = (n: number) =>
-  n.toLocaleString(undefined, { maximumFractionDigits: 2 });
+export const formatTokens = (n: number) => n.toLocaleString("en-US", { maximumFractionDigits: 2 });
 
-/** "3d left", "5h left", "Ended" — or null when the bounty has no end date. */
+/** "3 days left", "5 hours left", "Ended" — or null without an end date. */
 export function deadlineLabel(endDate: Date | string | null) {
   if (!endDate) return null;
   const end = new Date(endDate);
   if (end.getTime() <= Date.now()) return { text: "Ended", urgent: false };
-  return {
-    text: `${formatDistanceToNowStrict(end)} left`,
-    urgent: differenceInHours(end, new Date()) < 48,
-  };
+  return { text: `${formatDistanceToNowStrict(end)} left`, urgent: differenceInHours(end, new Date()) < 48 };
 }
+
+/** Share of winner spots already filled (0–100). */
+export const spotsFilled = (b: Pick<BountyCardData, "spotsLeft" | "totalWinners">) =>
+  b.totalWinners > 0 ? Math.round(((b.totalWinners - b.spotsLeft) / b.totalWinners) * 100) : 0;

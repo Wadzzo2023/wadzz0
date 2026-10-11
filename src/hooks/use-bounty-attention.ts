@@ -3,7 +3,7 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
 import { api } from "~/utils/api";
-import { useAuth } from "~/hooks/use-ar-auth";
+import { useRequireAuth } from "~/hooks/use-require-auth";
 
 /**
  * ── Bounty attention ───────────────────────────────────────────────────────
@@ -33,12 +33,12 @@ export const useBountySeen = create<SeenState>()(
           seen: { ...s.seen, [bountyId]: new Date().toISOString() },
         })),
     }),
-    { name: "wadzzo-ar-bounty-seen" },
+    { name: "wadzzo-bounty-seen" },
   ),
 );
 
 export function useBountyAttention() {
-  const signedIn = useAuth((s) => Boolean(s.user));
+  const { signedIn } = useRequireAuth();
   const seen = useBountySeen((s) => s.seen);
   const query = api.bounty.attention.useQuery(undefined, {
     enabled: signedIn,

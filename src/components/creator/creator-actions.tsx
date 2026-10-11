@@ -91,7 +91,7 @@ export function MembershipSection({ profile, offers }: { profile: Profile; offer
           <div className="rounded-xl bg-primary/10 px-4 py-2 text-right">
             <p className="text-[10px] font-semibold uppercase tracking-wider text-primary">You hold</p>
             <p className="font-hud text-lg font-bold tabular-nums">
-              {held.toLocaleString()} <span className="text-sm text-muted-foreground">{code}</span>
+              {held.toLocaleString("en-US")} <span className="text-sm text-muted-foreground">{code}</span>
             </p>
           </div>
         )}
@@ -122,7 +122,7 @@ export function MembershipSection({ profile, offers }: { profile: Profile; offer
                 <span className="min-w-0 flex-1">
                   <span className="block truncate font-medium">{o.title}</span>
                   <span className="text-xs text-muted-foreground">
-                    {o.amountToSell.toLocaleString()} {code}
+                    {o.amountToSell.toLocaleString("en-US")} {code}
                   </span>
                 </span>
                 <span className="font-hud font-bold tabular-nums">{formatAmount(o.price, PLATFORM_ASSET.code)}</span>
@@ -154,14 +154,14 @@ function PageTokenDialog({ offer, code, onClose }: { offer: Offer; code: string;
         <DialogHeader>
           <DialogTitle className="font-hud">{offer.title}</DialogTitle>
           <DialogDescription>
-            {offer.amountToSell.toLocaleString()} {code} from {offer.placer?.name}.{offer.description ? ` ${offer.description}` : ""}
+            {offer.amountToSell.toLocaleString("en-US")} {code} from {offer.placer?.name}.{offer.description ? ` ${offer.description}` : ""}
           </DialogDescription>
         </DialogHeader>
         {sign.step === "done" ? (
           <div className="space-y-3 py-4 text-center">
             <CheckCircle2 className="mx-auto size-8 text-primary" />
             <p className="font-hud font-semibold">
-              {offer.amountToSell.toLocaleString()} {code} added to your wallet
+              {offer.amountToSell.toLocaleString("en-US")} {code} added to your wallet
             </p>
             <Button variant="outline" onClick={onClose}>
               Done

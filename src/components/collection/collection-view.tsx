@@ -268,13 +268,13 @@ function CreatedCard({ a }: { a: Created }) {
         <div className="space-y-1">
           <div className="flex justify-between text-xs text-muted-foreground">
             <span>Stock</span>
-            <span className="font-semibold tabular-nums text-foreground">{a.stock.toLocaleString()}</span>
+            <span className="font-semibold tabular-nums text-foreground">{a.stock.toLocaleString("en-US")}</span>
           </div>
           <div className="flex justify-between text-xs text-muted-foreground">
             <span>Minted</span>
             <span className="tabular-nums">
-              {a.mintedCount.toLocaleString()}
-              {a.limit != null && ` / ${a.limit.toLocaleString()}`}
+              {a.mintedCount.toLocaleString("en-US")}
+              {a.limit != null && ` / ${a.limit.toLocaleString("en-US")}`}
             </span>
           </div>
           {pct != null && (

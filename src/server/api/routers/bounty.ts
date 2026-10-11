@@ -310,6 +310,22 @@ export const bountyRouter = createTRPCRouter({
       return { items: rows.map(toCard), nextCursor };
     }),
 
+  /** Header numbers for the bounty page: open bounties and their total reward pool. */
+  stats: publicProcedure.query(async ({ ctx }) => {
+    const now = new Date();
+    const open = await ctx.db.bounty.aggregate({
+      where: {
+        ...platformScope(ctx),
+        status: "APPROVED",
+        currentWinnerCount: { lt: ctx.db.bounty.fields.totalWinner },
+        OR: [{ endDate: null }, { endDate: { gt: now } }],
+      },
+      _count: { _all: true },
+      _sum: { priceInUSD: true },
+    });
+    return { open: open._count._all, poolUsd: open._sum.priceInUSD ?? 0 };
+  }),
+
   /** Everything the viewer has joined, open or closed, newest join first. */
   mine: protectedProcedure.query(async ({ ctx }) => {
     const userId = ctx.session.user.id;

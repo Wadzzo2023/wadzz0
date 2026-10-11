@@ -154,7 +154,7 @@ function Checkout({ item, listing }: { item: Item; listing: Listing }) {
         <div>
           <p className="label-caps">{isResale ? "Resale price" : "Price"}{quantity > 1 && " · each"}</p>
           <p className="font-hud text-4xl font-bold tabular-nums">
-            <span className="text-gradient">{listing.price.toLocaleString()}</span> <span className="text-lg text-muted-foreground">{PLATFORM_ASSET.code}</span>
+            <span className="text-gradient">{listing.price.toLocaleString("en-US")}</span> <span className="text-lg text-muted-foreground">{PLATFORM_ASSET.code}</span>
           </p>
           <p className="text-sm text-muted-foreground">≈ {formatAmount(listing.priceUSD, "USD")}</p>
         </div>

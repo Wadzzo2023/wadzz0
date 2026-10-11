@@ -91,7 +91,7 @@ export function FilterChips<T extends string>({
             {o.icon && <o.icon className="size-3.5" />}
             {o.label}
             {o.count !== undefined && (
-              <span className={cn("rounded-full px-1.5 text-xs tabular-nums", on ? "bg-primary-foreground/20" : "bg-muted")}>{o.count.toLocaleString()}</span>
+              <span className={cn("rounded-full px-1.5 text-xs tabular-nums", on ? "bg-primary-foreground/20" : "bg-muted")}>{o.count.toLocaleString("en-US")}</span>
             )}
           </button>
         );

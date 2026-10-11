@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { cache, Suspense } from "react";
 
-import BountyDetailScreen from "~/components/bounty/pages/bounty-detail";
+import { BountyView } from "~/components/bounty/bounty-view";
 import { serverApi } from "~/server/api/server";
 
 const getBounty = cache(async (id: number) => {
@@ -39,7 +39,7 @@ export default async function BountyPage({ params }: PageProps<"/bounties/[id]">
   if (!b) notFound();
   return (
     <Suspense>
-      <BountyDetailScreen id={b.id} />
+      <BountyView initial={b} />
     </Suspense>
   );
 }

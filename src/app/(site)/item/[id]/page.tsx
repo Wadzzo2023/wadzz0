@@ -141,7 +141,7 @@ export default async function ItemPage({ params }: PageProps<"/item/[id]">) {
                 <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
                   {[
                     ["Type", meta.label],
-                    ["Edition", item.limit == null ? "Open" : item.limit.toLocaleString()],
+                    ["Edition", item.limit == null ? "Open" : item.limit.toLocaleString("en-US")],
                     ["Royalty", `${item.royaltyPercent}%`],
                     ["Chain", "Stellar"],
                   ].map(([k, v]) => (
@@ -169,8 +169,8 @@ export default async function ItemPage({ params }: PageProps<"/item/[id]">) {
                   {[
                     ["Token code", item.code],
                     ["Issuer", `${item.issuer.slice(0, 6)}…${item.issuer.slice(-6)}`],
-                    ["Supply", item.limit == null ? "Unlimited" : item.limit.toLocaleString()],
-                    ["Minted", item.mintedCount.toLocaleString()],
+                    ["Supply", item.limit == null ? "Unlimited" : item.limit.toLocaleString("en-US")],
+                    ["Minted", item.mintedCount.toLocaleString("en-US")],
                     ["Creator royalty", `${item.royaltyPercent}% of every resale`],
                     ["Network", env.NEXT_PUBLIC_STELLAR_PUBNET ? "Stellar" : "Stellar testnet"],
                   ].map(([k, v]) => (

@@ -8,7 +8,7 @@ export function BrandMark({ compact = false, className }: { compact?: boolean; c
   return (
     <Link href="/" className={cn("flex items-center gap-2.5", className)} aria-label="Wadzzo home">
       <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary/10">
-        <Image src="/images/loading.png" alt="" width={22} height={22} className="object-contain" priority />
+        <Image src="/images/loading.png" alt="" width={22} height={18} className="h-auto w-[22px] object-contain" priority />
       </span>
       {!compact && (
         <span className="leading-tight">

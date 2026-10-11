@@ -25,7 +25,7 @@ export function CreatorCard({ creator, className }: { creator: CreatorCardData; 
         <p className="w-full truncate font-hud text-sm font-semibold">{creator.name}</p>
         {creator.bio && <p className="line-clamp-2 text-xs text-muted-foreground">{creator.bio}</p>}
         <p className="mt-auto pt-1 text-xs text-muted-foreground">
-          {creator._count.followers.toLocaleString()} followers · {creator._count.posts} posts
+          {creator._count.followers.toLocaleString("en-US")} followers · {creator._count.posts} posts
         </p>
       </div>
     </Link>

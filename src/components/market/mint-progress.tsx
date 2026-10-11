@@ -6,8 +6,8 @@ export function MintProgress({ minted, limit }: { minted: number; limit: number 
       <div className="flex items-baseline justify-between gap-3 text-sm">
         <span className="text-muted-foreground">{limit ? "Minted" : "Open edition"}</span>
         <span className="font-hud font-bold tabular-nums">
-          {minted.toLocaleString()}
-          {limit != null && <span className="text-muted-foreground"> / {limit.toLocaleString()}</span>}
+          {minted.toLocaleString("en-US")}
+          {limit != null && <span className="text-muted-foreground"> / {limit.toLocaleString("en-US")}</span>}
           {pct != null && <span className="ml-2 text-xs font-semibold text-primary">{pct}%</span>}
         </span>
       </div>

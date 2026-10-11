@@ -79,10 +79,10 @@ export default async function CreatorPage({ params }: PageProps<"/creator/[key]"
               </h1>
               <div className="flex flex-wrap gap-2 text-sm">
                 <span className="glass rounded-full px-3 py-1">
-                  <b className="font-hud tabular-nums">{profile._count.followers.toLocaleString()}</b> <span className="text-muted-foreground">followers</span>
+                  <b className="font-hud tabular-nums">{profile._count.followers.toLocaleString("en-US")}</b> <span className="text-muted-foreground">followers</span>
                 </span>
                 <span className="glass rounded-full px-3 py-1">
-                  <b className="font-hud tabular-nums">{profile._count.posts.toLocaleString()}</b> <span className="text-muted-foreground">posts</span>
+                  <b className="font-hud tabular-nums">{profile._count.posts.toLocaleString("en-US")}</b> <span className="text-muted-foreground">posts</span>
                 </span>
                 {profile.pageAsset && (
                   <span className="glass rounded-full px-3 py-1">

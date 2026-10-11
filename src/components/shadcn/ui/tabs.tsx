@@ -70,7 +70,7 @@ TabsContent.displayName = TabsPrimitive.Content.displayName
 
 /** A count after a tab label: `Entries <TabCount n={4} />`. */
 function TabCount({ n }: { n: number }) {
-  return <span className="rounded-full bg-muted px-1.5 text-xs tabular-nums text-muted-foreground">{n.toLocaleString()}</span>
+  return <span className="rounded-full bg-muted px-1.5 text-xs tabular-nums text-muted-foreground">{n.toLocaleString("en-US")}</span>
 }
 
 export { Tabs, TabsList, TabsTrigger, TabsContent, TabCount }
