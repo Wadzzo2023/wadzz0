@@ -5,15 +5,18 @@ frontend:
       commands:
         - nvm use 22 || nvm install 22
         - corepack enable
+        - pnpm config set store-dir .pnpm-store
         - pnpm install --frozen-lockfile
     build:
       commands:
         - pnpm run build
+        # .next/cache (Turbopack build cache, ~240MB) would count toward Amplify's
+        # 220MB deploy-size limit, so drop it from the output.
+        - rm -rf .next/cache
   artifacts:
     baseDirectory: .next
     files:
       - '**/*'
   cache:
     paths:
-      - node_modules/**/*
-      - .next/cache/**/*
+      - .pnpm-store/**/*
