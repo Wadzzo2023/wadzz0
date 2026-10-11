@@ -15,7 +15,7 @@ export { MAX_ENTRY_FILE_BYTES, MAX_ENTRY_FILES } from "~/lib/upload-files";
  * wadzzoAR use). The browser uploads straight to S3; the server only signs,
  * and the SHA-256 checksum in the signature pins the URL to the declared file.
  */
-const s3Client = new S3Client({
+export const s3Client = new S3Client({
   region: env.AWS_BUCKET_REGION,
   credentials: { accessKeyId: env.AWS_ACCESS_KEY, secretAccessKey: env.AWS_SECRET_ACCESS_KEY },
 });

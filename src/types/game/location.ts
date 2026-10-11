@@ -1,0 +1,25 @@
+export interface Location {
+  id: string | number;
+  lat: number;
+  lng: number;
+  title: string;
+  description: string;
+  brand_name: string;
+  url: string;
+  image_url: string;
+  collected: boolean;
+  circular_image_url: string;
+  collection_limit_remaining: number;
+  auto_collect: boolean;
+  brand_image_url: string;
+  brand_id: string;
+  aiUrlDescriptions?: string[];
+  redeemCode: string | null;
+  isRedeemed: boolean | null;
+  claimedAt?: Date | null;
+}
+
+export interface ConsumedLocation extends Location {
+  modal_url: string;
+  viewed: boolean;
+}

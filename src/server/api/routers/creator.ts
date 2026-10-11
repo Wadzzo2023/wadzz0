@@ -1,14 +1,11 @@
-import { Asset, Operation, TransactionBuilder } from "@stellar/stellar-sdk";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
-import { StellarAccount, toAsset } from "~/lib/stellar/account";
-import { BASE_RESERVE_XLM, TX_TIMEOUT_SECONDS, TrxBaseFee, networkPassphrase } from "~/lib/stellar/constant";
 import { pageAssetRef, tierBalances } from "~/server/access";
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "~/server/api/trpc";
 import { notify } from "~/server/notify";
 import { platformScope } from "~/server/platform-scope";
-import { motherKeypair, signForUser } from "~/server/stellar/keys";
+import { followTrustlineXdr } from "~/server/stellar/follow";
 import { preparePageTokens, quotePageTokens } from "~/server/stellar/page-tokens";
 import { signerFor } from "~/server/stellar/session-signer";
 
@@ -97,18 +94,7 @@ export const creatorRouter = createTRPCRouter({
     }
 
     const page = pageAssetRef(creator);
-    const acc = await StellarAccount.load(me);
-    if (!page || !acc || acc.hasTrustline(page.code, page.issuer) || !acc.canAddSubentries(1)) return { xdr: null };
-
-    const mother = motherKeypair();
-    const source = await StellarAccount.loadOrThrow(mother.publicKey(), "Platform account");
-    const tx = new TransactionBuilder(source.raw, { fee: TrxBaseFee, networkPassphrase })
-      .addOperation(Operation.payment({ destination: me, asset: Asset.native(), amount: BASE_RESERVE_XLM.toFixed(7) }))
-      .addOperation(Operation.changeTrust({ source: me, asset: toAsset(page) }))
-      .setTimeout(TX_TIMEOUT_SECONDS)
-      .build();
-    tx.sign(mother);
-    return { xdr: await signForUser(tx.toXDR(), signerFor(ctx.session)) };
+    return { xdr: page ? await followTrustlineXdr(me, page, signerFor(ctx.session)) : null };
   }),
 
   unfollow: protectedProcedure.input(z.object({ creatorId: z.string() })).mutation(async ({ ctx, input }) => {

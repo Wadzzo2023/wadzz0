@@ -169,10 +169,16 @@ importers:
         version: 16.4.0(@babel/core@7.29.7)(@opentelemetry/api@1.9.0)(@types/node@26.6.5)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(sass@1.83.4)
       next-auth:
         specifier: ^4.24.15
-        version: 4.24.15(next@16.4.0(@babel/core@7.29.7)(@opentelemetry/api@1.9.0)(@types/node@26.6.5)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(sass@1.83.4))(nodemailer@7.0.7)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+        version: 4.24.15(next@16.4.0(@babel/core@7.29.7)(@opentelemetry/api@1.9.0)(@types/node@26.6.5)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(sass@1.83.4))(nodemailer@10.1.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       next-themes:
         specifier: ^0.4.6
         version: 0.4.6(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      nextjs-cors:
+        specifier: ^2.2.1
+        version: 2.2.1(next@16.4.0(@babel/core@7.29.7)(@opentelemetry/api@1.9.0)(@types/node@26.6.5)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(sass@1.83.4))
+      nodemailer:
+        specifier: ^10.1.0
+        version: 10.1.0
       pg:
         specifier: ^8.23.0
         version: 8.23.1
@@ -228,6 +234,9 @@ importers:
       '@types/node':
         specifier: ^26.6.3
         version: 26.6.5
+      '@types/nodemailer':
+        specifier: ^8.0.2
+        version: 8.0.2
       '@types/pg':
         specifier: ^8.23.1
         version: 8.23.1
@@ -2744,6 +2753,9 @@ packages:
   '@types/node@26.6.5':
     resolution: {integrity: sha512-uMzsv9stDdofIZBx4UGh4Z9ZgXnGC9seRDscilBcTHAeOFk67MZg/k9bWVfO+bk4qZmG+l52hRnLwUiH2LnJTg==}
 
+  '@types/nodemailer@8.0.2':
+    resolution: {integrity: sha512-c7M5ox8p0nEOfbJ2E9Qcmt8/QCu/VzsiAhzBiZbvky2PhKZDHpKB3sQHBM5MEZNkCfBOaS6S9//AGPRTNB7IaA==}
+
   '@types/offscreencanvas@2019.7.3':
     resolution: {integrity: sha512-ieXiYmgSRXUDeOntE1InxjWyvEelZGP63M+cGuquuRLuIKKT1osnkXjxev9B7d1nXSug5vpunx+gNlbVxMlC9A==}
 
@@ -3393,6 +3405,10 @@ packages:
   copy-anything@4.1.5:
     resolution: {integrity: sha512-vePst2VLTSqPglW7Q98VwFpGiGpOHTyXIo81MO5VyLecA5zMbZw/P/V1vmwD1jksa2iJpn/YkDrJ3XhTfzUyhQ==}
     engines: {node: '>=18'}
+
+  cors@2.8.6:
+    resolution: {integrity: sha512-tJtZBBHA6vjIAaF6EnIaq6laBBP9aq/Y3ouVJjEfoHbRBcHBAHYcMh/w8LDrk2PvIMMq8gmopa5D4V8RmbrxGw==}
+    engines: {node: '>= 0.10'}
 
   cross-env@7.0.3:
     resolution: {integrity: sha512-+/HKd6EgcQCJGh2PSjZuUitQBQynKor4wrFbRg4DtAgS1aWO+gU52xpH7M9ScGgXSYmAVS9bIJ8EzuaGw0oNAw==}
@@ -4903,6 +4919,11 @@ packages:
       sass:
         optional: true
 
+  nextjs-cors@2.2.1:
+    resolution: {integrity: sha512-qTyKgwyefP9Ua25qnEG6C3PK1k1/TMQmHlSrIRKZWZawaaNM+Mna4+rspc5LUHr5MkvzVNKFKwV69mQPMim1ow==}
+    peerDependencies:
+      next: '>=8.1.1-canary.54'
+
   node-addon-api@5.1.0:
     resolution: {integrity: sha512-eh0GgfEkpnoWDq+VY8OyvYhFEzBk6jIYbRKdIlyTiAXIVJ8PyBaKb0rp7oDtoddbdoHWhq8wwr+XZ81F1rpNdA==}
 
@@ -4941,9 +4962,9 @@ packages:
   node-releases@2.0.19:
     resolution: {integrity: sha512-xxOWJsBKtzAq7DY0J+DTzuz58K8e7sJbdgwkbMWQe8UYB6ekmsQ45q0M/tJDsGaZmbC+l7n57UV8Hl5tHxO9uw==}
 
-  nodemailer@7.0.7:
-    resolution: {integrity: sha512-jGOaRznodf62TVzdyhKt/f1Q/c3kYynk8629sgJHpRzGZj01ezbgMMWJSAjHADcwTKxco3B68/R+KHJY2T5BaA==}
-    engines: {node: '>=6.0.0'}
+  nodemailer@10.1.0:
+    resolution: {integrity: sha512-fXW8AulB25aOTuwfRYV6lqHyfz2VM4rr4SGXH03mE7x5znEUpzL5mu6anARUpZN7744Ziwkmr4AxSLPJsBQspg==}
+    engines: {node: '>=20.0.0'}
 
   normalize-path@3.0.0:
     resolution: {integrity: sha512-6eZs5Ls3WtCisHWp9S2GUy8dqkpGi4BVSz3GaqiE6ezub0512ESztXUwUB6C6IKbQkY2Pnb/mD4WYojCRwcwLA==}
@@ -6176,6 +6197,10 @@ packages:
         optional: true
       vite:
         optional: true
+
+  vary@1.1.2:
+    resolution: {integrity: sha512-BNGbWLfd0eUPabhkXUVm0j8uuvREyTh5ovRa/dyow/BqAbZJyC+5fU+IzQOzmAKzYqYRAISoRhdQr3eIZ/PXqg==}
+    engines: {node: '>= 0.8'}
 
   vaul@1.1.2:
     resolution: {integrity: sha512-ZFkClGpWyI2WUQjdLJ/BaGuV6AVQiJ3uELGk3OYtP+B6yCO7Cmn9vPFXVJkRaGkOJu3m8bQMgtyzNHixULceQA==}
@@ -9142,6 +9167,10 @@ snapshots:
     dependencies:
       undici-types: 8.9.0
 
+  '@types/nodemailer@8.0.2':
+    dependencies:
+      '@types/node': 26.6.5
+
   '@types/offscreencanvas@2019.7.3': {}
 
   '@types/pg@8.23.1':
@@ -10174,6 +10203,11 @@ snapshots:
       cookie: 0.4.2
 
   copy-anything@4.1.5: {}
+
+  cors@2.8.6:
+    dependencies:
+      object-assign: 4.1.1
+      vary: 1.1.2
 
   cross-env@7.0.3:
     dependencies:
@@ -11973,7 +12007,7 @@ snapshots:
     transitivePeerDependencies:
       - encoding
 
-  next-auth@4.24.15(next@16.4.0(@babel/core@7.29.7)(@opentelemetry/api@1.9.0)(@types/node@26.6.5)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(sass@1.83.4))(nodemailer@7.0.7)(react-dom@19.3.0(react@19.3.0))(react@19.3.0):
+  next-auth@4.24.15(next@16.4.0(@babel/core@7.29.7)(@opentelemetry/api@1.9.0)(@types/node@26.6.5)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(sass@1.83.4))(nodemailer@10.1.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0):
     dependencies:
       '@babel/runtime': 7.26.7
       '@panva/hkdf': 1.2.1
@@ -11988,7 +12022,7 @@ snapshots:
       react-dom: 19.3.0(react@19.3.0)
       uuid: 11.1.1
     optionalDependencies:
-      nodemailer: 7.0.7
+      nodemailer: 10.1.0
 
   next-themes@0.4.6(react-dom@19.3.0(react@19.3.0))(react@19.3.0):
     dependencies:
@@ -12022,6 +12056,11 @@ snapshots:
       - '@types/node'
       - babel-plugin-macros
 
+  nextjs-cors@2.2.1(next@16.4.0(@babel/core@7.29.7)(@opentelemetry/api@1.9.0)(@types/node@26.6.5)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(sass@1.83.4)):
+    dependencies:
+      cors: 2.8.6
+      next: 16.4.0(@babel/core@7.29.7)(@opentelemetry/api@1.9.0)(@types/node@26.6.5)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(sass@1.83.4)
+
   node-addon-api@5.1.0: {}
 
   node-addon-api@7.1.1:
@@ -12047,8 +12086,7 @@ snapshots:
 
   node-releases@2.0.19: {}
 
-  nodemailer@7.0.7:
-    optional: true
+  nodemailer@10.1.0: {}
 
   normalize-path@3.0.0: {}
 
@@ -13257,6 +13295,8 @@ snapshots:
       '@babel/types': 7.29.8
       react: 19.3.0
       vite: 5.4.14(@types/node@26.6.5)(lightningcss@1.32.0)(sass@1.83.4)
+
+  vary@1.1.2: {}
 
   vaul@1.1.2(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0):
     dependencies:
