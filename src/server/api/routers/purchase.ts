@@ -1,10 +1,17 @@
+import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
+import { isCustodial } from "~/lib/custodial";
 import { BUY_METHODS, MAX_PER_PURCHASE } from "~/lib/stellar/quote";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { purchaseWithCard, resumeCardPurchase } from "~/server/stellar/card";
 import { preparePurchase, quotePurchase } from "~/server/stellar/purchase";
 import { signerFor } from "~/server/stellar/session-signer";
+
+/** Card payments are for custodial (email/social) accounts, where the platform signs the delivery. */
+function requireCardAllowed(walletType: Parameters<typeof isCustodial>[0]) {
+  if (!isCustodial(walletType)) throw new TRPCError({ code: "FORBIDDEN", message: "Card payment is only available for email and social accounts." });
+}
 
 /**
  * Buying an item: quote (will it work, what it costs) → prepare (a transaction
@@ -16,7 +23,10 @@ const quantity = z.number().int().min(1).max(MAX_PER_PURCHASE).default(1);
 export const purchaseRouter = createTRPCRouter({
   quote: protectedProcedure
     .input(z.object({ listingId: z.number().int(), method: z.enum(BUY_METHODS), quantity }))
-    .query(({ ctx, input }) => quotePurchase(ctx, ctx.session.user.id, input.listingId, input.method, input.quantity)),
+    .query(({ ctx, input }) => {
+      if (input.method === "CARD") requireCardAllowed(ctx.session.user.walletType);
+      return quotePurchase(ctx, ctx.session.user.id, input.listingId, input.method, input.quantity);
+    }),
 
   prepare: protectedProcedure
     .input(z.object({ listingId: z.number().int(), method: z.enum(["PLATFORM_ASSET", "XLM"]), quantity }))
@@ -26,7 +36,10 @@ export const purchaseRouter = createTRPCRouter({
 
   payByCard: protectedProcedure
     .input(z.object({ listingId: z.number().int(), sourceId: z.string().min(1), verificationToken: z.string().optional(), quantity }))
-    .mutation(({ ctx, input }) => purchaseWithCard(ctx, { buyerId: ctx.session.user.id, signer: signerFor(ctx.session), ...input })),
+    .mutation(({ ctx, input }) => {
+      requireCardAllowed(ctx.session.user.walletType);
+      return purchaseWithCard(ctx, { buyerId: ctx.session.user.id, signer: signerFor(ctx.session), ...input });
+    }),
 
   resumeCard: protectedProcedure
     .input(z.object({ txId: z.string() }))
