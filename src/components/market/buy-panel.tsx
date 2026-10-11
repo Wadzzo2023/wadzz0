@@ -11,9 +11,10 @@ import { Button } from "~/components/shadcn/ui/button";
 import { useRequireAuth } from "~/hooks/use-require-auth";
 import { useSignAndConfirm } from "~/hooks/use-sign-and-confirm";
 import { PLATFORM_ASSET } from "~/lib/stellar/constant";
-import { formatAmount } from "~/lib/stellar/quote";
+import { MAX_PER_PURCHASE, formatAmount } from "~/lib/stellar/quote";
 import { cn } from "~/lib/utils";
 import { Avatar } from "~/ui/person";
+import { QuantityStepper } from "~/ui/quantity-stepper";
 import { Skeleton } from "~/ui/skeleton";
 import { StatusPill } from "~/ui/status-pill";
 import { api, type RouterOutputs } from "~/utils/api";
@@ -80,7 +81,13 @@ function ListingOption({ l, item, active, onSelect }: { l: Listing; item: Item; 
 function Checkout({ item, listing }: { item: Item; listing: Listing }) {
   const { signedIn, requireAuth, openSignIn } = useRequireAuth();
   const [method, setMethod] = useState<PayMethod>("PLATFORM_ASSET");
-  const quote = api.purchase.quote.useQuery({ listingId: listing.id, method }, { enabled: signedIn, refetchOnWindowFocus: true, staleTime: 20_000 });
+  const [quantity, setQuantity] = useState(1);
+  // Keep showing the last quote while a new quantity/method is priced.
+  const quote = api.purchase.quote.useQuery(
+    { listingId: listing.id, method, quantity },
+    { enabled: signedIn, refetchOnWindowFocus: true, staleTime: 20_000, placeholderData: (prev) => prev },
+  );
+  const maxQty = Math.max(1, Math.min(MAX_PER_PURCHASE, quote.data?.copiesLeft ?? MAX_PER_PURCHASE));
   const prepare = api.purchase.prepare.useMutation();
   const payByCard = api.purchase.payByCard.useMutation();
   const follow = api.creator.follow.useMutation();
@@ -97,14 +104,14 @@ function Checkout({ item, listing }: { item: Item; listing: Listing }) {
   };
 
   const buy = requireAuth(async () => {
-    const res = await prepare.mutateAsync({ listingId: listing.id, method: method === "XLM" ? "XLM" : "PLATFORM_ASSET" }).catch(() => null);
+    const res = await prepare.mutateAsync({ listingId: listing.id, method: method === "XLM" ? "XLM" : "PLATFORM_ASSET", quantity }).catch(() => null);
     if (!res) return;
-    if (!res.ok) return void utils.purchase.quote.setData({ listingId: listing.id, method }, res.quote);
+    if (!res.ok) return void utils.purchase.quote.setData({ listingId: listing.id, method, quantity }, res.quote);
     await finish(await sign.run({ txId: res.txId, xdr: res.xdr }));
   });
 
   const payCard = async (t: { sourceId: string; verificationToken?: string }) => {
-    const res = await payByCard.mutateAsync({ listingId: listing.id, ...t }).catch(() => null);
+    const res = await payByCard.mutateAsync({ listingId: listing.id, quantity, ...t }).catch(() => null);
     if (!res) return;
     if (res.status === "sign") await finish(await sign.run({ txId: res.txId, xdr: res.xdr }));
     else await finish(true);
@@ -121,8 +128,8 @@ function Checkout({ item, listing }: { item: Item; listing: Listing }) {
     return (
       <div className="space-y-3 rounded-xl border border-primary/40 bg-primary/5 p-5 text-center">
         <CheckCircle2 className="mx-auto size-8 text-primary" />
-        <p className="font-hud text-lg font-bold">It&apos;s yours!</p>
-        <p className="text-sm text-muted-foreground">The item is in your wallet. Its full content is unlocked above.</p>
+        <p className="font-hud text-lg font-bold">{quantity > 1 ? `${quantity} copies are yours!` : "It's yours!"}</p>
+        <p className="text-sm text-muted-foreground">They&apos;re in your wallet, and the full content is unlocked.</p>
         <div className="flex justify-center gap-2">
           <Button asChild variant="outline">
             <Link href="/collection">
@@ -149,12 +156,15 @@ function Checkout({ item, listing }: { item: Item; listing: Listing }) {
           <p className="font-hud text-3xl font-bold tabular-nums">{formatAmount(listing.price, PLATFORM_ASSET.code)}</p>
           <p className="text-sm text-muted-foreground">≈ {formatAmount(listing.priceUSD, "USD")}</p>
         </div>
-        {q && (
-          <StatusPill tone={q.source === "mint" ? "info" : "neutral"} icon={q.source === "mint" ? Sparkles : undefined}>
-            {q.source === "mint" ? "Minted for you" : "In stock"}
-            {q.copiesLeft != null && ` · ${q.copiesLeft} left`}
-          </StatusPill>
-        )}
+        {q &&
+          (q.copiesLeft === 0 ? (
+            <StatusPill tone="danger">Sold out</StatusPill>
+          ) : (
+            <StatusPill tone={q.source === "stock" ? "neutral" : "info"} icon={q.source === "stock" ? undefined : Sparkles}>
+              {q.source === "stock" ? "In stock" : "Minted for you"}
+              {q.copiesLeft != null && ` · ${q.copiesLeft} left`}
+            </StatusPill>
+          ))}
       </div>
 
       {!signedIn ? (
@@ -163,6 +173,13 @@ function Checkout({ item, listing }: { item: Item; listing: Listing }) {
         </Button>
       ) : (
         <>
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <p className="label-caps">Quantity</p>
+              <p className="text-xs text-muted-foreground">{!q ? "Checking availability…" : q.copiesLeft != null ? `${q.copiesLeft} available` : "Unlimited"}</p>
+            </div>
+            <QuantityStepper value={quantity} onChange={setQuantity} max={maxQty} disabled={busy} />
+          </div>
           <MethodPicker value={method} onChange={setMethod} methods={["PLATFORM_ASSET", "XLM", "CARD"]} />
           {quote.isLoading || !q ? (
             <div className="space-y-2">
@@ -182,7 +199,13 @@ function Checkout({ item, listing }: { item: Item; listing: Listing }) {
                 q.ok && <CardForm usd={q.total} disabled={busy} onToken={(t) => void payCard(t)} />
               ) : (
                 <Button size="lg" className="w-full" disabled={!q.ok || busy} onClick={buy}>
-                  {sign.step === "signing" ? "Confirm in your wallet…" : sign.step === "confirming" ? "Confirming on Stellar…" : prepare.isPending ? "Preparing…" : `Buy for ${formatAmount(q.total, q.currency)}`}
+                  {sign.step === "signing"
+                    ? "Confirm in your wallet…"
+                    : sign.step === "confirming"
+                      ? "Confirming on Stellar…"
+                      : prepare.isPending
+                        ? "Preparing…"
+                        : `Buy ${quantity > 1 ? `${quantity} ` : ""}for ${formatAmount(q.total, q.currency)}`}
                 </Button>
               )}
               {item.privacy !== "PUBLIC" && !isResale && (

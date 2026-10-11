@@ -35,16 +35,23 @@ async function deliver(ctx: Ctx, prepared: { txId: string; xdr: string; buyerMus
  */
 export async function purchaseWithCard(
   ctx: Ctx,
-  { buyerId, listingId, sourceId, verificationToken, signer }: { buyerId: string; listingId: number; sourceId: string; verificationToken?: string; signer: Signer },
+  {
+    buyerId,
+    listingId,
+    sourceId,
+    verificationToken,
+    signer,
+    quantity = 1,
+  }: { buyerId: string; listingId: number; sourceId: string; verificationToken?: string; signer: Signer; quantity?: number },
 ): Promise<CardResult> {
-  const quote = await quotePurchase(ctx, buyerId, listingId, "CARD");
+  const quote = await quotePurchase(ctx, buyerId, listingId, "CARD", quantity);
   if (!quote.ok) throw new TRPCError({ code: "PRECONDITION_FAILED", message: quote.problems[0]?.message ?? "Can't buy this item" });
 
-  const paymentId = await chargeCard({ sourceId, verificationToken, usd: quote.total, note: `Wadzzo item (listing ${listingId})` });
+  const paymentId = await chargeCard({ sourceId, verificationToken, usd: quote.total, note: `Wadzzo item ×${quantity} (listing ${listingId})` });
 
   let prepared;
   try {
-    prepared = await preparePurchase(ctx, { buyerId, listingId, method: "CARD", signer, paymentRef: paymentId });
+    prepared = await preparePurchase(ctx, { buyerId, listingId, method: "CARD", signer, paymentRef: paymentId, quantity });
   } catch (e) {
     await refundCard(paymentId, quote.total, "Item could not be reserved").catch(() => undefined);
     throw e;
@@ -63,7 +70,7 @@ export async function resumeCardPurchase(ctx: Ctx, { txId, buyerId, signer }: { 
     throw new TRPCError({ code: "NOT_FOUND" });
   }
   if (row.status === "SUCCESS") return { status: "delivered", txId } as CardResult;
-  const prepared = await preparePurchase(ctx, { buyerId, listingId: row.marketAssetId, method: "CARD", signer, reuseTxId: txId });
+  const prepared = await preparePurchase(ctx, { buyerId, listingId: row.marketAssetId, method: "CARD", signer, reuseTxId: txId, quantity: row.quantity });
   if (!prepared.ok) {
     throw new TRPCError({ code: "CONFLICT", message: `${prepared.quote.problems[0]?.message ?? "Item unavailable"} Contact support for a refund (payment ${row.paymentRef}).` });
   }

@@ -39,16 +39,21 @@ export type Problem = {
   action?: "recharge" | "follow" | "join_tier";
 };
 
+/** Most copies one purchase can include. */
+export const MAX_PER_PURCHASE = 50;
+
 export type Quote = {
   method: BuyMethod;
+  /** copies being bought */
+  quantity: number;
   /** currency of `total` */
   currency: string;
   lines: CostLine[];
   total: number;
   /** the buyer's balance in `currency` (null for card) */
   balance: number | null;
-  /** where the copy comes from: existing stock, or minted for this buyer */
-  source: "stock" | "mint";
+  /** where the copies come from: existing stock, minted for this buyer, or both */
+  source: "stock" | "mint" | "mixed";
   /** copies still obtainable (null = unlimited) */
   copiesLeft: number | null;
   needsTrustline: boolean;

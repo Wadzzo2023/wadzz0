@@ -76,51 +76,66 @@ export default async function ItemPage({ params }: PageProps<"/item/[id]">) {
         <span className="text-foreground">{item.name}</span>
       </nav>
 
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,560px)_minmax(0,1fr)] lg:gap-10">
-        <div className="space-y-6">
-          <ItemMedia assetId={item.id} name={item.name} thumbnail={item.thumbnail} mediaType={item.mediaType} />
-          <section className="space-y-2 lg:hidden">
+      <div className="grid gap-6 lg:grid-cols-2 lg:gap-10">
+        {/* Left: the media stays in view while the details scroll. */}
+        <div className="lg:sticky lg:top-24 lg:self-start">
+          <ItemMedia assetId={item.id} name={item.name} thumbnail={item.thumbnail} mediaType={item.mediaType} className="mx-auto w-full max-w-[min(100%,calc(100dvh-12rem))]" />
+        </div>
+
+        {/* Right: everything about the item. */}
+        <div className="min-w-0 space-y-6">
+          <header className="space-y-2">
             <ItemHeading item={item} metaLabel={meta.label} />
-          </section>
+          </header>
+
+          <div className="rounded-2xl border bg-card p-4 shadow-sm sm:p-5">
+            <BuyPanel item={item} />
+            <p className="mt-4 border-t pt-3 text-center text-xs text-muted-foreground">Prices in {PLATFORM_ASSET.code}. Every cost is shown before you sign.</p>
+          </div>
+
           {item.description && (
             <section className="space-y-2">
               <h2 className="font-hud text-lg font-bold">About this item</h2>
               <p className="whitespace-pre-line text-sm leading-relaxed text-muted-foreground">{item.description}</p>
             </section>
           )}
+
           <section className="space-y-2">
             <h2 className="font-hud text-lg font-bold">Details</h2>
-            <dl className="grid grid-cols-2 gap-px overflow-hidden rounded-xl border bg-border text-sm sm:grid-cols-4">
+            <dl className="grid grid-cols-2 gap-px overflow-hidden rounded-xl border bg-border text-sm">
               {[
                 ["Type", meta.label],
                 ["Supply", item.limit == null ? "Unlimited" : item.limit.toLocaleString()],
                 ["Minted", item.mintedCount.toLocaleString()],
                 ["Creator royalty", `${item.royaltyPercent}%`],
+                ["Token", item.code],
               ].map(([k, v]) => (
                 <div key={k} className="bg-card p-3">
                   <dt className="label-caps">{k}</dt>
-                  <dd className="mt-1 font-medium">{v}</dd>
+                  <dd className="mt-1 truncate font-medium">{v}</dd>
                 </div>
               ))}
             </dl>
             <a href={expert} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground">
-              {item.code} on Stellar <ExternalLink className="size-3" />
+              View {item.code} on Stellar <ExternalLink className="size-3" />
             </a>
           </section>
+
+          {item.creator && (
+            <section className="space-y-2">
+              <h2 className="font-hud text-lg font-bold">Creator</h2>
+              <Link href={creatorHref(item.creator)} className="flex items-center gap-3 rounded-xl border bg-card p-3 transition-colors hover:border-line-bright">
+                <Avatar src={item.creator.profileUrl} name={item.creator.name} className="size-11" />
+                <span className="min-w-0">
+                  <span className="block truncate font-semibold">{item.creator.name}</span>
+                  {item.creator.bio && <span className="line-clamp-2 text-sm text-muted-foreground">{item.creator.bio}</span>}
+                </span>
+              </Link>
+            </section>
+          )}
+
           <ItemActivity assetId={item.id} />
         </div>
-
-        <aside className="space-y-5 lg:sticky lg:top-6 lg:self-start">
-          <div className="hidden space-y-2 lg:block">
-            <ItemHeading item={item} metaLabel={meta.label} />
-          </div>
-          <div className="rounded-2xl border bg-card p-4 sm:p-5">
-            <BuyPanel item={item} />
-          </div>
-          <p className="text-center text-xs text-muted-foreground">
-            Prices in {PLATFORM_ASSET.code}. Every cost is shown before you sign.
-          </p>
-        </aside>
       </div>
     </PageBody>
   );

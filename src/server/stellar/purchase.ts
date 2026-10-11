@@ -77,7 +77,7 @@ async function pendingFor(db: Db, assetId: number, listingId: number) {
 }
 
 /**
- * Where the next copy comes from and how many are left: stock in the seller's
+ * Where copies come from and how many are left: stock in the seller's
  * storage first; for the creator's own listing, then minting on demand up to
  * the asset's limit (only while someone can sign for the issuer).
  */
@@ -96,13 +96,7 @@ async function availability(ctx: Ctx, l: Listing) {
     }
   }
   const total = stock + mintable;
-  return {
-    source: (stock > 0 ? "stock" : "mint") as "stock" | "mint",
-    copiesLeft: total === Infinity ? null : total,
-    available: total > 0,
-    issuer,
-    storageSecretNeeded: stock > 0,
-  };
+  return { stock, mintable, copiesLeft: total === Infinity ? null : total, available: total > 0, issuer };
 }
 
 /* ──────────────────────────────── access ──────────────────────────────── */
@@ -141,13 +135,15 @@ type Plan = {
   /** who pays the network fee and provides the sequence number */
   feeSource: "buyer" | "mother";
   avail: Awaited<ReturnType<typeof availability>>;
+  /** how many copies come from stock and how many are minted */
+  split: { fromStock: number; toMint: number };
   /** amounts in the currency each operation moves */
   pay: { seller: number; royalty: number; platform: number; currencyAsset: Asset };
 };
 
 /** Operations in the transaction, for the network-fee estimate. */
-function opCount(method: BuyMethod, needsTrust: boolean, royalty: boolean, sellerIsMother: boolean) {
-  let n = 1; // delivery
+function opCount(method: BuyMethod, needsTrust: boolean, royalty: boolean, sellerIsMother: boolean, deliveries: number) {
+  let n = deliveries; // from stock and/or minted
   if (needsTrust) n += method === "XLM" ? 1 : 2; // (XLM top-up) + changeTrust
   if (method !== "CARD") n += 1; // fee bundle to the platform
   if (!sellerIsMother) n += 1; // seller payout
@@ -155,7 +151,7 @@ function opCount(method: BuyMethod, needsTrust: boolean, royalty: boolean, selle
   return n;
 }
 
-async function plan(ctx: Ctx, buyerId: string, listingId: number, method: BuyMethod): Promise<Plan> {
+async function plan(ctx: Ctx, buyerId: string, listingId: number, method: BuyMethod, quantity = 1): Promise<Plan> {
   const l = await loadListing(ctx, listingId);
   const [buyer, avail] = await Promise.all([StellarAccount.load(buyerId), availability(ctx, l)]);
   const problems: Problem[] = [];
@@ -165,6 +161,12 @@ async function plan(ctx: Ctx, buyerId: string, listingId: number, method: BuyMet
   const access = accessProblem(l, buyer);
   if (access) problems.push(access);
   if (!avail.available) problems.push({ code: "SOLD_OUT", message: "Sold out — no copies left." });
+  else if (avail.copiesLeft != null && quantity > avail.copiesLeft) {
+    problems.push({ code: "SOLD_OUT", message: `Only ${avail.copiesLeft} ${avail.copiesLeft === 1 ? "copy is" : "copies are"} left.` });
+  }
+  // Stock first, the rest minted for this buyer.
+  const fromStock = Math.min(avail.stock, quantity);
+  const toMint = quantity - fromStock;
   if (!buyer) problems.push({ code: "ACCOUNT_INACTIVE", message: "Your wallet isn't active on Stellar yet. Add some XLM to activate it." });
 
   const needsTrust = !buyer?.hasTrustline(l.asset.code, l.asset.issuer);
@@ -174,7 +176,7 @@ async function plan(ctx: Ctx, buyerId: string, listingId: number, method: BuyMet
 
   const sellerIsMother = l.sellerId === motherKeypair().publicKey();
   const hasRoyalty = l.royaltyPercent > 0;
-  const ops = opCount(method, needsTrust, hasRoyalty, sellerIsMother);
+  const ops = opCount(method, needsTrust, hasRoyalty, sellerIsMother, (fromStock > 0 ? 1 : 0) + (toMint > 0 ? 1 : 0));
   const networkFeeXlm = (ops * Number(TrxBaseFee)) / 1e7;
   // XLM buyers pay the network fee themselves. Token buyers do too when they hold
   // a little XLM; otherwise the platform fronts it (charged in tokens below).
@@ -186,7 +188,8 @@ async function plan(ctx: Ctx, buyerId: string, listingId: number, method: BuyMet
   let currency = code;
   let balance: number | null = null;
   let pay: Plan["pay"];
-  const price = l.listing.price;
+  const price = round(l.listing.price * quantity, 7);
+  const priceLabel = quantity > 1 ? `Price (${quantity} × ${l.listing.price})` : "Price";
   const royaltyOf = (p: number, dp: number) => round((p * l.royaltyPercent) / 100, dp);
 
   try {
@@ -194,7 +197,7 @@ async function plan(ctx: Ctx, buyerId: string, listingId: number, method: BuyMet
       const royalty = royaltyOf(price, 7);
       const reserve = needsTrust ? await xlmToPlatform(BASE_RESERVE_XLM) : 0;
       const platformFee = Number(PLATFORM_FEE);
-      lines.push({ key: "price", label: "Price", amount: price, currency, inTotal: true });
+      lines.push({ key: "price", label: priceLabel, amount: price, currency, inTotal: true });
       if (royalty) lines.push({ key: "royalty", label: `Creator royalty (${l.royaltyPercent}%, included)`, amount: royalty, currency, inTotal: false });
       lines.push({ key: "platformFee", label: "Platform fee", amount: platformFee, currency, inTotal: true });
       if (feeSource === "mother") {
@@ -214,7 +217,7 @@ async function plan(ctx: Ctx, buyerId: string, listingId: number, method: BuyMet
       currency = "XLM";
       const priceXlm = await platformToXlm(price);
       const royalty = royaltyOf(priceXlm, 7);
-      lines.push({ key: "price", label: "Price", amount: priceXlm, currency, inTotal: true });
+      lines.push({ key: "price", label: quantity > 1 ? `Price (${quantity} copies)` : "Price", amount: priceXlm, currency, inTotal: true });
       if (royalty) lines.push({ key: "royalty", label: `Creator royalty (${l.royaltyPercent}%, included)`, amount: royalty, currency, inTotal: false });
       lines.push({ key: "platformFee", label: "Platform fee", amount: PLATFORM_FEE_XLM, currency, inTotal: true });
       lines.push({ key: "networkFee", label: "Network fee", amount: networkFeeXlm, currency, inTotal: true });
@@ -225,11 +228,11 @@ async function plan(ctx: Ctx, buyerId: string, listingId: number, method: BuyMet
       pay = { seller: round(priceXlm - royalty, 7), royalty, platform: PLATFORM_FEE_XLM, currencyAsset: Asset.native() };
     } else {
       currency = "USD";
-      const priceUsd = l.listing.priceUSD;
+      const priceUsd = round(l.listing.priceUSD * quantity, 2);
       const royaltyPlatform = royaltyOf(price, 7);
       const platformFee = await platformToUsd(Number(PLATFORM_FEE) + Number(TrxBaseFeeInPlatformAsset));
       const reserve = needsTrust ? await platformToUsd(await xlmToPlatform(BASE_RESERVE_XLM)) : 0;
-      lines.push({ key: "price", label: "Price", amount: priceUsd, currency, inTotal: true });
+      lines.push({ key: "price", label: quantity > 1 ? `Price (${quantity} × $${l.listing.priceUSD})` : "Price", amount: priceUsd, currency, inTotal: true });
       if (royaltyPlatform) lines.push({ key: "royalty", label: `Creator royalty (${l.royaltyPercent}%, included)`, amount: round((priceUsd * l.royaltyPercent) / 100, 2), currency, inTotal: false });
       lines.push({ key: "platformFee", label: "Platform & network fee", amount: platformFee, currency, inTotal: true });
       if (reserve) lines.push({ key: "reserve", label: "Wallet reserve for this item", amount: reserve, currency, hint: "Stellar locks 0.5 XLM per new item", inTotal: true });
@@ -262,13 +265,15 @@ async function plan(ctx: Ctx, buyerId: string, listingId: number, method: BuyMet
     feeSource,
     avail,
     pay,
+    split: { fromStock, toMint },
     quote: {
       method,
+      quantity,
       currency,
       lines,
       total,
       balance,
-      source: avail.source,
+      source: toMint === 0 ? "stock" : fromStock === 0 ? "mint" : "mixed",
       copiesLeft: avail.copiesLeft,
       needsTrustline: needsTrust,
       payout: { seller: pay.seller, royalty: pay.royalty, currency: method === "XLM" ? "XLM" : code },
@@ -309,8 +314,8 @@ async function checkPlatform(method: BuyMethod, needsTrust: boolean, feeSource: 
 }
 
 /** Preflight only: will a purchase go through, and exactly what will it cost. */
-export async function quotePurchase(ctx: Ctx, buyerId: string, listingId: number, method: BuyMethod) {
-  return (await plan(ctx, buyerId, listingId, method)).quote;
+export async function quotePurchase(ctx: Ctx, buyerId: string, listingId: number, method: BuyMethod, quantity = 1) {
+  return (await plan(ctx, buyerId, listingId, method, quantity)).quote;
 }
 
 /* ──────────────────────────────── build ──────────────────────────────── */
@@ -346,19 +351,20 @@ async function buildTransaction(ctx: Ctx, p: Plan, buyerId: string, signer: Sign
     tx.addOperation(Operation.changeTrust({ source: buyerId, asset }));
   }
 
-  // 3. Delivery: from stock, or minted by the issuer straight to the buyer.
+  // 3. Delivery: copies from stock, the rest minted by the issuer straight to the buyer.
   const signers: Keypair[] = [];
-  let minted = 0;
-  if (quote.source === "stock") {
+  const { fromStock, toMint } = p.split;
+  if (fromStock > 0) {
     const storage = await stockKeypair(ctx, l);
-    tx.addOperation(Operation.payment({ source: storage.publicKey(), destination: buyerId, asset, amount: amt(1) }));
+    tx.addOperation(Operation.payment({ source: storage.publicKey(), destination: buyerId, asset, amount: amt(fromStock) }));
     signers.push(storage);
-  } else {
-    if (!p.avail.issuer) throw new TRPCError({ code: "PRECONDITION_FAILED", message: "This item can't be minted right now." });
-    tx.addOperation(Operation.payment({ source: p.avail.issuer.publicKey(), destination: buyerId, asset, amount: amt(1) }));
-    signers.push(p.avail.issuer);
-    minted = 1;
   }
+  if (toMint > 0) {
+    if (!p.avail.issuer) throw new TRPCError({ code: "PRECONDITION_FAILED", message: "This item can't be minted right now." });
+    tx.addOperation(Operation.payment({ source: p.avail.issuer.publicKey(), destination: buyerId, asset, amount: amt(toMint) }));
+    signers.push(p.avail.issuer);
+  }
+  const minted = toMint;
 
   const built = tx.build();
   const needsMother = built.operations.some((op) => op.source === motherPub) || p.feeSource === "mother";
@@ -397,13 +403,14 @@ export async function preparePurchase(
     signer,
     paymentRef,
     reuseTxId,
-  }: { buyerId: string; listingId: number; method: BuyMethod; signer: Signer; paymentRef?: string; reuseTxId?: string },
+    quantity = 1,
+  }: { buyerId: string; listingId: number; method: BuyMethod; signer: Signer; paymentRef?: string; reuseTxId?: string; quantity?: number },
 ) {
   return ctx.db.$transaction(
     async (tx) => {
       await tx.$queryRaw`SELECT id FROM "Asset" WHERE id = (SELECT "assetId" FROM "MarketAsset" WHERE id = ${listingId}) FOR UPDATE`;
       const inner = { ...ctx, db: tx as unknown as Db };
-      const p = await plan(inner, buyerId, listingId, method);
+      const p = await plan(inner, buyerId, listingId, method, quantity);
       if (!p.quote.ok) return { ok: false as const, quote: p.quote };
 
       const built = await buildTransaction(inner, p, buyerId, signer);
@@ -420,7 +427,7 @@ export async function preparePurchase(
           type: p.l.isOriginal ? "PURCHASE" : "RESALE_PURCHASE",
           assetId: p.l.asset.id,
           marketAssetId: listingId,
-          quantity: 1,
+          quantity,
           minted: built.minted,
           buyerId,
           sellerId: p.l.listing.placerId,
