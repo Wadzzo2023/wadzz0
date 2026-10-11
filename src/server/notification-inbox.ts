@@ -65,7 +65,9 @@ export async function listInbox(
   for (const n of page) {
     const { entityType: type, entityId, meta, actor } = n.notificationObject;
     const who: InboxActor = { id: actor.id, name: actor.creator?.name ?? actor.name, image: actor.creator?.profileUrl ?? actor.image };
-    const key = GROUPABLE.has(type) ? `${type}:${type === "FOLLOW" ? "*" : entityId}:${day(n.createdAt)}` : null;
+    // what the repeats are repeats *of*: a follow has no "thing"; a pin collect is per pin (its id is text, so it rides in meta)
+    const thing = type === "FOLLOW" ? "*" : ((meta as { groupId?: string } | null)?.groupId ?? entityId);
+    const key = GROUPABLE.has(type) ? `${type}:${thing}:${day(n.createdAt)}` : null;
     const existing = key ? byKey.get(key) : undefined;
     if (existing) {
       existing.ids.push(n.id);
