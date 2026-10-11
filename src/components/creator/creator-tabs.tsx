@@ -1,6 +1,6 @@
 "use client";
 
-import { Coins, Copy, Crown, Images, Newspaper, Target } from "lucide-react";
+import { Check, Coins, Copy, Crown, Images, Newspaper, Target } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import toast from "react-hot-toast";
 
@@ -17,6 +17,7 @@ import { Skeleton } from "~/ui/skeleton";
 import { api, type RouterOutputs } from "~/utils/api";
 
 import { MembershipSection } from "./creator-actions";
+import { tierColor } from "./tier-card";
 
 type Profile = RouterOutputs["creator"]["profile"];
 type Offer = RouterOutputs["market"]["pageTokenSales"][number];
@@ -87,7 +88,7 @@ export function CreatorTabs({ profile, listings, nextCursor, offers }: { profile
               {nextCursor && <LoadMoreListings input={{ kind: "all", creatorId: profile.id, limit: 24 }} cursor={nextCursor} />}
             </div>
           ))}
-        {tab === "posts" && <CreatorPosts creatorId={profile.id} name={profile.name} />}
+        {tab === "posts" && <CreatorPosts profile={profile} onMembership={() => setTab("membership")} />}
         {tab === "bounties" && <CreatorBounties creatorId={profile.id} name={profile.name} />}
         {tab === "membership" && <MembershipSection profile={profile} offers={offers} />}
       </div>
@@ -161,31 +162,75 @@ function PageLinkCard({ profile }: { profile: Profile }) {
   );
 }
 
-function CreatorPosts({ creatorId, name }: { creatorId: string; name: string }) {
-  const q = api.post.feed.useInfiniteQuery({ creatorId, limit: 10 }, { getNextPageParam: (p) => p.nextCursor });
+/** The brand's posts, laid out like the Feed: posts on the left, About and membership tiers in a sticky sidebar. */
+function CreatorPosts({ profile, onMembership }: { profile: Profile; onMembership: () => void }) {
+  const q = api.post.feed.useInfiniteQuery({ creatorId: profile.id, limit: 10 }, { getNextPageParam: (p) => p.nextCursor });
   const posts = q.data?.pages.flatMap((p) => p.items) ?? [];
-  if (q.isLoading) {
-    return (
-      <div className="mx-auto max-w-2xl space-y-3">
-        {[0, 1].map((i) => (
-          <Skeleton key={i} className="h-56 rounded-2xl" />
-        ))}
-      </div>
-    );
-  }
-  if (!posts.length) return <EmptyState icon={Newspaper} title="No posts yet" description={`${name} hasn't posted yet.`} />;
+
   return (
-    <div className="mx-auto max-w-2xl space-y-4">
-      {posts.map((p) => (
-        <PostCard key={p.id} post={p} />
-      ))}
-      {q.hasNextPage && (
-        <div className="flex justify-center">
-          <Button variant="outline" className="rounded-xl" disabled={q.isFetchingNextPage} onClick={() => void q.fetchNextPage()}>
-            {q.isFetchingNextPage ? "Loading…" : "Load more"}
-          </Button>
-        </div>
-      )}
+    <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_22rem]">
+      <div className="min-w-0 space-y-4">
+        {q.isLoading ? (
+          [0, 1].map((i) => <Skeleton key={i} className="h-64 rounded-2xl" />)
+        ) : !posts.length ? (
+          <EmptyState icon={Newspaper} title="No posts yet" description={`${profile.name} hasn't posted yet.`} />
+        ) : (
+          <>
+            {posts.map((p) => (
+              <PostCard key={p.id} post={p} />
+            ))}
+            {q.hasNextPage && (
+              <div className="flex justify-center">
+                <Button variant="outline" className="rounded-xl" disabled={q.isFetchingNextPage} onClick={() => void q.fetchNextPage()}>
+                  {q.isFetchingNextPage ? "Loading…" : "Load more"}
+                </Button>
+              </div>
+            )}
+          </>
+        )}
+      </div>
+
+      <aside className="space-y-4 lg:sticky lg:top-24 lg:self-start">
+        <section className="glass space-y-2 rounded-2xl p-4">
+          <h2 className="font-hud font-bold">About</h2>
+          <p className="whitespace-pre-line break-words text-sm leading-relaxed text-muted-foreground">{profile.bio?.trim() ? profile.bio : "No bio yet."}</p>
+          <p className="text-xs text-muted-foreground">
+            {profile.counts.followers.toLocaleString("en-US")} follower{profile.counts.followers === 1 ? "" : "s"} · {profile.counts.posts.toLocaleString("en-US")} post
+            {profile.counts.posts === 1 ? "" : "s"}
+          </p>
+        </section>
+
+        {profile.subscriptions.length > 0 && (
+          <section className="glass space-y-3 rounded-2xl p-4">
+            <div className="flex items-center justify-between">
+              <h2 className="font-hud font-bold">Membership</h2>
+              {profile.pageAsset && <span className="text-xs font-semibold text-primary">{profile.pageAsset.code}</span>}
+            </div>
+            <ul className="space-y-1.5">
+              {profile.subscriptions.map((t) => {
+                const current = profile.viewer.tierId === t.id;
+                return (
+                  <li key={t.id} className={cn("flex items-center gap-3 rounded-xl p-2.5 ring-1 ring-foreground/[0.06]", current ? "bg-primary/10 ring-primary/30" : "bg-foreground/[0.03]")}>
+                    <span className={cn("h-8 w-1 shrink-0 rounded-full", tierColor(t.color).bar)} />
+                    <span className="min-w-0 flex-1">
+                      <span className="flex items-center gap-1.5 text-sm font-semibold">
+                        <span className="truncate">{t.name}</span>
+                        {current && <Check className="size-3.5 shrink-0 text-primary" />}
+                      </span>
+                      <span className="block text-xs text-muted-foreground">
+                        Hold {t.price.toLocaleString("en-US")} {profile.pageAsset?.code ?? "tokens"}
+                      </span>
+                    </span>
+                  </li>
+                );
+              })}
+            </ul>
+            <Button className="w-full rounded-xl" onClick={onMembership}>
+              <Crown className="size-4" /> {profile.viewer.tierId ? "View membership" : "Join membership"}
+            </Button>
+          </section>
+        )}
+      </aside>
     </div>
   );
 }
