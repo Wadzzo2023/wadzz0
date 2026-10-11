@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
 
-import { BountyList } from "~/components/bounty/bounty-list";
-import { serverApi } from "~/server/api/server";
-import { PageBody, PageHeader } from "~/ui/page-header";
+import BountyIndexScreen from "~/components/bounty/pages/bounty-index";
 
 export const metadata: Metadata = {
   title: "Bounties",
@@ -10,12 +8,7 @@ export const metadata: Metadata = {
   alternates: { canonical: "/bounties" },
 };
 
-export default async function BountiesPage() {
-  const first = await (await serverApi()).bounty.list({ filter: "open", limit: 20 });
-  return (
-    <PageBody wide className="space-y-6">
-      <PageHeader eyebrow="Bounties" title={<span>Complete tasks, <span className="text-gradient">win rewards</span></span>} description="Brands post challenges — join, submit your entry, and get paid if you win." />
-      <BountyList initial={first.items} />
-    </PageBody>
-  );
+/** Same bounty screens as the wadzzoAR app. */
+export default function BountiesPage() {
+  return <BountyIndexScreen />;
 }

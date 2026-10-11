@@ -2,6 +2,7 @@ import { Prisma } from "@prisma/client";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
+import { StellarAccount } from "~/lib/stellar/account";
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "~/server/api/trpc";
 import { isOwnS3Url, signImageUpload } from "~/server/s3";
 
@@ -41,6 +42,9 @@ export const userRouter = createTRPCRouter({
         throw e;
       }
     }),
+
+  /** My platform-token balance (0 when my wallet isn't active or doesn't hold it). */
+  platformBalance: protectedProcedure.query(async ({ ctx }) => ({ balance: (await StellarAccount.load(ctx.session.user.id))?.platformBalance() ?? 0 })),
 
   /** A presigned upload for a profile picture or cover. */
   imageUploadUrl: protectedProcedure
