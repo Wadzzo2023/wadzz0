@@ -15,8 +15,12 @@ frontend:
         - pnpm run build
         # Build cache isn't needed at runtime (it did not change the measured output size).
         - rm -rf .next/cache
-        # Alpine (musl) sharp binaries (~19MB) are never used on Amplify's glibc runtime.
-        - rm -rf .next/standalone/node_modules/.pnpm/@img+sharp*linuxmusl*
+        # Amplify builds its server bundle (compute/node_modules) from node_modules, and rejects
+        # output over 220MB. These build-only / wrong-OS binaries aren't needed at runtime:
+        # the Next.js SWC compiler (~195MB, only used by `next build`) and Alpine (musl) sharp (~19MB).
+        # See https://docs.aws.amazon.com/amplify/latest/userguide/troubleshooting-SSR.html
+        - rm -rf node_modules/.pnpm/@next+swc-*
+        - rm -rf node_modules/.pnpm/@img+sharp*linuxmusl*
         # TEMP diagnostics: Amplify rejects output over 220MB (was 409MB); find out what is big.
         - 'echo "=== SIZE: .next total ==="; du -sh .next || true'
         - 'echo "=== SIZE: .next/* ==="; du -sk .next/* | sort -rn | head -15 || true'
