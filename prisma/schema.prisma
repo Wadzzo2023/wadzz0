@@ -500,6 +500,9 @@ enum AssetTxType {
     GIFT // creator sends a copy to a fan
     LIST // seller moves copies into storage to sell
     UNLIST // seller takes copies back from storage
+    TOKEN_PURCHASE // fan buys platform tokens by card
+    TOKEN_SWAP // fan swaps platform tokens for XLM
+    GIFT_CLAIM // fan accepts a pending (claimable) gift
 }
 
 enum AssetTxStatus {

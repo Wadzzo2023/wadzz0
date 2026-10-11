@@ -23,7 +23,6 @@ const assetCardSelect = {
   issuer: true,
   thumbnail: true,
   mediaType: true,
-  mediaUrl: true,
   royaltyPercent: true,
   creator: { select: { id: true, name: true, profileUrl: true } },
 } as const;

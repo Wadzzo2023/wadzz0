@@ -101,7 +101,7 @@ export const marketRouter = createTRPCRouter({
         code: true,
         issuer: true,
         mediaType: true,
-        mediaUrl: true,
+        // mediaUrl is owner-only: see content.unlock
         thumbnail: true,
         privacy: true,
         limit: true,

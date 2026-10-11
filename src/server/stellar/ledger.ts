@@ -12,7 +12,7 @@ import { platformToUsd } from "./prices";
 const delay = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 /** Types that hand a copy to `buyerId` and so create an ownership record. */
-const DELIVERS = new Set<AssetTransaction["type"]>(["PURCHASE", "RESALE_PURCHASE", "CLAIM", "GIFT"]);
+const DELIVERS = new Set<AssetTransaction["type"]>(["PURCHASE", "RESALE_PURCHASE", "CLAIM", "GIFT", "GIFT_CLAIM"]);
 
 /**
  * Settles a PENDING transaction from what Horizon says about its hash:
