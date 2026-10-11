@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, Coins, Copy, Crown, Images, Newspaper, Target } from "lucide-react";
+import { Check, Coins, Copy, Crown, Pencil, Images, Newspaper, Target } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import toast from "react-hot-toast";
 
@@ -10,6 +10,7 @@ import { LoadMoreListings } from "~/components/market/load-more";
 import { PostCard } from "~/components/post/post-card";
 import { Button } from "~/components/shadcn/ui/button";
 import { env } from "~/env";
+import { useRequireAuth } from "~/hooks/use-require-auth";
 import { cn } from "~/lib/utils";
 import type { ListingCard as ListingCardData } from "~/server/api/routers/market";
 import { EmptyState } from "~/ui/empty-state";
@@ -22,14 +23,16 @@ import { tierColor } from "./tier-card";
 type Profile = RouterOutputs["creator"]["profile"];
 type Offer = RouterOutputs["market"]["pageTokenSales"][number];
 
+const portal = env.NEXT_PUBLIC_BRAND_PORTAL_URL.replace(/\/$/, "");
+
 const TABS = ["items", "posts", "bounties", "membership"] as const;
 type Tab = (typeof TABS)[number];
 const isTab = (v: string | null | undefined): v is Tab => TABS.includes(v as Tab);
 
 /**
- * A creator's page body, after brand-wadzzo's profile layout: the page
- * token and page link, then tabs (with counts) for items, posts, bounties
- * and membership. The open tab lives in ?tab= so it
+ * A creator's page body: tabs (with counts) for items, posts, bounties and
+ * membership; the Posts tab carries the About / membership / page token /
+ * page link sidebar. The open tab lives in ?tab= so it
  * can be shared.
  */
 export function CreatorTabs({ profile, listings, nextCursor, offers }: { profile: Profile; listings: ListingCardData[]; nextCursor: number | null; offers: Offer[] }) {
@@ -50,11 +53,6 @@ export function CreatorTabs({ profile, listings, nextCursor, offers }: { profile
 
   return (
     <div className="space-y-6">
-      <div className="grid gap-2 md:grid-cols-2">
-        <PageTokenCard profile={profile} onMembership={() => setTab("membership")} />
-        <PageLinkCard profile={profile} />
-      </div>
-
       <div className="glass flex w-fit max-w-full gap-1 overflow-x-auto rounded-xl p-1" role="tablist">
         {tabs.map((t) => (
           <button
@@ -96,42 +94,55 @@ export function CreatorTabs({ profile, listings, nextCursor, offers }: { profile
   );
 }
 
+/** The brand's page token as a poster: its image fills the card and the details sit on top. */
 function PageTokenCard({ profile, onMembership }: { profile: Profile; onMembership: () => void }) {
   const page = profile.pageAsset;
-  const tier = profile.subscriptions.find((t) => t.id === profile.viewer.tierId);
+  if (!page) return null;
+  const v = profile.viewer;
+  const tier = profile.subscriptions.find((t) => t.id === v.tierId);
+  const action = "inline-flex h-8 items-center rounded-lg bg-white/15 px-3 text-xs font-semibold ring-1 ring-white/20 backdrop-blur-md transition-colors hover:bg-white/25";
+
   return (
-    <div className="glass flex items-center gap-3 rounded-2xl p-3">
-      {page?.thumbnail ? (
+    <section className="relative isolate flex min-h-44 flex-col justify-between overflow-hidden rounded-2xl bg-black p-4 text-white ring-1 ring-foreground/10">
+      {page.thumbnail ? (
         // eslint-disable-next-line @next/next/no-img-element
-        <img src={page.thumbnail} alt="" className="size-11 rounded-xl object-cover" />
+        <img src={page.thumbnail} alt="" className="absolute inset-0 -z-10 size-full object-cover" />
       ) : (
-        <span className="flex size-11 items-center justify-center rounded-xl bg-primary/15 text-primary">
-          <Coins className="size-5" />
-        </span>
+        <div className="absolute inset-0 -z-10 flex items-center justify-center bg-[radial-gradient(circle_at_25%_20%,hsl(var(--primary)/0.55),transparent_60%),radial-gradient(circle_at_80%_75%,hsl(190_90%_45%/0.45),transparent_60%)]">
+          <Coins className="size-16 text-white/20" />
+        </div>
       )}
-      <div className="min-w-0 flex-1">
-        <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Page token</p>
-        {page ? (
-          <p className="truncate text-sm">
-            <b className="font-hud text-primary">{page.code}</b>
-            {profile.viewer.signedIn && (
-              <span className="text-muted-foreground">
-                {" "}
-                · you hold {profile.viewer.pageTokens.toLocaleString("en-US")}
-                {tier && ` · ${tier.name} member`}
-              </span>
+      <div className="absolute inset-0 -z-10 bg-gradient-to-b from-black/40 via-black/30 to-black/85" />
+
+      <p className="w-fit rounded-full bg-black/45 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider ring-1 ring-white/15 backdrop-blur-md">Page token</p>
+
+      <div className="space-y-2">
+        <p className="font-hud text-2xl font-bold leading-tight text-[hsl(112_85%_62%)] drop-shadow-[0_0_12px_hsl(112_85%_55%/0.5)]">{page.code}</p>
+        <div className="flex items-end justify-between gap-3">
+          <p className="min-w-0 text-xs text-white/75">
+            {v.isSelf ? (
+              "Fans hold this to unlock your tiers."
+            ) : v.signedIn ? (
+              <>
+                You hold <b className="tabular-nums text-white">{v.pageTokens.toLocaleString("en-US")}</b>
+                {tier && <> · {tier.name} member</>}
+              </>
+            ) : (
+              `Hold ${page.code} to unlock members-only posts and items.`
             )}
           </p>
-        ) : (
-          <p className="text-sm text-muted-foreground">Not set up yet</p>
-        )}
+          {v.isSelf ? (
+            <a href={`${portal}/settings?tab=page-asset`} target="_blank" rel="noreferrer" className={action}>
+              Manage
+            </a>
+          ) : (
+            <button type="button" onClick={onMembership} className={action}>
+              Get {page.code}
+            </button>
+          )}
+        </div>
       </div>
-      {page && (
-        <Button variant="ghost" size="sm" className="rounded-lg" onClick={onMembership}>
-          Membership
-        </Button>
-      )}
-    </div>
+    </section>
   );
 }
 
@@ -225,13 +236,54 @@ function CreatorPosts({ profile, onMembership }: { profile: Profile; onMembershi
                 );
               })}
             </ul>
-            <Button className="w-full rounded-xl" onClick={onMembership}>
-              <Crown className="size-4" /> {profile.viewer.tierId ? "View membership" : "Join membership"}
-            </Button>
+            <MembershipAction profile={profile} onMembership={onMembership} />
           </section>
         )}
+
+        <PageTokenCard profile={profile} onMembership={onMembership} />
+        <PageLinkCard profile={profile} />
       </aside>
     </div>
+  );
+}
+
+/**
+ * The membership call to action, by who's looking: the brand edits its tiers
+ * in the portal, a member sees their tier, a fan joins, and a signed-out
+ * visitor signs in first.
+ */
+function MembershipAction({ profile, onMembership }: { profile: Profile; onMembership: () => void }) {
+  const { openSignIn } = useRequireAuth();
+  const v = profile.viewer;
+  const tier = profile.subscriptions.find((t) => t.id === v.tierId);
+
+  if (v.isSelf) {
+    return (
+      <Button asChild variant="outline" className="w-full rounded-xl">
+        <a href={`${portal}/membership`} target="_blank" rel="noreferrer">
+          <Pencil className="size-4" /> Edit tiers
+        </a>
+      </Button>
+    );
+  }
+  if (!v.signedIn) {
+    return (
+      <Button className="w-full rounded-xl" onClick={openSignIn}>
+        <Crown className="size-4" /> Sign in to join
+      </Button>
+    );
+  }
+  if (tier) {
+    return (
+      <Button variant="outline" className="w-full rounded-xl" onClick={onMembership}>
+        <Check className="size-4 text-primary" /> {tier.name} member · View
+      </Button>
+    );
+  }
+  return (
+    <Button className="w-full rounded-xl" onClick={onMembership}>
+      <Crown className="size-4" /> Join membership
+    </Button>
   );
 }
 
