@@ -1,4 +1,4 @@
-import { WalletType } from "package/connect_wallet";
+import { WalletType } from "package/connect_wallet/src/lib/enums";
 import { z } from "zod";
 
 export const albedoSchema = z.object({

@@ -12,7 +12,7 @@ import {
   sendEmailVerification,
   signInWithEmailAndPassword,
 } from "firebase/auth";
-import { WalletType } from "package/connect_wallet";
+import { WalletType } from "package/connect_wallet/src/lib/enums";
 import {
   appleTokenToUser,
   verifyIdToken,

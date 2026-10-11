@@ -2,17 +2,13 @@
 @import "tw-animate-css";
 
 @plugin "@tailwindcss/typography";
-@plugin "tailwind-scrollbar" {
-  nocompatible: true;
-}
-@plugin "tailwind-scrollbar-hide";
 
 /* Class-based dark mode (next-themes puts `.dark` on <html>). */
 @custom-variant dark (&:is(.dark *));
 
 /* ═══════════════════════════════════════════════════════════════════════════
    Wadzzo tokens — the same palette as the fan apps (wadzzoAR `arcade.css`),
-   so the portal and the apps read as one product. `:root` is light, `.dark`
+   so the fan app, the brand portal and the AR apps read as one product. `:root` is light, `.dark`
    overrides. Components never use these directly: they're mapped onto the
    shadcn variables below, which every primitive already reads.
 
@@ -286,51 +282,6 @@
   }
 }
 
-@layer utilities {
-  .quill-editor-wrapper {
-    height: 100%;
-  }
-  .quill-editor {
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-  }
-  .quill-editor .ql-container {
-    flex: 1;
-    overflow: auto;
-  }
-  .quill-editor .ql-editor {
-    min-height: 100px;
-    caret-color: currentColor;
-  }
-  .quill-editor .ql-editor:focus {
-    outline: none !important;
-    box-shadow: none !important;
-  }
-}
-
-/* Quill's toolbar/editor on the portal's surfaces, both themes. */
-.ql-toolbar.ql-snow,
-.ql-container.ql-snow {
-  border-color: hsl(var(--border)) !important;
-}
-.ql-toolbar.ql-snow {
-  border-top-left-radius: var(--radius);
-  border-top-right-radius: var(--radius);
-  background: hsl(var(--ar-surface-2));
-}
-.ql-container.ql-snow {
-  border-bottom-left-radius: var(--radius);
-  border-bottom-right-radius: var(--radius);
-}
-.dark .ql-snow .ql-stroke {
-  stroke: hsl(var(--ar-text-dim));
-}
-.dark .ql-snow .ql-fill,
-.dark .ql-snow .ql-picker {
-  fill: hsl(var(--ar-text-dim));
-  color: hsl(var(--ar-text-dim));
-}
 
 @media (prefers-reduced-motion: reduce) {
   .skeleton::after {
@@ -338,7 +289,7 @@
   }
 }
 
-/* Compat for DaisyUI's spinner markup still used by pages not yet rebuilt. */
+/* Small inline spinner (e.g. inside a badge). */
 @utility loading-spinner {
   display: inline-block;
   width: 1.25rem;
