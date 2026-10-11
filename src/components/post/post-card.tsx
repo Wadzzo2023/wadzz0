@@ -46,7 +46,7 @@ export function PostCard({ post, full = false }: { post: PostData; full?: boolea
   };
 
   return (
-    <article className="space-y-3 rounded-xl border bg-card p-4">
+    <article className="glass space-y-3 rounded-2xl p-4 sm:p-5">
       <header className="flex items-center gap-3">
         <Link href={creatorHref(post.creator)} className="flex min-w-0 flex-1 items-center gap-3">
           <Avatar src={post.creator.profileUrl} name={post.creator.name} />
@@ -71,7 +71,7 @@ export function PostCard({ post, full = false }: { post: PostData; full?: boolea
       )}
 
       {post.locked ? (
-        <div className="flex flex-col items-center gap-2 rounded-xl border border-dashed bg-surface-2/60 px-4 py-8 text-center">
+        <div className="relative flex flex-col items-center gap-2 overflow-hidden rounded-xl border border-dashed border-primary/30 bg-[radial-gradient(circle_at_50%_0%,hsl(var(--primary)/0.15),transparent_70%)] px-4 py-10 text-center">
           <span className="flex size-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
             <Lock className="size-5" />
           </span>
@@ -104,7 +104,7 @@ export function PostCard({ post, full = false }: { post: PostData; full?: boolea
         </>
       )}
 
-      <footer className="flex items-center gap-1 border-t pt-2 text-sm text-muted-foreground">
+      <footer className="flex items-center gap-1 border-t border-foreground/[0.06] pt-2 text-sm text-muted-foreground">
         <Button variant="ghost" size="sm" onClick={toggleLike} aria-pressed={liked} className={cn(liked && "text-destructive")}>
           <Heart className={cn("size-4", liked && "fill-current")} /> {likes}
         </Button>

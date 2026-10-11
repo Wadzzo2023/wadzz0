@@ -21,7 +21,7 @@ export type Tier = { id: number; name: string; description: string; features: st
 export function TierCard({ tier, code, current, reached, action }: { tier: Tier; code: string; current: boolean; reached: boolean; action?: ReactNode }) {
   const c = tierColor(tier.color);
   return (
-    <div className={cn("relative flex flex-col rounded-2xl border bg-card p-5", (current || tier.popular) && c.ring, current && "ring-2 ring-offset-2 ring-offset-background ring-primary/40")}>
+    <div className={cn("glass relative flex flex-col overflow-hidden rounded-2xl p-5", (current || tier.popular) && c.ring, current && "glow")}>
       <div className={cn("absolute inset-x-0 top-0 h-1 rounded-t-2xl", c.bar)} />
       <div className="flex items-start justify-between gap-2">
         <h3 className="font-hud text-lg font-bold">{tier.name}</h3>

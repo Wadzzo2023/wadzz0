@@ -136,9 +136,9 @@ export const marketRouter = createTRPCRouter({
   ),
 
   /** Creators selling their page tokens. */
-  pageTokenSales: publicProcedure.input(z.object({ limit: z.number().int().max(24).default(12) }).optional()).query(({ ctx, input }) =>
+  pageTokenSales: publicProcedure.input(z.object({ creatorId: z.string().optional(), limit: z.number().int().max(24).default(12) }).optional()).query(({ ctx, input }) =>
     ctx.db.sellPageAsset.findMany({
-      where: { isSold: false, placer: { approved: true, ...platformScope(ctx) } },
+      where: { isSold: false, ...(input?.creatorId && { placerId: input.creatorId }), placer: { approved: true, ...platformScope(ctx) } },
       select: {
         id: true,
         title: true,

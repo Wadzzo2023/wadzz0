@@ -17,7 +17,7 @@ const KINDS = [
 /** Filters are the URL, so every filtered view can be shared and indexed. */
 export function MarketFilters({ current }: { current: ListingsInput }) {
   const router = useRouter();
-  const pathname = usePathname();
+  const pathname = usePathname() ?? "/marketplace";
   const set = (patch: Record<string, string | undefined>) => {
     const next = { kind: current.kind, type: current.mediaType, sort: current.sort, q: current.search, ...patch };
     const sp = new URLSearchParams();
