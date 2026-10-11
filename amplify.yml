@@ -15,6 +15,8 @@ frontend:
         - pnpm run build
         # Build cache isn't needed at runtime (it did not change the measured output size).
         - rm -rf .next/cache
+        # Alpine (musl) sharp binaries (~19MB) are never used on Amplify's glibc runtime.
+        - rm -rf .next/standalone/node_modules/.pnpm/@img+sharp*linuxmusl*
         # TEMP diagnostics: Amplify rejects output over 220MB (was 409MB); find out what is big.
         - 'echo "=== SIZE: .next total ==="; du -sh .next || true'
         - 'echo "=== SIZE: .next/* ==="; du -sk .next/* | sort -rn | head -15 || true'
