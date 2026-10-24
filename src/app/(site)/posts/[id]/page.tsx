@@ -56,7 +56,7 @@ export default async function PostPage({ params }: PageProps<"/posts/[id]">) {
       <Link href="/feed" className="glass inline-flex h-9 items-center gap-1.5 rounded-full px-3.5 text-sm font-semibold text-muted-foreground transition-colors hover:text-foreground">
         <ArrowLeft className="size-4" /> Feed
       </Link>
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_22rem]">
+      <div className="grid grid-cols-[minmax(0,1fr)] gap-6 lg:grid-cols-[minmax(0,1fr)_22rem]">
         <div className="min-w-0 space-y-5">
           <PostCard post={post} full />
           <Comments postId={post.id} />

@@ -35,7 +35,7 @@ export function QuantityStepper({
         value={value}
         disabled={disabled}
         onChange={(e) => onChange(clamp(Number(e.target.value)))}
-        className="w-12 bg-transparent text-center font-hud text-lg font-bold tabular-nums outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+        className="display w-12 bg-transparent text-center text-3xl tabular-nums outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
         aria-label="Quantity"
       />
       <button type="button" className={btn} onClick={() => onChange(clamp(value + 1))} disabled={disabled || value >= max} aria-label="Increase quantity">

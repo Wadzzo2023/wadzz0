@@ -29,7 +29,7 @@ export function LoadMoreCreators({ search, cursor }: { search?: string; cursor: 
   return (
     <div className="space-y-4">
       {items.length > 0 && (
-        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
           {items.map((c) => (
             <CreatorCard key={c.id} creator={c} />
           ))}
@@ -37,7 +37,7 @@ export function LoadMoreCreators({ search, cursor }: { search?: string; cursor: 
       )}
       {hasMore && (
         <div className="flex justify-center">
-          <Button variant="outline" className="rounded-xl" disabled={q.isFetching} onClick={() => void (q.data ? q.fetchNextPage() : q.refetch())}>
+          <Button variant="outline" disabled={q.isFetching} onClick={() => void (q.data ? q.fetchNextPage() : q.refetch())}>
             {q.isFetching ? "Loading…" : "Load more"}
           </Button>
         </div>

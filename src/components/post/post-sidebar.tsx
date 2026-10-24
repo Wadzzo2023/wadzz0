@@ -24,24 +24,24 @@ export function PostSidebar({ post, profile, more }: { post: PostData; profile: 
   const tier = post.subscription ? profile.subscriptions.find((t) => t.id === post.subscription?.id) : null;
 
   return (
-    <aside className="space-y-4 lg:sticky lg:top-24 lg:self-start">
+    <aside className="space-y-4 lg:sticky lg:top-8 lg:self-start">
       {/* brand */}
-      <section className="glass overflow-hidden rounded-2xl">
-        <div className="h-20 bg-black">
+      <section className="glass overflow-hidden rounded-[1.6rem]">
+        <div className="h-20 bg-primary/25">
           {profile.coverUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={profile.coverUrl} alt="" className="size-full object-cover opacity-90" />
           ) : (
-            <div className="size-full bg-[radial-gradient(circle_at_20%_30%,hsl(var(--primary)/0.5),transparent_60%),radial-gradient(circle_at_80%_70%,hsl(190_90%_50%/0.35),transparent_60%)]" />
+            <div className="size-full bg-primary/20" />
           )}
         </div>
         <div className="space-y-3 p-4 pt-0">
           <Link href={href} className="-mt-7 flex items-start gap-3">
-            <span className="shrink-0 rounded-full bg-gradient-to-tr from-primary via-green-hot to-cyan-400 p-[2px]">
+            <span className="shrink-0 rounded-full bg-primary p-[2px]">
               <Avatar src={profile.profileUrl} name={profile.name} className="size-14 border-2 border-background text-lg" />
             </span>
             <span className="min-w-0 pt-8">
-              <span className="flex items-center gap-1 font-hud font-bold">
+              <span className="display flex items-center gap-1 text-2xl">
                 <span className="truncate">{profile.name}</span>
                 <BadgeCheck className="size-4 shrink-0 text-primary" />
               </span>
@@ -53,7 +53,7 @@ export function PostSidebar({ post, profile, more }: { post: PostData; profile: 
           </Link>
           {profile.bio?.trim() && <p className="line-clamp-3 break-words text-sm text-muted-foreground">{profile.bio}</p>}
           {profile.viewer.isSelf ? (
-            <Button asChild variant="outline" className="w-full rounded-xl">
+            <Button asChild variant="outline" className="w-full">
               <a href={`${portal}/posts/${post.id}`} target="_blank" rel="noreferrer">
                 <ExternalLink className="size-4" /> Edit in brand portal
               </a>
@@ -71,12 +71,12 @@ export function PostSidebar({ post, profile, more }: { post: PostData; profile: 
 
       {/* what unlocks a gated post */}
       {post.subscription && (
-        <section className="glass space-y-3 rounded-2xl p-4">
+        <section className="glass space-y-3 rounded-[1.6rem] p-4">
           <div className="flex items-center gap-2">
             <span className={cn("h-8 w-1 rounded-full", tierColor(post.subscription.color).bar)} />
             <div className="min-w-0">
               <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Members-only</p>
-              <p className="truncate font-hud font-bold">{post.subscription.name}</p>
+              <p className="display truncate text-2xl">{post.subscription.name}</p>
             </div>
             {post.locked ? <Lock className="ml-auto size-4 text-muted-foreground" /> : <Crown className="ml-auto size-4 text-primary" />}
           </div>
@@ -88,7 +88,7 @@ export function PostSidebar({ post, profile, more }: { post: PostData; profile: 
                 : `You're in — your ${profile.pageAsset?.code ?? "page token"} balance unlocks this tier.`}
           </p>
           {post.locked && (
-            <Button asChild className="w-full rounded-xl">
+            <Button asChild className="w-full">
               <Link href={`${href}?tab=membership`}>
                 <Crown className="size-4" /> Join membership
               </Link>
@@ -99,9 +99,9 @@ export function PostSidebar({ post, profile, more }: { post: PostData; profile: 
 
       {/* more from this brand */}
       {more.length > 0 && (
-        <section className="glass space-y-2 rounded-2xl p-4">
+        <section className="glass space-y-2 rounded-[1.6rem] p-4">
           <div className="flex items-center justify-between">
-            <h2 className="font-hud font-bold">More from {profile.name}</h2>
+            <h2 className="display text-2xl">More from {profile.name}</h2>
             <Link href={`${href}?tab=posts`} className="text-xs font-medium text-primary hover:underline">
               See all
             </Link>
@@ -116,7 +116,7 @@ export function PostSidebar({ post, profile, more }: { post: PostData; profile: 
                       // eslint-disable-next-line @next/next/no-img-element
                       <img src={thumb} alt="" className="size-11 shrink-0 rounded-lg object-cover" />
                     ) : (
-                      <span className="flex size-11 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                      <span className="flex size-11 shrink-0 items-center justify-center blob bg-primary text-primary-foreground">
                         {p.locked ? <Lock className="size-4" /> : <Newspaper className="size-4" />}
                       </span>
                     )}

@@ -51,12 +51,12 @@ export function Carousel({
     <section className={cn("space-y-3", className)} aria-label={title}>
       <div className="flex items-end justify-between gap-3">
         <div className="min-w-0">
-          <h2 className="font-hud text-lg font-bold tracking-tight sm:text-xl">{title}</h2>
+          <h2 className="display text-3xl sm:text-4xl">{title}</h2>
           {description && <p className="text-sm text-muted-foreground">{description}</p>}
         </div>
         <div className="flex shrink-0 items-center gap-1.5">
           {href && (
-            <Link href={href} className="mr-1 inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline">
+            <Link href={href} className="mr-1 marker inline-flex items-center gap-1 text-sm text-primary hover:underline">
               See all <ArrowRight className="size-3.5" />
             </Link>
           )}

@@ -47,18 +47,18 @@ export function SendDialog({ assets, initial, onClose }: { assets: SendableAsset
     <Dialog open onOpenChange={(o) => !o && onClose()}>
       <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="font-hud">Send</DialogTitle>
+          <DialogTitle className="display text-2xl">Send</DialogTitle>
           <DialogDescription>Send XLM or any token in your wallet to a Stellar address.</DialogDescription>
         </DialogHeader>
 
         {sign.step === "done" ? (
           <div className="space-y-3 py-4 text-center">
             <CheckCircle2 className="mx-auto size-10 text-primary" />
-            <p className="font-hud font-semibold">
+            <p className="display text-2xl">
               {prepare.data?.mode === "gift" ? "Gift sent" : "Sent"} {formatAmount(amount, asset.code)}
             </p>
             {prepare.data?.mode === "gift" && <p className="text-sm text-muted-foreground">It waits in their Pending gifts until they accept it.</p>}
-            <Button variant="outline" className="rounded-xl" onClick={onClose}>
+            <Button variant="outline" onClick={onClose}>
               Done
             </Button>
           </div>
@@ -100,8 +100,8 @@ export function SendDialog({ assets, initial, onClose }: { assets: SendableAsset
             <div className="space-y-1.5">
               <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Amount</span>
               <div className="flex items-center gap-2">
-                <Input inputMode="decimal" value={amountText} onChange={(e) => setAmountText(e.target.value.replace(/[^\d.]/g, ""))} placeholder="0" aria-label={`Amount of ${asset.code}`} className="h-11 rounded-xl font-hud text-lg" />
-                <Button type="button" variant="outline" className="h-11 rounded-xl" onClick={() => setAmountText(String(asset.balance))}>
+                <Input inputMode="decimal" value={amountText} onChange={(e) => setAmountText(e.target.value.replace(/[^\d.]/g, ""))} placeholder="0" aria-label={`Amount of ${asset.code}`} className="display h-11 rounded-xl text-3xl" />
+                <Button type="button" variant="outline" className="h-11" onClick={() => setAmountText(String(asset.balance))}>
                   Max
                 </Button>
               </div>
@@ -138,7 +138,7 @@ export function SendDialog({ assets, initial, onClose }: { assets: SendableAsset
             )}
 
             {(prepare.error ?? sign.error) && <p className="rounded-lg tone-danger px-3 py-2 text-sm">{prepare.error?.message ?? sign.error}</p>}
-            <Button className="h-11 w-full rounded-xl font-bold" disabled={!q?.ok || quote.isFetching || prepare.isPending || sign.busy} onClick={() => void go()}>
+            <Button className="h-11 w-full font-bold" disabled={!q?.ok || quote.isFetching || prepare.isPending || sign.busy} onClick={() => void go()}>
               {sign.step === "signing" ? "Confirm in your wallet…" : sign.step === "confirming" ? "Confirming on Stellar…" : q?.mode === "gift" ? `Send ${asset.code} as a gift` : `Send ${asset.code}`}
             </Button>
           </div>

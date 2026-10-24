@@ -15,6 +15,7 @@ import { cn } from "~/lib/utils";
 import type { ListingCard as ListingCardData } from "~/server/api/routers/market";
 import { EmptyState } from "~/ui/empty-state";
 import { Skeleton } from "~/ui/skeleton";
+import { wordTab, wordTabList, wordTabOff, wordTabOn } from "~/ui/styles";
 import { api, type RouterOutputs } from "~/utils/api";
 
 import { MembershipSection } from "./creator-actions";
@@ -53,7 +54,7 @@ export function CreatorTabs({ profile, listings, nextCursor, offers }: { profile
 
   return (
     <div className="space-y-6">
-      <div className="glass flex w-fit max-w-full gap-1 overflow-x-auto rounded-xl p-1" role="tablist">
+      <div className={wordTabList} role="tablist">
         {tabs.map((t) => (
           <button
             key={t.id}
@@ -61,13 +62,10 @@ export function CreatorTabs({ profile, listings, nextCursor, offers }: { profile
             role="tab"
             aria-selected={tab === t.id}
             onClick={() => setTab(t.id)}
-            className={cn(
-              "flex h-9 shrink-0 items-center gap-1.5 rounded-lg px-4 text-sm font-semibold transition-colors",
-              tab === t.id ? "bg-primary text-primary-foreground shadow-[0_0_20px_-6px_hsl(var(--primary)/0.8)]" : "text-muted-foreground hover:text-foreground",
-            )}
+            className={cn(wordTab, tab === t.id ? wordTabOn : wordTabOff)}
           >
-            <t.icon className="size-4" /> {t.label}
-            {t.count != null && <span className={cn("rounded-full px-1.5 text-[11px] tabular-nums", tab === t.id ? "bg-black/15" : "bg-foreground/10")}>{t.count}</span>}
+            {t.label}
+            {t.count != null && <span className={cn("rounded-full px-2 font-sans text-xs font-bold tabular-nums", tab === t.id ? "bg-primary text-primary-foreground" : "bg-foreground/10")}>{t.count}</span>}
           </button>
         ))}
       </div>
@@ -94,37 +92,33 @@ export function CreatorTabs({ profile, listings, nextCursor, offers }: { profile
   );
 }
 
-/** The brand's page token as a poster: its image fills the card and the details sit on top. */
+/** The brand's page token as a green block (like the wallet balance), its image as a tilted sticker. */
 function PageTokenCard({ profile, onMembership }: { profile: Profile; onMembership: () => void }) {
   const page = profile.pageAsset;
   if (!page) return null;
   const v = profile.viewer;
   const tier = profile.subscriptions.find((t) => t.id === v.tierId);
-  const action = "inline-flex h-8 items-center rounded-lg bg-white/15 px-3 text-xs font-semibold ring-1 ring-white/20 backdrop-blur-md transition-colors hover:bg-white/25";
+  const action = "blob inline-flex h-10 items-center bg-side-ink px-4 text-side-mint transition-transform hover:-translate-y-0.5";
 
   return (
-    <section className="relative isolate flex min-h-44 flex-col justify-between overflow-hidden rounded-2xl bg-black p-4 text-white ring-1 ring-foreground/10">
+    <section className="blob relative flex min-h-44 flex-col justify-between gap-3 overflow-hidden bg-side p-4 text-side-ink">
       {page.thumbnail ? (
         // eslint-disable-next-line @next/next/no-img-element
-        <img src={page.thumbnail} alt="" className="absolute inset-0 -z-10 size-full object-cover" />
+        <img src={page.thumbnail} alt="" className="absolute -right-3 -top-3 size-24 rotate-12 rounded-2xl border-[3px] border-side-ink object-cover" />
       ) : (
-        <div className="absolute inset-0 -z-10 flex items-center justify-center bg-[radial-gradient(circle_at_25%_20%,hsl(var(--primary)/0.55),transparent_60%),radial-gradient(circle_at_80%_75%,hsl(190_90%_45%/0.45),transparent_60%)]">
-          <Coins className="size-16 text-white/20" />
-        </div>
+        <Coins className="absolute -right-2 -top-2 size-24 rotate-12 text-side-ink/15" />
       )}
-      <div className="absolute inset-0 -z-10 bg-gradient-to-b from-black/40 via-black/30 to-black/85" />
-
-      <p className="w-fit rounded-full bg-black/45 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider ring-1 ring-white/15 backdrop-blur-md">Page token</p>
+      <p className="marker -rotate-2 text-sm">*page token*</p>
 
       <div className="space-y-2">
-        <p className="font-hud text-2xl font-bold leading-tight text-[hsl(112_85%_62%)] drop-shadow-[0_0_12px_hsl(112_85%_55%/0.5)]">{page.code}</p>
+        <p className="display text-5xl">{page.code}</p>
         <div className="flex items-end justify-between gap-3">
-          <p className="min-w-0 text-xs text-white/75">
+          <p className="min-w-0 text-xs font-semibold text-side-ink/80">
             {v.isSelf ? (
               "Fans hold this to unlock your tiers."
             ) : v.signedIn ? (
               <>
-                You hold <b className="tabular-nums text-white">{v.pageTokens.toLocaleString("en-US")}</b>
+                You hold <b className="tabular-nums text-side-ink">{v.pageTokens.toLocaleString("en-US")}</b>
                 {tier && <> · {tier.name} member</>}
               </>
             ) : (
@@ -133,11 +127,11 @@ function PageTokenCard({ profile, onMembership }: { profile: Profile; onMembersh
           </p>
           {v.isSelf ? (
             <a href={`${portal}/settings?tab=page-asset`} target="_blank" rel="noreferrer" className={action}>
-              Manage
+              <span className="marker text-sm">Manage</span>
             </a>
           ) : (
             <button type="button" onClick={onMembership} className={action}>
-              Get {page.code}
+              <span className="marker text-sm">Get {page.code}</span>
             </button>
           )}
         </div>
@@ -156,18 +150,18 @@ function PageLinkCard({ profile }: { profile: Profile }) {
     );
   };
   return (
-    <div className="glass flex items-center gap-3 rounded-2xl p-3">
-      <span className="flex size-11 items-center justify-center rounded-xl bg-primary/15 text-primary">
-        <Copy className="size-5" />
+    <div className="glass flex items-center gap-3 rounded-[1.4rem] p-3">
+      <span className="flex size-11 items-center justify-center rounded-full bg-foreground text-background">
+        <Copy className="size-5" strokeWidth={2.4} />
       </span>
       <div className="min-w-0 flex-1">
-        <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Page link</p>
+        <p className="marker text-xs text-muted-foreground">page link</p>
         <p className="truncate text-sm">
           {env.NEXT_PUBLIC_URL.replace(/^https?:\/\//, "").replace(/\/$/, "")}
           {path}
         </p>
       </div>
-      <Button variant="ghost" size="sm" className="rounded-lg" onClick={copy}>
+      <Button variant="ghost" size="sm" onClick={copy}>
         Copy
       </Button>
     </div>
@@ -180,10 +174,10 @@ function CreatorPosts({ profile, onMembership }: { profile: Profile; onMembershi
   const posts = q.data?.pages.flatMap((p) => p.items) ?? [];
 
   return (
-    <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_22rem]">
+    <div className="grid grid-cols-[minmax(0,1fr)] gap-6 lg:grid-cols-[minmax(0,1fr)_22rem]">
       <div className="min-w-0 space-y-4">
         {q.isLoading ? (
-          [0, 1].map((i) => <Skeleton key={i} className="h-64 rounded-2xl" />)
+          [0, 1].map((i) => <Skeleton key={i} className="h-64 rounded-[1.4rem]" />)
         ) : !posts.length ? (
           <EmptyState icon={Newspaper} title="No posts yet" description={`${profile.name} hasn't posted yet.`} />
         ) : (
@@ -193,7 +187,7 @@ function CreatorPosts({ profile, onMembership }: { profile: Profile; onMembershi
             ))}
             {q.hasNextPage && (
               <div className="flex justify-center">
-                <Button variant="outline" className="rounded-xl" disabled={q.isFetchingNextPage} onClick={() => void q.fetchNextPage()}>
+                <Button variant="outline" disabled={q.isFetchingNextPage} onClick={() => void q.fetchNextPage()}>
                   {q.isFetchingNextPage ? "Loading…" : "Load more"}
                 </Button>
               </div>
@@ -202,9 +196,9 @@ function CreatorPosts({ profile, onMembership }: { profile: Profile; onMembershi
         )}
       </div>
 
-      <aside className="space-y-4 lg:sticky lg:top-24 lg:self-start">
-        <section className="glass space-y-2 rounded-2xl p-4">
-          <h2 className="font-hud font-bold">About</h2>
+      <aside className="space-y-4 lg:sticky lg:top-8 lg:self-start">
+        <section className="glass space-y-2 rounded-[1.4rem] p-4">
+          <h2 className="display text-2xl">About</h2>
           <p className="whitespace-pre-line break-words text-sm leading-relaxed text-muted-foreground">{profile.bio?.trim() ? profile.bio : "No bio yet."}</p>
           <p className="text-xs text-muted-foreground">
             {profile.counts.followers.toLocaleString("en-US")} follower{profile.counts.followers === 1 ? "" : "s"} · {profile.counts.posts.toLocaleString("en-US")} post
@@ -213,16 +207,16 @@ function CreatorPosts({ profile, onMembership }: { profile: Profile; onMembershi
         </section>
 
         {profile.subscriptions.length > 0 && (
-          <section className="glass space-y-3 rounded-2xl p-4">
+          <section className="glass space-y-3 rounded-[1.4rem] p-4">
             <div className="flex items-center justify-between">
-              <h2 className="font-hud font-bold">Membership</h2>
+              <h2 className="display text-2xl">Membership</h2>
               {profile.pageAsset && <span className="text-xs font-semibold text-primary">{profile.pageAsset.code}</span>}
             </div>
             <ul className="space-y-1.5">
               {profile.subscriptions.map((t) => {
                 const current = profile.viewer.tierId === t.id;
                 return (
-                  <li key={t.id} className={cn("flex items-center gap-3 rounded-xl p-2.5 ring-1 ring-foreground/[0.06]", current ? "bg-primary/10 ring-primary/30" : "bg-foreground/[0.03]")}>
+                  <li key={t.id} className={cn("flex items-center gap-3 rounded-xl p-2.5", current ? "bg-primary text-primary-foreground" : "bg-surface-2")}>
                     <span className={cn("h-8 w-1 shrink-0 rounded-full", tierColor(t.color).bar)} />
                     <span className="min-w-0 flex-1">
                       <span className="flex items-center gap-1.5 text-sm font-semibold">
@@ -260,7 +254,7 @@ function MembershipAction({ profile, onMembership }: { profile: Profile; onMembe
 
   if (v.isSelf) {
     return (
-      <Button asChild variant="outline" className="w-full rounded-xl">
+      <Button asChild variant="outline" className="w-full">
         <a href={`${portal}/membership`} target="_blank" rel="noreferrer">
           <Pencil className="size-4" /> Edit tiers
         </a>
@@ -269,20 +263,20 @@ function MembershipAction({ profile, onMembership }: { profile: Profile; onMembe
   }
   if (!v.signedIn) {
     return (
-      <Button className="w-full rounded-xl" onClick={openSignIn}>
+      <Button className="w-full" onClick={openSignIn}>
         <Crown className="size-4" /> Sign in to join
       </Button>
     );
   }
   if (tier) {
     return (
-      <Button variant="outline" className="w-full rounded-xl" onClick={onMembership}>
+      <Button variant="outline" className="w-full" onClick={onMembership}>
         <Check className="size-4 text-primary" /> {tier.name} member · View
       </Button>
     );
   }
   return (
-    <Button className="w-full rounded-xl" onClick={onMembership}>
+    <Button className="w-full" onClick={onMembership}>
       <Crown className="size-4" /> Join membership
     </Button>
   );
@@ -291,7 +285,7 @@ function MembershipAction({ profile, onMembership }: { profile: Profile; onMembe
 function CreatorBounties({ creatorId, name }: { creatorId: string; name: string }) {
   const q = api.bounty.list.useInfiniteQuery({ filter: "open", creatorId, limit: 10 }, { getNextPageParam: (p) => p.nextCursor });
   const items = q.data?.pages.flatMap((p) => p.items) ?? [];
-  const grid = "grid grid-cols-1 gap-4 lg:grid-cols-2";
+  const grid = "grid grid-cols-1 gap-5 lg:grid-cols-2";
   if (q.isLoading) {
     return (
       <div className={grid}>
@@ -311,7 +305,7 @@ function CreatorBounties({ creatorId, name }: { creatorId: string; name: string 
       </div>
       {q.hasNextPage && (
         <div className="flex justify-center">
-          <Button variant="outline" className="rounded-xl" disabled={q.isFetchingNextPage} onClick={() => void q.fetchNextPage()}>
+          <Button variant="outline" disabled={q.isFetchingNextPage} onClick={() => void q.fetchNextPage()}>
             {q.isFetchingNextPage ? "Loading…" : "Load more"}
           </Button>
         </div>

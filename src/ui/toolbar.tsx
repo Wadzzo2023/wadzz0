@@ -34,7 +34,7 @@ export function SearchInput({
 
   return (
     <div className={cn("relative min-w-0 flex-1 sm:w-72 sm:flex-none", className)}>
-      <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+      <Search className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" strokeWidth={2.6} />
       <Input
         type="search"
         value={text}
@@ -42,7 +42,7 @@ export function SearchInput({
         onKeyDown={(e) => e.key === "Escape" && setText("")}
         placeholder={placeholder}
         aria-label={placeholder}
-        className="pl-9 pr-9 [&::-webkit-search-cancel-button]:hidden"
+        className="pl-10 pr-9 [&::-webkit-search-cancel-button]:hidden"
       />
       {text && (
         <button
@@ -84,8 +84,8 @@ export function FilterChips<T extends string>({
             aria-checked={on}
             onClick={() => onChange(o.value)}
             className={cn(
-              "inline-flex h-9 shrink-0 items-center gap-1.5 rounded-full border px-3.5 text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-primary",
-              on ? "border-primary bg-primary text-primary-foreground" : "bg-card text-muted-foreground hover:border-line-bright hover:text-foreground",
+              "inline-flex h-10 shrink-0 items-center gap-1.5 rounded-full border-2 px-4 font-hud text-base uppercase tracking-wide transition-colors focus-visible:outline-2 focus-visible:outline-primary",
+              on ? "border-primary bg-primary text-primary-foreground" : "border-foreground/12 text-muted-foreground hover:border-foreground hover:text-foreground",
             )}
           >
             {o.icon && <o.icon className="size-3.5" />}

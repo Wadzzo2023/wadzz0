@@ -7,31 +7,36 @@
 @custom-variant dark (&:is(.dark *));
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   Wadzzo tokens — the same palette as the fan apps (wadzzoAR `arcade.css`),
-   so the fan app, the brand portal and the AR apps read as one product. `:root` is light, `.dark`
-   overrides. Components never use these directly: they're mapped onto the
-   shadcn variables below, which every primitive already reads.
-
-   The portal is a work tool, so it uses the palette with a calmer finish than
-   the game UI: flat surfaces, hairline borders, modest radii, no glow.
+   Wadzzo tokens, FC88-style: a solid Wadzzo-green sidebar with deep "ink"
+   green type, a flat charcoal main area (dark) or pale mint (light), a coral
+   accent for hand-written notes. Giant condensed display type (Anton),
+   marker-pen accents (Permanent Marker), Sora for reading.
+   Components read the shadcn variables below, never these directly.
+   Flat by design: no glows, no blur — cheap to paint.
    ═══════════════════════════════════════════════════════════════════════════ */
 :root {
-  --ar-void: 140 25% 97%;
-  --ar-bg: 140 20% 95%;
-  --ar-surface: 0 0% 100%;
-  --ar-surface-2: 140 14% 96%;
-  --ar-surface-3: 140 10% 91%;
-  --ar-line: 140 10% 86%;
-  --ar-line-bright: 140 10% 72%;
+  /* light = FC88's pale mint */
+  --ar-void: 105 45% 84%;
+  --ar-bg: 105 50% 87%;
+  --ar-surface: 100 45% 94%;
+  --ar-surface-2: 104 42% 90%;
+  --ar-surface-3: 106 36% 83%;
+  --ar-line: 140 22% 72%;
+  --ar-line-bright: 150 22% 55%;
 
-  --ar-text: 150 30% 9%;
-  --ar-text-dim: 150 14% 30%;
-  --ar-text-faint: 150 8% 46%;
+  --ar-text: 162 75% 15%;
+  --ar-text-dim: 160 30% 28%;
+  --ar-text-faint: 155 16% 42%;
 
-  --ar-green: 118 70% 25%;
-  --ar-green-hot: 116 78% 20%;
-  --ar-green-deep: 120 55% 22%;
-  --ar-green-ink: 120 40% 97%;
+  --ar-green: 162 75% 18%;
+  --ar-green-hot: 150 80% 30%;
+  --ar-green-deep: 162 75% 12%;
+  --ar-green-ink: 105 60% 90%;
+
+  /* the sidebar is the brand block in both themes */
+  --side-bg: 112 80% 52%;
+  --side-ink: 162 78% 11%;
+  --side-mint: 105 60% 90%;
 
   --rarity-common: 200 14% 38%;
   --rarity-rare: 199 85% 32%;
@@ -40,9 +45,13 @@
   --rarity-mythic: 322 72% 42%;
 
   --ar-danger: 358 72% 42%;
-  --ar-warning: 38 85% 36%;
-  --ar-info: 204 80% 38%;
-  --ar-locked: 220 10% 42%;
+  --ar-warning: 30 90% 36%;
+  --ar-info: 190 80% 30%;
+  --ar-locked: 160 10% 42%;
+
+  --ar-cyan: 170 70% 30%;
+  --ar-violet: 4 80% 58%;
+  --ar-pink: 4 85% 62%;
 
   /* shadcn mapping */
   --background: var(--ar-bg);
@@ -67,32 +76,33 @@
   --border: var(--ar-line);
   --input: var(--ar-line);
   --ring: var(--ar-green);
-  --radius: 12px;
+  --radius: 14px;
 
   --safe-bottom: env(safe-area-inset-bottom, 0px);
 
   --font-body: "Sora Variable";
-  --font-display: "Chakra Petch";
+  --font-display: "Anton";
+  --font-marker: "Permanent Marker";
 }
 
 .dark {
-  /* Web3 dark: near-black with a green cast, neon Wadzzo green. */
-  --ar-void: 160 30% 2%;
-  --ar-bg: 160 25% 3.5%;
-  --ar-surface: 160 18% 7%;
-  --ar-surface-2: 160 15% 10%;
-  --ar-surface-3: 160 13% 14%;
-  --ar-line: 160 12% 15%;
-  --ar-line-bright: 158 18% 26%;
+  /* FC88 dark: flat warm charcoal, pale-mint type, Wadzzo green. */
+  --ar-void: 150 6% 8%;
+  --ar-bg: 150 5% 11%;
+  --ar-surface: 150 5% 14.5%;
+  --ar-surface-2: 150 5% 17.5%;
+  --ar-surface-3: 150 4% 22%;
+  --ar-line: 150 4% 23%;
+  --ar-line-bright: 150 5% 34%;
 
-  --ar-text: 150 20% 97%;
-  --ar-text-dim: 150 10% 70%;
-  --ar-text-faint: 150 7% 48%;
+  --ar-text: 100 45% 91%;
+  --ar-text-dim: 110 10% 70%;
+  --ar-text-faint: 120 6% 50%;
 
   --ar-green: 112 85% 55%;
-  --ar-green-hot: 140 95% 62%;
+  --ar-green-hot: 112 90% 62%;
   --ar-green-deep: 118 62% 28%;
-  --ar-green-ink: 120 80% 6%;
+  --ar-green-ink: 162 78% 10%;
 
   --rarity-common: 195 8% 62%;
   --rarity-rare: 192 88% 56%;
@@ -100,17 +110,25 @@
   --rarity-legendary: 42 96% 56%;
   --rarity-mythic: 320 90% 64%;
 
-  --ar-danger: 358 74% 60%;
-  --ar-warning: 42 96% 56%;
-  --ar-info: 190 90% 58%;
-  --ar-locked: 220 8% 48%;
+  --ar-danger: 4 90% 66%;
+  --ar-warning: 40 95% 58%;
+  --ar-info: 170 70% 58%;
+  --ar-locked: 120 5% 48%;
+
+  --ar-cyan: 165 70% 60%;
+  --ar-violet: 4 100% 74%;
+  --ar-pink: 4 100% 74%;
 
   --destructive-foreground: 0 0% 100%;
 }
 
 @theme inline {
   --font-sans: var(--font-body), ui-sans-serif, system-ui, sans-serif;
-  --font-hud: var(--font-display), var(--font-body), ui-sans-serif, sans-serif;
+  --font-hud: var(--font-display), "Arial Narrow", ui-sans-serif, sans-serif;
+  --font-marker: var(--font-marker), "Comic Sans MS", cursive;
+  --color-side: hsl(var(--side-bg));
+  --color-side-ink: hsl(var(--side-ink));
+  --color-side-mint: hsl(var(--side-mint));
 
   --color-border: hsl(var(--border));
   --color-input: hsl(var(--input));
@@ -142,6 +160,10 @@
   --color-line-bright: hsl(var(--ar-line-bright));
   --color-faint: hsl(var(--ar-text-faint));
   --color-green-hot: hsl(var(--ar-green-hot));
+  --color-cyan: hsl(var(--ar-cyan));
+  --color-violet: hsl(var(--ar-violet));
+  --color-pink: hsl(var(--ar-pink));
+  --color-void: hsl(var(--ar-void));
   --color-rarity-common: hsl(var(--rarity-common));
   --color-rarity-rare: hsl(var(--rarity-rare));
   --color-rarity-epic: hsl(var(--rarity-epic));
@@ -184,6 +206,8 @@
 
   html {
     color-scheme: light;
+    /* Anton and Permanent Marker ship one weight: never fake a bold */
+    font-synthesis-weight: none;
     -webkit-tap-highlight-color: transparent;
   }
   html.dark {
@@ -248,9 +272,9 @@
 
 /* Small uppercase label above a value or section (stat cards, table heads). */
 @utility label-caps {
-  font-family: var(--font-display), var(--font-body), ui-sans-serif, sans-serif;
+  font-family: var(--font-body), ui-sans-serif, sans-serif;
   font-size: 11px;
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: hsl(var(--muted-foreground));
@@ -322,90 +346,163 @@
 
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   Web3 finish: a soft neon mesh behind every page, glass surfaces, glowing
-   edges and gradient text. Subtle in light mode, vivid in dark.
+   FC88 finish: flat surfaces, a paper-grain texture, chunky hand-made shapes,
+   marker notes and dashed rules. Everything here is static paint (no blur,
+   no backdrop-filter, no looping animation) so it stays light on the GPU.
    ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Paper grain over the page (one static SVG, painted once). */
 body {
-  background-image:
-    radial-gradient(60rem 40rem at 10% -10%, hsl(var(--primary) / 0.10), transparent 60%),
-    radial-gradient(50rem 35rem at 100% 0%, hsl(190 90% 50% / 0.07), transparent 60%),
-    radial-gradient(45rem 30rem at 50% 110%, hsl(var(--primary) / 0.06), transparent 60%);
-  background-attachment: fixed;
-}
-.dark body {
-  background-image:
-    radial-gradient(60rem 40rem at 10% -10%, hsl(var(--primary) / 0.16), transparent 60%),
-    radial-gradient(50rem 35rem at 100% 0%, hsl(190 90% 50% / 0.12), transparent 60%),
-    radial-gradient(45rem 30rem at 50% 110%, hsl(270 80% 60% / 0.08), transparent 60%);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .05 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
-/* Frosted panel. */
+/* Flat panel (cards, sheets, the sidebar on phones). */
 @utility glass {
-  background-color: hsl(var(--card) / 0.6);
-  backdrop-filter: blur(16px) saturate(140%);
-  -webkit-backdrop-filter: blur(16px) saturate(140%);
-  border: 1px solid hsl(var(--foreground) / 0.08);
+  background-color: hsl(var(--card));
+  border: 2px solid hsl(var(--foreground) / 0.1);
 }
 
-/*
- * Liquid glass for floating chrome (the bottom nav): see-through, heavily
- * blurred and saturated, with a bright top edge and a soft sheen so it reads
- * as a raised pane over whatever scrolls beneath it.
- */
-@utility glass-liquid {
-  position: relative;
-  isolation: isolate;
-  background-image: linear-gradient(180deg, hsl(0 0% 100% / 0.78), hsl(0 0% 100% / 0.55));
-  backdrop-filter: blur(24px) saturate(180%);
-  -webkit-backdrop-filter: blur(24px) saturate(180%);
-  border: 1px solid hsl(0 0% 100% / 0.7);
-  box-shadow:
-    inset 0 1px 0 hsl(0 0% 100% / 0.9),
-    inset 0 -1px 0 hsl(0 0% 0% / 0.06),
-    0 12px 40px -12px hsl(0 0% 0% / 0.35),
-    0 2px 6px -2px hsl(0 0% 0% / 0.12);
-
-  &::before {
-    content: "";
-    position: absolute;
-    inset: 1px 10% auto;
-    height: 45%;
-    border-radius: inherit;
-    background: linear-gradient(180deg, hsl(0 0% 100% / 0.45), transparent);
-    pointer-events: none;
-    z-index: -1;
-  }
-
-  &:where(.dark, .dark *) {
-    background-image: linear-gradient(180deg, hsl(0 0% 100% / 0.10), hsl(0 0% 100% / 0.03));
-    border-color: hsl(0 0% 100% / 0.14);
-    box-shadow:
-      inset 0 1px 0 hsl(0 0% 100% / 0.18),
-      inset 0 -1px 0 hsl(0 0% 0% / 0.4),
-      0 12px 40px -10px hsl(0 0% 0% / 0.7),
-      0 0 30px -12px hsl(var(--primary) / 0.35);
-  }
-  &:where(.dark, .dark *)::before {
-    background: linear-gradient(180deg, hsl(0 0% 100% / 0.12), transparent);
-  }
+/* Raised flat panel: a hair lighter than the page, crisp border. */
+@utility panel {
+  background-color: hsl(var(--ar-surface));
+  border: 1px solid hsl(var(--foreground) / 0.1);
 }
 
-/* Neon edge glow (hover states, primary buttons, featured frames). */
+/* Highlight ring for hover/featured states (tint with --glow). Solid, no blur. */
 @utility glow {
-  box-shadow:
-    0 0 0 1px hsl(var(--primary) / 0.45),
-    0 8px 32px -6px hsl(var(--primary) / 0.45);
+  --glow: var(--primary);
+  box-shadow: 0 0 0 2px hsl(var(--glow));
 }
 
-/* Green→cyan gradient text for headings and big numbers. */
+/* Kept for markup that still asks for a sheen; the flat look has none. */
+@utility shine {
+  position: relative;
+}
+
+/* Brand-green text (was a gradient; FC88 type is flat). */
 @utility text-gradient {
-  background-image: linear-gradient(100deg, hsl(var(--ar-green-hot)), hsl(var(--primary)) 45%, hsl(185 90% 55%));
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+  color: hsl(var(--primary));
+}
+@utility text-gradient-arcade {
+  color: hsl(var(--primary));
 }
 
-/* A thin gradient border (use on a wrapper with p-px). */
-@utility gradient-border {
-  background-image: linear-gradient(135deg, hsl(var(--ar-green-hot) / 0.9), hsl(185 90% 55% / 0.5), hsl(270 80% 65% / 0.6));
+/* Marker-pen note: hand-written, slightly tilted. */
+@utility marker {
+  font-family: var(--font-marker), cursive;
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
+  line-height: 1.05;
+}
+
+/* Giant condensed display type. */
+@utility display {
+  font-family: var(--font-display), "Arial Narrow", sans-serif;
+  font-weight: 400;
+  text-transform: uppercase;
+  line-height: 0.9;
+  letter-spacing: 0.005em;
+}
+
+/* Hand-made shapes: slightly uneven corners and a small tilt. */
+@utility blob {
+  border-radius: 18px 12px 20px 10px / 12px 18px 10px 20px;
+}
+@utility tilt-l {
+  rotate: -1.5deg;
+}
+@utility tilt-r {
+  rotate: 1.5deg;
+}
+
+/* Long-dash rule like FC88's menu dividers (colour = currentColor). */
+@utility dash-rule {
+  height: 2px;
+  background-image: linear-gradient(90deg, currentColor 55%, transparent 0);
+  background-size: 22px 2px;
+  opacity: 0.45;
+}
+
+/* Faint square grid (static). */
+@utility bg-grid {
+  background-image:
+    linear-gradient(hsl(var(--foreground) / 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, hsl(var(--foreground) / 0.035) 1px, transparent 1px);
+  background-size: 44px 44px;
+  mask-image: radial-gradient(ellipse at 50% 0%, black 30%, transparent 75%);
+}
+
+/* Live dot: a static ring, no animation. */
+@utility live-dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 9999px;
+  background: hsl(var(--primary));
+  box-shadow: 0 0 0 3px hsl(var(--primary) / 0.25);
+}
+
+/* Rarity tint for `glow`. */
+@utility rarity-common {
+  --glow: var(--rarity-common);
+}
+@utility rarity-rare {
+  --glow: var(--rarity-rare);
+}
+@utility rarity-epic {
+  --glow: var(--rarity-epic);
+}
+@utility rarity-legendary {
+  --glow: var(--rarity-legendary);
+}
+@utility rarity-mythic {
+  --glow: var(--rarity-mythic);
+}
+
+/* Sideways rails stay scrollable without a scrollbar. */
+@utility no-scrollbar {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* Hero carousel: the active tab's timer bar. */
+@keyframes hero-progress {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+@keyframes marquee {
+  to {
+    transform: translateX(-50%);
+  }
+}
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@theme inline {
+  --animate-marquee: marquee 45s linear infinite;
+  --animate-rise: rise 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

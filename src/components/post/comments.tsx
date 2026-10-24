@@ -24,8 +24,8 @@ export function Comments({ postId }: { postId: number }) {
   const total = comments.data?.reduce((n, c) => n + 1 + c.childComments.length, 0) ?? 0;
 
   return (
-    <section id="comments" className="glass scroll-mt-24 space-y-5 rounded-2xl p-4 sm:p-5">
-      <h2 className="flex items-center gap-2 font-hud text-lg font-bold">
+    <section id="comments" className="glass scroll-mt-24 space-y-5 rounded-[1.4rem] p-4 sm:p-5">
+      <h2 className="display flex items-center gap-2 text-3xl">
         <MessageCircle className="size-5 text-primary" /> Comments
         {comments.data && <span className="rounded-full bg-foreground/10 px-2 text-xs tabular-nums text-muted-foreground">{total}</span>}
       </h2>

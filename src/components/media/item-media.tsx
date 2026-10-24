@@ -56,13 +56,13 @@ export function LockedPreview({
     <div className={cn("relative overflow-hidden rounded-2xl bg-surface-2", className)}>
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img src={thumbnail} alt={name} className="aspect-square w-full object-cover" />
-      <div className="absolute inset-x-3 bottom-3 flex items-center gap-2.5 rounded-xl bg-black/55 p-2.5 text-white ring-1 ring-white/10 backdrop-blur-md">
-        <span className="flex size-8 items-center justify-center rounded-lg bg-white/15 backdrop-blur-sm">
+      <div className="blob absolute inset-x-3 bottom-3 flex items-center gap-2.5 bg-side-ink/95 p-2.5 text-side-mint">
+        <span className="flex size-9 items-center justify-center rounded-full bg-side text-side-ink">
           {checking ? <span className="loading-spinner loading-sm" /> : <Lock className="size-4" />}
         </span>
         <span className="text-sm leading-tight">
-          <span className="block font-semibold">{checking ? "Checking ownership…" : `${meta.label} unlocks for owners`}</span>
-          {!checking && <span className="block text-xs text-white/75">Own a copy to play the full content</span>}
+          <span className="marker block text-sm">{checking ? "Checking ownership…" : `${meta.label} unlocks for owners`}</span>
+          {!checking && <span className="block text-xs text-side-mint/70">Own a copy to play the full content</span>}
         </span>
       </div>
     </div>

@@ -8,7 +8,6 @@ import toast from "react-hot-toast";
 import { RecentActivity } from "~/components/activity/activity-view";
 import { SignedIn } from "~/components/shell/sign-in-prompt";
 import { Button } from "~/components/shadcn/ui/button";
-import { useCurrency } from "~/hooks/use-currency";
 import { useRequireAuth } from "~/hooks/use-require-auth";
 import { useSignAndConfirm } from "~/hooks/use-sign-and-confirm";
 import { isCustodial } from "~/lib/custodial";
@@ -69,8 +68,8 @@ function WalletView() {
       <h1 className="sr-only">Wallet</h1>
       {balances.isLoading ? (
         <>
-          <Skeleton className="h-60 rounded-3xl" />
-          <div className="grid gap-4 lg:grid-cols-2">
+          <Skeleton className="blob h-64" />
+          <div className="grid grid-cols-[minmax(0,1fr)] gap-4 lg:grid-cols-2">
             <Skeleton className="h-44 rounded-2xl" />
             <Skeleton className="h-44 rounded-2xl" />
           </div>
@@ -80,7 +79,7 @@ function WalletView() {
       ) : balances.data ? (
         <>
           <BalanceHero b={balances.data} onAction={(k) => (k === "send" ? send() : setOpen(k))} />
-          <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_24rem]">
+          <div className="grid grid-cols-[minmax(0,1fr)] gap-4 lg:grid-cols-[minmax(0,1fr)_24rem]">
             <AssetsCard assets={assets} balances={balances.data} onSend={send} />
             <div className="space-y-4">
               {balances.data.active ? <XlmCard xlm={balances.data.xlm} /> : <InactiveCard />}
@@ -111,7 +110,7 @@ function CopyAddress({ address, className }: { address: string; className?: stri
       () => toast.error("Couldn't copy the address"),
     );
   return (
-    <button type="button" onClick={copy} title={address} className={cn("inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1 font-mono text-xs ring-1 ring-white/15 backdrop-blur-md transition-colors hover:bg-white/20", className)}>
+    <button type="button" onClick={copy} title={address} className={cn("inline-flex items-center gap-1.5 rounded-full bg-side-ink px-3 py-1 font-mono text-xs text-side-mint transition-transform hover:scale-105", className)}>
       {shortAddr(address)} {copied ? <Check className="size-3.5" /> : <Copy className="size-3.5" />}
     </button>
   );
@@ -119,7 +118,6 @@ function CopyAddress({ address, className }: { address: string; className?: stri
 
 function BalanceHero({ b, onAction }: { b: Balances; onAction: (k: DialogKind) => void }) {
   const { session } = useRequireAuth();
-  const { currency } = useCurrency();
   // card top-ups are only for custodial (email/social) accounts
   const custodial = isCustodial(session?.user.walletType);
   const actions = [
@@ -129,36 +127,25 @@ function BalanceHero({ b, onAction }: { b: Balances; onAction: (k: DialogKind) =
     { id: "receive" as const, label: "Receive", icon: ArrowDownToLine, primary: false },
   ];
   return (
-    <section className="relative isolate overflow-hidden rounded-3xl bg-black p-6 text-white ring-1 ring-foreground/10 sm:p-8">
-      <div aria-hidden className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_15%_20%,hsl(var(--primary)/0.45),transparent_55%),radial-gradient(circle_at_90%_85%,hsl(190_90%_50%/0.3),transparent_55%),radial-gradient(circle_at_60%_0%,hsl(270_80%_60%/0.2),transparent_50%)]" />
-      <div aria-hidden className="absolute -right-16 -top-16 -z-10 size-64 rounded-full bg-primary/20 blur-3xl" />
+    <section className="blob relative overflow-hidden bg-side p-6 text-side-ink sm:p-8">
+      <Wallet aria-hidden className="absolute -bottom-8 -right-6 size-48 rotate-12 text-side-ink/10" strokeWidth={1.6} />
 
       <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
         <div className="min-w-0 space-y-3">
           <div className="flex flex-wrap items-center gap-2">
-            <p className="label-caps text-[hsl(112_85%_62%)]">{b.active ? `${b.platform.code} balance` : "Wallet"}</p>
+            <p className="marker -rotate-2 text-base">*{b.active ? `your ${b.platform.code} balance` : "your wallet"}*</p>
             <CopyAddress address={b.address} />
           </div>
           {b.active ? (
             <>
-              {currency === "USD" && b.platform.usd != null ? (
-                <>
-                  <p className="break-all font-hud text-4xl font-bold leading-none tracking-tight tabular-nums sm:text-6xl">{b.platform.usd.toLocaleString("en-US", { style: "currency", currency: "USD" })}</p>
-                  <p className="text-sm text-white/70">
-                    {num(b.platform.balance)} {b.platform.code}
-                  </p>
-                </>
-              ) : (
-                <>
-                  <p className="break-all font-hud text-4xl font-bold leading-none tracking-tight tabular-nums sm:text-6xl">
-                    {num(b.platform.balance)} <span className="text-lg font-semibold text-white/60 sm:text-2xl">{b.platform.code}</span>
-                  </p>
-                  {b.platform.usd != null && <p className="text-sm text-white/70">≈ {b.platform.usd.toLocaleString("en-US", { style: "currency", currency: "USD" })}</p>}
-                </>
-              )}
+              <p className="flex flex-wrap items-baseline gap-x-3 break-all">
+                <span className="display text-7xl tabular-nums sm:text-8xl">{num(b.platform.balance)}</span>
+                <span className="display text-3xl">{b.platform.code}</span>
+              </p>
+              {b.platform.usd != null && <p className="marker text-lg">≈ {b.platform.usd.toLocaleString("en-US", { style: "currency", currency: "USD" })}</p>}
             </>
           ) : (
-            <p className="max-w-md text-white/75">
+            <p className="max-w-md font-semibold text-side-ink/80">
               Your Stellar account isn&apos;t active yet. {custodial ? "Getting tokens activates it for you." : "Send at least 1 XLM to this address from your wallet to activate it."}
             </p>
           )}
@@ -170,13 +157,11 @@ function BalanceHero({ b, onAction }: { b: Balances; onAction: (k: DialogKind) =
               type="button"
               onClick={() => onAction(a.id)}
               className={cn(
-                "flex h-12 flex-col items-center justify-center gap-0.5 rounded-2xl px-4 text-xs font-semibold transition-all sm:flex-row sm:gap-2 sm:text-sm",
-                a.primary
-                  ? "bg-primary text-primary-foreground shadow-[inset_0_1px_0_hsl(0_0%_100%/0.4),0_0_24px_-4px_hsl(var(--primary)/0.8)] hover:brightness-110"
-                  : "bg-white/10 ring-1 ring-white/15 backdrop-blur-md hover:bg-white/20",
+                "blob flex h-14 flex-col items-center justify-center gap-0.5 px-5 transition-transform duration-200 hover:-translate-y-0.5 sm:flex-row sm:gap-2",
+                a.primary ? "bg-side-ink text-side-mint" : "bg-side-mint text-side-ink",
               )}
             >
-              <a.icon className="size-4" /> {a.label}
+              <a.icon className="size-4" strokeWidth={2.6} /> <span className="marker text-xs sm:text-base">{a.label}</span>
             </button>
           ))}
         </div>
@@ -191,27 +176,27 @@ function XlmCard({ xlm }: { xlm: Extract<Balances, { active: true }>["xlm"] }) {
     { label: "Reserved", value: xlm.reserved, hint: "Locked by Stellar for your account and trustlines" },
   ];
   return (
-    <section className="glass space-y-4 rounded-2xl p-5">
+    <section className="space-y-4 rounded-[1.6rem] border-2 border-foreground/10 bg-surface p-5">
       <div className="flex items-baseline justify-between gap-3">
-        <h2 className="font-hud font-bold">XLM</h2>
-        <p className="font-hud text-2xl font-bold tabular-nums">
+        <h2 className="display text-3xl">XLM</h2>
+        <p className="display text-3xl tabular-nums text-primary">
           {num(xlm.total, 4)} <span className="text-sm font-medium text-muted-foreground">total</span>
         </p>
       </div>
       <ul className="space-y-2">
         {rows.map((r) => (
-          <li key={r.label} className="flex items-center justify-between gap-3 rounded-xl bg-foreground/[0.04] px-3.5 py-3 ring-1 ring-foreground/[0.06]">
+          <li key={r.label} className="flex items-center justify-between gap-3 rounded-xl bg-surface-2 px-3.5 py-3">
             <span className="min-w-0">
               <span className="block text-sm font-semibold">{r.label}</span>
               <span className="block truncate text-xs text-muted-foreground">{r.hint}</span>
             </span>
-            <span className="font-hud font-bold tabular-nums">{num(r.value, 4)}</span>
+            <span className="display text-xl tabular-nums">{num(r.value, 4)}</span>
           </li>
         ))}
       </ul>
       {xlm.total > 0 && (
-        <div className="h-2 overflow-hidden rounded-full bg-foreground/[0.08]" aria-hidden>
-          <div className="h-full rounded-full bg-gradient-to-r from-primary to-cyan-400" style={{ width: `${Math.max(2, Math.min(100, (xlm.spendable / xlm.total) * 100))}%` }} />
+        <div className="h-3 overflow-hidden rounded-full border-2 border-foreground/15" aria-hidden>
+          <div className="h-full rounded-full bg-primary" style={{ width: `${Math.max(2, Math.min(100, (xlm.spendable / xlm.total) * 100))}%` }} />
         </div>
       )}
     </section>
@@ -220,8 +205,8 @@ function XlmCard({ xlm }: { xlm: Extract<Balances, { active: true }>["xlm"] }) {
 
 function InactiveCard() {
   return (
-    <section className="glass space-y-2 rounded-2xl p-5">
-      <h2 className="font-hud font-bold">XLM</h2>
+    <section className="space-y-2 rounded-[1.6rem] border-2 border-foreground/10 bg-surface p-5">
+      <h2 className="display text-3xl">XLM</h2>
       <p className="text-sm text-muted-foreground">Stellar accounts need a small XLM reserve before they can hold anything.</p>
     </section>
   );
@@ -237,15 +222,15 @@ function AssetsCard({ assets, balances, onSend }: { assets: SendableAsset[]; bal
     return item?.itemId ? `/item/${item.itemId}` : null;
   };
   return (
-    <section className="glass space-y-3 rounded-2xl p-5">
+    <section className="space-y-3 rounded-[1.6rem] border-2 border-foreground/10 bg-surface p-5">
       <div className="flex items-center justify-between">
-        <h2 className="font-hud font-bold">Assets</h2>
+        <h2 className="display text-3xl">Assets</h2>
         <span className="text-xs text-muted-foreground">{assets.length} in your wallet</span>
       </div>
       {assets.length === 0 ? (
         <EmptyState icon={Coins} title="Nothing here yet" description="Your XLM, tokens and items will show up here." className="border-0 py-6" />
       ) : (
-        <ul className="divide-y divide-foreground/[0.06]">
+        <ul className="divide-y-2 divide-dashed divide-foreground/10">
           {assets.map((a) => {
             const href = hrefFor(a);
             const body = (
@@ -271,8 +256,8 @@ function AssetsCard({ assets, balances, onSend }: { assets: SendableAsset[]; bal
                 ) : (
                   <span className="flex min-w-0 flex-1 items-center gap-3">{body}</span>
                 )}
-                <span className="font-hud font-bold tabular-nums">{num(a.balance, a.code === "XLM" ? 4 : 2)}</span>
-                <Button size="sm" variant="ghost" className="rounded-lg" disabled={a.balance <= 0} onClick={() => onSend(a)} aria-label={`Send ${a.code}`}>
+                <span className="display text-xl tabular-nums">{num(a.balance, a.code === "XLM" ? 4 : 2)}</span>
+                <Button size="sm" variant="ghost" disabled={a.balance <= 0} onClick={() => onSend(a)} aria-label={`Send ${a.code}`}>
                   <Send className="size-3.5" /> <span className="hidden sm:inline">Send</span>
                 </Button>
               </li>
@@ -287,11 +272,11 @@ function AssetsCard({ assets, balances, onSend }: { assets: SendableAsset[]; bal
 function GiftsCard() {
   const gifts = api.wallet.gifts.useQuery();
   return (
-    <section className="glass space-y-3 rounded-2xl p-5">
+    <section className="space-y-3 rounded-[1.6rem] border-2 border-foreground/10 bg-surface p-5">
       <div className="flex items-center justify-between">
-        <h2 className="flex items-center gap-2 font-hud font-bold">
+        <h2 className="display flex items-center gap-2 text-3xl">
           Pending gifts
-          {!!gifts.data?.length && <span className="rounded-full bg-primary px-1.5 text-[11px] text-primary-foreground tabular-nums">{gifts.data.length}</span>}
+          {!!gifts.data?.length && <span className="rounded-full bg-pink px-2 font-sans text-sm font-bold text-side-ink tabular-nums">{gifts.data.length}</span>}
         </h2>
       </div>
       {gifts.isLoading ? (
@@ -321,9 +306,9 @@ function GiftRow({ gift }: { gift: Gift }) {
     }
   };
   return (
-    <li className="flex items-center gap-3 rounded-xl bg-foreground/[0.04] p-3 ring-1 ring-foreground/[0.06]">
-      <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary/15 text-primary">
-        <Gift className="size-5" />
+    <li className="flex items-center gap-3 rounded-xl bg-surface-2 p-3">
+      <span className="blob flex size-10 shrink-0 -rotate-6 items-center justify-center bg-pink text-side-ink">
+        <Gift className="size-5" strokeWidth={2.4} />
       </span>
       <span className="min-w-0 flex-1">
         <span className="block truncate text-sm font-semibold">
@@ -332,7 +317,7 @@ function GiftRow({ gift }: { gift: Gift }) {
         {gift.sponsor && <span className="block truncate text-xs text-muted-foreground">from {shortAddr(gift.sponsor)}</span>}
         {sign.error && <span className="block text-xs text-destructive">{sign.error}</span>}
       </span>
-      <Button size="sm" className="rounded-lg" disabled={claim.isPending || sign.busy} onClick={() => void accept()}>
+      <Button size="sm" disabled={claim.isPending || sign.busy} onClick={() => void accept()}>
         {sign.step === "signing" ? "Confirm…" : sign.step === "confirming" ? "Confirming…" : "Accept"}
       </Button>
     </li>

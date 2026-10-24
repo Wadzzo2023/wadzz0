@@ -30,17 +30,17 @@ export function SupportForm() {
 
   if (send.isSuccess) {
     return (
-      <div className="glass space-y-3 rounded-2xl p-8 text-center">
+      <div className="glass space-y-3 rounded-[1.4rem] p-8 text-center">
         <CheckCircle2 className="mx-auto size-10 text-primary" />
-        <p className="font-hud text-lg font-semibold">Message sent</p>
+        <p className="display text-3xl">Message sent</p>
         <p className="text-sm text-muted-foreground">We&apos;ll reply to {email} as soon as we can.</p>
       </div>
     );
   }
 
   return (
-    <form onSubmit={submit} className="glass space-y-4 rounded-2xl p-5">
-      <div className="grid gap-4 sm:grid-cols-2">
+    <form onSubmit={submit} className="glass space-y-4 rounded-[1.4rem] p-5">
+      <div className="grid grid-cols-[minmax(0,1fr)] gap-4 sm:grid-cols-2">
         <label className="block space-y-1.5">
           <span className="text-sm font-semibold">Name</span>
           <Input value={name} onChange={(e) => setName(e.target.value)} required minLength={2} maxLength={100} className="h-11 rounded-xl" />
@@ -75,7 +75,7 @@ export function SupportForm() {
       <input type="text" value={website} onChange={(e) => setWebsite(e.target.value)} tabIndex={-1} autoComplete="off" aria-hidden className="hidden" name="website" />
       {send.error && <p className="rounded-lg tone-danger px-3 py-2 text-sm">{send.error.message}</p>}
       <div className="flex justify-end">
-        <Button type="submit" className="rounded-xl px-6" disabled={send.isPending}>
+        <Button type="submit" className="px-6" disabled={send.isPending}>
           <Send className="size-4" /> {send.isPending ? "Sending…" : "Send message"}
         </Button>
       </div>

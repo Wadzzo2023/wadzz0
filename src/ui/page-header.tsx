@@ -29,15 +29,17 @@ export function PageHeader({
         {back && (
           <Link
             href={back.href}
-            className="mb-2 inline-flex items-center gap-1 font-hud text-xs font-semibold uppercase tracking-wider text-muted-foreground hover:text-foreground"
+            className="mb-3 inline-flex items-center gap-1 text-xs font-bold uppercase tracking-wider text-muted-foreground hover:text-foreground"
           >
             <ChevronLeft className="size-3.5" />
             {back.label}
           </Link>
         )}
-        {eyebrow && <p className="font-hud text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">{eyebrow}</p>}
-        <h1 className="font-hud text-2xl font-bold leading-tight tracking-tight text-foreground sm:text-[28px]">{title}</h1>
-        {description && <p className="mt-1 max-w-2xl text-sm text-muted-foreground">{description}</p>}
+        {eyebrow && (
+          <p className="marker mb-2 -rotate-2 text-base text-muted-foreground">*{eyebrow.toLowerCase()}*</p>
+        )}
+        <h1 className="display break-words text-5xl text-foreground sm:text-7xl">{title}</h1>
+        {description && <p className="marker mt-3 max-w-2xl -rotate-1 text-base leading-snug text-primary sm:text-lg">{description}</p>}
       </div>
       {actions && <div className="flex shrink-0 flex-wrap items-center gap-2">{actions}</div>}
     </header>
@@ -47,7 +49,7 @@ export function PageHeader({
 /** Standard page body: max width and padding. */
 export function PageBody({ children, className, wide = false }: { children: ReactNode; className?: string; wide?: boolean }) {
   return (
-    <div className={cn("mx-auto w-full px-4 pb-10 pt-5 sm:px-6 lg:pt-8", wide ? "max-w-7xl" : "max-w-5xl", className)}>
+    <div className={cn("mx-auto w-full animate-rise px-4 pb-16 pt-8 sm:px-10 lg:pt-12", wide ? "max-w-[88rem]" : "max-w-5xl", className)}>
       {children}
     </div>
   );

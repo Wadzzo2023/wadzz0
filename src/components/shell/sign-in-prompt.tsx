@@ -14,14 +14,14 @@ export function SignedIn({ icon: Icon, title, description, children }: { icon: L
   if (signedIn) return <>{children}</>;
   return (
     <div className="flex min-h-[60dvh] items-center justify-center px-4 py-10">
-      <div className="w-full max-w-sm rounded-2xl border bg-card p-8 text-center">
-        <span className="mx-auto mb-4 flex size-12 items-center justify-center rounded-xl bg-primary/10 text-primary">
-          <Icon className="size-6" />
+      <div className="w-full max-w-md rounded-[1.8rem] border-[3px] border-foreground bg-surface p-8 text-center shadow-[8px_9px_0_0_hsl(var(--primary))]">
+        <span className="blob mx-auto mb-5 flex size-16 -rotate-6 items-center justify-center bg-primary text-primary-foreground">
+          <Icon className="size-7" strokeWidth={2.4} />
         </span>
-        <h1 className="font-hud text-xl font-bold">{title}</h1>
-        <p className="mt-1.5 text-sm text-muted-foreground">{description}</p>
-        <Button className="mt-5 w-full" onClick={openSignIn}>
-          Sign in
+        <h1 className="display text-5xl">{title}</h1>
+        <p className="marker mt-3 -rotate-1 text-base leading-snug text-primary">{description}</p>
+        <Button size="lg" className="mt-6 w-full" onClick={openSignIn}>
+          <span className="marker text-lg">Sign in</span>
         </Button>
       </div>
     </div>

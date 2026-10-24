@@ -43,7 +43,7 @@ export function StorageSetupDialog({ open, onOpenChange, onDone }: { open: boole
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2 font-hud">
+          <DialogTitle className="display flex items-center gap-2 text-2xl">
             <Archive className="size-5 text-primary" /> Open your resale storage
           </DialogTitle>
           <DialogDescription>A one-time step. Items you list wait here until someone buys them; you can take them back anytime.</DialogDescription>
@@ -94,13 +94,13 @@ export function ListDialog({
     <Dialog open={open} onOpenChange={(o) => (onOpenChange(o), !o && sign.reset())}>
       <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="font-hud">Resell “{item.name}”</DialogTitle>
+          <DialogTitle className="display text-2xl">Resell “{item.name}”</DialogTitle>
           <DialogDescription>The copies move to your storage and go on the marketplace once the transaction lands.</DialogDescription>
         </DialogHeader>
         {sign.step === "done" ? (
           <div className="space-y-3 py-4 text-center">
             <CheckCircle2 className="mx-auto size-8 text-primary" />
-            <p className="font-hud font-semibold">Listed!</p>
+            <p className="display text-2xl">Listed!</p>
             <Button variant="outline" onClick={() => onOpenChange(false)}>
               Done
             </Button>

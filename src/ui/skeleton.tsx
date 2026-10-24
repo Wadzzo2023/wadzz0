@@ -15,15 +15,15 @@ export function Skeleton({ className, ...props }: React.HTMLAttributes<HTMLDivEl
 /** A page while access is checked: PageBody padding, header, then a grid of cards. */
 export function PageSkeleton({ cards = 6 }: { cards?: number }) {
   return (
-    <div className="mx-auto w-full max-w-7xl px-4 pt-5 pb-10 sm:px-6 lg:pt-8" role="status" aria-label="Loading">
+    <div className="mx-auto w-full max-w-[88rem] px-4 pt-8 pb-16 sm:px-10 lg:pt-12" role="status" aria-label="Loading">
       <div className="space-y-2">
         <Skeleton className="h-3 w-20" />
-        <Skeleton className="h-8 w-56" />
+        <Skeleton className="h-14 w-72 max-w-full" />
         <Skeleton className="h-4 w-96 max-w-full" />
       </div>
-      <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="mt-6 grid grid-cols-[minmax(0,1fr)] gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {Array.from({ length: cards }).map((_, i) => (
-          <Skeleton key={i} className="h-44 rounded-xl" />
+          <Skeleton key={i} className="h-60 rounded-[1.4rem]" />
         ))}
       </div>
     </div>
@@ -33,11 +33,11 @@ export function PageSkeleton({ cards = 6 }: { cards?: number }) {
 /** A create/edit page (FormPage): header + actions, section cards, and the side panel. */
 export function FormSkeleton({ sections = 3, aside = true }: { sections?: number; aside?: boolean }) {
   return (
-    <div className="mx-auto w-full max-w-7xl px-4 pt-5 pb-10 sm:px-6 lg:pt-8" role="status" aria-label="Loading form">
+    <div className="mx-auto w-full max-w-[88rem] px-4 pt-8 pb-16 sm:px-10 lg:pt-12" role="status" aria-label="Loading form">
       <div className="flex items-end justify-between gap-4">
         <div className="space-y-2">
           <Skeleton className="h-3 w-16" />
-          <Skeleton className="h-8 w-56" />
+          <Skeleton className="h-14 w-72 max-w-full" />
           <Skeleton className="h-4 w-80 max-w-full" />
         </div>
         <div className="hidden gap-2 lg:flex">
@@ -48,7 +48,7 @@ export function FormSkeleton({ sections = 3, aside = true }: { sections?: number
       <div className={cn("mt-6 grid gap-6", aside && "lg:grid-cols-[minmax(0,1fr)_380px]")}>
         <div className="space-y-5">
           {Array.from({ length: sections }).map((_, s) => (
-            <div key={s} className="rounded-xl border bg-card p-5">
+            <div key={s} className="rounded-[1.4rem] border-2 border-foreground/10 bg-card p-5">
               <Skeleton className="h-5 w-32" />
               <Skeleton className="mt-2 h-3.5 w-64 max-w-full" />
               <div className="mt-5 space-y-4">
@@ -64,7 +64,7 @@ export function FormSkeleton({ sections = 3, aside = true }: { sections?: number
         </div>
         {aside && (
           <div className="space-y-5">
-            <div className="rounded-xl border bg-card p-5">
+            <div className="rounded-[1.4rem] border-2 border-foreground/10 bg-card p-5">
               <Skeleton className="h-5 w-24" />
               <Skeleton className="mt-4 aspect-[4/3] w-full rounded-lg" />
               <div className="mt-4 grid grid-cols-2 gap-3">

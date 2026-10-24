@@ -39,7 +39,7 @@ export function NotificationRow({ item }: { item: InboxItem }) {
   const cls = "flex min-w-0 flex-1 items-start gap-3 py-3.5 pr-11";
 
   return (
-    <li className={cn("group relative flex items-start gap-1 pl-1 transition-colors hover:bg-foreground/[0.04]", item.unread && "bg-primary/[0.06]")}>
+    <li className={cn("group relative flex items-start gap-1 pl-1 transition-colors hover:bg-foreground/[0.04]", item.unread && "bg-primary/10")}>
       <button
         type="button"
         onClick={() => (item.unread ? markRead.mutate({ ids: item.ids }) : markUnread.mutate({ ids: item.ids }))}

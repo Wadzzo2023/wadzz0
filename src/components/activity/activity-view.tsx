@@ -64,9 +64,9 @@ export function ActivityView({ me }: { me: string }) {
       <PageHeader
         eyebrow="Account"
         title="Activity"
-        description="Every purchase, sale and listing, with exactly what it cost."
+        description="every purchase, sale and listing — with exactly what it cost"
         actions={
-        <div className="glass flex w-fit gap-1 rounded-xl p-1" role="tablist">
+        <div className="flex h-12 w-fit items-center gap-1 rounded-2xl bg-surface-2 p-1" role="tablist">
           {ROLES.map((r) => (
             <button
               key={r.id}
@@ -75,8 +75,8 @@ export function ActivityView({ me }: { me: string }) {
               aria-selected={role === r.id}
               onClick={() => setRole(r.id)}
               className={cn(
-                "flex h-9 shrink-0 items-center rounded-lg px-4 text-sm font-semibold transition-colors",
-                role === r.id ? "bg-primary text-primary-foreground shadow-[0_0_20px_-6px_hsl(var(--primary)/0.8)]" : "text-muted-foreground hover:text-foreground",
+                "flex h-10 shrink-0 items-center px-4 font-hud text-lg uppercase transition-colors",
+                role === r.id ? "blob bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground",
               )}
             >
               {r.label}
@@ -95,7 +95,7 @@ export function ActivityView({ me }: { me: string }) {
       )}
       {q.hasNextPage && (
         <div className="flex justify-center">
-          <Button variant="outline" className="rounded-xl" disabled={q.isFetchingNextPage} onClick={() => void q.fetchNextPage()}>
+          <Button variant="outline" disabled={q.isFetchingNextPage} onClick={() => void q.fetchNextPage()}>
             {q.isFetchingNextPage ? "Loading…" : "Load more"}
           </Button>
         </div>
@@ -111,8 +111,8 @@ export function RecentActivity({ me, limit = 5 }: { me: string; limit?: number }
   return (
     <section className="space-y-3">
       <div className="flex items-center justify-between">
-        <h2 className="font-hud text-lg font-bold">Recent activity</h2>
-        <Link href="/activity" className="inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline">
+        <h2 className="display text-3xl">Recent activity</h2>
+        <Link href="/activity" className="marker inline-flex items-center gap-1 text-sm text-primary hover:underline">
           View all <ArrowRight className="size-3.5" />
         </Link>
       </div>
@@ -129,7 +129,7 @@ export function RecentActivity({ me, limit = 5 }: { me: string; limit?: number }
 
 function ActivitySkeleton({ rows }: { rows: number }) {
   return (
-    <div className="glass space-y-2 rounded-2xl p-2">
+    <div className="glass space-y-2 rounded-[1.4rem] p-2">
       {Array.from({ length: rows }).map((_, i) => (
         <Skeleton key={i} className="h-14 rounded-xl" />
       ))}
@@ -142,7 +142,7 @@ function ActivityRows({ rows, me }: { rows: Row[]; me: string }) {
   const [open, setOpen] = useState<Row | null>(null);
   return (
     <>
-      <ul className="glass divide-y divide-foreground/[0.06] overflow-hidden rounded-2xl">
+      <ul className="glass divide-y-2 divide-dashed divide-foreground/10 overflow-hidden rounded-[1.4rem]">
         {rows.map((r) => {
           const outgoing = r.buyerId === me;
           return (
@@ -190,7 +190,7 @@ function Receipt({ r, me }: { r: Row; me: string }) {
   return (
     <>
       <DialogHeader>
-        <DialogTitle className="font-hud">{labelFor(r, me)}</DialogTitle>
+        <DialogTitle className="display text-2xl">{labelFor(r, me)}</DialogTitle>
       </DialogHeader>
       <div className="space-y-4 text-sm">
         {r.asset && (

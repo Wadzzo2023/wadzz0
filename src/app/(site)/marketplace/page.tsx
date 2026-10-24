@@ -33,8 +33,8 @@ export default async function MarketplacePage({ searchParams }: PageProps<"/mark
   const first = await (await serverApi()).market.listings(input);
 
   return (
-    <PageBody wide className="space-y-5">
-      <PageHeader eyebrow="Marketplace" title="Discover items" description="Drops straight from creators — minted the moment you buy — and resales from other fans." />
+    <PageBody wide className="space-y-8">
+      <PageHeader eyebrow="Marketplace" title="Discover items" description="drops straight from creators — minted the moment you buy — and resales from other fans" />
       <MarketFilters current={input} />
       {first.items.length === 0 ? (
         <EmptyState icon={Store} title="Nothing here yet" description="Try another filter, or check back soon for new drops." />

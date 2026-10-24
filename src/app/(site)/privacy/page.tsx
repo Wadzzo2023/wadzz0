@@ -23,7 +23,7 @@ const SECTIONS = [
 function Section({ id, title, children }: { id: string; title: string; children: ReactNode }) {
   return (
     <section id={id} className="scroll-mt-24 space-y-3">
-      <h2 className="font-hud text-2xl font-bold">{title}</h2>
+      <h2 className="display text-4xl">{title}</h2>
       {children}
     </section>
   );
@@ -48,9 +48,9 @@ export default function PrivacyPage() {
           </>
         }
       />
-      <div className="grid gap-8 lg:grid-cols-[16rem_minmax(0,1fr)]">
-        <nav aria-label="Table of contents" className="lg:sticky lg:top-24 lg:self-start">
-          <div className="glass space-y-2 rounded-2xl p-4">
+      <div className="grid grid-cols-[minmax(0,1fr)] gap-8 lg:grid-cols-[16rem_minmax(0,1fr)]">
+        <nav aria-label="Table of contents" className="lg:sticky lg:top-8 lg:self-start">
+          <div className="glass space-y-2 rounded-[1.4rem] p-4">
             <h2 className="label-caps">Table of Contents</h2>
             <ul className="space-y-1.5 text-sm">
               {SECTIONS.map((s) => (
@@ -64,7 +64,7 @@ export default function PrivacyPage() {
           </div>
         </nav>
 
-        <article className="glass space-y-10 rounded-2xl p-6 leading-relaxed text-foreground/90 sm:p-8">
+        <article className="glass space-y-10 rounded-[1.4rem] p-6 leading-relaxed text-foreground/90 sm:p-8">
           <Section id="introduction" title="Introduction">
             <p>
               Wadzzo is an innovative platform designed to transform the way people engage with brands through gamified experiences. Our mission is to bridge the digital and physical worlds by enabling users to explore their surroundings, discover rewards, and connect with brands in a fun, interactive way. This <strong>Privacy Policy</strong> governs how we collect, use, and protect the information you provide when using our services. Unless otherwise defined, the terms used in this Privacy Policy have the same meanings as in our Terms and Conditions.

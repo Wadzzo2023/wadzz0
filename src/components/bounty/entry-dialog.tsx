@@ -80,7 +80,7 @@ export function EntryDialog({ bountyId, editing, onClose }: { bountyId: number; 
     <Dialog open onOpenChange={(o) => !o && !busy && onClose()}>
       <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle className="font-hud">{editing ? "Edit your entry" : "Submit an entry"}</DialogTitle>
+          <DialogTitle className="display text-2xl">{editing ? "Edit your entry" : "Submit an entry"}</DialogTitle>
           <DialogDescription>Tell the brand about your entry and attach your work (images, video, audio, PDF).</DialogDescription>
         </DialogHeader>
         <form onSubmit={(e) => void submit(e)} className="space-y-4">
@@ -98,10 +98,10 @@ export function EntryDialog({ bountyId, editing, onClose }: { bountyId: number; 
           {error && <p className="rounded-lg tone-danger px-3 py-2 text-sm">{error}</p>}
           <div className="flex items-center justify-between gap-2">
             <input ref={input} type="file" multiple hidden onChange={(e) => (addFiles(e.target.files), (e.target.value = ""))} />
-            <Button type="button" variant="outline" className="rounded-xl" onClick={() => input.current?.click()} disabled={busy || total >= MAX_ENTRY_FILES}>
+            <Button type="button" variant="outline" onClick={() => input.current?.click()} disabled={busy || total >= MAX_ENTRY_FILES}>
               <Paperclip className="size-4" /> Attach ({total}/{MAX_ENTRY_FILES})
             </Button>
-            <Button type="submit" className="rounded-xl px-6 font-bold" disabled={busy || text.trim().length < 2}>
+            <Button type="submit" className="px-6 font-bold" disabled={busy || text.trim().length < 2}>
               {busy ? "Sending…" : editing ? "Save changes" : "Send entry"}
             </Button>
           </div>

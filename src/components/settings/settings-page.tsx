@@ -55,7 +55,7 @@ function SettingsView() {
       <h1 className="sr-only">Settings</h1>
       <ProfileHeader me={me.data} />
       <PageBody wide className="space-y-6 pt-6">
-        <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_24rem]">
+        <div className="grid grid-cols-[minmax(0,1fr)] gap-4 lg:grid-cols-[minmax(0,1fr)_24rem]">
           <ProfileForm me={me.data} />
           <div className="space-y-4">
             <AppearanceCard />
@@ -112,41 +112,39 @@ function ProfileHeader({ me }: { me: Me }) {
 
   return (
     <>
-      <div className="relative h-[34svh] min-h-[220px] max-h-[380px] overflow-hidden bg-black">
-        {me.coverImage ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={me.coverImage} alt="" className="size-full object-cover" />
-        ) : me.image ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={me.image} alt="" className="size-full scale-125 object-cover opacity-60 blur-3xl" />
-        ) : (
-          <div className="size-full bg-[radial-gradient(circle_at_20%_30%,hsl(var(--primary)/0.45),transparent_55%),radial-gradient(circle_at_80%_70%,hsl(190_90%_50%/0.3),transparent_55%)]" />
-        )}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-transparent to-background" />
-        <div className="absolute inset-x-0 top-0 mx-auto flex max-w-7xl justify-end px-4 pt-4 sm:px-6">
+      <PageBody wide className="pb-0">
+        <div className="relative">
+          <div className="h-[26svh] min-h-[180px] max-h-[320px] overflow-hidden rounded-[1.8rem] border-[3px] border-foreground bg-surface-3">
+            {me.coverImage ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={me.coverImage} alt="" className="size-full object-cover" />
+            ) : (
+              <div className="flex size-full items-center justify-center bg-primary/20">
+                <span className="display select-none text-[8rem] text-primary/25">{me.name ?? "You"}</span>
+              </div>
+            )}
+          </div>
           <button
             type="button"
             onClick={() => coverInput.current?.click()}
             disabled={busy}
-            className="inline-flex items-center gap-1.5 rounded-full bg-black/50 px-3 py-1.5 text-xs font-semibold text-white ring-1 ring-white/20 backdrop-blur-md transition-colors hover:bg-black/70"
+            className="blob absolute right-4 top-4 inline-flex rotate-2 items-center gap-1.5 bg-side-ink px-3.5 py-2 text-side-mint transition-transform hover:rotate-0"
           >
-            <Camera className="size-3.5" /> {coverUp.progress !== null ? `Uploading ${coverUp.progress}%` : me.coverImage ? "Change cover" : "Add cover"}
+            <Camera className="size-4" strokeWidth={2.6} /> <span className="marker text-sm">{coverUp.progress !== null ? `uploading ${coverUp.progress}%` : me.coverImage ? "change cover" : "add cover"}</span>
           </button>
+          <input ref={coverInput} type="file" accept={accept} hidden onChange={(e) => void pick(e.target.files?.[0], "coverImage")} />
         </div>
-        <input ref={coverInput} type="file" accept={accept} hidden onChange={(e) => void pick(e.target.files?.[0], "coverImage")} />
-      </div>
 
-      <PageBody wide className="pb-0 pt-0">
         <header className="flex flex-col gap-4 sm:flex-row sm:items-end">
           <button
             type="button"
             onClick={() => avatarInput.current?.click()}
             disabled={busy}
             aria-label="Change profile picture"
-            className="group relative -mt-14 w-fit shrink-0 rounded-full bg-gradient-to-tr from-primary via-green-hot to-cyan-400 p-[3px] shadow-[0_0_40px_-8px_hsl(var(--primary)/0.8)] sm:-mt-20"
+            className="group relative -mt-16 ml-4 w-fit shrink-0 -rotate-3 self-start rounded-full bg-primary p-1 sm:-mt-20"
           >
             <Avatar src={me.image} name={me.name} className="size-24 border-4 border-background text-3xl sm:size-36" />
-            <span className="absolute inset-[3px] flex items-center justify-center rounded-full bg-black/45 text-sm font-semibold text-white opacity-0 transition-opacity group-hover:opacity-100">
+            <span className="absolute inset-1 flex items-center justify-center rounded-full bg-black/55 text-sm font-semibold text-white opacity-0 transition-opacity group-hover:opacity-100">
               {avatarUp.progress !== null ? `${avatarUp.progress}%` : <Camera className="size-6" />}
             </span>
             <span className="absolute bottom-1 right-1 flex size-8 items-center justify-center rounded-full bg-primary text-primary-foreground ring-4 ring-background sm:bottom-2 sm:right-2">
@@ -155,9 +153,9 @@ function ProfileHeader({ me }: { me: Me }) {
           </button>
           <input ref={avatarInput} type="file" accept={accept} hidden onChange={(e) => void pick(e.target.files?.[0], "image")} />
           <div className="min-w-0 space-y-1 pb-1">
-            <p className="truncate font-hud text-3xl font-bold tracking-tight sm:text-4xl">{me.name ?? "Your profile"}</p>
+            <p className="display truncate text-6xl sm:text-7xl">{me.name ?? "Your profile"}</p>
             {me.bio ? <p className="max-w-2xl whitespace-pre-line break-words text-sm leading-relaxed text-muted-foreground">{me.bio}</p> : <p className="text-sm text-muted-foreground">Add a bio so people know who you are.</p>}
-            {me.joinedAt && <p className="text-xs text-muted-foreground">Joined {new Date(me.joinedAt).toLocaleDateString("en-US", { month: "long", year: "numeric" })}</p>}
+            {me.joinedAt && <p className="marker text-sm text-primary">joined {new Date(me.joinedAt).toLocaleDateString("en-US", { month: "long", year: "numeric" })}</p>}
           </div>
         </header>
       </PageBody>
@@ -184,21 +182,21 @@ function ProfileForm({ me }: { me: Me }) {
   };
 
   return (
-    <form onSubmit={save} className="glass space-y-5 self-start rounded-2xl p-5">
-      <h2 className="font-hud font-bold">Profile</h2>
+    <form onSubmit={save} className="glass space-y-5 self-start rounded-[1.4rem] p-5">
+      <h2 className="display text-3xl">Profile</h2>
       <label className="block space-y-1.5">
         <span className="text-sm font-semibold">Display name</span>
-        <Input value={name} onChange={(e) => setName(e.target.value)} minLength={2} maxLength={100} required className="h-11 rounded-xl" />
+        <Input value={name} onChange={(e) => setName(e.target.value)} minLength={2} maxLength={100} required />
       </label>
       <label className="block space-y-1.5">
         <span className="flex justify-between text-sm font-semibold">
           Bio <span className="font-normal tabular-nums text-muted-foreground">{bio.length}/{BIO_MAX}</span>
         </span>
-        <Textarea value={bio} onChange={(e) => setBio(e.target.value.slice(0, BIO_MAX))} rows={3} placeholder="A line about you" className="resize-none rounded-xl" />
+        <Textarea value={bio} onChange={(e) => setBio(e.target.value.slice(0, BIO_MAX))} rows={3} placeholder="A line about you" className="resize-none" />
       </label>
       {update.error && <p className="rounded-lg tone-danger px-3 py-2 text-sm">{update.error.message}</p>}
       <div className="flex justify-end">
-        <Button type="submit" className="rounded-xl px-6" disabled={!dirty || update.isPending || name.trim().length < 2}>
+        <Button type="submit" className="px-6" disabled={!dirty || update.isPending || name.trim().length < 2}>
           {update.isPending ? "Saving…" : "Save changes"}
         </Button>
       </div>
@@ -209,8 +207,8 @@ function ProfileForm({ me }: { me: Me }) {
 function AppearanceCard() {
   const { theme, setTheme } = useTheme();
   return (
-    <section className="glass space-y-3 rounded-2xl p-5">
-      <h2 className="font-hud font-bold">Appearance</h2>
+    <section className="glass space-y-3 rounded-[1.4rem] p-5">
+      <h2 className="display text-3xl">Appearance</h2>
       <div className="grid grid-cols-3 gap-2" role="radiogroup" aria-label="Theme">
         {THEMES.map((t) => (
           <button
@@ -220,11 +218,11 @@ function AppearanceCard() {
             aria-checked={theme === t.id}
             onClick={() => setTheme(t.id)}
             className={cn(
-              "flex flex-col items-center gap-1.5 rounded-xl p-3 text-sm font-semibold ring-1 transition-all",
-              theme === t.id ? "bg-primary/10 text-primary ring-2 ring-primary" : "bg-foreground/[0.03] text-muted-foreground ring-foreground/[0.08] hover:text-foreground",
+              "blob flex flex-col items-center gap-1.5 p-3 text-sm font-bold transition-colors",
+              theme === t.id ? "bg-primary text-primary-foreground" : "bg-surface-2 text-muted-foreground hover:text-foreground",
             )}
           >
-            <t.icon className="size-5" /> {t.label}
+            <t.icon className="size-5" strokeWidth={2.4} /> {t.label}
           </button>
         ))}
       </div>
@@ -258,8 +256,8 @@ function AccountCard({ me }: { me: Me }) {
     });
 
   return (
-    <section className="glass space-y-4 rounded-2xl p-5">
-      <h2 className="font-hud font-bold">Account</h2>
+    <section className="glass space-y-4 rounded-[1.4rem] p-5">
+      <h2 className="display text-3xl">Account</h2>
       <dl className="space-y-3 text-sm">
         <div className="flex items-center justify-between gap-3">
           <dt className="text-muted-foreground">Signed in with</dt>
@@ -277,8 +275,8 @@ function AccountCard({ me }: { me: Me }) {
         <div className="space-y-1.5">
           <dt className="text-muted-foreground">Stellar address</dt>
           <dd className="flex items-center gap-2">
-            <span className="min-w-0 flex-1 break-all rounded-xl bg-foreground/[0.04] px-3 py-2 font-mono text-xs ring-1 ring-foreground/[0.06]">{me.id}</span>
-            <Button type="button" variant="outline" size="icon" className="shrink-0 rounded-xl" onClick={copy} aria-label="Copy address">
+            <span className="min-w-0 flex-1 break-all rounded-xl border-2 border-dashed border-foreground/15 px-3 py-2 font-mono text-xs">{me.id}</span>
+            <Button type="button" variant="outline" size="icon" className="shrink-0 rounded-full" onClick={copy} aria-label="Copy address">
               {copied ? <Check className="size-4" /> : <Copy className="size-4" />}
             </Button>
           </dd>
@@ -290,7 +288,7 @@ function AccountCard({ me }: { me: Me }) {
           </div>
         )}
       </dl>
-      <Button type="button" variant="outline" className="w-full rounded-xl text-destructive hover:text-destructive" onClick={() => void signOut({ callbackUrl: "/" })}>
+      <Button type="button" variant="outline" className="w-full text-destructive hover:border-destructive hover:text-destructive" onClick={() => void signOut({ callbackUrl: "/" })}>
         <LogOut className="size-4" /> Sign out
       </Button>
     </section>

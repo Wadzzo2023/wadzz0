@@ -40,8 +40,8 @@ export function CostBreakdown({
   const totals = (
     <dl className="space-y-1 text-sm">
       <div className="flex items-center justify-between gap-3">
-        <dt className="font-hud font-semibold">Total</dt>
-        <dd className="font-hud text-lg font-bold tabular-nums">{formatAmount(total, currency)}</dd>
+        <dt className="display text-2xl">Total</dt>
+        <dd className="display text-3xl tabular-nums text-primary">{formatAmount(total, currency)}</dd>
       </div>
       {balance != null && (
         <div className="flex items-center justify-between gap-3 text-xs text-muted-foreground">
@@ -54,26 +54,26 @@ export function CostBreakdown({
 
   if (collapsible) {
     return (
-      <details className={cn("group rounded-xl bg-foreground/[0.04] p-3.5 ring-1 ring-foreground/[0.06]", className)}>
+      <details className={cn("group rounded-[1.2rem] border-2 border-dashed border-foreground/15 p-3.5", className)}>
         {/* closed: only the total shows; the hint lives in <summary> so it stays visible */}
         <summary className="cursor-pointer list-none [&::-webkit-details-marker]:hidden">
           {totals}
-          <span className="mt-1.5 flex items-center justify-center gap-1 text-xs font-medium text-primary">
+          <span className="marker mt-1.5 flex items-center justify-center gap-1 text-xs text-primary">
             <span className="group-open:hidden">See breakdown</span>
             <span className="hidden group-open:inline">Hide breakdown</span>
             <ChevronDown className="size-3.5 transition-transform group-open:rotate-180" />
           </span>
         </summary>
-        <div className="mt-3 border-t border-foreground/[0.08] pt-3">{rows}</div>
+        <div className="mt-3 border-t-2 border-dashed border-foreground/10 pt-3">{rows}</div>
       </details>
     );
   }
 
   return (
-    <div className={cn("rounded-xl bg-foreground/[0.04] p-4 ring-1 ring-foreground/[0.06]", className)}>
+    <div className={cn("rounded-[1.2rem] border-2 border-dashed border-foreground/15 p-4", className)}>
       <p className="label-caps mb-3">Cost breakdown</p>
       {rows}
-      <div className="mt-2.5 border-t border-foreground/[0.08] pt-2.5">{totals}</div>
+      <div className="mt-2.5 border-t-2 border-dashed border-foreground/10 pt-2.5">{totals}</div>
     </div>
   );
 }
@@ -88,7 +88,7 @@ const ACTION: Record<NonNullable<Problem["action"]>, { label: string; href?: str
 export function ProblemList({ problems, creatorHref, onFollow }: { problems: Problem[]; creatorHref?: string; onFollow?: () => void }) {
   if (!problems.length) {
     return (
-      <p className="flex items-center gap-2 rounded-lg tone-success px-3 py-2 text-sm font-medium">
+      <p className="flex items-center gap-2 rounded-xl tone-success px-3 py-2 text-sm font-bold">
         <CheckCircle2 className="size-4" /> Ready — this transaction will go through.
       </p>
     );

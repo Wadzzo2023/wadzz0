@@ -41,7 +41,7 @@ export function ConfirmDialog({
     <AlertDialog open={open} onOpenChange={(o) => !busy && onOpenChange(o)}>
       <AlertDialogContent className="sm:max-w-md">
         <AlertDialogHeader>
-          <AlertDialogTitle className="font-hud">{title}</AlertDialogTitle>
+          <AlertDialogTitle className="display text-2xl">{title}</AlertDialogTitle>
           {description && <AlertDialogDescription>{description}</AlertDialogDescription>}
         </AlertDialogHeader>
         <AlertDialogFooter>

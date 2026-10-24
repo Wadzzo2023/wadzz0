@@ -10,6 +10,7 @@ import { useBountyAttention } from "~/hooks/use-bounty-attention";
 import { useRequireAuth } from "~/hooks/use-require-auth";
 import type { BountyCardData } from "~/lib/bounty";
 import { cn } from "~/lib/utils";
+import { wordTab, wordTabList, wordTabOff, wordTabOn } from "~/ui/styles";
 import { EmptyState } from "~/ui/empty-state";
 import { SearchInput } from "~/ui/toolbar";
 import { api } from "~/utils/api";
@@ -23,7 +24,7 @@ const TABS = [
 ] as const;
 type Tab = (typeof TABS)[number]["id"];
 
-const grid = "grid grid-cols-1 gap-4 lg:grid-cols-2";
+const grid = "grid grid-cols-1 gap-5 lg:grid-cols-2";
 
 /** Bounty browser: filter tabs + search, a "needs you" strip, and the card grid. */
 export function BountyBrowser({ initial }: { initial: BountyCardData[] }) {
@@ -50,25 +51,25 @@ export function BountyBrowser({ initial }: { initial: BountyCardData[] }) {
   return (
     <div className="space-y-6">
       {unseen.length > 0 && (
-        <section className="glass space-y-2 rounded-2xl border-primary/30 p-4">
-          <p className="flex items-center gap-2 font-hud text-sm font-bold">
-            <Bell className="size-4 text-primary" /> Needs you
+        <section className="blob space-y-3 bg-pink p-4 text-side-ink">
+          <p className="marker flex -rotate-1 items-center gap-2 text-base">
+            <Bell className="size-4" strokeWidth={2.6} /> needs you!
           </p>
-          <ul className="grid gap-2 sm:grid-cols-2">
+          <ul className="grid grid-cols-[minmax(0,1fr)] gap-2 sm:grid-cols-2">
             {unseen.map((u) => (
               <li key={`${u.kind}-${u.bountyId}`}>
                 <Link
                   href={`/bounties/${u.bountyId}${u.kind === "won" ? "" : "?section=chat"}`}
-                  className="flex items-center gap-3 rounded-xl bg-foreground/[0.04] p-3 ring-1 ring-foreground/[0.06] transition-colors hover:bg-primary/10"
+                  className="flex items-center gap-3 rounded-xl bg-side-ink p-3 text-side-mint transition-transform hover:-translate-y-0.5"
                 >
                   <span className={cn("flex size-9 shrink-0 items-center justify-center rounded-lg", u.kind === "won" ? "tone-warning" : "tone-info")}>
                     {u.kind === "won" ? <Trophy className="size-4" /> : <Bell className="size-4" />}
                   </span>
                   <span className="min-w-0 flex-1">
                     <span className="block text-sm font-semibold">{u.kind === "won" ? "You won!" : "The brand replied"}</span>
-                    <span className="block truncate text-xs text-muted-foreground">{u.title}</span>
+                    <span className="block truncate text-xs text-side-mint/70">{u.title}</span>
                   </span>
-                  <ArrowRight className="size-4 text-muted-foreground" />
+                  <ArrowRight className="size-4" strokeWidth={2.6} />
                 </Link>
               </li>
             ))}
@@ -76,8 +77,8 @@ export function BountyBrowser({ initial }: { initial: BountyCardData[] }) {
         </section>
       )}
 
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="glass flex w-fit max-w-full gap-1 overflow-x-auto rounded-xl p-1" role="tablist">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div className={cn(wordTabList, "flex-1")} role="tablist">
           {TABS.map((t) => (
             <button
               key={t.id}
@@ -85,14 +86,11 @@ export function BountyBrowser({ initial }: { initial: BountyCardData[] }) {
               role="tab"
               aria-selected={tab === t.id}
               onClick={() => (t.id === "joined" && !signedIn ? openSignIn() : setTab(t.id))}
-              className={cn(
-                "flex h-9 shrink-0 items-center gap-1.5 rounded-lg px-4 text-sm font-semibold transition-colors",
-                tab === t.id ? "bg-primary text-primary-foreground shadow-[0_0_20px_-6px_hsl(var(--primary)/0.8)]" : "text-muted-foreground hover:text-foreground",
-              )}
+              className={cn(wordTab, tab === t.id ? wordTabOn : wordTabOff)}
             >
               {t.label}
               {t.id === "joined" && signedIn && mine.data && (
-                <span className={cn("rounded-full px-1.5 text-[11px] tabular-nums", tab === t.id ? "bg-black/15" : "bg-foreground/10")}>{mine.data.length}</span>
+                <span className={cn("rounded-full px-2 font-sans text-xs font-bold tabular-nums", tab === t.id ? "bg-primary text-primary-foreground" : "bg-foreground/10")}>{mine.data.length}</span>
               )}
             </button>
           ))}
@@ -111,7 +109,7 @@ export function BountyBrowser({ initial }: { initial: BountyCardData[] }) {
           icon={Target}
           title={tab === "joined" ? "You haven't joined a bounty yet" : search ? "No bounties match" : "No open bounties right now"}
           description={tab === "joined" ? "Join one to submit an entry and talk to the brand." : "New tasks from brands appear here."}
-          action={tab === "joined" ? <Button className="rounded-xl" onClick={() => setTab("open")}>Browse bounties</Button> : undefined}
+          action={tab === "joined" ? <Button onClick={() => setTab("open")}>Browse bounties</Button> : undefined}
         />
       ) : (
         <div className={grid}>
@@ -123,7 +121,7 @@ export function BountyBrowser({ initial }: { initial: BountyCardData[] }) {
 
       {isList && list.hasNextPage && (
         <div className="flex justify-center">
-          <Button variant="outline" className="rounded-xl" disabled={list.isFetchingNextPage} onClick={() => void list.fetchNextPage()}>
+          <Button variant="outline" disabled={list.isFetchingNextPage} onClick={() => void list.fetchNextPage()}>
             {list.isFetchingNextPage ? "Loading…" : "Load more"}
           </Button>
         </div>

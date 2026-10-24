@@ -60,10 +60,10 @@ function NotificationsView() {
         description="Posts and bounties from brands you follow, replies, and your purchases and gifts."
         actions={
           <>
-            <Button variant="outline" size="sm" className="glass shrink-0 rounded-xl" disabled={!totalUnread || markAllRead.isPending} onClick={() => markAllRead.mutate({ category })}>
+            <Button variant="outline" size="sm" className="shrink-0" disabled={!totalUnread || markAllRead.isPending} onClick={() => markAllRead.mutate({ category })}>
               <CheckCheck className="size-4" /> Mark all read
             </Button>
-            <Button variant="ghost" size="sm" className="shrink-0 rounded-xl" disabled={clearRead.isPending} onClick={() => clearRead.mutate()}>
+            <Button variant="ghost" size="sm" className="shrink-0" disabled={clearRead.isPending} onClick={() => clearRead.mutate()}>
               <Trash2 className="size-4" /> Clear read
             </Button>
           </>
@@ -77,7 +77,7 @@ function NotificationsView() {
             <Chip key={c.id} active={category === c.id} onClick={() => setCategory(c.id)} label={c.label} count={counts.data?.[c.id] ?? 0} />
           ))}
         </div>
-        <div className="glass flex gap-1 rounded-xl p-1" role="tablist" aria-label="Show">
+        <div className="flex h-12 items-center gap-1 rounded-2xl bg-surface-2 p-1" role="tablist" aria-label="Show">
           {[
             { id: false, label: "All" },
             { id: true, label: "Unread" },
@@ -88,7 +88,7 @@ function NotificationsView() {
               role="tab"
               aria-selected={unreadOnly === o.id}
               onClick={() => setUnreadOnly(o.id)}
-              className={cn("h-8 rounded-lg px-3.5 text-sm font-semibold transition-colors", unreadOnly === o.id ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground")}
+              className={cn("flex h-10 items-center px-4 font-hud text-lg uppercase transition-colors", unreadOnly === o.id ? "blob bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground")}
             >
               {o.label}
             </button>
@@ -97,7 +97,7 @@ function NotificationsView() {
       </div>
 
       {q.isLoading ? (
-        <div className="glass space-y-2 rounded-2xl p-2">
+        <div className="glass space-y-2 rounded-[1.4rem] p-2">
           {Array.from({ length: 6 }).map((_, i) => (
             <Skeleton key={i} className="h-16 rounded-xl" />
           ))}
@@ -107,14 +107,14 @@ function NotificationsView() {
           icon={Bell}
           title={unreadOnly ? "Nothing unread" : "You're all caught up"}
           description={unreadOnly ? "You've read everything." : "Follow brands to hear about their new posts and bounties."}
-          action={!unreadOnly && <Button asChild className="rounded-xl"><Link href="/creators">Find creators</Link></Button>}
+          action={!unreadOnly && <Button asChild><Link href="/creators">Find creators</Link></Button>}
         />
       ) : (
         <div className="space-y-5">
           {sections.map((s) => (
             <section key={s.label} className="space-y-2">
-              <h2 className="label-caps">{s.label}</h2>
-              <ul className="glass divide-y divide-foreground/[0.06] overflow-hidden rounded-2xl">
+              <h2 className="marker -rotate-1 text-base text-muted-foreground">*{s.label.toLowerCase()}*</h2>
+              <ul className="glass divide-y-2 divide-dashed divide-foreground/10 overflow-hidden rounded-[1.4rem]">
                 {s.rows.map((i) => (
                   <NotificationRow key={i.ids[0]} item={i} />
                 ))}
@@ -123,7 +123,7 @@ function NotificationsView() {
           ))}
           {q.hasNextPage && (
             <div className="flex justify-center">
-              <Button variant="outline" className="rounded-xl" disabled={q.isFetchingNextPage} onClick={() => void q.fetchNextPage()}>
+              <Button variant="outline" disabled={q.isFetchingNextPage} onClick={() => void q.fetchNextPage()}>
                 {q.isFetchingNextPage ? "Loading…" : "Load more"}
               </Button>
             </div>
@@ -142,12 +142,12 @@ function Chip({ active, onClick, label, count }: { active: boolean; onClick: () 
       aria-selected={active}
       onClick={onClick}
       className={cn(
-        "inline-flex h-8 items-center gap-1.5 rounded-full border px-3 text-sm font-medium transition-colors",
-        active ? "border-primary bg-primary/10 text-primary" : "glass text-muted-foreground hover:text-foreground",
+        "inline-flex h-10 items-center gap-1.5 rounded-full border-2 px-4 font-hud text-base uppercase transition-colors",
+        active ? "border-primary bg-primary text-primary-foreground" : "border-foreground/12 text-muted-foreground hover:border-foreground hover:text-foreground",
       )}
     >
       {label}
-      {count > 0 && <span className="flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold text-primary-foreground">{count > 99 ? "99+" : count}</span>}
+      {count > 0 && <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-pink px-1 font-sans text-[10px] font-bold text-side-ink">{count > 99 ? "99+" : count}</span>}
     </button>
   );
 }

@@ -21,10 +21,10 @@ export type Tier = { id: number; name: string; description: string; features: st
 export function TierCard({ tier, code, current, reached, action }: { tier: Tier; code: string; current: boolean; reached: boolean; action?: ReactNode }) {
   const c = tierColor(tier.color);
   return (
-    <div className={cn("glass relative flex flex-col overflow-hidden rounded-2xl p-5", (current || tier.popular) && c.ring, current && "glow")}>
+    <div className={cn("glass relative flex flex-col overflow-hidden rounded-[1.4rem] p-5", (current || tier.popular) && c.ring, current && "glow")}>
       <div className={cn("absolute inset-x-0 top-0 h-1 rounded-t-2xl", c.bar)} />
       <div className="flex items-start justify-between gap-2">
-        <h3 className="font-hud text-lg font-bold">{tier.name}</h3>
+        <h3 className="display text-3xl">{tier.name}</h3>
         {current ? (
           <span className="rounded-full tone-success px-2 py-0.5 text-[11px] font-semibold">Your tier</span>
         ) : tier.popular ? (
@@ -33,7 +33,7 @@ export function TierCard({ tier, code, current, reached, action }: { tier: Tier;
           </span>
         ) : null}
       </div>
-      <p className="mt-1 font-hud text-2xl font-bold tabular-nums">
+      <p className="display mt-1 text-4xl tabular-nums">
         {tier.price.toLocaleString("en-US")} <span className="text-sm font-medium text-muted-foreground">{code}</span>
       </p>
       <p className="text-xs text-muted-foreground">page tokens held</p>

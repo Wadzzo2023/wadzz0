@@ -30,24 +30,24 @@ export function Composer() {
   };
 
   return (
-    <a href={href} onClick={go} className="glass group block rounded-2xl p-4 transition-all hover:glow">
+    <a href={href} onClick={go} className="glass group block rounded-[1.6rem] p-4 transition-colors hover:border-foreground">
       <div className="flex items-center gap-3">
         <Avatar src={avatar} name={name} className="size-10" />
         <span className="flex h-11 flex-1 items-center rounded-xl bg-foreground/[0.04] px-4 text-sm text-muted-foreground ring-1 ring-foreground/[0.08] transition-colors group-hover:ring-primary/40">
           {prompt}
         </span>
       </div>
-      <div className="mt-3 flex items-center gap-1 border-t border-foreground/[0.06] pt-3 text-xs font-semibold text-muted-foreground">
+      <div className="mt-3 flex items-center gap-1 border-t-2 border-dashed border-foreground/10 pt-3 text-xs font-semibold text-muted-foreground">
         {[
           { icon: ImageIcon, label: "Photo" },
           { icon: Video, label: "Video" },
           { icon: Lock, label: "Members-only" },
         ].map((c) => (
           <span key={c.label} className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 transition-colors group-hover:text-foreground">
-            <c.icon className="size-4 text-primary" /> {c.label}
+            <c.icon className="size-4 text-primary" /> <span className="hidden sm:inline">{c.label}</span>
           </span>
         ))}
-        <span className="ml-auto inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-primary-foreground shadow-[0_0_20px_-6px_hsl(var(--primary)/0.8)]">
+        <span className="blob ml-auto inline-flex shrink-0 -rotate-2 items-center gap-1.5 bg-primary px-3.5 py-2 text-primary-foreground transition-transform group-hover:rotate-0">
           <PenSquare className="size-3.5" /> {isBrand || loading ? "Post" : signedIn ? "Create brand" : "Sign in"}
         </span>
       </div>

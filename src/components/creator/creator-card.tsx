@@ -17,10 +17,9 @@ import { FollowButton } from "./creator-actions";
 type CreatorCardData = RouterOutputs["creator"]["list"]["items"][number];
 
 /**
- * A brand as a poster, like the bounty cards: the cover fills the card behind
- * a dark scrim, with the avatar, name, bio and counts on top and Follow /
- * Share at the bottom. The whole card links to the brand; the actions sit
- * above that link.
+ * A brand as a poster: the cover (or logo) fills the card, and the avatar,
+ * name, bio, fan and post counts and Follow / Share sit on a dark fade. The
+ * whole card links to the brand; the actions sit above that link.
  */
 export function CreatorCard({ creator, className }: { creator: CreatorCardData; className?: string }) {
   const href = creatorHref(creator);
@@ -39,62 +38,66 @@ export function CreatorCard({ creator, className }: { creator: CreatorCardData; 
     }
   };
 
+  const bg = creator.coverUrl ?? creator.profileUrl;
+
   return (
     <article
       className={cn(
-        "group relative isolate flex min-h-60 flex-col overflow-hidden rounded-2xl bg-surface-2 p-5 text-white ring-1 ring-foreground/10 transition-all duration-300 hover:glow hover:-translate-y-1",
+        "group relative isolate flex min-h-[22rem] flex-col overflow-hidden rounded-[1.4rem] border-2 border-foreground/10 bg-surface-3 p-4 text-white",
+        "transition-[transform,border-color,box-shadow] duration-200 ease-out hover:-translate-y-1 hover:-rotate-1 hover:border-foreground hover:shadow-[6px_7px_0_0_hsl(var(--primary))]",
         className,
       )}
     >
-      {/* background */}
-      {creator.coverUrl ? (
+      {/* the cover (or the logo) is the card's background */}
+      {bg ? (
         // eslint-disable-next-line @next/next/no-img-element
-        <img src={creator.coverUrl} alt="" loading="lazy" className="absolute inset-0 -z-10 size-full object-cover transition-transform duration-700 group-hover:scale-110" />
+        <img src={bg} alt="" loading="lazy" className="absolute inset-0 -z-10 size-full object-cover transition-transform duration-500 group-hover:scale-105" />
       ) : (
-        <div className="absolute inset-0 -z-10 flex items-center justify-center bg-black bg-[radial-gradient(circle_at_25%_20%,hsl(var(--primary)/0.55),transparent_60%),radial-gradient(circle_at_80%_75%,hsl(190_90%_45%/0.45),transparent_60%)]">
-          <Store className="size-20 text-white/20" />
+        <div className="absolute inset-0 -z-10 flex items-center justify-center bg-primary/25">
+          <Store className="size-24 text-primary/50" strokeWidth={1.6} />
         </div>
       )}
-      <div className="absolute inset-0 -z-10 bg-gradient-to-b from-black/50 via-black/60 to-black/85" />
+      <div aria-hidden className="absolute inset-x-0 top-0 -z-10 h-1/4 bg-gradient-to-b from-black/50 to-transparent" />
+      <div aria-hidden className="absolute inset-x-0 bottom-0 -z-10 h-[80%] bg-gradient-to-t from-black/95 via-black/75 to-transparent" />
+
+      {creator.pageAsset && <span className="marker w-fit -rotate-3 self-end rounded-md bg-pink px-2 py-0.5 text-xs text-side-ink">${creator.pageAsset.code}</span>}
 
       {/* identity — the name's link stretches over the whole card */}
-      <div className="flex items-center gap-3">
-        <span className="shrink-0 rounded-full bg-gradient-to-tr from-primary via-green-hot to-cyan-400 p-[2px]">
-          <Avatar src={creator.profileUrl} name={creator.name} className="size-14 border-2 border-black text-lg" />
+      <div className="mt-auto space-y-2 pt-10">
+        <span className="block w-fit -rotate-3 rounded-full bg-primary p-[3px] transition-transform duration-200 group-hover:rotate-0">
+          <Avatar src={creator.profileUrl} name={creator.name} className="size-16 border-2 border-black text-xl" />
         </span>
-        <div className="min-w-0">
-          <h3 className="flex items-center gap-1.5 font-hud text-lg font-bold leading-snug">
-            <Link href={href} className="truncate after:absolute after:inset-0 focus-visible:outline-none">
-              {creator.name}
-            </Link>
-            <BadgeCheck className="size-4 shrink-0 text-[hsl(112_85%_62%)]" />
-          </h3>
-          {creator.pageAsset && <p className="text-xs font-semibold text-[hsl(112_70%_70%)]">${creator.pageAsset.code}</p>}
-        </div>
-      </div>
+        <h3 className="display flex items-center gap-2 text-4xl leading-[0.95]">
+          <Link href={href} className="min-w-0 truncate after:absolute after:inset-0 focus-visible:outline-none">
+            {creator.name}
+          </Link>
+          <BadgeCheck className="size-6 shrink-0 text-primary" strokeWidth={2.6} />
+        </h3>
+        <p className="line-clamp-2 break-words text-sm leading-relaxed text-white/75">{creator.bio?.trim() ? creator.bio : "No bio yet."}</p>
 
-      <p className="mt-4 line-clamp-2 flex-1 break-words text-sm leading-relaxed text-white/70">{creator.bio?.trim() ? creator.bio : "No bio yet."}</p>
-
-      {/* counts + actions */}
-      <div className="mt-5 flex items-center justify-between gap-3">
-        <p className="text-sm text-white/75">
-          <span className="font-semibold tabular-nums text-white">{creator._count.followers.toLocaleString("en-US")}</span> followers ·{" "}
-          <span className="font-semibold tabular-nums text-white">{creator._count.posts.toLocaleString("en-US")}</span> posts
-        </p>
-        <div className="relative z-10 flex shrink-0 items-center gap-1 text-sm font-semibold">
-          {mine ? (
-            <a href={portal} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 rounded-lg px-2 py-1 text-[hsl(112_85%_62%)] transition-colors hover:bg-white/10">
-              <ExternalLink className="size-4" /> Manage
-            </a>
-          ) : signedIn && !following.data ? (
-            <Skeleton className="h-8 w-24 rounded-full bg-white/10" />
-          ) : (
-            <FollowButton key={String(isFollowing)} creatorId={creator.id} initial={isFollowing} className="h-8 px-3 text-xs shadow-none" />
-          )}
-          <span className="h-4 w-px bg-white/25" aria-hidden />
-          <button type="button" onClick={() => void share()} className="inline-flex items-center gap-1.5 rounded-lg px-2 py-1 text-white/80 transition-colors hover:bg-white/10 hover:text-white">
-            <Share2 className="size-4" /> Share
-          </button>
+        <div className="flex items-center justify-between gap-3 border-t-2 border-dashed border-white/20 pt-3">
+          <p className="flex items-baseline gap-3 text-xs font-bold uppercase tracking-wider text-white/70">
+            <span>
+              <span className="display text-2xl text-white">{creator._count.followers.toLocaleString("en-US")}</span> fans
+            </span>
+            <span>
+              <span className="display text-2xl text-white">{creator._count.posts.toLocaleString("en-US")}</span> posts
+            </span>
+          </p>
+          <div className="relative z-10 flex shrink-0 items-center gap-1.5">
+            {mine ? (
+              <a href={portal} target="_blank" rel="noreferrer" className="inline-flex h-9 items-center gap-1.5 rounded-full border-2 border-white/30 px-3 text-xs font-bold transition-colors hover:border-white">
+                <ExternalLink className="size-3.5" /> Manage
+              </a>
+            ) : signedIn && !following.data ? (
+              <Skeleton className="h-9 w-24 rounded-full bg-white/10" />
+            ) : (
+              <FollowButton key={String(isFollowing)} creatorId={creator.id} initial={isFollowing} className="h-9 px-4 text-xs" />
+            )}
+            <button type="button" onClick={() => void share()} aria-label="Share" className="flex size-9 items-center justify-center rounded-full bg-white text-black transition-transform hover:-rotate-12">
+              <Share2 className="size-4" />
+            </button>
+          </div>
         </div>
       </div>
     </article>
@@ -102,5 +105,5 @@ export function CreatorCard({ creator, className }: { creator: CreatorCardData; 
 }
 
 export function CreatorCardSkeleton() {
-  return <Skeleton className="min-h-60 rounded-2xl" />;
+  return <Skeleton className="min-h-[22rem] rounded-[1.4rem]" />;
 }

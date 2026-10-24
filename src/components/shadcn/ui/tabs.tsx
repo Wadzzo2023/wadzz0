@@ -16,12 +16,12 @@ type Variant = "pill" | "line"
 const VariantContext = React.createContext<Variant>("pill")
 
 const LIST: Record<Variant, string> = {
-  pill: "inline-flex h-10 items-center justify-center gap-1 rounded-lg border bg-muted/60 p-1 text-muted-foreground",
-  line: "flex h-auto w-full items-stretch justify-start gap-1 overflow-x-auto border-b text-muted-foreground [scrollbar-width:none]",
+  pill: "inline-flex h-12 items-center justify-center gap-1 rounded-2xl bg-surface-2 p-1 text-muted-foreground",
+  line: "flex h-auto w-full items-stretch justify-start gap-1 overflow-x-auto border-b border-foreground/[0.08] text-muted-foreground [scrollbar-width:none]",
 }
 const TRIGGER: Record<Variant, string> = {
-  pill: "rounded-md px-3 py-1.5 data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm",
-  line: "relative -mb-px rounded-none border-b-2 border-transparent px-3 py-2.5 data-[state=active]:border-primary data-[state=active]:text-foreground",
+  pill: "blob px-4 py-2 font-hud text-base uppercase tracking-wide transition-colors hover:text-foreground data-[state=active]:bg-primary data-[state=active]:text-primary-foreground",
+  line: "relative -mb-px rounded-none border-b-[3px] border-transparent px-3.5 py-3 font-hud text-xl uppercase tracking-wide transition-colors hover:text-foreground data-[state=active]:border-primary data-[state=active]:text-foreground",
 }
 
 const TabsList = React.forwardRef<

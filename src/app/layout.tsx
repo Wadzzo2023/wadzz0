@@ -1,8 +1,7 @@
-// Self-hosted fonts (same families as the brand portal and fan apps): Sora body, Chakra Petch display.
+// Self-hosted fonts: Sora body, Anton display, Permanent Marker for hand-written notes.
 import "@fontsource-variable/sora";
-import "@fontsource/chakra-petch/500.css";
-import "@fontsource/chakra-petch/600.css";
-import "@fontsource/chakra-petch/700.css";
+import "@fontsource/anton/400.css";
+import "@fontsource/permanent-marker/400.css";
 import "~/styles/globals.css";
 
 import type { Metadata, Viewport } from "next";
@@ -30,7 +29,7 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
-  themeColor: "#060a08",
+  themeColor: "#1b1d1c",
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {

@@ -1,21 +1,23 @@
 "use client";
 
-import { ChevronLeft, ChevronRight, Menu, Monitor, Moon, Store, Sun } from "lucide-react";
+import { ArrowRight, ArrowUpRight, Bell, ChevronLeft, ChevronRight, LogIn, LogOut, Monitor, Moon, Search, Store, Sun, User } from "lucide-react";
+import { signOut } from "next-auth/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTheme } from "next-themes";
-import { useState, useSyncExternalStore } from "react";
+import { useSyncExternalStore } from "react";
 
-import { Sheet, SheetContent, SheetDescription, SheetTitle, SheetTrigger } from "~/components/shadcn/ui/sheet";
 import { env } from "~/env";
 import { useRequireAuth } from "~/hooks/use-require-auth";
 import { useSidebarCollapsed } from "~/hooks/use-sidebar-collapsed";
 import { cn } from "~/lib/utils";
 import { api } from "~/utils/api";
+import { addrShort } from "~/utils/utils";
 
 import { BrandMark } from "./brand-mark";
-import { CurrencyToggle } from "./currency-toggle";
-import { ACCOUNT, INFO_LINKS, MAIN, isActive, type NavItem } from "./nav";
+import { ACCOUNT, EXPLORE, INFO_LINKS, isActive, type NavItem } from "./nav";
+import { openSearch } from "./search-dialog";
+import { SOCIALS } from "./social-icons";
 
 const THEMES = [
   { id: "light", label: "Light", icon: Sun },
@@ -23,126 +25,296 @@ const THEMES = [
   { id: "system", label: "System", icon: Monitor },
 ] as const;
 
-function XIcon({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" className={className}>
-      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
-    </svg>
+const full = new Intl.NumberFormat("en-US", { maximumFractionDigits: 2 });
+
+const useMounted = () =>
+  useSyncExternalStore(
+    () => () => undefined,
+    () => true,
+    () => false,
+  );
+
+/** Below 1280px the desktop sidebar is always the icon rail. */
+function useWide() {
+  return useSyncExternalStore(
+    (cb) => {
+      const mq = window.matchMedia("(min-width: 1280px)");
+      mq.addEventListener("change", cb);
+      return () => mq.removeEventListener("change", cb);
+    },
+    () => window.matchMedia("(min-width: 1280px)").matches,
+    () => true,
   );
 }
-
-function InstagramIcon({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" className={className}>
-      <rect width="20" height="20" x="2" y="2" rx="5" ry="5" />
-      <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
-      <line x1="17.5" x2="17.51" y1="6.5" y2="6.5" />
-    </svg>
-  );
-}
-
-function FacebookIcon({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" className={className}>
-      <path
-        fillRule="evenodd"
-        clipRule="evenodd"
-        d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z"
-      />
-    </svg>
-  );
-}
-
-const SOCIALS = [
-  { href: "https://x.com/WadzzoApp", label: "X", icon: XIcon },
-  { href: "https://www.instagram.com/wadzzo", label: "Instagram", icon: InstagramIcon },
-  { href: "https://facebook.com/wadzzo", label: "Facebook", icon: FacebookIcon },
-];
 
 /** The brand entry: manage your brand, or create one. */
 function useBrandEntry() {
   const { signedIn } = useRequireAuth();
-  const me = api.user.me.useQuery(undefined, { enabled: signedIn, staleTime: 5 * 60_000 });
+  const me = api.user.me.useQuery(undefined, {
+    enabled: signedIn,
+    staleTime: 5 * 60_000,
+  });
   const isBrand = Boolean(me.data?.creator && !me.data.creator.notCreatorButSeller);
   const base = env.NEXT_PUBLIC_BRAND_PORTAL_URL.replace(/\/$/, "");
   return isBrand
-    ? { label: "My brand", hint: "Open brand studio", href: base, logo: me.data?.creator?.profileUrl ?? null, name: me.data?.creator?.name ?? null }
-    : { label: "Create brand", hint: "Start selling", href: `${base}/onboarding`, logo: null, name: null };
+    ? {
+        label: me.data?.creator?.name ?? "My studio",
+        hint: "Open your studio",
+        href: base,
+        logo: me.data?.creator?.profileUrl ?? null,
+      }
+    : {
+        label: "Create a brand",
+        hint: "Launch drops, earn royalties",
+        href: `${base}/onboarding`,
+        logo: null,
+      };
 }
 
-function NavLink({ item, active, collapsed, onNavigate }: { item: NavItem; active: boolean; collapsed: boolean; onNavigate?: () => void }) {
-  const Icon = item.icon;
+function useUnseen() {
+  const { signedIn } = useRequireAuth();
+  const unseen = api.notification.unseenCount.useQuery(undefined, {
+    enabled: signedIn,
+    refetchInterval: 60_000,
+  });
+  return signedIn ? (unseen.data ?? 0) : 0;
+}
+
+/* ─── expanded pieces ─────────────────────────────────────────────────────── */
+
+/** FC88 menu row: a giant condensed word and an arrow in an ink circle. */
+function BigNavLink({ item, active, onNavigate }: { item: NavItem; active: boolean; onNavigate?: () => void }) {
+  return (
+    <Link href={item.href} onClick={onNavigate} aria-current={active ? "page" : undefined} className="group flex items-center justify-between gap-3 py-1.5">
+      <span className="relative">
+        <span className="display block text-[2.15rem] transition-transform duration-200 group-hover:translate-x-1">{item.label}</span>
+        {active && (
+          <svg aria-hidden viewBox="0 0 120 10" preserveAspectRatio="none" className="text-side-ink absolute -bottom-1.5 left-0 h-2.5 w-full">
+            <path d="M2 6 C 30 1, 60 9, 118 3" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" />
+          </svg>
+        )}
+      </span>
+      <span
+        className={cn(
+          "flex size-9 shrink-0 items-center justify-center rounded-full transition-transform duration-200 group-hover:-rotate-45",
+          active ? "bg-side-mint text-side-ink" : "bg-side-ink text-side",
+        )}
+      >
+        <ArrowRight className="size-5" strokeWidth={2.6} />
+      </span>
+    </Link>
+  );
+}
+
+/** A chunky ink chip for the signed-in pages (Collection, Wallet…). */
+function ChipLink({ item, active, badge, onNavigate }: { item: NavItem; active: boolean; badge?: number; onNavigate?: () => void }) {
   return (
     <Link
       href={item.href}
       onClick={onNavigate}
       aria-current={active ? "page" : undefined}
-      title={collapsed ? item.label : undefined}
       className={cn(
-        "flex h-10 items-center gap-3 rounded-lg text-sm font-medium transition-colors",
-        collapsed ? "justify-center" : "px-3",
-        active ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-accent hover:text-foreground",
+        "blob relative flex h-10 items-center gap-2 px-3 text-[13px] font-bold transition-transform duration-200 hover:-translate-y-0.5",
+        active ? "bg-side-mint text-side-ink" : "bg-side-ink/90 text-side-mint hover:bg-side-ink",
       )}
     >
-      <Icon className="size-5 shrink-0" strokeWidth={active ? 2.4 : 2} />
-      <span className={cn("truncate", collapsed && "sr-only")}>{item.label}</span>
+      <item.icon className="size-4 shrink-0" strokeWidth={2.4} />
+      <span className="truncate">{item.label}</span>
+      {badge ? <span className="bg-pink text-side-ink ml-auto flex h-5 min-w-5 items-center justify-center rounded-full px-1 text-[10px] font-bold">{badge > 99 ? "99+" : badge}</span> : null}
     </Link>
   );
 }
 
-function BrandCard({ collapsed, onNavigate }: { collapsed: boolean; onNavigate?: () => void }) {
-  const brand = useBrandEntry();
-  const initial = brand.name?.trim()[0]?.toUpperCase();
+const iconButton = "relative flex size-10 shrink-0 items-center justify-center rounded-full bg-side-ink text-side transition-transform duration-200 hover:scale-110";
 
-  const tile = brand.logo ? (
+/** Search (opens the ⌘K palette) and notifications, as two ink circles beside the logo. */
+function QuickIcons({ onNavigate }: { onNavigate?: () => void }) {
+  const { signedIn } = useRequireAuth();
+  const unseen = useUnseen();
+  return (
+    <div className="flex shrink-0 items-center gap-2">
+      <button type="button" onClick={openSearch} title="Search (⌘K)" aria-label="Search" className={iconButton}>
+        <Search className="size-[18px]" strokeWidth={2.6} />
+      </button>
+      {signedIn && (
+        <Link href="/notifications" onClick={onNavigate} aria-label={unseen ? `Notifications (${unseen} new)` : "Notifications"} title="Notifications" className={iconButton}>
+          <Bell className="size-[18px]" strokeWidth={2.6} />
+          {unseen > 0 && (
+            <span className="bg-pink text-side-ink ring-side absolute -top-1 -right-1 flex h-[18px] min-w-[18px] items-center justify-center rounded-full px-1 text-[10px] font-bold ring-2">
+              {unseen > 9 ? "9+" : unseen}
+            </span>
+          )}
+        </Link>
+      )}
+    </div>
+  );
+}
+
+function Avatar({ image, size = "size-11" }: { image: string | null; size?: string }) {
+  return image ? (
     // eslint-disable-next-line @next/next/no-img-element
-    <img src={brand.logo} alt="" className="size-9 shrink-0 rounded-lg object-cover" />
-  ) : initial ? (
-    <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary/12 font-hud text-base font-bold text-primary">{initial}</span>
+    <img src={image} alt="" className={cn(size, "border-side shrink-0 rounded-full border-2 object-cover")} />
   ) : (
-    <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary/12 text-primary">
-      <Store className="size-[18px]" />
+    <span className={cn(size, "border-side bg-side text-side-ink flex shrink-0 items-center justify-center rounded-full border-2")}>
+      <User className="size-5" strokeWidth={2.4} />
     </span>
   );
+}
 
+/** Who you are and what you hold, as an ink card. Signed out: a big sign-in button. */
+function PlayerCard({ onNavigate }: { onNavigate?: () => void }) {
+  const { signedIn, loading, session, openSignIn } = useRequireAuth();
+  const me = api.user.me.useQuery(undefined, {
+    enabled: signedIn,
+    staleTime: 5 * 60_000,
+  });
+  const balances = api.wallet.balances.useQuery(undefined, {
+    enabled: signedIn,
+    staleTime: 30_000,
+  });
+
+  if (loading) return <div className="blob bg-side-ink/15 h-[178px]" />;
+
+  if (!signedIn)
+    return (
+      <div className="blob bg-side-ink text-side-mint p-3">
+        <div className="flex items-center gap-3">
+          <Avatar image={null} />
+          <div className="min-w-0 flex-1 leading-tight">
+            <p className="text-sm font-bold">Hey, guest!</p>
+            <p className="marker text-side-mint/60 text-[11px]">collecting starts here</p>
+          </div>
+        </div>
+        <button
+          type="button"
+          onClick={openSignIn}
+          className="blob bg-side text-side-ink mt-3 flex h-11 w-full items-center justify-center gap-2 transition-transform duration-200 hover:-translate-y-0.5"
+        >
+          <LogIn className="size-4" strokeWidth={2.6} />
+          <span className="marker text-base">Sign in / Sign up</span>
+        </button>
+        <StudioRow onNavigate={onNavigate} />
+      </div>
+    );
+
+  const id = session?.user.id;
+  const name = me.data?.name ?? session?.user.name ?? "Collector";
+  const b = balances.data;
+
+  return (
+    <div className="blob bg-side-ink text-side-mint p-3">
+      <div className="flex items-center gap-3">
+        <Link href="/settings" onClick={onNavigate} aria-label="Settings">
+          <Avatar image={me.data?.image ?? session?.user.image ?? null} />
+        </Link>
+        <div className="min-w-0 flex-1 leading-tight">
+          <p className="truncate text-sm font-bold">{name}</p>
+          {id && <p className="text-side-mint/55 truncate font-mono text-[11px]">{addrShort(id, 5)}</p>}
+        </div>
+      </div>
+      <div className="border-side-mint/20 mt-3 border-t border-dashed pt-2.5">
+        <Link href="/wallet" onClick={onNavigate} className="block min-w-0">
+          <p className="text-side-mint/55 text-[10px] font-bold tracking-[0.16em] uppercase">Balance</p>
+          {!b ? (
+            <span className="bg-side-mint/10 mt-1 block h-7 w-24 rounded" />
+          ) : b.active ? (
+            <p className="flex items-baseline gap-1.5 truncate">
+              <span className="display text-side text-[1.9rem]">{full.format(b.platform.balance)}</span>
+              <span className="marker text-side-mint/70 text-xs">{b.platform.code}</span>
+            </p>
+          ) : (
+            <p className="marker text-side mt-1 text-sm">Activate wallet →</p>
+          )}
+        </Link>
+      </div>
+      <StudioRow onNavigate={onNavigate} />
+    </div>
+  );
+}
+
+/** The brand entry, as the last row of the ink card: the studio's logo and name (or "Create a brand"), opening the brand portal. */
+function StudioRow({ onNavigate }: { onNavigate?: () => void }) {
+  const brand = useBrandEntry();
   return (
     <a
       href={brand.href}
       target="_blank"
       rel="noreferrer"
       onClick={onNavigate}
-      title={collapsed ? brand.label : undefined}
-      aria-label={collapsed ? brand.label : undefined}
-      className={cn(
-        "group flex items-center gap-3 rounded-xl border border-foreground/[0.08] bg-surface-2 transition-colors hover:border-primary/50",
-        collapsed ? "justify-center p-1.5" : "p-2",
-      )}
+      className="group bg-side-mint/10 hover:bg-side-mint/20 mt-2.5 flex items-center gap-2.5 rounded-xl p-1.5 pr-2.5 transition-colors"
     >
-      {tile}
-      {!collapsed && (
-        <>
-          <span className="min-w-0 flex-1 leading-tight">
-            <span className="block truncate text-sm font-semibold">{brand.name ?? brand.label}</span>
-            <span className="block truncate text-xs text-muted-foreground">{brand.hint}</span>
-          </span>
-          <ChevronRight className="size-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:text-primary" />
-        </>
+      {brand.logo ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={brand.logo} alt="" className="size-9 shrink-0 rounded-lg object-cover" />
+      ) : (
+        <span className="bg-side text-side-ink flex size-9 shrink-0 items-center justify-center rounded-lg">
+          <Store className="size-[18px]" strokeWidth={2.4} />
+        </span>
       )}
+      <span className="min-w-0 flex-1 leading-tight">
+        <span className="block truncate text-sm font-bold">{brand.label}</span>
+        <span className="text-side-mint/60 block truncate text-[11px]">{brand.hint}</span>
+      </span>
+      <ArrowUpRight className="text-side size-4 shrink-0 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" strokeWidth={2.6} />
     </a>
   );
 }
 
-function ThemeSwitch({ collapsed }: { collapsed: boolean }) {
-  const { theme: stored, setTheme } = useTheme();
-  // next-themes only knows the theme on the client; until then render the default so markup matches the server
-  const mounted = useSyncExternalStore(
-    () => () => undefined,
-    () => true,
-    () => false,
+/** The fixed footer: theme, info pages, socials, sign out and the copyright, kept compact. */
+function SidebarFooter({ onNavigate }: { onNavigate?: () => void }) {
+  const { signedIn } = useRequireAuth();
+  return (
+    <div className="space-y-2.5">
+      <div className="flex items-center justify-between gap-2">
+        <ThemeSwitch />
+        <div className="flex gap-1">
+          {SOCIALS.map((so) => (
+            <a
+              key={so.href}
+              href={so.href}
+              target="_blank"
+              rel="noreferrer"
+              aria-label={so.label}
+              className="bg-side-ink text-side flex size-7 items-center justify-center rounded-full transition-transform hover:scale-110"
+            >
+              <so.icon className="size-3" />
+            </a>
+          ))}
+        </div>
+      </div>
+      <div className="text-side-ink/75 flex flex-wrap gap-x-3 gap-y-1 text-xs font-bold">
+        {INFO_LINKS.map((l) => (
+          <Link key={l.href} href={l.href} onClick={onNavigate} className="hover:text-side-ink hover:underline">
+            {l.label}
+          </Link>
+        ))}
+      </div>
+      <div className="border-side-ink/20 flex items-center justify-between gap-2 border-t-2 border-dashed pt-2.5">
+        <span className="text-side-ink/60 text-[11px] font-semibold">© {new Date().getFullYear()} Wadzzo</span>
+        {signedIn && (
+          <button
+            type="button"
+            onClick={() => void signOut({ callbackUrl: "/" })}
+            className="bg-side-ink/10 hover:bg-side-ink hover:text-side flex h-7 items-center gap-1.5 rounded-full px-2.5 text-[11px] font-bold transition-colors"
+          >
+            <LogOut className="size-3" strokeWidth={2.6} /> Sign out
+          </button>
+        )}
+      </div>
+    </div>
   );
-  const theme = mounted ? stored : "system";
-  if (collapsed) {
-    const i = Math.max(0, THEMES.findIndex((t) => t.id === theme));
+}
+
+function ThemeSwitch({ vertical = false }: { vertical?: boolean }) {
+  const { theme: stored, setTheme } = useTheme();
+  const mounted = useMounted();
+  // next-themes only knows the theme on the client; until then render the default so markup matches the server
+  const theme = mounted ? stored : "dark";
+  if (vertical) {
+    const i = Math.max(
+      0,
+      THEMES.findIndex((t) => t.id === theme),
+    );
     const current = THEMES[i]!;
     const next = THEMES[(i + 1) % THEMES.length]!;
     return (
@@ -151,14 +323,14 @@ function ThemeSwitch({ collapsed }: { collapsed: boolean }) {
         onClick={() => setTheme(next.id)}
         title={`Theme: ${current.label}`}
         aria-label={`Theme: ${current.label}. Switch to ${next.label}`}
-        className="flex h-9 w-full items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+        className="text-side-ink/70 hover:bg-side-ink/10 hover:text-side-ink flex size-10 items-center justify-center rounded-full transition-colors"
       >
-        <current.icon className="size-4" />
+        <current.icon className="size-4" strokeWidth={2.4} />
       </button>
     );
   }
   return (
-    <div role="radiogroup" aria-label="Theme" className="grid grid-cols-3 gap-1 rounded-lg bg-foreground/[0.04] p-1">
+    <div role="radiogroup" aria-label="Theme" className="bg-side-ink/10 flex gap-0.5 rounded-full p-0.5">
       {THEMES.map((t) => (
         <button
           key={t.id}
@@ -168,131 +340,163 @@ function ThemeSwitch({ collapsed }: { collapsed: boolean }) {
           aria-label={t.label}
           title={t.label}
           onClick={() => setTheme(t.id)}
-          className={cn(
-            "flex h-7 items-center justify-center rounded-md transition-colors",
-            theme === t.id ? "bg-background text-primary shadow-sm" : "text-muted-foreground hover:text-foreground",
-          )}
+          className={cn("flex size-7 items-center justify-center rounded-full transition-colors", theme === t.id ? "bg-side-ink text-side" : "text-side-ink/60 hover:text-side-ink")}
         >
-          <t.icon className="size-4" />
+          <t.icon className="size-3.5" strokeWidth={2.4} />
         </button>
       ))}
     </div>
   );
 }
 
-/** Everything inside the sidebar; the desktop rail and the mobile drawer both render this. */
-function SidebarBody({
-  collapsed,
-  onNavigate,
-  showCurrency = false,
-}: {
-  collapsed: boolean;
-  onNavigate?: () => void;
-  showCurrency?: boolean;
-}) {
+/* ─── body ────────────────────────────────────────────────────────────────── */
+
+/** Everything the app navigates with (the app has no header); the desktop sidebar and the phone drawer both render this. */
+export function SidebarBody({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = usePathname() ?? "";
   const { signedIn } = useRequireAuth();
+  const account = ACCOUNT.filter((i) => signedIn || !i.authOnly);
 
   return (
-    <div className="flex h-full min-h-0 flex-col overflow-y-auto overscroll-contain">
-      <div className={cn("mb-3 flex h-16 shrink-0 items-center border-b border-foreground/[0.06]", collapsed ? "justify-center" : "px-4")}>
-        <BrandMark compact={collapsed} />
+    <div className="text-side-ink flex h-full min-h-0 flex-col">
+      {/* fixed header (in the phone drawer, leave room for the sheet's close button) */}
+      <div className={cn("flex shrink-0 items-center justify-between gap-2 px-5 pt-6 pb-4", onNavigate && "pr-14")}>
+        <BrandMark />
+        <QuickIcons onNavigate={onNavigate} />
       </div>
 
-      <nav aria-label="Sections" className={cn("flex-1 space-y-1 pb-3", collapsed ? "px-2" : "px-3")}>
-        {MAIN.map((item) => (
-          <NavLink key={item.href} item={item} active={isActive(pathname, item)} collapsed={collapsed} onNavigate={onNavigate} />
-        ))}
-        {signedIn && (
-          <>
-            <div className="my-2 border-t border-foreground/[0.06]" role="separator" />
-            {ACCOUNT.map((item) => (
-              <NavLink key={item.href} item={item} active={isActive(pathname, item)} collapsed={collapsed} onNavigate={onNavigate} />
-            ))}
-          </>
-        )}
-      </nav>
+      {/* scrolling body */}
+      <div className="no-scrollbar border-side-ink/20 min-h-0 flex-1 space-y-5 overflow-y-auto overscroll-contain border-y-2 border-dashed px-5 py-5">
+        <PlayerCard onNavigate={onNavigate} />
 
-      <div className={cn("shrink-0 space-y-3 pb-[max(0.75rem,var(--safe-bottom))]", collapsed ? "px-2" : "px-3")}>
-        <BrandCard collapsed={collapsed} onNavigate={onNavigate} />
-        {showCurrency && (
-          <div className="flex items-center justify-between gap-2 px-1">
-            <span className="text-xs font-medium text-muted-foreground">Show prices in</span>
-            <CurrencyToggle />
+        <nav aria-label="Sections">
+          {EXPLORE.map((item, i) => (
+            <div key={item.href}>
+              {i > 0 && <div className="dash-rule my-1.5" role="separator" />}
+              <BigNavLink item={item} active={isActive(pathname, item)} onNavigate={onNavigate} />
+            </div>
+          ))}
+        </nav>
+
+        {signedIn && (
+          <div>
+            <p className="marker mb-2 -rotate-2 text-sm">*your stuff*</p>
+            <div className="grid grid-cols-2 gap-2">
+              {account.map((item) => (
+                <ChipLink key={item.href} item={item} active={isActive(pathname, item)} onNavigate={onNavigate} />
+              ))}
+            </div>
           </div>
         )}
-        <ThemeSwitch collapsed={collapsed} />
-        {!collapsed && (
-          <>
-            <div className="flex flex-col items-center gap-2 border-t border-foreground/[0.06] pt-3 text-center text-[11px] text-muted-foreground">
-              <div className="flex flex-wrap items-center justify-center gap-x-1.5 gap-y-1">
-                {INFO_LINKS.map((l, i) => (
-                  <span key={l.href} className="flex items-center gap-1.5">
-                    {i > 0 && <span aria-hidden className="size-[3px] rounded-full bg-muted-foreground/50" />}
-                    <Link href={l.href} onClick={onNavigate} className="transition-colors hover:text-foreground">
-                      {l.label}
-                    </Link>
-                  </span>
-                ))}
-              </div>
-              <span className="flex items-center justify-center gap-3">
-                {SOCIALS.map((s) => (
-                  <a key={s.href} href={s.href} target="_blank" rel="noreferrer" aria-label={s.label} title={s.label} className="transition-colors hover:text-foreground">
-                    <s.icon className="size-3.5" />
-                  </a>
-                ))}
-              </span>
-              <span>© {new Date().getFullYear()} Wadzzo</span>
-            </div>
-          </>
-        )}
+      </div>
+
+      {/* fixed footer */}
+      <div className="shrink-0 px-5 pt-3 pb-[max(1rem,var(--safe-bottom))]">
+        <SidebarFooter onNavigate={onNavigate} />
       </div>
     </div>
   );
 }
 
-/** The fixed sidebar on large screens: full width, or collapsed to icons. */
-export function DesktopSidebar() {
-  const { collapsed, setCollapsed } = useSidebarCollapsed();
+/* ─── icon rail ───────────────────────────────────────────────────────────── */
+
+function RailLink({ item, active, badge }: { item: NavItem; active: boolean; badge?: number }) {
   return (
-    <aside
+    <Link
+      href={item.href}
+      title={item.label}
+      aria-label={item.label}
+      aria-current={active ? "page" : undefined}
       className={cn(
-        "sticky top-0 z-50 hidden h-dvh shrink-0 border-r border-foreground/[0.06] bg-background transition-[width] duration-200 xl:block",
-        collapsed ? "w-[4.5rem]" : "w-64",
+        "relative flex size-11 items-center justify-center rounded-full transition-transform duration-200 hover:scale-110",
+        active ? "bg-side-mint text-side-ink" : "bg-side-ink text-side",
       )}
     >
-      <SidebarBody collapsed={collapsed} />
-      {/* chevron on the sidebar's edge, level with the logo: collapses and expands */}
-      <button
-        type="button"
-        onClick={() => setCollapsed(!collapsed)}
-        title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-        aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-        aria-expanded={!collapsed}
-        className="absolute -right-3 top-5 flex size-6 items-center justify-center rounded-full border border-foreground/10 bg-background text-muted-foreground shadow-sm transition-colors hover:bg-accent hover:text-foreground"
-      >
-        {collapsed ? <ChevronRight className="size-3.5" /> : <ChevronLeft className="size-3.5" />}
-      </button>
-    </aside>
+      <item.icon className="size-5" strokeWidth={2.4} />
+      {badge ? <span className="bg-pink ring-side absolute -top-0.5 -right-0.5 size-3 rounded-full ring-2" /> : null}
+    </Link>
   );
 }
 
-/** The menu button (small screens) and the drawer it opens from the left. */
-export function MobileNav() {
-  const [open, setOpen] = useState(false);
+/** The collapsed sidebar: the same green block as a column of ink circles. */
+function SidebarRail() {
+  const pathname = usePathname() ?? "";
+  const { signedIn, openSignIn, session } = useRequireAuth();
+  const me = api.user.me.useQuery(undefined, {
+    enabled: signedIn,
+    staleTime: 5 * 60_000,
+  });
+  const unseen = useUnseen();
+  const brand = useBrandEntry();
+  const account = ACCOUNT.filter((i) => signedIn || !i.authOnly);
+
   return (
-    <Sheet open={open} onOpenChange={setOpen}>
-      <SheetTrigger
-        className="flex size-10 shrink-0 items-center justify-center rounded-full text-muted-foreground hover:bg-accent hover:text-foreground xl:hidden"
-        aria-label="Open menu"
-      >
-        <Menu className="size-5" />
-      </SheetTrigger>
-      <SheetContent side="left" className="flex w-72 max-w-[85vw] flex-col gap-0 p-0 sm:max-w-72">
-        <SheetTitle className="sr-only">Menu</SheetTitle>
-        <SheetDescription className="sr-only">Browse Wadzzo</SheetDescription>
-        <SidebarBody collapsed={false} showCurrency onNavigate={() => setOpen(false)} />
-      </SheetContent>
-    </Sheet>
+    <div className="text-side-ink flex h-full flex-col items-center">
+      <div className="flex shrink-0 flex-col items-center gap-3 px-2 pt-5 pb-3">
+        <BrandMark compact />
+        <button type="button" onClick={openSearch} title="Search (⌘K)" aria-label="Search" className={iconButton}>
+          <Search className="size-[18px]" strokeWidth={2.6} />
+        </button>
+        {signedIn && (
+          <Link href="/notifications" title="Notifications" aria-label={unseen ? `Notifications (${unseen} new)` : "Notifications"} className={iconButton}>
+            <Bell className="size-[18px]" strokeWidth={2.6} />
+            {unseen > 0 && (
+              <span className="bg-pink text-side-ink ring-side absolute -top-1 -right-1 flex h-[18px] min-w-[18px] items-center justify-center rounded-full px-1 text-[10px] font-bold ring-2">
+                {unseen > 9 ? "9+" : unseen}
+              </span>
+            )}
+          </Link>
+        )}
+      </div>
+      <div className="no-scrollbar border-side-ink/20 flex min-h-0 w-full flex-1 flex-col items-center gap-3 overflow-y-auto border-y-2 border-dashed py-3 [&>*]:shrink-0">
+        {signedIn ? (
+          <Link href="/wallet" title="Wallet" aria-label="Wallet">
+            <Avatar image={me.data?.image ?? session?.user.image ?? null} />
+          </Link>
+        ) : (
+          <button type="button" onClick={openSignIn} title="Sign in" aria-label="Sign in" className="blob bg-side-ink text-side-mint flex size-11 items-center justify-center">
+            <LogIn className="size-5" strokeWidth={2.6} />
+          </button>
+        )}
+        <div className="dash-rule w-8" />
+        {EXPLORE.map((item) => (
+          <RailLink key={item.href} item={item} active={isActive(pathname, item)} />
+        ))}
+        <div className="dash-rule w-8" />
+        {account.map((item) => (
+          <RailLink key={item.href} item={item} active={isActive(pathname, item)} />
+        ))}
+      </div>
+      <div className="flex shrink-0 flex-col items-center gap-2 px-2 pt-3 pb-4">
+        <a href={brand.href} target="_blank" rel="noreferrer" title={brand.label} aria-label={brand.label} className="blob bg-side-mint text-side-ink flex size-11 items-center justify-center">
+          <Store className="size-5" strokeWidth={2.4} />
+        </a>
+        <ThemeSwitch vertical />
+      </div>
+    </div>
+  );
+}
+
+/** The fixed desktop sidebar (md and up): the full green block on wide screens, an icon rail otherwise or when collapsed. */
+export function DesktopSidebar() {
+  const { collapsed: stored, setCollapsed } = useSidebarCollapsed();
+  const wide = useWide();
+  const collapsed = stored || !wide;
+  return (
+    <aside className={cn("bg-side sticky top-0 z-40 hidden h-dvh shrink-0 md:block", collapsed ? "w-[5.25rem]" : "w-[19.5rem]")}>
+      {collapsed ? <SidebarRail /> : <SidebarBody />}
+      {wide && (
+        <button
+          type="button"
+          onClick={() => setCollapsed(!stored)}
+          title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+          aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+          aria-expanded={!collapsed}
+          className="border-side bg-side-ink text-side absolute top-1/2 -right-3.5 flex size-7 -translate-y-1/2 items-center justify-center rounded-full border-2 transition-transform hover:scale-110"
+        >
+          {collapsed ? <ChevronRight className="size-4" strokeWidth={2.6} /> : <ChevronLeft className="size-4" strokeWidth={2.6} />}
+        </button>
+      )}
+    </aside>
   );
 }

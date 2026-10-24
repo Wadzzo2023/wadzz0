@@ -34,6 +34,7 @@ import { useBountySeen } from "~/hooks/use-bounty-attention";
 import { useRequireAuth } from "~/hooks/use-require-auth";
 import { ENTRY_STATUS, type BountyDetail, formatTokens, spotsFilled, viewerBadge } from "~/lib/bounty";
 import { cn } from "~/lib/utils";
+import { wordTab, wordTabList, wordTabOff, wordTabOn } from "~/ui/styles";
 import { EmptyState } from "~/ui/empty-state";
 import { PageBody } from "~/ui/page-header";
 import { Avatar } from "~/ui/person";
@@ -76,23 +77,22 @@ export function BountyView({ initial }: { initial: BountyDetail }) {
   };
 
   return (
-    <div>
-      {/* Cover */}
-      <div className="relative h-52 overflow-hidden sm:h-72 lg:h-80">
-        {cover ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={cover} alt="" className="size-full object-cover" />
-        ) : (
-          <div className="flex size-full items-center justify-center bg-[radial-gradient(circle_at_20%_30%,hsl(var(--primary)/0.35),transparent_60%),radial-gradient(circle_at_80%_70%,hsl(190_90%_50%/0.2),transparent_55%)]">
-            <Target className="size-16 text-primary/60" />
-          </div>
-        )}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-background/30 to-background" />
-      </div>
+    <>
+      <PageBody wide className="space-y-8">
+        {/* Cover in a chunky frame */}
+        <div className="h-48 overflow-hidden rounded-[1.8rem] border-[3px] border-foreground bg-surface-3 sm:h-64 lg:h-72">
+          {cover ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={cover} alt="" className="size-full object-cover" />
+          ) : (
+            <div className="flex size-full items-center justify-center bg-pink/25">
+              <Target className="size-20 text-pink" strokeWidth={1.8} />
+            </div>
+          )}
+        </div>
 
-      <PageBody wide className="relative -mt-24 space-y-8 pt-0 sm:-mt-28">
         <header className="space-y-4">
-          <nav className="flex items-center gap-1.5 text-sm text-muted-foreground" aria-label="Breadcrumb">
+          <nav className="flex items-center gap-1.5 text-sm font-semibold text-muted-foreground" aria-label="Breadcrumb">
             <Link href="/bounties" className="hover:text-foreground">
               Bounties
             </Link>
@@ -100,25 +100,25 @@ export function BountyView({ initial }: { initial: BountyDetail }) {
             <span className="truncate text-foreground">{b.title}</span>
           </nav>
           <div className="flex flex-wrap items-center gap-2">
-            <Link href={`/creator/${b.brand.id}`} className="glass inline-flex items-center gap-2 rounded-full py-1 pl-1 pr-3 text-sm font-semibold transition-colors hover:border-primary/40">
+            <Link href={`/creator/${b.brand.id}`} className="inline-flex items-center gap-2 rounded-full border-2 border-foreground/15 py-1 pl-1 pr-3 text-sm font-bold transition-colors hover:border-foreground">
               <Avatar src={b.brand.avatarUrl} name={b.brand.name} className="size-7 text-[10px]" />
               {b.brand.name}
               <BadgeCheck className="size-4 text-primary" />
             </Link>
             <StatusPill tone={badge.tone}>{badge.label}</StatusPill>
           </div>
-          <h1 className="max-w-4xl font-hud text-3xl font-bold leading-[1.1] tracking-tight sm:text-5xl">{b.title}</h1>
+          <h1 className="display max-w-5xl break-words text-6xl sm:text-8xl">{b.title}</h1>
         </header>
 
-        <div className="grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_380px]">
+        <div className="grid grid-cols-[minmax(0,1fr)] items-start gap-8 lg:grid-cols-[minmax(0,1fr)_380px]">
           {/* Reward card first on phones, beside the tabs on wide screens */}
-          <aside className="space-y-4 lg:sticky lg:top-24 lg:order-2">
+          <aside className="space-y-4 lg:sticky lg:top-8 lg:order-2">
             <RewardCard b={b} onSubmit={openSubmit} onShowEntries={() => setSection("entries")} />
             <BrandCard b={b} />
           </aside>
 
           <div className="min-w-0 space-y-5 lg:order-1">
-            <div className="glass flex w-full gap-1 overflow-x-auto rounded-xl p-1 sm:w-fit" role="tablist">
+            <div className={wordTabList} role="tablist">
               {SECTIONS.map((s) => {
                 const locked = !joined && (s.id === "entries" || s.id === "chat");
                 const count = s.id === "entries" && joined ? b.viewer.entryCount : s.id === "discussion" ? b.commentCount : 0;
@@ -129,14 +129,11 @@ export function BountyView({ initial }: { initial: BountyDetail }) {
                     role="tab"
                     aria-selected={section === s.id}
                     onClick={() => setSection(s.id)}
-                    className={cn(
-                      "flex h-9 shrink-0 items-center gap-1.5 rounded-lg px-3.5 text-sm font-semibold transition-colors",
-                      section === s.id ? "bg-primary text-primary-foreground shadow-[0_0_20px_-6px_hsl(var(--primary)/0.8)]" : "text-muted-foreground hover:text-foreground",
-                    )}
+                    className={cn(wordTab, section === s.id ? wordTabOn : wordTabOff)}
                   >
-                    {locked ? <Lock className="size-3.5" /> : <s.icon className="size-4" />}
+                    {locked && <Lock className="size-5" strokeWidth={2.6} />}
                     {s.label}
-                    {count > 0 && <span className={cn("rounded-full px-1.5 text-[11px] tabular-nums", section === s.id ? "bg-black/15" : "bg-foreground/10")}>{count}</span>}
+                    {count > 0 && <span className={cn("rounded-full px-2 font-sans text-xs font-bold tabular-nums", section === s.id ? "bg-primary text-primary-foreground" : "bg-foreground/10")}>{count}</span>}
                   </button>
                 );
               })}
@@ -156,7 +153,7 @@ export function BountyView({ initial }: { initial: BountyDetail }) {
       </PageBody>
 
       {entryDialog && <EntryDialog bountyId={b.id} editing={entryDialog.editing} onClose={() => setEntryDialog(null)} />}
-    </div>
+    </>
   );
 }
 
@@ -171,7 +168,7 @@ function RewardCard({ b, onSubmit, onShowEntries }: { b: BountyDetail; onSubmit:
   const short = needsBalance && balance.data != null && balance.data.balance < b.requiredBalance;
   const filled = spotsFilled(b);
   const portal = env.NEXT_PUBLIC_BRAND_PORTAL_URL.replace(/\/$/, "");
-  const cta = "h-12 w-full rounded-xl text-base font-bold";
+  const cta = "h-14 w-full text-base";
 
   const share = async () => {
     const url = window.location.href;
@@ -183,13 +180,13 @@ function RewardCard({ b, onSubmit, onShowEntries }: { b: BountyDetail; onSubmit:
   };
 
   return (
-    <div className="glass space-y-5 rounded-2xl p-5 shadow-[0_20px_60px_-25px_hsl(var(--primary)/0.45)]">
+    <div className="space-y-5 rounded-[1.6rem] border-[3px] border-foreground bg-surface p-5 shadow-[8px_9px_0_0_hsl(var(--primary))]">
       <div className="flex items-start justify-between gap-3">
         <div>
-          <p className="label-caps">Reward per winner</p>
+          <p className="marker -rotate-1 text-sm text-muted-foreground">*reward per winner*</p>
           <Price tokens={b.rewardAsset} usd={b.rewardUsd} code={b.assetCode} size="xl" gradient className="mt-0.5" />
         </div>
-        <Button variant="outline" size="icon" className="glass rounded-full" onClick={() => void share()} aria-label="Share">
+        <Button variant="outline" size="icon" className="rounded-full" onClick={() => void share()} aria-label="Share">
           <Share2 className="size-4" />
         </Button>
       </div>
@@ -200,9 +197,9 @@ function RewardCard({ b, onSubmit, onShowEntries }: { b: BountyDetail; onSubmit:
           { icon: Users, label: "Joined", value: b.participants.toLocaleString("en-US") },
           { icon: Upload, label: "Entries", value: b.totalEntries.toLocaleString("en-US") },
         ].map((s) => (
-          <div key={s.label} className="rounded-xl bg-foreground/[0.04] p-2.5 text-center ring-1 ring-foreground/[0.06]">
+          <div key={s.label} className="blob bg-surface-2 p-2.5 text-center">
             <s.icon className="mx-auto mb-1 size-3.5 text-primary" />
-            <dd className="font-hud text-lg font-bold tabular-nums">{s.value}</dd>
+            <dd className="display text-3xl tabular-nums">{s.value}</dd>
             <dt className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">{s.label}</dt>
           </div>
         ))}
@@ -213,8 +210,8 @@ function RewardCard({ b, onSubmit, onShowEntries }: { b: BountyDetail; onSubmit:
           <span>Winner spots filled</span>
           <span className="tabular-nums">{filled}%</span>
         </div>
-        <div className="h-2 overflow-hidden rounded-full bg-foreground/[0.08]">
-          <div className="h-full rounded-full bg-gradient-to-r from-primary via-green-hot to-cyan-400 shadow-[0_0_12px_hsl(var(--primary)/0.6)]" style={{ width: `${Math.max(filled, 3)}%` }} />
+        <div className="h-3 overflow-hidden rounded-full border-2 border-foreground/15">
+          <div className="h-full rounded-full bg-primary" style={{ width: `${Math.max(filled, 3)}%` }} />
         </div>
       </div>
 
@@ -233,12 +230,12 @@ function RewardCard({ b, onSubmit, onShowEntries }: { b: BountyDetail; onSubmit:
       ) : b.viewer.joined ? (
         <div className="space-y-2">
           {b.open && (
-            <Button className={cn(cta, "shadow-[0_0_30px_-6px_hsl(var(--primary)/0.8)]")} onClick={onSubmit}>
+            <Button className={cn(cta, "")} onClick={onSubmit}>
               <Upload className="size-4" /> {b.viewer.entryCount ? "Submit another entry" : "Submit your entry"}
             </Button>
           )}
           {b.viewer.entryCount > 0 && (
-            <Button variant="outline" className="w-full rounded-xl" onClick={onShowEntries}>
+            <Button variant="outline" className="w-full" onClick={onShowEntries}>
               View my entries ({b.viewer.entryCount})
             </Button>
           )}
@@ -247,7 +244,7 @@ function RewardCard({ b, onSubmit, onShowEntries }: { b: BountyDetail; onSubmit:
       ) : (
         <div className="space-y-2">
           <Button
-            className={cn(cta, b.open && !short && "shadow-[0_0_30px_-6px_hsl(var(--primary)/0.8)]")}
+            className={cn(cta, b.open && !short && "")}
             disabled={!b.open || join.isPending || short}
             onClick={requireAuth(() => join.mutate({ id: b.id }))}
           >
@@ -276,11 +273,11 @@ function RewardCard({ b, onSubmit, onShowEntries }: { b: BountyDetail; onSubmit:
 
 function BrandCard({ b }: { b: BountyDetail }) {
   return (
-    <Link href={`/creator/${b.brand.id}`} className="glass flex items-center gap-3 rounded-2xl p-4 transition-colors hover:border-primary/40">
+    <Link href={`/creator/${b.brand.id}`} className="glass flex items-center gap-3 rounded-[1.4rem] p-4 transition-colors hover:border-foreground">
       <Avatar src={b.brand.avatarUrl} name={b.brand.name} className="size-11" />
       <span className="min-w-0 flex-1">
-        <span className="block text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Posted by</span>
-        <span className="block truncate font-semibold">{b.brand.name}</span>
+        <span className="marker block text-xs text-muted-foreground">posted by</span>
+        <span className="display block truncate text-2xl">{b.brand.name}</span>
       </span>
       <BadgeCheck className="size-5 text-primary" />
     </Link>
@@ -298,12 +295,12 @@ function Brief({ b }: { b: BountyDetail }) {
   const images = b.imageUrls;
   return (
     <div className="space-y-4">
-      <div className="glass rounded-2xl p-5 sm:p-6">
+      <div className="glass rounded-[1.4rem] p-5 sm:p-6">
         <RichText html={b.description} className="prose-base" />
       </div>
       {images.length > 1 && (
         <div className="space-y-2">
-          <div className="glass overflow-hidden rounded-2xl p-1.5">
+          <div className="glass overflow-hidden rounded-[1.4rem] p-1.5">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={images[active]} alt="" className="aspect-video w-full rounded-xl object-cover" />
           </div>
@@ -333,7 +330,7 @@ function Entries({ b, onNew, onEdit }: { b: BountyDetail; onNew: () => void; onE
         icon={Upload}
         title="No entries yet"
         description={b.open ? "Send your work to the brand — you can edit it until they open it." : "This bounty is closed."}
-        action={b.open ? <Button className="rounded-xl" onClick={onNew}>Submit your entry</Button> : undefined}
+        action={b.open ? <Button onClick={onNew}>Submit your entry</Button> : undefined}
         className="glass border-solid"
       />
     );
@@ -344,7 +341,7 @@ function Entries({ b, onNew, onEdit }: { b: BountyDetail; onNew: () => void; onE
         const st = ENTRY_STATUS[e.status];
         const editable = e.status === "UNCHECKED" && b.open;
         return (
-          <li key={e.id} className="glass space-y-3 rounded-2xl p-4 sm:p-5">
+          <li key={e.id} className="glass space-y-3 rounded-[1.4rem] p-4 sm:p-5">
             <div className="flex items-center justify-between gap-2">
               <StatusPill tone={st.tone} dot>
                 {st.label}
@@ -365,7 +362,7 @@ function Entries({ b, onNew, onEdit }: { b: BountyDetail; onNew: () => void; onE
             </div>
             <RichText html={e.content} />
             {e.medias.length > 0 && (
-              <ul className="grid gap-2 sm:grid-cols-2">
+              <ul className="grid grid-cols-[minmax(0,1fr)] gap-2 sm:grid-cols-2">
                 {e.medias.map((m) => (
                   <li key={m.id}>
                     <Attachment m={m} />
@@ -377,7 +374,7 @@ function Entries({ b, onNew, onEdit }: { b: BountyDetail; onNew: () => void; onE
         );
       })}
       {b.open && (
-        <Button variant="outline" className="w-full rounded-xl" onClick={onNew}>
+        <Button variant="outline" className="w-full" onClick={onNew}>
           <Upload className="size-4" /> Submit another entry
         </Button>
       )}
@@ -393,7 +390,7 @@ function Chat({ b }: { b: BountyDetail }) {
   useEffect(() => end.current?.scrollIntoView({ block: "nearest" }), [thread.data?.length]);
 
   return (
-    <div className="glass flex h-[32rem] flex-col overflow-hidden rounded-2xl">
+    <div className="glass flex h-[32rem] flex-col overflow-hidden rounded-[1.4rem]">
       <div className="flex items-center gap-3 border-b border-foreground/[0.06] px-4 py-3">
         <Avatar src={b.brand.avatarUrl} name={b.brand.name} className="size-8 text-xs" />
         <div>
@@ -434,7 +431,7 @@ function Chat({ b }: { b: BountyDetail }) {
           placeholder={`Message ${b.brand.name}…`}
           className="h-11 min-w-0 flex-1 rounded-xl bg-foreground/[0.05] px-3.5 text-sm outline-none ring-1 ring-foreground/10 focus:ring-primary/50"
         />
-        <Button type="submit" size="icon" className="size-11 rounded-xl" disabled={send.isPending || !text.trim()} aria-label="Send">
+        <Button type="submit" size="icon" className="size-11" disabled={send.isPending || !text.trim()} aria-label="Send">
           <Send className="size-4" />
         </Button>
       </form>
@@ -466,7 +463,7 @@ function Discussion({ bountyId }: { bountyId: number }) {
             if (text.trim()) add.mutate({ bountyId, content: text.trim(), parentId: replyTo?.id });
           })();
         }}
-        className="glass space-y-2 rounded-2xl p-3"
+        className="glass space-y-2 rounded-[1.4rem] p-3"
       >
         {replyTo && (
           <p className="flex items-center justify-between rounded-lg bg-primary/10 px-3 py-1.5 text-xs text-primary">
@@ -478,7 +475,7 @@ function Discussion({ bountyId }: { bountyId: number }) {
         )}
         <div className="flex items-end gap-2">
           <Textarea value={text} onChange={(e) => setText(e.target.value)} rows={2} maxLength={1000} placeholder={signedIn ? "Share a thought or ask the community…" : "Sign in to join the discussion"} className="resize-none rounded-xl border-0 bg-foreground/[0.04]" />
-          <Button type="submit" className="rounded-xl" disabled={add.isPending || (signedIn && !text.trim())}>
+          <Button type="submit" disabled={add.isPending || (signedIn && !text.trim())}>
             {signedIn ? "Post" : "Sign in"}
           </Button>
         </div>
@@ -491,7 +488,7 @@ function Discussion({ bountyId }: { bountyId: number }) {
       ) : (
         <ul className="space-y-3">
           {comments.data.map((c) => (
-            <li key={c.id} className="glass space-y-3 rounded-2xl p-4">
+            <li key={c.id} className="glass space-y-3 rounded-[1.4rem] p-4">
               {[c, ...c.replies].map((r, i) => (
                 <div key={r.id} className={cn("flex gap-3", i > 0 && "ml-6 border-l border-foreground/10 pl-4")}>
                   <Avatar src={r.author.image} name={r.author.name} className="size-8 text-xs" />

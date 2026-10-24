@@ -6,6 +6,7 @@ import { MEDIA_META, MEDIA_TYPES } from "~/components/media/media-meta";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "~/components/shadcn/ui/select";
 import { cn } from "~/lib/utils";
 import type { ListingsInput } from "~/server/api/routers/market";
+import { wordTab, wordTabList, wordTabOff, wordTabOn } from "~/ui/styles";
 import { SearchInput, Toolbar } from "~/ui/toolbar";
 
 const KINDS = [
@@ -26,7 +27,24 @@ export function MarketFilters({ current }: { current: ListingsInput }) {
   };
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-5">
+      <div className={wordTabList} role="tablist" aria-label="Listing kind">
+        {KINDS.map((k) => {
+          const active = (current.kind ?? "all") === k.id;
+          return (
+            <button
+              key={k.id}
+              type="button"
+              role="tab"
+              aria-selected={active}
+              onClick={() => set({ kind: k.id })}
+              className={cn(wordTab, active ? wordTabOn : wordTabOff)}
+            >
+              {k.label}
+            </button>
+          );
+        })}
+      </div>
       <Toolbar>
         <SearchInput value={current.search} onSearch={(q) => q !== (current.search ?? "") && set({ q: q || undefined })} placeholder="Search items or creators" />
         <div className="flex gap-2">
@@ -55,26 +73,6 @@ export function MarketFilters({ current }: { current: ListingsInput }) {
           </Select>
         </div>
       </Toolbar>
-      <div className="flex gap-1.5 overflow-x-auto pb-0.5" role="tablist" aria-label="Listing kind">
-        {KINDS.map((k) => {
-          const active = (current.kind ?? "all") === k.id;
-          return (
-            <button
-              key={k.id}
-              type="button"
-              role="tab"
-              aria-selected={active}
-              onClick={() => set({ kind: k.id })}
-              className={cn(
-                "h-8 shrink-0 rounded-full border px-3.5 text-sm font-medium transition-colors",
-                active ? "border-primary bg-primary text-primary-foreground" : "bg-card text-muted-foreground hover:text-foreground",
-              )}
-            >
-              {k.label}
-            </button>
-          );
-        })}
-      </div>
     </div>
   );
 }

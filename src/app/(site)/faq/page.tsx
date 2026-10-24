@@ -60,8 +60,8 @@ export default function FaqPage() {
       <StaticHeader eyebrow="Help" title={<>Frequently asked <span className="text-gradient">questions</span></>} description="Everything about collecting, paying, memberships and bounties on Wadzzo." />
       {FAQ.map((t) => (
         <section key={t.topic} className="space-y-3">
-          <h2 className="font-hud text-lg font-bold">{t.topic}</h2>
-          <div className="glass divide-y divide-foreground/[0.06] overflow-hidden rounded-2xl">
+          <h2 className="display text-3xl">{t.topic}</h2>
+          <div className="glass divide-y-2 divide-dashed divide-foreground/10 overflow-hidden rounded-[1.4rem]">
             {t.items.map((i) => (
               <details key={i.q} className="group">
                 <summary className="flex cursor-pointer list-none items-center justify-between gap-4 p-4 font-semibold transition-colors hover:bg-foreground/[0.03] [&::-webkit-details-marker]:hidden">
@@ -74,12 +74,12 @@ export default function FaqPage() {
           </div>
         </section>
       ))}
-      <section className="glass flex flex-col items-start gap-3 rounded-2xl p-5 sm:flex-row sm:items-center sm:justify-between">
+      <section className="glass flex flex-col items-start gap-3 rounded-[1.4rem] p-5 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="font-hud font-bold">Still stuck?</h2>
+          <h2 className="display text-2xl">Still stuck?</h2>
           <p className="text-sm text-muted-foreground">Send us a message and we&apos;ll get back to you.</p>
         </div>
-        <Link href="/support" className="inline-flex h-10 items-center rounded-xl bg-primary px-5 text-sm font-semibold text-primary-foreground shadow-[0_0_20px_-6px_hsl(var(--primary)/0.8)]">
+        <Link href="/support" className="inline-flex h-10 items-center rounded-xl bg-primary px-5 text-sm font-semibold text-primary-foreground">
           Contact support
         </Link>
       </section>

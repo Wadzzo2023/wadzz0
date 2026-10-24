@@ -27,18 +27,18 @@ export function StatCard({
       type={onClick ? "button" : undefined}
       onClick={onClick}
       className={cn(
-        "flex flex-col gap-1 rounded-xl border bg-card p-4 text-left transition-colors",
-        onClick && "hover:border-line-bright",
-        active && "border-primary/50 bg-primary/5",
+        "group relative flex flex-col gap-1 overflow-hidden rounded-[1.4rem] border-2 border-foreground/10 bg-surface p-4 text-left transition-[transform,border-color] duration-200",
+        onClick && "hover:-translate-y-0.5 hover:border-foreground",
+        active && "border-primary bg-primary text-primary-foreground",
         className,
       )}
     >
-      <span className="flex items-center gap-1.5 font-hud text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-        {Icon && <Icon className="size-3.5" />}
+      <span className={cn("relative flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider", active ? "text-primary-foreground/75" : "text-muted-foreground")}>
+        {Icon && <Icon className={cn("size-3.5", !active && "text-primary")} strokeWidth={2.6} />}
         {label}
       </span>
-      <span className="font-hud text-2xl font-bold tabular-nums text-foreground">{value}</span>
-      {hint && <span className="text-xs text-muted-foreground">{hint}</span>}
+      <span className="display relative text-4xl tabular-nums">{value}</span>
+      {hint && <span className={cn("relative text-xs", active ? "text-primary-foreground/75" : "text-muted-foreground")}>{hint}</span>}
     </Comp>
   );
 }

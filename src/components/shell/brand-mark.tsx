@@ -3,17 +3,17 @@ import Link from "next/link";
 
 import { cn } from "~/lib/utils";
 
-/** Logo + wordmark (the same mark the brand portal and fan apps use). */
+/** Logo on an ink badge + the stacked condensed wordmark, FC88-style. `compact` is the badge alone. */
 export function BrandMark({ compact = false, className }: { compact?: boolean; className?: string }) {
   return (
-    <Link href="/" className={cn("flex items-center gap-2.5", className)} aria-label="Wadzzo home">
-      <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary/10">
-        <Image src="/images/loading.png" alt="" width={22} height={18} className="h-auto w-[22px] object-contain" priority />
+    <Link href="/" className={cn("group flex items-center gap-3", className)} aria-label="Wadzzo home">
+      <span className="blob flex size-11 shrink-0 items-center justify-center bg-side-ink transition-transform duration-200 group-hover:-rotate-6">
+        <Image src="/images/loading.png" alt="" width={26} height={22} style={{ width: 26, height: "auto" }} className="object-contain" priority />
       </span>
       {!compact && (
-        <span className="leading-tight">
-          <span className="block font-hud text-base font-bold tracking-tight">Wadzzo</span>
-          <span className="block font-hud text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">Collect · Trade · Play</span>
+        <span className="leading-none text-side-ink">
+          <span className="display block text-[2.1rem]">Wadzzo</span>
+          <span className="marker block -rotate-2 whitespace-nowrap text-[10px] text-side-ink/75">collect · trade · play</span>
         </span>
       )}
     </Link>

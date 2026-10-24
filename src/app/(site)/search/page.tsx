@@ -58,7 +58,7 @@ export default async function SearchPage({ searchParams }: PageProps<"/search">)
           )}
           {creators && creators.items.length > 0 && (
             <Section title="Creators" href={`/creators?q=${encodeURIComponent(q)}`}>
-              <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+              <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
                 {creators.items.map((c) => (
                   <CreatorCard key={c.id} creator={c} />
                 ))}
@@ -67,7 +67,7 @@ export default async function SearchPage({ searchParams }: PageProps<"/search">)
           )}
           {bounties && bounties.items.length > 0 && (
             <Section title="Bounties" href="/bounties">
-              <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+              <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
                 {bounties.items.map((b) => (
                   <BountyCard key={b.id} bounty={b} />
                 ))}
@@ -76,7 +76,7 @@ export default async function SearchPage({ searchParams }: PageProps<"/search">)
           )}
           {posts.length > 0 && (
             <Section title="Posts" href="/feed">
-              <ul className="glass divide-y divide-foreground/[0.06] overflow-hidden rounded-2xl">
+              <ul className="glass divide-y-2 divide-dashed divide-foreground/10 overflow-hidden rounded-[1.4rem]">
                 {posts.map((p) => {
                   const thumb = p.medias.find((m) => m.type === "IMAGE")?.url;
                   return (
@@ -86,7 +86,7 @@ export default async function SearchPage({ searchParams }: PageProps<"/search">)
                           // eslint-disable-next-line @next/next/no-img-element
                           <img src={thumb} alt="" className="size-12 shrink-0 rounded-xl object-cover" />
                         ) : (
-                          <span className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">{p.locked ? <Lock className="size-5" /> : <Newspaper className="size-5" />}</span>
+                          <span className="flex size-12 shrink-0 items-center justify-center blob bg-primary text-primary-foreground">{p.locked ? <Lock className="size-5" /> : <Newspaper className="size-5" />}</span>
                         )}
                         <span className="min-w-0 flex-1">
                           <span className="block truncate text-sm font-semibold">{p.heading}</span>
@@ -111,8 +111,8 @@ function Section({ title, href, children }: { title: string; href: string; child
   return (
     <section className="space-y-3">
       <div className="flex items-center justify-between">
-        <h2 className="font-hud text-lg font-bold tracking-tight">{title}</h2>
-        <Link href={href} className="inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline">
+        <h2 className="display text-3xl">{title}</h2>
+        <Link href={href} className="marker inline-flex items-center gap-1 text-sm text-primary hover:underline">
           See all <ArrowRight className="size-3.5" />
         </Link>
       </div>
