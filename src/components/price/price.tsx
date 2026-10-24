@@ -1,6 +1,7 @@
 import { formatTokenNumber, formatUsdAmount } from "~/lib/money";
 import { PLATFORM_ASSET } from "~/lib/stellar/constant";
 import { cn } from "~/lib/utils";
+import { WadzzoMark } from "~/ui/wadzzo-mark";
 
 const SIZES = {
   xs: { main: "text-base", unit: "text-[10px]", sub: "text-[10px]" },
@@ -38,7 +39,15 @@ export function Price({
   const s = SIZES[size];
   const main = (
     <span className={cn("display tabular-nums", s.main)}>
-      <span className={cn(gradient && "text-primary")}>{formatTokenNumber(tokens)}</span> <span className={cn("font-sans font-bold text-primary", s.unit)}>{code}</span>
+      <span className={cn(gradient && "text-primary")}>{formatTokenNumber(tokens)}</span>{" "}
+      {code === PLATFORM_ASSET.code ? (
+        <>
+          <WadzzoMark className="h-[0.8em] text-primary" />
+          <span className="sr-only">{code}</span>
+        </>
+      ) : (
+        <span className={cn("font-sans font-bold text-primary", s.unit)}>{code}</span>
+      )}
     </span>
   );
   const sub = secondary && usd != null ? `≈ ${formatUsdAmount(usd)}` : null;

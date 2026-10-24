@@ -3,11 +3,13 @@ import Link from "next/link";
 
 import { Button } from "~/components/shadcn/ui/button";
 import { cn } from "~/lib/utils";
-import { formatAmount, type CostLine, type Problem } from "~/lib/stellar/quote";
+import { Amount } from "~/components/price/amount";
+import { type CostLine, type Problem } from "~/lib/stellar/quote";
 
 /**
  * Every line of what an action costs, the total, and the payer's balance.
  * `collapsible`: show only the total until "See breakdown" is opened.
+ * `part` splits it in two so the lines and the total can sit in different places.
  */
 export function CostBreakdown({
   lines,
@@ -15,6 +17,7 @@ export function CostBreakdown({
   currency,
   balance,
   collapsible = false,
+  part = "all",
   className,
 }: {
   lines: CostLine[];
@@ -22,6 +25,8 @@ export function CostBreakdown({
   currency: string;
   balance?: number | null;
   collapsible?: boolean;
+  /** `lines`: only the itemised costs; `total`: only the total and balance (to place them apart). */
+  part?: "all" | "lines" | "total";
   className?: string;
 }) {
   const rows = (
@@ -32,7 +37,7 @@ export function CostBreakdown({
             <span className={cn(!l.inTotal && "text-muted-foreground")}>{l.label}</span>
             {l.hint && <span className="block text-xs text-muted-foreground">{l.hint}</span>}
           </dt>
-          <dd className={cn("shrink-0 font-medium tabular-nums", !l.inTotal && "text-muted-foreground")}>{formatAmount(l.amount, l.currency)}</dd>
+          <dd className={cn("shrink-0 font-medium tabular-nums", !l.inTotal && "text-muted-foreground")}><Amount value={l.amount} currency={l.currency} /></dd>
         </div>
       ))}
     </dl>
@@ -41,16 +46,26 @@ export function CostBreakdown({
     <dl className="space-y-1 text-sm">
       <div className="flex items-center justify-between gap-3">
         <dt className="display text-2xl">Total</dt>
-        <dd className="display text-3xl tabular-nums text-primary">{formatAmount(total, currency)}</dd>
+        <dd className="display text-3xl tabular-nums text-primary"><Amount value={total} currency={currency} /></dd>
       </div>
       {balance != null && (
         <div className="flex items-center justify-between gap-3 text-xs text-muted-foreground">
           <dt>Your balance</dt>
-          <dd className={cn("tabular-nums", balance < total && "font-semibold text-destructive")}>{formatAmount(balance, currency)}</dd>
+          <dd className={cn("tabular-nums", balance < total && "font-semibold text-destructive")}><Amount value={balance} currency={currency} /></dd>
         </div>
       )}
     </dl>
   );
+
+  if (part === "lines")
+    return (
+      <div className={cn("rounded-[1.2rem] border-2 border-dashed border-foreground/15 p-4", className)}>
+        <p className="label-caps mb-3">Cost breakdown</p>
+        {rows}
+      </div>
+    );
+
+  if (part === "total") return <div className={cn("rounded-[1.2rem] border-2 border-dashed border-foreground/15 p-4", className)}>{totals}</div>;
 
   if (collapsible) {
     return (

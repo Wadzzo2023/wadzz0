@@ -1,15 +1,18 @@
 "use client";
 
-import { Coins, CreditCard, Sparkles } from "lucide-react";
+import { CreditCard } from "lucide-react";
 
 import { PLATFORM_ASSET } from "~/lib/stellar/constant";
 import { cn } from "~/lib/utils";
+import { WadzzoMark } from "~/ui/wadzzo-mark";
+import { XlmMark } from "~/ui/xlm-mark";
 
 export type PayMethod = "PLATFORM_ASSET" | "XLM" | "CARD";
 
-const META: Record<PayMethod, { label: string; icon: typeof Coins }> = {
-  PLATFORM_ASSET: { label: PLATFORM_ASSET.code, icon: Sparkles },
-  XLM: { label: "XLM", icon: Coins },
+/** Each method's tab icon; the platform token uses the Wadzzo logo itself. */
+const META: Record<PayMethod, { label: string; icon: (props: { className?: string }) => React.ReactNode }> = {
+  PLATFORM_ASSET: { label: PLATFORM_ASSET.code, icon: ({ className }) => <WadzzoMark className={cn("h-[1.15rem]", className)} /> },
+  XLM: { label: "XLM", icon: ({ className }) => <XlmMark className={className} /> },
   CARD: { label: "Card", icon: CreditCard },
 };
 

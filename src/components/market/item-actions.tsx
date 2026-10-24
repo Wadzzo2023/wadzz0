@@ -7,7 +7,7 @@ import { useRequireAuth } from "~/hooks/use-require-auth";
 import { cn } from "~/lib/utils";
 import { api } from "~/utils/api";
 
-/** Under the art: whether the viewer owns it (content unlocked or not), share, and the token on Stellar. */
+/** Under the art in the hero (always on a dark backdrop): whether the viewer owns it (content unlocked or not), share, and the token on Stellar. */
 export function ItemActions({ assetId, name, explorerUrl }: { assetId: number; name: string; explorerUrl: string }) {
   const { signedIn } = useRequireAuth();
   const access = api.content.access.useQuery({ assetId }, { enabled: signedIn });
@@ -22,14 +22,17 @@ export function ItemActions({ assetId, name, explorerUrl }: { assetId: number; n
     }
   };
 
-  const btn = "flex size-11 shrink-0 items-center justify-center rounded-full bg-foreground text-background transition-transform hover:-rotate-12";
+  const btn = "flex size-11 shrink-0 items-center justify-center rounded-full bg-white text-black transition-transform hover:-rotate-12";
   return (
     <div className="flex items-center gap-2">
-      <div className={cn("flex h-11 min-w-0 flex-1 items-center gap-2 rounded-full border-2 px-4 text-sm font-semibold", owner ? "border-primary bg-primary text-primary-foreground" : "border-foreground/12")}>
-        {owner ? <Unlock className="size-4 shrink-0" strokeWidth={2.6} /> : <Lock className="size-4 shrink-0 text-muted-foreground" strokeWidth={2.6} />}
-        <span className="truncate">
-          {owner ? <span className="font-bold">You own this · content unlocked</span> : "Locked · own a copy to unlock it"}
-        </span>
+      <div
+        className={cn(
+          "flex h-11 min-w-0 flex-1 items-center gap-2 rounded-full border-2 px-4 text-sm font-semibold",
+          owner ? "border-primary bg-primary text-primary-foreground" : "border-white/25 text-white",
+        )}
+      >
+        {owner ? <Unlock className="size-4 shrink-0" strokeWidth={2.6} /> : <Lock className="size-4 shrink-0 text-white/70" strokeWidth={2.6} />}
+        <span className="truncate">{owner ? <span className="font-bold">You own this · content unlocked</span> : "Locked · own a copy to unlock it"}</span>
       </div>
       <button type="button" onClick={() => void share()} className={btn} aria-label="Share">
         <Share2 className="size-4" />

@@ -3,6 +3,9 @@
 import { FileText, Lock, Settings2, Share2, Target, Trophy, Upload, UserPlus } from "lucide-react";
 import Link from "next/link";
 import { priceText } from "~/components/price/price";
+import { formatTokenNumber } from "~/lib/money";
+import { PLATFORM_ASSET } from "~/lib/stellar/constant";
+import { WadzzoMark } from "~/ui/wadzzo-mark";
 import toast from "react-hot-toast";
 
 import { env } from "~/env";
@@ -75,8 +78,18 @@ export function BountyCard({ bounty, className }: { bounty: BountyCardData; clas
 /** The reward as a tilted green sticker: amount, then "/ N winners". */
 function Reward({ bounty, className }: { bounty: BountyCardData; className?: string }) {
   return (
-    <p className={cn("blob bg-primary text-primary-foreground flex -rotate-2 items-baseline gap-1.5 px-3 py-1 whitespace-nowrap", className)}>
-      <span className="display text-2xl tabular-nums">{priceText(bounty.rewardAsset, bounty.assetCode)}</span>
+    <p className={cn("blob bg-primary text-primary-foreground flex -rotate-2 items-center gap-1.5 px-3 py-1 whitespace-nowrap", className)}>
+      <span className="display inline-flex items-center gap-1.5 text-2xl tabular-nums" title={priceText(bounty.rewardAsset, bounty.assetCode)}>
+        {formatTokenNumber(bounty.rewardAsset)}
+        {bounty.assetCode === PLATFORM_ASSET.code ? (
+          <>
+            <WadzzoMark className="h-[1.1rem]" />
+            <span className="sr-only">{bounty.assetCode}</span>
+          </>
+        ) : (
+          <span className="font-sans text-sm font-bold">{bounty.assetCode}</span>
+        )}
+      </span>
       <span className="marker text-[11px]">
         / {bounty.totalWinners} winner{bounty.totalWinners === 1 ? "" : "s"}
       </span>
@@ -167,12 +180,7 @@ function ShareAction({ title, href }: { title: string; href: string }) {
     }
   };
   return (
-    <button
-      type="button"
-      onClick={() => void share()}
-      aria-label="Share"
-      className="flex size-9 items-center justify-center rounded-full bg-white text-black transition-transform hover:-rotate-12"
-    >
+    <button type="button" onClick={() => void share()} aria-label="Share" className="flex size-9 items-center justify-center rounded-full bg-white text-black transition-transform hover:-rotate-12">
       <Share2 className="size-4" />
     </button>
   );

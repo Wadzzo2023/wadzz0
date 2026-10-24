@@ -9,6 +9,8 @@ import { useSyncExternalStore } from "react";
 
 import { env } from "~/env";
 import { useRequireAuth } from "~/hooks/use-require-auth";
+import { formatTokenShort } from "~/lib/money";
+import { WadzzoMark } from "~/ui/wadzzo-mark";
 import { useSidebarCollapsed } from "~/hooks/use-sidebar-collapsed";
 import { cn } from "~/lib/utils";
 import { api } from "~/utils/api";
@@ -25,7 +27,6 @@ const THEMES = [
   { id: "system", label: "System", icon: Monitor },
 ] as const;
 
-const full = new Intl.NumberFormat("en-US", { maximumFractionDigits: 2 });
 
 const useMounted = () =>
   useSyncExternalStore(
@@ -161,7 +162,22 @@ function Avatar({ image, size = "size-11" }: { image: string | null; size?: stri
   );
 }
 
-/** Who you are and what you hold, as an ink card. Signed out: a big sign-in button. */
+/** Perforated tear line between the two halves of the ticket card: a dashed rule with a notch cut out at each edge. */
+function TearLine() {
+  return (
+    <div className="relative my-3" aria-hidden>
+      <div className="dash-rule text-side-mint" />
+      <span className="bg-side absolute top-1/2 -left-[1.125rem] size-3 -translate-y-1/2 rounded-full" />
+      <span className="bg-side absolute top-1/2 -right-[1.125rem] size-3 -translate-y-1/2 rounded-full" />
+    </div>
+  );
+}
+
+/**
+ * Who you are and what you hold, as a ticket: identity on top, a perforated
+ * tear line, the balance big underneath, and the studio as a mint strip along
+ * the bottom edge. Signed out: a guest ticket with a sign-in button.
+ */
 function PlayerCard({ onNavigate }: { onNavigate?: () => void }) {
   const { signedIn, loading, session, openSignIn } = useRequireAuth();
   const me = api.user.me.useQuery(undefined, {
@@ -173,26 +189,31 @@ function PlayerCard({ onNavigate }: { onNavigate?: () => void }) {
     staleTime: 30_000,
   });
 
-  if (loading) return <div className="blob bg-side-ink/15 h-[178px]" />;
+  if (loading) return <div className="blob bg-side-ink/15 h-[190px]" />;
 
   if (!signedIn)
     return (
-      <div className="blob bg-side-ink text-side-mint p-3">
-        <div className="flex items-center gap-3">
-          <Avatar image={null} />
-          <div className="min-w-0 flex-1 leading-tight">
-            <p className="text-sm font-bold">Hey, guest!</p>
-            <p className="marker text-side-mint/60 text-[11px]">collecting starts here</p>
+      <div className="blob bg-side-ink text-side-mint overflow-hidden">
+        <div className="p-3">
+          <div className="flex items-center gap-3">
+            <span className="-rotate-3">
+              <Avatar image={null} />
+            </span>
+            <div className="min-w-0 flex-1 leading-tight">
+              <p className="marker text-side-mint/60 text-[11px]">*guest pass*</p>
+              <p className="display text-3xl">Hey, guest!</p>
+            </div>
           </div>
+          <TearLine />
+          <button
+            type="button"
+            onClick={openSignIn}
+            className="blob bg-side text-side-ink flex h-11 w-full items-center justify-center gap-2 transition-transform duration-200 hover:-translate-y-0.5"
+          >
+            <LogIn className="size-4" strokeWidth={2.6} />
+            <span className="marker text-base">Sign in / Sign up</span>
+          </button>
         </div>
-        <button
-          type="button"
-          onClick={openSignIn}
-          className="blob bg-side text-side-ink mt-3 flex h-11 w-full items-center justify-center gap-2 transition-transform duration-200 hover:-translate-y-0.5"
-        >
-          <LogIn className="size-4" strokeWidth={2.6} />
-          <span className="marker text-base">Sign in / Sign up</span>
-        </button>
         <StudioRow onNavigate={onNavigate} />
       </div>
     );
@@ -202,29 +223,38 @@ function PlayerCard({ onNavigate }: { onNavigate?: () => void }) {
   const b = balances.data;
 
   return (
-    <div className="blob bg-side-ink text-side-mint p-3">
-      <div className="flex items-center gap-3">
-        <Link href="/settings" onClick={onNavigate} aria-label="Settings">
-          <Avatar image={me.data?.image ?? session?.user.image ?? null} />
-        </Link>
-        <div className="min-w-0 flex-1 leading-tight">
-          <p className="truncate text-sm font-bold">{name}</p>
-          {id && <p className="text-side-mint/55 truncate font-mono text-[11px]">{addrShort(id, 5)}</p>}
+    <div className="blob bg-side-ink text-side-mint overflow-hidden">
+      <div className="p-3">
+        <div className="flex items-center gap-3">
+          <Link href="/settings" onClick={onNavigate} aria-label="Settings" className="-rotate-3 transition-transform duration-200 hover:rotate-0">
+            <Avatar image={me.data?.image ?? session?.user.image ?? null} />
+          </Link>
+          <div className="min-w-0 flex-1 leading-tight">
+            <p className="display truncate text-2xl">{name}</p>
+            {id && <p className="text-side-mint/55 truncate font-mono text-[11px]">{addrShort(id, 5)}</p>}
+          </div>
         </div>
-      </div>
-      <div className="border-side-mint/20 mt-3 border-t border-dashed pt-2.5">
-        <Link href="/wallet" onClick={onNavigate} className="block min-w-0">
-          <p className="text-side-mint/55 text-[10px] font-bold tracking-[0.16em] uppercase">Balance</p>
-          {!b ? (
-            <span className="bg-side-mint/10 mt-1 block h-7 w-24 rounded" />
-          ) : b.active ? (
-            <p className="flex items-baseline gap-1.5 truncate">
-              <span className="display text-side text-[1.9rem]">{full.format(b.platform.balance)}</span>
-              <span className="marker text-side-mint/70 text-xs">{b.platform.code}</span>
-            </p>
-          ) : (
-            <p className="marker text-side mt-1 text-sm">Activate wallet →</p>
-          )}
+
+        <TearLine />
+
+        <Link href="/wallet" onClick={onNavigate} className="group flex items-end justify-between gap-2">
+          <span className="min-w-0">
+            <span className="marker text-side-mint/60 block text-[11px]">*balance*</span>
+            {!b ? (
+              <span className="bg-side-mint/10 mt-1 block h-9 w-28 rounded" />
+            ) : b.active ? (
+              <span className="text-side flex items-center gap-2" title={`${b.platform.balance.toLocaleString("en-US")} ${b.platform.code}`}>
+                <span className="display truncate text-5xl leading-none tabular-nums">{formatTokenShort(b.platform.balance, 1_000_000)}</span>
+                <WadzzoMark className="h-7 shrink-0" />
+                <span className="sr-only">{b.platform.code}</span>
+              </span>
+            ) : (
+              <span className="marker text-side mt-1 block text-sm">Activate wallet →</span>
+            )}
+          </span>
+          <span className="bg-side text-side-ink flex size-8 shrink-0 items-center justify-center rounded-full transition-transform duration-200 group-hover:-rotate-45">
+            <ArrowRight className="size-4" strokeWidth={2.6} />
+          </span>
         </Link>
       </div>
       <StudioRow onNavigate={onNavigate} />
@@ -232,7 +262,7 @@ function PlayerCard({ onNavigate }: { onNavigate?: () => void }) {
   );
 }
 
-/** The brand entry, as the last row of the ink card: the studio's logo and name (or "Create a brand"), opening the brand portal. */
+/** The brand entry, as a pale mint strip along the bottom of the ticket: the studio's logo and name (or "Create a brand"), opening the brand portal. */
 function StudioRow({ onNavigate }: { onNavigate?: () => void }) {
   const brand = useBrandEntry();
   return (
@@ -241,21 +271,21 @@ function StudioRow({ onNavigate }: { onNavigate?: () => void }) {
       target="_blank"
       rel="noreferrer"
       onClick={onNavigate}
-      className="group bg-side-mint/10 hover:bg-side-mint/20 mt-2.5 flex items-center gap-2.5 rounded-xl p-1.5 pr-2.5 transition-colors"
+      className="group bg-side-mint text-side-ink hover:bg-side flex items-center gap-2.5 px-3 py-2.5 transition-colors"
     >
       {brand.logo ? (
         // eslint-disable-next-line @next/next/no-img-element
-        <img src={brand.logo} alt="" className="size-9 shrink-0 rounded-lg object-cover" />
+        <img src={brand.logo} alt="" className="border-side-ink size-9 shrink-0 rounded-lg border-2 object-cover" />
       ) : (
-        <span className="bg-side text-side-ink flex size-9 shrink-0 items-center justify-center rounded-lg">
+        <span className="bg-side-ink text-side flex size-9 shrink-0 items-center justify-center rounded-lg">
           <Store className="size-[18px]" strokeWidth={2.4} />
         </span>
       )}
       <span className="min-w-0 flex-1 leading-tight">
-        <span className="block truncate text-sm font-bold">{brand.label}</span>
-        <span className="text-side-mint/60 block truncate text-[11px]">{brand.hint}</span>
+        <span className="marker block truncate text-sm">{brand.label}</span>
+        <span className="text-side-ink/70 block truncate text-[11px] font-semibold">{brand.hint}</span>
       </span>
-      <ArrowUpRight className="text-side size-4 shrink-0 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" strokeWidth={2.6} />
+      <ArrowUpRight className="size-4 shrink-0 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" strokeWidth={2.6} />
     </a>
   );
 }
@@ -367,8 +397,6 @@ export function SidebarBody({ onNavigate }: { onNavigate?: () => void }) {
 
       {/* scrolling body */}
       <div className="no-scrollbar border-side-ink/20 min-h-0 flex-1 space-y-5 overflow-y-auto overscroll-contain border-y-2 border-dashed px-5 py-5">
-        <PlayerCard onNavigate={onNavigate} />
-
         <nav aria-label="Sections">
           {EXPLORE.map((item, i) => (
             <div key={item.href}>
@@ -388,6 +416,8 @@ export function SidebarBody({ onNavigate }: { onNavigate?: () => void }) {
             </div>
           </div>
         )}
+
+        <PlayerCard onNavigate={onNavigate} />
       </div>
 
       {/* fixed footer */}

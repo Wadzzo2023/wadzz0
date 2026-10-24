@@ -5,12 +5,13 @@ import { AnimatePresence, motion } from "motion/react";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 
-import { MintMeter } from "~/components/market/mint-progress";
 import { MEDIA_META } from "~/components/media/media-meta";
-import { formatTokenNumber, formatUsdAmount } from "~/lib/money";
+import { formatTokenNumber, formatTokenShort, formatUsdShort } from "~/lib/money";
 import { PLATFORM_ASSET } from "~/lib/stellar/constant";
 import { cn } from "~/lib/utils";
 import type { ListingCard } from "~/server/api/routers/market";
+import { artChip } from "~/ui/styles";
+import { WadzzoMark } from "~/ui/wadzzo-mark";
 
 const INTERVAL_MS = 7000;
 const ease = [0.2, 0.8, 0.2, 1] as const;
@@ -71,9 +72,12 @@ export function HeroCarousel({ slides }: { slides: ListingCard[] }) {
                 className="relative w-[min(70vw,19rem)] sm:w-[22rem] lg:w-full lg:max-w-[27rem]"
               >
                 <Link href={href} tabIndex={-1} className="group block">
-                  <div className="blob overflow-hidden border-[3px] border-foreground bg-surface shadow-[10px_12px_0_0_hsl(var(--primary))] transition-transform duration-300 group-hover:-translate-y-1 group-hover:rotate-[-3deg]">
+                  <div className="blob relative overflow-hidden border-[3px] border-foreground bg-surface shadow-[10px_12px_0_0_hsl(var(--primary))] transition-transform duration-300 group-hover:-translate-y-1 group-hover:rotate-[-3deg]">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src={a.thumbnail} alt={a.name} className="aspect-square w-full object-cover" />
+                    <span className={cn(artChip, "absolute top-3 right-3")} title={meta.label}>
+                      <meta.icon className="size-3.5" /> {meta.label}
+                    </span>
                   </div>
                 </Link>
                 <span className="marker pointer-events-none absolute -left-4 -top-5 -rotate-12 rounded-lg bg-pink px-2.5 py-1 text-sm text-side-ink sm:-left-8">
@@ -96,43 +100,22 @@ export function HeroCarousel({ slides }: { slides: ListingCard[] }) {
               aria-roledescription="slide"
               aria-label={`${i + 1} of ${n}: ${a.name}`}
             >
-              <Rise className="flex flex-wrap items-center gap-3">
-                <span className="marker inline-flex -rotate-3 items-center gap-2 text-base text-muted-foreground">
-                  <span className="live-dot" /> *{resale ? "hot resale" : "live drop"}*
-                </span>
-                <span className="inline-flex items-center gap-1.5 rounded-full border border-foreground/15 px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
-                  <meta.icon className="size-3.5" /> {meta.label}
-                </span>
-              </Rise>
-
               <Rise>
                 <h2 className="display line-clamp-3 break-words text-[3.4rem] sm:text-7xl xl:text-[5.6rem]">{a.name}</h2>
               </Rise>
 
-              <Rise className="flex items-center gap-4">
-                <span className="display shrink-0 text-[4.5rem] leading-[0.8] text-primary sm:text-[6rem]">
-                  {formatTokenNumber(s.price)}
-                </span>
-                <span className="display text-2xl leading-[0.95] sm:text-[1.9rem]">
-                  {PLATFORM_ASSET.code}
-                  <br />
-                  {resale ? "to buy it" : "to mint it"}
-                  <br />
-                  {s.priceUSD != null ? `≈ ${formatUsdAmount(s.priceUSD)}` : "right now"}
-                </span>
-              </Rise>
-
-              <Rise className="max-w-md">
-                {a.limit == null ? (
-                  <p className="marker text-lg text-primary">
-                    open edition by {a.creator?.name ?? "Wadzzo"} — {a.mintedCount.toLocaleString("en-US")} minted so far. grab yours!
+              <Rise>
+                <div className="blob inline-block -rotate-2 bg-primary px-5 py-3 text-primary-foreground" title={`${formatTokenNumber(s.price)} ${PLATFORM_ASSET.code}`}>
+                  <p className="flex items-center gap-3">
+                    <span className="display text-[3.8rem] leading-[0.85] tabular-nums sm:text-[5rem]">{formatTokenShort(s.price, 10_000_000)}</span>
+                    <WadzzoMark className="h-11 sm:h-14" />
+                    <span className="sr-only">{PLATFORM_ASSET.code}</span>
                   </p>
-                ) : (
-                  <>
-                    <p className="marker mb-2 text-lg text-primary">by {a.creator?.name ?? "Wadzzo"} — {left ? "don't miss it, right?!" : "sold out!"}</p>
-                    <MintMeter limit={a.limit} minted={a.mintedCount} />
-                  </>
-                )}
+                  <p className="marker mt-1.5 text-sm sm:text-base">
+                    {s.priceUSD != null && `≈ ${formatUsdShort(s.priceUSD, 10_000_000)} · `}
+                    {resale ? "to buy it" : "to mint it"}
+                  </p>
+                </div>
               </Rise>
 
               <Rise className="flex flex-wrap items-center gap-3">
@@ -152,29 +135,21 @@ export function HeroCarousel({ slides }: { slides: ListingCard[] }) {
           </AnimatePresence>
         </div>
 
-        {/* up next */}
+        {/* slide dots (the active one stretches and fills until the next slide) */}
         {n > 1 && (
-          <div className="flex items-center gap-3 pb-8 pt-6">
-            <div className="no-scrollbar flex flex-1 gap-2 overflow-x-auto">
+          <div className="flex items-center justify-between gap-3 pb-8 pt-6">
+            <div className="flex items-center gap-2" role="tablist" aria-label="Featured drops">
               {slides.map((t, idx) => (
                 <button
                   key={t.id}
                   type="button"
+                  role="tab"
                   onClick={() => go(idx)}
                   aria-label={`Show ${t.asset.name}`}
-                  aria-current={idx === i}
-                  className={cn(
-                    "relative flex w-14 shrink-0 items-center gap-3 overflow-hidden rounded-xl p-1.5 text-left transition-colors sm:w-56",
-                    idx === i ? "bg-surface-3" : "opacity-55 hover:bg-surface-2 hover:opacity-100",
-                  )}
+                  aria-selected={idx === i}
+                  className={cn("relative h-3 overflow-hidden rounded-full transition-[width,background-color] duration-300", idx === i ? "w-12 bg-foreground/20" : "w-3 bg-foreground/30 hover:bg-foreground/60")}
                 >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={t.asset.thumbnail} alt="" className="size-11 shrink-0 rounded-lg object-cover" />
-                  <span className="hidden min-w-0 sm:block">
-                    <span className="display block truncate text-lg">{t.asset.name}</span>
-                    <span className="block truncate text-xs text-muted-foreground">{t.asset.creator?.name ?? "Wadzzo"}</span>
-                  </span>
-                  {idx === i && <span key={`${i}-${paused}`} className={cn("absolute inset-x-0 bottom-0 h-1 origin-left bg-primary", !paused && "animate-[hero-progress_7s_linear]")} />}
+                  {idx === i && <span key={`${i}-${paused}`} className={cn("absolute inset-0 origin-left rounded-full bg-primary", paused ? "scale-x-100" : "animate-[hero-progress_7s_linear]")} />}
                 </button>
               ))}
             </div>

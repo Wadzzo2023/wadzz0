@@ -6,13 +6,14 @@ import { useState } from "react";
 
 import { CardForm } from "~/components/payment/card-form";
 import { CostBreakdown, ProblemList } from "~/components/payment/cost-breakdown";
+import { Amount } from "~/components/price/amount";
 import { Price } from "~/components/price/price";
 import { MethodPicker, type PayMethod } from "~/components/payment/method-picker";
 import { Button } from "~/components/shadcn/ui/button";
 import { isCustodial } from "~/lib/custodial";
 import { useRequireAuth } from "~/hooks/use-require-auth";
 import { useSignAndConfirm } from "~/hooks/use-sign-and-confirm";
-import { MAX_PER_PURCHASE, formatAmount } from "~/lib/stellar/quote";
+import { MAX_PER_PURCHASE } from "~/lib/stellar/quote";
 import { QuantityStepper } from "~/ui/quantity-stepper";
 import { Skeleton } from "~/ui/skeleton";
 import { StatusPill } from "~/ui/status-pill";
@@ -156,6 +157,11 @@ function Checkout({ item, listing }: { item: Item; listing: Listing }) {
               <QuantityStepper value={quantity} onChange={setQuantity} max={maxQty} disabled={busy} />
             </div>
             <MethodPicker value={method} onChange={setMethod} methods={methods} />
+            {q ? (
+              <CostBreakdown lines={q.lines} total={q.total} currency={q.currency} part="lines" />
+            ) : quote.isLoading ? (
+              <Skeleton className="h-32 rounded-xl" />
+            ) : null}
           </>
         )}
       </div>
@@ -182,15 +188,15 @@ function Checkout({ item, listing }: { item: Item; listing: Listing }) {
               </div>
             ) : quote.isLoading || !q ? (
               <div className="space-y-2">
-                <Skeleton className="h-40 rounded-xl" />
+                <Skeleton className="h-24 rounded-xl" />
                 <Skeleton className="h-10 rounded-lg" />
               </div>
             ) : (
               <>
-                <CostBreakdown lines={q.lines} total={q.total} currency={q.currency} balance={q.balance} collapsible />
+                <CostBreakdown lines={q.lines} total={q.total} currency={q.currency} balance={q.balance} part="total" />
                 {q.payout.royalty > 0 && (
                   <p className="text-muted-foreground text-xs">
-                    The seller receives {formatAmount(q.payout.seller, q.payout.currency)}; the creator earns {formatAmount(q.payout.royalty, q.payout.currency)} royalty.
+                    The seller receives <Amount value={q.payout.seller} currency={q.payout.currency} />; the creator earns <Amount value={q.payout.royalty} currency={q.payout.currency} /> royalty.
                   </p>
                 )}
                 {q.problems.length > 0 && <ProblemList problems={q.problems} creatorHref={creatorHref} onFollow={followCreator} />}
@@ -204,7 +210,7 @@ function Checkout({ item, listing }: { item: Item; listing: Listing }) {
                         ? "Confirming on Stellar…"
                         : prepare.isPending
                           ? "Preparing…"
-                          : `Buy ${quantity > 1 ? `${quantity} ` : ""}for ${formatAmount(q.total, q.currency)}`}
+                          : <>Buy {quantity > 1 ? `${quantity} ` : ""}for <Amount value={q.total} currency={q.currency} /></>}
                   </Button>
                 )}
                 {item.privacy !== "PUBLIC" && !isResale && (
