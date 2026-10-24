@@ -3,9 +3,9 @@
 import { Diamond } from "lucide-react";
 import Link from "next/link";
 
-import { formatTokenNumber } from "~/lib/money";
 import { PLATFORM_ASSET } from "~/lib/stellar/constant";
 import { api } from "~/utils/api";
+import { Amount } from "~/components/price/amount";
 
 /**
  * The strip across the top of every page, like an exchange ticker: what's on
@@ -28,7 +28,7 @@ export function MarketTicker() {
                 <span className="display text-base text-side-mint">{l.asset.creator?.name ?? "Wadzzo"}</span>
                 <span className="max-w-[14rem] truncate">{l.asset.name}</span>
                 <span className="font-semibold tabular-nums text-side">
-                  {formatTokenNumber(l.price)} {PLATFORM_ASSET.code}
+                  <Amount value={l.price} currency={PLATFORM_ASSET.code} />
                 </span>
               </Link>
             ))}

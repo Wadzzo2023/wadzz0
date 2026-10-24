@@ -1,8 +1,10 @@
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
+import { StellarAccount } from "~/lib/stellar/account";
 import { pageAssetRef, tierBalances } from "~/server/access";
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "~/server/api/trpc";
+import type { Db } from "~/server/db";
 import { notify } from "~/server/notify";
 import { platformScope } from "~/server/platform-scope";
 import { followTrustlineXdr } from "~/server/stellar/follow";
@@ -10,6 +12,14 @@ import { preparePageTokens, quotePageTokens } from "~/server/stellar/page-tokens
 import { signerFor } from "~/server/stellar/session-signer";
 
 const pageAssetSelect = { pageAsset: { select: { code: true, issuer: true, thumbnail: true } }, customPageAssetCodeIssuer: true } as const;
+
+/** Saves "user follows creator" (once) and tells the creator. */
+async function saveFollow(db: Db, userId: string, creatorId: string) {
+  const existing = await db.follow.findUnique({ where: { userId_creatorId: { userId, creatorId } } });
+  if (existing) return;
+  const f = await db.follow.create({ data: { userId, creatorId } });
+  await notify(db, { actorId: userId, type: "FOLLOW", entityId: f.id, recipients: [creatorId], creatorIds: [creatorId] });
+}
 
 /** Brands as fans see them: browse, profile, tiers, follow. */
 export const creatorRouter = createTRPCRouter({
@@ -89,9 +99,11 @@ export const creatorRouter = createTRPCRouter({
   }),
 
   /**
-   * Follow a brand. Saved right away; when the brand has a page token and the
-   * fan doesn't trust it yet, also returns a transaction adding that trustline
-   * (the platform covers its 0.5 XLM reserve, as before).
+   * Follow a brand. A brand without a page token is followed right away. A
+   * brand with one is only followed once the fan's wallet trusts that token, so
+   * this either saves the follow (the trustline already exists), or returns the
+   * transaction that adds it (the platform covers its 0.5 XLM reserve) and
+   * saves nothing yet: the client signs it and then calls `confirmFollow`.
    */
   follow: protectedProcedure.input(z.object({ creatorId: z.string() })).mutation(async ({ ctx, input }) => {
     const me = ctx.session.user.id;
@@ -99,14 +111,45 @@ export const creatorRouter = createTRPCRouter({
     const creator = await ctx.db.creator.findFirst({ where: { id: input.creatorId, approved: true }, select: { id: true, ...pageAssetSelect } });
     if (!creator) throw new TRPCError({ code: "NOT_FOUND" });
 
-    const existing = await ctx.db.follow.findUnique({ where: { userId_creatorId: { userId: me, creatorId: creator.id } } });
-    if (!existing) {
-      const f = await ctx.db.follow.create({ data: { userId: me, creatorId: creator.id } });
-      await notify(ctx.db, { actorId: me, type: "FOLLOW", entityId: f.id, recipients: [creator.id], creatorIds: [creator.id] });
+    const page = pageAssetRef(creator);
+    if (!page) {
+      await saveFollow(ctx.db, me, creator.id);
+      return { followed: true as const, xdr: null };
     }
 
+    const account = await StellarAccount.load(me);
+    if (!account) throw new TRPCError({ code: "BAD_REQUEST", message: "Activate your wallet first: it needs a little XLM before it can follow brands." });
+    if (account.hasTrustline(page.code, page.issuer)) {
+      await saveFollow(ctx.db, me, creator.id);
+      return { followed: true as const, xdr: null };
+    }
+    if (!account.canAddSubentries(1)) throw new TRPCError({ code: "BAD_REQUEST", message: "Your wallet needs a little more XLM to hold this brand's token, so you can't follow yet." });
+
+    const xdr = await followTrustlineXdr(me, page, signerFor(ctx.session));
+    if (!xdr) {
+      // the trustline appeared between the two checks
+      await saveFollow(ctx.db, me, creator.id);
+      return { followed: true as const, xdr: null };
+    }
+    return { followed: false as const, xdr };
+  }),
+
+  /**
+   * After the client signed the trustline from `follow`: record the follow only
+   * if the trustline really is on the ledger. `followed: false` means it isn't
+   * visible yet (or never went through), so nothing was saved.
+   */
+  confirmFollow: protectedProcedure.input(z.object({ creatorId: z.string() })).mutation(async ({ ctx, input }) => {
+    const me = ctx.session.user.id;
+    const creator = await ctx.db.creator.findFirst({ where: { id: input.creatorId, approved: true }, select: { id: true, ...pageAssetSelect } });
+    if (!creator) throw new TRPCError({ code: "NOT_FOUND" });
+
     const page = pageAssetRef(creator);
-    return { xdr: page ? await followTrustlineXdr(me, page, signerFor(ctx.session)) : null };
+    const account = page ? await StellarAccount.load(me) : null;
+    if (page && !account?.hasTrustline(page.code, page.issuer)) return { followed: false };
+
+    await saveFollow(ctx.db, me, creator.id);
+    return { followed: true };
   }),
 
   unfollow: protectedProcedure.input(z.object({ creatorId: z.string() })).mutation(async ({ ctx, input }) => {

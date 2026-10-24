@@ -38,7 +38,7 @@ export function PageHeader({
         {eyebrow && (
           <p className="marker mb-2 -rotate-2 text-base text-muted-foreground">*{eyebrow.toLowerCase()}*</p>
         )}
-        <h1 className="display break-words text-5xl text-foreground sm:text-7xl">{title}</h1>
+        <h1 className="display break-words text-[2.75rem] text-foreground sm:text-6xl lg:text-7xl">{title}</h1>
         {description && <p className="marker mt-3 max-w-2xl -rotate-1 text-base leading-snug text-primary sm:text-lg">{description}</p>}
       </div>
       {actions && <div className="flex shrink-0 flex-wrap items-center gap-2">{actions}</div>}

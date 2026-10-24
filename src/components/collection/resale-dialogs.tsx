@@ -13,6 +13,7 @@ import { useSignAndConfirm } from "~/hooks/use-sign-and-confirm";
 import { PLATFORM_ASSET } from "~/lib/stellar/constant";
 import { Skeleton } from "~/ui/skeleton";
 import { api } from "~/utils/api";
+import { Amount, TokenCode } from "~/components/price/amount";
 
 type PayIn = "PLATFORM_ASSET" | "XLM";
 
@@ -113,13 +114,15 @@ export function ListDialog({
                 <Input id="copies" type="number" min={1} max={item.owned} value={copies} onChange={(e) => setCopies(Math.min(item.owned, Math.max(1, Math.floor(Number(e.target.value)))))} />
               </div>
               <div className="space-y-1.5">
-                <Label htmlFor="price">Price each ({PLATFORM_ASSET.code})</Label>
+                <Label htmlFor="price" className="flex items-center gap-1.5">
+                  Price each <TokenCode code={PLATFORM_ASSET.code} />
+                </Label>
                 <Input id="price" type="number" min={0} step="any" value={price || ""} onChange={(e) => setPrice(Number(e.target.value))} />
               </div>
             </div>
             {price > 0 && (
               <p className="text-xs text-muted-foreground">
-                You receive {youGet.toLocaleString(undefined, { maximumFractionDigits: 2 })} {PLATFORM_ASSET.code} per sale
+                You receive <Amount value={youGet} currency={PLATFORM_ASSET.code} /> per sale
                 {item.royaltyPercent > 0 && ` (the creator earns a ${item.royaltyPercent}% royalty)`}. Buyers pay the platform fee on top.
               </p>
             )}

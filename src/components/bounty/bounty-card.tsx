@@ -10,12 +10,13 @@ import toast from "react-hot-toast";
 
 import { env } from "~/env";
 import { useRequireAuth } from "~/hooks/use-require-auth";
-import { type BountyCardData, formatTokens } from "~/lib/bounty";
+import { type BountyCardData } from "~/lib/bounty";
 import { cn } from "~/lib/utils";
 import { Avatar } from "~/ui/person";
 import { Skeleton } from "~/ui/skeleton";
 import { artChip } from "~/ui/styles";
 import { api } from "~/utils/api";
+import { Amount } from "~/components/price/amount";
 
 /**
  * A bounty as a poster: the cover fills the card with the spots left on top,
@@ -29,7 +30,7 @@ export function BountyCard({ bounty, className }: { bounty: BountyCardData; clas
   return (
     <article
       className={cn(
-        "group border-foreground/10 bg-surface-3 relative isolate flex min-h-[19rem] flex-col overflow-hidden rounded-[1.4rem] border-2 p-3 text-white",
+        "on-dark group border-foreground/10 bg-surface-3 relative isolate flex min-h-[19rem] flex-col overflow-hidden rounded-[1.4rem] border-2 p-3 text-white",
         "hover:border-foreground transition-[transform,border-color,box-shadow] duration-200 ease-out hover:-translate-y-1 hover:-rotate-1 hover:shadow-[6px_7px_0_0_hsl(var(--primary))]",
         className,
       )}
@@ -154,7 +155,7 @@ function JoinAction({ bounty, href }: { bounty: BountyCardData; href: string }) 
   if (short) {
     return (
       <Link href="/wallet" title={`Hold at least ${bounty.requiredBalance.toLocaleString("en-US")} ${bounty.assetCode} to join`} className={cn(action, "bg-pink text-side-ink")}>
-        <Lock className="size-4" /> Need {formatTokens(bounty.requiredBalance)} {bounty.assetCode}
+        <Lock className="size-4" /> Need <Amount value={bounty.requiredBalance} currency={bounty.assetCode} />
       </Link>
     );
   }

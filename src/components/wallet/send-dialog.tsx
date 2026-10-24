@@ -8,10 +8,10 @@ import { Button } from "~/components/shadcn/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "~/components/shadcn/ui/dialog";
 import { Input } from "~/components/shadcn/ui/input";
 import { useSignAndConfirm } from "~/hooks/use-sign-and-confirm";
-import { formatAmount } from "~/lib/stellar/quote";
 import { cn } from "~/lib/utils";
 import { Avatar } from "~/ui/person";
 import { api } from "~/utils/api";
+import { Amount } from "~/components/price/amount";
 
 /** Anything in the wallet that can be sent. `issuer` is null for XLM. */
 export type SendableAsset = { code: string; issuer: string | null; balance: number; label: string; thumbnail: string | null };
@@ -55,7 +55,7 @@ export function SendDialog({ assets, initial, onClose }: { assets: SendableAsset
           <div className="space-y-3 py-4 text-center">
             <CheckCircle2 className="mx-auto size-10 text-primary" />
             <p className="display text-2xl">
-              {prepare.data?.mode === "gift" ? "Gift sent" : "Sent"} {formatAmount(amount, asset.code)}
+              {prepare.data?.mode === "gift" ? "Gift sent" : "Sent"} <Amount value={amount} currency={asset.code} />
             </p>
             {prepare.data?.mode === "gift" && <p className="text-sm text-muted-foreground">It waits in their Pending gifts until they accept it.</p>}
             <Button variant="outline" onClick={onClose}>
@@ -106,7 +106,7 @@ export function SendDialog({ assets, initial, onClose }: { assets: SendableAsset
                 </Button>
               </div>
               <p className="text-xs text-muted-foreground">
-                Available: {asset.balance.toLocaleString("en-US", { maximumFractionDigits: 7 })} {asset.code}
+                Available: <Amount value={asset.balance} currency={asset.code} />
               </p>
             </div>
 
@@ -125,7 +125,9 @@ export function SendDialog({ assets, initial, onClose }: { assets: SendableAsset
                         {l.label}
                         {l.hint && <span className="block text-xs">{l.hint}</span>}
                       </dt>
-                      <dd className="tabular-nums">{formatAmount(l.amount, l.currency)}</dd>
+                      <dd className="tabular-nums">
+                        <Amount value={l.amount} currency={l.currency} />
+                      </dd>
                     </div>
                   ))}
                 </dl>

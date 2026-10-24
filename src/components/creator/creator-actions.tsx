@@ -10,25 +10,25 @@ import { Price } from "~/components/price/price";
 import { Button } from "~/components/shadcn/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "~/components/shadcn/ui/dialog";
 import { useRequireAuth } from "~/hooks/use-require-auth";
+import { useFollow } from "~/hooks/use-follow";
 import { useSignAndConfirm } from "~/hooks/use-sign-and-confirm";
-import { formatAmount } from "~/lib/stellar/quote";
 import { cn } from "~/lib/utils";
 import { EmptyState } from "~/ui/empty-state";
 import { Skeleton } from "~/ui/skeleton";
 import { api, type RouterOutputs } from "~/utils/api";
 
 import { TierCard } from "./tier-card";
+import { Amount } from "~/components/price/amount";
 
 type Profile = RouterOutputs["creator"]["profile"];
 type Offer = RouterOutputs["market"]["pageTokenSales"][number];
 
-/** Follow / Following (also adds the brand's page-token trustline, paid by the platform). */
+/** Follow / Following. For brands with a page token, following also adds that token's trustline (paid by the platform) and only counts once it's on Stellar. */
 export function FollowButton({ creatorId, initial, className }: { creatorId: string; initial: boolean; className?: string }) {
   const { requireAuth } = useRequireAuth();
   const [following, setFollowing] = useState(initial);
-  const follow = api.creator.follow.useMutation();
   const unfollow = api.creator.unfollow.useMutation();
-  const sign = useSignAndConfirm();
+  const follow = useFollow();
 
   const toggle = requireAuth(async () => {
     if (following) {
@@ -36,20 +36,14 @@ export function FollowButton({ creatorId, initial, className }: { creatorId: str
       await unfollow.mutateAsync({ creatorId }).catch(() => setFollowing(true));
       return;
     }
-    setFollowing(true);
-    const res = await follow.mutateAsync({ creatorId }).catch(() => (setFollowing(false), null));
-    if (res?.xdr) await sign.signOnly(res.xdr);
+    // not "Following" until it's saved: without a page token that's immediate, with one it waits for the trustline
+    setFollowing(await follow.run(creatorId));
   });
 
   return (
-    <Button
-      onClick={toggle}
-      variant={following ? "outline" : "default"}
-      disabled={follow.isPending || unfollow.isPending || sign.busy}
-      className={cn("rounded-full px-5", !following && "", className)}
-    >
+    <Button onClick={toggle} variant={following ? "outline" : "default"} disabled={follow.busy || unfollow.isPending} className={cn("rounded-full px-5", className)}>
       {following ? <UserCheck className="size-4" /> : <UserPlus className="size-4" />}
-      {sign.busy ? "Confirm in wallet…" : following ? "Following" : "Follow"}
+      {follow.stage === "signing" ? "Confirm in wallet…" : follow.stage === "confirming" ? "Confirming…" : follow.stage === "preparing" ? "Following…" : following ? "Following" : "Follow"}
     </Button>
   );
 }
@@ -180,7 +174,13 @@ function PageTokenDialog({ offer, code, onClose }: { offer: Offer; code: string;
             )}
             {(prepare.error ?? sign.error) && <p className="rounded-lg tone-danger px-3 py-2 text-sm">{prepare.error?.message ?? sign.error}</p>}
             <Button className="h-11 w-full font-bold" disabled={!quote.data?.ok || prepare.isPending || sign.busy} onClick={() => void go()}>
-              {sign.step === "signing" ? "Confirm in your wallet…" : sign.step === "confirming" ? "Confirming on Stellar…" : quote.data ? `Pay ${formatAmount(quote.data.total, quote.data.currency)}` : "Pay"}
+              {sign.step === "signing" ? "Confirm in your wallet…" : sign.step === "confirming" ? "Confirming on Stellar…" : quote.data ? (
+                <>
+                  Pay <Amount value={quote.data.total} currency={quote.data.currency} />
+                </>
+              ) : (
+                "Pay"
+              )}
             </Button>
           </div>
         )}

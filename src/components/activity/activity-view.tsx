@@ -9,13 +9,13 @@ import { useState } from "react";
 import { Button } from "~/components/shadcn/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "~/components/shadcn/ui/dialog";
 import { env } from "~/env";
-import { formatAmount } from "~/lib/stellar/quote";
 import { cn } from "~/lib/utils";
 import { EmptyState } from "~/ui/empty-state";
 import { PageBody, PageHeader } from "~/ui/page-header";
 import { Skeleton } from "~/ui/skeleton";
 import { StatusPill, type Tone } from "~/ui/status-pill";
 import { api, type RouterOutputs } from "~/utils/api";
+import { Amount } from "~/components/price/amount";
 
 type Row = RouterOutputs["activity"]["list"]["items"][number];
 
@@ -164,7 +164,7 @@ function ActivityRows({ rows, me }: { rows: Row[]; me: string }) {
                   <span className="text-xs text-muted-foreground">{format(new Date(r.createdAt), "d MMM yyyy, HH:mm")}</span>
                 </span>
                 <span className="flex flex-col items-end gap-1">
-                  {r.total > 0 && <span className="font-hud text-sm font-bold tabular-nums">{formatAmount(r.total, r.currency)}</span>}
+                  {r.total > 0 && <span className="font-hud text-sm font-bold tabular-nums"><Amount value={r.total} currency={r.currency} /></span>}
                   <StatusPill tone={STATUS[r.status].tone}>{STATUS[r.status].label}</StatusPill>
                 </span>
               </button>
@@ -205,12 +205,16 @@ function Receipt({ r, me }: { r: Row; me: string }) {
           {lines.filter(([, v]) => v > 0).map(([k, v]) => (
             <div key={k} className="flex justify-between gap-3">
               <dt className="text-muted-foreground">{k}</dt>
-              <dd className="tabular-nums">{formatAmount(v, r.currency)}</dd>
+              <dd className="tabular-nums">
+                <Amount value={v} currency={r.currency} />
+              </dd>
             </div>
           ))}
           <div className="flex justify-between gap-3 border-t pt-2 font-semibold">
             <dt>{r.type === "TRANSFER" ? (r.buyerId === me ? "Total sent" : "Total received") : "Total paid"}</dt>
-            <dd className="tabular-nums">{formatAmount(r.total, r.currency)}</dd>
+            <dd className="tabular-nums">
+              <Amount value={r.total} currency={r.currency} />
+            </dd>
           </div>
         </dl>
         <dl className="space-y-1 text-xs text-muted-foreground">

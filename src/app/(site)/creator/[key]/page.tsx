@@ -77,7 +77,7 @@ export default async function CreatorPage({ params }: PageProps<"/creator/[key]"
           </span>
           <div className="flex min-w-0 flex-1 flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div className="min-w-0 space-y-2">
-              <h1 className="display flex min-w-0 items-center gap-3 text-6xl sm:text-7xl">
+              <h1 className="display flex min-w-0 items-center gap-3 text-5xl sm:text-6xl lg:text-7xl">
                 <span className="min-w-0 truncate">{profile.name}</span>
                 <BadgeCheck className="size-8 shrink-0 text-primary" strokeWidth={2.6} aria-label="Verified creator" />
               </h1>

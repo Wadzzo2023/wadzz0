@@ -19,3 +19,14 @@ export function Amount({ value, currency, className }: { value: number; currency
     </span>
   );
 }
+
+/** Just the currency name for sentences like "You have 5 ⟨W⟩": the Wadzzo logo for the platform token, the code as text for anything else. */
+export function TokenCode({ code, className }: { code: string; className?: string }) {
+  if (code !== PLATFORM_ASSET.code) return <span className={className}>{code}</span>;
+  return (
+    <span className={cn("inline-flex items-center align-middle", className)}>
+      <WadzzoMark className="h-[0.95em]" />
+      <span className="sr-only">{code}</span>
+    </span>
+  );
+}

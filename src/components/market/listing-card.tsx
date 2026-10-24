@@ -28,7 +28,7 @@ export function ListingCard({ listing, className }: { listing: ListingCardData; 
   return (
     <Link
       href={resale ? `/item/${a.id}?listing=${listing.id}` : `/item/${a.id}`}
-      className={cn("group relative block aspect-[3/4] transition-transform duration-200 ease-out hover:-translate-y-1 hover:-rotate-1", className)}
+      className={cn("on-dark group relative block aspect-[3/4] transition-transform duration-200 ease-out hover:-translate-y-1 hover:-rotate-1", className)}
     >
       {/* the card itself clips the art; stickers outside it (sold out) hang over the corner */}
       <div className="border-foreground/10 bg-surface-3 group-hover:border-foreground absolute inset-0 overflow-hidden rounded-[1.4rem] border-2 transition-[border-color,box-shadow] duration-200 group-hover:shadow-[6px_7px_0_0_hsl(var(--primary))]">
@@ -91,7 +91,7 @@ export function ListingCardSkeleton() {
   return <Skeleton className="aspect-[3/4] rounded-[1.4rem]" />;
 }
 
-/** Responsive grid: 2 columns on phones up to 6 on very wide screens. */
+/** Responsive grid: 2 columns on phones, 3 on tablets (beside the icon rail), 4 on laptops, up to 6 on very wide screens. */
 export function ListingGrid({ children, className }: { children: React.ReactNode; className?: string }) {
-  return <div className={cn("grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 md:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6", className)}>{children}</div>;
+  return <div className={cn("grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4 min-[1400px]:grid-cols-5 min-[1800px]:grid-cols-6", className)}>{children}</div>;
 }

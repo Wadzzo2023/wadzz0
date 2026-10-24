@@ -30,7 +30,7 @@ export function PageHero({
       <div className="flex min-w-0 items-end gap-6">
         <div className="min-w-0 space-y-3">
           <p className="marker -rotate-2 text-base text-muted-foreground">*{eyebrow.toLowerCase()}*</p>
-          <h1 className="display break-words text-6xl sm:text-8xl">{title}</h1>
+          <h1 className="display break-words text-5xl sm:text-6xl lg:text-7xl xl:text-8xl">{title}</h1>
           {description && <p className="marker max-w-xl -rotate-1 text-base leading-snug text-primary sm:text-lg">{description}</p>}
         </div>
         {image && (
@@ -39,11 +39,11 @@ export function PageHero({
         )}
       </div>
       {stats.length > 0 && (
-        <dl className="grid grid-cols-3 gap-3 lg:w-[30rem]">
+        <dl className="grid grid-cols-3 gap-2 sm:gap-3 lg:w-[30rem]">
           {stats.map((s, i) => (
             <div key={s.label} className={cn("blob min-w-0 p-3 sm:p-4", TILE[i % TILE.length])}>
               <s.icon className="mb-1 size-4" strokeWidth={2.6} />
-              <dd className="display truncate text-3xl tabular-nums sm:text-4xl">{s.value}</dd>
+              <dd className="display truncate text-2xl tabular-nums sm:text-3xl lg:text-4xl">{s.value}</dd>
               <dt className="truncate text-[10px] font-bold uppercase tracking-wider opacity-75">{s.label}</dt>
             </div>
           ))}

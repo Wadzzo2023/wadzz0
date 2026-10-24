@@ -26,7 +26,7 @@ export function Section({
     <section className={cn("space-y-6", className)}>
       <div className="flex items-end justify-between gap-3">
         <div className="min-w-0">
-          <h2 className="display flex items-center gap-3 text-[2.6rem] sm:text-5xl">
+          <h2 className="display flex items-center gap-3 text-4xl sm:text-[2.6rem] lg:text-5xl">
             {Icon && <Icon className="size-8 shrink-0 text-primary sm:size-9" strokeWidth={2.4} />}
             <span className="min-w-0 break-words">{title}</span>
           </h2>

@@ -29,7 +29,7 @@ type Created = RouterOutputs["collection"]["created"][number];
 type Tab = "owned" | "selling" | "created";
 
 const num = new Intl.NumberFormat("en-US", { maximumFractionDigits: 2 });
-const grid = "grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 md:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6";
+const grid = "grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4 min-[1400px]:grid-cols-5 min-[1800px]:grid-cols-6";
 
 /** Everything I own, what I'm reselling, and (for creators) what I made. */
 export function CollectionView() {

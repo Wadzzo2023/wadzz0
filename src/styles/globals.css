@@ -15,23 +15,26 @@
    Flat by design: no glows, no blur — cheap to paint.
    ═══════════════════════════════════════════════════════════════════════════ */
 :root {
-  /* light = FC88's pale mint */
-  --ar-void: 105 45% 84%;
-  --ar-bg: 105 50% 87%;
-  --ar-surface: 100 45% 94%;
-  --ar-surface-2: 104 42% 90%;
-  --ar-surface-3: 106 36% 83%;
-  --ar-line: 140 22% 72%;
-  --ar-line-bright: 150 22% 55%;
+  /* light = warm paper: off-white page, white cards, near-black ink, the
+     same bright Wadzzo green as dark mode for buttons and stickers */
+  --ar-void: 48 22% 92%;
+  --ar-bg: 48 30% 95.5%;
+  --ar-surface: 0 0% 100%;
+  --ar-surface-2: 48 22% 92.5%;
+  --ar-surface-3: 48 16% 87%;
+  --ar-line: 48 10% 82%;
+  --ar-line-bright: 48 8% 64%;
 
-  --ar-text: 162 75% 15%;
-  --ar-text-dim: 160 30% 28%;
-  --ar-text-faint: 155 16% 42%;
+  --ar-text: 160 30% 8%;
+  --ar-text-dim: 160 8% 32%;
+  --ar-text-faint: 160 5% 46%;
 
-  --ar-green: 162 75% 18%;
-  --ar-green-hot: 150 80% 30%;
-  --ar-green-deep: 162 75% 12%;
-  --ar-green-ink: 105 60% 90%;
+  --ar-green: 112 78% 45%;
+  --ar-green-hot: 112 85% 52%;
+  --ar-green-deep: 125 80% 26%;
+  --ar-green-ink: 162 78% 10%;
+  /* green used as text on paper: bright green is unreadable there */
+  --primary-text: 125 80% 27%;
 
   /* the sidebar is the brand block in both themes */
   --side-bg: 112 80% 52%;
@@ -51,7 +54,7 @@
 
   --ar-cyan: 170 70% 30%;
   --ar-violet: 4 80% 58%;
-  --ar-pink: 4 85% 62%;
+  --ar-pink: 4 90% 68%;
 
   /* shadcn mapping */
   --background: var(--ar-bg);
@@ -101,6 +104,7 @@
 
   --ar-green: 112 85% 55%;
   --ar-green-hot: 112 90% 62%;
+  --primary-text: 112 85% 55%;
   --ar-green-deep: 118 62% 28%;
   --ar-green-ink: 162 78% 10%;
 
@@ -504,5 +508,14 @@ body {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+  }
+}
+
+/* Green as text: bright green on light backgrounds is unreadable, so light
+   mode uses a deeper green for text only (buttons/stickers keep the bright one).
+   Areas that are always dark (heroes, the ink cards) opt back in with .on-dark. */
+@layer utilities {
+  :root:not(.dark) .text-primary:not(.on-dark .text-primary) {
+    color: hsl(var(--primary-text));
   }
 }

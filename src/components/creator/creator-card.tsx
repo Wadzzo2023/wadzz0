@@ -43,7 +43,7 @@ export function CreatorCard({ creator, className }: { creator: CreatorCardData; 
   return (
     <article
       className={cn(
-        "group relative isolate flex min-h-[22rem] flex-col overflow-hidden rounded-[1.4rem] border-2 border-foreground/10 bg-surface-3 p-4 text-white",
+        "on-dark group relative isolate flex min-h-[22rem] flex-col overflow-hidden rounded-[1.4rem] border-2 border-foreground/10 bg-surface-3 p-4 text-white",
         "transition-[transform,border-color,box-shadow] duration-200 ease-out hover:-translate-y-1 hover:-rotate-1 hover:border-foreground hover:shadow-[6px_7px_0_0_hsl(var(--primary))]",
         className,
       )}

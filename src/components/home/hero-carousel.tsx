@@ -59,9 +59,9 @@ export function HeroCarousel({ slides }: { slides: ListingCard[] }) {
       }}
     >
       <div className="mx-auto grid min-h-[min(84svh,760px)] max-w-[88rem] grid-cols-[minmax(0,1fr)] grid-rows-[1fr_auto] px-4 pt-8 sm:px-10 lg:pt-12">
-        <div className="grid grid-cols-[minmax(0,1fr)] items-center gap-10 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] lg:gap-14">
+        <div className="grid grid-cols-[minmax(0,1fr)] items-center gap-8 md:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] md:gap-10 xl:gap-14">
           {/* art sticker (first on phones) */}
-          <div className="relative order-first flex justify-center lg:order-last">
+          <div className="relative order-first flex justify-center md:order-last">
             <AnimatePresence mode="wait" initial={false}>
               <motion.div
                 key={s.id}
@@ -69,7 +69,7 @@ export function HeroCarousel({ slides }: { slides: ListingCard[] }) {
                 animate={{ opacity: 1, rotate: 3, y: 0 }}
                 exit={{ opacity: 0, rotate: -4, y: -20 }}
                 transition={{ duration: 0.45, ease }}
-                className="relative w-[min(70vw,19rem)] sm:w-[22rem] lg:w-full lg:max-w-[27rem]"
+                className="relative w-[min(58vw,15rem)] sm:w-[18rem] md:w-full md:max-w-[27rem]"
               >
                 <Link href={href} tabIndex={-1} className="group block">
                   <div className="blob relative overflow-hidden border-[3px] border-foreground bg-surface shadow-[10px_12px_0_0_hsl(var(--primary))] transition-transform duration-300 group-hover:-translate-y-1 group-hover:rotate-[-3deg]">
@@ -101,14 +101,14 @@ export function HeroCarousel({ slides }: { slides: ListingCard[] }) {
               aria-label={`${i + 1} of ${n}: ${a.name}`}
             >
               <Rise>
-                <h2 className="display line-clamp-3 break-words text-[3.4rem] sm:text-7xl xl:text-[5.6rem]">{a.name}</h2>
+                <h2 className="display line-clamp-3 break-words text-5xl sm:text-6xl lg:text-7xl xl:text-[5.6rem]">{a.name}</h2>
               </Rise>
 
               <Rise>
                 <div className="blob inline-block -rotate-2 bg-primary px-5 py-3 text-primary-foreground" title={`${formatTokenNumber(s.price)} ${PLATFORM_ASSET.code}`}>
                   <p className="flex items-center gap-3">
-                    <span className="display text-[3.8rem] leading-[0.85] tabular-nums sm:text-[5rem]">{formatTokenShort(s.price, 10_000_000)}</span>
-                    <WadzzoMark className="h-11 sm:h-14" />
+                    <span className="display text-5xl leading-[0.85] tabular-nums sm:text-[3.8rem] xl:text-[5rem]">{formatTokenShort(s.price, 10_000_000)}</span>
+                    <WadzzoMark className="h-9 sm:h-11 xl:h-14" />
                     <span className="sr-only">{PLATFORM_ASSET.code}</span>
                   </p>
                   <p className="marker mt-1.5 text-sm sm:text-base">

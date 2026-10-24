@@ -12,6 +12,7 @@ import { useSignAndConfirm } from "~/hooks/use-sign-and-confirm";
 import { cn } from "~/lib/utils";
 import { Skeleton } from "~/ui/skeleton";
 import { api } from "~/utils/api";
+import { Amount, TokenCode } from "~/components/price/amount";
 
 const num = (n: number, max = 2) => n.toLocaleString("en-US", { maximumFractionDigits: max });
 
@@ -70,9 +71,12 @@ export function GetTokensDialog({ onClose }: { onClose: () => void }) {
                       usd === p.usd ? "bg-primary/10 ring-2 ring-primary" : "bg-foreground/[0.03] ring-foreground/[0.08] hover:ring-primary/40",
                     )}
                   >
-                    <p className="display text-3xl tabular-nums">{num(p.tokens, 0)}</p>
+                    <p className="display flex items-center gap-1.5 text-3xl tabular-nums">
+                      {num(p.tokens, 0)}
+                      <TokenCode code={code} className="text-2xl" />
+                    </p>
                     <p className="text-xs text-muted-foreground">
-                      {code} · <span className="font-semibold text-foreground">${p.usd.toFixed(2)}</span>
+                      <span className="font-semibold text-foreground">${p.usd.toFixed(2)}</span>
                     </p>
                   </button>
                 ))}
@@ -109,7 +113,7 @@ export function SwapDialog({ balance, code, onClose }: { balance: number; code: 
         <DialogHeader>
           <DialogTitle className="display text-2xl">Swap {code} for XLM</DialogTitle>
           <DialogDescription>
-            You have {num(balance)} {code}.
+            You have <Amount value={balance} currency={code} />.
           </DialogDescription>
         </DialogHeader>
         {sign.step === "done" ? (
@@ -128,7 +132,7 @@ export function SwapDialog({ balance, code, onClose }: { balance: number; code: 
               <span className="text-sm text-muted-foreground">You receive</span>
               <span className="display text-3xl tabular-nums">{valid && quote.data ? `${num(quote.data.xlm, 7)} XLM` : "—"}</span>
             </div>
-            {valid && quote.data && !quote.data.ok && <p className="rounded-lg tone-danger px-3 py-2 text-sm">You only have {num(quote.data.balance)} {code}.</p>}
+            {valid && quote.data && !quote.data.ok && <p className="rounded-lg tone-danger px-3 py-2 text-sm">You only have <Amount value={quote.data.balance} currency={code} />.</p>}
             {(prepare.error ?? sign.error) && <p className="rounded-lg tone-danger px-3 py-2 text-sm">{prepare.error?.message ?? sign.error}</p>}
             <Button className="h-11 w-full font-bold" disabled={!quote.data?.ok || prepare.isPending || sign.busy} onClick={() => void go()}>
               {sign.step === "signing" ? "Confirm in your wallet…" : sign.step === "confirming" ? "Confirming on Stellar…" : "Swap"}

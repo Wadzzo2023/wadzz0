@@ -153,7 +153,7 @@ function ProfileHeader({ me }: { me: Me }) {
           </button>
           <input ref={avatarInput} type="file" accept={accept} hidden onChange={(e) => void pick(e.target.files?.[0], "image")} />
           <div className="min-w-0 space-y-1 pb-1">
-            <p className="display truncate text-6xl sm:text-7xl">{me.name ?? "Your profile"}</p>
+            <p className="display truncate text-5xl sm:text-6xl lg:text-7xl">{me.name ?? "Your profile"}</p>
             {me.bio ? <p className="max-w-2xl whitespace-pre-line break-words text-sm leading-relaxed text-muted-foreground">{me.bio}</p> : <p className="text-sm text-muted-foreground">Add a bio so people know who you are.</p>}
             {me.joinedAt && <p className="marker text-sm text-primary">joined {new Date(me.joinedAt).toLocaleDateString("en-US", { month: "long", year: "numeric" })}</p>}
           </div>

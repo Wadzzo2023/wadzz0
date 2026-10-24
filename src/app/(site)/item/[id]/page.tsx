@@ -89,7 +89,7 @@ export default async function ItemPage({ params, searchParams }: PageProps<"/ite
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }} />
 
       {/* Full-width hero: the art behind a dark fade, the details on it, the playable media as a framed sticker. */}
-      <section className="bg-surface-3 relative isolate overflow-hidden text-white">
+      <section className="on-dark relative isolate overflow-hidden bg-surface-3 text-white">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={item.thumbnail} alt="" aria-hidden className="absolute inset-0 -z-10 size-full scale-110 object-cover opacity-60" />
         <div aria-hidden className="absolute inset-0 -z-10 bg-gradient-to-r from-black/95 via-black/80 to-black/40" />
@@ -111,7 +111,7 @@ export default async function ItemPage({ params, searchParams }: PageProps<"/ite
             )}
             <span className="truncate text-white">{item.name}</span>
           </nav>
-          <div className="grid grid-cols-[minmax(0,1fr)] items-center gap-8 pt-6 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)] lg:gap-12">
+          <div className="grid grid-cols-[minmax(0,1fr)] items-center gap-8 pt-6 md:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)] md:gap-10 xl:gap-12">
             <div className="min-w-0 space-y-5">
               <div className="flex flex-wrap items-center gap-2">
                 <span className="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-2.5 py-1 text-[11px] font-bold tracking-wider uppercase">
@@ -141,7 +141,7 @@ export default async function ItemPage({ params, searchParams }: PageProps<"/ite
                   )}
                   *
                 </p>
-                <h1 className="display text-6xl break-words sm:text-7xl xl:text-8xl">{item.name}</h1>
+                <h1 className="display text-5xl break-words sm:text-6xl lg:text-7xl xl:text-8xl">{item.name}</h1>
               </div>
 
               {/* price + stat stickers */}
@@ -151,7 +151,7 @@ export default async function ItemPage({ params, searchParams }: PageProps<"/ite
                     <p className="text-[10px] font-bold tracking-wider uppercase opacity-75">{resale ? "Resale price" : "Price"}</p>
                     <p className="leading-none">
                       <span className="inline-flex items-center gap-2">
-                        <span className="display text-5xl tabular-nums">{formatTokenShort(listing.price, 10_000_000)}</span>
+                        <span className="display text-4xl tabular-nums lg:text-5xl">{formatTokenShort(listing.price, 10_000_000)}</span>
                         <WadzzoMark className="h-8" />
                         <span className="sr-only">{PLATFORM_ASSET.code}</span>
                       </span>

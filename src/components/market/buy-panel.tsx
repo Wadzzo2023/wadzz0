@@ -12,6 +12,7 @@ import { MethodPicker, type PayMethod } from "~/components/payment/method-picker
 import { Button } from "~/components/shadcn/ui/button";
 import { isCustodial } from "~/lib/custodial";
 import { useRequireAuth } from "~/hooks/use-require-auth";
+import { useFollow } from "~/hooks/use-follow";
 import { useSignAndConfirm } from "~/hooks/use-sign-and-confirm";
 import { MAX_PER_PURCHASE } from "~/lib/stellar/quote";
 import { QuantityStepper } from "~/ui/quantity-stepper";
@@ -60,7 +61,7 @@ function Checkout({ item, listing }: { item: Item; listing: Listing }) {
   const maxQty = Math.max(1, Math.min(MAX_PER_PURCHASE, quote.data?.copiesLeft ?? MAX_PER_PURCHASE));
   const prepare = api.purchase.prepare.useMutation();
   const payByCard = api.purchase.payByCard.useMutation();
-  const follow = api.creator.follow.useMutation();
+  const follow = useFollow();
   const sign = useSignAndConfirm();
   const utils = api.useUtils();
   const [done, setDone] = useState(false);
@@ -95,8 +96,7 @@ function Checkout({ item, listing }: { item: Item; listing: Listing }) {
 
   const followCreator = async () => {
     if (!item.creatorId) return;
-    const res = await follow.mutateAsync({ creatorId: item.creatorId });
-    if (res.xdr) await sign.signOnly(res.xdr);
+    await follow.run(item.creatorId);
     await quote.refetch();
   };
 

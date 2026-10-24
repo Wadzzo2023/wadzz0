@@ -23,6 +23,7 @@ import { api, type RouterOutputs } from "~/utils/api";
 
 import { SendDialog, type SendableAsset } from "./send-dialog";
 import { GetTokensDialog, ReceiveDialog, SwapDialog } from "./wallet-dialogs";
+import { TokenCode } from "~/components/price/amount";
 
 type Balances = RouterOutputs["wallet"]["balances"];
 type Gift = RouterOutputs["wallet"]["gifts"][number];
@@ -138,9 +139,9 @@ function BalanceHero({ b, onAction }: { b: Balances; onAction: (k: DialogKind) =
           </div>
           {b.active ? (
             <>
-              <p className="flex flex-wrap items-baseline gap-x-3 break-all">
+              <p className="flex flex-wrap items-center gap-x-3 break-all">
                 <span className="display text-7xl tabular-nums sm:text-8xl">{num(b.platform.balance)}</span>
-                <span className="display text-3xl">{b.platform.code}</span>
+                <TokenCode code={b.platform.code} className="display text-4xl" />
               </p>
               {b.platform.usd != null && <p className="marker text-lg">≈ {b.platform.usd.toLocaleString("en-US", { style: "currency", currency: "USD" })}</p>}
             </>
@@ -312,7 +313,7 @@ function GiftRow({ gift }: { gift: Gift }) {
       </span>
       <span className="min-w-0 flex-1">
         <span className="block truncate text-sm font-semibold">
-          {num(gift.amount)} {gift.code}
+          {num(gift.amount)} <TokenCode code={gift.code} />
         </span>
         {gift.sponsor && <span className="block truncate text-xs text-muted-foreground">from {shortAddr(gift.sponsor)}</span>}
         {sign.error && <span className="block text-xs text-destructive">{sign.error}</span>}
