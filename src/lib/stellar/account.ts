@@ -1,4 +1,4 @@
-import { Asset, BadRequestError, Horizon, NotFoundError } from "@stellar/stellar-sdk";
+import { Asset, Horizon, NetworkError, NotFoundError } from "@stellar/stellar-sdk";
 
 import { BASE_RESERVE_XLM, MAX_SUBENTRIES, PLATFORM_ASSET, STELLAR_URL } from "./constant";
 
@@ -29,7 +29,9 @@ export class StellarAccount {
       return new StellarAccount(id, await horizon().loadAccount(id));
     } catch (e) {
       if (e instanceof NotFoundError) return null;
-      if (e instanceof BadRequestError) {
+      // Horizon answers 400 for an id it can't parse; stellar-sdk raises that as a NetworkError
+      // whose response status is 400 (message "Bad Request"), not as BadRequestError.
+      if (e instanceof NetworkError && e.getResponse().status === 400) {
         console.warn(`[stellar] not a valid account id: ${id.slice(0, 8)}…`);
         return null;
       }
