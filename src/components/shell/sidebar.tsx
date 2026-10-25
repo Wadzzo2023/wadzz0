@@ -17,6 +17,7 @@ import { api } from "~/utils/api";
 import { addrShort } from "~/utils/utils";
 
 import { BrandMark } from "./brand-mark";
+import { ArLaunchButton } from "./ar-launch-button";
 import { ACCOUNT, EXPLORE, INFO_LINKS, isActive, type NavItem } from "./nav";
 import { openSearch } from "./search-dialog";
 import { SOCIALS } from "./social-icons";
@@ -26,7 +27,6 @@ const THEMES = [
   { id: "dark", label: "Dark", icon: Moon },
   { id: "system", label: "System", icon: Monitor },
 ] as const;
-
 
 const useMounted = () =>
   useSyncExternalStore(
@@ -179,11 +179,7 @@ function TearLine() {
  * the bottom edge. Signed out: a guest ticket with a sign-in button.
  */
 function PlayerCard({ onNavigate }: { onNavigate?: () => void }) {
-  const { signedIn, loading, session, openSignIn } = useRequireAuth();
-  const me = api.user.me.useQuery(undefined, {
-    enabled: signedIn,
-    staleTime: 5 * 60_000,
-  });
+  const { signedIn, loading, openSignIn } = useRequireAuth();
   const balances = api.wallet.balances.useQuery(undefined, {
     enabled: signedIn,
     staleTime: 30_000,
@@ -205,11 +201,7 @@ function PlayerCard({ onNavigate }: { onNavigate?: () => void }) {
             </div>
           </div>
           <TearLine />
-          <button
-            type="button"
-            onClick={openSignIn}
-            className="blob bg-side text-side-ink flex h-11 w-full items-center justify-center gap-2 transition-transform duration-200 hover:-translate-y-0.5"
-          >
+          <button type="button" onClick={openSignIn} className="blob bg-side text-side-ink flex h-11 w-full items-center justify-center gap-2 transition-transform duration-200 hover:-translate-y-0.5">
             <LogIn className="size-4" strokeWidth={2.6} />
             <span className="marker text-base">Sign in / Sign up</span>
           </button>
@@ -218,25 +210,11 @@ function PlayerCard({ onNavigate }: { onNavigate?: () => void }) {
       </div>
     );
 
-  const id = session?.user.id;
-  const name = me.data?.name ?? session?.user.name ?? "Collector";
   const b = balances.data;
 
   return (
     <div className="blob bg-side-ink text-side-mint overflow-hidden">
       <div className="p-3">
-        <div className="flex items-center gap-3">
-          <Link href="/settings" onClick={onNavigate} aria-label="Settings" className="-rotate-3 transition-transform duration-200 hover:rotate-0">
-            <Avatar image={me.data?.image ?? session?.user.image ?? null} />
-          </Link>
-          <div className="min-w-0 flex-1 leading-tight">
-            <p className="display truncate text-2xl">{name}</p>
-            {id && <p className="text-side-mint/55 truncate font-mono text-[11px]">{addrShort(id, 5)}</p>}
-          </div>
-        </div>
-
-        <TearLine />
-
         <Link href="/wallet" onClick={onNavigate} className="group flex items-end justify-between gap-2">
           <span className="min-w-0">
             <span className="marker text-side-mint/60 block text-[11px]">*balance*</span>
@@ -244,7 +222,10 @@ function PlayerCard({ onNavigate }: { onNavigate?: () => void }) {
               <span className="bg-side-mint/10 mt-1 block h-9 w-28 rounded" />
             ) : b.active ? (
               <span className="text-side flex items-center gap-2" title={`${b.platform.balance.toLocaleString("en-US")} ${b.platform.code}`}>
-                <span className="display truncate text-5xl leading-none tabular-nums">{formatTokenShort(b.platform.balance, 1_000_000)}</span>
+                <span className="display truncate text-5xl leading-none tabular-nums">
+                  {/* the card fits ~8 characters at this size: 18,234.17 → 18.2K */}
+                  {formatTokenShort(b.platform.balance, 10_000)}
+                </span>
                 <WadzzoMark className="h-7 shrink-0" />
                 <span className="sr-only">{b.platform.code}</span>
               </span>
@@ -266,13 +247,7 @@ function PlayerCard({ onNavigate }: { onNavigate?: () => void }) {
 function StudioRow({ onNavigate }: { onNavigate?: () => void }) {
   const brand = useBrandEntry();
   return (
-    <a
-      href={brand.href}
-      target="_blank"
-      rel="noreferrer"
-      onClick={onNavigate}
-      className="group bg-side-mint text-side-ink hover:bg-side flex items-center gap-2.5 px-3 py-2.5 transition-colors"
-    >
+    <a href={brand.href} target="_blank" rel="noreferrer" onClick={onNavigate} className="group bg-side-mint text-side-ink hover:bg-side flex items-center gap-2.5 px-3 py-2.5 transition-colors">
       {brand.logo ? (
         // eslint-disable-next-line @next/next/no-img-element
         <img src={brand.logo} alt="" className="border-side-ink size-9 shrink-0 rounded-lg border-2 object-cover" />
@@ -291,10 +266,57 @@ function StudioRow({ onNavigate }: { onNavigate?: () => void }) {
 }
 
 /** The fixed footer: theme, info pages, socials, sign out and the copyright, kept compact. */
-function SidebarFooter({ onNavigate }: { onNavigate?: () => void }) {
-  const { signedIn } = useRequireAuth();
+/** Who is signed in, as one row: picture, name and wallet address, and sign out. */
+function ProfileRow({ onNavigate }: { onNavigate?: () => void }) {
+  const { session } = useRequireAuth();
+  const me = api.user.me.useQuery(undefined, { staleTime: 5 * 60_000 });
+  const id = session?.user.id;
+  const name = me.data?.name ?? session?.user.name ?? "Collector";
   return (
-    <div className="space-y-2.5">
+    <div className="bg-side-ink text-side-mint flex items-center gap-2 rounded-2xl p-2">
+      {/* picture, name and id together open settings */}
+      <Link href="/settings" onClick={onNavigate} title="Profile settings" className="group hover:bg-side-mint/10 -m-1 flex min-w-0 flex-1 items-center gap-2.5 rounded-xl p-1 transition-colors">
+        <Avatar image={me.data?.image ?? session?.user.image ?? null} size="size-10" />
+        <div className="min-w-0 flex-1 leading-tight">
+          <p className="display text-side truncate text-xl group-hover:underline">{name}</p>
+          {id && <p className="text-side-mint/60 truncate font-mono text-[11px]">{addrShort(id, 5)}</p>}
+        </div>
+      </Link>
+      <button
+        type="button"
+        onClick={() => void signOut({ callbackUrl: "/" })}
+        aria-label="Sign out"
+        title="Sign out"
+        className="bg-side text-side-ink flex size-9 shrink-0 items-center justify-center rounded-xl transition-transform duration-200 hover:scale-105"
+      >
+        <LogOut className="size-4" strokeWidth={2.6} />
+      </button>
+    </div>
+  );
+}
+
+/**
+ * The fixed footer: your stuff and who you are, then theme and socials, the info pages on one
+ * row, and the copyright last.
+ */
+function SidebarFooter({ onNavigate }: { onNavigate?: () => void }) {
+  const pathname = usePathname() ?? "";
+  const { signedIn } = useRequireAuth();
+  // wallet is the balance card and settings is the profile row, so the chips skip them
+  const account = ACCOUNT.filter((i) => (signedIn || !i.authOnly) && i.href !== "/wallet" && i.href !== "/settings");
+  return (
+    <div className="space-y-3">
+      {signedIn && (
+        <div>
+          <p className="marker mb-2 -rotate-2 text-sm">*your stuff*</p>
+          <div className="grid grid-cols-2 gap-2">
+            {account.map((item) => (
+              <ChipLink key={item.href} item={item} active={isActive(pathname, item)} onNavigate={onNavigate} />
+            ))}
+          </div>
+        </div>
+      )}
+      {signedIn && <ProfileRow onNavigate={onNavigate} />}
       <div className="flex items-center justify-between gap-2">
         <ThemeSwitch />
         <div className="flex gap-1">
@@ -312,24 +334,16 @@ function SidebarFooter({ onNavigate }: { onNavigate?: () => void }) {
           ))}
         </div>
       </div>
-      <div className="text-side-ink/75 flex flex-wrap gap-x-3 gap-y-1 text-xs font-bold">
-        {INFO_LINKS.map((l) => (
-          <Link key={l.href} href={l.href} onClick={onNavigate} className="hover:text-side-ink hover:underline">
-            {l.label}
-          </Link>
-        ))}
-      </div>
-      <div className="border-side-ink/20 flex items-center justify-between gap-2 border-t-2 border-dashed pt-2.5">
-        <span className="text-side-ink/60 text-[11px] font-semibold">© {new Date().getFullYear()} Wadzzo</span>
-        {signedIn && (
-          <button
-            type="button"
-            onClick={() => void signOut({ callbackUrl: "/" })}
-            className="bg-side-ink/10 hover:bg-side-ink hover:text-side flex h-7 items-center gap-1.5 rounded-full px-2.5 text-[11px] font-bold transition-colors"
-          >
-            <LogOut className="size-3" strokeWidth={2.6} /> Sign out
-          </button>
-        )}
+      {/* info pages and the copyright share the last row */}
+      <div className="border-side-ink/20 flex items-center justify-between gap-2 border-t-2 border-dashed pt-2.5 text-[10px] whitespace-nowrap">
+        <div className="text-side-ink/70 flex gap-2 font-semibold">
+          {INFO_LINKS.map((l) => (
+            <Link key={l.href} href={l.href} onClick={onNavigate} className="hover:text-side-ink hover:underline">
+              {l.label}
+            </Link>
+          ))}
+        </div>
+        <span className="text-side-ink/60 font-semibold">© {new Date().getFullYear()} Wadzzo</span>
       </div>
     </div>
   );
@@ -384,8 +398,6 @@ function ThemeSwitch({ vertical = false }: { vertical?: boolean }) {
 /** Everything the app navigates with (the app has no header); the desktop sidebar and the phone drawer both render this. */
 export function SidebarBody({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = usePathname() ?? "";
-  const { signedIn } = useRequireAuth();
-  const account = ACCOUNT.filter((i) => signedIn || !i.authOnly);
 
   return (
     <div className="text-side-ink flex h-full min-h-0 flex-col">
@@ -406,16 +418,7 @@ export function SidebarBody({ onNavigate }: { onNavigate?: () => void }) {
           ))}
         </nav>
 
-        {signedIn && (
-          <div>
-            <p className="marker mb-2 -rotate-2 text-sm">*your stuff*</p>
-            <div className="grid grid-cols-2 gap-2">
-              {account.map((item) => (
-                <ChipLink key={item.href} item={item} active={isActive(pathname, item)} onNavigate={onNavigate} />
-              ))}
-            </div>
-          </div>
-        )}
+        <ArLaunchButton onNavigate={onNavigate} />
 
         <PlayerCard onNavigate={onNavigate} />
       </div>

@@ -546,3 +546,20 @@ body {
   background-color: hsl(162 50% 10%);
   color: hsl(var(--primary));
 }
+
+/* "Go to AR" button: a short wiggle to catch the eye, run three times after load (see ar-launch-button.tsx). */
+@keyframes ar-nudge {
+  0%,
+  100% {
+    transform: none;
+  }
+  25% {
+    transform: rotate(2deg) translateY(-2px);
+  }
+  50% {
+    transform: rotate(-2deg);
+  }
+  75% {
+    transform: rotate(1deg) translateY(-1px);
+  }
+}
