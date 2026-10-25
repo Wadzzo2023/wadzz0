@@ -1,4 +1,4 @@
-import { Asset, Horizon, NotFoundError } from "@stellar/stellar-sdk";
+import { Asset, BadRequestError, Horizon, NotFoundError } from "@stellar/stellar-sdk";
 
 import { BASE_RESERVE_XLM, MAX_SUBENTRIES, PLATFORM_ASSET, STELLAR_URL } from "./constant";
 
@@ -20,12 +20,19 @@ export class StellarAccount {
     readonly raw: Horizon.AccountResponse,
   ) {}
 
-  /** The account, or null when it doesn't exist on-chain yet. */
+  /**
+   * The account, or null when it doesn't exist on-chain yet. An id Horizon rejects as malformed
+   * (400) is treated the same way: no account, rather than a "Bad Request" error on the page.
+   */
   static async load(id: string): Promise<StellarAccount | null> {
     try {
       return new StellarAccount(id, await horizon().loadAccount(id));
     } catch (e) {
       if (e instanceof NotFoundError) return null;
+      if (e instanceof BadRequestError) {
+        console.warn(`[stellar] not a valid account id: ${id.slice(0, 8)}…`);
+        return null;
+      }
       throw e;
     }
   }
