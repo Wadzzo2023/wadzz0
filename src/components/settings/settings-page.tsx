@@ -119,7 +119,7 @@ function ProfileHeader({ me }: { me: Me }) {
               // eslint-disable-next-line @next/next/no-img-element
               <img src={me.coverImage} alt="" className="size-full object-cover" />
             ) : (
-              <div className="flex size-full items-center justify-center bg-primary/20">
+              <div className="ink-cover flex size-full items-center justify-center bg-primary/20">
                 <span className="display select-none text-[8rem] text-primary/25">{me.name ?? "You"}</span>
               </div>
             )}

@@ -33,7 +33,7 @@ export function MobileTabs() {
   return (
     <>
       <nav aria-label="Sections" className="fixed inset-x-3 bottom-[max(0.75rem,var(--safe-bottom))] z-40 md:hidden">
-        <div className="blob mx-auto flex max-w-md items-center gap-1 bg-side p-1.5 text-side-ink shadow-[0_14px_30px_-12px_hsl(0_0%_0%/0.6)]">
+        <div className="side-scope blob mx-auto flex max-w-md items-center gap-1 bg-side p-1.5 text-side-ink shadow-[0_14px_30px_-12px_hsl(0_0%_0%/0.6)]">
           {TABS.map((t) => {
             const active = t === activeTab;
             return (
@@ -61,7 +61,7 @@ export function MobileTabs() {
       </nav>
 
       <Sheet open={drawer} onOpenChange={setDrawer}>
-        <SheetContent side="left" className="flex w-[20rem] max-w-[88vw] flex-col gap-0 border-0 bg-side p-0 pt-[env(safe-area-inset-top)] text-side-ink sm:max-w-[20rem] [&>button:last-child]:text-side-ink">
+        <SheetContent side="left" className="side-scope flex w-[20rem] max-w-[88vw] flex-col gap-0 border-0 bg-side p-0 pt-[env(safe-area-inset-top)] text-side-ink sm:max-w-[20rem] [&>button:last-child]:text-side-ink">
           <SheetTitle className="sr-only">Menu</SheetTitle>
           <SheetDescription className="sr-only">Browse Wadzzo</SheetDescription>
           <SidebarBody onNavigate={() => setDrawer(false)} />

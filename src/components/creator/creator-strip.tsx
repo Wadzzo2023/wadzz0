@@ -24,9 +24,9 @@ export function CreatorStrip({ creators }: { creators: Creator[] }) {
               // eslint-disable-next-line @next/next/no-img-element
               <img src={c.coverUrl} alt="" loading="lazy" className="size-full object-cover transition-transform duration-700 group-hover:scale-110" />
             ) : (
-              <div className="size-full bg-primary/25" />
+              <div className="ink-cover size-full bg-primary/25" />
             )}
-            <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-surface via-surface/20 to-transparent" />
+            {c.coverUrl && <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-surface via-surface/20 to-transparent" />}
             <span className="display absolute left-2 top-2 rounded-md bg-side-ink px-1.5 py-0.5 text-sm text-side">#{idx + 1}</span>
           </div>
           <div className="relative -mt-8 flex flex-col items-center px-3 pb-3 text-center">

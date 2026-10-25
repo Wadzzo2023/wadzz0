@@ -27,7 +27,7 @@ export function PostSidebar({ post, profile, more }: { post: PostData; profile: 
     <aside className="space-y-4 lg:sticky lg:top-8 lg:self-start">
       {/* brand */}
       <section className="glass overflow-hidden rounded-[1.6rem]">
-        <div className="h-20 bg-primary/25">
+        <div className="ink-cover h-20 bg-primary/25">
           {profile.coverUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={profile.coverUrl} alt="" className="size-full object-cover opacity-90" />

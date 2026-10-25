@@ -61,7 +61,7 @@ export default async function CreatorPage({ params }: PageProps<"/creator/[key]"
               // eslint-disable-next-line @next/next/no-img-element
               <img src={profile.coverUrl} alt="" className="size-full object-cover" />
             ) : (
-              <div className="flex size-full items-center justify-center bg-primary/20">
+              <div className="ink-cover flex size-full items-center justify-center bg-primary/20">
                 <span className="display select-none text-[9rem] text-primary/25">{profile.name}</span>
               </div>
             )}

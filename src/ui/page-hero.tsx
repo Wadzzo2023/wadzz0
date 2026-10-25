@@ -5,7 +5,7 @@ import { cn } from "~/lib/utils";
 
 export type HeroStat = { icon: LucideIcon; label: string; value: ReactNode };
 
-const TILE = ["bg-primary text-primary-foreground -rotate-2", "bg-side-mint text-side-ink rotate-1", "bg-pink text-side-ink -rotate-1"];
+const TILE = ["bg-primary text-primary-foreground -rotate-2", "ink-tile bg-side-mint text-side-ink rotate-1", "bg-pink text-side-ink -rotate-1"];
 
 /**
  * A page's opening banner, FC88-style: a marker eyebrow, the title in giant

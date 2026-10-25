@@ -513,7 +513,7 @@ export function DesktopSidebar() {
   const wide = useWide();
   const collapsed = stored || !wide;
   return (
-    <aside className={cn("bg-side sticky top-0 z-40 hidden h-dvh shrink-0 md:block", collapsed ? "w-[5.25rem]" : "w-[19.5rem]")}>
+    <aside className={cn("side-scope bg-side sticky top-0 z-40 hidden h-dvh shrink-0 md:block", collapsed ? "w-[5.25rem]" : "w-[19.5rem]")}>
       {collapsed ? <SidebarRail /> : <SidebarBody />}
       {wide && (
         <button

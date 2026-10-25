@@ -128,7 +128,7 @@ function BalanceHero({ b, onAction }: { b: Balances; onAction: (k: DialogKind) =
     { id: "receive" as const, label: "Receive", icon: ArrowDownToLine, primary: false },
   ];
   return (
-    <section className="blob relative overflow-hidden bg-side p-6 text-side-ink sm:p-8">
+    <section className="side-scope blob relative overflow-hidden bg-side p-6 text-side-ink sm:p-8">
       <Wallet aria-hidden className="absolute -bottom-8 -right-6 size-48 rotate-12 text-side-ink/10" strokeWidth={1.6} />
 
       <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">

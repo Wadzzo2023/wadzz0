@@ -13,10 +13,10 @@ import { Rail, Section } from "~/ui/section";
 export const dynamic = "force-dynamic";
 
 const TYPE_TINT = {
-  IMAGE: "bg-primary text-primary-foreground -rotate-1",
-  VIDEO: "bg-side-mint text-side-ink rotate-1",
-  MUSIC: "bg-pink text-side-ink -rotate-1",
-  THREE_D: "bg-surface-3 text-foreground rotate-1",
+  IMAGE: "ink-tile bg-primary text-primary-foreground -rotate-1",
+  VIDEO: "ink-tile bg-side-mint text-side-ink rotate-1",
+  MUSIC: "ink-tile bg-pink text-side-ink -rotate-1",
+  THREE_D: "ink-tile bg-surface-3 text-foreground rotate-1",
 } as const;
 
 /** Home: featured drops, browse by type, top creators, fresh resales, then every item. */
@@ -44,7 +44,7 @@ export default async function HomePage() {
                 className={`blob group relative flex h-24 items-center justify-between gap-3 overflow-hidden px-5 transition-transform duration-200 hover:rotate-0 hover:scale-[1.03] ${TYPE_TINT[t]}`}
               >
                 <span className="display text-4xl sm:text-5xl">{m.label}</span>
-                <span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-black/85 text-white transition-transform duration-200 group-hover:-rotate-12">
+                <span className="flex size-11 shrink-0 items-center justify-center ink-dot rounded-full bg-black/85 text-white transition-transform duration-200 group-hover:-rotate-12">
                   <m.icon className="size-5" strokeWidth={2.4} />
                 </span>
               </Link>
