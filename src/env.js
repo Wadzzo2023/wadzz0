@@ -16,6 +16,8 @@ export const env = createEnv({
     DATABASE_URL: z.string().url(),
     NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
     NEXTAUTH_SECRET: process.env.NODE_ENV === "production" ? z.string() : z.string().optional(),
+    /** ".wadzzo.com" in production to share the login across subdomains; unset elsewhere. */
+    AUTH_COOKIE_DOMAIN: z.string().regex(/^\.[a-z0-9.-]+$/).optional(),
     NEXTAUTH_URL: z.preprocess((str) => process.env.VERCEL_URL ?? str, process.env.VERCEL ? z.string() : z.string().url()),
     STORAGE_SECRET: z.string(),
     MOTHER_SECRET: z.string(),
@@ -54,6 +56,7 @@ export const env = createEnv({
     NODE_ENV: process.env.NODE_ENV,
     NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET,
     NEXTAUTH_URL: process.env.NEXTAUTH_URL,
+    AUTH_COOKIE_DOMAIN: process.env.AUTH_COOKIE_DOMAIN,
     STORAGE_SECRET: process.env.STORAGE_SECRET,
     MOTHER_SECRET: process.env.MOTHER_SECRET,
     RUBY_ACCOUNTS_SECRET: process.env.RUBY_ACCOUNTS_SECRET,
