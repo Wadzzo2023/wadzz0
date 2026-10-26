@@ -415,7 +415,9 @@ export function SidebarBody({ onNavigate }: { onNavigate?: () => void }) {
       </div>
 
       {/* scrolling body */}
-      <div className="no-scrollbar border-side-ink/20 min-h-0 flex-1 space-y-5 overflow-y-auto overscroll-contain border-y-2 border-dashed px-5 py-5">
+
+      {/* `relative` keeps absolute children (sr-only labels) inside the scroll area; without it they stretch the page and the sidebar scrolls away with it */}
+      <div className="no-scrollbar border-side-ink/20 relative min-h-0 flex-1 space-y-5 overflow-y-auto overscroll-contain border-y-2 border-dashed px-5 py-5">
         <nav aria-label="Sections">
           {EXPLORE.map((item, i) => (
             <div key={item.href}>
