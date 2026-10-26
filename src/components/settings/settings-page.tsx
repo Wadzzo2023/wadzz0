@@ -1,6 +1,6 @@
 "use client";
 
-import { Camera, Check, Copy, LogOut, Monitor, Moon, Settings, Sun, type LucideIcon } from "lucide-react";
+import { Camera, Check, Contrast, Copy, LogOut, Monitor, Moon, Settings, Sun, type LucideIcon } from "lucide-react";
 import { signOut } from "next-auth/react";
 import { useTheme } from "next-themes";
 import { useRef, useState, type FormEvent } from "react";
@@ -25,6 +25,7 @@ const BIO_MAX = 200;
 const THEMES: { id: string; label: string; icon: LucideIcon }[] = [
   { id: "light", label: "Light", icon: Sun },
   { id: "dark", label: "Dark", icon: Moon },
+  { id: "contrast", label: "High contrast", icon: Contrast },
   { id: "system", label: "System", icon: Monitor },
 ];
 
@@ -209,7 +210,7 @@ function AppearanceCard() {
   return (
     <section className="glass space-y-3 rounded-[1.4rem] p-5">
       <h2 className="display text-3xl">Appearance</h2>
-      <div className="grid grid-cols-3 gap-2" role="radiogroup" aria-label="Theme">
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-4" role="radiogroup" aria-label="Theme">
         {THEMES.map((t) => (
           <button
             key={t.id}

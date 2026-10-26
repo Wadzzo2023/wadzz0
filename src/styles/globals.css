@@ -3,8 +3,9 @@
 
 @plugin "@tailwindcss/typography";
 
-/* Class-based dark mode (next-themes puts `.dark` on <html>). */
-@custom-variant dark (&:is(.dark *));
+/* Class-based themes (next-themes puts `.light`, `.dark` or `.contrast` on <html>).
+   Both dark themes count as dark for `dark:` utilities. */
+@custom-variant dark (&:is(.dark *, .contrast *));
 
 /* ═══════════════════════════════════════════════════════════════════════════
    Wadzzo tokens, FC88-style: a solid Wadzzo-green sidebar with deep "ink"
@@ -89,7 +90,52 @@
 }
 
 .dark {
-  /* FC88 dark: flat warm charcoal, pale-mint type, Wadzzo green. */
+  /* Dark (the default): the logo's green (#7EC34E) on deep green-black, with
+     green-tinted cards and pale-green type. */
+  --ar-void: 100 30% 4.5%;
+  --ar-bg: 100 24% 7%;
+  --ar-surface: 100 19% 10.5%;
+  --ar-surface-2: 100 17% 13.5%;
+  --ar-surface-3: 100 15% 17%;
+  --ar-line: 100 14% 18%;
+  --ar-line-bright: 98 13% 29%;
+
+  --ar-text: 90 40% 92%;
+  --ar-text-dim: 95 14% 70%;
+  --ar-text-faint: 98 9% 50%;
+
+  --ar-green: 96 49% 54%;
+  --ar-green-hot: 96 56% 62%;
+  --primary-text: 96 55% 60%;
+  --ar-green-deep: 100 50% 26%;
+  --ar-green-ink: 110 60% 8%;
+
+  /* the sidebar is the logo's green slab with deep green type */
+  --side-bg: 96 49% 54%;
+  --side-ink: 110 60% 9%;
+  --side-mint: 96 45% 84%;
+
+  --rarity-common: 95 8% 62%;
+  --rarity-rare: 192 88% 56%;
+  --rarity-epic: 272 82% 66%;
+  --rarity-legendary: 42 96% 56%;
+  --rarity-mythic: 320 90% 64%;
+
+  --ar-danger: 4 90% 66%;
+  --ar-warning: 40 95% 58%;
+  --ar-info: 170 70% 58%;
+  --ar-locked: 100 6% 48%;
+
+  --ar-cyan: 165 70% 60%;
+  --ar-violet: 4 100% 74%;
+  --ar-pink: 4 100% 74%;
+
+  --destructive-foreground: 0 0% 100%;
+}
+
+.contrast {
+  /* High contrast (the original FC88 dark): flat warm charcoal, pale-mint
+     type, bright Wadzzo green. */
   --ar-void: 150 6% 8%;
   --ar-bg: 150 5% 11%;
   --ar-surface: 150 5% 14.5%;
@@ -214,7 +260,8 @@
     font-synthesis-weight: none;
     -webkit-tap-highlight-color: transparent;
   }
-  html.dark {
+  html.dark,
+  html.contrast {
     color-scheme: dark;
   }
 
@@ -515,7 +562,7 @@ body {
    mode uses a deeper green for text only (buttons/stickers keep the bright one).
    Areas that are always dark (heroes, the ink cards) opt back in with .on-dark. */
 @layer utilities {
-  :root:not(.dark) .text-primary:not(.on-dark .text-primary) {
+  :root:not(.dark, .contrast) .text-primary:not(.on-dark .text-primary) {
     color: hsl(var(--primary-text));
   }
 }
@@ -524,7 +571,7 @@ body {
    balance, info-page headers) turn dark ink with pale chips and lime accents,
    instead of a full lime slab on white paper. Dark mode keeps the lime sidebar.
    (side = block background, side-ink = chips/text on it, side-mint = active/accent pieces) */
-:root:not(.dark) .side-scope {
+:root:not(.dark, .contrast) .side-scope {
   --side-bg: 162 50% 10%;
   --side-ink: 90 30% 93%;
   --side-mint: 162 42% 20%;
@@ -534,15 +581,15 @@ body {
    dark ink with lime details, echoing the sidebar. Dark mode is untouched.
    .ink-tile = a coloured tile/sticker; .ink-dot = its icon circle;
    .ink-cover = an empty cover/banner placeholder. */
-:root:not(.dark) .ink-tile {
+:root:not(.dark, .contrast) .ink-tile {
   background-color: hsl(162 50% 10%);
   color: hsl(90 30% 93%);
 }
-:root:not(.dark) .ink-tile .ink-dot {
+:root:not(.dark, .contrast) .ink-tile .ink-dot {
   background-color: hsl(var(--primary));
   color: hsl(162 50% 10%);
 }
-:root:not(.dark) .ink-cover {
+:root:not(.dark, .contrast) .ink-cover {
   background-color: hsl(162 50% 10%);
   color: hsl(var(--primary));
 }
